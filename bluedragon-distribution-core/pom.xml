@@ -1916,6 +1916,11 @@
 			<artifactId>ql-basic-facade</artifactId>
 			<version>2.0.12-online-SNAPSHOT</version>
 		</dependency>
+        <dependency>
+            <groupId>com.jdl.jy.flat</groupId>
+            <artifactId>flat-service-sdk</artifactId>
+            <version>1.0.0-TEST-LLT-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

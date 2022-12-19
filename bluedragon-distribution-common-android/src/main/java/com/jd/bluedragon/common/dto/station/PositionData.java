@@ -81,6 +81,11 @@ public class PositionData implements Serializable {
      */
     private String defaultMenuCode;
 
+	/**
+	 * 默认功能名称
+	 */
+	private String defaultMenuCodeName;
+
 	public Long getId() {
 		return id;
 	}

@@ -209,6 +209,13 @@
 				<version>${workbench.services.sdk.version}</version>
 			</dependency>
 
+			<!--拣运扁平化service-->
+			<dependency>
+				<groupId>com.jdl.jy.flat</groupId>
+				<artifactId>flat-service-sdk</artifactId>
+				<version>1.0.0-TEST-SNAPSHOT</version>
+			</dependency>
+
 			<!--京东数据库加密安全包-->
 			<dependency>
 				<groupId>com.jd.security</groupId>
