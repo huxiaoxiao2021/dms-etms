@@ -195,4 +195,13 @@ public class DefaultJMQProducer {
             com.jd.jmq.client.producer.MessageProducer jmqProducer) {
         this.jmqProducer = jmqProducer;
     }
+
+	public TaskService getTaskService() {
+		return taskService;
+	}
+
+	public void setTaskService(TaskService taskService) {
+		this.taskService = taskService;
+	}
+    
 }
