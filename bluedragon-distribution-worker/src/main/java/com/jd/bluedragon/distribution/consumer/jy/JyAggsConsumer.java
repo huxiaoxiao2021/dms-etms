@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service("jyAggsConsumer")
-public class JyAggsConsumer extends MessageBaseConsumer {
+public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyAggsConsumer.class);
 
     @Override
