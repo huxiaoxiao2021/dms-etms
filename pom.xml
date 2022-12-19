@@ -373,7 +373,7 @@
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-geojson</artifactId>
-                <version>17.0</version>
+                <version>19.4</version>
             </dependency>
 		</dependencies>
 	</dependencyManagement>
