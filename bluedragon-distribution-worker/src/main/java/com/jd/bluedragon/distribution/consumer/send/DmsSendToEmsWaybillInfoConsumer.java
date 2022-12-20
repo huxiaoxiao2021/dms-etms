@@ -162,11 +162,14 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	request.setSenderRegionCode(getSenderRegionCode(sendDataMq));
     	request.setReceiverRegionCode(getReceiverRegionCode(sendDataMq));
     	
-    	log.info("分拣发邮政运单信息request:{}",JsonHelper.toJson(request));
+    	log.info("分拣发邮政-推送运单信息：request=:{}",JsonHelper.toJson(request));
     	WaybillInfoResponse waybillResponse= emsWaybillInfoManager.doRestInterface(request);
-    	log.info("分拣发邮政运单信息response:{}",JsonHelper.toJson(waybillResponse));
+    	log.info("分拣发邮政-推送运单信息response:{}",JsonHelper.toJson(waybillResponse));
     	if(waybillResponse != null && waybillResponse.checkSucceed()) {
+    		log.info("分拣发邮政-推送运单信息成功:pacakgeCode={}",sendDataMq.getPackageBarcode());
     		return true;
+    	}else {
+    		log.warn("分拣发邮政-推送运单信息失败:pacakgeCode={},rest={}",sendDataMq.getPackageBarcode(),JsonHelper.toJson(waybillResponse));
     	}
     	return false;
     }
@@ -255,8 +258,10 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
 		param.setOperatorName(sendDataMq.getOperatorName());
     	list.add(param);
     	JdResult<List<ReceiptStateParameter>> eclpResult = thirdJsfInterfaceManager.partnerReceiptState(list);
-    	if(!eclpResult.isSucceed()) {
-    		log.warn("分拣发邮政通知eclp失败:{}",JsonHelper.toJson(eclpResult));
+    	if(eclpResult ==null || !eclpResult.isSucceed()) {
+    		log.warn("分拣发邮政-通知3pl失败:pacakgeCode={},rest={}",sendDataMq.getPackageBarcode(),JsonHelper.toJson(eclpResult));
+    	}else {
+    		log.info("分拣发邮政-通知3pl成功:pacakgeCode={}",sendDataMq.getPackageBarcode());
     	}
     }
     /**
@@ -267,7 +272,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	
     	BaseEntity<List<PackageState>> traceData = waybillTraceManager.getPkStateByPCode(sendDataMq.getPackageBarcode());
     	if(traceData == null || CollectionUtils.isEmpty(traceData.getData())) {
-    		log.warn("包裹号{}全程跟踪为空，不发送邮政:",sendDataMq.getPackageBarcode());
+    		log.warn("分拣发邮政-推送全程跟踪,全程跟踪为空不发送!pacakgeCode={}",sendDataMq.getPackageBarcode());
     		return;
     	}
     	TracesCompanyRequest request = new TracesCompanyRequest();
@@ -278,9 +283,14 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		}
     	}
     	request.setTraces(traces);
-    	log.info("分拣发邮政全程跟踪信息request:{}",JsonHelper.toJson(request));
+    	log.info("分拣发邮政-推送全程跟踪request:{}",JsonHelper.toJson(request));
     	TracesCompanyResponse tracesResponse= emsTracesCompanyManager.doRestInterface(request);
-    	log.info("分拣发邮政全程跟踪信息response:{}",JsonHelper.toJson(tracesResponse));
+    	log.info("分拣发邮政-推送全程跟踪response:{}",JsonHelper.toJson(tracesResponse));
+    	if(tracesResponse == null || !tracesResponse.checkSucceed()) {
+    		log.warn("分拣发邮政-推送全程跟踪失败:pacakgeCode={},rest={}",sendDataMq.getPackageBarcode(),JsonHelper.toJson(tracesResponse));
+    	}else {
+    		log.info("分拣发邮政-推送全程跟踪成功:pacakgeCode={}",sendDataMq.getPackageBarcode());
+    	}
     }
     /**
      * 转换成外部全程跟踪对象
