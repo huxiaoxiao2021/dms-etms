@@ -268,7 +268,7 @@ public class JYCenterServiceImpl implements JYCenterService {
     public InvokeResult<Boolean> batchSendWithPage(BatchSendPageRequest batchSendPageRequest) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
-        if (null == batchSendPageRequest || CollectionUtils.isEmpty(batchSendPageRequest.getLoadTaskDetail())) {
+        if (null == batchSendPageRequest || CollectionUtils.isEmpty(batchSendPageRequest.getCargoNoList())) {
             result.parameterError("缺少货物明细信息");
             return result;
         }
@@ -299,7 +299,7 @@ public class JYCenterServiceImpl implements JYCenterService {
             return result;
         }
 
-        List<List<CargoOperateInfo>> lists = Lists.partition(batchSendPageRequest.getLoadTaskDetail(), 10);
+        List<List<CargoOperateInfo>> lists = Lists.partition(batchSendPageRequest.getCargoNoList(), 10);
 
         for (List<CargoOperateInfo> list : lists) {
             List<Task> tasks = new ArrayList<>();
