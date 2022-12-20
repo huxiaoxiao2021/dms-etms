@@ -27,6 +27,11 @@ public class JyBaseScoreCalcuDetailDTO {
     private BigDecimal quantity;
 
     /*
+     * 分数
+     */
+    private BigDecimal score;
+
+    /*
      * 下一阶段差值
      */
     private BigDecimal toNextQuantity;
@@ -113,5 +118,13 @@ public class JyBaseScoreCalcuDetailDTO {
 
     public void setRuleDTOList(List<JyBaseScoreRuleDTO> ruleDTOList) {
         this.ruleDTOList = ruleDTOList;
+    }
+
+    public BigDecimal getScore() {
+        return score;
+    }
+
+    public void setScore(BigDecimal score) {
+        this.score = score;
     }
 }
