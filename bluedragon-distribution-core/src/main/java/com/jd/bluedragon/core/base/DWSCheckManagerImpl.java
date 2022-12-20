@@ -3,7 +3,11 @@ package com.jd.bluedragon.core.base;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetail;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -60,5 +65,24 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return isAccurate;
+    }
+
+    public DwsCheckResponse getLastDwsCheckByTime(DWSCheckRequest checkRequest){
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DWSCheckManager.getLastDwsCheckByTime",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        List<DwsWeightVolumeCalibrateDetail> detailList;
+        try {
+            BaseDmsAutoJsfResponse<DwsCheckResponse> response = dmsCheckJsfService.getLastDwsCheckByTime(checkRequest);
+
+            if (response != null && response.getData() != null) {
+                return response.getData();
+            }
+        }catch (Exception e){
+            logger.error("查询校验细节异常，入参{}", checkRequest, e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
     }
 }

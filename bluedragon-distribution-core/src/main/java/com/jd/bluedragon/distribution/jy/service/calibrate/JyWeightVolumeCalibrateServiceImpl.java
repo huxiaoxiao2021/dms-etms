@@ -2,6 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
@@ -10,6 +16,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolum
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.HrUserManager;
+import com.jd.bluedragon.common.dto.operation.workbench.calibrate.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
@@ -31,6 +41,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -319,9 +332,58 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
 
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request) {
-        // todo
+        InvokeResult result = new InvokeResult();
+        DwsWeightVolumeCalibrateDetailResult detailResult = new DwsWeightVolumeCalibrateDetailResult();
+        if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null || request.getCalibrateTaskEndTime() == null) {
+            logger.error("查询设备校验细节出错，入参{}", request);
+            result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
+            return result;
+        }
+        DWSCheckRequest checkRequest = new DWSCheckRequest();
+        checkRequest.setMachineCode(request.getMachineCode());
+        checkRequest.setQueryStartTime(request.getCalibrateTaskStartTime().getTime());
+        checkRequest.setQueryEndTime(request.getCalibrateTaskEndTime().getTime());
+        DwsCheckResponse response = dwsCheckManager.getLastDwsCheckByTime(checkRequest);
+        if (response == null){
+            result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
+            logger.error("自动化接口调用response为空，入参{}", checkRequest);
+            return result;
+        }
+        List<DwsWeightVolumeCalibrateDetail> detailList = new ArrayList<>();
+        if (response.getDetailList() != null) {
+            for (DwsCheckRecord record : response.getDetailList()) {
+                DwsWeightVolumeCalibrateDetail detail = new DwsWeightVolumeCalibrateDetail();
+                detail.setCalibrateType(record.getCalibrateType());
+                detail.setMachineCode(record.getMachineCode());
+                detail.setFarmarCode(record.getFarmarCode());
+                detail.setFarmarWeight(record.getFarmarWeight());
+                detail.setFarmarLength(record.getFarmarLength());
+                detail.setFarmarWidth(record.getFarmarWidth());
+                detail.setFarmarHigh(record.getFarmarHigh());
+                detail.setActualWeight(record.getActualWeight());
+                detail.setActualLength(record.getActualLength());
+                detail.setActualWidth(record.getActualWidth());
+                detail.setActualHigh(record.getActualHigh());
+                detail.setCalibrateStatus(record.getCalibrateStatus());
+                detail.setCalibrateTime(detail.getCalibrateTime());
+                detail.setErrorRange(record.getErrorRange());
+                detailList.add(detail);
+            }
+        }
+        detailResult.setDetailList(detailList);
+        detailResult.setPreviousMachineEligibleTime(new Date(response.getPreviousMachineEligibleTime()));
+        detailResult.setMachineCode(request.getMachineCode());
 
-        return null;
+        JyBizTaskMachineCalibrateQuery query = new JyBizTaskMachineCalibrateQuery();
+        query.setMachineCode(request.getMachineCode());
+        query.setTaskCreateTime(request.getCalibrateTaskStartTime());
+        query.setTaskEndTime(request.getCalibrateTaskEndTime());
+        JyBizTaskMachineCalibrateDetailEntity entity = jyBizTaskMachineCalibrateDetailService.queryTaskDetail(query);
+        detailResult.setMachineStatus(entity.getMachineStatus());
+        detailResult.setCalibrateFinishTime(entity.getCalibrateFinishTime());
+        detailResult.setTaskCreateTime(entity.getTaskCreateTime());
+        detailResult.setTaskEndTime(entity.getTaskEndTime());
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

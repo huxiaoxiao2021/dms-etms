@@ -82,4 +82,6 @@ public interface JyBizTaskMachineCalibrateDetailService {
      * @param status
      */
     void batchUpdateStatus(List<Long> ids, Integer status);
+
+    JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query);
 }
