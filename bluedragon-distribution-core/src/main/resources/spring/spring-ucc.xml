@@ -169,7 +169,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
-        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:'80,150'}" />
+        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
@@ -200,6 +200,8 @@
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
+		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
+		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -380,7 +382,8 @@
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
-
+				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
+				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

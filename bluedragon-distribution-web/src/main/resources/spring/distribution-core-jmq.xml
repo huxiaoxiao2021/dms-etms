@@ -683,4 +683,15 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!-- 设备位置信息上传消息 -->
+    <bean id="dmsUploadDeviceLocationProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocation}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!-- 设备操作位置异常上传消息 -->
+    <bean id="dmsUploadDeviceLocationExceptionOpProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
 </beans>

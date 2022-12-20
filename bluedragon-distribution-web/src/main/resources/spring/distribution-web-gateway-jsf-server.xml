@@ -537,4 +537,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 设备位置上报接口 -->
+    <bean id="jsfDeviceLocationGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceLocationGatewayServiceImpl" />
+    <jsf:provider id="jsfDeviceLocationGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DeviceLocationGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jsfDeviceLocationGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
