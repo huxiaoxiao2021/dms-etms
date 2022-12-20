@@ -1076,6 +1076,11 @@
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- 货量预测 -->
+    <jsf:consumer id="iPackagePredictAggsJsfService" interface="com.jdl.jy.realtime.api.predict.IPackagePredictAggsJsfService"
+                  protocol="jsf" alias="${jsf.jy.realtime.service.alias}" timeout="${jsf.jy.realtime.service.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!-- IT基础区域数据 -->
     <jsf:consumer id="itBasicRegionApi"
                   interface="com.jdl.basic.api.service.itBasic.ItBasicRegionApi"

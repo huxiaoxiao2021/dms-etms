@@ -518,6 +518,16 @@
                   ref="tMSCarTaskGateWayServiceImpl"
                   server="dmsjsf" />
 
+    <!-- 货量预测  -->
+    <bean id="pkgPredictGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.PkgPredictGateWayServiceImpl" />
+    <jsf:provider id="pkgPredictGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="pkgPredictGateWayServiceImpl"
+                  server="dmsjsf" />
+
+
+
     <!-- 作业app异常岗 -->
     <bean id="jyExceptionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyExceptionGatewayServiceImpl" />
     <jsf:provider id="jsfJyExceptionGatewayService"
