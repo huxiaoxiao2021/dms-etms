@@ -140,12 +140,9 @@ public abstract class AbstractPostalCrossbowManager<P,R> extends AbstractCrossbo
 			sf.append(strVal);
 		}
 		sf.append(secret);
-		log.info("序列化报文："+sf.toString());
 		String md5Str = HmacUtil.MD5(sf.toString()).toUpperCase();
-		log.info("MD5报文：{}",md5Str);
 		try {
 			String base64Str = new Base64().encodeToString(md5Str.getBytes("UTF-8"));
-			log.info("base64报文：{}",base64Str);
 			headerParams.put("sign",base64Str);
 			headerParams.put("content-type","application/json");
 		} catch (UnsupportedEncodingException e) {
