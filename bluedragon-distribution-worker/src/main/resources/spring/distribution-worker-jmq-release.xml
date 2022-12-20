@@ -485,5 +485,9 @@
         <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" listener="dmsUploadDeviceLocationExceptionOpConsumer"/>
     </jmq:consumer>
 
+    <!--  jy转运卸车任务板关系创建消费 -->
+    <jmq:consumer id="jmq.jyUnloadTaskBoardRelationGenerateConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.task.board.relation}" listener="jyUnloadTaskBoardRelationGenerateConsume"/>
+    </jmq:consumer>
 </beans>
 

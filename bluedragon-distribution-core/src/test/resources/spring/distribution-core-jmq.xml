@@ -681,4 +681,11 @@
         <property name="topic" value="${jmq.topic.barcode.trace}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--  拣运转运卸车任务板关系同步  -->
+    <bean id="jyTysTaskBoardRelationGenerate" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.unload.task.board.relation}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
 </beans>
