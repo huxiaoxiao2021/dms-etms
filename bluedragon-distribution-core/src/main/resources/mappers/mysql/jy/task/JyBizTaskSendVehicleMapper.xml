@@ -619,7 +619,9 @@
         AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        <if test="entity.transferFlag!=null and entity.transferFlag ==2">
         AND d.excep_label =0
+        </if>
         <if test="entity.endSiteId != null">
             AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         </if>

@@ -648,4 +648,13 @@ public class DateHelper {
         c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
     }
+
+    public static Date parse(String date, String format) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return sdf.parse(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

@@ -1144,7 +1144,7 @@
         <dependency>
             <groupId>com.jd.etms.vrs</groupId>
             <artifactId>etms-vrs-api</artifactId>
-            <version>1.2.10-SNAPSHOT</version>
+            <version>1.4.13-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
@@ -1776,6 +1776,12 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>dms-workbench-utils-sdk</artifactId>
+					<groupId>com.jd.dms.wb</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 分拣自动化总部任务服务-->
 		<dependency>
@@ -1908,9 +1914,13 @@
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
+			<version>1.4.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jdl.basic</groupId>
+			<artifactId>jy-basic-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-facade</artifactId>

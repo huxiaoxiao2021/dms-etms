@@ -19,6 +19,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+
+    /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
+    private boolean enableGoodsAreaOfTysScan;
+
     private boolean offlineLogGlobalSwitch;
 
     private boolean systemLogGlobalSwitch;
@@ -511,6 +515,12 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -525,6 +535,14 @@ public class UccPropertyConfiguration {
 
     public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
         this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
+
+    public boolean getEnableGoodsAreaOfTysScan() {
+        return enableGoodsAreaOfTysScan;
+    }
+
+    public void setEnableGoodsAreaOfTysScan(boolean enableGoodsAreaOfTysScan) {
+        this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
     }
 
     public String getBusinessLogQueryPageSwitch() {
@@ -820,7 +838,7 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
-    
+
     /**
      * 自动签退查询数据-扫描小时数
      */
@@ -2277,4 +2295,13 @@ public class UccPropertyConfiguration {
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
     }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
+    }
+
 }
