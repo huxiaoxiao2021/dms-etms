@@ -344,6 +344,16 @@ public class DmsConstants {
     public static final String ORDER_TYPE_REVERSE = "20";
 
     /**
+     * 抖音来源标识
+     */
+    public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
+    
+    /**
+     * 运单前缀-抖音-JDAZ
+     */
+    public static final String WAYBILL_CODE_PRE_DOUYIN  = "JDAZ";
+
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {
