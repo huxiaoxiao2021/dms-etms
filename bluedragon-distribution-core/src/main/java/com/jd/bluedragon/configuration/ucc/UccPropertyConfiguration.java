@@ -15,17 +15,6 @@ import java.util.*;
  */
 public class UccPropertyConfiguration {
 
-
-    private Boolean dataReadSwitch;
-
-    public Boolean getDataReadSwitch() {
-        return dataReadSwitch;
-    }
-
-    public void setDataReadSwitch(Boolean dataReadSwitch) {
-        this.dataReadSwitch = dataReadSwitch;
-    }
-
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
 
@@ -716,6 +705,17 @@ public class UccPropertyConfiguration {
      * true：导出敏感数据
      */
     private boolean querySensitiveFlag;
+
+
+    private Boolean jySendAggsDataReadSwitch;
+
+    public Boolean getJySendAggsDataReadSwitch() {
+        return jySendAggsDataReadSwitch;
+    }
+
+    public void setJySendAggsDataReadSwitch(Boolean jySendAggsDataReadSwitch) {
+        this.jySendAggsDataReadSwitch = jySendAggsDataReadSwitch;
+    }
 
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;

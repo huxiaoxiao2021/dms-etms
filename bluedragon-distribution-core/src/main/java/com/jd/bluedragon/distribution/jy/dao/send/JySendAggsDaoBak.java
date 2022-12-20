@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.JySendAggsDaoInterface;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 
 import java.util.List;
@@ -13,9 +12,9 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public class JySendAggsDao2 extends BaseDao<JySendAggsEntity> implements JySendAggsDaoInterface {
+public class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
 
-    private final static String NAMESPACE = JySendAggsDao2.class.getName();
+    private final static String NAMESPACE = JySendAggsDaoBak.class.getName();
 
     /**
      * 新增

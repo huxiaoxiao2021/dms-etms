@@ -24,5 +24,9 @@ public interface JySendAggsService {
 
     //插入或修改
     int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity);
+
+    //插入或修改
+    int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity);
 }
+
 

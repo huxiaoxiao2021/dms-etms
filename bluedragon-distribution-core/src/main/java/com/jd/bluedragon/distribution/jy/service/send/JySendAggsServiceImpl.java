@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.distribution.jy.JySendAggsDaoInterface;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao2;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     JySendAggsDao jySendAggsDao;
 
     @Autowired
-    JySendAggsDao2 jySendAggsDao2;
+    JySendAggsDaoBak jySendAggsDaoBak;
 
 
     @Override
@@ -39,9 +39,13 @@ public class JySendAggsServiceImpl implements JySendAggsService {
         return jySendAggsDao.insertOrUpdate(entity);
     }
 
-    private JySendAggsDaoInterface getJySendAggsDao(){
-        if (configuration.getDataReadSwitch()){
-            return jySendAggsDao2;
+    @Override
+    public int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
+        return jySendAggsDaoBak.insertOrUpdate(entity);
+    }
+    private JySendAggsDaoStrategy getJySendAggsDao(){
+        if (configuration.getJySendAggsDataReadSwitch()){
+            return jySendAggsDaoBak;
         }else {
             return jySendAggsDao;
         }

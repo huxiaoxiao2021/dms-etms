@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy;
+package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 
@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2022/12/12 19:52
- * @Description:
+ * @Description: 拣运JySendAggsDao策略接口
  */
-public interface JySendAggsDaoInterface {
+public interface JySendAggsDaoStrategy {
 
     /**
      * 新增
