@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.encryptIdCard;
@@ -24,9 +25,14 @@ public class JyComboardServiceImpl implements JyComboardService {
 
     @Override
     public List<User> queryUserByStartSiteCode(JyComboardEntity entity) {
-        List<User> users = jyComboardDao.queryUserByStartSiteCode(entity);
-        hideInfo(users);
-        return users;
+        try {
+            List<User> users = jyComboardDao.queryUserByStartSiteCode(entity);
+            hideInfo(users);
+            return users;
+        }catch (Exception e) {
+            return new ArrayList<>();
+        }
+        
     }
 
     private void hideInfo(List<User> userList) {
