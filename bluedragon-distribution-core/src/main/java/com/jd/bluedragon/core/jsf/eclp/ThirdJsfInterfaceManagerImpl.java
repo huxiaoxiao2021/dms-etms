@@ -20,7 +20,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 /**
  * 
  * @ClassName: ThirdJsfInterfaceManagerImpl
- * @Description: 调用eclp三方状态回传
+ * @Description: 调用3pl三方状态回传
  * @author: wuyoude
  * @date: 2022年12月1日 下午2:37:26
  *
@@ -28,7 +28,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 @Service("thirdJsfInterfaceManager")
 public class ThirdJsfInterfaceManagerImpl implements ThirdJsfInterfaceManager{
     private static final Logger log = LoggerFactory.getLogger(ThirdJsfInterfaceManagerImpl.class);
-    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.eclp.thirdJsfInterface.";
+    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.3pl.thirdJsfInterface.";
     
     @Autowired
     @Qualifier("thirdJsfInterface")
@@ -40,23 +40,23 @@ public class ThirdJsfInterfaceManagerImpl implements ThirdJsfInterfaceManager{
 		JdResult<List<ReceiptStateParameter>> result = new JdResult<List<ReceiptStateParameter>>();
 		try {
 			if(log.isInfoEnabled()){
-				log.info("三方状态回传eclp-request："+JsonHelper.toJson(list));
+				log.info("三方状态回传3pl-request："+JsonHelper.toJson(list));
 			}
 			List<ReceiptStateParameter>  rpcResult = thirdJsfInterface.partnerReceiptState(list);
 			if(log.isInfoEnabled()){
-				log.info("三方状态回传eclp-response："+JsonHelper.toJson(rpcResult));
+				log.info("三方状态回传3pl-response："+JsonHelper.toJson(rpcResult));
 			}
 			if(rpcResult == null
 					|| CollectionUtils.isEmpty(rpcResult)){
 				result.toSuccess();
 			}else{
-				log.warn("调用eclp通用站内信创建接口失败！return:{}",JsonHelper.toJson(rpcResult));
-				result.toFail("三方状态回传eclp接口失败！");
+				log.warn("三方状态回传3pl接口失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("三方状态回传3pl接口失败！");
 				result.setData(rpcResult);
 			}
 		} catch (Exception e) {
-			log.error("三方状态回传eclp接口异常！",e);
-			result.toError("三方状态回传eclp接口异常！");
+			log.error("三方状态回传3pl接口异常！",e);
+			result.toError("三方状态回传3pl接口异常！");
 			Profiler.functionError(callerInfo);
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
