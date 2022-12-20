@@ -284,6 +284,11 @@
 				<artifactId>jy-basic-api</artifactId>
 				<version>1.4.1-SNAPSHOT</version>
 			</dependency>
+			<dependency>
+				<groupId>com.jdl.basic</groupId>
+				<artifactId>jy-basic-common</artifactId>
+				<version>1.0-SNAPSHOT</version>
+			</dependency>
             <dependency>
                 <groupId>com.jdl.jy.realtime</groupId>
                 <artifactId>realtime-service-sdk</artifactId>
