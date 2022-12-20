@@ -74,6 +74,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Autowired
     private HrUserManager hrUserManager;
 
+    @Autowired
+    @Qualifier("dwsCheckManager")
+    private DWSCheckManager dwsCheckManager;
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateTaskResult> machineCalibrateScan(DwsWeightVolumeCalibrateRequest request) {
@@ -341,8 +345,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         DWSCheckRequest checkRequest = new DWSCheckRequest();
         checkRequest.setMachineCode(request.getMachineCode());
-        checkRequest.setQueryStartTime(request.getCalibrateTaskStartTime().getTime());
-        checkRequest.setQueryEndTime(request.getCalibrateTaskEndTime().getTime());
+        checkRequest.setQueryStartTime(request.getCalibrateTaskStartTime());
+        checkRequest.setQueryEndTime(request.getCalibrateTaskEndTime());
         DwsCheckResponse response = dwsCheckManager.getLastDwsCheckByTime(checkRequest);
         if (response == null){
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
@@ -351,38 +355,41 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         List<DwsWeightVolumeCalibrateDetail> detailList = new ArrayList<>();
         if (response.getDetailList() != null) {
+            Long calibrateFishTime = Long.MIN_VALUE;
             for (DwsCheckRecord record : response.getDetailList()) {
                 DwsWeightVolumeCalibrateDetail detail = new DwsWeightVolumeCalibrateDetail();
                 detail.setCalibrateType(record.getCalibrateType());
                 detail.setMachineCode(record.getMachineCode());
                 detail.setFarmarCode(record.getFarmarCode());
-                detail.setFarmarWeight(record.getFarmarWeight());
-                detail.setFarmarLength(record.getFarmarLength());
-                detail.setFarmarWidth(record.getFarmarWidth());
-                detail.setFarmarHigh(record.getFarmarHigh());
-                detail.setActualWeight(record.getActualWeight());
-                detail.setActualLength(record.getActualLength());
-                detail.setActualWidth(record.getActualWidth());
-                detail.setActualHigh(record.getActualHigh());
+                detail.setFarmarWeight(String.valueOf(record.getFarmarWeight()));
+                detail.setFarmarLength(String.valueOf(record.getFarmarLength()));
+                detail.setFarmarWidth(String.valueOf(record.getFarmarWidth()));
+                detail.setFarmarHigh(String.valueOf(record.getFarmarHigh()));
+                detail.setActualWeight(String.valueOf(record.getActualWeight()));
+                detail.setActualLength(String.valueOf(record.getActualLength()));
+                detail.setActualWidth(String.valueOf(record.getActualWidth()));
+                detail.setActualHigh(String.valueOf(record.getActualHigh()));
                 detail.setCalibrateStatus(record.getCalibrateStatus());
                 detail.setCalibrateTime(detail.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
+
+                calibrateFishTime = Math.max(calibrateFishTime, detail.getCalibrateTime());
             }
+            detailResult.setCalibrateFinishTime(calibrateFishTime);
         }
         detailResult.setDetailList(detailList);
-        detailResult.setPreviousMachineEligibleTime(new Date(response.getPreviousMachineEligibleTime()));
+        detailResult.setPreviousMachineEligibleTime(response.getPreviousMachineEligibleTime());
         detailResult.setMachineCode(request.getMachineCode());
+        detailResult.setMachineStatus(response.getMachineStatus());
 
         JyBizTaskMachineCalibrateQuery query = new JyBizTaskMachineCalibrateQuery();
         query.setMachineCode(request.getMachineCode());
-        query.setTaskCreateTime(request.getCalibrateTaskStartTime());
-        query.setTaskEndTime(request.getCalibrateTaskEndTime());
-        JyBizTaskMachineCalibrateDetailEntity entity = jyBizTaskMachineCalibrateDetailService.queryTaskDetail(query);
-        detailResult.setMachineStatus(entity.getMachineStatus());
-        detailResult.setCalibrateFinishTime(entity.getCalibrateFinishTime());
-        detailResult.setTaskCreateTime(entity.getTaskCreateTime());
-        detailResult.setTaskEndTime(entity.getTaskEndTime());
+        query.setTaskCreateTime(new Date(request.getCalibrateTaskStartTime()));
+        query.setTaskEndTime(new Date(request.getCalibrateTaskEndTime()));
+        detailResult.setTaskCreateTime(request.getCalibrateTaskStartTime());
+        detailResult.setTaskEndTime(request.getCalibrateTaskEndTime());
+        result.setData(detailResult);
         return result;
     }
 
