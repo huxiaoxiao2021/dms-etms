@@ -563,7 +563,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setStartSiteId(Long.valueOf(startSiteCode));
     // 获取当前场地扫描人员信息
     JyComboardEntity userQuery = new JyComboardEntity();
-    userQuery.setGroupCode(request.getGroupCode());
+    // userQuery.setGroupCode(request.getGroupCode());
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
     Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
@@ -751,7 +751,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     // 获取当前网格码内扫描人员信息
     JyComboardEntity userQuery = new JyComboardEntity();
-    userQuery.setGroupCode(request.getGroupCode());
+    // userQuery.setGroupCode(request.getGroupCode());
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
     Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
@@ -1504,7 +1504,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardEntity.setUpdateUserName(request.getUser().getUserName());
     comboardEntity.setCreateTime(now);
     comboardEntity.setUpdateTime(now);
-    comboardEntity.setGroupCode(request.getGroupCode());
+    // comboardEntity.setGroupCode(request.getGroupCode());
     return comboardEntity;
   }
 

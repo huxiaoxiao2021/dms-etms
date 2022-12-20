@@ -294,7 +294,9 @@
     from jy_comboard
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
       and create_time > #{createTime,jdbcType=TIMESTAMP}
+      <if test="groupCode != null">
       and group_code = #{groupCode,jdbcType=VARCHAR}
+      </if>
       and yn = 1
   </select>
   <select id="queryWayBillCodeByBoardCode"
