@@ -18,7 +18,7 @@ public class BatchSendPageRequest extends BatchPageRequest{
     /**
      * 货物信息
      */
-    private List<CargoOperateInfo> loadTaskDetail;
+    private List<CargoOperateInfo> cargoNoList;
 
     /**
      * 操作类型
@@ -40,12 +40,12 @@ public class BatchSendPageRequest extends BatchPageRequest{
      */
     private String operateSiteName;
 
-    public List<CargoOperateInfo> getLoadTaskDetail() {
-        return loadTaskDetail;
+    public List<CargoOperateInfo> getCargoNoList() {
+        return cargoNoList;
     }
 
-    public void setLoadTaskDetail(List<CargoOperateInfo> loadTaskDetail) {
-        this.loadTaskDetail = loadTaskDetail;
+    public void setCargoNoList(List<CargoOperateInfo> cargoNoList) {
+        this.cargoNoList = cargoNoList;
     }
 
     public String getOperateType() {
