@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class BoardDto implements Serializable {
     private static final long serialVersionUID = -7996926947828471326L;
@@ -52,6 +53,17 @@ public class BoardDto implements Serializable {
     private String bizId;
 
     private String sendCode;
+
+    List<GoodsCategoryDto> goodsCategoryDtos;
+
+    public List<GoodsCategoryDto> getGoodsCategoryDtos() {
+        return goodsCategoryDtos;
+    }
+
+    public void setGoodsCategoryDtos(
+        List<GoodsCategoryDto> goodsCategoryDtos) {
+        this.goodsCategoryDtos = goodsCategoryDtos;
+    }
 
     public String getBoardCode() {
         return boardCode;
