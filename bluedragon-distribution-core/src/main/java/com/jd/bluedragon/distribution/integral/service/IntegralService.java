@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.integral.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.integral.domain.JyIntegralDetailDTO;
-import com.jd.bluedragon.distribution.integral.domain.JyIntegralDetailQuery;
+import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
+import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
 
 /**
  * @author liuluntao1

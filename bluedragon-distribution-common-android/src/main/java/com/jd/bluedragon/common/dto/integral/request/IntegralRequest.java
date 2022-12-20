@@ -1,17 +1,16 @@
-package com.jd.bluedragon.distribution.integral.domain;
+package com.jd.bluedragon.common.dto.integral.request;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author liuluntao1
  * @description
- * @date 2022/12/14
+ * @date 2022/12/20
  */
-public class JyIntegralDetailQuery {
-
-    // 个人标识
-    private String userCode;
+public class IntegralRequest extends BaseReq implements Serializable {
 
     // 查询日期
     private Date queryDate;
@@ -30,14 +29,6 @@ public class JyIntegralDetailQuery {
 
     // 指标
     private String quotaNo;
-
-    public String getUserCode() {
-        return userCode;
-    }
-
-    public void setUserCode(String userCode) {
-        this.userCode = userCode;
-    }
 
     public Date getQueryDate() {
         return queryDate;

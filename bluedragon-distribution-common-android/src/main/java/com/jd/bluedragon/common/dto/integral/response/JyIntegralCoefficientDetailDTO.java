@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.integral.domain;
+package com.jd.bluedragon.common.dto.integral.response;
 
 
 import java.util.List;
