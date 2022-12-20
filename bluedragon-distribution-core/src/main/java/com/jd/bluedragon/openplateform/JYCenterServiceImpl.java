@@ -87,8 +87,14 @@ public class JYCenterServiceImpl implements JYCenterService {
                 return invokeResult;
             }
 
+            BaseStaffSiteOrgDto siteOrgDto1 = baseService.queryDmsBaseSiteByCode(jySendCodeRequest.getArriveSiteCode());
+            if (siteOrgDto1 == null) {
+                invokeResult.parameterError("批次目的站点未在京东维护");
+                return invokeResult;
+            }
+
             attributeKeyEnumStringMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(siteOrgDto.getSiteCode()));
-            attributeKeyEnumStringMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, jySendCodeRequest.getArriveSiteCode());
+            attributeKeyEnumStringMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(siteOrgDto1.getSiteCode()));
         }
 
         BusinessCodeFromSourceEnum fromSource = jySendCodeRequest.getRequestProfile() == null? BusinessCodeFromSourceEnum.UNKNOWN_SYS
@@ -318,6 +324,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 if (BusinessHelper.isSendCode(batchSendPageRequest.getBatchCode())) {
                     entity.setSendCode(batchSendPageRequest.getBatchCode());
                 }
+                entity.setDataOperateType(batchSendPageRequest.getOperateType());
                 entity.setCreateSiteId(siteOrgDto1.getSiteCode());
                 entity.setCreateSiteCode(siteOrgDto1.getDmsSiteCode());
                 entity.setCreateSiteName(siteOrgDto1.getSiteName());

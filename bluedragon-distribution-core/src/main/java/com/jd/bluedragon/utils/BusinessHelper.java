@@ -58,13 +58,26 @@ public class BusinessHelper {
 
 
     /**
-     * Y开头的也认为是箱号（上海亚一用）
+     * Y开头的也认为是箱号（上海亚一用），
+     * 新增嘉峪关项目的箱号，开放引入外部箱号
      */
     public static Boolean isBoxcode(String s) {
         if (StringHelper.isEmpty(s)) {
             return false;
         }
-        return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
+        return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX) || isDPBoxCode(s);
+    }
+
+    /**
+     * 是否德邦箱号-嘉峪关项目
+     * @param s
+     * @return
+     */
+    public static boolean isDPBoxCode(String s) {
+        if (StringHelper.isEmpty(s)) {
+            return false;
+        }
+        return DmsConstants.RULE_BOXCODE_REGEX_OPEN_DP.matcher(s).matches();
     }
 
     public static boolean isNumeric(String str) {
