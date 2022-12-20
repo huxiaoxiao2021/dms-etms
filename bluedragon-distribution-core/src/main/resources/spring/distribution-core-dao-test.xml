@@ -351,4 +351,8 @@
 		  class="com.jd.bluedragon.distribution.board.dao.TaskBoardDao" >
 		<property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
 	</bean>
+	<bean id="waybillConfigDao" parent="businessBaseDao"
+		  class="com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao" >
+		<property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+	</bean>
 </beans>

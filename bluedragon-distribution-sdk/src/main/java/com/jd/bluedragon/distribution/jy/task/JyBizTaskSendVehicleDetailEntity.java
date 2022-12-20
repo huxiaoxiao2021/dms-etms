@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.jy.task;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 发车任务明细表
@@ -129,6 +130,28 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
+	private transient List<String> transWorkCodeList;
+	/**
+	 * 迁入迁出标识
+	 * 1 source（出） 2 target （入）
+	 */
+	private transient Integer transferFlag;
+
+	public Integer getTransferFlag() {
+		return transferFlag;
+	}
+
+	public void setTransferFlag(Integer transferFlag) {
+		this.transferFlag = transferFlag;
+	}
+
+	public List<String> getTransWorkCodeList() {
+		return transWorkCodeList;
+	}
+
+	public void setTransWorkCodeList(List<String> transWorkCodeList) {
+		this.transWorkCodeList = transWorkCodeList;
+	}
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
@@ -325,7 +348,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	public static class DetailComparatorByTime implements Comparator<JyBizTaskSendVehicleDetailEntity> {
 		@Override
 		public int compare(JyBizTaskSendVehicleDetailEntity o1, JyBizTaskSendVehicleDetailEntity o2) {
-			return o2.getPlanDepartTime().compareTo(o1.getPlanDepartTime());
+			if (o1.getPlanDepartTime()!=null && !"".equals(o1.getPlanDepartTime())
+					&& o2.getPlanDepartTime()!=null && !"".equals(o2.getPlanDepartTime())){
+				return o2.getPlanDepartTime().compareTo(o1.getPlanDepartTime());
+			}
+			return o2.getId().compareTo(o1.getId());
 		}
 	}
 }

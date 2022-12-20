@@ -478,7 +478,7 @@
         </if>
     </select>
 
-    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.util.List">
+    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Long">
         SELECT
             end_site_id
         FROM jy_biz_task_send_vehicle_detail

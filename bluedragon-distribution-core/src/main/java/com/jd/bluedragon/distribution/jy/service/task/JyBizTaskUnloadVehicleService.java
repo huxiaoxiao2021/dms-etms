@@ -1,6 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.StatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -158,4 +163,42 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
+
+    /**
+     * 根据条件查询场内卸车任务信息
+     * @param entity
+     * @return
+     */
+    List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity);
+
+    UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity);
+
+    /**
+     * 按类型（运单、包裹）查询卸车任务统计信息
+     * @param dto
+     * @return
+     */
+    ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto);
+
+    /**
+     * 根据bizId查卸车任务信息
+     * @param bizId
+     * @return
+     */
+    UnloadVehicleTaskDto queryTaskDataByBizId(String bizId);
+
+    /**
+     * 查任务（板）维度统计数据：应扫、已扫、待扫、拦截、多货..
+     * @param dto
+     * @return
+     */
+    InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
+
+
+    /**
+     * 根据车牌、状态、目的地查询任务信息
+     * @param condition
+     * @return
+     */
+    List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
 }

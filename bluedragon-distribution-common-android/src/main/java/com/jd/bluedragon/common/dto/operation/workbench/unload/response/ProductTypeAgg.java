@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
+import com.jd.bluedragon.common.dto.select.StringSelectOption;
+
 import java.io.Serializable;
 
 /**
@@ -27,6 +29,19 @@ public class ProductTypeAgg implements Serializable {
      */
     private Long count;
 
+    /**
+     * 排序
+     */
+    private Integer order;
+
+
+    public static class OrderComparator implements java.util.Comparator<ProductTypeAgg> {
+        @Override
+        public int compare(ProductTypeAgg o1, ProductTypeAgg o2) {
+            return o1.getOrder().compareTo(o2.getOrder());
+        }
+    }
+
     public String getProductType() {
         return productType;
     }
@@ -49,5 +64,13 @@ public class ProductTypeAgg implements Serializable {
 
     public void setCount(Long count) {
         this.count = count;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 }

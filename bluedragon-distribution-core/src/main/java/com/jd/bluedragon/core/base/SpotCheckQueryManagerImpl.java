@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 抽检查询接口包装服务
@@ -140,6 +141,25 @@ public class SpotCheckQueryManagerImpl implements SpotCheckQueryManager {
             return baseEntity.getData();
         }catch (Exception e){
             logger.error("根据条件查询已抽检数据异常!查询条件:{}", JsonHelper.toJson(condition), e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
+    }
+
+    @Override
+    public List<WeightVolumeSpotCheckDto> queryAllSpotCheckByCondition(SpotCheckQueryCondition condition) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SpotCheckQueryManager.queryAllSpotCheckByCondition",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            BaseEntity<List<WeightVolumeSpotCheckDto>> baseEntity = spotCheckQueryService.queryAllSpotCheckByCondition(condition);
+            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            logger.error("根据条件查询所有抽检数据异常!查询条件:{}", JsonHelper.toJson(condition), e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);

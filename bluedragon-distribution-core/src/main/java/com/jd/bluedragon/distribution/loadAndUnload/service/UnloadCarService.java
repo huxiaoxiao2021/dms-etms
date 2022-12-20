@@ -197,4 +197,17 @@ public interface UnloadCarService {
     public void fillUnloadCarTaskDuration(UnloadCar unloadCar);
 
     UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
-}
+    /**
+     * 根据封车编码查询集合任务信息
+     * @param sealCarCodes
+     * @return
+     */
+    List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes);
+
+    /**
+     * 新老app互斥拦截,查询新版操作的任务信息
+     * @param sealCarCodeList
+     * @return
+     */
+    public List<String> newAppOperateIntercept(List<String> sealCarCodeList);
+    }

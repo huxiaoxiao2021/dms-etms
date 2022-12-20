@@ -2,7 +2,6 @@ package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.print.utils.JsonHelper;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -20,6 +19,10 @@ public class UccPropertyConfiguration {
 
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
+
+
+    /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
+    private boolean enableGoodsAreaOfTysScan;
 
     private boolean offlineLogGlobalSwitch;
 
@@ -513,6 +516,12 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -527,6 +536,14 @@ public class UccPropertyConfiguration {
 
     public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
         this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
+
+    public boolean getEnableGoodsAreaOfTysScan() {
+        return enableGoodsAreaOfTysScan;
+    }
+
+    public void setEnableGoodsAreaOfTysScan(boolean enableGoodsAreaOfTysScan) {
+        this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
     }
 
     public String getBusinessLogQueryPageSwitch() {
@@ -706,6 +723,28 @@ public class UccPropertyConfiguration {
      */
     private boolean querySensitiveFlag;
 
+    /**
+     * 安全开关
+     */
+    private boolean securitySwitch;
+
+    /**
+     * 拣运app降级配置
+     */
+    private String jyDemotionConfig;
+
+    private boolean syncJySealStatusSwitch;
+
+    private int sealStatusBatchSizeLimit;
+
+    public int getSealStatusBatchSizeLimit() {
+        return sealStatusBatchSizeLimit;
+    }
+
+    public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
+        this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
+    }
+
 
     private Boolean jySendAggsDataReadSwitch;
 
@@ -723,6 +762,14 @@ public class UccPropertyConfiguration {
 
     public void setFilterSendCodeSwitch(boolean filterSendCodeSwitch) {
         this.filterSendCodeSwitch = filterSendCodeSwitch;
+    }
+
+    public boolean getSyncJySealStatusSwitch() {
+        return syncJySealStatusSwitch;
+    }
+
+    public void setSyncJySealStatusSwitch(boolean syncJySealStatusSwitch) {
+        this.syncJySealStatusSwitch = syncJySealStatusSwitch;
     }
 
     public Integer getOldSendSplitPageSize() {
@@ -805,6 +852,11 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordMoreThanHours;
 
     /**
+     * 自动签退查询数据-扫描小时数
+     */
+    private int notSignedOutRecordRangeHours = 12;
+
+    /**
      * 抽检改造开通场地
      *  多个场地以,分隔
      *  true表示全国
@@ -864,6 +916,26 @@ public class UccPropertyConfiguration {
     private String jySendTaskLoadRateLimit;
 
     /**
+     * 缓存时长
+     */
+    private Integer unloadCacheDurationHours;
+
+    /**
+     * 板上最多包裹数
+     */
+    private Integer unloadBoardBindingsMaxCount;
+
+    /**
+     * 包裹重量上限值，单位kg
+     */
+    private String packageWeightLimit;
+
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
+    /**
      * 面单举报异常配置
      */
     private String faceAbnormalReportConfig;
@@ -903,6 +975,18 @@ public class UccPropertyConfiguration {
      *  }
      */
     private String clientOfflineMenuConfig;
+
+    /**
+     * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
+     */
+    private Integer weightVolumeSwitchVersion;
+
+    /**
+     * 卸车岗列表页过滤最近N天数据
+     */
+    private Integer jyUnloadCarListQueryDayFilter;
+
+
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1910,6 +1994,13 @@ public class UccPropertyConfiguration {
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
+	public int getNotSignedOutRecordRangeHours() {
+		return notSignedOutRecordRangeHours;
+	}
+
+	public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
+		this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
+	}
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }
@@ -2151,4 +2242,78 @@ public class UccPropertyConfiguration {
     public void setQuerySensitiveFlag(boolean querySensitiveFlag) {
         this.querySensitiveFlag = querySensitiveFlag;
     }
+
+    public boolean getSecuritySwitch() {
+        return securitySwitch;
+    }
+
+    public void setSecuritySwitch(boolean securitySwitch) {
+        this.securitySwitch = securitySwitch;
+    }
+
+    public String getJyDemotionConfig() {
+        return jyDemotionConfig;
+    }
+
+    public void setJyDemotionConfig(String jyDemotionConfig) {
+        this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getUnloadCacheDurationHours() {
+        return unloadCacheDurationHours;
+    }
+
+    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
+        this.unloadCacheDurationHours = unloadCacheDurationHours;
+    }
+
+    public Integer getUnloadBoardBindingsMaxCount() {
+        return unloadBoardBindingsMaxCount;
+    }
+
+    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
+        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public String getPackageWeightLimit() {
+        return packageWeightLimit;
+    }
+
+    public void setPackageWeightLimit(String packageWeightLimit) {
+        this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+
+    public Integer getWeightVolumeSwitchVersion() {
+        return weightVolumeSwitchVersion;
+    }
+
+    public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
+        this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
+    }
+
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
+        this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
+    }
+
 }

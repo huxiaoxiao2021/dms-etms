@@ -61,6 +61,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Autowired
     private TransportRelatedService transportRelatedService;
 
+
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
         CallerInfo info = Profiler.registerInfo("JyUnloadVehicleGatewayService.createNoTaskUnloadTask",
@@ -73,6 +74,10 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             dto.setVehicleNumber(request.getVehicleNumber());
             dto.setOperateSiteId(request.getOperateSiteId());
             dto.setOperateSiteName(request.getOperateSiteName());
+            if (request.getUser() != null) {
+                dto.setOperateUserErp(request.getUser().getUserErp());
+                dto.setOperateUserName(request.getUser().getUserName());
+            }
             JyBizTaskUnloadDto noTaskUnloadDto = unloadVehicleService.createUnloadTask(dto);
             UnloadNoTaskResponse unloadNoTaskResponse = new UnloadNoTaskResponse();
             unloadNoTaskResponse.setOperateSiteId(noTaskUnloadDto.getOperateSiteId());

@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
+import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 
 import java.util.List;
 
@@ -142,5 +144,28 @@ public interface JySendVehicleGatewayService {
      * @time 2022-09-22 16:47:38 周四
      */
     JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+
+    /**
+     * 查询发货批次信息
+     * @param request
+     * @return
+     */
+    JdCResponse<SendBatchResp> querySendBatch(SendBatchReq request);
+
+    /**
+     * 按统计待扫产品类型和包裹总数
+     * @param request
+     * @return
+     */
+    JdCResponse<List<SendVehicleProductTypeAgg>> getSendVehicleToScanAggByProduct(SendVehicleCommonRequest request);
+
+    /**
+     * 按产品类型获取待扫包裹列表
+     * @param request
+     * @return
+     */
+    JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
+
 
 }

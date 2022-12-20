@@ -2,9 +2,8 @@ package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -16,19 +15,21 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.PackageWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByPackageService;
-import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
+import com.jd.jim.cli.Cluster;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.jim.cli.Cluster;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -49,7 +50,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 运单称重
@@ -74,6 +74,12 @@ public class WeighByPackageController extends DmsBaseController {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -292,24 +298,56 @@ public class WeighByPackageController extends DmsBaseController {
             }
 
             //校验重量体积是否超标
-            InvokeResult invokeResult = service.checkIsExcess(codeStr, weight.toString(), volume.toString());
-            if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
-                //没通过
-                vo.setErrorMessage(invokeResult.getMessage());
-                vo.setErrorCode(invokeResult.getCode());
-                //可让前台强制提交
-                vo.setCanSubmit(1);
-                return false;
-            }
+            if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
+                InvokeResult invokeResult = service.checkIsExcess(codeStr, weight.toString(), volume.toString());
+                if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
+                    //没通过
+                    vo.setErrorMessage(invokeResult.getMessage());
+                    vo.setErrorCode(invokeResult.getCode());
+                    //可让前台强制提交
+                    vo.setCanSubmit(1);
+                    return false;
+                }
 
-            //校验重泡比
-            if(!BusinessHelper.checkWaybillWeightAndVolume(vo.getWeight(),vo.getVolume())){
-                //没通过
-                vo.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
-                vo.setErrorCode(Constants.CBM_DIV_KG_CODE);
-                //可让前台强制提交
-                vo.setCanSubmit(1);
-                return false;
+                //校验重泡比
+                if(!BusinessHelper.checkWaybillWeightAndVolume(vo.getWeight(),vo.getVolume())){
+                    //没通过
+                    vo.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
+                    vo.setErrorCode(Constants.CBM_DIV_KG_CODE);
+                    //可让前台强制提交
+                    vo.setCanSubmit(1);
+                    return false;
+                }
+            } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
+                WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
+                condition.setBarCode(codeStr);
+                condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
+                condition.setSourceCode(FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT.name());
+                condition.setVolume(volume);
+                condition.setCheckVolume(Boolean.TRUE);
+                condition.setWeight(weight);
+                condition.setCheckWeight(Boolean.TRUE);
+                condition.setLength(length);
+                condition.setWidth(width);
+                condition.setHeight(high);
+                condition.setCheckLWH(Boolean.TRUE);
+                condition.setOperateSiteCode(getLoginUser().getSiteCode());
+                InvokeResult result = dmsWeightVolumeService.weightVolumeRuleCheck(condition);
+                if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
+                    //没通过
+                    vo.setErrorMessage(result.getMessage());
+                    vo.setErrorCode(EXCESS_CODE);
+                    //可让前台强制提交
+                    vo.setCanSubmit(1);
+                    return false;
+                } else if (InvokeResult.RESULT_PARAMETER_ERROR_CODE == result.getCode()) {
+                    vo.setErrorMessage(result.getMessage());
+                    vo.setErrorCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                    //可让前台强制提交
+                    vo.setCanSubmit(0);
+                    return false;
+                }
+
             }
 
             //存在

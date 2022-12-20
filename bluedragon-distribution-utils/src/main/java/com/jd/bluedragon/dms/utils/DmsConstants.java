@@ -178,6 +178,11 @@ public class DmsConstants {
     public static final Pattern RULE_TERMINAL_SEND_CODE_ALL_REGEX = Pattern.compile("^R+[0-9]{8,}$");
 
     /**
+     * 任务简码
+     */
+    public  static final Pattern WORKITEM_SIMPLECODE_REGEX = Pattern.compile("^\\d{14}$");
+
+    /**
      * 新批次号正则;
      * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
      * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
@@ -337,6 +342,16 @@ public class DmsConstants {
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
     public static final String ORDER_TYPE_REVERSE = "20";
+
+    /**
+     * 抖音来源标识
+     */
+    public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
+    
+    /**
+     * 运单前缀-抖音-JDAZ
+     */
+    public static final String WAYBILL_CODE_PRE_DOUYIN  = "JDAZ";
 
     /**
      * 暂存类型枚举值

@@ -7,9 +7,6 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
-import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
-import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
-import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -23,14 +20,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.api.WaybillUpdateApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.domain.SkuSn;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExt;
-import com.jd.etms.waybill.domain.WaybillExtPro;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
@@ -48,12 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -1238,6 +1223,28 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             return name.toString();
         }
         return null;
+    }
+
+    /**
+     * 根据运单号查询包装耗材信息
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getBoxChargeByWaybillCode",
+        mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public BaseEntity<List<BoxChargeDto>> getBoxChargeByWaybillCode(String waybillCode){
+        return WaybillUtil.isWaybillCode(waybillCode) ? waybillQueryApi.getBoxChargeByWaybillCode(waybillCode) : null;
+    }
+
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillVasWithExtendInfo",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public BaseEntity<List<WaybillVasDto>> getWaybillVasWithExtendInfo(String waybillCode) {
+        WaybillVasChoice waybillVasChoice= new WaybillVasChoice();
+        waybillVasChoice.setQueryVas(true);
+        waybillVasChoice.setQueryVasExtend(true);
+        return waybillQueryApi.getWaybillVasWithExtendInfo(waybillCode,waybillVasChoice);
     }
 
 }

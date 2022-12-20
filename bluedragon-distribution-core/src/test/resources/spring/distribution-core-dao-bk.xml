@@ -509,7 +509,6 @@
     <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
     <!-- 清场 -->
     <bean id="inventoryTaskDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryTaskDaoImpl"/>
@@ -641,6 +640,11 @@
 
     <bean id="taskBoardDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.board.dao.TaskBoardDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="waybillConfigDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao" >
         <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 

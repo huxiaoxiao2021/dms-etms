@@ -38,8 +38,8 @@
 		<!-- mq.sender update@2012.06.11 -->
 		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
 		<waybill.cache.version>1.0.3</waybill.cache.version>
-		<business-sdk.version>1.1.1-SNAPSHOT</business-sdk.version>
-		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
+		<business-sdk.version>1.1.3-SNAPSHOT</business-sdk.version>
+		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.5-SNAPSHOT</jy.realtime.sdk.version>
 		<!-- 用于源码tag -->
@@ -282,6 +282,11 @@
 			<dependency>
 				<groupId>com.jdl.basic</groupId>
 				<artifactId>jy-basic-api</artifactId>
+				<version>1.4.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jdl.basic</groupId>
+				<artifactId>jy-basic-common</artifactId>
 				<version>1.0-SNAPSHOT</version>
 			</dependency>
             <dependency>

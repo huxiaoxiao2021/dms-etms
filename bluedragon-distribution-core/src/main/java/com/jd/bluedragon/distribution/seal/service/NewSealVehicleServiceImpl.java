@@ -46,6 +46,7 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
+import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -65,6 +66,7 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -88,6 +90,7 @@ import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
+import static com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg.TYPE_CREATE_TRANS_ABNORMAL_AND_DE_SEAL_CODE;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
@@ -175,6 +178,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     JdiQueryWSManager jdiQueryWSManager;
 
+    @Autowired
+    @Qualifier("createTransAbnormalAndUnsealProducer")
+    private DefaultJMQProducer createTransAbnormalAndUnsealProducer;
+
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
     private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
@@ -237,6 +244,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -311,10 +319,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
         try {
-            if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
                 List<String> sendCodes =new ArrayList();
                 for (SealCarDto sealCarDto:sealCarDtos){
                     sendCodes.addAll(sealCarDto.getBatchCodes());
+                }
+                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                    return;
                 }
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
                 if (ObjectHelper.isNotNull(sendCodeEntityList)){
@@ -332,30 +343,22 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private void checkAndUpdateTaskStatus(String sendVehicleBizId,String sendDetailBizId,SealCarDto sealCarDto) {
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBizId);
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sendDetailBizId);
-        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
+        if (ObjectHelper.isNotNull(taskSendDetail) && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
             return;
         }
-        if (jySendVehicleService.checkIfSealedByAllSendCode(taskSendDetail)){
-            if (taskSend.manualCreatedTask()){
-                deleteManualCreatedTask(taskSend,taskSendDetail,sealCarDto);
-                return;
-            }
-            taskSend.setUpdateTime(new Date());
-            taskSend.setUpdateUserErp(sealCarDto.getSealUserCode());
-            taskSend.setUpdateUserName(sealCarDto.getSealUserName());
-            taskSendDetail.setSealCarTime(sealCarDto.getSealCarTime());
-            taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
-            taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
-            taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
-            sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+        if (ObjectHelper.isNotNull(taskSend) && taskSend.manualCreatedTask()){
+            deleteManualCreatedTask(taskSend,taskSendDetail,sealCarDto);
         }
     }
 
     private void deleteManualCreatedTask(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity taskSendDetail,SealCarDto sealCarDto) {
         //删除主任务
+        if (log.isInfoEnabled()){
+            log.info("使用老封车功能封车成功，删除自建任务{}",taskSendDetail.getBizId());
+        }
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(taskSend.getBizId());
-        entity.setYn(0);
+        entity.setYn(Constants.YN_NO);
         Date now = new Date();
         entity.setUpdateTime(now);
         entity.setUpdateUserErp(sealCarDto.getSealUserCode());
@@ -364,7 +367,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         //删除子任务
         JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
         detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
-        detailEntity.setYn(0);
+        detailEntity.setYn(Constants.YN_NO);
         detailEntity.setUpdateTime(now);
         detailEntity.setUpdateUserErp(sealCarDto.getSealUserCode());
         detailEntity.setUpdateUserName(sealCarDto.getSealUserName());
@@ -577,6 +580,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
+            syncJySealStatus(successSealCarList);
         }
 
         //记录封车操作数据
@@ -667,6 +671,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);
@@ -783,12 +788,47 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
       sealVehicleResponse.setCode(JdResponse.CODE_OK);
       sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
+      recoverTaskStatusIfNeed(batchList);
     } else {
       log.warn("取消封车JSF接口返回为空.参数：{}" , JsonHelper.toJson(TMS_param));
       sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
       sealVehicleResponse.setMessage(cancelSealInfo != null ? cancelSealInfo.getMessage():"运输取消封车返回空");
     }
     return sealVehicleResponse;
+    }
+
+    private void recoverTaskStatusIfNeed(List<String> sendCodeList) {
+        try {
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0
+            && sendCodeList.size()<=uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodeList);
+                if (ObjectHelper.isNotNull(sendCodeEntityList)){
+                    for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+                        recoverTaskStatusIfManualCreated(jySendCodeEntity.getSendVehicleBizId(),jySendCodeEntity.getSendDetailBizId());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("recoverTaskStatusIfNeed error",e);
+        }
+    }
+
+    private void recoverTaskStatusIfManualCreated(String sendVehicleBizId, String sendDetailBizId) {
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBizId);
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sendDetailBizId);
+        //删除主任务
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSend.getBizId());
+        entity.setYn(Constants.YN_YES);
+        Date now = new Date();
+        entity.setUpdateTime(now);
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
+        detailEntity.setYn(Constants.YN_YES);
+        detailEntity.setUpdateTime(now);
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
     }
 
     /**
@@ -1851,9 +1891,51 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    if (response == null || !JdResponse.CODE_OK.equals(response.getCode())) {
 	        return response;
         }
+        try {
+            createTransAbnormalAndUnseal2jmq(request);
+        } catch (JMQException e) {
+            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+        }
+
 	    response = this.doDeSealCodes(request.getDeSealCodeRequest());
         return response;
     }
+
+    @JProfiler(jKey = "NewSealVehicleServiceImpl.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    private void createTransAbnormalAndUnseal2jmq(TransAbnormalAndDeSealRequest request) throws JMQException {
+        CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
+
+        TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
+        DeSealCodeRequest deSealCodeRequest = request.getDeSealCodeRequest();
+
+        msg.setDesealCarTime(null);
+        msg.setDesealCodes(deSealCodeRequest.getDesealCodes());
+        msg.setDesealSiteId(deSealCodeRequest.getDesealSiteId());
+        msg.setDesealSiteName(deSealCodeRequest.getDesealSiteName());
+        msg.setDesealUserCode(deSealCodeRequest.getDesealUserCode());
+        msg.setDesealUserName(deSealCodeRequest.getDesealUserName());
+        msg.setSealCarCode(null);
+        msg.setVehicleNumber(deSealCodeRequest.getVehicleNumber());
+        msg.setAbnormalDesc(transAbnormalDto.getAbnormalDesc());
+        msg.setAbnormalTypeCode(transAbnormalDto.getAbnormalTypeCode());
+        msg.setAbnormalTypeName(transAbnormalDto.getAbnormalTypeName());
+        msg.setPhotoUrlList(transAbnormalDto.getPhotoUrlList());
+        msg.setReferBillCode(transAbnormalDto.getReferBillCode());
+        msg.setReferBillType(transAbnormalDto.getReferBillType());
+
+        msg.setSource(TYPE_CREATE_TRANS_ABNORMAL_AND_DE_SEAL_CODE);
+        msg.setCreateTransAbnormalTime(new Date());
+
+        String msgkey = "";
+        if (StringUtils.isNotEmpty(deSealCodeRequest.getDesealUserCode())) {
+            msgkey = deSealCodeRequest.getDesealUserCode();
+        }
+        String body = JSONObject.toJSONString(msg);
+        createTransAbnormalAndUnsealProducer.send(msgkey, body);
+
+        log.info("提报异常并解封车消息发送成功，消息内容：{}", body);
+    }
+
     @Override
     public NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request) {
         NewSealVehicleResponse<String> response = new NewSealVehicleResponse<>();
