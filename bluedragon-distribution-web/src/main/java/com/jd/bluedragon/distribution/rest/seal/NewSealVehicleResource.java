@@ -1153,7 +1153,7 @@ public class NewSealVehicleResource {
         return unSealVehicleResponse;
     }
 
-    public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
+    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP}) public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
         TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
         com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = request.getSealCarDto();
         CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();

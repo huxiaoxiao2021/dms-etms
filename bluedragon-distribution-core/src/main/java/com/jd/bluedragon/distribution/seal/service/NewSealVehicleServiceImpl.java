@@ -1901,6 +1901,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return response;
     }
 
+    @JProfiler(jKey = "NewSealVehicleServiceImpl.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     private void createTransAbnormalAndUnseal2jmq(TransAbnormalAndDeSealRequest request) throws JMQException {
         CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
 
