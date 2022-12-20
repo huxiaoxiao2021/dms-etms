@@ -1914,7 +1914,7 @@
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
-			<version>1.2-dev-SNAPSHOT</version>
+			<version>1.4.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
