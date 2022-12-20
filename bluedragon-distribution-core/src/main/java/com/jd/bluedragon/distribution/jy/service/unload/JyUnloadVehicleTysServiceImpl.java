@@ -37,6 +37,8 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -147,6 +149,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private UccPropertyConfiguration uccPropertyConfiguration ;
 
 
+    @Autowired
+    private RouterService routerService;
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -803,16 +807,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(scanCode)) {
             scanCode = WaybillUtil.getWaybillCode(scanCode);
         }
-        String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
-        Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
-        if(log.isInfoEnabled()) {
-            log.info("JyUnloadVehicleTysServiceImpl.checkScan-转运场地扫描包裹{}，当前场地{}，下一场地{}，获取其路由信息={}{}",
-                    scanPackageDto.getScanCode(), scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode, routerStr);
-        }
-        scanPackageDto.setNextSiteCode(nextSiteCode);
+
+        RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
+        scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
-            Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
-            scanPackageDto.setPrevSiteCode(prevSiteCode);
+            scanPackageDto.setPrevSiteCode(routeNextDto.getFirstLastSiteId());
         } else {
             scanPackageDto.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
             scanPackageDto.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
@@ -914,7 +913,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         // 设置子阶段bizId
-        jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        InvokeResult<Boolean> invokeResult = jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        if(!invokeResult.codeSuccess()) {
+            throw new JyBizException(invokeResult.getMessage());
+        }
         return unloadScanDto;
     }
 
@@ -1501,8 +1503,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getWaybillNextRouter",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getWaybillNextRouter(String waybillCode, Integer startSiteId) {
-        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-        return getRouteNextSite(startSiteId, routerStr);
+        RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(startSiteId, waybillCode, null);
+        return routeNextDto.getFirstNextSiteId();
     }
 
     @Override
@@ -1773,10 +1775,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.setComBoardAggDto(aggDto);
             //查流向
             String waybillCode = WaybillUtil.getWaybillCode(flowBoardDto.getPackageCode());
-            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            Integer nextSiteCode = getRouteNextSite(flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
+            RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(flowBoardDto.getCurrentOperate().getSiteCode(), waybillCode, null);
+            Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
             if(nextSiteCode == null) {
-                log.warn("{}--包裹未查到路由信息--packageCode={},route={}", methodDesc, waybillCode, routerStr);
+                log.warn("{}--包裹未查到路由信息--packageCode={},routeNextDto={}", methodDesc, waybillCode, JsonHelper.toJson(routeNextDto));
                 response.error("未查到该包裹流向信息");
                 return response;
             }
