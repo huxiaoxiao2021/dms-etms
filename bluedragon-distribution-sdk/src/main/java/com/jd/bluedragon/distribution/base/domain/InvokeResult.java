@@ -202,6 +202,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NOT_FIND_CTT_CODE = 3059;
     public static final String NOT_FIND_CTT_MESSAGE= "未获取到滑道笼车信息！";
+
+    public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
+    public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
     
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

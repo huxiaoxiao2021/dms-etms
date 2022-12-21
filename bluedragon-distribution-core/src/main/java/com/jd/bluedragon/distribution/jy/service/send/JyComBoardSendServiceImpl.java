@@ -198,6 +198,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   private IGenerateObjectId genObjectId;
 
+  @Autowired
+  private NewSealVehicleService newsealVehicleService;
+
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
@@ -2079,6 +2082,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       batchUpdateCancelReq.setBarCodeList(barCodeList);
       removeBoardBoxDto.setBoxCodeList(barCodeList);
       batchUpdateCancelReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
+      query.setBoardCode(request.getBoardCode());
+      query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+      //如果已封车的批次不触发取消组板发货
+      if (newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
+        return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
+      }
       if (request.isBulkFlag()) {
         // 获取运单号
         JyComboardEntity entity = new JyComboardEntity();
