@@ -4,10 +4,8 @@ import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetail;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
