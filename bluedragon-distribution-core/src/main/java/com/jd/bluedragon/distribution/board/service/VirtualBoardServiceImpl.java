@@ -686,7 +686,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         bindToVirtualBoardPo.setBoardCodeList(notBlankCodeList);
         return result;
     }
-
+    /**
+     * 发送全程跟踪
+     * @param operateType
+     */
+    @Override
+    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
+                                 Integer operateType, Integer bizSource) {
+    	this.sendWaybillTrace(null, barcode, operatorInfo, boardCode, destinationName, operateType, bizSource);
+	}
     /**
      * 发送全程跟踪
      * @param operateType
