@@ -8,6 +8,9 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnoreRouterCondition;
+import com.jd.bluedragon.distribution.jy.config.JYTransferSiteEntity;
+import com.jd.bluedragon.distribution.jy.service.transfer.JyTransferConfigService;
+import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -18,17 +21,19 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
+import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteQo;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2018/3/21.
@@ -48,6 +53,9 @@ public class RouterFilter implements Filter {
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
 
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         logger.info("分拣校验RouterFilter1packageCode[{}]pdaOperateRequest[{}]",request.getPackageCode(), JsonHelper.toJson(request));
@@ -62,6 +70,43 @@ public class RouterFilter implements Filter {
         if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
             chain.doFilter(request,chain);
             return;
+        }
+
+
+        // 德邦春节项目的错发校验跳过
+        if (BusinessHelper.isDPWaybill1(request.getWaybillCache().getWaybillSign())) {
+            ConfigTransferDpSiteMatchQo siteQo = new ConfigTransferDpSiteMatchQo();
+            siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
+            Result<ConfigTransferDpSite> result = jyTransferConfigProxy.queryMatchConditionRecord(siteQo);
+            if (result.getData() != null && result.getData().getEffectiveStartTime().before(new Date()) && new Date().before(result.getData().getEffectiveStopTime())) {
+                if (Objects.equals(result.getData().getHandoverSiteCode(), request.getCreateSiteCode()) && BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+                    chain.doFilter(request, chain);
+                    return;
+                }
+                if (Objects.equals(result.getData().getHandoverSiteCode(), request.getCreateSiteCode()) && !BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+                    Map<String, String> hintParams = new HashMap<String, String>();
+                    hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
+                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
+                            HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
+                }
+                if (!Objects.equals(result.getData().getHandoverSiteCode(), request.getCreateSiteCode()) && BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+                    Map<String, String> hintParams = new HashMap<String, String>();
+                    hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
+                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
+                            HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
+                }
+
+            } else {
+                if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+                    Map<String, String> hintParams = new HashMap<String, String>();
+                    hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
+                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
+                            HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule(), hintParams));
+                }
+
+            }
+
+
         }
 
         //加一个分拣规则
