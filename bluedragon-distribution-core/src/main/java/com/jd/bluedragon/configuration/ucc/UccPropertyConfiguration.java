@@ -744,18 +744,6 @@ public class UccPropertyConfiguration {
     public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
         this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
     }
-
-
-    private Boolean jySendAggsDataReadSwitch;
-
-    public Boolean getJySendAggsDataReadSwitch() {
-        return jySendAggsDataReadSwitch;
-    }
-
-    public void setJySendAggsDataReadSwitch(Boolean jySendAggsDataReadSwitch) {
-        this.jySendAggsDataReadSwitch = jySendAggsDataReadSwitch;
-    }
-
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }

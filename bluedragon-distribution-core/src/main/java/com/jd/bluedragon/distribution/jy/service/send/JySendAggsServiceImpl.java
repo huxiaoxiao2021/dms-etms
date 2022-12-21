@@ -44,10 +44,11 @@ public class JySendAggsServiceImpl implements JySendAggsService {
         return jySendAggsDaoBak.insertOrUpdate(entity);
     }
     private JySendAggsDaoStrategy getJySendAggsDao(){
-        if (configuration.getJySendAggsDataReadSwitch()){
-            return jySendAggsDaoBak;
-        }else {
-            return jySendAggsDao;
-        }
+//        if (configuration.getJySendAggsDataReadSwitch()){
+//            return jySendAggsDaoBak;
+//        }else {
+//            return jySendAggsDao;
+//        }
+        return null;
     }
 }
