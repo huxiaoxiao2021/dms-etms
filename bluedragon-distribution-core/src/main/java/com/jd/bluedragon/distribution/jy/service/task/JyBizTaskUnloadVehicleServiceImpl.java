@@ -336,6 +336,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     result = jyBizTaskUnloadVehicleDao.updateOfBaseInfoById(entity) > 0;
                     entity.setId(null);
                 }else {
+                    if(entity.getUpdateTime() == null) {
+                        entity.setUpdateTime(entity.getCreateTime());
+                    }
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
@@ -384,6 +387,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
                     entity.setId(null);
                 }else {
+                    if(entity.getUpdateTime() == null) {
+                        entity.setUpdateTime(entity.getCreateTime());
+                    }
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
