@@ -70,7 +70,6 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
     public DwsCheckResponse getLastDwsCheckByTime(DWSCheckRequest checkRequest){
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DWSCheckManager.getLastDwsCheckByTime",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
-        List<DwsWeightVolumeCalibrateDetail> detailList;
         try {
             BaseDmsAutoJsfResponse<DwsCheckResponse> response = dmsCheckJsfService.getLastDwsCheckByTime(checkRequest);
 

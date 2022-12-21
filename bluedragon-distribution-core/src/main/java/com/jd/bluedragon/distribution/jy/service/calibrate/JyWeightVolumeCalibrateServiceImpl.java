@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateMessage;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections.CollectionUtils;
@@ -374,7 +375,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
 
-                calibrateFishTime = Math.max(calibrateFishTime, detail.getCalibrateTime());
+                calibrateFishTime = Math.max(calibrateFishTime, record.getCalibrateTime());
             }
             detailResult.setCalibrateFinishTime(calibrateFishTime);
         }
@@ -441,14 +442,15 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
 
-        boolean isFinished = taskDetail.getWeightCalibrateStatus() != null && taskDetail.getVolumeCalibrateStatus() != null;
+        boolean isFinished = !Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
+                && !Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode());
         if(isFinished){
             taskDetail.setCalibrateFinishTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
             taskDetail.setTaskStatus(CalibrateDetailStatusEnum.SOLVED.getStatusCode());
-            jyBizTaskMachineCalibrateDetailService.update(taskDetail);
             // 任务完成后创建新任务
             createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
         }
+        jyBizTaskMachineCalibrateDetailService.update(taskDetail);
         return result;
     }
 
