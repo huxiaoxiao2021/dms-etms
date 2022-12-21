@@ -396,7 +396,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (log.isInfoEnabled()) {
         log.info("获取滑道笼车信息异常:{}", JsonHelper.toJson(query));
       }
-      return new InvokeResult<>(SEND_FLOE_CTT_CODE, SEND_FLOE_CTT_MESSAGE);
+      return new InvokeResult<>(NOT_FIND_CTT_CODE, NOT_FIND_CTT_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, tableTrolleyResp);
   }
