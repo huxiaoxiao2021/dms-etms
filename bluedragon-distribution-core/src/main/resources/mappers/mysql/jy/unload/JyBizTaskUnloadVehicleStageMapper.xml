@@ -305,7 +305,18 @@
     <include refid="Base_Column_List" />
     from jy_biz_task_unload_vehicle_stage
     where unload_vehicle_biz_id = #{parentBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
+    limit 1
   </select>
 
-
+  <select id="getTaskCount" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity"  resultType="Integer">
+    select count(*)
+    from jy_biz_task_unload_vehicle_stage
+    where yn=1 and unload_vehicle_biz_id = #{unloadVehicleBizId} and
+    <if test="status!=null">
+      and status =#{status}
+    </if>
+    <if test="type!=null">
+      and type =#{type}
+    </if>
+  </select>
 </mapper>

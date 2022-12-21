@@ -828,6 +828,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
             return invokeResult;
         }
+        //补扫校验
+        InvokeResult<Void> invokeResultRes = scanSupplementCheck(unloadVehicleEntity);
+        if(!invokeResultRes.codeSuccess()) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, invokeResultRes.getMessage());
+            return invokeResult;
+        }
         // 通用校验
         checkScan(scanPackageDto, unloadVehicleEntity);
 //        // 校验跨场地支援权限
@@ -855,6 +861,32 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
+    /**
+     * 转运卸车任务补扫校验
+     * @param unloadVehicleEntity
+     * @return
+     */
+    private InvokeResult<Void> scanSupplementCheck(JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        if(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+            //自建任务禁止补扫
+            if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+                res.customMessage(RESULT_INTERCEPT_CODE, "自建任务结束后禁止补扫，请重新创建自建任务进行扫描");
+                return res;
+            }
+            //完成时间过久禁止补扫
+            Long completeTime = unloadVehicleEntity.getUnloadFinishTime().getTime();
+            Long limitTime = uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
+            if(System.currentTimeMillis() - completeTime - limitTime > 0) {
+                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize());
+                res.customMessage(RESULT_INTERCEPT_CODE, msg);
+                return res;
+            }
+
+        }
+        return res;
+    }
 
 
     @Override
@@ -982,6 +1014,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 只有处于卸车状态的任务才能交班
             if (!JyBizTaskUnloadStatusEnum.UN_LOADING.getCode().equals(taskUnloadVehicle.getVehicleStatus())) {
                 result.error("当前任务状态不支持交班！");
+                return result;
+            }
+            if(taskUnloadVehicle.getManualCreatedFlag() != null && taskUnloadVehicle.getManualCreatedFlag().equals(1)) {
+                result.error("自建任务不支持交班,扫描结束请直接完成任务！");
+                return result;
+            }
+            //最大交班次数限制
+            JyBizTaskUnloadVehicleStageEntity entityQuery = new JyBizTaskUnloadVehicleStageEntity();
+            entityQuery.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
+            entityQuery.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
+            int normalTaskNum = jyBizTaskUnloadVehicleStageService.getTaskCount(entityQuery);
+            if(normalTaskNum >= uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize() + 1) {
+                result.error("当前任务已经达到最大交班次数，扫描结束请直接完成任务");
                 return result;
             }
             // 查询子任务bizId
