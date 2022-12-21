@@ -48,6 +48,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
@@ -764,6 +765,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
         scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
+        if(routeNextDto.getFirstNextSiteId() != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextDto.getFirstNextSiteId());
+            if (baseSite != null) {
+                scanPackageDto.setNextSiteName(baseSite.getSiteName());
+            }
+        }
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             scanPackageDto.setPrevSiteCode(routeNextDto.getFirstLastSiteId());
         } else {
