@@ -1,6 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
@@ -10,7 +9,6 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
-import com.sun.corba.se.spi.ior.ObjectKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -1000,7 +998,7 @@ public class BusinessHelper {
     }
 
     public static boolean isDPSiteCode1(Integer siteCode, Integer siteType, Integer subSiteType){
-        return Objects.equals(siteType, 110) && Objects.equals(subSiteType, 11001);
+        return Objects.equals(subSiteType, 6580);
 
     }
 
