@@ -65,8 +65,8 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             request.setMachineCode("ylq06261-DWS001");
             request.setCalibrateTaskStartTime(1664452080000L);
             request.setCalibrateTaskEndTime(1664452200000L);
-            InvokeResult<DwsWeightVolumeCalibrateDetailResult> machineCalibrateDetail = jyWeightVolumeCalibrateService.getMachineCalibrateDetail(request);
-            log.info("result:{}", JsonHelper.toJson(machineCalibrateDetail));
+            InvokeResult<DwsWeightVolumeCalibrateDetailResult> invokeResult = jyWeightVolumeCalibrateService.getMachineCalibrateDetail(request);
+            log.info("result:{}", JsonHelper.toJson(invokeResult));
         }catch (Exception e) {
             log.error("服务异常!", e);
             Assert.fail();
@@ -107,13 +107,9 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             mq2.setMachineStatus(1);
 
             InvokeResult<Boolean> result1 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq1);
-            result1.getCode();
-            result1.getData();
-            result1.getMessage();
+            log.info("result1:{}", JsonHelper.toJson(result1));
             InvokeResult<Boolean> result2 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq2);
-            result2.getCode();
-            result2.getData();
-            result2.getMessage();
+            log.info("result2:{}", JsonHelper.toJson(result2));
             Assert.assertTrue(true);
         }catch (Exception e){
             log.error("服务异常!", e);
