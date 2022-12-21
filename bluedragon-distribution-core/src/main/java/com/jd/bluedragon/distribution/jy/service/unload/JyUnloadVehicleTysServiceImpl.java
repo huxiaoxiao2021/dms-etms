@@ -633,18 +633,18 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 人工卸车模式组板校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
-                // 运单超重校验
-                jyUnloadVehicleCheckTysService.checkWaybillOverWeight(waybill);
                 // 路由校验、生成板号
                 boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
                 if (!routerCheckResult) {
                     log.info("packageCodeScanNew--路由校验失败：该包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
                     return invokeResult;
                 }
-                // 是否发货校验
-                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
+                // 是否发货校验
+                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
+                // 运单超重校验
+                jyUnloadVehicleCheckTysService.checkWaybillOverWeight(waybill);
                 // ver组板拦截校验
                 String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto);
                 if (StringUtils.isNotBlank(boardCheckStr)) {

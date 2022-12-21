@@ -501,7 +501,8 @@ public class JyUnloadVehicleCheckTysService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
         if (request.getNextSiteCode() == null) {
             // 此处直接返回，因为ver组板校验链会判断
-            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+//            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+            throw new UnloadPackageBoardException("验货成功，未找到包裹下游流向场地，是否强制继续组板？");
         }
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
