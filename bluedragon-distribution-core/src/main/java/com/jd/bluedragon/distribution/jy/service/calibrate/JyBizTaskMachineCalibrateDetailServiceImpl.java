@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao;
-import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,13 +56,8 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query) {
-        return jyBizTaskMachineCalibrateDetailDao.queryTaskDetail(query);
-    }
-
-    @Override
-    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {
-        return jyBizTaskMachineCalibrateDetailDao.queryCurrentTaskDetail(query);
+    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
+        return jyBizTaskMachineCalibrateDetailDao.queryCurrentTaskDetail(condition);
     }
 
     @Override

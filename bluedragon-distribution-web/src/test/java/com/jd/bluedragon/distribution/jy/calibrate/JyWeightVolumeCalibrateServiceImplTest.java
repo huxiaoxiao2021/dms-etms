@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.jy.calibrate;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
@@ -79,7 +79,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             user.setUserErp("bjxings");
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
             request.setMachineCode("WZ-HJ-JZBL-007");
-            request.setCalibrateTaskStartTime(sdf.parse("2022-12-20 20:12:42").getTime());
+            request.setCalibrateTaskStartTime(sdf.parse("2022-12-21 18:16:40").getTime());
             request.setUser(user);
             jyWeightVolumeCalibrateService.closeMachineCalibrateTask(request);
         }catch (Exception e){
@@ -102,7 +102,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             mq2.setCalibrateTime(new Date().getTime());
             mq2.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode());
             mq2.setCalibrateStatus(1);
-            mq2.setMachineStatus(1);
+            mq2.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
 
             InvokeResult<Boolean> result1 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq1);
             log.info("result1:{}", JsonHelper.toJson(result1));

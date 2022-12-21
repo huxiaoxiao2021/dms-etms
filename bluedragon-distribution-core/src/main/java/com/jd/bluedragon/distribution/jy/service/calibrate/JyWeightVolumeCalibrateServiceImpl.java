@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDeta
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateMessage;
-import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -370,11 +369,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         detailResult.setPreviousMachineEligibleTime(response.getPreviousMachineEligibleTime());
         detailResult.setMachineCode(request.getMachineCode());
         detailResult.setMachineStatus(response.getMachineStatus());
-
-        JyBizTaskMachineCalibrateQuery query = new JyBizTaskMachineCalibrateQuery();
-        query.setMachineCode(request.getMachineCode());
-        query.setTaskCreateTime(new Date(request.getCalibrateTaskStartTime()));
-        query.setTaskEndTime(new Date(request.getCalibrateTaskEndTime()));
         detailResult.setTaskCreateTime(request.getCalibrateTaskStartTime());
         detailResult.setTaskEndTime(request.getCalibrateTaskEndTime());
         result.setData(detailResult);
@@ -410,10 +404,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     public InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
-        JyBizTaskMachineCalibrateQuery query = new JyBizTaskMachineCalibrateQuery();
-        query.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
-        query.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
-        JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(query);
+        JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
+        condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
+        condition.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+        JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
         if (taskDetail == null){
             logger.warn("找不到设备编码为:{}的待处理任务!", dwsMachineCalibrateMQ.getMachineCode());
             result.error("设备" + dwsMachineCalibrateMQ.getMachineCode() + "未生成待处理任务，请联系分拣小秘排查!");

@@ -232,7 +232,7 @@
         </where>
     </select>
 
-    <select id="queryCurrentTaskDetail" parameterType="com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery" resultMap="jyBizTaskMachineCalibrateDetailMap">
+    <select id="queryCurrentTaskDetail" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultMap="jyBizTaskMachineCalibrateDetailMap">
         select
         <include refid="Base_Column_List"/>
         from jy_biz_task_machine_calibrate_detail
@@ -259,18 +259,6 @@
         </where>
         order by create_time desc limit 1
     </update>
-
-    <select id="queryTaskDetail" parameterType="com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery">
-        select
-        <include refid="Base_Column_List"/>
-        from jy_biz_task_machine_calibrate_detail
-        <where>
-            yn = 1
-            and machine_code = #{machineCode}
-            and task_create_time = #{taskCreateTime}
-            and task_end_time = #{taskEndTime}
-        </where>
-    </select>
 
     <sql id="condition_sql">
         <if test="createUserErp != null and createUserErp != ''">

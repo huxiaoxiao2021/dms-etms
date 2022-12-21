@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.dao.calibrate;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
-import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,19 +45,13 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatus", params);
     }
 
-    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryCurrentTaskDetail", query);
+    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryCurrentTaskDetail", condition);
     }
 
     public int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity deleteEntity){
         return this.getSqlSession().update(NAMESPACE + ".duplicateNewestTaskDetail", deleteEntity);
     }
 
-    public List<JyBizTaskMachineCalibrateDetailEntity> getMachineCalibrateDetail(JyBizTaskMachineCalibrateQuery query){
-        return this.getSqlSession().selectList(NAMESPACE + ".getMachineCalibrateDetail", query);
-    }
 
-    public JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryTaskDetail", query);
-    }
 }

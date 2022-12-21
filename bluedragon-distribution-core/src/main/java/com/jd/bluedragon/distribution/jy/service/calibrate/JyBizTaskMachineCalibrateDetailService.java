@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
-import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 
 import java.util.List;
 
@@ -63,10 +62,10 @@ public interface JyBizTaskMachineCalibrateDetailService {
 
     /**
      * 查询当前时间段内的待处理任务
-     * @param query
+     * @param condition
      * @return
      */
-    JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query);
+    JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition);
 
     /**
      * 设备关闭后废弃当前待处理任务
@@ -83,5 +82,4 @@ public interface JyBizTaskMachineCalibrateDetailService {
      */
     void batchUpdateStatus(List<Long> ids, Integer status);
 
-    JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query);
 }

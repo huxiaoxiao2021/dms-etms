@@ -21,6 +21,11 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
      * 查询结束时间
      */
     private Date queryEndTime;
+
+    /**
+     * 体积或者重量校准的操作时间
+     */
+    private Date calibrateTime;
     /**
      * 任务状态
      */
@@ -40,6 +45,14 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
 
     public void setQueryEndTime(Date queryEndTime) {
         this.queryEndTime = queryEndTime;
+    }
+
+    public Date getCalibrateTime() {
+        return calibrateTime;
+    }
+
+    public void setCalibrateTime(Date calibrateTime) {
+        this.calibrateTime = calibrateTime;
     }
 
     public List<Integer> getTaskStatusList() {
