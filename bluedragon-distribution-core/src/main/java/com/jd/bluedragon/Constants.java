@@ -1764,24 +1764,4 @@ public class Constants {
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
 
-    /**
-     * DWS称重量方校准类型--重量校准
-     */
-    public static final Integer CALIBRATE_WEIGHT = 1;
-
-    /**
-     * DWS称重量方校准类型--体积校准
-     */
-    public static final Integer CALIBRATE_VOLUME = 2;
-
-    /**
-     * DWS承重量方--校准合格
-     */
-    public static final Integer CALIBRATE_QUALIFIED = 1;
-
-    /**
-     * DWS承重量方--校准不合格
-     */
-    public static final Integer CALIBRATE_UNQUALIFIED = 0;
-
 }

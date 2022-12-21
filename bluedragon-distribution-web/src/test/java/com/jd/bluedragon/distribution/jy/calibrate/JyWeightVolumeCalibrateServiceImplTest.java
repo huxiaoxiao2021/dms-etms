@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.CalibrateDetailStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
@@ -20,8 +20,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static org.junit.Assert.*;
 
 /**
  * 类的描述
@@ -96,13 +94,13 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             DwsMachineCalibrateMQ mq1 = new DwsMachineCalibrateMQ();
             mq1.setMachineCode("WZ-HJ-JZBL-007");
             mq1.setCalibrateTime(new Date().getTime());
-            mq1.setCalibrateType(Constants.CALIBRATE_WEIGHT);
+            mq1.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode());
             mq1.setCalibrateStatus(1);
 
             DwsMachineCalibrateMQ mq2 = new DwsMachineCalibrateMQ();
             mq2.setMachineCode("WZ-HJ-JZBL-007");
             mq2.setCalibrateTime(new Date().getTime());
-            mq2.setCalibrateType(Constants.CALIBRATE_VOLUME);
+            mq2.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode());
             mq2.setCalibrateStatus(1);
             mq2.setMachineStatus(1);
 

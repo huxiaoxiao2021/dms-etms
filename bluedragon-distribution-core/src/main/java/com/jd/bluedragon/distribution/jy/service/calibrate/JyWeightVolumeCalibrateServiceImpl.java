@@ -2,24 +2,15 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
+import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
@@ -28,7 +19,6 @@ import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateMessage;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,9 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -337,7 +324,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
 
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request) {
-        InvokeResult result = new InvokeResult();
+        InvokeResult<DwsWeightVolumeCalibrateDetailResult> result = new InvokeResult();
         DwsWeightVolumeCalibrateDetailResult detailResult = new DwsWeightVolumeCalibrateDetailResult();
         if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null || request.getCalibrateTaskEndTime() == null) {
             logger.error("查询设备校验细节出错，入参{}", request);
@@ -403,7 +390,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         entity.setCalibrateTaskStartTime(new Date(request.getCalibrateTaskStartTime()));
         entity.setCalibrateTaskCloseTime(new Date());
         entity.setUpdateTime(new Date());
-        if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == 1){
+        if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
             JyBizTaskMachineCalibrateDetailEntity deleteEntity = new JyBizTaskMachineCalibrateDetailEntity();
             deleteEntity.setMachineCode(request.getMachineCode());
             deleteEntity.setUpdateUserErp(request.getUser().getUserErp());
@@ -433,11 +420,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             return result;
         }
         taskDetail.setMachineStatus(dwsMachineCalibrateMQ.getMachineStatus());
-        if (Constants.CALIBRATE_WEIGHT.equals(dwsMachineCalibrateMQ.getCalibrateType())){
+        if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
             taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
             taskDetail.setWeightCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
-        if (Constants.CALIBRATE_VOLUME.equals(dwsMachineCalibrateMQ.getCalibrateType())){
+        if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
             taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
             taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
@@ -445,8 +432,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         boolean isFinished = !Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
                 && !Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode());
         if(isFinished){
-            taskDetail.setCalibrateFinishTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
-            taskDetail.setTaskStatus(CalibrateDetailStatusEnum.SOLVED.getStatusCode());
+            Date calibrateFinishTime = taskDetail.getWeightCalibrateTime().getTime() > taskDetail.getVolumeCalibrateTime().getTime() ?
+                    taskDetail.getWeightCalibrateTime() : taskDetail.getVolumeCalibrateTime();
+            taskDetail.setCalibrateFinishTime(calibrateFinishTime);
+            taskDetail.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode());
             // 任务完成后创建新任务
             createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
         }
