@@ -76,6 +76,7 @@ public class RouterFilter implements Filter {
         // 德邦春节项目的错发校验跳过
         if (BusinessHelper.isDPWaybill1(request.getWaybillCache().getWaybillSign())) {
             ConfigTransferDpSiteMatchQo siteQo = new ConfigTransferDpSiteMatchQo();
+            siteQo.setHandoverSiteCode(request.getCreateSiteCode());
             siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
             Result<ConfigTransferDpSite> result = jyTransferConfigProxy.queryMatchConditionRecord(siteQo);
             if (result.getData() != null && result.getData().getEffectiveStartTime().before(new Date()) && new Date().before(result.getData().getEffectiveStopTime())) {
@@ -89,25 +90,18 @@ public class RouterFilter implements Filter {
                     throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
                             HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
                 }
-                if (!Objects.equals(result.getData().getHandoverSiteCode(), request.getCreateSiteCode()) && BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
-                    Map<String, String> hintParams = new HashMap<String, String>();
-                    hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
-                            HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
-                }
-
-            } else {
-                if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
-                    Map<String, String> hintParams = new HashMap<String, String>();
-                    hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
-                            HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule(), hintParams));
-                }
 
             }
 
-
+        } else if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+            Map<String, String> hintParams = new HashMap<String, String>();
+            hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
+            throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
+                    HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
         }
+
+
+
 
         //加一个分拣规则
         Rule rule = null;
