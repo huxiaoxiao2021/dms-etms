@@ -38,7 +38,7 @@ public class WeightVolumeOperateInfo {
     /**
      * 高度cm
      */
-    private BigDecimal height;
+    private BigDecimal high;
 
     /**
      * 体积：立方厘米
@@ -87,12 +87,12 @@ public class WeightVolumeOperateInfo {
         this.width = width;
     }
 
-    public BigDecimal getHeight() {
-        return height;
+    public BigDecimal getHigh() {
+        return high;
     }
 
-    public void setHeight(BigDecimal height) {
-        this.height = height;
+    public void setHigh(BigDecimal high) {
+        this.high = high;
     }
 
     public BigDecimal getVolume() {

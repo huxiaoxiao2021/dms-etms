@@ -387,8 +387,8 @@ public class JYCenterServiceImpl implements JYCenterService {
             if (weightVolumeOperateInfo.getWidth() != null) {
                 entity.setWidth(weightVolumeOperateInfo.getWidth().doubleValue());
             }
-            if (weightVolumeOperateInfo.getHeight() != null) {
-                entity.setHeight(weightVolumeOperateInfo.getHeight().doubleValue());
+            if (weightVolumeOperateInfo.getHigh() != null) {
+                entity.setHeight(weightVolumeOperateInfo.getHigh().doubleValue());
             }
             if (weightVolumeOperateInfo.getOperatorInfo() != null) {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(weightVolumeOperateInfo.getOperatorInfo().getOperateSiteCode());
