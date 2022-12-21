@@ -10,6 +10,7 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
+import com.sun.corba.se.spi.ior.ObjectKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -1038,6 +1039,20 @@ public class BusinessHelper {
             return false;
         }
         return WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG.equals(thirdCarrierFlag);
+    }
+
+    public static boolean isDPSiteCode1(Integer siteCode, Integer siteType, Integer subSiteType){
+        return Objects.equals(siteType, 110) && Objects.equals(subSiteType, 11001);
+
+    }
+
+    /**
+     * 判断是否为预转德邦单号
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDPWaybill1(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_2);
     }
 
     /**
