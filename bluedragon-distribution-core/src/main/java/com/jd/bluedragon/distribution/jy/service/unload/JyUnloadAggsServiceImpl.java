@@ -87,6 +87,10 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         return null;
     }
 
+    @Override
+    public int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.insertOrUpdate(entity);
+    }
 
     private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {
         if(shouldScan == null || shouldScan == 0 || actualScan == null) {

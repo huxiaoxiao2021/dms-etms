@@ -1577,9 +1577,4 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         invokeResult.setData(unloadVehicleService.countByVehicleNumberAndStatus(condition));
 		return invokeResult;
 	}
-
-    @Override
-    public int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity) {
-        return unloadAggDao.insertOrUpdate(entity);
-    }
 }

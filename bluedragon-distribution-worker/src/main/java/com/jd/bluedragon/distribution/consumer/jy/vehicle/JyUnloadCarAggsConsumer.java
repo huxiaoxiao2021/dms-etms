@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -33,7 +34,7 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyUnloadCarAggsConsumer.class);
 
     @Autowired
-    private IJyUnloadVehicleService jyUnloadVehicleService;
+    private JyUnloadAggsService jyUnloadAggsService;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -68,7 +69,7 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
                 return;
             }
         }
-        int result = jyUnloadVehicleService.insertOrUpdateJyUnloadCarAggs(entity);
+        int result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggs(entity);
         if(result >0){
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(entity.getVersion())) {

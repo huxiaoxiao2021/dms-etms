@@ -55,5 +55,6 @@
 		<mapper resource="mappers/mysql/jy/send/JySendTransferLogMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendProductAggsMapper.xml" />
 
+
 	</mappers>
 </configuration>
