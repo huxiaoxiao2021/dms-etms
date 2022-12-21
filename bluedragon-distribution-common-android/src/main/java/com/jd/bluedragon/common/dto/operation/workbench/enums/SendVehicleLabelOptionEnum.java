@@ -10,6 +10,8 @@ public enum SendVehicleLabelOptionEnum {
 
     DRIVER_RECEIVE(1, "司机已领", 1),
     CAR_LENGTH(2, "%s米车", 2),
+    ABOUT_ARRIVE(3, "即将到达", 3),
+    BE_ARRIVED(4, "已到达", 4)
     ;
 
     private Integer code;

@@ -109,6 +109,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -135,6 +136,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private static final int TRANS_BILL_STATUS_CONFIRM = 15;
     private static final int TRANS_BILL_WORK_STATUS = 20;
+
+    @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
+    private String vehicleMapUrl;
 
     /**
      * 运单路由字段使用的分隔符
@@ -566,6 +570,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         // 任务标签
         baseSendVehicle.setTags(resolveTaskTag(entity, transWorkBillDto));
+
+        //车辆地图连接
+        baseSendVehicle.setVehicleMapUrl(makeVehicleMapUrl(entity));
+    }
+
+    /**
+     * 加工生成运输车辆地图URL
+     * @param entity
+     * @return
+     */
+    private String makeVehicleMapUrl(JyBizTaskSendVehicleEntity entity){
+        try{
+            //派车明细编码
+            String transWorkCode = entity.getTransWorkCode();
+            //当前操作场地编码 对应 任务始发场地7位编码
+            String operateNodeCode = StringUtils.EMPTY;
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(entity.getStartSiteId().intValue());
+            if(siteOrgDto != null){
+                return String.format(vehicleMapUrl,transWorkCode,siteOrgDto.getDmsSiteCode());
+            }else{
+                log.error("makeVehicleMapUrl 为获取到对应始发场地7位编码！ {}",entity.getStartSiteId());
+            }
+        }catch (Exception e){
+            log.error("makeVehicleMapUrl error {}",JsonHelper.toJson(entity),e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -591,6 +621,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String carLengthDesc = setCarLength(entity);
         SendVehicleLabelOptionEnum carLengthTag = SendVehicleLabelOptionEnum.CAR_LENGTH;
         tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
+
+        //车辆到达状态
+        SendVehicleLabelOptionEnum carCome = setCarCome(entity);
+        if(carCome != null) {
+            tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
+        }
 
         return tagList;
     }
@@ -2405,6 +2441,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return true;
     }
 
+
     /**
      * 设置车长描述
      *
@@ -2427,6 +2464,27 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return carLengthStr;
     }
 
+
+    /**
+     * 设置车辆到来状态
+     *
+     * @param sendVehicleEntity
+     * @return
+     */
+    private SendVehicleLabelOptionEnum setCarCome(JyBizTaskSendVehicleEntity sendVehicleEntity) {
+        SendVehicleLabelOptionEnum carComeEnum = null;
+        // 即将到达 （对应当前始发场地来说 运输测称之为 【到来】，目的场地才叫【到达】，拣运这边业务倾向于叫到达）
+        // 已到达 （对应当前始发场地来说 运输测称之为 【到来】，目的场地才叫【到达】，拣运这边业务倾向于叫到达）
+        // 已到达 高于 即将
+        if(sendVehicleEntity.getNearComeTime()!=null){
+            carComeEnum = SendVehicleLabelOptionEnum.ABOUT_ARRIVE;
+        }
+        if(sendVehicleEntity.getComeTime()!=null){
+            carComeEnum = SendVehicleLabelOptionEnum.BE_ARRIVED;
+        }
+
+        return carComeEnum;
+    }
     private Long dealMinus(Number a, Number b) {
         return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
     }
