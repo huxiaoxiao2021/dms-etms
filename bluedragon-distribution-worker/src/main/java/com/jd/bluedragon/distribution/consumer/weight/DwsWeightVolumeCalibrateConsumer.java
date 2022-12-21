@@ -2,30 +2,18 @@ package com.jd.bluedragon.distribution.consumer.weight;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
-import com.jd.bluedragon.distribution.spotcheck.domain.DwsAIDistinguishNotifyMQ;
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
-import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * dws称重量方校准消息处理
