@@ -18,6 +18,47 @@ public class JyIntegralDetailDTO {
 
     private Long siteCode;
 
+    /*
+     * ERP或身份证
+     */
+    private String userCode;
+
+    /*
+     * 工种
+     */
+    private Integer jobCode;
+
+    /*
+     * 平均系数
+     */
+    private BigDecimal averageCoefficient;
+
+    /*
+     * 积分/今日积分
+     */
+    private BigDecimal integral;
+
+    /*
+     * 总积分
+     */
+    private BigDecimal totalIntegral;
+
+    /*
+     * 基础得分
+     */
+    private BigDecimal totalScore;
+
+    /*
+     * 基础分数明细
+     */
+    private List<JyBaseScoreCalcuDetailDTO> calcuDetailDTOList;
+
+    /*
+     * 积分系数明细
+     */
+    private List<JyIntegralCoefficientDetailDTO> integralCoefficientDetailDTOList;
+
+
     public Date getOperateDate() {
         return operateDate;
     }
@@ -106,43 +147,5 @@ public class JyIntegralDetailDTO {
         this.integralCoefficientDetailDTOList = integralCoefficientDetailDTOList;
     }
 
-    /*
-     * ERP或身份证
-     */
-    private String userCode;
 
-    /*
-     * 工种
-     */
-    private Integer jobCode;
-
-    /*
-     * 平均系数
-     */
-    private BigDecimal averageCoefficient;
-
-    /*
-     * 积分/今日积分
-     */
-    private BigDecimal integral;
-
-    /*
-     * 总积分
-     */
-    private BigDecimal totalIntegral;
-
-    /*
-     * 基础得分
-     */
-    private BigDecimal totalScore;
-
-    /*
-     * 基础分数明细
-     */
-    private List<JyBaseScoreCalcuDetailDTO> calcuDetailDTOList;
-
-    /*
-     * 积分系数明细
-     */
-    private List<JyIntegralCoefficientDetailDTO> integralCoefficientDetailDTOList;
 }

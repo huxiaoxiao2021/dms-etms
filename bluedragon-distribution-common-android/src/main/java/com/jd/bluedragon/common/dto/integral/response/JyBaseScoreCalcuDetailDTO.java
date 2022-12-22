@@ -36,10 +36,19 @@ public class JyBaseScoreCalcuDetailDTO {
      */
     private BigDecimal toNextQuantity;
 
+
+    /*
+     * 单位名称
+     */
+    private String unitName;
+
+
+
     /*
      * 下一阶段的分数
      */
     private BigDecimal nextScore;
+
 
     /*
      * 指标类型
@@ -126,5 +135,13 @@ public class JyBaseScoreCalcuDetailDTO {
 
     public void setScore(BigDecimal score) {
         this.score = score;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 }

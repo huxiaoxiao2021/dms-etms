@@ -1,13 +1,9 @@
 package com.jd.bluedragon.distribution.integral.domain;
 
-import com.jd.bluedragon.distribution.workingConfig.WorkingConfigProxy;
-import com.jd.fastjson.JSON;
-import com.jd.tp.common.utils.Objects;
+
 import com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService;
 import com.jdl.jy.flat.base.ServiceResult;
-import com.jdl.jy.flat.entity.personalIntegralStatistics.JyIntegralDTO;
-import com.jdl.jy.flat.entity.personalIntegralStatistics.JyIntegralDetailDTO;
-import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralDetailQuery;
+import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +25,6 @@ public class IntegralProxy {
     @Autowired
     IJyPersonalIntegralStatisticsJSFService personalIntegralJSFService;
 
-
     public List<JyIntegralDTO> querySumByUserCode(JyIntegralQuery query){
         ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
         if (serviceResult.getSuccess()) {
@@ -49,7 +44,7 @@ public class IntegralProxy {
     }
 
     public List<JyIntegralDTO> queryIntegralPersonalQuotaByCondition(JyIntegralQuery query){
-        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.queryIntegralPersonalQuotaByCondition(query);
         if (serviceResult.getSuccess()) {
             return serviceResult.getData();
         } else {
@@ -58,7 +53,7 @@ public class IntegralProxy {
     }
 
     public List<JyIntegralDTO> queryFlatIntegralScoreRuleByCondition(JyIntegralQuery query){
-        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.queryFlatIntegralScoreRuleByCondition(query);
         if (serviceResult.getSuccess()) {
             return serviceResult.getData();
         } else {
@@ -67,7 +62,7 @@ public class IntegralProxy {
     }
 
     public List<JyIntegralDTO> queryFlatIntegralQuotaByCondition(JyIntegralQuery query){
-        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.queryFlatIntegralQuotaByCondition(query);
         if (serviceResult.getSuccess()) {
             return serviceResult.getData();
         } else {

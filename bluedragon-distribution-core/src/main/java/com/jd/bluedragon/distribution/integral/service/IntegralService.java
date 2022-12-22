@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.integral.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
+import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
 
 /**
  * @author liuluntao1
@@ -24,4 +25,9 @@ public interface IntegralService {
      * 查询系数明细
      */
     JdCResponse<JyIntegralDetailDTO> getJyIntegralCoefficientDetail(JyIntegralDetailQuery query);
+
+    /*
+     * 获取规则介绍
+     */
+    JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction();
 }

@@ -82,9 +82,9 @@ public class PositionData implements Serializable {
     private String defaultMenuCode;
 
 	/**
-	 * 默认功能名称
+	 * 岗位名称：卸车，到车等
 	 */
-	private String defaultMenuCodeName;
+	private String positionName;
 
 	public Long getId() {
 		return id;
@@ -198,4 +198,11 @@ public class PositionData implements Serializable {
 		this.defaultMenuCode = defaultMenuCode;
 	}
 
+	public String getPositionName() {
+		return positionName;
+	}
+
+	public void setPositionName(String positionName) {
+		this.positionName = positionName;
+	}
 }

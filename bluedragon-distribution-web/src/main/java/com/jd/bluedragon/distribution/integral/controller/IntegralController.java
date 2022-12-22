@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.request.IntegralRequest;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
+import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,4 +50,8 @@ public class IntegralController {
         return integralService.getJyIntegralCoefficientDetail(query);
     }
 
+    @RequestMapping(value = "introduction", method = RequestMethod.POST)
+    public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction(){
+        return integralService.getJyIntegralIntroduction();
+    }
 }

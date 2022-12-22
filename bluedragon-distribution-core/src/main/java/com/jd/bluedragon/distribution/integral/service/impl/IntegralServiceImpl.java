@@ -2,17 +2,12 @@ package com.jd.bluedragon.distribution.integral.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.integral.response.*;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.integral.domain.IntegralProxy;
-import com.jd.bluedragon.common.dto.integral.response.JyBaseScoreCalcuDetailDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyBaseScoreRuleDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralCoefficientDetailDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
-import com.jd.bluedragon.common.dto.integral.response.JyQuotaCoefficientDetailDTO;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import com.jd.tp.common.utils.Objects;
-import com.jdl.jy.flat.entity.personalIntegralStatistics.*;
+import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.enums.JyIntegralQuotaEnum;
 import com.jdl.jy.flat.enums.JyPositionTypeEnum;
 import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralQuery;
@@ -214,11 +209,46 @@ public class IntegralServiceImpl implements IntegralService {
             baseScore.setRuleDTOList(ruleDTOS);
             ruleDTOList.add(baseScore);
         }
+        ruleDTOList = handleBaseScoreUnitName(ruleDTOList);
         return ruleDTOList;
+    }
+
+    private List<JyBaseScoreCalcuDetailDTO> handleBaseScoreUnitName(List<JyBaseScoreCalcuDetailDTO> ruleDTOList) {
+        List<JyBaseScoreCalcuDetailDTO> result = new ArrayList<>();
+        Map<String, String> cacheMap = new HashMap<>();
+        for (JyBaseScoreCalcuDetailDTO dto : ruleDTOList) {
+            if (cacheMap.containsKey(dto.getQuotaNo())) {
+                dto.setUnitName(cacheMap.get(dto.getQuotaNo()));
+            } else {
+                JyIntegralQuery query = new JyIntegralQuery();
+                query.setQuotaNo(dto.getQuotaNo());
+                List<JyIntegralDTO> dtos = integralProxy.queryFlatIntegralQuotaByCondition(query);
+                JyIntegralDTO rootQuota = new JyIntegralDTO();
+                if (CollectionUtils.isEmpty(dtos)) {
+                    dto.setUnitName(" ");
+                    continue;
+                }
+                dto.setUnitName(rootQuota.getUnitName());
+                cacheMap.put(dto.getQuotaNo(), dto.getUnitName());
+            }
+            result.add(dto);
+        }
+        return result;
     }
 
     @Override
     public JdCResponse<JyIntegralDetailDTO> getJyIntegralCoefficientDetail(JyIntegralDetailQuery query) {
         return null;
+    }
+
+    @Override
+    public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
+        JdCResponse<JyIntroductionDTO> response = new JdCResponse<>();
+        JyIntroductionDTO result = new JyIntroductionDTO();
+        result.setTitle("规则介绍");
+        result.setContent("待硕哥文案");
+        response.setData(result);
+        response.toSucceed();
+        return response;
     }
 }
