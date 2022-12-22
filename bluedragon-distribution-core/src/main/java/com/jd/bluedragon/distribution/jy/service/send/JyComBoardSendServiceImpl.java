@@ -198,6 +198,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   private IGenerateObjectId genObjectId;
 
+  @Autowired
+  private NewSealVehicleService newsealVehicleService;
+
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
@@ -396,7 +399,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (log.isInfoEnabled()) {
         log.info("获取滑道笼车信息异常:{}", JsonHelper.toJson(query));
       }
-      return new InvokeResult<>(SEND_FLOE_CTT_CODE, SEND_FLOE_CTT_MESSAGE);
+      return new InvokeResult<>(NOT_FIND_CTT_CODE, NOT_FIND_CTT_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, tableTrolleyResp);
   }
@@ -587,7 +590,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
     BoardCountReq boardCountReq = new BoardCountReq();
-    boardCountReq.setCreateTime(time);
+    Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    boardCountReq.setCreateTime(queryTime);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
@@ -785,7 +789,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     //查询流向下7天内未封车的板
     SendFlowDto sendFlow = new SendFlowDto();
-    sendFlow.setQueryTimeBegin(time);
+    Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    sendFlow.setQueryTimeBegin(queryTime);
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(startSiteCode);
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
@@ -2079,6 +2084,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       batchUpdateCancelReq.setBarCodeList(barCodeList);
       removeBoardBoxDto.setBoxCodeList(barCodeList);
       batchUpdateCancelReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
+      query.setBoardCode(request.getBoardCode());
+      query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+      //如果已封车的批次不触发取消组板发货
+      if (newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
+        return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
+      }
       if (request.isBulkFlag()) {
         // 获取运单号
         JyComboardEntity entity = new JyComboardEntity();
