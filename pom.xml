@@ -213,7 +213,7 @@
 			<dependency>
 				<groupId>com.jdl.jy.flat</groupId>
 				<artifactId>flat-service-sdk</artifactId>
-				<version>1.0.0-TEST-LLT-SNAPSHOT</version>
+				<version>1.0.0-TEST-SNAPSHOT</version>
 			</dependency>
 
 			<!--京东数据库加密安全包-->
