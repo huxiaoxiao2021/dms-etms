@@ -57,6 +57,6 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
     }
 
     public int getTaskCount(JyBizTaskUnloadVehicleStageEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".getTaskCount", entity);
+        return this.getSqlSession().selectOne(NAMESPACE + ".getTaskCount", entity);
     }
 }

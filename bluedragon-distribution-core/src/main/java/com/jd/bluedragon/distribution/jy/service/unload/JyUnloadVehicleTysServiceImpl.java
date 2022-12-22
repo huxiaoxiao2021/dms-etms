@@ -1006,6 +1006,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         InvokeResult<Void> result = new InvokeResult<>();
         result.success();
         try {
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.handoverTask--交接班请求={}", JsonHelper.toJson(unloadVehicleTask));
+            }
             JyBizTaskUnloadVehicleEntity taskUnloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(unloadVehicleTask.getBizId());
             if (taskUnloadVehicle == null) {
                 result.error("任务不存在，交班失败！");
@@ -1026,6 +1029,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             entityQuery.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
             int normalTaskNum = jyBizTaskUnloadVehicleStageService.getTaskCount(entityQuery);
             if(normalTaskNum >= uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize() + 1) {
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.handoverTask--限制交接班此时，当前查到子任务数为{}，限制最大交接次数为{}，请求={}",
+                            normalTaskNum, uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize(), JsonHelper.toJson(unloadVehicleTask));
+                }
                 result.error("当前任务已经达到最大交班次数，扫描结束请直接完成任务");
                 return result;
             }
