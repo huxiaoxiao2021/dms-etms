@@ -24,6 +24,11 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
     private CurrentOperate currentOperate;
 
     /**
+     * 任务id
+     */
+    private Long machineTaskId;
+
+    /**
      * 设备编码
      */
     private String machineCode;
@@ -71,6 +76,14 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
 
     public void setCurrentOperate(CurrentOperate currentOperate) {
         this.currentOperate = currentOperate;
+    }
+
+    public Long getMachineTaskId() {
+        return machineTaskId;
+    }
+
+    public void setMachineTaskId(Long machineTaskId) {
+        this.machineTaskId = machineTaskId;
     }
 
     public String getMachineCode() {

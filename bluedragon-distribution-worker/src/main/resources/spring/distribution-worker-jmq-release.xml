@@ -475,7 +475,7 @@
     </jmq:consumer>
     <!--  dws设备校准更新抽检消息  -->
     <jmq:consumer id="jmq.dwsCalibrateDealSpotCheckConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.dws.calibrate.dealSpotCheck}" listener="dwsCalibrateDealSpotCheck"/>
+        <jmq:listener topic="${jmq.topic.dws.calibrate.dealSpotCheck}" listener="dwsCalibrateDealSpotCheckConsumer"/>
     </jmq:consumer>
 
 </beans>

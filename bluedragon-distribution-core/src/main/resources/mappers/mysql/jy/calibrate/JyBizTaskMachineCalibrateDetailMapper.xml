@@ -240,7 +240,7 @@
             yn = 1
             <include refid="condition_sql"/>
         </where>
-        limit 500
+        limit 1000
     </select>
 
     <select id="selectCountForTask" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultType="java.lang.Integer">

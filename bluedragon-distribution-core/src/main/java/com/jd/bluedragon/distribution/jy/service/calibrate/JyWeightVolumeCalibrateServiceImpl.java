@@ -8,6 +8,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.HrUserManager;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrate
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -123,7 +125,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     private void machineScanDeal(DwsWeightVolumeCalibrateRequest request, InvokeResult<DwsWeightVolumeCalibrateTaskResult> result) {
         String machineCode = request.getMachineCode();
         String userErp = request.getUser().getUserErp();
-        String redisKey = machineCode + Constants.SEPARATOR_HYPHEN + userErp;
+        String redisKey = String.format(CacheKeyConstants.CACHE_KEY_DWS_CALIBRATE_SCAN, machineCode, userErp);
         if(!cacheMachineKey(redisKey)){
             result.error(String.format(JyBizTaskMachineCalibrateMessage.MACHINE_IS_DEAL_HINT, machineCode));
             return;
@@ -286,6 +288,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     private DwsWeightVolumeCalibrateTaskDetail convert2VO(JyBizTaskMachineCalibrateDetailEntity entity) {
         DwsWeightVolumeCalibrateTaskDetail taskDetail = new DwsWeightVolumeCalibrateTaskDetail();
         BeanUtils.copyProperties(entity, taskDetail);
+        taskDetail.setMachineTaskId(entity.getId());
         taskDetail.setCalibrateHint(judgeCalibrateHint(entity));
         taskDetail.setTaskCreateTime(entity.getTaskCreateTime().getTime());
         taskDetail.setTaskEndTime(entity.getTaskEndTime().getTime());
@@ -364,6 +367,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 detail.setCalibrateType(record.getCalibrateType());
                 detail.setMachineCode(record.getMachineCode());
                 detail.setFarmarCode(record.getFarmarCode());
+                // todo
                 detail.setFarmarWeight(String.valueOf(record.getFarmarWeight()));
                 detail.setFarmarLength(String.valueOf(record.getFarmarLength()));
                 detail.setFarmarWidth(String.valueOf(record.getFarmarWidth()));
@@ -377,6 +381,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
 
+                // todo time test
                 calibrateFishTime = Math.max(calibrateFishTime, record.getCalibrateTime());
             }
             detailResult.setCalibrateFinishTime(calibrateFishTime);
@@ -396,6 +401,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<Void> closeMachineCalibrateTask(DwsWeightVolumeCalibrateRequest request) {
+        // todo
         InvokeResult<Void> result = new InvokeResult<>();
         JyBizTaskMachineCalibrateEntity entity = new JyBizTaskMachineCalibrateEntity();
         entity.setMachineCode(request.getMachineCode());
@@ -406,6 +412,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
             JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
             condition.setMachineCode(request.getMachineCode());
+            // todo
             JyBizTaskMachineCalibrateDetailEntity latestTask = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(condition);
             logger.info("latestTask:{}", JsonHelper.toJson(latestTask));
             logger.info("if true:{}", latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode()));
@@ -434,6 +441,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
         condition.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+        // todo jianrong
         JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
         if (taskDetail == null){
             logger.warn("找不到设备编码为:{}的待处理任务!", dwsMachineCalibrateMQ.getMachineCode());
@@ -482,6 +490,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.regularScanCalibrateTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<Boolean> regularScanCalibrateTask() {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -512,19 +521,33 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             }
             for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
                 ids.add(entity.getId());
-                // 发消息推送咚咚
-                dwsCalibratePushDDProducer.sendOnFailPersistent(entity.getMachineCode() + entity.getId(), JsonHelper.toJson(entity));
             }
+            // 批量发消息推送咚咚
+            batchSendPushDD(list);
+
             offset += pageSize;
             count ++;
             // 防止死循环
             if(count > 100){
+                logger.warn("设备超时任务总共:{}条并且超过循环次数限制!", total);
                 break;
             }
         }
         // 任务状态批量更新为'超时'
         batchUpdateStatus(ids);
         return result;
+    }
+
+    private void batchSendPushDD(List<JyBizTaskMachineCalibrateDetailEntity> list) {
+        List<Message> messageList = Lists.newArrayList();
+        for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
+            Message message = new Message();
+            message.setTopic(dwsCalibratePushDDProducer.getTopic());
+            message.setText(JsonHelper.toJson(entity));
+            message.setBusinessId(entity.getMachineCode() + entity.getId());
+            messageList.add(message);
+        }
+        dwsCalibratePushDDProducer.batchSendOnFailPersistent(messageList);
     }
 
     private void batchUpdateStatus(List<Long> ids) {
