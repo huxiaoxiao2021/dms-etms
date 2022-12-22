@@ -216,7 +216,12 @@
 			<artifactId>bluedragon-distribution-utils</artifactId>
 			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
-
+<!--		积分-->
+		<dependency>
+			<groupId>com.jdl.jy.flat</groupId>
+			<artifactId>flat-service-sdk</artifactId>
+			<version>1.0.0-TEST-SNAPSHOT</version>
+		</dependency>
 
 		<!--运单拦截信息接口 2021.3.26-->
 		<dependency>
