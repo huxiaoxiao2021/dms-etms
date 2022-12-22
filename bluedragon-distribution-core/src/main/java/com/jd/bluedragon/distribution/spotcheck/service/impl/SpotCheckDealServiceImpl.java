@@ -660,7 +660,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     && uccPropertyConfiguration.getSpotCheckIssueRelyOMachineStatus()
                     && !Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
                 // 设备抽检设备不合格不下发
-                // todo add log
+                logger.warn("单号:{}设备编码:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode(), spotCheckDto.getMachineCode());
                 return;
             }
             if(!Objects.equals(spotCheckDto.getIsMultiPack(), Constants.CONSTANT_NUMBER_ONE)
