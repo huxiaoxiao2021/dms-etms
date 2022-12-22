@@ -889,7 +889,8 @@ public class JyUnloadVehicleCheckTysService {
                     && stageEntity.getEndTime() != null && stageEntity.getEndTime().getTime() < accrualSettlementTime.getTime()
                     && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
                 log.warn("{},该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
-                res.error("当前板为交班前创建，交班前任务已过计提周期无法扫描，可开新板进行扫描");
+                String msg = unloadScanDto.getSupplementary() ? "当前操作板为任务完成前创建，此任务已过计提周期无法扫描，可开新板进行扫描" : "当前操作板为交班前创建，此任务已过计提周期无法扫描，可开新板进行扫描";
+                res.error(msg);
                 return res;
             }
         }
