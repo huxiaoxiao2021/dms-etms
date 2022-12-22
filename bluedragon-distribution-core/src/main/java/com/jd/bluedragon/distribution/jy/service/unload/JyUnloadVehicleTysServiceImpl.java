@@ -1564,7 +1564,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             List<UnloadBoardRespDto> resDataList = new ArrayList<>();
             for(JyUnloadVehicleBoardEntity entity : jyMasterTask) {
-                UnloadBoardRespDto taskBoardInfo = BeanUtils.convert(entity, UnloadBoardRespDto.class);
+                UnloadBoardRespDto taskBoardInfo = new UnloadBoardRespDto();
+                org.springframework.beans.BeanUtils.copyProperties(entity, taskBoardInfo);
                 resDataList.add(taskBoardInfo);
             }
             res.setData(resDataList);
