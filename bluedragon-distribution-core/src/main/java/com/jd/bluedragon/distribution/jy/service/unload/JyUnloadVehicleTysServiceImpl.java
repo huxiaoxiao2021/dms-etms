@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -33,11 +34,15 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -81,6 +86,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
     public static final Integer OPERATE_NODE_HANDOVER_COMPLETE = 1;
     public static final Integer OPERATE_NODE_TASK_COMPLETE = 2;
+    public static final String PACKAGE_ILLEGAL="该包裹号不存在，可能修改过包裹数，需要按运单号重新补打面单";
 
 
     @Autowired
@@ -124,9 +130,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
-
-
+    @Autowired
+    private WaybillService waybillService;
+    @Autowired
+    private RouterService routerService;
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -138,9 +148,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
         //查询状态统计数据(按状态分组聚合)
-        JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
+        JyBizTaskUnloadStatusEnum[] statusEnums = {UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
+        if(CollectionUtils.isEmpty(unloadCountDtos)) {
+            unloadCountDtos = new ArrayList<>();
+        }
+        //待扫状态单独计算，待扫要过滤到达时间，其他状态不过滤时间
+        JyBizTaskUnloadStatusEnum[] waitStatusEnums = {WAIT_UN_LOAD};
+        JyBizTaskUnloadVehicleEntity waitStatusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
+        waitStatusStatisticsQueryParams.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        List<JyBizTaskUnloadCountDto> waitStatusUnloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(waitStatusStatisticsQueryParams, null, waitStatusEnums);
+        unloadCountDtos.addAll(waitStatusUnloadCountDtos);
+
         if (!CollectionUtils.isNotEmpty(unloadCountDtos)) {
             return new InvokeResult<>(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
@@ -153,10 +173,20 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
 
         statusStatisticsQueryParams.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            statusStatisticsQueryParams.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(statusStatisticsQueryParams);
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
 
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
+    }
+
+    /**
+     * 待卸车装车过滤时间范围
+     * */
+    private Date waitUnloadQueryTimeRange() {
+        return DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
     }
 
 //    /**
@@ -187,6 +217,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            condition.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         return condition;
     }
 
@@ -201,7 +234,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private List<LineTypeStatisDto> calculationLineTypeStatis(JyBizTaskUnloadVehicleEntity condition) {
         List<LineTypeStatisDto> lineTypeList = new ArrayList<>();
         JyBizTaskUnloadStatusEnum statusEnum = JyBizTaskUnloadStatusEnum.getEnumByCode(condition.getVehicleStatus());
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, null, statusEnum);
+        //请求中的线路类型仅是查列表的过滤条件，线路类型为筛选条件，要展示全部
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        org.springframework.beans.BeanUtils.copyProperties(condition,entity);
+        entity.setLineType(null);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(entity, null, statusEnum);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatisDto lineTypeStatis = convertLineTypeDto(countDto);
@@ -251,8 +288,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 detail.setEndSiteId(queryUnloadTaskDto.getCurrentOperate().getSiteCode());
                 List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
                 if (CollectionUtils.isNotEmpty(unloadDetailList)) {
-                    List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
-                    calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
+//                    List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
+                    List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+                    JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(unloadDetailList.get(0).getBizId());
+                    if(entity == null || (!WAIT_UN_LOAD.getCode().equals(entity.getVehicleStatus())
+                            && !UN_LOADING.getCode().equals(entity.getVehicleStatus())
+                            && !UN_LOAD_DONE.getCode().equals(entity.getVehicleStatus()))) {
+                        return new InvokeResult(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+                    }
+                    unloadVehicleTaskDtoList.add(jyBizTaskUnloadVehicleService.entityConvertDto(entity));
+                    calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList, queryUnloadTaskDto);
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
                 }else {
                     log.info("{}未查到包裹号对应任务信息；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
@@ -262,8 +307,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
                 entity.setFuzzyVehicleNumber(queryUnloadTaskDto.getVehicleNumber());
                 entity.setEndSiteId(Long.valueOf(queryUnloadTaskDto.getCurrentOperate().getSiteCode()));
-                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
-                calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
+                List<Integer> statusList = Arrays.asList(WAIT_UN_LOAD.getCode(),UN_LOADING.getCode(), UN_LOAD_DONE.getCode());
+                entity.setStatusCodeList(statusList);
+                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.queryByFuzzyVehicleNumberAndStatus(entity);
+                calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList, queryUnloadTaskDto);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
             }else {
                 log.info("{}参数缺失：该接口包裹号或车牌号不能全部为空；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
@@ -276,41 +323,49 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
     }
 
-    private void calculationCount(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList) {
-        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
+    private void calculationCount(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList, UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         int waitUnloadCount = 0;
         //卸车中数量
         int unloadingCount = 0;
         //已完成卸车数量
         int unloadedCount = 0;
+        List<UnloadVehicleTaskDto> queryStatusList = new ArrayList<>();
+
         for (UnloadVehicleTaskDto unloadVehicleTaskDto : unloadVehicleTaskDtoList) {
+            if(unloadVehicleTaskReqDto.getVehicleStatus() != null && unloadVehicleTaskDto.getVehicleStatus() != null
+                    && unloadVehicleTaskReqDto.getVehicleStatus().equals(unloadVehicleTaskDto.getVehicleStatus())) {
+                queryStatusList.add(unloadVehicleTaskDto);
+            }
+
             switch (unloadVehicleTaskDto.getVehicleStatus()) {
                 case 3:
                     waitUnloadCount++;
-                    break;
+                    continue;
                 case 4:
                     unloadingCount++;
-                    break;
+                    continue;
                 case 5:
                     unloadedCount++;
-                    break;
+                    continue;
                 default:
                     log.info("");
             }
         }
+        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(queryStatusList);
+
         unloadVehicleTaskRespDto.setWaitUnloadCount(waitUnloadCount);
         unloadVehicleTaskRespDto.setUnloadingCount(unloadingCount);
         unloadVehicleTaskRespDto.setUnloadedCount(unloadedCount);
     }
 
-    private List<UnloadVehicleTaskDto> convertUnloadVehicleTaskDto(List<JyVehicleTaskUnloadDetail> unloadDetailList) {
-        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
-        JyVehicleTaskUnloadDetail detail = unloadDetailList.get(0);
-        JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(detail.getBizId());
-        UnloadVehicleTaskDto unloadVehicleTaskDto = jyBizTaskUnloadVehicleService.entityConvertDto(entity);
-        unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
-        return unloadVehicleTaskDtoList;
-    }
+//    private List<UnloadVehicleTaskDto> convertUnloadVehicleTaskDto(List<JyVehicleTaskUnloadDetail> unloadDetailList) {
+//        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+//        JyVehicleTaskUnloadDetail detail = unloadDetailList.get(0);
+//        JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(detail.getBizId());
+//        UnloadVehicleTaskDto unloadVehicleTaskDto = jyBizTaskUnloadVehicleService.entityConvertDto(entity);
+//        unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
+//        return unloadVehicleTaskDtoList;
+//    }
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.updateUnloadVehicleTaskProperty",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -464,7 +519,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
+                    log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
                     log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
                     invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
@@ -504,7 +564,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         scanResult.setEndSiteName(request.getNextSiteName());
         scanResult.setWarnMsg(new HashMap<String, String>(5));
-        scanResult.setConfirmMsg(new HashMap<String, String>(1));
+        scanResult.setConfirmMsg(new HashMap<String, String>(3));
         return scanResult;
     }
 
@@ -516,7 +576,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
-            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
             return invokeResult;
         }
         String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
@@ -535,13 +595,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
         // 包裹是否扫描成功以及是否组板成功
         jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
+
+        //易冻品校验
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
+
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
-            // 设置拦截缓存
-            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -596,6 +658,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
+
+
         return invokeResult;
     }
 
@@ -609,7 +675,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(barCode)) {
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                 return invokeResult;
             }
             waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
@@ -621,6 +687,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        //易冻损校验
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
         scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
         // 校验是否达到大宗使用标准
         String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
@@ -672,6 +740,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
 
+    private void checkEasyFreezeResult(String barCode, Integer siteCode,ScanPackageRespDto scanPackageRespDto){
+        //易冻品校验
+        InvokeResult<Boolean> easyFreezeCheckResult
+                = waybillService.checkEasyFreeze(barCode, new Date(), siteCode);
+        log.info("checkEasyFreezeResult-易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
+        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
+            Map<String, String> confirmMsg = scanPackageRespDto.getConfirmMsg();
+            confirmMsg.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
+            scanPackageRespDto.setConfirmMsg(confirmMsg);
+        }
+    }
 
 
 
@@ -683,12 +762,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(scanCode)) {
             scanCode = WaybillUtil.getWaybillCode(scanCode);
         }
-        String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
-        Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
-        scanPackageDto.setNextSiteCode(nextSiteCode);
+        RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
+        scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
-            Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
-            scanPackageDto.setPrevSiteCode(prevSiteCode);
+            scanPackageDto.setPrevSiteCode(routeNextDto.getFirstLastSiteId());
         } else {
             scanPackageDto.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
             scanPackageDto.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
@@ -729,7 +806,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         // 设置子阶段bizId
-        jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        InvokeResult<Boolean> invokeResult = jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        if(!invokeResult.codeSuccess()) {
+            throw new JyBizException(invokeResult.getMessage());
+        }
         return unloadScanDto;
     }
 
@@ -781,9 +861,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
                     log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "流水线扫描新版本获取锁失败或卸车任务已在老版本操作");
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
+                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
                 }
             }
@@ -1296,8 +1381,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getWaybillNextRouter",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getWaybillNextRouter(String waybillCode, Integer startSiteId) {
-        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-        return getRouteNextSite(startSiteId, routerStr);
+        RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(startSiteId, waybillCode, null);
+        return routeNextDto.getFirstNextSiteId();
     }
 
     @Override
@@ -1470,6 +1555,38 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    public InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByBizIdAndBoardCode(String bizId, String boardCode) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryTaskBoardInfoByBizIdAndBoardCode--根据BizId查询任务板关系服务--";
+        InvokeResult<UnloadBoardRespDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(StringUtils.isBlank(bizId) || StringUtils.isBlank(boardCode)) {
+                res.error("参数缺失");
+                return res;
+            }
+            JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
+            param.setUnloadVehicleBizId(bizId);
+            param.setBoardCode(boardCode);
+            JyUnloadVehicleBoardEntity entityRes = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(param);
+
+            if(entityRes == null) {
+                res.setMessage("查询数据为空");
+                return res;
+            }
+            UnloadBoardRespDto resData = new UnloadBoardRespDto();
+            org.springframework.beans.BeanUtils.copyProperties(entityRes,resData);
+
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，bizId={}，boardCode={}, errMsg={}", methodDesc, bizId, boardCode, e.getMessage(), e);
+            res.error("根据BizId查询任务板关系服务异常 " + e.getMessage());
+            return  res;
+        }
+    }
+
+
+    @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto) {
         InvokeResult<FlowBoardDto> response = new InvokeResult<>();
@@ -1536,10 +1653,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.setComBoardAggDto(aggDto);
             //查流向
             String waybillCode = WaybillUtil.getWaybillCode(flowBoardDto.getPackageCode());
-            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            Integer nextSiteCode = getRouteNextSite(flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
+            RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(flowBoardDto.getCurrentOperate().getSiteCode(), waybillCode, null);
+            Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
             if(nextSiteCode == null) {
-                log.warn("{}--包裹未查到路由信息--packageCode={},route={}", methodDesc, waybillCode, routerStr);
+                log.warn("{}--包裹未查到路由信息--packageCode={},routeNextDto={}", methodDesc, waybillCode, JsonHelper.toJson(routeNextDto));
                 response.error("未查到该包裹流向信息");
                 return response;
             }
@@ -1570,7 +1687,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         return response;
     }
-
     private com.jd.bluedragon.common.dto.base.request.User copyUser(com.jd.bluedragon.distribution.jy.dto.User userParam) {
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
         user.setUserCode(userParam.getUserCode());

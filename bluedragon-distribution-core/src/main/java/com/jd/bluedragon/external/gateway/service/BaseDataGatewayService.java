@@ -6,6 +6,8 @@ import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
+import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
+import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;
@@ -46,4 +48,11 @@ public interface BaseDataGatewayService {
      */
     JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request);
 
+    /**
+     * 获取通用提示音
+     *
+     * @param hintVoiceReq
+     * @return
+     */
+    JdCResponse<HintVoiceResp> getCommonHintVoice(HintVoiceReq hintVoiceReq);
 }

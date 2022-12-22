@@ -153,4 +153,19 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse<SendBatchResp> querySendBatch(SendBatchReq request);
 
+    /**
+     * 按统计待扫产品类型和包裹总数
+     * @param request
+     * @return
+     */
+    JdCResponse<List<SendVehicleProductTypeAgg>> getSendVehicleToScanAggByProduct(SendVehicleCommonRequest request);
+
+    /**
+     * 按产品类型获取待扫包裹列表
+     * @param request
+     * @return
+     */
+    JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
+
+
 }
