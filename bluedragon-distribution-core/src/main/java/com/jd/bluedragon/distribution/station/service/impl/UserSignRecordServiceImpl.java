@@ -1014,6 +1014,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			data.setWorkTimes(workTimes);
 		}
+		if (BusinessUtil.isIdCardNo(data.getUserCode())) {
+			data.setUserName(data.getUserCode());
+		}
 		return data;
 	}
 	private double calculateWorkHours(Date signInTime,Date signOutTime,Date currentDate) {
