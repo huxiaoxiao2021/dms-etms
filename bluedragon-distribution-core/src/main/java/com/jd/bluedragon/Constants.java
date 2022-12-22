@@ -1771,4 +1771,9 @@ public class Constants {
     public static final String JY_COMBOARD_CTT_LOCK_PREFIX  = "jy_comboard_ctt_lock_%s";
 
     public static final int  LOCK_EXPIRE  = 3;
+
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
 }

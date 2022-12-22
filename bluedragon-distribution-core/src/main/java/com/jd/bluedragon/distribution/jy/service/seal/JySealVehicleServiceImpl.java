@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
@@ -33,7 +34,9 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
+import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -50,6 +53,7 @@ import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.util.CollectionUtil;
@@ -60,6 +64,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
@@ -99,6 +104,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private WeightVolSendCodeJSFService weightVolSendCodeJSFService;
+    @Autowired
+    JimDbLock jimDbLock;
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
 
 
     @Override
@@ -154,7 +163,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
 
-    
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.sealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
@@ -213,32 +222,49 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq) {
-        log.info("jy传站提交封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
-        SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
-        //TODO 流向 加锁，校验一下 批次是否已经封车了
-        //车上已经封了的封签号
-        List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
-        if (sealCarDto.getSealCodes() != null) {
-            sealCarDto.getSealCodes().addAll(sealCodes);
-        } else {
-            sealCarDto.setSealCodes(sealCodes);
+        log.info("jy传站封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
+        String sealLockKey = String.format(Constants.JY_SEAL_LOCK_PREFIX, sealVehicleReq.getSendVehicleDetailBizId());
+        if (!jimDbLock.lock(sealLockKey, sealVehicleReq.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+            throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
-        //封装提交封车请求的dto
-        List<SealCarDto> sealCarDtoList = new ArrayList<>();
-        sealCarDtoList.add(sealCarDto);
-        //批次为空的列表信息
-        Map<String, String> emptyBatchCode = new HashMap<String,String>();
-
-        NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
-        if (sealResp != null && JdResponse.CODE_OK.equals(sealResp.getCode())) {
-            if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
-                List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
-                jySendSealCodeService.addBatch(entityList);
+        try {
+            JyBizTaskSendVehicleDetailEntity entity =jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
+            if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
+                throw new JyBizException("该流向已封车！");
             }
-            updateTaskStatus(sealVehicleReq, sealCarDto);
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            //校验批次是否已经封车
+            for (String sendCode:sealVehicleReq.getBatchCodes()){
+                if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                    throw new JyBizException("该批次:"+sendCode+"已经封车");
+                }
+            }
+
+            SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
+            //车上已经封了的封签号
+            List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
+            if (sealCarDto.getSealCodes() != null) {
+                sealCarDto.getSealCodes().addAll(sealCodes);
+            } else {
+                sealCarDto.setSealCodes(sealCodes);
+            }
+            //封装提交封车请求的dto
+            List<SealCarDto> sealCarDtoList = new ArrayList<>();
+            sealCarDtoList.add(sealCarDto);
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode = new HashMap<String,String>();
+            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
+            if (sealResp != null && JdResponse.CODE_OK.equals(sealResp.getCode())) {
+                if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
+                    List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
+                    jySendSealCodeService.addBatch(entityList);
+                }
+                updateTaskStatus(sealVehicleReq, sealCarDto);
+                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            }
+            return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
+        } finally {
+            jimDbLock.releaseLock(sealLockKey, sealVehicleReq.getRequestId());
         }
-        return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
     }
 
     @Override
