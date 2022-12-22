@@ -625,11 +625,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
                 return invokeResult;
             }
-            // 专网校验
-            boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
-            if (privateNetworkFlag) {
-                return invokeResult;
-            }
             // 跨越目的转运中心自提校验
             String kyResult = jyUnloadVehicleCheckTysService.kyExpressCheck(waybill, operateSiteCode);
             if (StringUtils.isNotBlank(kyResult)) {
@@ -731,11 +726,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
         if (StringUtils.isNotBlank(checkResult)) {
             invokeResult.customMessage(InvokeResult.CODE_SPECIAL_INTERCEPT, checkResult);
-            return invokeResult;
-        }
-        // 专网校验
-        boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
-        if (privateNetworkFlag) {
             return invokeResult;
         }
         // B网快运发货规则校验
@@ -1473,15 +1463,21 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             //主任务
             JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
             UnloadMasterTaskDto masterTask = new UnloadMasterTaskDto();
+            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+            if (jyMasterTask == null) {
+                resData.setUnloadMasterTaskDto(masterTask);
+                resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
+                res.setData(resData);
+                return res;
+            }
             org.springframework.beans.BeanUtils.copyProperties(jyMasterTask, masterTask);
             resData.setUnloadMasterTaskDto(masterTask);
             if(queryChildTaskFlag != null && queryChildTaskFlag) {
                 //子任务
-                List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
                 List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
                 if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
                     for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
-                        unloadChildTaskDtoList.add(BeanUtils.convert(childTaskInfo, UnloadChildTaskDto.class));
+                        unloadChildTaskDtoList.add(transformUnloadChildEntity(childTaskInfo));
                     }
                 }
                 resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
@@ -1493,6 +1489,23 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.error("根据主BizId查询主子任务服务异常 " + e.getMessage());
             return  res;
         }
+    }
+
+    private UnloadChildTaskDto transformUnloadChildEntity(JyBizTaskUnloadVehicleStageEntity childTaskInfo) {
+        UnloadChildTaskDto unloadChildTaskDto = new UnloadChildTaskDto();
+        unloadChildTaskDto.setBizId(childTaskInfo.getBizId());
+        unloadChildTaskDto.setUnloadVehicleBizId(childTaskInfo.getUnloadVehicleBizId());
+        unloadChildTaskDto.setType(childTaskInfo.getType());
+        unloadChildTaskDto.setStatus(childTaskInfo.getStatus());
+        unloadChildTaskDto.setStartTime(childTaskInfo.getStartTime());
+        unloadChildTaskDto.setEndTime(childTaskInfo.getEndTime());
+        unloadChildTaskDto.setCreateUserErp(childTaskInfo.getCreateUserErp());
+        unloadChildTaskDto.setCreateUserName(childTaskInfo.getCreateUserName());
+        unloadChildTaskDto.setUpdateUserErp(childTaskInfo.getUpdateUserErp());
+        unloadChildTaskDto.setUpdateUserName(childTaskInfo.getUpdateUserName());
+        unloadChildTaskDto.setCreateTime(childTaskInfo.getCreateTime());
+        unloadChildTaskDto.setUpdateTime(childTaskInfo.getUpdateTime());
+        return unloadChildTaskDto;
     }
 
     @Override
