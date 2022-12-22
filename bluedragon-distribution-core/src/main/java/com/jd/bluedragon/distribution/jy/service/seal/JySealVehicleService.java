@@ -55,4 +55,9 @@ public interface JySealVehicleService {
      */
     InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request);
 
+
+    /**
+     * 校验运力编码的目的地是否一致
+     */
+    InvokeResult checkTransCodeScan(CheckTransportReq reqcuest);
 }

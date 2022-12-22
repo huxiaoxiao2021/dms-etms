@@ -68,7 +68,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Override
   public JdCResponse checkTransCode(CheckTransportReq checkTransportReq) {
-    return null;
+    return retJdCResponse(jySealVehicleService.checkTransCodeScan(checkTransportReq));
   }
 
   @Override
@@ -80,7 +80,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
     return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
   }
-
+  
   @Override
   public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
     return retJdCResponse(jyComBoardSendService.queryBelongBoardByBarCode(request));
