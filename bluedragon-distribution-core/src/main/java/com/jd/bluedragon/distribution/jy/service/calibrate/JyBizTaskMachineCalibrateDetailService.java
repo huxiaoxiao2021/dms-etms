@@ -88,7 +88,7 @@ public interface JyBizTaskMachineCalibrateDetailService {
      * @param entity
      * @return
      */
-    int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity entity);
+    int deleteById(JyBizTaskMachineCalibrateDetailEntity entity);
 
     /**
      * 根据id批量更新状态

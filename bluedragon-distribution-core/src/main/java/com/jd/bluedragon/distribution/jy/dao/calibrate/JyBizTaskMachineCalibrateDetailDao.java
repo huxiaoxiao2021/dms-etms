@@ -26,8 +26,8 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().update(NAMESPACE + ".update", entity);
     }
 
-    public int delete(JyBizTaskMachineCalibrateDetailEntity entity){
-        return this.getSqlSession().delete(NAMESPACE + ".delete", entity);
+    public int deleteById(JyBizTaskMachineCalibrateDetailEntity entity){
+        return this.getSqlSession().delete(NAMESPACE + ".deleteById", entity);
     }
 
     public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {

@@ -196,12 +196,12 @@
     </update>
 
 
-    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
+    <update id="deleteById" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
         update jy_biz_task_machine_calibrate_detail
         <set>
             yn = 0,
             update_time = #{updateTime},
-            update_user = #{updateUser}
+            update_user_erp = #{updateUserErp}
         </set>
         <where>
             id = #{id}
@@ -278,21 +278,6 @@
             and task_end_time <![CDATA[ >= ]]> #{calibrateTime}
         </where>
     </select>
-
-    <update id="duplicateNewestTaskDetail" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
-        update jy_biz_task_machine_calibrate_detail
-        <set>
-            yn = 0,
-            update_time = #{updateTime},
-            update_user_erp = #{updateUserErp}
-        </set>
-        <where>
-            yn = 1
-            and task_status = 0
-            and machine_code = #{machineCode}
-        </where>
-        order by create_time desc limit 1
-    </update>
 
     <sql id="condition_sql">
         create_user_erp = #{createUserErp}

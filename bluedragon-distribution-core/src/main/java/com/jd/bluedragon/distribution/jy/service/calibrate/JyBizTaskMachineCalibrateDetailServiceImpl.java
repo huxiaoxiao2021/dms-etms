@@ -71,8 +71,8 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity entity) {
-        return jyBizTaskMachineCalibrateDetailDao.duplicateNewestTaskDetail(entity);
+    public int deleteById(JyBizTaskMachineCalibrateDetailEntity entity) {
+        return jyBizTaskMachineCalibrateDetailDao.deleteById(entity);
     }
 
 }
