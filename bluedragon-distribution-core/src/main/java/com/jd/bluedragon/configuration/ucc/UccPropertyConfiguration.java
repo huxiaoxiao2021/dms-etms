@@ -19,6 +19,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+
+    /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
+    private boolean enableGoodsAreaOfTysScan;
+
     private boolean offlineLogGlobalSwitch;
 
     private boolean systemLogGlobalSwitch;
@@ -313,6 +317,11 @@ public class UccPropertyConfiguration {
     private String offlineTaskReportInterceptSites;
 
     /**
+     * 龙门架设备实操计算应拦截场地，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
+     */
+    private String scannerOperateCalculateIfInterceptSites;
+
+    /**
      * 称重良方规则标准
      */
     private String weightVolumeRuleStandard;
@@ -531,6 +540,14 @@ public class UccPropertyConfiguration {
 
     public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
         this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
+
+    public boolean getEnableGoodsAreaOfTysScan() {
+        return enableGoodsAreaOfTysScan;
+    }
+
+    public void setEnableGoodsAreaOfTysScan(boolean enableGoodsAreaOfTysScan) {
+        this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
     }
 
     public String getBusinessLogQueryPageSwitch() {
@@ -963,6 +980,14 @@ public class UccPropertyConfiguration {
     private Integer jyUnloadCarListQueryDayFilter;
 
 
+    /**
+     * 定时上传设备位置间隔 秒级时间戳 -1 - 表示不上传
+     */
+    private Integer uploadDeviceLocationInterval;
+    /**
+     * 实时判断设备操作位置异常开关 0 - 关，1 - 开
+     */
+    private Integer checkDeviceLocationInRealTimeSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1511,6 +1536,31 @@ public class UccPropertyConfiguration {
             return false;
         }
         List<String> siteCodes = Arrays.asList(offlineTaskReportInterceptSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
+
+    public String getScannerOperateCalculateIfInterceptSites() {
+        return scannerOperateCalculateIfInterceptSites;
+    }
+
+    public void setScannerOperateCalculateIfInterceptSites(String scannerOperateCalculateIfInterceptSites) {
+        this.scannerOperateCalculateIfInterceptSites = scannerOperateCalculateIfInterceptSites;
+    }
+
+    public Boolean getScannerOperateCalculateIfInterceptNeedHandle(Integer siteId) {
+        if(StringUtils.isBlank(scannerOperateCalculateIfInterceptSites)){
+            return false;
+        }
+        if(Objects.equals("0", scannerOperateCalculateIfInterceptSites)){
+            return true;
+        }
+        if(Objects.equals("-1", scannerOperateCalculateIfInterceptSites)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(scannerOperateCalculateIfInterceptSites.split(Constants.SEPARATOR_COMMA));
         if(siteCodes.contains(siteId + "")){
             return true;
         }
@@ -2292,4 +2342,24 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
+
+    public Integer getUploadDeviceLocationInterval() {
+        return uploadDeviceLocationInterval;
+    }
+
+    public void setUploadDeviceLocationInterval(Integer uploadDeviceLocationInterval) {
+        this.uploadDeviceLocationInterval = uploadDeviceLocationInterval;
+    }
+
+    public Integer getCheckDeviceLocationInRealTimeSwitch() {
+        return checkDeviceLocationInRealTimeSwitch;
+    }
+
+    public void setCheckDeviceLocationInRealTimeSwitch(Integer checkDeviceLocationInRealTimeSwitch) {
+        this.checkDeviceLocationInRealTimeSwitch = checkDeviceLocationInRealTimeSwitch;
+    }
+
+    public boolean getCheckDeviceLocationInRealTimeSwitchIsOn() {
+        return Objects.equals(this.getCheckDeviceLocationInRealTimeSwitch(), Constants.YN_YES);
+    }
 }
