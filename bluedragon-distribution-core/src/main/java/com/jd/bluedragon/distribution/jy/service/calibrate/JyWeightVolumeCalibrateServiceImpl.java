@@ -373,7 +373,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 detail.setCalibrateType(record.getCalibrateType());
                 detail.setMachineCode(record.getMachineCode());
                 detail.setFarmarCode(record.getFarmarCode());
-                // todo
                 detail.setFarmarWeight(formatter.format(record.getFarmarWeight()));
                 detail.setFarmarLength(formatter.format(record.getFarmarLength()));
                 detail.setFarmarWidth(formatter.format(record.getFarmarWidth()));
@@ -387,7 +386,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
 
-                // todo time test
                 if (record.getCalibrateTime() != null) {
                     calibrateFishTime = Math.max(calibrateFishTime, record.getCalibrateTime());
                 }
@@ -409,10 +407,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<Void> closeMachineCalibrateTask(DwsWeightVolumeCalibrateRequest request) {
-        // todo
         InvokeResult<Void> result = new InvokeResult<>();
 
-        if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null || request.getUser() == null) {
+        if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null
+                || request.getUser() == null || request.getMachineTaskId() == null) {
             result.error(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_REQUEST_ERROR);
             return result;
         }
@@ -423,16 +421,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         entity.setUpdateTime(new Date());
         //设备关闭后废弃当前的最新的处于待处理状态的任务
         if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
-            JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
-            condition.setMachineCode(request.getMachineCode());
-            // todo
-            JyBizTaskMachineCalibrateDetailEntity latestTask = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(condition);
-            //非待处理状态的任务不废弃
-            if (latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())) {
-                latestTask.setUpdateUserErp(request.getUser().getUserErp());
-                latestTask.setUpdateTime(new Date());
-                jyBizTaskMachineCalibrateDetailService.deleteById(latestTask);
-            }
+            JyBizTaskMachineCalibrateDetailEntity deleteEntity = new JyBizTaskMachineCalibrateDetailEntity();
+            deleteEntity.setId(request.getMachineTaskId());
+            deleteEntity.setUpdateUserErp(request.getUser().getUserErp());
+            deleteEntity.setUpdateTime(new Date());
+            jyBizTaskMachineCalibrateDetailService.deleteById(deleteEntity);
             result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, "任务关闭成功！");
         }else {
             logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", request);
@@ -452,14 +445,9 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
         condition.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
-        // todo jianrong
-        JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
-        if (taskDetail == null){
-            logger.warn("找不到设备编码为:{}的待处理任务!", dwsMachineCalibrateMQ.getMachineCode());
-            result.error("设备" + dwsMachineCalibrateMQ.getMachineCode() + "未生成待处理任务，请联系分拣小秘排查!");
         List<JyBizTaskMachineCalibrateDetailEntity> detailList = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
         if (CollectionUtils.isEmpty(detailList) || detailList.size() > Constants.CONSTANT_NUMBER_ONE){
-            logger.warn("获取设备编码为:{}的待处理任务出现异常!", dwsMachineCalibrateMQ.getMachineCode());
+            logger.error("获取设备编码为:{}的待处理任务出现异常!", dwsMachineCalibrateMQ.getMachineCode());
             result.error("设备" + dwsMachineCalibrateMQ.getMachineCode() + "待处理任务获取异常，请联系分拣小秘排查!");
             return result;
         }
