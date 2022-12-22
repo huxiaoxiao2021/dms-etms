@@ -2193,6 +2193,12 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>dms-workbench-utils-sdk</artifactId>
+					<groupId>com.jd.dms.wb</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -2520,7 +2526,7 @@
                     <artifactId>powermock-module-junit4</artifactId>
                 </exclusion>
 
-            </exclusions>			
+            </exclusions>
 		</dependency>
 		<!-- 中台四级地址 -->
 		<dependency>
