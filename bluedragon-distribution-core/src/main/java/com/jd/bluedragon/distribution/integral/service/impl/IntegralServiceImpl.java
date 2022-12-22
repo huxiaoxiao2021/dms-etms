@@ -152,13 +152,13 @@ public class IntegralServiceImpl implements IntegralService {
             }
         }
         // 扁平化指标系数map
-        coefficientMap.forEach((k,v) -> {
+        for (Map.Entry<Integer, List<JyQuotaCoefficientDetailDTO>> entry : coefficientMap.entrySet()) {
             JyIntegralCoefficientDetailDTO detailDTO = new JyIntegralCoefficientDetailDTO();
-            detailDTO.setPositionType(k);
-            detailDTO.setPositionTypeName(JyPositionTypeEnum.getName(k));
-            detailDTO.setQuotaCoefficientDetailDTOS(v);
+            detailDTO.setPositionType(entry.getKey());
+            detailDTO.setPositionTypeName(JyPositionTypeEnum.getName(entry.getKey()));
+            detailDTO.setQuotaCoefficientDetailDTOS(entry.getValue());
             coefficients.add(detailDTO);
-        });
+        }
         // 基础分规则装入
         baseScores = handleBaseScoreRule(result, baseScores);
         // 装入结果
