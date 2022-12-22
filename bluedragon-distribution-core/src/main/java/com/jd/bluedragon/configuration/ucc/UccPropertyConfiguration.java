@@ -722,12 +722,22 @@ public class UccPropertyConfiguration {
 
     private boolean syncJySealStatusSwitch;
 
+    private boolean syncJyCZSealStatusSwitch;
+
     private int sealStatusBatchSizeLimit;
 
+    public boolean getSyncJyCZSealStatusSwitch() {
+        return syncJyCZSealStatusSwitch;
+    }
+
+    public void setSyncJyCZSealStatusSwitch(boolean syncJyCZSealStatusSwitch) {
+        this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
+    }
+
     private Integer jyComboardScanUserBeginDay;
-    
+
     private Integer jyComboardSiteCTTPageSize;
-    
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }

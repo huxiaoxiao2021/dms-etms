@@ -189,7 +189,8 @@
 		<property name="securitySwitch" value="${securitySwitch:true}"/>
 		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
-		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
+		<property name="syncJyCZSealStatusSwitch" value="${syncJyCZSealStatusSwitch:false}"/>
+		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:50}"/>
 		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
@@ -369,6 +370,7 @@
 				<value>uccPropertyConfiguration.securitySwitch</value>
 				<value>uccPropertyConfiguration.jyDemotionConfig</value>
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
+				<value>uccPropertyConfiguration.syncJyCZSealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
 				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
