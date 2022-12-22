@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="autoMappingBehavior" value="FULL"/>
+		<setting name="defaultStatementTimeout" value="30"/>
+	</settings>
+
+	<typeAliases>
+
+		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" alias="JyUnloadAggsEntity"/>
+        <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" alias="JySendAggsEntity" />
+
+	</typeAliases>
+
+
+	<mappers>
+
+		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendAggsBakMapper.xml" />
+
+	</mappers>
+</configuration>

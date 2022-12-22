@@ -474,6 +474,11 @@
         <jmq:listener topic="${jmq.topic.jy.send.goods.aggs}" listener="jySendGoodsAggsConsumer"/>
     </jmq:consumer>
 
+    <!--  发货统计消息处理  -->
+    <jmq:consumer id="jmq.jySendGoodsAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.goods.aggs.bak}" listener="jySendGoodsAggsBakConsumer"/>
+    </jmq:consumer>
+
     <!--  卸车统计消息处理  -->
     <jmq:consumer id="jmq.jyUnloadCarAggsConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.car.aggs}" listener="jyUnloadCarAggsConsumer"/>

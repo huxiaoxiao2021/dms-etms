@@ -44,6 +44,7 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     public int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
         return jySendAggsDaoBak.insertOrUpdate(entity);
     }
+
     private JySendAggsDaoStrategy getJySendAggsDao(){
         if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
             return jySendAggsDaoBak;
