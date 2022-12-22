@@ -1437,13 +1437,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             //主任务
             JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
             UnloadMasterTaskDto masterTask = new UnloadMasterTaskDto();
-            if (jyMasterTask != null) {
-                org.springframework.beans.BeanUtils.copyProperties(jyMasterTask, masterTask);
+            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+            if (jyMasterTask == null) {
+                resData.setUnloadMasterTaskDto(masterTask);
+                resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
+                res.setData(resData);
+                return res;
             }
+            org.springframework.beans.BeanUtils.copyProperties(jyMasterTask, masterTask);
             resData.setUnloadMasterTaskDto(masterTask);
             if(queryChildTaskFlag != null && queryChildTaskFlag) {
                 //子任务
-                List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
                 List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
                 if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
                     for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
