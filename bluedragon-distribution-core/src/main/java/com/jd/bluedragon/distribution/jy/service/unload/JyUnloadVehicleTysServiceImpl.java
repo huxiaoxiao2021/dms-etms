@@ -879,7 +879,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             Long completeTime = unloadVehicleEntity.getUnloadFinishTime().getTime();
             Long limitTime = uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
             if(System.currentTimeMillis() - completeTime - limitTime > 0) {
-                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize());
+                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
                 res.customMessage(RESULT_INTERCEPT_CODE, msg);
                 return res;
             }
