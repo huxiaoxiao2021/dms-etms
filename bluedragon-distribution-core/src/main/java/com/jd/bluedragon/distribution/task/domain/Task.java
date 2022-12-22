@@ -1015,6 +1015,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "BoardDeliveryCancelTask";
         }else if(TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return "CycleBoxStatusTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_INSPECTION.equals(type)) {
+            return "JYOpenInspectionTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SORTING.equals(type)) {
+            return "JYOpenSortingTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
+            return "JYOpenSendTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
