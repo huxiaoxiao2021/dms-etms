@@ -953,6 +953,7 @@ public class JyUnloadVehicleCheckTysService {
         if(unloadScanDto.getSupplementary()) {
             entity.setType(JyBizTaskStageTypeEnum.SUPPLEMENT.getCode());
             entity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            entity.setEndTime(now);
         }else {
             entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
             entity.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
