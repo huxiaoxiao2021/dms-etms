@@ -88,6 +88,6 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Override
   public JdCResponse<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
-    return null;
+    return retJdCResponse(jySealVehicleService.listComboardBySendFlow(request));
   }
 }

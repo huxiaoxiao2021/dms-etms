@@ -93,7 +93,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
     condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
-    condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    if (sendFlowDto.getQueryTimeBegin() != null ) {
+      condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    }
     List<Integer> statusList = new ArrayList<>();
     statusList.add(ComboardStatusEnum.PROCESSING.getCode());
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
