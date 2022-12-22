@@ -154,6 +154,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
 
+    
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.sealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
@@ -378,6 +379,49 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         } catch (Exception e) {
             log.error("JySealVehicleServiceImpl.validateTranCodeAndSendCode e ", e);
+        }
+        return invokeResult;
+    }
+
+    @Override
+    public InvokeResult checkTransCodeScan(CheckTransportReq reqcuest) {
+        InvokeResult invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        try {
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
+            if (commonDto == null) {
+                invokeResult.setCode(SERVER_ERROR_CODE);
+                invokeResult.setMessage("查询运力信息结果为空:");
+                return invokeResult;
+            }
+            if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
+                Integer endNodeId = commonDto.getData().getEndNodeId();
+                if (reqcuest.getEndSiteId().equals(endNodeId)) {
+                    invokeResult.setCode(JdResponse.CODE_OK);
+                    invokeResult.setMessage(JdResponse.MESSAGE_OK);
+                } else {
+                    //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
+                    BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
+                    if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
+                        invokeResult.setCode(RESULT_SUCCESS_CODE);
+                        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                    } else {
+                        invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                        invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
+                        return invokeResult;
+                    }
+                }
+            } else if (Constants.RESULT_WARN == commonDto.getCode()) {
+                invokeResult.setCode(SERVER_ERROR_CODE);
+                invokeResult.setMessage(commonDto.getMessage());
+                return invokeResult;
+            } else {
+                invokeResult.setCode(SERVER_ERROR_CODE);
+                invokeResult.setMessage("查询运力信息出错！");
+                log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", reqcuest.getTransportCode(), commonDto.getMessage());
+                return invokeResult;
+            }
+        } catch (Exception e) {
+            log.error("JySealVehicleServiceImpl.checkTransCode e ", e);
         }
         return invokeResult;
     }
