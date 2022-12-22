@@ -878,6 +878,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             //完成时间过久禁止补扫
             Long completeTime = unloadVehicleEntity.getUnloadFinishTime().getTime();
             Long limitTime = uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.scanSupplementCheck--扫描补扫校验--任务信息={}，{}小时后不可补扫",
+                        JsonUtils.toJSONString(unloadVehicleEntity), JsonUtils.toJSONString(unloadVehicleEntity), uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
+            }
             if(System.currentTimeMillis() - completeTime - limitTime > 0) {
                 String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
                 res.customMessage(RESULT_INTERCEPT_CODE, msg);
