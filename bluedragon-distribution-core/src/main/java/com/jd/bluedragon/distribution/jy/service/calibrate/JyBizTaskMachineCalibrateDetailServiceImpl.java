@@ -51,6 +51,16 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
+    public Integer selectCountForTask(JyBizTaskMachineCalibrateCondition condition) {
+        return jyBizTaskMachineCalibrateDetailDao.selectCountForTask(condition);
+    }
+
+    @Override
+    public List<JyBizTaskMachineCalibrateDetailEntity> selectByConditionForTask(JyBizTaskMachineCalibrateCondition condition) {
+        return jyBizTaskMachineCalibrateDetailDao.selectByConditionForTask(condition);
+    }
+
+    @Override
     public void batchUpdateStatus(List<Long> ids, Integer status) {
         jyBizTaskMachineCalibrateDetailDao.batchUpdateStatus(ids, status);
     }

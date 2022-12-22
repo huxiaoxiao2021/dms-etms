@@ -6,6 +6,7 @@
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity" id="jyBizTaskMachineCalibrateDetailMap">
         <result property="id" column="id"/>
+        <result property="siteCode" column="site_code"/>
         <result property="machineCode" column="machine_code"/>
         <result property="taskCreateTime" column="task_create_time"/>
         <result property="taskEndTime" column="task_end_time"/>
@@ -25,7 +26,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, machine_code, task_create_time, task_end_time, task_status, weight_calibrate_time, volume_calibrate_time, calibrate_finish_time,
+        id, site_code, achine_code, task_create_time, task_end_time, task_status, weight_calibrate_time, volume_calibrate_time, calibrate_finish_time,
         weight_calibrate_status, volume_calibrate_status, machine_status, create_user_erp, update_user_erp, create_time, update_time, yn, ts
     </sql>
 
@@ -34,6 +35,9 @@
             <trim suffixOverrides=",">
                 <if test="id != null">
                     id,
+                </if>
+                <if test="siteCode != null">
+                    site_code,
                 </if>
                 <if test="machineCode != null">
                     machine_code,
@@ -80,6 +84,9 @@
             <trim suffixOverrides=",">
                 <if test="id != null">
                     #{id},
+                </if>
+                <if test="siteCode != null">
+                    #{siteCode},
                 </if>
                 <if test="machineCode != null">
                     #{machineCode},
@@ -130,6 +137,9 @@
             <set>
                 <if test="id != null">
                     id = #{id} ,
+                </if>
+                <if test="siteCode != null">
+                    site_code = #{siteCode} ,
                 </if>
                 <if test="machineCode != null">
                     machine_code = #{machineCode} ,
@@ -230,6 +240,30 @@
             yn = 1
             <include refid="condition_sql"/>
         </where>
+        limit 500
+    </select>
+
+    <select id="selectCountForTask" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultType="java.lang.Integer">
+        select
+            count(*)
+        from jy_biz_task_machine_calibrate_detail
+        where
+            yn = 1
+          and machine_status = #{machineStatus}
+          and  <![CDATA[   task_end_time <= #{taskEndTime}  ]]>
+        order by task_end_time desc
+    </select>
+
+    <select id="selectByConditionForTask" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultMap="jyBizTaskMachineCalibrateDetailMap">
+        select
+            id, machine_code, create_user_erp, task_create_time, task_end_time
+        from jy_biz_task_machine_calibrate_detail
+        where
+            yn = 1
+            and machine_status = #{machineStatus}
+            and  <![CDATA[   task_end_time <= #{taskEndTime}  ]]>
+        order by task_end_time desc
+        limit #{offSet}, #{pageSize}
     </select>
 
     <select id="queryCurrentTaskDetail" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultMap="jyBizTaskMachineCalibrateDetailMap">
@@ -261,8 +295,9 @@
     </update>
 
     <sql id="condition_sql">
-        <if test="createUserErp != null and createUserErp != ''">
-            and create_user_erp = #{createUserErp}
+        create_user_erp = #{createUserErp}
+        <if test="siteCode != ''">
+            and site_code = #{siteCode}
         </if>
         <if test="machineCode != null and machineCode != ''">
             and machine_code = #{machineCode}

@@ -30,7 +30,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
-import com.jd.ql.dms.report.domain.spotcheck.SpotCheckUpdateRequest;
+import com.jd.ql.dms.report.domain.spotcheck.SpotCheckScrollResult;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -129,6 +129,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
     private DefaultJMQProducer dmsWeightVolumeExcess;
+
+    @Autowired
+    @Qualifier("dwsCalibrateDealSpotCheckProducer")
+    private DefaultJMQProducer dwsCalibrateDealSpotCheckProducer;
 
     @Override
     public DmsBaseDict getProductType(String waybillSign) {
@@ -650,8 +654,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 return;
             }
         }else if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 设备抽检
-            // todo dev_dms_calibrate 此处是否应在设备状态上完线运行一段时间后，再加限制
-            if(!Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
+            if(spotCheckIssueIsRelyOnMachineStatus(spotCheckDto.getReviewSiteCode())
+                    && uccPropertyConfiguration.getSpotCheckIssueRelyOMachineStatus()
+                    && !Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
                 // 设备抽检设备不合格不下发
                 return;
             }
@@ -922,6 +927,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
+        String key = dwsMachineCalibrateMQ.getMachineCode() + Constants.SEPARATOR_HYPHEN + (dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null ? Constants.EMPTY_FILL : dwsMachineCalibrateMQ.getPreviousMachineEligibleTime())
+                + Constants.SEPARATOR_HYPHEN + dwsMachineCalibrateMQ.getCalibrateTime();
+        if(!cacheCalibrateDealCacheIsSuc(key)){
+            return;
+        }
         boolean isEligible = true;
         String machineCode = dwsMachineCalibrateMQ.getMachineCode();
         if(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null){
@@ -939,53 +949,60 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             logger.info("设备:{}的两次合格时间间隔超过3h，判定为不合格!", machineCode);
             isEligible = false;
         }
-        // 更新抽检记录的设备状态
-        batchUpdateMachineStatus(dwsMachineCalibrateMQ,
-                isEligible ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode());
 
-        if(!isEligible){
-            return;
-        }
-
-        // 获取合格时间内的抽检数据并下发
+        // 获取时间范围内的抽检数据后分批处理
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
-        Date previousMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()); // 上传设备合格的时间
+        // 如果上次合格时间不存在，则默认取24h之前的时间
+        Date previousMachineEligibleTime = dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null
+                ? DateHelper.newTimeRangeHoursAgo(new Date(), 24) : new Date(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()); // 上传设备合格的时间
         Date currentMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getCalibrateTime()); // 本次设备合格的时间
         condition.setReviewStartTime(previousMachineEligibleTime);
         condition.setReviewEndTime(currentMachineEligibleTime);
         condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
         condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-        List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
-        if(CollectionUtils.isEmpty(spotCheckList)){
-            logger.warn("时间范围:{} - {}内未有抽检超标数据!", DateHelper.formatDateTime(previousMachineEligibleTime),
-                    DateHelper.formatDateTime(currentMachineEligibleTime));
-            return;
-        }
-        for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckList) {
-            executeIssue(spotCheckDto);
+
+        int index = 1;
+        while (index++ <= 100) {
+            SpotCheckScrollResult spotCheckScrollResult = spotCheckQueryManager.querySpotCheckByScroll(condition);
+            if(spotCheckScrollResult == null || CollectionUtils.isEmpty(spotCheckScrollResult.getList())){
+                logger.warn("根据条件:{}按照scroll方式查询已超标抽检明细数据为空!", JsonHelper.toJson(condition));
+                break;
+            }
+            for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckScrollResult.getList()) {
+                if(Objects.equals(spotCheckDto.getMachineStatus(),
+                        isEligible ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode())){
+                    // 抽检数据的设备状态和本次设备状态一致则不处理（此时表示状态已处理过）
+                    break;
+                }
+                // 设置设备状态
+                spotCheckDto.setMachineStatus(isEligible
+                        ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+                // 推送更新设备状态和下发处理的消息
+                dwsCalibrateDealSpotCheckProducer.sendOnFailPersistent(spotCheckDto.getPackageCode() + "|" + spotCheckDto.getReviewSiteCode(),
+                        JsonHelper.toJson(spotCheckDto));
+            }
+            // 设置scrollId
+            condition.setScrollId(spotCheckScrollResult.getScrollId());
         }
     }
 
-    private void batchUpdateMachineStatus(DwsMachineCalibrateMQ dwsMachineCalibrateMQ, Integer machineFinalStatus) {
-        SpotCheckUpdateRequest updateRequest = new SpotCheckUpdateRequest();
-        updateRequest.setUpdatedMachineStatus(machineFinalStatus);
-        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setReviewSource(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getCode());
-        condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-        condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-        condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
-        // 如果上次合格时间不存在，则默认取24h之前的时间
-        Date previousEligibleTime = dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null
-                ? DateHelper.newTimeRangeHoursAgo(new Date(), 24) : new Date(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime());
-        condition.setReviewStartTime(previousEligibleTime);
-        condition.setReviewEndTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
-        updateRequest.setCondition(condition);
-        Integer sucCount = spotCheckQueryManager.batchUpdateMachineStatus(updateRequest);
-        logger.info("设备编码:{}批量更新设备状态为:{}并更新成功:{}条", dwsMachineCalibrateMQ.getMachineCode(),
-                Objects.equals(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode(), machineFinalStatus)
-                        ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getName() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getName(),
-                sucCount);
+    private boolean cacheCalibrateDealCacheIsSuc(String key) {
+        try {
+            return jimdbCacheService.setNx(key, 1,  30, TimeUnit.MINUTES);
+        }catch (Exception e){
+            logger.error("设置缓存key:{}异常!", key);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean spotCheckIssueIsRelyOnMachineStatus(Integer siteCode) {
+        String spotCheckIssueByMachineStatusSwitch = uccPropertyConfiguration.getSpotCheckIssueRelyOnMachineStatusSiteSwitch();
+        if(Objects.equals(spotCheckIssueByMachineStatusSwitch, "ALL")){
+            return true;
+        }
+        return Arrays.asList(spotCheckIssueByMachineStatusSwitch.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
     private WeightVolumeSpotCheckDto getSpotCheck(WeightVolumeSpotCheckDto dto, boolean isGetSummaryWeight) {

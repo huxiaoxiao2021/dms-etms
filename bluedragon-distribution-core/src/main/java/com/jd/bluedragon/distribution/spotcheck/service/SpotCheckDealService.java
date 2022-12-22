@@ -157,4 +157,12 @@ public interface SpotCheckDealService {
      * @param dwsMachineCalibrateMQ
      */
     void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ);
+
+    /**
+     * 根据场地判断抽检下发是否依赖设备状态
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean spotCheckIssueIsRelyOnMachineStatus(Integer siteCode);
 }

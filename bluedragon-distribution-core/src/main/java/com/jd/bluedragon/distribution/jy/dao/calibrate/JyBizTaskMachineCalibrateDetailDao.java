@@ -53,5 +53,11 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().update(NAMESPACE + ".duplicateNewestTaskDetail", deleteEntity);
     }
 
+    public Integer selectCountForTask(JyBizTaskMachineCalibrateCondition condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectCountForTask", condition);
+    }
 
+    public List<JyBizTaskMachineCalibrateDetailEntity> selectByConditionForTask(JyBizTaskMachineCalibrateCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".selectByConditionForTask", condition);
+    }
 }

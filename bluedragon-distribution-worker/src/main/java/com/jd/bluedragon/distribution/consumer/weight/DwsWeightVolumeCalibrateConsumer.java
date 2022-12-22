@@ -61,6 +61,7 @@ public class DwsWeightVolumeCalibrateConsumer extends MessageBaseConsumer {
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("dws称重量方校准失败, 消息体:{}", message.getText(), e);
+            throw e;
         } finally {
             Profiler.registerInfoEnd(info);
         }

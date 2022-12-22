@@ -59,6 +59,22 @@ public interface JyBizTaskMachineCalibrateDetailService {
      */
     List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateCondition condition);
 
+    /**
+     * 根据条件查询数量
+     *  仅为超时任务使用
+     * @param condition
+     * @return
+     */
+    Integer selectCountForTask(JyBizTaskMachineCalibrateCondition condition);
+
+    /**
+     * 根据条件查询任务
+     *  仅为超时任务使用
+     * @param condition
+     * @return
+     */
+    List<JyBizTaskMachineCalibrateDetailEntity> selectByConditionForTask(JyBizTaskMachineCalibrateCondition condition);
+
 
     /**
      * 查询当前时间段内的待处理任务

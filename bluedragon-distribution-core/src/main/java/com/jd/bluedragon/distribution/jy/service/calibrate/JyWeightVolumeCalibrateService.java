@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolum
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 
 /**
@@ -52,4 +53,11 @@ public interface JyWeightVolumeCalibrateService {
      * @return
      */
     InvokeResult<Boolean> regularScanCalibrateTask();
+
+    /**
+     * 推送咚咚
+     *
+     * @param machineCalibrateDetail
+     */
+    void noticeToDD(JyBizTaskMachineCalibrateDetailEntity machineCalibrateDetail);
 }

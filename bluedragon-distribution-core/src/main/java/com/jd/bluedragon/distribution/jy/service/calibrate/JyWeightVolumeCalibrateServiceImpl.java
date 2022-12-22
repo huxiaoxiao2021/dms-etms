@@ -1,16 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.HrUserManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
@@ -18,8 +19,11 @@ import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEnti
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateMessage;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -65,7 +69,13 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Qualifier("dwsCheckManager")
     private DWSCheckManager dwsCheckManager;
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Autowired
+    @Qualifier("dwsCalibratePushDDProducer")
+    private DefaultJMQProducer dwsCalibratePushDDProducer;
+
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.machineCalibrateScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateTaskResult> machineCalibrateScan(DwsWeightVolumeCalibrateRequest request) {
         InvokeResult<DwsWeightVolumeCalibrateTaskResult> result = new InvokeResult<>();
@@ -145,14 +155,16 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
                 if(System.currentTimeMillis() - machineRecord.getCalibrateTaskCloseTime().getTime() < intervalTime){
                     // explain：如果设备抽检任务关闭后，在2h内继续扫描设备编码，则进行友好提示（客户端可强制确定来创建新任务）
-                    result.customMessage(30001, JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT);
+                    result.customMessage(InvokeResult.CODE_CONFIRM, JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT);
                     return;
                 }
                 isCreateTaskFlag = true;
             }else {
                 // 设备任务未关闭
                 if(machineTaskEntity == null){
-                    result.error(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_NOT_FIND_HINT);
+                    String errorMessage = String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_NOT_FIND_HINT, machineCode);
+                    logger.error(errorMessage);
+                    result.error(errorMessage);
                     return;
                 }
                 String createUserErp = machineTaskEntity.getCreateUserErp();
@@ -161,6 +173,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     return;
                 }
                 if(!Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())){
+                    String errorMessage = String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_STATUS_ERROR_HINT, machineCode);
+                    logger.error(errorMessage);
                     result.error(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_STATUS_ERROR_HINT);
                     return;
                 }
@@ -321,6 +335,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         return entity;
     }
 
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.getMachineCalibrateDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request) {
         InvokeResult<DwsWeightVolumeCalibrateDetailResult> result = new InvokeResult();
@@ -375,7 +391,9 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.closeMachineCalibrateTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<Void> closeMachineCalibrateTask(DwsWeightVolumeCalibrateRequest request) {
         InvokeResult<Void> result = new InvokeResult<>();
@@ -399,7 +417,9 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.dealCalibrateTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -450,6 +470,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         jyBizTaskMachineCalibrateDetailService.insert(entity);
     }
 
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.regularScanCalibrateTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public InvokeResult<Boolean> regularScanCalibrateTask() {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -458,60 +480,70 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         condition.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode());
         condition.setTaskEndTime(new Date());
         // 超时任务
-        List<JyBizTaskMachineCalibrateDetailEntity> list = jyBizTaskMachineCalibrateDetailService.selectByCondition(condition);
-        if(CollectionUtils.isEmpty(list)){
+        int total = jyBizTaskMachineCalibrateDetailService.selectCountForTask(condition);
+        if(total == 0){
             logger.warn("待处理任务未超过限定时长，无需处理!");
             return result;
         }
+        // 待更新id集合
         List<Long> ids = Lists.newArrayList();
-        for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
-            ids.add(entity.getId());
+
+        int offset = 0;
+        int pageSize = 100;
+        int loop = total / pageSize + 1; // 总共需循环次数
+        int count = 1; // 当前循环次数
+        while (count <= loop){
+            condition.setPageSize(pageSize);
+            condition.setOffset(offset);
+            List<JyBizTaskMachineCalibrateDetailEntity> list = jyBizTaskMachineCalibrateDetailService.selectByConditionForTask(condition);
+            if(CollectionUtils.isEmpty(list)){
+                logger.warn("待处理任务未超过限定时长，无需处理!");
+                break;
+            }
+            for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
+                ids.add(entity.getId());
+                // 发消息推送咚咚
+                dwsCalibratePushDDProducer.sendOnFailPersistent(entity.getMachineCode() + entity.getId(), JsonHelper.toJson(entity));
+            }
+            offset += pageSize;
+            count ++;
+            // 防止死循环
+            if(count > 100){
+                break;
+            }
         }
         // 任务状态批量更新为'超时'
-        jyBizTaskMachineCalibrateDetailService.batchUpdateStatus(ids, JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_OVERTIME.getCode());
-        // 超时推送咚咚
-        noticeToDD(list);
+        batchUpdateStatus(ids);
         return result;
     }
 
-    private void noticeToDD(List<JyBizTaskMachineCalibrateDetailEntity> list) {
+    private void batchUpdateStatus(List<Long> ids) {
+        for (List<Long> singleList : Lists.partition(ids, 100)) {
+            // 100一批分批更新状态
+            jyBizTaskMachineCalibrateDetailService.batchUpdateStatus(singleList, JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_OVERTIME.getCode());
+        }
+    }
+
+    @Override
+    public void noticeToDD(JyBizTaskMachineCalibrateDetailEntity machineCalibrateDetail) {
         String title = "设备校准任务已超时";
         String content;
         String template = "设备编码:%s在时间%s-%s内的校准任务未处理，已超时，请及时处理!";
-        // 最外层是key: erp, 里层key: machineCode
-        Map<String, Map<String, JyBizTaskMachineCalibrateDetailEntity>> erpMap = Maps.newHashMap();
-        for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
-            String createUserErp = entity.getCreateUserErp();
-            String machineCode = entity.getMachineCode();
-            if(erpMap.containsKey(createUserErp)){
-                erpMap.get(createUserErp).put(machineCode, entity);
-            }else {
-                // key: machineCode
-                Map<String, JyBizTaskMachineCalibrateDetailEntity> machineMap = Maps.newHashMap();
-                machineMap.put(machineCode, entity);
-                erpMap.put(createUserErp, machineMap);
-            }
+        String machineCode = machineCalibrateDetail.getMachineCode();
+        String createUserErp = machineCalibrateDetail.getCreateUserErp();
+        String leaderErp = hrUserManager.getSuperiorErp(createUserErp);
+        List<String> erpList = Lists.newArrayList();
+        erpList.add(createUserErp);
+        if(StringUtils.isNotEmpty(leaderErp)){
+            erpList.add(leaderErp);
         }
-        for (Map.Entry<String, Map<String, JyBizTaskMachineCalibrateDetailEntity>> erpEntry : erpMap.entrySet()) {
-            String createUserErp = erpEntry.getKey();
-            for (Map.Entry<String, JyBizTaskMachineCalibrateDetailEntity> machineEntry : erpEntry.getValue().entrySet()) {
-                String machineCode = machineEntry.getKey();
-                String leaderErp = hrUserManager.getSuperiorErp(createUserErp);
-                List<String> erpList = Lists.newArrayList();
-                erpList.add(createUserErp);
-                if(StringUtils.isNotEmpty(leaderErp)){
-                    erpList.add(leaderErp);
-                }
-                if(CollectionUtils.isEmpty(erpList)){
-                    logger.warn("设备编码:{}的任务未维护创建人!", machineCode);
-                    continue;
-                }
-                JyBizTaskMachineCalibrateDetailEntity entity = machineEntry.getValue();
-                content = String.format(template, entity.getMachineCode(),
-                        DateHelper.formatDate(entity.getCreateTime(), Constants.DATE_TIME_FORMAT),
-                        DateHelper.formatDate(entity.getTaskEndTime(), Constants.DATE_TIME_FORMAT));
-                NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
-            }
+        if(CollectionUtils.isEmpty(erpList)){
+            logger.warn("设备编码:{}的任务未维护创建人!", machineCode);
+            return;
         }
+        content = String.format(template, machineCode,
+                DateHelper.formatDate(machineCalibrateDetail.getTaskCreateTime(), Constants.DATE_TIME_FORMAT),
+                DateHelper.formatDate(machineCalibrateDetail.getTaskEndTime(), Constants.DATE_TIME_FORMAT));
+        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
     }
 }
