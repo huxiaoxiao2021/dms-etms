@@ -265,4 +265,12 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
 
+    /***************************************** 设备校准缓存start *******************************************/
+    // 设备校准扫描-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_SCAN = "dwsCalibrate.scan:%s-%s";
+    // 设备校准超时推送咚咚-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_PUSH_DD = "dwsCalibrate.pushDD:%s";
+    // 设备校准抽检处理-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL = "dwsCalibrate.spotDeal:%s-%s-%s";
+    /***************************************** 设备校准缓存end *******************************************/
 }

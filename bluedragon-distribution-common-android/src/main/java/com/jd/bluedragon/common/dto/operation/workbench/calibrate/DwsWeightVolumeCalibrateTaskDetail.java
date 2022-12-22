@@ -16,6 +16,10 @@ public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 任务id
+     */
+    private Long machineTaskId;
+    /**
      * 设备编码
      */
     private String machineCode;
@@ -45,6 +49,14 @@ public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
      * 设备校准完成时间
      */
     private Long calibrateFinishTime;
+
+    public Long getMachineTaskId() {
+        return machineTaskId;
+    }
+
+    public void setMachineTaskId(Long machineTaskId) {
+        this.machineTaskId = machineTaskId;
+    }
 
     public String getMachineCode() {
         return machineCode;

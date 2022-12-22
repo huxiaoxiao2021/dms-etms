@@ -975,6 +975,19 @@ public class UccPropertyConfiguration {
      */
     private Long machineCalibrateIntervalTimeOfSpotCheck;
 
+    /**
+     * 设备下发是否依据设备状态标识
+     */
+    private boolean spotCheckIssueRelyOMachineStatus;
+
+    /**
+     * 抽检下发依据设备状态场地维度开关
+     *  多个场地以,分隔
+     *  ALL表示全国
+     *  空表示未开启
+     */
+    private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2317,5 +2330,21 @@ public class UccPropertyConfiguration {
 
     public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getSpotCheckIssueRelyOMachineStatus() {
+        return spotCheckIssueRelyOMachineStatus;
+    }
+
+    public void setSpotCheckIssueRelyOMachineStatus(boolean spotCheckIssueRelyOMachineStatus) {
+        this.spotCheckIssueRelyOMachineStatus = spotCheckIssueRelyOMachineStatus;
+    }
+
+    public String getSpotCheckIssueRelyOnMachineStatusSiteSwitch() {
+        return spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
+        this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
     }
 }

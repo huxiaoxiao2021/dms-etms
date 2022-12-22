@@ -466,7 +466,15 @@
 
     <!--  dws称重量方校准消息处理  -->
     <jmq:consumer id="jmq.dwsWeightVolumeCalibrateConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.dms.weightVolume.calibrate}" listener="dwsWeightVolumeCalibrateConsumer"/>
+        <jmq:listener topic="${jmq.topic.dws.calibrate}" listener="dwsWeightVolumeCalibrateConsumer"/>
+    </jmq:consumer>
+    <!--  dws校准超时任务发送咚咚消息处理  -->
+    <jmq:consumer id="jmq.dwsCalibratePushDDConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dws.calibrate.pushDD}" listener="dwsCalibratePushDDConsumer"/>
+    </jmq:consumer>
+    <!--  dws设备校准更新抽检消息  -->
+    <jmq:consumer id="jmq.dwsCalibrateDealSpotCheckConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dws.calibrate.dealSpotCheck}" listener="dwsCalibrateDealSpotCheckConsumer"/>
     </jmq:consumer>
 </beans>
 
