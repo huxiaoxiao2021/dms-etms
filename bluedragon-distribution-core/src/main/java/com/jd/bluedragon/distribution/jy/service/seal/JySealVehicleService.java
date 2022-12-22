@@ -26,10 +26,17 @@ public interface JySealVehicleService {
 
 
     /**
-     * 提交封车
+     * 提交封车-干支封车
      *
      */
     InvokeResult sealVehicle(SealVehicleReq sealVehicleReq);
+
+
+    /**
+     * 传站封车
+     *
+     */
+    InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq);
 
 
     /**

@@ -76,4 +76,8 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq) {
         return this.getSqlSession().selectList(NAMESPACE + ".boardCountTaskBySendFlowList", boardCountReq);
     }
+
+  public List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity) {
+    return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendCode", entity);
+  }
 }

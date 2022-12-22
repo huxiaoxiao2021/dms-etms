@@ -90,7 +90,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
-    
+
     @Autowired
     private JyAppDataSealService jyAppDataSealService;
 
@@ -209,6 +209,37 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
+
+    @Override
+    public InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq) {
+        log.info("jy传站提交封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
+        SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
+        //TODO 流向 加锁，校验一下 批次是否已经封车了
+        //车上已经封了的封签号
+        List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
+        if (sealCarDto.getSealCodes() != null) {
+            sealCarDto.getSealCodes().addAll(sealCodes);
+        } else {
+            sealCarDto.setSealCodes(sealCodes);
+        }
+        //封装提交封车请求的dto
+        List<SealCarDto> sealCarDtoList = new ArrayList<>();
+        sealCarDtoList.add(sealCarDto);
+        //批次为空的列表信息
+        Map<String, String> emptyBatchCode = new HashMap<String,String>();
+
+        NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
+        if (sealResp != null && JdResponse.CODE_OK.equals(sealResp.getCode())) {
+            if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
+                List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
+                jySendSealCodeService.addBatch(entityList);
+            }
+            updateTaskStatus(sealVehicleReq, sealCarDto);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        }
+        return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.saveSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {

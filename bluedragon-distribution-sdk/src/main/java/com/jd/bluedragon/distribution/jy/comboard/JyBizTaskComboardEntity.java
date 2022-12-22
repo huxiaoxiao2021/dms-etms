@@ -44,7 +44,37 @@ public class JyBizTaskComboardEntity {
 
     private Integer haveScanCount;
 
+    private Date sealTime;
+
+    private Date unsealTime;
+
     private transient List<Integer> statusList;
+
+    private transient List<String> sendCodeList;
+
+    public Date getSealTime() {
+        return sealTime;
+    }
+
+    public void setSealTime(Date sealTime) {
+        this.sealTime = sealTime;
+    }
+
+    public Date getUnsealTime() {
+        return unsealTime;
+    }
+
+    public void setUnsealTime(Date unsealTime) {
+        this.unsealTime = unsealTime;
+    }
+
+    public List<String> getSendCodeList() {
+        return sendCodeList;
+    }
+
+    public void setSendCodeList(List<String> sendCodeList) {
+        this.sendCodeList = sendCodeList;
+    }
 
     public Long getId() {
         return id;
@@ -181,7 +211,7 @@ public class JyBizTaskComboardEntity {
     public void setBulkFlag(Boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
     }
-    
+
 
     public List<Integer> getStatusList() {
         return statusList;

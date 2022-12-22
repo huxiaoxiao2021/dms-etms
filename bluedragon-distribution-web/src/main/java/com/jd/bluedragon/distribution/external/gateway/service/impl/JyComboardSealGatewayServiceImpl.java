@@ -78,7 +78,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Override
   public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
-    return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
+    return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
   }
 
   @Override
