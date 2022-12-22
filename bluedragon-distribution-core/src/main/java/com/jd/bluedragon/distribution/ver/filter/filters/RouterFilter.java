@@ -87,20 +87,20 @@ public class RouterFilter implements Filter {
                 if (Objects.equals(result.getData().getHandoverSiteCode(), request.getCreateSiteCode()) && !BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
                     Map<String, String> hintParams = new HashMap<String, String>();
                     hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
+                    throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
                             HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
                 }
 
             }
 
+            if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
+                Map<String, String> hintParams = new HashMap<String, String>();
+                hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
+                throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
+                        HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
+            }
         }
 
-        if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getCode(), request.getReceiveSite().getType(), request.getReceiveSite().getSubType())) {
-            Map<String, String> hintParams = new HashMap<String, String>();
-            hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-            throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
-                    HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
-        }
 
 
 
