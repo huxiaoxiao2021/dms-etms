@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEnti
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateMessage;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections.CollectionUtils;
@@ -384,15 +385,22 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         entity.setCalibrateTaskStartTime(new Date(request.getCalibrateTaskStartTime()));
         entity.setCalibrateTaskCloseTime(new Date());
         entity.setUpdateTime(new Date());
+        //设备关闭后废弃当前的最新的处于待处理状态的任务
         if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
-            JyBizTaskMachineCalibrateDetailEntity deleteEntity = new JyBizTaskMachineCalibrateDetailEntity();
-            deleteEntity.setMachineCode(request.getMachineCode());
-            deleteEntity.setUpdateUserErp(request.getUser().getUserErp());
-            deleteEntity.setUpdateTime(new Date());
-            //设备关闭废弃当前的最新的待处理任务
-            jyBizTaskMachineCalibrateDetailService.duplicateNewestTaskDetail(deleteEntity);
+            JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
+            condition.setMachineCode(request.getMachineCode());
+            JyBizTaskMachineCalibrateDetailEntity latestTask = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(condition);
+            logger.info("latestTask:{}", JsonHelper.toJson(latestTask));
+            logger.info("if true:{}", latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode()));
+            //非待处理状态的任务不废弃
+            if (latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())) {
+                latestTask.setUpdateUserErp(request.getUser().getUserErp());
+                latestTask.setUpdateTime(new Date());
+                jyBizTaskMachineCalibrateDetailService.deleteById(latestTask);
+            }
             result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, "任务关闭成功！");
         }else {
+            logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", request);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, "任务关闭失败！");
         }
 
@@ -426,14 +434,17 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         boolean isFinished = !Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
                 && !Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode());
         if(isFinished){
+            //体积、重量校准时间靠后的为校准任务明细完成时间
             Date calibrateFinishTime = taskDetail.getWeightCalibrateTime().getTime() > taskDetail.getVolumeCalibrateTime().getTime() ?
                     taskDetail.getWeightCalibrateTime() : taskDetail.getVolumeCalibrateTime();
             taskDetail.setCalibrateFinishTime(calibrateFinishTime);
             taskDetail.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode());
+            jyBizTaskMachineCalibrateDetailService.update(taskDetail);
             // 任务完成后创建新任务
             createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
+        }else {
+            jyBizTaskMachineCalibrateDetailService.update(taskDetail);
         }
-        jyBizTaskMachineCalibrateDetailService.update(taskDetail);
         return result;
     }
 
