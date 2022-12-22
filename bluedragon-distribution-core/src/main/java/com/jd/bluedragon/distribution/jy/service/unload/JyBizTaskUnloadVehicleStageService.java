@@ -67,4 +67,11 @@ public interface JyBizTaskUnloadVehicleStageService {
      * @return
      */
     int getTaskCount(JyBizTaskUnloadVehicleStageEntity entity);
+
+    /**
+     * 根据子任务bizId查子任务信息
+     * @param bizId
+     * @return
+     */
+    JyBizTaskUnloadVehicleStageEntity queryByBizId(String bizId);
 }
