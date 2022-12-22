@@ -19,4 +19,6 @@ public class JyBizTaskMachineCalibrateMessage {
     public static final String MACHINE_CALIBRATE_TASK_CREATED_WITH_OTHER_HINT = "此设备任务已被创建,请使用:%s的账号查看!";
 
     public static final String MACHINE_CALIBRATE_STATUS_ERROR_HINT = "设备任务状态异常，请联系分拣小秘!";
+
+    public static final String MACHINE_CALIBRATE_REQUEST_ERROR = "请求参数出错，请联系分拣小秘进行处理！";
 }

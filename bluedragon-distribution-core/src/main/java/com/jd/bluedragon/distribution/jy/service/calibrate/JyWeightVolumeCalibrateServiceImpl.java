@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -344,32 +346,38 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         List<DwsWeightVolumeCalibrateDetail> detailList = new ArrayList<>();
         if (response.getDetailList() != null) {
             Long calibrateFishTime = Long.MIN_VALUE;
+            //四舍五入保留2位小数
+            NumberFormat formatter = NumberFormat.getNumberInstance();
+            formatter.setMaximumFractionDigits(2);
+            formatter.setRoundingMode(RoundingMode.HALF_UP);
             for (DwsCheckRecord record : response.getDetailList()) {
                 DwsWeightVolumeCalibrateDetail detail = new DwsWeightVolumeCalibrateDetail();
                 detail.setCalibrateType(record.getCalibrateType());
                 detail.setMachineCode(record.getMachineCode());
                 detail.setFarmarCode(record.getFarmarCode());
-                detail.setFarmarWeight(String.valueOf(record.getFarmarWeight()));
-                detail.setFarmarLength(String.valueOf(record.getFarmarLength()));
-                detail.setFarmarWidth(String.valueOf(record.getFarmarWidth()));
-                detail.setFarmarHigh(String.valueOf(record.getFarmarHigh()));
-                detail.setActualWeight(String.valueOf(record.getActualWeight()));
-                detail.setActualLength(String.valueOf(record.getActualLength()));
-                detail.setActualWidth(String.valueOf(record.getActualWidth()));
-                detail.setActualHigh(String.valueOf(record.getActualHigh()));
+                detail.setFarmarWeight(formatter.format(record.getFarmarWeight()));
+                detail.setFarmarLength(formatter.format(record.getFarmarLength()));
+                detail.setFarmarWidth(formatter.format(record.getFarmarWidth()));
+                detail.setFarmarHigh(formatter.format(record.getFarmarHigh()));
+                detail.setActualWeight(formatter.format(record.getActualWeight()));
+                detail.setActualLength(formatter.format(record.getActualLength()));
+                detail.setActualWidth(formatter.format(record.getActualWidth()));
+                detail.setActualHigh(formatter.format(record.getActualHigh()));
                 detail.setCalibrateStatus(record.getCalibrateStatus());
                 detail.setCalibrateTime(detail.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
 
-                calibrateFishTime = Math.max(calibrateFishTime, record.getCalibrateTime());
+                if (record.getCalibrateTime() != null) {
+                    calibrateFishTime = Math.max(calibrateFishTime, record.getCalibrateTime());
+                }
             }
-            detailResult.setCalibrateFinishTime(calibrateFishTime);
+            detailResult.setCalibrateFinishTime(calibrateFishTime == Long.MIN_VALUE ? null : calibrateFishTime);
         }
         detailResult.setDetailList(detailList);
         detailResult.setPreviousMachineEligibleTime(response.getPreviousMachineEligibleTime());
-        detailResult.setMachineCode(request.getMachineCode());
         detailResult.setMachineStatus(response.getMachineStatus());
+        detailResult.setMachineCode(request.getMachineCode());
         detailResult.setTaskCreateTime(request.getCalibrateTaskStartTime());
         detailResult.setTaskEndTime(request.getCalibrateTaskEndTime());
         result.setData(detailResult);
@@ -380,6 +388,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Override
     public InvokeResult<Void> closeMachineCalibrateTask(DwsWeightVolumeCalibrateRequest request) {
         InvokeResult<Void> result = new InvokeResult<>();
+
+        if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null || request.getUser() == null) {
+            result.error(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_REQUEST_ERROR);
+            return result;
+        }
         JyBizTaskMachineCalibrateEntity entity = new JyBizTaskMachineCalibrateEntity();
         entity.setMachineCode(request.getMachineCode());
         entity.setCalibrateTaskStartTime(new Date(request.getCalibrateTaskStartTime()));
@@ -390,8 +403,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
             condition.setMachineCode(request.getMachineCode());
             JyBizTaskMachineCalibrateDetailEntity latestTask = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(condition);
-            logger.info("latestTask:{}", JsonHelper.toJson(latestTask));
-            logger.info("if true:{}", latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode()));
             //非待处理状态的任务不废弃
             if (latestTask != null && Objects.equals(latestTask.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())) {
                 latestTask.setUpdateUserErp(request.getUser().getUserErp());
@@ -415,12 +426,13 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
         condition.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
-        JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
-        if (taskDetail == null){
-            logger.warn("找不到设备编码为:{}的待处理任务!", dwsMachineCalibrateMQ.getMachineCode());
-            result.error("设备" + dwsMachineCalibrateMQ.getMachineCode() + "未生成待处理任务，请联系分拣小秘排查!");
+        List<JyBizTaskMachineCalibrateDetailEntity> detailList = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
+        if (CollectionUtils.isEmpty(detailList) || detailList.size() > Constants.CONSTANT_NUMBER_ONE){
+            logger.warn("获取设备编码为:{}的待处理任务出现异常!", dwsMachineCalibrateMQ.getMachineCode());
+            result.error("设备" + dwsMachineCalibrateMQ.getMachineCode() + "待处理任务获取异常，请联系分拣小秘排查!");
             return result;
         }
+        JyBizTaskMachineCalibrateDetailEntity taskDetail = detailList.get(0);
         taskDetail.setMachineStatus(dwsMachineCalibrateMQ.getMachineStatus());
         if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
             taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());

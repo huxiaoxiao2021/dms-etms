@@ -45,7 +45,7 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatus", params);
     }
 
-    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryCurrentTaskDetail", condition);
+    public List<JyBizTaskMachineCalibrateDetailEntity> queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryCurrentTaskDetail", condition);
     }
 }

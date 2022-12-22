@@ -56,7 +56,7 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
+    public List<JyBizTaskMachineCalibrateDetailEntity> queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition) {
         return jyBizTaskMachineCalibrateDetailDao.queryCurrentTaskDetail(condition);
     }
 

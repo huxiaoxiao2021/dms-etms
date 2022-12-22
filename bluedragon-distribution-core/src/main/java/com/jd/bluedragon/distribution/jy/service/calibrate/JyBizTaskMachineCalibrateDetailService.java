@@ -65,7 +65,7 @@ public interface JyBizTaskMachineCalibrateDetailService {
      * @param condition
      * @return
      */
-    JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition);
+    List<JyBizTaskMachineCalibrateDetailEntity> queryCurrentTaskDetail(JyBizTaskMachineCalibrateCondition condition);
 
     /**
      * 设备关闭后废弃当前待处理任务
