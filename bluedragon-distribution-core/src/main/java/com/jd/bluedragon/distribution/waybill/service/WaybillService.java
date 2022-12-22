@@ -211,5 +211,19 @@ public interface WaybillService {
      * @return
      */
     InvokeResult<Boolean> checkEasyFreeze(String waybillCode, Date operateTime, Integer siteCode);
-    
+
+    /**
+     * 判断运单是否包含特保单增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isLuxurySecurityVosWaybill(String waybillCode);
+
+    /**
+     * 根据运单号检查是否属于 特保单
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String waybillCode, String waybilSign);
+
 }

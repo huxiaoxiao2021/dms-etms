@@ -1,40 +1,45 @@
-package com.jd.bluedragon.distribution.arAbnormal;
+package com.jd.bluedragon.distribution.abnormal.service.impl;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.dms.job.ConcurrentJobHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.etms.waybill.domain.Waybill;
 /**
- * 校验能否航空转陆运，返回非航空运单列表
+ * 滞留上报-并发校验
  * @author wuyoude
  *
  */
-public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<String>, List<String>>{
+public class CheckStrandReportJobHandler extends ConcurrentJobHandler<List<String>, List<String>>{
+	private final Logger log = LoggerFactory.getLogger(CheckStrandReportJobHandler.class);
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     
-	public CheckCanAirToRoadJobHandler(ExecutorService executorService) {
+	public CheckStrandReportJobHandler(ExecutorService executorService) {
 		super(executorService);
 	}
 	
-    @Value("${beans.ArAbnormalServiceImpl.maxJobThreadNum:10}")
+    @Value("${beans.CheckStrandReportJobHandler.maxJobThreadNum:10}")
     private int maxJobThreadNum;
     
-    @Value("${beans.ArAbnormalServiceImpl.minPerJobWaybillNum:100}")
+    @Value("${beans.CheckStrandReportJobHandler.minPerJobWaybillNum:200}")
     private int minPerJobWaybillNum;
+
+	@Autowired
+	private WaybillService waybillService;
     
 	@Override
 	protected List<List<String>> split(List<String> job) {
@@ -48,20 +53,28 @@ public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<Strin
 		return jobList;
 	}
 	/**
-	 * 校验是否航空单，非航空单加入列表中
+	 * 校验是否特快送，特快送包裹加入列表中
 	 */
 	@Override
-	protected List<String> doJob(List<String> waybillCodes) {
+	protected List<String> doJob(List<String> packageCodes) {
+		if(log.isInfoEnabled()) {
+			log.info("checkStrandReportJobHandler-校验开始");
+		}
 		List<String> result = Lists.newArrayList();
-		if(CollectionUtils.isEmpty(waybillCodes)) {
+		if(CollectionUtils.isEmpty(packageCodes)) {
 			return result;
 		}
-		for(String waybillCode : waybillCodes) {
+		for(String packageCode : packageCodes) {
+			String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 			Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
 			if(waybill != null 
-					&& !BusinessUtil.checkCanAirToRoad(waybill.getWaybillSign(), waybill.getSendPay())) {
-				result.add(waybillCode);
+					&& BusinessUtil.isVasWaybill(waybill.getWaybillSign()) &&  waybillService.isLuxurySecurityVosWaybill(waybillCode)) {
+				result.add(packageCode);
+				break;
 			}
+		}
+		if(log.isInfoEnabled()) {
+			log.info("checkStrandReportJobHandler-校验结束！");
 		}
 		return result;
 	}

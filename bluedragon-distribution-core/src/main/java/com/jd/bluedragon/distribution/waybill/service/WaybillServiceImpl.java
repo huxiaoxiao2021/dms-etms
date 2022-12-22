@@ -33,6 +33,8 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo;
+import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -139,6 +141,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private EasyFreezeSiteManager easyFreezeSiteManager;
+
+    @Autowired
+    private GoodsPhoteService goodsPhoteService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1245,6 +1250,89 @@ public class WaybillServiceImpl implements WaybillService {
 
     }
 
+
+    @Override
+    public boolean isLuxurySecurityVosWaybill(String waybillCode) {
+        try {
+            //获取增值服务信息
+            log.info("获取特保单增值服务入参-{}",waybillCode);
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.LUXURY_SECURITY_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取特保单增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
+    }
+
+
+
+    @Override
+    @JProfiler(jKey= "DMSWEB.InspectionService.checkLuxurySecurity", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String barCode, String waybillSign) {
+        log.info("特保单 checkLuxurySecurity 站点-{} 单号-{}",siteCode,barCode);
+        InvokeResult<Boolean> result = new InvokeResult();
+        result.success();
+        result.setData(Boolean.FALSE);
+        log.info("特保单校验 入参-{}",barCode);
+        //箱号暂时不做处理
+        Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+        if(isBoxCode){
+            log.warn("箱号暂时不做处理！");
+            return result;
+        }
+
+        //如果是包裹号解析成运单号
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        try{
+            if(StringUtils.isBlank(waybillSign)){
+                //根据运单获取waybillSign
+                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                        = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+                log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+                if(dataByChoice == null
+                        || dataByChoice.getData() == null
+                        || dataByChoice.getData().getWaybill() == null
+                        || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+                    log.warn("特保单查询运单waybillSign失败!");
+                    return result;
+                }
+                waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+            }
+
+            //通过waybillsign判断此运单是否包含增值服务
+            if(!BusinessUtil.isVasWaybill(waybillSign)){
+                log.warn("此运单不包含特保单增值服务!");
+                return result;
+            }
+            //判断增值服务是否包含特保单增值服务
+            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
+            log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
+            if(isLuxurySecurity){
+                //判断此特保单是否已经有拍照记录 有的话直接返回不提示
+                GoodsPhotoInfo info = goodsPhoteService.selectOne(siteCode, barCode);
+                if(info != null){
+                    log.warn("此单照片已经拍过");
+                    return result;
+                }
+                result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
+                result.setData(Boolean.TRUE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("特保单校验异常-{}",e.getMessage(),e);
+        }
+        return result;
+    }
 
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
