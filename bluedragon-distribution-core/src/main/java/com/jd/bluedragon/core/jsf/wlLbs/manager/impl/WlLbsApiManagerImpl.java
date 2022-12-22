@@ -5,7 +5,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.wlLbs.manager.WlLbsApiManager;
-import com.jd.dms.wb.report.util.JsonHelper;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.lbs.geocode.api.base.BaseResponse;
 import com.jd.lbs.geocode.api.dto.GisPointDto;
 import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
@@ -102,7 +102,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 appKey = appKey_jsfGeocodingService;
             }
             result = jsfGeocodingService.geo(appKey, address);
-            logInfo("jsfGeocodingService.geo param: {} , {} result: {}", appKey, address, com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfGeocodingService.geo param: {} , {} result: {}", appKey, address, JsonHelper.toJson(result));
             if(result == null){
                 log.warn("jsfGeocodingService.geo result null: {} {}", appKey, address);
                 return null;
@@ -139,7 +139,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 appKey = appKey_jsfGeocodingService;
             }
             result = jsfGeocodingService.regeo(appKey, latitude, longitude);
-            logInfo("jsfGeocodingService.regeo param: {} , {} , {} result {}", appKey, latitude, longitude, com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfGeocodingService.regeo param: {} , {} , {} result {}", appKey, latitude, longitude, JsonHelper.toJson(result));
             if(result == null){
                 log.warn("jsfGeocodingService.regeo result null: {} {} {}", appKey, latitude, longitude);
                 return null;
@@ -169,7 +169,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
     public com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> queryTransFenceByCode(String appKey, QueryFenceReq queryFenceReq) {
         com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
         try {
-            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(queryFenceReq));
+            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {}", appKey, JsonHelper.toJson(queryFenceReq));
             if (appKey == null) {
                 appKey = appKey_transFenceQuery;
             }
@@ -178,9 +178,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 queryFenceReq.setNodeDataSource(transFenceQueryNodeDateSource);
             }
             result = jsfTransFenceQueryService.queryTransFenceByCode(appKey, queryFenceReq);
-            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {} result {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(queryFenceReq), com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
             if(result == null){
-                log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(queryFenceReq));
+                log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result;
             }
             /*result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
@@ -245,9 +245,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 queryFenceReq.setNodeDataSource(transFenceQueryNodeDateSource);
             }
             result = jsfTransFenceQueryService.queryTransFenceByCode(appKey, queryFenceReq);
-            logInfo("jsfTransFenceQueryService.queryTransFenceBySiteId param: {} , {} result {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(queryFenceReq), com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfTransFenceQueryService.queryTransFenceBySiteId param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
             if(result == null){
-                log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(queryFenceReq));
+                log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result;
             }
             /*result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
@@ -299,14 +299,14 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
     public com.jd.lbs.jdlbsapi.dto.BaseResponse<LocationResultDto> getLocationByIp(String appKey, LocationRequestDto locationRequestDto) {
         com.jd.lbs.jdlbsapi.dto.BaseResponse<LocationResultDto> result = new com.jd.lbs.jdlbsapi.dto.BaseResponse<>();
         try {
-            logInfo("jsfLocationService.getLocationByIp param: {} , {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(locationRequestDto));
+            logInfo("jsfLocationService.getLocationByIp param: {} , {}", appKey, JsonHelper.toJson(locationRequestDto));
             if (appKey == null) {
                 appKey = appKey_jsfLocationService;
             }
             result = jsfLocationService.getLocationByIp(appKey, locationRequestDto);
-            logInfo("jsfLocationService.getLocationByIp result: {} , {} , {}", appKey, locationRequestDto.getIp(), com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfLocationService.getLocationByIp result: {} , {} , {}", appKey, locationRequestDto.getIp(), JsonHelper.toJson(result));
             if(result == null){
-                log.warn("jsfLocationService.queryTransFenceByCode result null: {} {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(locationRequestDto));
+                log.warn("jsfLocationService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(locationRequestDto));
                 return null;
             }
         } catch (Exception e) {
@@ -335,14 +335,14 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
     public com.jd.lbs.jdlbsapi.dto.BaseResponse<BigDecimal> getLength(String appKey, PointDto startPoint, PointDto endPoint) {
         com.jd.lbs.jdlbsapi.dto.BaseResponse<BigDecimal> result = new com.jd.lbs.jdlbsapi.dto.BaseResponse<>();
         try {
-            logInfo("jsfGeoToolService.getLength param: {} , {} , {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(startPoint), com.jd.dms.wb.report.util.JsonHelper.toJson(endPoint));
+            logInfo("jsfGeoToolService.getLength param: {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
             if (appKey == null) {
                 appKey = appKey_jsfGeoToolService;
             }
             result = jsfGeoToolService.getLength(appKey, startPoint, endPoint);
-            logInfo("jsfGeoToolService.getLength result: {} , {} , {} , {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(startPoint), com.jd.dms.wb.report.util.JsonHelper.toJson(endPoint), com.jd.dms.wb.report.util.JsonHelper.toJson(result));
+            logInfo("jsfGeoToolService.getLength result: {} , {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint), JsonHelper.toJson(result));
             if(result == null){
-                log.warn("jsfGeoToolService.getLength result null: {} {} {}", appKey, com.jd.dms.wb.report.util.JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
+                log.warn("jsfGeoToolService.getLength result null: {} {} {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
                 return null;
             }
         } catch (Exception e) {
