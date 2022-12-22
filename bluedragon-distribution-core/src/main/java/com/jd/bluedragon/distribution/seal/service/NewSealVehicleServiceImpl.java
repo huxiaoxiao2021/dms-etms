@@ -588,7 +588,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     continue;
                 }
             }
-
+            log.info("提交运输传站封车入参，{}",JSON.toJSONString(param));
             CommonDto<String> sealCarInfo = vosManager.doSealCarWithVehicleJob(param);
             if (sealCarInfo == null) {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
