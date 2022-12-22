@@ -870,6 +870,10 @@ public class JyUnloadVehicleCheckTysService {
             if(jyUnloadVehicleBoardEntity == null || jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId() == null) {
                 return res;
             }
+            if(log.isInfoEnabled()) {
+                log.info("{},扫描请求={}，扫描对象组装={}，查询操作的任务={}，扫描板号实际绑定的任务={}",
+                        JsonUtils.toJSONString(request), JsonUtils.toJSONString(unloadScanDto), JsonUtils.toJSONString(entity), JsonUtils.toJSONString(jyUnloadVehicleBoardEntity));
+            }
             //补扫任务&操作的板是自己任务创建： 卡结算周期，过后禁止补扫
             if(jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId().equals(entity.getBizId())
                     && unloadScanDto.getSupplementary()
