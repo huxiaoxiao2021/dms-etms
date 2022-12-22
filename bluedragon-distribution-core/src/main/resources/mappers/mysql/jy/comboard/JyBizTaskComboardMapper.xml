@@ -342,7 +342,9 @@
           <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
             #{item}
           </foreach>
+    <if test="createTime != null">
       AND create_time > #{createTime}
+    </if>
       AND yn = 1
   </select>
 

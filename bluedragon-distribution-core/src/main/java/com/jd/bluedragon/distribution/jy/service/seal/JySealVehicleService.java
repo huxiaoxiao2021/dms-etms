@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
+import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
@@ -60,4 +62,9 @@ public interface JySealVehicleService {
      * 校验运力编码的目的地是否一致
      */
     InvokeResult checkTransCodeScan(CheckTransportReq reqcuest);
+
+    /**
+     * 根据流向查询组板列表
+     */
+    InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
 }
