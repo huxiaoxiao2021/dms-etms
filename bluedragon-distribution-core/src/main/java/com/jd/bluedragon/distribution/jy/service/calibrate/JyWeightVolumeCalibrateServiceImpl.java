@@ -344,7 +344,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request) {
-        InvokeResult<DwsWeightVolumeCalibrateDetailResult> result = new InvokeResult();
+        InvokeResult<DwsWeightVolumeCalibrateDetailResult> result = new InvokeResult<>();
+        result.success();
         DwsWeightVolumeCalibrateDetailResult detailResult = new DwsWeightVolumeCalibrateDetailResult();
         if (request.getMachineCode() == null || request.getMachineTaskId() == null) {
             logger.error("查询设备校验细节出错，入参{}", request);
@@ -355,6 +356,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         if (taskDetail == null) {
             logger.error("查询设备校验细节为空，入参{}", request);
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
+            return result;
         }
 
         DWSCheckRequest checkRequest = new DWSCheckRequest();
@@ -378,24 +380,41 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         List<DwsWeightVolumeCalibrateDetail> detailList = new ArrayList<>();
         if (response.getDetailList() != null) {
-            Long calibrateFishTime = Long.MIN_VALUE;
+            long calibrateFishTime = Long.MIN_VALUE;
             //四舍五入保留2位小数
             NumberFormat formatter = NumberFormat.getNumberInstance();
             formatter.setMaximumFractionDigits(2);
+            formatter.setMinimumFractionDigits(2);
             formatter.setRoundingMode(RoundingMode.HALF_UP);
             for (DwsCheckRecord record : response.getDetailList()) {
                 DwsWeightVolumeCalibrateDetail detail = new DwsWeightVolumeCalibrateDetail();
                 detail.setCalibrateType(record.getCalibrateType());
                 detail.setMachineCode(record.getMachineCode());
                 detail.setFarmarCode(record.getFarmarCode());
-                detail.setFarmarWeight(formatter.format(record.getFarmarWeight()));
-                detail.setFarmarLength(formatter.format(record.getFarmarLength()));
-                detail.setFarmarWidth(formatter.format(record.getFarmarWidth()));
-                detail.setFarmarHigh(formatter.format(record.getFarmarHigh()));
-                detail.setActualWeight(formatter.format(record.getActualWeight()));
-                detail.setActualLength(formatter.format(record.getActualLength()));
-                detail.setActualWidth(formatter.format(record.getActualWidth()));
-                detail.setActualHigh(formatter.format(record.getActualHigh()));
+                if (record.getFarmarWeight() != null) {
+                    detail.setFarmarWeight(formatter.format(record.getFarmarWeight()));
+                }
+                if (record.getFarmarLength() != null) {
+                    detail.setFarmarLength(formatter.format(record.getFarmarLength()));
+                }
+                if (record.getFarmarWidth() != null) {
+                    detail.setFarmarWidth(formatter.format(record.getFarmarWidth()));
+                }
+                if (record.getFarmarHigh() != null) {
+                    detail.setFarmarHigh(formatter.format(record.getFarmarHigh()));
+                }
+                if (record.getActualWeight() != null) {
+                    detail.setActualWeight(formatter.format(record.getActualWeight()));
+                }
+                if (record.getActualLength() != null) {
+                    detail.setActualLength(formatter.format(record.getActualLength()));
+                }
+                if (record.getActualWidth() != null) {
+                    detail.setActualWidth(formatter.format(record.getActualWidth()));
+                }
+                if (record.getActualHigh() != null) {
+                    detail.setActualHigh(formatter.format(record.getActualHigh()));
+                }
                 detail.setCalibrateStatus(record.getCalibrateStatus());
                 detail.setCalibrateTime(detail.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
@@ -469,7 +488,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             return result;
         }
         JyBizTaskMachineCalibrateDetailEntity taskDetail = detailList.get(0);
-        taskDetail.setMachineStatus(dwsMachineCalibrateMQ.getMachineStatus());
         if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
             taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
             taskDetail.setWeightCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
@@ -487,6 +505,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     taskDetail.getWeightCalibrateTime() : taskDetail.getVolumeCalibrateTime();
             taskDetail.setCalibrateFinishTime(calibrateFinishTime);
             taskDetail.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode());
+            //体积重量校准都合格时，设备状态才是合格的
+            Integer machineStatus = Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.ELIGIBLE.getCode())
+                    && Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.ELIGIBLE.getCode()) ?
+                    JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
+            taskDetail.setMachineStatus(machineStatus);
             jyBizTaskMachineCalibrateDetailService.update(taskDetail);
             // 任务完成后创建新任务
             createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
