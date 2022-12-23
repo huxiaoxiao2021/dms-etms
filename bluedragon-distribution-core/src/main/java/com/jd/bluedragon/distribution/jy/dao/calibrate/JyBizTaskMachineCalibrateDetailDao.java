@@ -60,4 +60,8 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
     public List<JyBizTaskMachineCalibrateDetailEntity> selectByConditionForTask(JyBizTaskMachineCalibrateCondition condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".selectByConditionForTask", condition);
     }
+
+    public JyBizTaskMachineCalibrateDetailEntity selectById(Long taskId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectById", taskId);
+    }
 }

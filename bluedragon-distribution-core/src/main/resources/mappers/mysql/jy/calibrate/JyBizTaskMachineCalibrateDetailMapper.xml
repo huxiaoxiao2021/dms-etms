@@ -279,6 +279,15 @@
         </where>
     </select>
 
+    <select id="selectById" parameterType="java.lang.Long" resultMap="jyBizTaskMachineCalibrateDetailMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_machine_calibrate_detail
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
     <sql id="condition_sql">
         and create_user_erp = #{createUserErp}
         <if test="siteCode != null">

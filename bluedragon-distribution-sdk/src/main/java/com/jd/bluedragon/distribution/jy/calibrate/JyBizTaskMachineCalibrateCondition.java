@@ -27,6 +27,11 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
      */
     private Date calibrateTime;
     /**
+     * 校准任务明细状态:0-待处理,1-已完成,2-超时,3-关闭
+     */
+    private Integer calibrateTaskStatus;
+
+    /**
      * 任务状态
      */
     private List<Integer> taskStatusList;
@@ -66,6 +71,14 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
 
     public void setCalibrateTime(Date calibrateTime) {
         this.calibrateTime = calibrateTime;
+    }
+
+    public Integer getCalibrateTaskStatus() {
+        return calibrateTaskStatus;
+    }
+
+    public void setCalibrateTaskStatus(Integer calibrateTaskStatus) {
+        this.calibrateTaskStatus = calibrateTaskStatus;
     }
 
     public List<Integer> getTaskStatusList() {
