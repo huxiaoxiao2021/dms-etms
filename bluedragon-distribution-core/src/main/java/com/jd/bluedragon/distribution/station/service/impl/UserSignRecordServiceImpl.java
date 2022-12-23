@@ -635,7 +635,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             }
         }else {
         	result.setData(this.toUserSignRecordData(lastSignRecord));
-    		result.toSucceed("已签到！");
+        	//没有做签到，查询group信息
+        	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
+        	if(groupResult!= null 
+        			&& groupResult.isSucceed()
+        			&& groupResult.getData()!= null) {
+        		result.getData().setGroupData(groupResult.getData());
+        		result.toSucceed("已签到！");
+        	}else if(groupResult!= null){
+        		result.toFail(groupResult.getMessage());
+        	}else {
+        		result.toFail("获取");
+        	}
         }
 		return result;
 	}
