@@ -280,8 +280,8 @@
     </select>
 
     <sql id="condition_sql">
-        create_user_erp = #{createUserErp}
-        <if test="siteCode != ''">
+        and create_user_erp = #{createUserErp}
+        <if test="siteCode != null">
             and site_code = #{siteCode}
         </if>
         <if test="machineCode != null and machineCode != ''">
