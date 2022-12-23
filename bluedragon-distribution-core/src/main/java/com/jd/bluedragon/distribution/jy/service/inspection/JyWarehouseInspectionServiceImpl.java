@@ -193,7 +193,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     }
 
     private String genNewUnloadTaskKey(String groupCode){
-        return String.format(JyCacheKeyConstants.JY_WAREHOUSE_INSPECTION_CREATE_LOCK);
+        return String.format(JyCacheKeyConstants.JY_WAREHOUSE_INSPECTION_CREATE_LOCK, groupCode);
     }
 
     private String getJyScheduleTaskId(String bizId) {
