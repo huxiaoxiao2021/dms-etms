@@ -1,12 +1,17 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -19,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author wyh
@@ -33,6 +40,9 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     /**
      * 执行处理，返回处理结果
@@ -88,6 +98,8 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
         waybillStatus.setOperator(printData.getOperatorName());
 
         waybillStatus.setOperateType(waybillOperateType);
+        // 快运改址拦截打印处理
+        kyAddressModifyReprintDeal(printData, waybillStatus);
 
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);
@@ -98,5 +110,24 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
         task.setOwnSign(BusinessHelper.getOwnSign());
 
         taskService.add(task);
+    }
+
+    private void kyAddressModifyReprintDeal(PrintCompleteRequest printData, WaybillStatus waybillStatus) {
+        if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign())){
+            BlockResponse blockResponse;
+            if(WaybillUtil.isPackageCode(printData.getPackageBarcode())){
+                blockResponse = waybillService.checkPackageBlock(printData.getPackageBarcode(),
+                        CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            }else {
+                blockResponse = waybillService.checkWaybillBlock(WaybillUtil.getWaybillCode(printData.getWaybillCode()),
+                        CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            }
+            if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
+                // 快运改址打印：reprintType = 1
+                Map<String, Object> extendParamMap = Maps.newHashMap();
+                extendParamMap.put("reprintType", 1);
+                waybillStatus.setExtendParamMap(extendParamMap);
+            }
+        }
     }
 }

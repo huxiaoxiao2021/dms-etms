@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.transboard.api.dto.Board;
 
@@ -121,4 +122,12 @@ public interface BoardCommonManager {
      * @param operateType
      */
     public void sendWaybillTraceMq(BoardCommonRequest request, Integer operateType);
+    /**
+     * 装卸车的拦截校验
+     *  hint：包含运单和包裹维度
+     * @param transportServiceRequest
+     * @return
+     */
+    InvokeResult<Boolean> loadUnloadInterceptValidate(TransportServiceRequest transportServiceRequest);
+
 }
