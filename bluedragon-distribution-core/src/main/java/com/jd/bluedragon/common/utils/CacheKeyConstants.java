@@ -271,6 +271,6 @@ public class CacheKeyConstants {
     // 设备校准超时推送咚咚-key
     public static final String CACHE_KEY_DWS_CALIBRATE_PUSH_DD = "dwsCalibrate.pushDD:%s";
     // 设备校准抽检处理-key
-    public static final String CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL = "dwsCalibrate.spotDeal:%s-%s-%s";
+    public static final String CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL = "dwsCalibrate.spotDeal:%s";
     /***************************************** 设备校准缓存end *******************************************/
 }

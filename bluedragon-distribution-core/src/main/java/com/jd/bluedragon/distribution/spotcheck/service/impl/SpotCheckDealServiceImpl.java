@@ -930,9 +930,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
-        String key = String.format(CacheKeyConstants.CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL, dwsMachineCalibrateMQ.getMachineCode(),
-                dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null ? Constants.EMPTY_FILL : dwsMachineCalibrateMQ.getPreviousMachineEligibleTime(),
-                dwsMachineCalibrateMQ.getCalibrateTime());
+        String key = String.format(CacheKeyConstants.CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL, dwsMachineCalibrateMQ.getBusinessId());
         if(!cacheCalibrateDealCacheIsSuc(key)){
             return;
         }
@@ -975,17 +973,22 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
             List<Message> messageList = Lists.newArrayList();
             for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckScrollResult.getList()) {
-                if(Objects.equals(spotCheckDto.getMachineStatus(),
-                        isEligible ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode())){
-                    // 抽检数据的设备状态和本次设备状态一致则不处理（此时表示状态已处理过）
-                    break;
+                if(Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
+                        || Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode()) && !isEligible){
+                    // 不处理的情况（此时表示状态已处理过）
+                    // 1、抽检数据的设备状态是合格的
+                    // 2、抽检数据的设备状态是不合格并且本次设备状态不合格
+                    logger.warn("此次抽检数据不做下发处理...单号:{}场地:{}抽检数据的设备状态:{}本次消息的businessId:{}消息中设备是否合格:{}",
+                            spotCheckDto.getPackageCode(), spotCheckDto.getReviewSiteCode(), spotCheckDto.getMachineStatus(),
+                            dwsMachineCalibrateMQ.getBusinessId(), isEligible);
+                    continue;
                 }
                 // 设置设备状态
                 spotCheckDto.setMachineStatus(isEligible
                         ? JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode());
                 Message message = new Message();
                 message.setTopic(dwsCalibrateDealSpotCheckProducer.getTopic());
-                message.setBusinessId(spotCheckDto.getPackageCode() + "|" + spotCheckDto.getReviewSiteCode());
+                message.setBusinessId(spotCheckDto.getPackageCode() + Constants.SEPARATOR_VERTICAL_LINE + spotCheckDto.getReviewSiteCode());
                 message.setText(JsonHelper.toJson(spotCheckDto));
                 messageList.add(message);
             }

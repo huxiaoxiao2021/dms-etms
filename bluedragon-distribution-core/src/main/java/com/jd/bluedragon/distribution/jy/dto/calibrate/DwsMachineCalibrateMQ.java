@@ -11,6 +11,8 @@ import java.math.BigDecimal;
  */
 public class DwsMachineCalibrateMQ implements Serializable {
 
+    // 消息唯一码
+    private String businessId;
     // 设备编码
     private String machineCode;
     // 砝码编码
@@ -41,6 +43,14 @@ public class DwsMachineCalibrateMQ implements Serializable {
     private Integer machineStatus;
     // 上次设备合格时间
     private Long previousMachineEligibleTime;
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
 
     public String getMachineCode() {
         return machineCode;

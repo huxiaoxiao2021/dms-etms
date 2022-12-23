@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.worker.calibrate;
 
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
+import com.jd.bluedragon.distribution.framework.NoneTaskHanlder;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import org.slf4j.Logger;
@@ -19,6 +20,10 @@ import java.util.List;
 public class MachineCalibrateTask extends DBSingleScheduler {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    public MachineCalibrateTask(){
+        super(new NoneTaskHanlder());
+    }
 
     @Autowired
     private JyWeightVolumeCalibrateService jyWeightVolumeCalibrateService;

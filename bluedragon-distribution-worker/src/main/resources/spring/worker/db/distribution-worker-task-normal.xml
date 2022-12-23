@@ -308,7 +308,7 @@
     </bean>
 
     <bean id="machineCalibrateTask" class="com.jd.bluedragon.distribution.worker.calibrate.MachineCalibrateTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
+          init-method="init" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="MachineCalibrateTask"/>

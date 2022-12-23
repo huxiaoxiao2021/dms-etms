@@ -39,7 +39,7 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
     /**
      * 分页参数-开始值
      */
-    private int offset = 0;
+    private int offSet = 0;
     /**
      * 分页参数-数据条数
      */
@@ -89,12 +89,12 @@ public class JyBizTaskMachineCalibrateCondition extends JyBizTaskMachineCalibrat
         this.taskStatusList = taskStatusList;
     }
 
-    public int getOffset() {
-        return offset;
+    public int getOffSet() {
+        return offSet;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public void setOffSet(int offSet) {
+        this.offSet = offSet;
     }
 
     public int getLimit() {

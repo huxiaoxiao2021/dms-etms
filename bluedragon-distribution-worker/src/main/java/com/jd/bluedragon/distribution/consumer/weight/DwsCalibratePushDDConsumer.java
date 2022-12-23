@@ -44,7 +44,7 @@ public class DwsCalibratePushDDConsumer extends MessageBaseConsumer {
                 logger.warn("dws设备校准推送咚咚消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
-            JyBizTaskMachineCalibrateDetailEntity machineCalibrateDetail = JsonHelper.fromJsonUseGson(message.getText(), JyBizTaskMachineCalibrateDetailEntity.class);
+            JyBizTaskMachineCalibrateDetailEntity machineCalibrateDetail = JsonHelper.fromJson(message.getText(), JyBizTaskMachineCalibrateDetailEntity.class);
             if(machineCalibrateDetail == null) {
                 logger.warn("dws设备校准推送咚咚消息体转换失败，内容为【{}】", message.getText());
                 return;

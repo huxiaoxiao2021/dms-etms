@@ -211,7 +211,7 @@
     <update id="batchUpdateStatus" parameterType="java.util.Map">
         update
             jy_biz_task_machine_calibrate_detail
-        set task_status = #{taskStatus}
+        set task_status = #{taskStatus}, update_time = now()
         where yn = 1
         and id in
         <foreach item="id" index="index" collection="ids"
@@ -249,7 +249,7 @@
         from jy_biz_task_machine_calibrate_detail
         where
             yn = 1
-          and machine_status = #{machineStatus}
+          and task_status = #{taskStatus}
           and  <![CDATA[   task_end_time <= #{taskEndTime}  ]]>
         order by task_end_time desc
     </select>
@@ -260,7 +260,7 @@
         from jy_biz_task_machine_calibrate_detail
         where
             yn = 1
-            and machine_status = #{machineStatus}
+            and task_status = #{taskStatus}
             and  <![CDATA[   task_end_time <= #{taskEndTime}  ]]>
         order by task_end_time desc
         limit #{offSet}, #{pageSize}

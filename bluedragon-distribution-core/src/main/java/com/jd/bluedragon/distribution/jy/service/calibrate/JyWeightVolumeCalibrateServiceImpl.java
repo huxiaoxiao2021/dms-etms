@@ -415,7 +415,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 if (record.getActualHigh() != null) {
                     detail.setActualHigh(formatter.format(record.getActualHigh()));
                 }
-                detail.setCalibrateStatus(record.getCalibrateStatus());
+                detail.setCalibrateStatus(record.getCalibrateStatus() == null
+                        ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
                 detail.setCalibrateTime(detail.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
@@ -551,13 +552,13 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         // 待更新id集合
         List<Long> ids = Lists.newArrayList();
 
-        int offset = 0;
+        int offSet = 0;
         int pageSize = 100;
         int loop = total / pageSize + 1; // 总共需循环次数
         int count = 1; // 当前循环次数
         while (count <= loop){
             condition.setPageSize(pageSize);
-            condition.setOffset(offset);
+            condition.setOffSet(offSet);
             List<JyBizTaskMachineCalibrateDetailEntity> list = jyBizTaskMachineCalibrateDetailService.selectByConditionForTask(condition);
             if(CollectionUtils.isEmpty(list)){
                 logger.warn("待处理任务未超过限定时长，无需处理!");
@@ -569,7 +570,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             // 批量发消息推送咚咚
             batchSendPushDD(list);
 
-            offset += pageSize;
+            offSet += pageSize;
             count ++;
             // 防止死循环
             if(count > 100){
