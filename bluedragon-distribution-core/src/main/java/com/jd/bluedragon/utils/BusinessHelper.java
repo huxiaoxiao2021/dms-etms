@@ -1039,17 +1039,25 @@ public class BusinessHelper {
         return WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG.equals(thirdCarrierFlag);
     }
 
-    public static boolean isDPSiteCode1(Integer siteCode, Integer siteType, Integer subSiteType){
+    public static boolean isDPSiteCode1(Integer subSiteType){
         return Objects.equals(subSiteType, 6580);
 
     }
 
     /**
-     * 判断是否为预转德邦单号
+     * 判断是否为德邦单号：预转+已转
+     * waybillSign-140-1: 已转
+     * waybillSign-140-2: 预转
      * @param waybillSign
      * @return
      */
+    public static boolean isDPWaybill1_2(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_2, WaybillSignConstants.CHAR_140_1);
+    }
     public static boolean isDPWaybill1(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_1);
+    }
+    public static boolean isDPWaybill2(String waybillSign) {
         return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_2);
     }
 
