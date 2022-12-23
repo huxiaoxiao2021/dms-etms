@@ -408,6 +408,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             stageEntity.setBizId(doingChildTask.getBizId());
             jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
         }
+
+        JyBizTaskUnloadVehicleEntity masterTask = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
+        if(masterTask != null && JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(masterTask.getVehicleStatus())) {
+            if(log.isInfoEnabled()){
+                log.warn("{}任务已操作过完成，不在做完成动作，request={}", methodDesc,JsonUtils.toJSONString(request) );
+            }
+            InvokeResult<Boolean> result = new InvokeResult<>();
+            return result;
+        }
         //主任务完成
         UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
         unloadCompleteRequest.setTaskId(request.getTaskId());
