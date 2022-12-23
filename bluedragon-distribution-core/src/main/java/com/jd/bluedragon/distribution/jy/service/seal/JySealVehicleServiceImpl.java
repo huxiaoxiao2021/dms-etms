@@ -501,6 +501,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
         InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         BoardQueryResp boardQueryResp = new BoardQueryResp();
