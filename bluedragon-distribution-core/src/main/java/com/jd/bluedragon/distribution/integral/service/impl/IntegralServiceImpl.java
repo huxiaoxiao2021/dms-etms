@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.integral.service.impl;
 
 import com.jd.bluedragon.Constants;
+
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.response.*;
 import com.jd.bluedragon.distribution.api.Response;
@@ -243,12 +244,13 @@ public class IntegralServiceImpl implements IntegralService {
 
     @Override
     public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
-        JdCResponse<JyIntroductionDTO> response = new JdCResponse<>();
-        JyIntroductionDTO result = new JyIntroductionDTO();
-        result.setTitle("规则介绍");
-        result.setContent("待硕哥文案");
-        response.setData(result);
-        response.toSucceed();
-        return response;
+        JdCResponse<JyIntroductionDTO> jdCResponse = new JdCResponse<>();
+        JyIntroductionDTO dto = new JyIntroductionDTO();
+        dto.setTitle("规则");
+        dto.setContent("等待硕哥文案");
+        jdCResponse.setData(dto);
+        return jdCResponse;
     }
+
+
 }
