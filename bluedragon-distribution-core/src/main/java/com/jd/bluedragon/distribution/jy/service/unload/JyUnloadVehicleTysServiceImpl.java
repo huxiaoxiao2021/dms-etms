@@ -48,6 +48,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
@@ -407,6 +408,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             stageEntity.setBizId(doingChildTask.getBizId());
             jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
         }
+
+        JyBizTaskUnloadVehicleEntity masterTask = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
+        if(masterTask != null && JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(masterTask.getVehicleStatus())) {
+            if(log.isInfoEnabled()){
+                log.warn("{}任务已操作过完成，不在做完成动作，request={}", methodDesc,JsonUtils.toJSONString(request) );
+            }
+            InvokeResult<Boolean> result = new InvokeResult<>();
+            return result;
+        }
         //主任务完成
         UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
         unloadCompleteRequest.setTaskId(request.getTaskId());
@@ -633,18 +643,18 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 人工卸车模式组板校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
-                // 运单超重校验
-                jyUnloadVehicleCheckTysService.checkWaybillOverWeight(waybill);
                 // 路由校验、生成板号
                 boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
                 if (!routerCheckResult) {
                     log.info("packageCodeScanNew--路由校验失败：该包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
                     return invokeResult;
                 }
-                // 是否发货校验
-                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
+                // 是否发货校验
+                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
+                // 运单超重校验
+                jyUnloadVehicleCheckTysService.checkWaybillOverWeight(waybill);
                 // ver组板拦截校验
                 String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto);
                 if (StringUtils.isNotBlank(boardCheckStr)) {
@@ -780,6 +790,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
         scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
+        if(routeNextDto.getFirstNextSiteId() != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextDto.getFirstNextSiteId());
+            if (baseSite != null) {
+                scanPackageDto.setNextSiteName(baseSite.getSiteName());
+            }
+        }
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             scanPackageDto.setPrevSiteCode(routeNextDto.getFirstLastSiteId());
         } else {
@@ -822,7 +838,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         // 设置子阶段bizId
-        InvokeResult<Boolean> invokeResult = jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        InvokeResult<Boolean> invokeResult = jyUnloadVehicleCheckTysService.setStageBizId(request, unloadScanDto);
         if(!invokeResult.codeSuccess()) {
             throw new JyBizException(invokeResult.getMessage());
         }
@@ -835,6 +851,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
         if (unloadVehicleEntity == null) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            return invokeResult;
+        }
+        //补扫校验
+        InvokeResult<Void> invokeResultRes = scanSupplementCheck(unloadVehicleEntity);
+        if(!invokeResultRes.codeSuccess()) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, invokeResultRes.getMessage());
             return invokeResult;
         }
         // 通用校验
@@ -864,6 +886,36 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
+    /**
+     * 转运卸车任务补扫校验
+     * @param unloadVehicleEntity
+     * @return
+     */
+    private InvokeResult<Void> scanSupplementCheck(JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        if(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+            //自建任务禁止补扫
+            if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+                res.customMessage(RESULT_INTERCEPT_CODE, "自建任务结束后禁止补扫，请重新创建自建任务进行扫描");
+                return res;
+            }
+            //完成时间过久禁止补扫
+            Long completeTime = unloadVehicleEntity.getUnloadFinishTime().getTime();
+            Long limitTime = uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.scanSupplementCheck--扫描补扫校验--任务信息={}，{}小时后不可补扫",
+                        JsonUtils.toJSONString(unloadVehicleEntity), JsonUtils.toJSONString(unloadVehicleEntity), uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
+            }
+            if(System.currentTimeMillis() - completeTime - limitTime > 0) {
+                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
+                res.customMessage(RESULT_INTERCEPT_CODE, msg);
+                return res;
+            }
+
+        }
+        return res;
+    }
 
 
     @Override
@@ -983,6 +1035,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         InvokeResult<Void> result = new InvokeResult<>();
         result.success();
         try {
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.handoverTask--交接班请求={}", JsonHelper.toJson(unloadVehicleTask));
+            }
             JyBizTaskUnloadVehicleEntity taskUnloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(unloadVehicleTask.getBizId());
             if (taskUnloadVehicle == null) {
                 result.error("任务不存在，交班失败！");
@@ -991,6 +1046,23 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 只有处于卸车状态的任务才能交班
             if (!JyBizTaskUnloadStatusEnum.UN_LOADING.getCode().equals(taskUnloadVehicle.getVehicleStatus())) {
                 result.error("当前任务状态不支持交班！");
+                return result;
+            }
+            if(taskUnloadVehicle.getManualCreatedFlag() != null && taskUnloadVehicle.getManualCreatedFlag().equals(1)) {
+                result.error("自建任务不支持交班,扫描结束请直接完成任务！");
+                return result;
+            }
+            //最大交班次数限制
+            JyBizTaskUnloadVehicleStageEntity entityQuery = new JyBizTaskUnloadVehicleStageEntity();
+            entityQuery.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
+            entityQuery.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
+            int normalTaskNum = jyBizTaskUnloadVehicleStageService.getTaskCount(entityQuery);
+            if(normalTaskNum >= uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize() + 1) {
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.handoverTask--限制交接班此时，当前查到子任务数为{}，限制最大交接次数为{}，请求={}",
+                            normalTaskNum, uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize(), JsonHelper.toJson(unloadVehicleTask));
+                }
+                result.error("当前任务已经达到最大交班次数，扫描结束请直接完成任务");
                 return result;
             }
             // 查询子任务bizId
@@ -1551,7 +1623,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             List<UnloadBoardRespDto> resDataList = new ArrayList<>();
             for(JyUnloadVehicleBoardEntity entity : jyMasterTask) {
-                UnloadBoardRespDto taskBoardInfo = BeanUtils.convert(entity, UnloadBoardRespDto.class);
+                UnloadBoardRespDto taskBoardInfo = new UnloadBoardRespDto();
+                org.springframework.beans.BeanUtils.copyProperties(entity, taskBoardInfo);
                 resDataList.add(taskBoardInfo);
             }
             res.setData(resDataList);
