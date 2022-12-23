@@ -537,13 +537,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
-<!--    &lt;!&ndash; 个人中心 &ndash;&gt;-->
-<!--    <bean id="integralJsfServiceImpl" class="com.jd.bluedragon.distribution.integral.service.impl.IntegralJsfServiceImpl" />-->
-<!--    <jsf:provider id="jsfIntegralGatewayService"-->
-<!--                  interface="com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService"-->
-<!--                  alias="${dms.gateway.jsf.alias}"-->
-<!--                  ref="integralJsfServiceImpl"-->
-<!--                  server="dmsjsf">-->
-<!--    </jsf:provider>-->
+    <!-- 个人中心 -->
+    <bean id="integralGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.IntegralGatewayServiceImpl" />
+    <jsf:provider id="jsfIntegralGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.IntegralGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="integralGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 
 </beans>

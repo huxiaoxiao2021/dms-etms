@@ -252,5 +252,4 @@ public class IntegralServiceImpl implements IntegralService {
         return jdCResponse;
     }
 
-
 }
