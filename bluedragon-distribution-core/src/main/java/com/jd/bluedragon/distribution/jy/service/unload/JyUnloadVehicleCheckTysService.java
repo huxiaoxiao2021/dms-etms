@@ -862,10 +862,18 @@ public class JyUnloadVehicleCheckTysService {
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //无需校验上一周期时间， 任务完成3天后禁止补扫
+        Date accrualSettlementTime = DateHelper.getCurrentMonthAccrualSettlementTime();
         if(StringUtils.isEmpty(request.getBoardCode())) {
+            //无板号两种场景： （1）人工模式补扫开板；（2）流水线模式补扫
+            if(unloadScanDto.getSupplementary()
+                    && entity.getEndTime() != null && entity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},无板号场景，该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                res.error("该任务已过计提周期，禁止补扫，可自建任务扫描");
+                return res;
+            }
             return res;
         }else {
-            Date accrualSettlementTime = DateHelper.getCurrentMonthAccrualSettlementTime();
             JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity = jyUnloadVehicleBoardDao.selectByBoardCode(request.getBoardCode());
             if(jyUnloadVehicleBoardEntity == null || jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId() == null) {
                 return res;
