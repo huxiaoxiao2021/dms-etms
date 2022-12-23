@@ -968,8 +968,8 @@ public class HintCodeConstants {
     /*** 拣运降级提示语 start **/
 
     //您扫描的{}订单是转德邦订单，与当前流向不符，请确认是否强发。
-    public static String JY_DP_TRANSFER_MESSAGE = "32001";
+    public static String JY_DP_TRANSFER_MESSAGE = "39001";
 
     //您扫描的您扫描的{}订单不在本场地转德邦，请确认是否强发
-    public static String JY_DP_TRANSFER_MESSAGE_1 = "32002";
+    public static String JY_DP_TRANSFER_MESSAGE_1 = "39002";
 }
