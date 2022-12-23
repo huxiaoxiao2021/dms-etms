@@ -773,15 +773,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private Long getWaybillNextRouterWithTransferConfig(String waybillCode, Integer startSiteId, Boolean manualCreatedFlag, JdVerifyResponse<SendScanResponse> response) {
         Long matchDestIdByPack = getWaybillNextRouter(waybillCode, Long.valueOf(startSiteId));
         Waybill waybill1 = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-        if (waybill1 != null && BusinessHelper.isDPWaybill1(waybill1.getWaybillSign()) && manualCreatedFlag) {
+        if (waybill1 != null && BusinessHelper.isDPWaybill1_2(waybill1.getWaybillSign()) && manualCreatedFlag) {
             ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
             matchQo.setHandoverSiteCode(startSiteId);
             matchQo.setPreSortSiteCode(waybill1.getOldSiteId());
-            com.jd.dms.java.utils.sdk.base.Result<ConfigTransferDpSite> resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
-            if (resultCof != null && resultCof.getData() != null) {
+            ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+            if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill1.getWaybillSign())) {
                 matchDestIdByPack = null;
                 response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-                response.addWarningBox(1, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
+                response.addWarningBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
             }
         }
         return matchDestIdByPack;
