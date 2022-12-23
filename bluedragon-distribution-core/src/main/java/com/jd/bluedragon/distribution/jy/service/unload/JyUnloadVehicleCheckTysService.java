@@ -43,6 +43,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -522,7 +523,8 @@ public class JyUnloadVehicleCheckTysService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
         if (request.getNextSiteCode() == null) {
             // 此处直接返回，因为ver组板校验链会判断
-            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+//            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+            throw new UnloadPackageBoardException("验货成功，未找到包裹下游流向场地，是否强制继续组板？");
         }
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
@@ -838,7 +840,7 @@ public class JyUnloadVehicleCheckTysService {
         entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
     }
 
-    public InvokeResult<Boolean> setStageBizId(UnloadScanDto unloadScanDto) {
+    public InvokeResult<Boolean> setStageBizId(ScanPackageDto request, UnloadScanDto unloadScanDto) {
         InvokeResult<Boolean> res = new InvokeResult<>();
         res.success();
 
@@ -856,6 +858,11 @@ public class JyUnloadVehicleCheckTysService {
             //锁内二次确认
             if(entity != null) {
                 unlockIgnoreException(key);
+                InvokeResult<Void> invokeResult = scanAccrualNodeCheck(request, unloadScanDto, entity);
+                if(!invokeResult.codeSuccess()) {
+                    res.error(invokeResult.getMessage());
+                    return res;
+                }
                 unloadScanDto.setStageBizId(entity.getBizId());
                 return res;
             }
@@ -866,11 +873,71 @@ public class JyUnloadVehicleCheckTysService {
             //释放锁
             unlockIgnoreException(key);
         } else {
+            InvokeResult<Void> invokeResult = scanAccrualNodeCheck(request, unloadScanDto, entity);
+            if(!invokeResult.codeSuccess()) {
+                res.error(invokeResult.getMessage());
+                return res;
+            }
             unloadScanDto.setStageBizId(entity.getBizId());
         }
 
         return res;
     }
+
+    /**
+     *  补扫动作在计提周期节点前后的校验
+     * @param unloadScanDto
+     * @param entity
+     * @return
+     */
+    private InvokeResult<Void> scanAccrualNodeCheck(ScanPackageDto request, UnloadScanDto unloadScanDto, JyBizTaskUnloadVehicleStageEntity entity) {
+        String methodDesc = "JyUnloadVehicleCheckTysService.supplementScanAccrualNodeCheck--补扫任务计提周期校验--";
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        //无需校验上一周期时间， 任务完成3天后禁止补扫
+        Date accrualSettlementTime = DateHelper.getCurrentMonthAccrualSettlementTime();
+        if(StringUtils.isEmpty(request.getBoardCode())) {
+            //无板号两种场景： （1）人工模式补扫开板；（2）流水线模式补扫
+            if(unloadScanDto.getSupplementary()
+                    && entity.getEndTime() != null && entity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},无板号场景，该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                res.error("该任务已过计提周期，禁止补扫，可自建任务扫描");
+                return res;
+            }
+            return res;
+        }else {
+            JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity = jyUnloadVehicleBoardDao.selectByBoardCode(request.getBoardCode());
+            if(jyUnloadVehicleBoardEntity == null || jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId() == null) {
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{},扫描请求={}，扫描对象组装={}，查询操作的任务={}，扫描板号实际绑定的任务={}",
+                        JsonUtils.toJSONString(request), JsonUtils.toJSONString(unloadScanDto), JsonUtils.toJSONString(entity), JsonUtils.toJSONString(jyUnloadVehicleBoardEntity));
+            }
+            //补扫任务&操作的板是自己任务创建： 卡结算周期，过后禁止补扫
+            if(jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId().equals(entity.getBizId())
+                    && unloadScanDto.getSupplementary()
+                    && entity.getEndTime() != null && entity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                res.error("该任务已过计提周期，禁止补扫，可自建任务扫描");
+                return res;
+            }
+            //补扫或交班任务，操作的板是其他子任务创建，校验板号实际绑定任务是否已过计提周期，过后禁止操作
+            JyBizTaskUnloadVehicleStageEntity stageEntity = jyBizTaskUnloadVehicleStageService.queryByBizId(jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId());
+            if(JyBizTaskStageStatusEnum.COMPLETE.getCode().equals(stageEntity.getStatus())
+                    && stageEntity.getEndTime() != null && stageEntity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                String msg = unloadScanDto.getSupplementary() ? "当前操作板为任务完成前创建，此任务已过计提周期无法扫描，可开新板进行扫描" : "当前操作板为交班前创建，此任务已过计提周期无法扫描，可开新板进行扫描";
+                res.error(msg);
+                return res;
+            }
+        }
+        return res;
+    }
+
 
     private void unlockIgnoreException(String key) {
         try{
@@ -929,8 +996,14 @@ public class JyUnloadVehicleCheckTysService {
         List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
         int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
         entity.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
-        entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-        entity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        if(unloadScanDto.getSupplementary()) {
+            entity.setType(JyBizTaskStageTypeEnum.SUPPLEMENT.getCode());
+            entity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            entity.setEndTime(now);
+        }else {
+            entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            entity.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        }
         entity.setStartTime(now);
         entity.setCreateTime(now);
         entity.setUpdateTime(now);

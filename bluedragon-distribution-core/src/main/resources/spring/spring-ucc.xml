@@ -213,6 +213,9 @@
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 
+
+		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
+		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -416,6 +419,8 @@
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 			</list>
 		</property>
 	</bean>
