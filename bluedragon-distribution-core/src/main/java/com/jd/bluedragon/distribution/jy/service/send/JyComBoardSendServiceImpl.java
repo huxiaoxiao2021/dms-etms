@@ -2086,6 +2086,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       batchUpdateCancelReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
       JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
       query.setBoardCode(request.getBoardCode());
+      batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
       query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
       JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
       //如果已封车的批次不触发取消组板发货
@@ -2100,7 +2101,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
         removeBoardBoxDto.setWaybillCode(waybillCode);
         barCodeList.add(waybillCode);
-        batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
         if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
           log.error("运单取消组板失败：{}", waybillCode);
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
