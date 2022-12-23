@@ -1034,6 +1034,21 @@ public class UccPropertyConfiguration {
      */
     private Integer checkDeviceLocationInRealTimeSwitch;
 
+    /**
+     * 转运卸车任务交班最大次数
+     */
+    private Integer tysUnloadTaskHandoverMaxSize;
+
+    /**
+     * 转运卸车任务完成后补扫描小时数限制，超出该小时后禁止扫描
+     */
+    private Integer tysUnloadTaskSupplementScanLimitHours;
+
+
+
+
+
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2502,5 +2517,21 @@ public class UccPropertyConfiguration {
 
     public boolean getCheckDeviceLocationInRealTimeSwitchIsOn() {
         return Objects.equals(this.getCheckDeviceLocationInRealTimeSwitch(), Constants.YN_YES);
+    }
+
+    public Integer getTysUnloadTaskHandoverMaxSize() {
+        return tysUnloadTaskHandoverMaxSize;
+    }
+
+    public void setTysUnloadTaskHandoverMaxSize(Integer tysUnloadTaskHandoverMaxSize) {
+        this.tysUnloadTaskHandoverMaxSize = tysUnloadTaskHandoverMaxSize;
+    }
+
+    public Integer getTysUnloadTaskSupplementScanLimitHours() {
+        return tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
+        this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
     }
 }

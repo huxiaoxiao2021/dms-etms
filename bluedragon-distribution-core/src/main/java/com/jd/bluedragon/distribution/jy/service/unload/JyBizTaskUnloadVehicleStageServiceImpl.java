@@ -73,4 +73,12 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     public JyBizTaskUnloadVehicleStageEntity selectUnloadDoingStageTask(String bizId) {
         return jyBizTaskUnloadVehicleStageDao.selectUnloadDoingStageTask(bizId);
     }
+    @Override
+    public int getTaskCount(JyBizTaskUnloadVehicleStageEntity entity) {
+        return jyBizTaskUnloadVehicleStageDao.getTaskCount(entity);
+    }
+    @Override
+    public JyBizTaskUnloadVehicleStageEntity queryByBizId(String bizId) {
+        return jyBizTaskUnloadVehicleStageDao.queryByBizId(bizId);
+    }
 }
