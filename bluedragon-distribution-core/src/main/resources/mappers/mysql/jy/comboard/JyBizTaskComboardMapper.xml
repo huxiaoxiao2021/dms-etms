@@ -235,7 +235,13 @@
       <if test="haveScanCount != null">
         have_scan_count = #{haveScanCount,jdbcType=INTEGER},
       </if>
-    </set>
+      <if test="sealTime != null">
+        seal_time = #{sealTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="unsealTime != null">
+        unseal_time = #{unsealTime,jdbcType=TIMESTAMP},
+      </if>
+        </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
@@ -338,6 +344,18 @@
           </foreach>
       AND create_time > #{createTime}
       AND yn = 1
+  </select>
+
+  <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_biz_task_comboard
+    WHERE send_code IN
+    <foreach item="item" index="index" collection="sendCodeList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
   </select>
   <select id="boardCountTaskBySendFlowList" resultMap="boardCountDto">
     select end_site_id, count(*) board_count
