@@ -21,6 +21,7 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="bulk_flag" jdbcType="BIT" property="bulkFlag" />
     <result column="have_scan_count" jdbcType="INTEGER" property="haveScanCount" />
+    <result column="comboard_source" jdbcType="BIT" property="comboardSource"/>
   </resultMap>
   <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
     <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
@@ -29,7 +30,7 @@
   <sql id="Base_Column_List">
     id, biz_id, board_code, send_code, board_status, start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts, bulk_flag, have_scan_count
+    create_time, update_time, yn, ts, bulk_flag, have_scan_count, comboard_source
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select

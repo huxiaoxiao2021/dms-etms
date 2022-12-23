@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealCode;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
@@ -504,6 +505,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
         InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
+            invokeResult.setCode(NO_SEND_FLOW_CODE);
+            invokeResult.setMessage(NO_SEND_FLOW__MESSAGE);
+            return invokeResult;
+        }
         BoardQueryResp boardQueryResp = new BoardQueryResp();
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
@@ -552,13 +558,18 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             BoardDto boardDto = new BoardDto();
             boardDto.setSendCode(board.getSendCode());
             boardDto.setBoardCode(board.getBoardCode());
+            boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
 
             if (boardScanCountMap.containsKey(board.getBoardCode())) {
                 JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
                 boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
                 boardDto.setPackageHaveScanCount(aggsEntity.getPackageScannedCount());
-                // todo 体积 重量
-                
+                if (aggsEntity.getWeight() != null) {
+                    boardDto.setWeight(aggsEntity.getWeight().toString());
+                }
+                if (aggsEntity.getVolume() != null) {
+                    boardDto.setVolume(aggsEntity.getVolume().toString());
+                }
             }
             
             if (goodsCategoryMap.containsKey(board.getBoardCode())) {
