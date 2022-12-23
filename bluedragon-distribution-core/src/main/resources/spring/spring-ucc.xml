@@ -205,7 +205,6 @@
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="syncJyCZSealStatusSwitch" value="${syncJyCZSealStatusSwitch:false}"/>
-		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:50}"/>
 		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
