@@ -2,17 +2,14 @@ package com.jd.bluedragon.distribution.integral.service.impl;
 
 import com.jd.bluedragon.Constants;
 
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.response.*;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.gantry.service.impl.GantryDeviceConfigServiceImpl;
 import com.jd.bluedragon.distribution.integral.domain.IntegralProxy;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tp.common.utils.Objects;
 import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.enums.JyIntegralQuotaEnum;
@@ -86,7 +83,7 @@ public class IntegralServiceImpl implements IntegralService {
             query.setStartDate(null);
             query.setEndDate(null);
             BeanUtils.copyProperties(query, jyIntegralQuery);
-            List<JyIntegralDTO> totalIntegral = integralProxy.queryIntegralPersonalByCondition(jyIntegralQuery);
+            List<JyIntegralDTO> totalIntegral = integralProxy.querySumByUserCode(jyIntegralQuery);
             if (CollectionUtils.isEmpty(totalIntegral)) {
                 result.setIntegral(BigDecimal.ZERO);
             } else {
@@ -113,7 +110,7 @@ public class IntegralServiceImpl implements IntegralService {
                 throw new RuntimeException("未查询到最近签到记录:" + userErp + ":" + System.currentTimeMillis());
             }
         } catch (Exception e) {
-            log.warn("IntegralServiceImpl.handlerLastSignTime:", e.getMessage());
+            log.warn("IntegralServiceImpl.handlerLastSignTime:{}", e.getMessage(), e);
             result.setAttendanceTime(System.currentTimeMillis());
         }
     }
@@ -132,24 +129,24 @@ public class IntegralServiceImpl implements IntegralService {
         // 查询出总览
         List<JyIntegralDTO> overviews = integralProxy.queryIntegralPersonalByCondition(integralQuery);
         if (CollectionUtils.isEmpty(overviews)) {
-            result.setTotalIntegral(BigDecimal.ZERO);
+            result.setIntegral(BigDecimal.ZERO);
             result.setTotalScore(BigDecimal.ZERO);
             result.setAverageCoefficient(BigDecimal.ZERO);
         } else {
-            result.setTotalIntegral(overviews.get(Constants.Numbers.INTEGER_ZERO).getTotalIntegral());
+            result.setIntegral(overviews.get(Constants.Numbers.INTEGER_ZERO).getIntegral());
             result.setTotalScore(overviews.get(Constants.Numbers.INTEGER_ZERO).getTotalScore());
             result.setAverageCoefficient(overviews.get(Constants.Numbers.INTEGER_ZERO).getAverageCoefficient());
         }
         // 查询明细
         List<JyIntegralDTO> details = integralProxy.queryIntegralPersonalQuotaByCondition(integralQuery);
         // 合并明细
-        result = makeJyIntegralDetail(result, details);
+        makeJyIntegralDetail(result, details);
         jdCResponse.setData(result);
         jdCResponse.toSucceed();
         return jdCResponse;
     }
 
-    private JyIntegralDetailDTO makeJyIntegralDetail(JyIntegralDetailDTO result, List<JyIntegralDTO> details) {
+    private void makeJyIntegralDetail(JyIntegralDetailDTO result, List<JyIntegralDTO> details) {
         // 基础分明细
         List<JyBaseScoreCalcuDetailDTO> baseScores = new ArrayList<>();
         // 系数明细
@@ -196,7 +193,6 @@ public class IntegralServiceImpl implements IntegralService {
         // 装入结果
         result.setCalcuDetailDTOList(baseScores);
         result.setIntegralCoefficientDetailDTOList(coefficients);
-        return result;
     }
 
 
@@ -260,6 +256,8 @@ public class IntegralServiceImpl implements IntegralService {
                 if (CollectionUtils.isEmpty(dtos)) {
                     dto.setUnitName(" ");
                     continue;
+                } else {
+                    rootQuota = dtos.get(Constants.NUMBER_ZERO);
                 }
                 dto.setUnitName(rootQuota.getUnitName());
                 cacheMap.put(dto.getQuotaNo(), dto.getUnitName());

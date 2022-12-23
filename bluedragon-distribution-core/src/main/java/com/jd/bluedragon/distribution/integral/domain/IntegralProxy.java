@@ -35,7 +35,7 @@ public class IntegralProxy {
     }
 
     public List<JyIntegralDTO> queryIntegralPersonalByCondition(JyIntegralQuery query){
-        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.queryIntegralPersonalByCondition(query);
         if (serviceResult.getSuccess()) {
             return serviceResult.getData();
         } else {
