@@ -26,7 +26,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, site_code, achine_code, task_create_time, task_end_time, task_status, weight_calibrate_time, volume_calibrate_time, calibrate_finish_time,
+        id, site_code, machine_code, task_create_time, task_end_time, task_status, weight_calibrate_time, volume_calibrate_time, calibrate_finish_time,
         weight_calibrate_status, volume_calibrate_status, machine_status, create_user_erp, update_user_erp, create_time, update_time, yn, ts
     </sql>
 
