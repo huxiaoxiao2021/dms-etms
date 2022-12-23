@@ -169,6 +169,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.createVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
@@ -178,11 +179,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         // 创建发货调度任务
-        try {
-            createSendScheduleTask(jyBizTaskSendVehicleEntity);
-        } catch (Exception e) {
-            log.error("createVehicleTask创建自建任务-增补调度任务异常",e);
+        JyScheduleTaskResp scheduleTaskResp =createSendScheduleTask(jyBizTaskSendVehicleEntity);
+        boolean createFlag = scheduleTaskResp != null;
+        if(!createFlag){
+            log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
+            throw new JyBizException("创建任务失败！");
         }
+
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
@@ -281,6 +284,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         detailEntity.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
         detailEntity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
         jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        //关闭调度任务
+        closeScheduleTask(entity);
         //删除任务-发货绑定关系+取消发货
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
@@ -305,13 +310,6 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     }
                 }
 
-            }
-
-            //关闭调度任务
-            try {
-                closeScheduleTask(entity);
-            } catch (Exception e) {
-                log.error("删除自建任务-同步删除调度任务异常",e);
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
@@ -442,14 +440,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
-
-
             //关闭调度任务
-            try {
-                closeScheduleTask(fromSvTask);
-            } catch (Exception e) {
-                log.error("自建任务绑定-同步删除调度任务异常",e);
-            }
+            closeScheduleTask(fromSvTask);
 
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
