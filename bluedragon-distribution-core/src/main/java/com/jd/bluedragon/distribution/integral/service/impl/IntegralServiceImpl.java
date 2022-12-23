@@ -2,11 +2,17 @@ package com.jd.bluedragon.distribution.integral.service.impl;
 
 import com.jd.bluedragon.Constants;
 
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.response.*;
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.gantry.service.impl.GantryDeviceConfigServiceImpl;
 import com.jd.bluedragon.distribution.integral.domain.IntegralProxy;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
+import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
+import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tp.common.utils.Objects;
 import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.enums.JyIntegralQuotaEnum;
@@ -14,6 +20,8 @@ import com.jdl.jy.flat.enums.JyPositionTypeEnum;
 import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +42,13 @@ import static com.jdl.jy.flat.enums.JyIntegralQuotaEnum.*;
 @Service
 public class IntegralServiceImpl implements IntegralService {
 
+    private static final Logger log = LoggerFactory.getLogger(IntegralServiceImpl.class);
+
     @Autowired
     IntegralProxy integralProxy;
+
+    @Autowired
+    UserSignRecordDao userSignRecordDao;
 
     /**
      * 获取今日积分和总积分
@@ -79,12 +92,29 @@ public class IntegralServiceImpl implements IntegralService {
             } else {
                 result.setTotalIntegral(totalIntegral.get(Constants.Numbers.INTEGER_ZERO).getIntegral());
             }
+            handlerLastSignTime(result, query.getUserCode());
             response.toSucceed();
             response.setData(result);
             return response;
         } catch (Exception e) {
             response.toError(e.getMessage());
             return response;
+        }
+    }
+
+    private void handlerLastSignTime(JyIntegralDetailDTO result, String userErp) {
+        UserSignRecordQuery query = new UserSignRecordQuery();
+        query.setUserCode(userErp);
+        try {
+            UserSignRecord userSignRecord = userSignRecordDao.queryLastSignRecord(query);
+            if (Objects.nonNull(userSignRecord)) {
+                result.setAttendanceTime(userSignRecord.getSignInTime().getTime());
+            } else {
+                throw new RuntimeException("未查询到最近签到记录:" + userErp + ":" + System.currentTimeMillis());
+            }
+        } catch (Exception e) {
+            log.warn("IntegralServiceImpl.handlerLastSignTime:", e.getMessage());
+            result.setAttendanceTime(System.currentTimeMillis());
         }
     }
 
@@ -115,6 +145,7 @@ public class IntegralServiceImpl implements IntegralService {
         // 合并明细
         result = makeJyIntegralDetail(result, details);
         jdCResponse.setData(result);
+        jdCResponse.toSucceed();
         return jdCResponse;
     }
 
