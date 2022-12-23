@@ -16,6 +16,98 @@ public class JyBaseScoreRuleDTO {
      */
     private Long id;
 
+    /**
+     * 指标编码
+     */
+    private String quotaNo;
+
+    /**
+     * 积分计算规则ID
+     */
+    private Long refCoefficientRule;
+
+    /**
+     * 显示顺序
+     */
+    private Byte displayOrder;
+
+    /**
+     * 组号
+     */
+    private String groupNo;
+
+    /**
+     * 大于
+     */
+    private BigDecimal gtValue;
+
+    /**
+     * 小于等于
+     */
+    private BigDecimal ltValue;
+
+    /**
+     * 是否为大于等于
+     */
+    private Integer gteSign;
+
+    /**
+     * 是否为小于等于
+     */
+    private Integer lteSign;
+
+    /**
+     * 1-加分；2-减分
+     */
+    private Byte symbol;
+
+    /**
+     * 分数
+     */
+    private BigDecimal score;
+
+    /**
+     * 创建人ERP
+     */
+    private String createUserErp;
+
+    /**
+     * 创建人姓名
+     */
+    private String createUserName;
+
+    /**
+     * 更新人ERP
+     */
+    private String updateUserErp;
+
+    /**
+     * 更新人姓名
+     */
+    private String updateUserName;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 是否删除：1-有效，0-删除
+     */
+    private Boolean yn;
+
+    /**
+     * 数据库时间
+     */
+    private Date ts;
+
+
+
     public Long getId() {
         return id;
     }
@@ -167,95 +259,4 @@ public class JyBaseScoreRuleDTO {
     public void setTs(Date ts) {
         this.ts = ts;
     }
-
-    /**
-     * 指标编码
-     */
-    private String quotaNo;
-
-    /**
-     * 积分计算规则ID
-     */
-    private Long refCoefficientRule;
-
-    /**
-     * 显示顺序
-     */
-    private Byte displayOrder;
-
-    /**
-     * 组号
-     */
-    private String groupNo;
-
-    /**
-     * 大于
-     */
-    private BigDecimal gtValue;
-
-    /**
-     * 小于等于
-     */
-    private BigDecimal ltValue;
-
-    /**
-     * 是否为大于等于
-     */
-    private Integer gteSign;
-
-    /**
-     * 是否为小于等于
-     */
-    private Integer lteSign;
-
-    /**
-     * 1-加分；2-减分
-     */
-    private Byte symbol;
-
-    /**
-     * 分数
-     */
-    private BigDecimal score;
-
-    /**
-     * 创建人ERP
-     */
-    private String createUserErp;
-
-    /**
-     * 创建人姓名
-     */
-    private String createUserName;
-
-    /**
-     * 更新人ERP
-     */
-    private String updateUserErp;
-
-    /**
-     * 更新人姓名
-     */
-    private String updateUserName;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-
-    /**
-     * 是否删除：1-有效，0-删除
-     */
-    private Boolean yn;
-
-    /**
-     * 数据库时间
-     */
-    private Date ts;
-
 }

@@ -191,11 +191,12 @@ public class IntegralServiceImpl implements IntegralService {
                         && baseScore.getQuantity().compareTo(dto.getGtValue()) > 0) {
                     baseScore.setToNextQuantity(BigDecimal.ZERO);
                     baseScore.setNextScore(rule.getScore());
+                    continue;
                 }
-                // 在区间内算出差值
+                // 如果在区间内算出差值
                 if (baseScore.getQuantity().compareTo(dto.getLtValue()) <= 0
                         && baseScore.getQuantity().compareTo(dto.getGtValue()) > 0) {
-                    baseScore.setToNextQuantity(dto.getLtValue().subtract(baseScore.getToNextQuantity()));
+                    baseScore.setToNextQuantity(dto.getLtValue().subtract(baseScore.getQuantity()));
                 }
                 // 下一阶段分数
                 if (baseScore.getQuantity().compareTo(dto.getGtValue()) <= 0) {

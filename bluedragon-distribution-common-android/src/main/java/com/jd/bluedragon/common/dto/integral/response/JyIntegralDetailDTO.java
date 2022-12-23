@@ -49,6 +49,12 @@ public class JyIntegralDetailDTO {
     private BigDecimal totalScore;
 
     /*
+     * 出勤时间
+     */
+    private Long attendanceTime;
+
+
+    /*
      * 基础分数明细
      */
     private List<JyBaseScoreCalcuDetailDTO> calcuDetailDTOList;
@@ -57,6 +63,8 @@ public class JyIntegralDetailDTO {
      * 积分系数明细
      */
     private List<JyIntegralCoefficientDetailDTO> integralCoefficientDetailDTOList;
+
+
 
 
     public Date getOperateDate() {
@@ -147,5 +155,11 @@ public class JyIntegralDetailDTO {
         this.integralCoefficientDetailDTOList = integralCoefficientDetailDTOList;
     }
 
+    public Long getAttendanceTime() {
+        return attendanceTime;
+    }
 
+    public void setAttendanceTime(Long attendanceTime) {
+        this.attendanceTime = attendanceTime;
+    }
 }
