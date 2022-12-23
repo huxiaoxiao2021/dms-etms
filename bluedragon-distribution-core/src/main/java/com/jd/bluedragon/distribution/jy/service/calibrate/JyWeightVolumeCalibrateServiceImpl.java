@@ -224,6 +224,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     }
 
     private void queryAndAssembleResult(JyBizTaskMachineCalibrateCondition condition, InvokeResult<DwsWeightVolumeCalibrateTaskResult> result) {
+        result.getData().setSystemTime(System.currentTimeMillis());
         List<JyBizTaskMachineCalibrateDetailEntity> list = jyBizTaskMachineCalibrateDetailService.selectByCondition(condition);
         if(CollectionUtils.isEmpty(list)){
             return;
@@ -245,7 +246,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         convert2Result(todoList, result.getData().getTodoTaskList());
         doneConvert2Result(doneList, result.getData().getDoneTaskList());
         convert2Result(overtimeList, result.getData().getOvertimeTaskList());
-        result.getData().setSystemTime(System.currentTimeMillis());
     }
 
     private void doneConvert2Result(List<JyBizTaskMachineCalibrateDetailEntity> doneList, List<DwsWeightVolumeCalibrateTaskDetail> doneTaskList) {
