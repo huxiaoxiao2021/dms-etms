@@ -384,5 +384,10 @@
     <jmq:consumer id="jmq.dmsUploadDeviceLocationExceptionOpConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" listener="dmsUploadDeviceLocationExceptionOpConsumer"/>
     </jmq:consumer>
+    
+    <!--  分拣发邮政消息处理  -->
+    <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
+    </jmq:consumer>    
 </beans>
 
