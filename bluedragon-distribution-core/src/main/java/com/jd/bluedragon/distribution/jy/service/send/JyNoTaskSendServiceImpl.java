@@ -98,12 +98,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
     @Autowired
+    @Qualifier("jySendVehicleService")
     IJySendVehicleService iJySendVehicleService;
     @Autowired
     private SendDetailService sendDetailService;
     @Autowired
     SortingService sortingService;
     @Autowired
+    @Qualifier("jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     BaseMajorManager baseMajorManager;

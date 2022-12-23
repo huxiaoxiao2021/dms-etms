@@ -176,6 +176,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
+    @Qualifier(value = "jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     JdiQueryWSManager jdiQueryWSManager;

@@ -457,6 +457,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCodeScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult checkTransCodeScan(CheckTransportReq reqcuest) {
         InvokeResult invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
@@ -501,7 +502,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
-        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>();
+        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         BoardQueryResp boardQueryResp = new BoardQueryResp();
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
@@ -519,7 +520,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         
         // 获取板号扫描数量统计数据
         List<String> boardCodeList = getboardCodeList(boardList);
-        List<JyComboardAggsEntity> boardScanCountList = null;
+        List<JyComboardAggsEntity> boardScanCountList = new ArrayList<>();
         try {
             boardScanCountList = jyComboardAggsService.queryComboardAggs(boardCodeList);
         } catch (Exception e) {
@@ -563,9 +564,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 List<GoodsCategoryDto> goodsCategoryDtos = goodsCategoryMap.get(board.getBoardCode());
                 boardDto.setGoodsCategoryDtos(goodsCategoryDtos);
             }
-            
+
+            boardDtos.add(boardDto);
         }
-        
+        invokeResult.setCode(JdResponse.CODE_OK);
+        invokeResult.setMessage(JdResponse.MESSAGE_OK);
         return invokeResult;
     }
 
@@ -577,6 +580,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return boardScanCountMap;
     }
 
+    
     private List<String> getboardCodeList(List<JyBizTaskComboardEntity> boardList) {
         List<String> boardCodeList = new ArrayList<>();
         for (JyBizTaskComboardEntity boardInfo : boardList) {
