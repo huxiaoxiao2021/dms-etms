@@ -103,6 +103,11 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
+  public List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity) {
+    return jyBizTaskComboardDao.listBoardTaskBySendCode(entity);
+  }
+
+  @Override
   public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq){
     List<Integer> statusList = new ArrayList<>();
     statusList.add(ComboardStatusEnum.PROCESSING.getCode());
