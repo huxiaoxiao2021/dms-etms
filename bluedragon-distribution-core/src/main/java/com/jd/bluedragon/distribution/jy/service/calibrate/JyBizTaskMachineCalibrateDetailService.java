@@ -98,4 +98,5 @@ public interface JyBizTaskMachineCalibrateDetailService {
      */
     void batchUpdateStatus(List<Long> ids, Integer status);
 
+    JyBizTaskMachineCalibrateDetailEntity selectById(Long taskId);
 }

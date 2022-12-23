@@ -346,15 +346,30 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     public InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request) {
         InvokeResult<DwsWeightVolumeCalibrateDetailResult> result = new InvokeResult();
         DwsWeightVolumeCalibrateDetailResult detailResult = new DwsWeightVolumeCalibrateDetailResult();
-        if (request.getMachineCode() == null || request.getCalibrateTaskStartTime() == null || request.getCalibrateTaskEndTime() == null) {
+        if (request.getMachineCode() == null || request.getMachineTaskId() == null) {
             logger.error("查询设备校验细节出错，入参{}", request);
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
             return result;
         }
+        JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.selectById(request.getMachineTaskId());
+        if (taskDetail == null) {
+            logger.error("查询设备校验细节为空，入参{}", request);
+            result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
+        }
+
         DWSCheckRequest checkRequest = new DWSCheckRequest();
         checkRequest.setMachineCode(request.getMachineCode());
-        checkRequest.setQueryStartTime(request.getCalibrateTaskStartTime());
-        checkRequest.setQueryEndTime(request.getCalibrateTaskEndTime());
+        //已完成状态的任务明细，需要根据体积和重量校准时间去获取校准记录
+        //防止短时间内校准重量体积多次，查询到多个任务的校准记录
+        if (Objects.equals(taskDetail.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode())) {
+            Long queryStartTime = Math.min(taskDetail.getWeightCalibrateTime().getTime(), taskDetail.getVolumeCalibrateTime().getTime());
+            Long queryEndTime = Math.max(taskDetail.getWeightCalibrateTime().getTime(), taskDetail.getVolumeCalibrateTime().getTime());
+            checkRequest.setQueryStartTime(queryStartTime);
+            checkRequest.setQueryEndTime(queryEndTime);
+        } else { // 待处理、超时状态的任务根据任务创建时间以及截止时间去获取即可
+            checkRequest.setQueryStartTime(taskDetail.getTaskCreateTime().getTime());
+            checkRequest.setQueryEndTime(taskDetail.getTaskEndTime().getTime());
+        }
         DwsCheckResponse response = dwsCheckManager.getLastDwsCheckByTime(checkRequest);
         if (response == null){
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
@@ -445,6 +460,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
         condition.setCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+        //只有待处理状态的任务才会更新
+        condition.setCalibrateTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode());
         List<JyBizTaskMachineCalibrateDetailEntity> detailList = jyBizTaskMachineCalibrateDetailService.queryCurrentTaskDetail(condition);
         if (CollectionUtils.isEmpty(detailList) || detailList.size() > Constants.CONSTANT_NUMBER_ONE){
             logger.error("获取设备编码为:{}的待处理任务出现异常!", dwsMachineCalibrateMQ.getMachineCode());
