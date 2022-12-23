@@ -1,45 +1,6 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.security.log.SecurityLogWriter;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -49,8 +10,14 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
@@ -59,6 +26,7 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -77,12 +45,20 @@ import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
@@ -91,14 +67,8 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.RestHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -113,8 +83,19 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
@@ -1446,18 +1427,9 @@ public class WaybillResource {
 				if(waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode())){
 					preSortingSiteCode = waybill.getSiteCode();
 					//获得路由中的下一节点
-					String routerStr = waybillCacheService.getRouterByWaybillCode(waybill.getWaybillCode());
-					if(StringUtils.isNotBlank(routerStr)){
-						String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
-						if(routers != null && routers.length > 0) {
-							for (int i = 0; i < routers.length - 1; i++) {
-								if(siteCode.equals(Integer.valueOf(routers[i]))){
-									nextRouterSiteCode = Integer.valueOf(routers[i+1]);
-									break;
-								}
-							}
-						}
-					}
+					RouteNextDto routeNextDto = routerService.matchRouterNextNode(siteCode, waybill.getWaybillCode());
+					nextRouterSiteCode = routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
+
 				}
 			}else {
 				invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
