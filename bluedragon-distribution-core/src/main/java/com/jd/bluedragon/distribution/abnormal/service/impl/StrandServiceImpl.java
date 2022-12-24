@@ -524,14 +524,6 @@ public class StrandServiceImpl implements StrandService {
                 (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType()))){
             return;
         }
-        if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
-            SendM sendMDto =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
-            if (sendMDto==null){
-                log.info("按板滞留上报==========没有找到按板的sendM(发货)记录");
-                return;
-            }
-            sendM.setSendCode(sendMDto.getSendCode());
-        }
         ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         //取消发货时异常
         if(DeliveryResponse.CODE_Delivery_ERROR.equals(response.getCode())){

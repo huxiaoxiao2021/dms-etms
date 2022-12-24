@@ -99,6 +99,8 @@
 	</bean>
 	<bean id="checkCanAirToRoadJobHandler" class="com.jd.bluedragon.distribution.arAbnormal.CheckCanAirToRoadJobHandler" parent="parentConcurrentJobHandler">
 	</bean>
+    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
+    </bean>
     <!-- 运单全程跟踪状态映射map
        邮政操作码   操作码说明   京东三方路由  京东三方路由说明    京东全程跟踪运单状态码说明   京东全程跟踪运单状态码
 		50  邮政接收    GOT 揽收  派送交接    -1630
@@ -161,7 +163,5 @@
     <bean id="emsTraces51" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
         <property name="code" value = "51"/>
         <property name="name" value = "邮政退回"/>
-    </bean>
-    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
     </bean>
 </beans>

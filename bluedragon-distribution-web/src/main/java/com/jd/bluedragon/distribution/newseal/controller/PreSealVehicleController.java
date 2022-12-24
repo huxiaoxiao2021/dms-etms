@@ -109,6 +109,10 @@ public class PreSealVehicleController extends DmsBaseController{
     public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         long startTime = System.currentTimeMillis();
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+        if(uccPropertyConfiguration.getOfflineQuickSeal()){
+            rest.toFail("一键封车已下线，请使用PDA进行封车！");
+            return rest;
+        }
         if( condition.getHourRange() == null){
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("参数错误，时间范围不能为空!");
@@ -339,6 +343,10 @@ public class PreSealVehicleController extends DmsBaseController{
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if(log.isDebugEnabled()){
             log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));
+        }
+        if(uccPropertyConfiguration.getOfflineQuickSeal()){
+            rest.toFail("一键封车已下线，请使用PDA进行封车！");
+            return rest;
         }
         if(data == null || data.isEmpty()){
             rest.setCode(JdResponse.CODE_FAIL);

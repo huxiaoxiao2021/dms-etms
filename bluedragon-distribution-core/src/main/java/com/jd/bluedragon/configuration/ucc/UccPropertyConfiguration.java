@@ -18,7 +18,8 @@ public class UccPropertyConfiguration {
 
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
-
+    /*一键封车下线*/
+    private boolean offlineQuickSeal;
 
     /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
     private boolean enableGoodsAreaOfTysScan;
@@ -1385,6 +1386,14 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
         this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public boolean getOfflineQuickSeal() {
+        return offlineQuickSeal;
+    }
+
+    public void setOfflineQuickSeal(boolean offlineQuickSeal) {
+        this.offlineQuickSeal = offlineQuickSeal;
     }
 
     public String getSingleSendSwitchVerToWebSites() {

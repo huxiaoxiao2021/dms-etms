@@ -283,6 +283,10 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		}
     	}
     	request.setTraces(traces);
+    	if(CollectionUtils.isEmpty(traces)) {
+    		log.warn("分拣发邮政-推送全程跟踪,满足邮政要求的全程跟踪为空不发送!pacakgeCode={}",sendDataMq.getPackageBarcode());
+    		return;
+    	}
     	log.info("分拣发邮政-推送全程跟踪request:{}",JsonHelper.toJson(request));
     	TracesCompanyResponse tracesResponse= emsTracesCompanyManager.doRestInterface(request);
     	log.info("分拣发邮政-推送全程跟踪response:{}",JsonHelper.toJson(tracesResponse));
