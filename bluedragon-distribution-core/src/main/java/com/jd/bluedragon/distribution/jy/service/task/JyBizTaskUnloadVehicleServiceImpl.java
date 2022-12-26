@@ -119,6 +119,18 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     /**
+     * 获取6个小时内实际解封车顺序
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findRealRankingByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity){
+        return jyBizTaskUnloadVehicleDao.findRealRankingByBizId(entity);
+    }
+
+    /**
      * 根据派车明细编码获取数据
      *
      * @param transWorkItemCode

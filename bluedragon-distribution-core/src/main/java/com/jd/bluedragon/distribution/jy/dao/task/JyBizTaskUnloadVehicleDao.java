@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.unseal.JyUnSealVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,6 +51,19 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", params);
     }
 
+    /**
+     * 根据bizId获取实际解封车顺序
+     * @return
+     */
+    public JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity){
+        Map<String,Object> params = new HashMap<>();
+        params.put("endSiteId",entity.getEndSiteId());
+        params.put("bizId",entity.getBizId());
+        params.put("vehicleStatus",entity.getVehicleStatus());
+        params.put("sortTimeBegin",entity.getSortTime());
+        params.put("sortTimeEnd", DateHelper.newTimeRangeHoursAgo(entity.getSortTime(), -JyUnSealVehicleServiceImpl.DEFAULT_LAST_HOUR));
+        return this.getSqlSession().selectOne(NAMESPACE + ".findRealRankingByBizId", params);
+    }
     /**
      * 根据派车明细编码获取数据
      * @param transWorkItemCode

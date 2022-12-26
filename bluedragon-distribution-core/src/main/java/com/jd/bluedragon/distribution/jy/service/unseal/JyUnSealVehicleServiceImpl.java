@@ -84,7 +84,10 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     private static final int STATUS = 10;
     private static final int VEHICLE_NUMBER_FOUR = 4;
-
+    /**
+     * 默认时间
+     */
+    public static final int DEFAULT_LAST_HOUR = 6;
     @Autowired
     @Qualifier("jyUnSealVehicleManager")
     private IJyUnSealVehicleManager jySealVehicleManager;
@@ -245,7 +248,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
             else {
                 // 查询最近6小时的待解封车任务
-                condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
+                condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), DEFAULT_LAST_HOUR));
             }
 
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
@@ -284,6 +287,57 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         }
 
         return result;
+    }
+
+
+    /**
+     * 记录实际解封车顺序
+     * 1、根据业务主键获取对应场地信息
+     * 2、获取当前场地到车任务积分排名
+     * 3、快照保存当前解封车顺序
+     * @param bizId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.saveRealUnSealRanking",
+           jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public void saveRealUnSealRanking(String bizId,Date unSealTime){
+        try {
+            JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(bizId);
+            if(unloadVehicle == null){
+                log.error("saveRealUnSealRanking not find task! {}",bizId);
+                return;
+            }
+            JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+            condition.setEndSiteId(unloadVehicle.getEndSiteId());
+            // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
+            condition.setSortTime(DateHelper.newTimeRangeHoursAgo(unSealTime, DEFAULT_LAST_HOUR));
+            condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
+            condition.setBizId(bizId);
+            JyBizTaskUnloadVehicleEntity realRankingResult = jyBizTaskUnloadVehicleService.findRealRankingByBizId(condition);
+            if(log.isInfoEnabled()){
+                log.info("saveRealUnSealRanking realRankingResult, req:{},resp:{}",JsonHelper.toJson(condition),JsonHelper.toJson(realRankingResult));
+            }
+            if(realRankingResult == null){
+                log.error("saveRealUnSealRanking not find task by condition! {}",bizId);
+                return;
+            }
+            JyBizTaskUnloadVehicleEntity RealUnSealRankingUpdateParam = new JyBizTaskUnloadVehicleEntity();
+            RealUnSealRankingUpdateParam.setBizId(bizId);
+            RealUnSealRankingUpdateParam.setRealRanking(realRankingResult.getRealRanking());
+            if(jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(RealUnSealRankingUpdateParam)){
+                if(log.isInfoEnabled()){
+                    log.info("saveRealUnSealRanking success!, bizId:{},realRanking:{}",bizId,realRankingResult.getRealRanking());
+                }
+            }else{
+                log.error("saveRealUnSealRanking fail!, bizId:{},realRanking:{}",bizId,realRankingResult.getRealRanking());
+            }
+
+
+        }catch (Exception e){
+            log.error("saveRealUnSealRanking error! {},{}",bizId,unSealTime,e);
+        }
+
     }
 
     /**
