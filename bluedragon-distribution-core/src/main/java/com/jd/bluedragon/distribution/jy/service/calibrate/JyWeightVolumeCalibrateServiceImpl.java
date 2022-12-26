@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.google.common.collect.Lists;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
+import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -76,6 +78,9 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     @Autowired
     @Qualifier("dwsCalibratePushDDProducer")
     private DefaultJMQProducer dwsCalibratePushDDProducer;
+
+    @Autowired
+    private DeviceConfigInfoJsfServiceManager deviceConfigInfoJsfServiceManager;
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeCalibrateService.machineCalibrateScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -143,7 +148,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             machineTaskCondition.setCreateUserErp(request.getUser().getUserErp());
             JyBizTaskMachineCalibrateDetailEntity machineTaskEntity = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(machineTaskCondition);
 
-            boolean isCreateTaskFlag = false; // 是否创建任务标识
+            boolean isCreateTaskFlag = false; // 是否创建设备维度记录标识
+            boolean isCreateTaskDetailFlag = false; // 是否创建设备任务明细维度标识
             if(Objects.equals(request.getForceCreateTask(), true)){
                 // 强制创建任务
                 if(machineRecord != null && machineRecord.getCalibrateTaskCloseTime() == null){
@@ -151,9 +157,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     return;
                 }
                 isCreateTaskFlag = true;
+                isCreateTaskDetailFlag = true;
             }else if(machineRecord == null){
                 // 设备维度记录不存在（第一次扫描设备编码）
                 isCreateTaskFlag = true;
+                isCreateTaskDetailFlag = true;
             }else if(machineRecord.getCalibrateTaskCloseTime() != null){
                 // 设备任务已关闭
                 Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
@@ -163,6 +171,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     return;
                 }
                 isCreateTaskFlag = true;
+                isCreateTaskDetailFlag = true;
             }else {
                 // 设备任务未关闭
                 if(machineTaskEntity == null){
@@ -176,12 +185,15 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     result.error(String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_CREATED_WITH_OTHER_HINT, createUserErp));
                     return;
                 }
-                if(!Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())
-                        && !Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_OVERTIME.getCode())){
+                if(Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode())
+                        || Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_CLOSE.getCode())){
                     String errorMessage = String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_STATUS_ERROR_HINT, machineCode);
                     logger.error(errorMessage);
                     result.error(errorMessage);
                     return;
+                }
+                if(Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_OVERTIME.getCode())){
+                    isCreateTaskDetailFlag = true;
                 }
             }
 
@@ -192,6 +204,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 machineEntity.setCalibrateTaskStartTime(new Date());
                 machineEntity.setCreateUserErp(userErp);
                 jyBizTaskMachineCalibrateService.insert(machineEntity);
+            }
+            if(isCreateTaskDetailFlag){
                 // 创建设备任务维度数据
                 JyBizTaskMachineCalibrateDetailEntity entity = initBaseData();
                 entity.setMachineCode(request.getMachineCode());
@@ -317,6 +331,15 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 || StringUtils.isEmpty(request.getUser().getUserErp())){
             result.parameterError();
             return false;
+        }
+        String machineCode = request.getMachineCode();
+        if(StringUtils.isNotEmpty(machineCode)){
+            // 设备编码存在性校验
+            DeviceConfigDto deviceConfigDto = deviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode(machineCode);
+            if(deviceConfigDto == null || StringUtils.isEmpty(deviceConfigDto.getMachineCode())){
+                result.parameterError("设备编码不存在,请重新扫描!");
+                return false;
+            }
         }
         return true;
     }
