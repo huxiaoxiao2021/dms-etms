@@ -295,7 +295,44 @@ public class TmsConsumerTest {
         initUnloadVehicleConsumer.consume(message);
     }
 
+    @Autowired
+    private TmsTransWorkCarComeConsumer tmsTransWorkCarComeConsumer;
+    @Autowired
+    private TmsAreaNearNoticeForBeginNodeConsumer tmsAreaNearNoticeForBeginNodeConsumer;
 
+    @Test
+    public void testTmsComeMq() throws Exception{
+        String body = "{\n" +
+                "    \"transWorkCode\":\"TW22121900853399\",\n" +
+                "    \"transWorkItemCode\":\"TW22121900853399-001\",\n" +
+                "    \"comeTime\":\"2022-12-19 09:51:09\",\n" +
+                "    \"sendTime\":null,\n" +
+                "    \"arriveTime\":null,\n" +
+                "    \"businessType\":null,\n" +
+                "    \"transType\":null,\n" +
+                "    \"transWay\":null,\n" +
+                "    \"vehicleNumber\":\"粤SK9712\",\n" +
+                "    \"operateType\":1,\n" +
+                "    \"transNeedList\":null,\n" +
+                "    \"vehicleUseType\":null,\n" +
+                "    \"transJobCode\":null,\n" +
+                "    \"transJobItemCode\":null\n" +
+                "}";
+        Message message = new Message();
+        message.setText(body);
+        tmsTransWorkCarComeConsumer.consume(message);
+
+        String body2 = "{\n" +
+                " \"transWorkCode\":\"TW22121900853399\",\n" +
+                " \"transWorkItemCode\":\"TW22121900853399-001\",\n" +
+                " \"beginNodeCode\":\"668F001\",\n" +
+                " \"beginNodeName\":\"茂名分拣中心\",\n" +
+                " \"eventTime\":\"2022-12-19 10:01:29\",\n" +
+                " \"vehicleNumber\":\"粤K26015\"\n" +
+                " }";
+        message.setText(body2);
+        tmsAreaNearNoticeForBeginNodeConsumer.consume(message);
+    }
     @Autowired
     private TmsTransWorkItemOperateConsumer transWorkItemOperateConsumer;
 

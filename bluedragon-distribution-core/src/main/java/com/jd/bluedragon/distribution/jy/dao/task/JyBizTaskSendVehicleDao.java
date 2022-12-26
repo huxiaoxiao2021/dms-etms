@@ -50,6 +50,15 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 
+    /**
+     * 更新到来时间或者即将到来时间，取最小值为准更新
+     * @param entity
+     * @return
+     */
+    public int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".updateComeTimeOrNearComeTime", entity);
+    }
+
     public JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(JyBizTaskSendVehicleEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkAndStartSite", entity);
     }

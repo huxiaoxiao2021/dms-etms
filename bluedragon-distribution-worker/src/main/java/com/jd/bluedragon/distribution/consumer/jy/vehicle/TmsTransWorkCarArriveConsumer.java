@@ -37,7 +37,7 @@ import java.util.List;
  * @Auther: 刘铎（liuduo8）
  * @Date: 2022/4/4
  * @Description:
- * 司机到达（调度任务）
+ * 司机到达（调度任务） 目的场地
  * transWorkItemCode 维度
  *
  * {"transWorkCode":"TW22033029178590","transWorkItemCode":"TW22033029178590-001","comeTime":null,"sendTime":null,"arriveTime":"2022-03-30 15:08:20","businessType":14,"transType":11,"transWay":2,"vehicleNumber":"甘AX6A83","operateType":2,"transNeedList":[{"transNeedCode":"TN22033048104099","businessCode":"MJ22011903010512-001202203301101531","businessType":14,"dataSource":39,"businessCodeType":14,"reserveBillCode":null,"requirePickupTime":null,"purchaseBillCode":null}
