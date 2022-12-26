@@ -297,8 +297,13 @@ public class IntegralServiceImpl implements IntegralService {
         try {
             BeanUtils.copyProperties(request, query);
             List<com.jdl.jy.flat.dto.personalIntegralStatistics.JyRuleDescriptionDTO> list = integralProxy.queryQuotaDescriptionByCondition(query);
-
-            BeanUtils.copyProperties(list, result);
+            if (CollectionUtils.isNotEmpty(list)) {
+                for (com.jdl.jy.flat.dto.personalIntegralStatistics.JyRuleDescriptionDTO descriptionDTO : list) {
+                    JyRuleDescriptionDTO jyRuleDescriptionDTO = new JyRuleDescriptionDTO();
+                    BeanUtils.copyProperties(descriptionDTO, jyRuleDescriptionDTO);
+                    result.add(jyRuleDescriptionDTO);
+                }
+            }
             jdCResponse.setData(result);
             jdCResponse.toSucceed();
             return jdCResponse;
