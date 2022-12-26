@@ -357,7 +357,19 @@ public class DmsConstants {
      * 运单前缀-抖音-JDAZ
      */
     public static final String WAYBILL_CODE_PRE_DOUYIN  = "JDAZ";
-
+    
+    /**
+     * 增值服务编码-京喜送达服务（ed-a-0073）
+     */
+    public static final String WAYBILL_VAS_JXD  = "ed-a-0073";
+    /**
+     * 增值服务编码-京喜送达服务-取值key1
+     */
+    public static final String WAYBILL_VAS_JXD_CARDINFOS  = "cardInfos";
+    /**
+     * 增值服务编码-京喜送达服务-取值key2-url
+     */
+    public static final String WAYBILL_VAS_JXD_ATTCHMENTURL  = "attachmentUrl";
     /**
      * 暂存类型枚举值
      */
