@@ -387,6 +387,8 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             formatter.setMaximumFractionDigits(2);
             formatter.setMinimumFractionDigits(2);
             formatter.setRoundingMode(RoundingMode.HALF_UP);
+            Integer weightStatus = JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode();
+            Integer volumeStatus = JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode();
             for (DwsCheckRecord record : response.getDetailList()) {
                 DwsWeightVolumeCalibrateDetail detail = new DwsWeightVolumeCalibrateDetail();
                 detail.setCalibrateType(record.getCalibrateType());
@@ -416,6 +418,12 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 if (record.getActualHigh() != null) {
                     detail.setActualHigh(formatter.format(record.getActualHigh()));
                 }
+                if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode())) {
+                    weightStatus = record.getCalibrateStatus();
+                }
+                if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode())) {
+                    volumeStatus = record.getCalibrateStatus();
+                }
                 detail.setCalibrateStatus(record.getCalibrateStatus() == null
                         ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
                 detail.setCalibrateTime(record.getCalibrateTime());
@@ -427,10 +435,29 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 }
             }
             detailResult.setCalibrateFinishTime(calibrateFishTime == Long.MIN_VALUE ? null : calibrateFishTime);
+            // 重量校准或体积校准有一个不合格，设备不合格
+            if (Objects.equals(weightStatus, JyBizTaskMachineWeightCalibrateStatusEnum.UN_ELIGIBLE.getCode())
+                    || Objects.equals(volumeStatus, JyBizTaskMachineVolumeCalibrateStatusEnum.UN_ELIGIBLE.getCode())) {
+                detailResult.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+            }
+            // 重量校准合格，体积校准不等于不合格（体积校准合格或者未校准），设备合格
+            if (Objects.equals(weightStatus, JyBizTaskMachineWeightCalibrateStatusEnum.ELIGIBLE.getCode())
+                    && !Objects.equals(volumeStatus, JyBizTaskMachineVolumeCalibrateStatusEnum.UN_ELIGIBLE.getCode())) {
+                detailResult.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
+            }
+            // 体积校准合格，重量校准不等于不合格（重量校准合格或者未校准），设备合格
+            if (Objects.equals(volumeStatus, JyBizTaskMachineVolumeCalibrateStatusEnum.ELIGIBLE.getCode())
+                    && !Objects.equals(weightStatus, JyBizTaskMachineWeightCalibrateStatusEnum.UN_ELIGIBLE.getCode())) {
+                detailResult.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
+            }
+            // 重量、体积都未校准，设备状态为未校准
+            if (Objects.equals(weightStatus, JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
+                    && Objects.equals(volumeStatus, JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode())) {
+                detailResult.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.NO_CALIBRATE.getCode());
+            }
         }
         detailResult.setDetailList(detailList);
         detailResult.setPreviousMachineEligibleTime(response.getPreviousMachineEligibleTime());
-        detailResult.setMachineStatus(response.getMachineStatus());
         detailResult.setMachineCode(request.getMachineCode());
         detailResult.setTaskCreateTime(request.getCalibrateTaskStartTime());
         detailResult.setTaskEndTime(request.getCalibrateTaskEndTime());
