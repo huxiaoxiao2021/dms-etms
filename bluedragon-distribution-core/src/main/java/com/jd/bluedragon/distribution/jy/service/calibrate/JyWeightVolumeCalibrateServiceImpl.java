@@ -306,7 +306,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         if(entity.getWeightCalibrateTime() == null){
             return JyBizTaskMachineCalibrateHintEnum.WEIGHT_NOT_CALIBRATE.getCode();
         }
-        if(entity.getVolumeCalibrateStatus() == null){
+        if(entity.getVolumeCalibrateTime() == null){
             return JyBizTaskMachineCalibrateHintEnum.VOLUME_NOT_CALIBRATE.getCode();
         }
         return JyBizTaskMachineCalibrateHintEnum.CALIBRATE_COMPLETE.getCode();
