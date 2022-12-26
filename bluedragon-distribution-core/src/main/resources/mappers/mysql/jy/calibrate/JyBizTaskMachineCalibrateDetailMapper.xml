@@ -196,10 +196,10 @@
     </update>
 
 
-    <update id="deleteById" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
+    <update id="closeCalibrateDetailById" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
         update jy_biz_task_machine_calibrate_detail
         <set>
-            yn = 0,
+            task_status = #{taskStatus},
             update_time = #{updateTime},
             update_user_erp = #{updateUserErp}
         </set>

@@ -39,7 +39,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
     public void machineCalibrateScan() {
         try {
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
-            request.setMachineCode("WZ-HJ-JZBL-007");
+            request.setMachineCode("WZ-HJ-JZBL-008");
             User user = new User();
             user.setUserErp("bjxings");
             request.setUser(user);
@@ -78,9 +78,10 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             User user = new User();
             user.setUserErp("bjxings");
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
-            request.setMachineCode("WZ-HJ-JZBL-007");
-            request.setCalibrateTaskStartTime(sdf.parse("2022-12-21 18:16:40").getTime());
+            request.setMachineCode("WZ-HJ-JZBL-008");
+            request.setCalibrateTaskStartTime(sdf.parse("2022-12-26 11:06:15").getTime());
             request.setUser(user);
+            request.setMachineTaskId(17L);
             jyWeightVolumeCalibrateService.closeMachineCalibrateTask(request);
         }catch (Exception e){
             log.error("服务异常!", e);

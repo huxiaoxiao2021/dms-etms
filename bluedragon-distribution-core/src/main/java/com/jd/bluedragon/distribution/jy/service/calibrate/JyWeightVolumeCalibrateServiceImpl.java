@@ -418,7 +418,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 }
                 detail.setCalibrateStatus(record.getCalibrateStatus() == null
                         ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
-                detail.setCalibrateTime(detail.getCalibrateTime());
+                detail.setCalibrateTime(record.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);
 
@@ -457,11 +457,12 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         entity.setUpdateTime(new Date());
         //设备关闭后废弃当前的最新的处于待处理状态的任务
         if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
-            JyBizTaskMachineCalibrateDetailEntity deleteEntity = new JyBizTaskMachineCalibrateDetailEntity();
-            deleteEntity.setId(request.getMachineTaskId());
-            deleteEntity.setUpdateUserErp(request.getUser().getUserErp());
-            deleteEntity.setUpdateTime(new Date());
-            jyBizTaskMachineCalibrateDetailService.deleteById(deleteEntity);
+            JyBizTaskMachineCalibrateDetailEntity closeEntity = new JyBizTaskMachineCalibrateDetailEntity();
+            closeEntity.setId(request.getMachineTaskId());
+            closeEntity.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_CLOSE.getCode());
+            closeEntity.setUpdateUserErp(request.getUser().getUserErp());
+            closeEntity.setUpdateTime(new Date());
+            jyBizTaskMachineCalibrateDetailService.closeCalibrateDetailById(closeEntity);
             result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, "任务关闭成功！");
         }else {
             logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", request);

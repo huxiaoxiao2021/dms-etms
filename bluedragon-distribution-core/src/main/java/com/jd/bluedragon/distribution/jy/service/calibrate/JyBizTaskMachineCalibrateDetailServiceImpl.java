@@ -76,8 +76,8 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public int deleteById(JyBizTaskMachineCalibrateDetailEntity entity) {
-        return jyBizTaskMachineCalibrateDetailDao.deleteById(entity);
+    public int closeCalibrateDetailById(JyBizTaskMachineCalibrateDetailEntity entity) {
+        return jyBizTaskMachineCalibrateDetailDao.closeCalibrateDetailById(entity);
     }
 
 }
