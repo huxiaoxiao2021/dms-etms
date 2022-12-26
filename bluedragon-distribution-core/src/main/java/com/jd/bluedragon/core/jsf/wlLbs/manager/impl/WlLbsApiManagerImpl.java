@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.jsf.wlLbs.manager.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -184,7 +183,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result;
             }
-            result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
+            /*result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
             result.setStatusCode(200);
             result.setResult(JSON.parseObject("{\n" +
                     "        \"transFenceInfoVoList\": [\n" +
@@ -207,7 +206,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                     "        \"showBtnFlag\": false,\n" +
                     "        \"class\": \"com.jdl.gis.trans.fence.api.vo.resp.query.QueryFenceResp\",\n" +
                     "        \"commonFenceGeoJson\": []\n" +
-                    "    }", QueryFenceResp.class));
+                    "    }", QueryFenceResp.class));*/
         } catch (Exception e) {
             log.error("jsfTransFenceQueryService.queryTransFenceByCode exception ",e);
             if (result == null) {
@@ -251,7 +250,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                 log.warn("jsfTransFenceQueryService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result;
             }
-            result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
+            /*result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
             result.setStatusCode(200);
             result.setResult(JSON.parseObject("{\n" +
                     "        \"transFenceInfoVoList\": [\n" +
@@ -274,7 +273,7 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
                     "        \"showBtnFlag\": false,\n" +
                     "        \"class\": \"com.jdl.gis.trans.fence.api.vo.resp.query.QueryFenceResp\",\n" +
                     "        \"commonFenceGeoJson\": []\n" +
-                    "    }", QueryFenceResp.class));
+                    "    }", QueryFenceResp.class));*/
         } catch (Exception e) {
             log.error("jsfTransFenceQueryService.queryTransFenceBySiteId exception ",e);
             if (result == null) {
