@@ -17,14 +17,12 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
-import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -758,7 +756,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
 			signRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
-			return result;
 		}else if(StringHelper.isEmpty(signRequest.getUserCode())) {
 			result.toFail("用户编码不能为空！");
 			return result;
@@ -813,7 +810,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
-		signInData.setUserName(signInData.getUserCode());
+		//身份证拍照签到的直接设置姓名，erp签到的需要查基础资料
+		signInData.setUserName(signInRequest.getUserName());
 		signInData.setModeType(signInRequest.getModeType());
 		// 计算班次
 		Integer waveCode = calculateWave(signInRequest);
@@ -1105,7 +1103,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private void addOrRemoveMember(UserSignContext context){
-		
+
 		if(context.deleteData != null) {
 			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
@@ -1152,6 +1150,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				context.groupData = addMemberResult.getData();
 			}
 		}
+	}
+
+	@Override
+	@JProfiler(jKey = "DMS.WEB.UserSignRecordService.queryUnsignedOutRecordByRefGridKey", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey){
+		Result result = new Result<>();
+		result.toSuccess();
+		ArrayList<UserSignRecord> listData = new ArrayList<>();
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setRefGridKey(refGridKey);
+		long total = userSignRecordDao.queryTotalUnsignedOutRecordByRefGridKey(refGridKey);
+		for(int offset = 0; offset < total; offset += query.getLimit()){
+			query.setOffset(offset);
+			listData.addAll(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(query));
+		}
+		result.setData(listData);
+		return result;
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
@@ -1237,8 +1252,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		 * 操作时间
 		 */
 		private String operateTime;
-		
-		
+
+
 		public UserSignRequest getUserSignRequest() {
 			return userSignRequest;
 		}

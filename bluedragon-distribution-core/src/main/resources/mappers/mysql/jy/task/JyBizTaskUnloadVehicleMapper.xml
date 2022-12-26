@@ -195,6 +195,9 @@
         <if test="createTime != null">
             create_time,
         </if>
+        <if test="updateTime != null">
+            update_time,
+        </if>
         <if test="taskType != null">
             task_type,
         </if>
@@ -294,6 +297,9 @@
         <if test="createTime != null">
             #{createTime},
         </if>
+        <if test="updateTime != null">
+            #{updateTime},
+        </if>
         <if test="taskType != null">
             #{taskType},
         </if>
@@ -375,7 +381,9 @@
         yn = 1
 
         AND end_site_id = #{entity.endSiteId}
-
+        <if test="entity.actualArriveStartTime != null">
+            and update_time >= #{entity.actualArriveStartTime}
+        </if>
         <if test="entity.sealCarCode">
             and seal_car_code = #{entity.sealCarCode}
         </if>
@@ -410,6 +418,9 @@
         from jy_biz_task_unload_vehicle
         where end_site_id =#{endSiteId}
           and yn=1
+        <if test="actualArriveStartTime != null">
+            and update_time >= #{actualArriveStartTime}
+        </if>
         <if test="vehicleStatus != null">
             and vehicle_status =#{vehicleStatus}
         </if>
@@ -705,4 +716,19 @@
 
 
     </update>
+
+
+    <select id="queryByFuzzyVehicleNumberAndStatus" parameterType="JyBizTaskUnloadVehicleEntity" resultMap="jyBizTaskUnloadVehicleMap">
+        select  <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+        where yn = 1
+        and end_site_id = #{endSiteId}
+        and fuzzy_vehicle_number =#{fuzzyVehicleNumber}
+        <if test="statusCodeList != null">
+            and vehicle_status in
+            <foreach collection="statusCodeList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 </mapper>

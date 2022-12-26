@@ -94,4 +94,11 @@ public interface UserSignRecordJsfService {
 	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
 	
 	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
+
+	/**
+	 * 根据网格业务主键查询是否存在未签退记录
+	 * @param refGridKey
+	 * @return
+	 */
+	Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey);
 }

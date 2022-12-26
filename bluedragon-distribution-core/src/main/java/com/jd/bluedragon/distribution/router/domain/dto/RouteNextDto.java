@@ -30,15 +30,22 @@ public class RouteNextDto {
      */
     private final List<Integer> nextSiteIdList;
 
-    public RouteNextDto(Integer firstNextSiteId, boolean routExistCurrentSite, List<Integer> nextSiteIdList) {
+    /**
+     * 收个上一网点
+     */
+    private final Integer firstLastSiteId;
+
+    public RouteNextDto(Integer firstNextSiteId, boolean routExistCurrentSite, List<Integer> nextSiteIdList, Integer firstLastSiteId) {
         this.firstNextSiteId = firstNextSiteId;
         this.routExistCurrentSite = routExistCurrentSite;
         this.nextSiteIdList = nextSiteIdList;
+        this.firstLastSiteId = firstLastSiteId;
     }
 
     private RouteNextDto() {
         this.firstNextSiteId = null;
         this.nextSiteIdList = null;
+        this.firstLastSiteId = null;
         this.routExistCurrentSite = Boolean.FALSE;
     }
 
@@ -52,5 +59,9 @@ public class RouteNextDto {
 
     public boolean isRoutExistCurrentSite() {
         return routExistCurrentSite;
+    }
+
+    public Integer getFirstLastSiteId() {
+        return firstLastSiteId;
     }
 }

@@ -20,7 +20,11 @@ public class UserSignRequest implements Serializable {
 	/**
 	 * 工种:1-正式工 2-派遣工 3-外包工 4-临时工5-小时工
 	 */
-	private Integer jobCode;    
+	private Integer jobCode;
+	/**
+	 * 签到人姓名
+	 */
+	private String userName;
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -67,6 +71,15 @@ public class UserSignRequest implements Serializable {
 	public void setJobCode(Integer jobCode) {
 		this.jobCode = jobCode;
 	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
 	public String getUserCode() {
 		return userCode;
 	}
