@@ -5,10 +5,14 @@ import com.jd.bluedragon.common.dto.integral.request.IntegralRequest;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
 import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
+import com.jd.bluedragon.common.dto.integral.response.JyRuleDescriptionDTO;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import com.jd.bluedragon.external.gateway.service.IntegralGatewayService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author liuluntao1
@@ -49,5 +53,12 @@ public class IntegralGatewayServiceImpl implements IntegralGatewayService {
     @Override
     public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
         return integralService.getJyIntegralIntroduction();
+    }
+
+    @Override
+    public JdCResponse<List<JyRuleDescriptionDTO>> queryQuotaDescriptionByCondition(IntegralRequest request) {
+        JyIntegralDetailQuery query = new JyIntegralDetailQuery();
+        BeanUtils.copyProperties(request, query);
+        return integralService.queryQuotaDescriptionByCondition(query);
     }
 }

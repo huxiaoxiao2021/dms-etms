@@ -4,6 +4,9 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
 import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
 import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
+import com.jd.bluedragon.common.dto.integral.response.JyRuleDescriptionDTO;
+
+import java.util.List;
 
 /**
  * @author liuluntao1
@@ -30,4 +33,9 @@ public interface IntegralService {
      * 获取规则介绍
      */
     JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction();
+
+    /*
+     * 获取规则描述
+     */
+    JdCResponse<List<JyRuleDescriptionDTO>> queryQuotaDescriptionByCondition(JyIntegralDetailQuery query);
 }

@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.integral.domain;
 import com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService;
 import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
+import com.jdl.jy.flat.dto.personalIntegralStatistics.JyRuleDescriptionDTO;
 import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,4 +71,12 @@ public class IntegralProxy {
         }
     }
 
+    public List<JyRuleDescriptionDTO> queryQuotaDescriptionByCondition(JyIntegralQuery query){
+        ServiceResult<List<JyRuleDescriptionDTO>> serviceResult = personalIntegralJSFService.queryQuotaDescriptionByCondition(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
+    }
 }

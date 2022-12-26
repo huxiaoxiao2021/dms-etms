@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tp.common.utils.Objects;
 import com.jdl.jy.flat.dto.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.enums.JyIntegralQuotaEnum;
@@ -282,4 +283,29 @@ public class IntegralServiceImpl implements IntegralService {
         return jdCResponse;
     }
 
+    @Override
+    public JdCResponse<List<JyRuleDescriptionDTO>> queryQuotaDescriptionByCondition(JyIntegralDetailQuery request) {
+        JdCResponse<List<JyRuleDescriptionDTO>> jdCResponse = new JdCResponse<>();
+        List<JyRuleDescriptionDTO> result =new ArrayList<>();
+        // 参数检验
+        if (Objects.isNull(request.getQuotaNo())) {
+            jdCResponse.toFail();
+            jdCResponse.setMessage("参数错误");
+        }
+        // 构造查询条件
+        JyIntegralQuery query = new JyIntegralQuery();
+        try {
+            BeanUtils.copyProperties(request, query);
+            List<com.jdl.jy.flat.dto.personalIntegralStatistics.JyRuleDescriptionDTO> list = integralProxy.queryQuotaDescriptionByCondition(query);
+
+            BeanUtils.copyProperties(list, result);
+            jdCResponse.setData(result);
+            jdCResponse.toSucceed();
+            return jdCResponse;
+        } catch (Exception e) {
+            log.error("IntegralService.queryQuotaDescriptionByCondition失败{}", JsonHelper.toJson(request), e);
+        }
+        jdCResponse.toFail();
+        return jdCResponse;
+    }
 }
