@@ -1002,7 +1002,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
 		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
+		// 当前数据库user_name字段可能还有外包临时工身份证号，需要兼容加密防止泄漏身份证号
 		data.setUserName(BusinessUtil.encryptIdCard(data.getUserName()));
+		//只有user_code是身份证号的才需要将userName设置成身份证号
+		if (BusinessUtil.isIdCardNo(data.getUserCode())) {
+			data.setUserName(BusinessUtil.encryptIdCard(data.getUserCode()));
+		}
 		if(data.getSignInTime() != null) {
 			String workHours = "";
 			String workTimes = "--";
