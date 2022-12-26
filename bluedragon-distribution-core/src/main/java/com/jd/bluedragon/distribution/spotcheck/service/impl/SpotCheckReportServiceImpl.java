@@ -215,7 +215,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
                             : Objects.equals(spotCheckDto.getContrastSource(), 3) ? "下单重量" : "计费重量(运单)");
             exportSpotCheckDto.setMachineCode(spotCheckDto.getMachineCode());
             exportSpotCheckDto.setMachineStatus(Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
-                    ? "合格" : "不合格");
+                    ? "合格" : Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode()) ? "不合格" : "");
             exportSpotCheckDto.setIsGatherTogether(Objects.equals(spotCheckDto.getIsGatherTogether(), 1) ? "是" : "否");
             exportSpotCheckDto.setIsExcess(spotCheckDto.getIsExcess() == null ? null : ExcessStatusEnum.analysisNameFromCode(spotCheckDto.getIsExcess()));
             exportSpotCheckDto.setIsIssueDownstream( Objects.equals(spotCheckDto.getIsIssueDownstream(), 1) ? "是" : "否");

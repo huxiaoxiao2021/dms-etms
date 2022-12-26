@@ -212,7 +212,7 @@ $(function () {
             title: '设备状态',
             align: 'center',
             formatter: function (value, row, index) {
-                return value === 1 ? "合格" : value === 2 ? "不合格" : "未校准"
+                return value === 1 ? "合格" : value === 2 ? "不合格" : ""
             }
         },{
             field: 'isGatherTogether',
