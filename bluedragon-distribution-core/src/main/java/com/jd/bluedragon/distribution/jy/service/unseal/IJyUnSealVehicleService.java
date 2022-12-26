@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
+import java.util.Date;
+
 /**
  * @ClassName IJyUnSealVehicleService
  * @Description
@@ -62,4 +64,12 @@ public interface IJyUnSealVehicleService {
      * @return
      */
     boolean cancelUnSealTask(JyBizTaskUnSealDto dto);
+
+    /**
+     * 记录实际解封车顺序
+     * @param bizId 解封车业务主键 上游封车编码
+     * @param  unSealTime 解封车时间
+     * @return
+     */
+    void saveRealUnSealRanking(String bizId, Date unSealTime);
 }
