@@ -23,6 +23,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.location.GeoUtils;
 import com.jd.bluedragon.utils.location.dto.LatLng;
 import com.jd.dms.java.utils.core.common.IpUtils;
+import com.jd.dms.java.utils.core.gis.Coordinate;
+import com.jd.dms.java.utils.core.gis.CoordinateTransformUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
 import com.jd.lbs.jdlbsapi.dto.LocationResultDto;
@@ -253,7 +255,8 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             final List<TransFenceInfoVo> transFenceInfoVoList = fenceData.getTransFenceInfoVoList();
             //  2.1 判断设备经纬度是否在场地围栏内
             if (hasLocation) {
-                LatLng point = new LatLng(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
+                final Coordinate coordinate = CoordinateTransformUtil.transformWGS84ToGCJ02(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
+                LatLng point = new LatLng(coordinate.getLatitude(), coordinate.getLongitude());
                 final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
                 log.info("hasLocation checkLatLngPointInFence isPointInPolygon {}", isPointInPolygon);
                 if(isPointInPolygon){
