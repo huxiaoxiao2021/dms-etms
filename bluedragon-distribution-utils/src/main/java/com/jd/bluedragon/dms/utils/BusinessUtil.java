@@ -2524,5 +2524,35 @@ public class BusinessUtil {
     public static boolean isAllowWeight(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
     }
+    /**
+     *
+     * @param waybillCode
+     * @param sourceCode
+     * @param sendPay
+     * @return
+     */
+    public static boolean isDouyin(String waybillCode,String sourceCode,String sendPay){
+    	return DmsConstants.SOURCE_CODE_DOUYIN.equals(sourceCode)
+    			|| (waybillCode != null && waybillCode.startsWith(DmsConstants.WAYBILL_CODE_PRE_DOUYIN))
+    			|| BusinessUtil.isSignChar(sendPay, SendPayConstants.POSITION_327,SendPayConstants.CHAR_327_2)
+    	;
 
+    }
+
+    /**
+     * 根据waybillSign 判断此运单是否包含增值服务 是： true  不是：false
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isVasWaybill(String waybillSign){
+        return !isSignChar(waybillSign,WaybillSignConstants.POSITION_86,WaybillSignConstants.CHAR_86_0);
+    }
+    /**
+     * 是否特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKS(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
+    }
 }

@@ -91,7 +91,11 @@ public interface SendPayConstants {
 	 */
 	int POSITION_292 = 292;
 	char CHAR_292_1 = '1';
-
+	/**
+	 * 第327位,2-抖音标识
+	 */
+	int POSITION_327 = 327;
+	char CHAR_327_2 = '2';
 	/**
 	 * 第596位，1-特殊品类（黄金珠宝等贵重物品）
 	 */
