@@ -582,10 +582,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private String makeVehicleMapUrl(JyBizTaskSendVehicleEntity entity){
         try{
+            //存在即将到达时间 或者 已到达时间时在设置
+            if(entity.getComeTime() == null && entity.getNearComeTime() == null){
+                return StringUtils.EMPTY;
+            }
             //派车明细编码
             String transWorkCode = entity.getTransWorkCode();
             //当前操作场地编码 对应 任务始发场地7位编码
-            String operateNodeCode = StringUtils.EMPTY;
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(entity.getStartSiteId().intValue());
             if(siteOrgDto != null){
                 return String.format(vehicleMapUrl,transWorkCode,siteOrgDto.getDmsSiteCode());
@@ -608,12 +611,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
         List<LabelOption> tagList = new ArrayList<>();
 
-        // 司机是否领取任务
-        if (transWorkBillDto != null) {
-            // work_status = 20(已开始), status > 15(待接受)
-            if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
-                SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
-                tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+
+        //车辆到达状态 高于司机领取
+        SendVehicleLabelOptionEnum carCome = setCarCome(entity);
+        if(carCome != null) {
+            tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
+        }else{
+            // 司机是否领取任务
+            if (transWorkBillDto != null) {
+                // work_status = 20(已开始), status > 15(待接受)
+                if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+                    SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+                    tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+                }
             }
         }
 
@@ -621,12 +631,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String carLengthDesc = setCarLength(entity);
         SendVehicleLabelOptionEnum carLengthTag = SendVehicleLabelOptionEnum.CAR_LENGTH;
         tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
-
-        //车辆到达状态
-        SendVehicleLabelOptionEnum carCome = setCarCome(entity);
-        if(carCome != null) {
-            tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
-        }
 
         return tagList;
     }
