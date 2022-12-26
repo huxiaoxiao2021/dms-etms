@@ -635,18 +635,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             }
         }else {
         	result.setData(this.toUserSignRecordData(lastSignRecord));
-        	//没有做签到，查询group信息
-        	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
-        	if(groupResult!= null 
-        			&& groupResult.isSucceed()
-        			&& groupResult.getData()!= null) {
-        		result.getData().setGroupData(groupResult.getData());
-        		result.toSucceed("已签到！");
-        	}else if(groupResult!= null){
-        		result.toFail(groupResult.getMessage());
-        	}else {
-        		result.toFail("获取");
-        	}
+        	result.toSucceed("已签到！");
         }
 		return result;
 	}
@@ -1100,7 +1089,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		this.addOrRemoveMember(context);
-		result.getData().setGroupData(context.groupData);
+		if(context.groupData == null) {
+        	//没有做签到，查询group信息
+        	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
+        	if(groupResult!= null 
+        			&& groupResult.isSucceed()
+        			&& groupResult.getData()!= null) {
+        		result.getData().setGroupData(groupResult.getData());
+        	}else if(groupResult!= null){
+        		result.toFail(groupResult.getMessage());
+        	}else {
+        		result.toFail("获取岗位码对应的小组信息失败！");
+        	}
+		}else {
+			result.getData().setGroupData(context.groupData);
+		}
 		return result;
 	}
 	@Override
