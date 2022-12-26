@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dao.unload;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.dto.unload.*;
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +17,11 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-04-01 16:23:35
  */
-public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAggsDaoStrategy {
+public class JyUnloadAggsDaoBak extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAggsDaoStrategy {
 
     private static final String DB_TABLE_NAME = "jy_unload_aggs";
 
-    final static String NAMESPACE = JyUnloadAggsDao.class.getName();
+    final static String NAMESPACE = JyUnloadAggsDaoBak.class.getName();
 
     @Autowired
     private SequenceGenAdaptor sequenceGenAdaptor;

@@ -62,7 +62,7 @@ public class JySendGoodsAggsConsumerTest {
                     "  \"vehicleStatus\": 100,\n" +
                     "  \"vehicleVolume\": 0.0,\n" +
                     "  \"vehicleWeight\": 0.0,\n" +
-                    "  \"version\": 2,\n" +
+                    "  \"version\": 3,\n" +
                     "  \"yn\": 1\n" +
                     "}\n";
             Message message = new Message();

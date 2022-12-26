@@ -23,7 +23,7 @@
 
 	<mappers>
 
-		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsBakMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendAggsBakMapper.xml" />
 
 	</mappers>

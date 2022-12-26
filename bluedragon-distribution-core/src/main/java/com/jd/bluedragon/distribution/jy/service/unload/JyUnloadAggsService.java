@@ -34,5 +34,7 @@ public interface JyUnloadAggsService {
 
     int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity);
 
+    int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity);
+
 
 }

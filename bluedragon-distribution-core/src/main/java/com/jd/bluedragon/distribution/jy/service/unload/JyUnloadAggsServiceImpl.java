@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
+import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.slf4j.Logger;
@@ -32,6 +35,12 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     @Autowired
     private JyUnloadAggsDao jyUnloadAggsDao;
 
+    @Autowired
+    private JyDuccConfigManager jyDuccConfigManager;
+
+    @Autowired
+    private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
+
     @Override
     public int insert(JyUnloadAggsEntity entity) {
         return jyUnloadAggsDao.insert(entity);
@@ -39,12 +48,12 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Override
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDao.queryByBizId(entity);
+        return getJyUnloadAggsDao().queryByBizId(entity);
     }
 
     @Override
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
-        List<GoodsCategoryDto> categoryDtoList = jyUnloadAggsDao.queryGoodsCategoryStatistics(entity);
+        List<GoodsCategoryDto> categoryDtoList = getJyUnloadAggsDao().queryGoodsCategoryStatistics(entity);
         if (ObjectHelper.isNotNull(categoryDtoList)) {
             for (GoodsCategoryDto categoryDto : categoryDtoList) {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
@@ -61,7 +70,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Override
     public List<ExcepScanDto> queryExcepScanStatistics(JyUnloadAggsEntity entity) {
-        ScanStatisticsDto scanStatisticsDto = jyUnloadAggsDao.queryExcepScanStatistics(entity);
+        ScanStatisticsDto scanStatisticsDto = getJyUnloadAggsDao().queryExcepScanStatistics(entity);
         if (ObjectHelper.isNotNull(scanStatisticsDto)) {
             List<ExcepScanDto> excepScanDtoList = new ArrayList<>();
             ExcepScanDto waitScan = new ExcepScanDto();
@@ -92,6 +101,11 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         return jyUnloadAggsDao.insertOrUpdate(entity);
     }
 
+    @Override
+    public int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDaoBak .insertOrUpdate(entity);
+    }
+
     private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {
         if(shouldScan == null || shouldScan == 0 || actualScan == null) {
             return 0;
@@ -103,5 +117,17 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
             return 0;
         }
         return res;
+    }
+
+    /**
+     * 根据开关获取主库DAO 或者 备库DAO
+     * @return
+     */
+    private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
+        if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
+            return jyUnloadAggsDaoBak;
+        }else {
+            return jyUnloadAggsDao;
+        }
     }
 }

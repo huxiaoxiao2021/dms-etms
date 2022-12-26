@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
-import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -24,73 +24,73 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: chenyaguo@jd.com
- * @Date: 2022/10/11 17:39
- * @Description:
+ * @Date: 2022/10/11 17:04
+ * @Description: 卸车进度汇总消费
  */
-@Service("jySendGoodsAggsBakConsumer")
-public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(JySendGoodsAggsBakConsumer.class);
+@Service("jyUnloadCarAggsBakConsumer")
+public class JyUnloadCarAggsBakConsumer extends MessageBaseConsumer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JyUnloadCarAggsBakConsumer.class);
+
+    @Autowired
+    private JyUnloadAggsService jyUnloadAggsService;
 
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
-    @Autowired
-    private JySendAggsService jySendAggsService;
-
     @Override
-    @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WORKER.JyUnloadCarAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
 
-        logger.info("JySendGoodsAggsConsumer consume 消息体-{}",message.getText());
+        logger.info("JyUnloadCarAggsConsumer consume 消息体-{}",message.getText());
 
         if (StringHelper.isEmpty(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume --> 消息为空");
+            logger.warn("JyUnloadCarAggsConsumer consume --> 消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+            logger.warn("JyUnloadCarAggsConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        JySendAggsEntity entity = JsonHelper.fromJson(message.getText(), JySendAggsEntity.class);
-        logger.info("JySendGoodsAggsConsumer entity 消息体-{}", JSON.toJSONString(entity));
+        JyUnloadAggsEntity entity = JsonHelper.fromJson(message.getText(), JyUnloadAggsEntity.class);
+        logger.info("JyUnloadCarAggsConsumer entity 消息体-{}", JSON.toJSONString(entity));
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
         }
         //过滤旧版本数据
-        String versionMutex = String.format(CacheKeyConstants.JY_SEND_AGG_BAK_KEY, entity.getBizId());
+        String versionMutex = String.format(CacheKeyConstants.JY_UNLOAD_AGG_BAK_KEY, entity.getBizId()+entity.getProductType());
         if (redisClientOfJy.exists(versionMutex)) {
             Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
             if (!NumberHelper.gt(entity.getVersion(), version)) {
-                logger.warn("JySendGoodsAggsConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
+                logger.warn("JyUnloadCarAggsConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
                 return;
             }
         }
-        int result = jySendAggsService.insertOrUpdateJySendGoodsAggsBak(entity);
+        int result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsBak(entity);
         if(result >0){
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(entity.getVersion())) {
-                logger.info("JySendGoodsAggsConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
+                logger.info("JyUnloadCarAggsConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
                 redisClientOfJy.set(versionMutex, entity.getVersion() + "");
                 redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
             }
         }
     }
 
-
     /**
      * 入参校验
      * @param entity
      * @return
      */
-    private boolean checkParam(JySendAggsEntity entity){
+    private boolean checkParam(JyUnloadAggsEntity entity){
         if(entity == null){
-            logger.warn("发货汇总实体为空!");
+            logger.warn("卸车汇总实体为空!");
             return false;
         }
         if(StringUtils.isBlank(entity.getBizId())){
-            logger.warn("发货进度 bizID 为空!");
+            logger.warn("卸车汇总 bizID 为空!");
             return false;
         }
         return true;

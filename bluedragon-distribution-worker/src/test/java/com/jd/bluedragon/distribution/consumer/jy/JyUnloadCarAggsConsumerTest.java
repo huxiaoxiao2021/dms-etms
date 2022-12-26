@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsBakConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsConsumer;
 import com.jd.bluedragon.distribution.consumer.send.CancelSendDetailPrintHandoverConsumerTest;
 import com.jd.jmq.common.message.Message;
@@ -25,6 +26,9 @@ public class JyUnloadCarAggsConsumerTest {
 
     @Autowired
     private JyUnloadCarAggsConsumer jyUnloadCarAggsConsumer;
+
+    @Autowired
+    private JyUnloadCarAggsBakConsumer bakConsumer;
 
     @Test
     public void consume() {
@@ -54,7 +58,8 @@ public class JyUnloadCarAggsConsumerTest {
                     "}";
             Message message = new Message();
             message.setText(body);
-            jyUnloadCarAggsConsumer.consume(message);
+            //jyUnloadCarAggsConsumer.consume(message);
+            bakConsumer.consume(message);
         }catch (Exception e) {
             logger.error("服务异常!", e);
             Assert.fail();

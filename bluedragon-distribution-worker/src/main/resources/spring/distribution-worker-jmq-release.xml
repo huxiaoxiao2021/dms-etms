@@ -485,5 +485,10 @@
         <jmq:listener topic="${jmq.topic.jy.unload.car.aggs}" listener="jyUnloadCarAggsConsumer"/>
     </jmq:consumer>
 
+    <!--  卸车统计备库消息处理  -->
+    <jmq:consumer id="jmq.jyUnloadCarAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.car.aggs.bak}" listener="jyUnloadCarAggsBakConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

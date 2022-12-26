@@ -12,7 +12,7 @@
         <property name="url" value="${dms.write.mysql.db.jy.core.bak.url}"/>
         <property name="username" value="${db.mysql.jy.core.bak.username}"/>
         <property name="password" value="${db.mysql.jy.core.bak.password}"/>
-        <property name="driverClassName" value="${db.mysql.bak.driverClassName}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
         <property name="initialSize" value="${dms.write.mysql.db.jy.core.bak.initialSize}"/>
         <property name="maxIdle" value="${dms.write.mysql.db.jy.core.bak.maxIdle}"/>
