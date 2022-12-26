@@ -72,6 +72,7 @@ public class DefaultJMQProducer {
 
     private void persistent(String businessId, String body) {
         try {
+
             Task task = new Task();
             task.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
             task.setOwnSign(BusinessHelper.getOwnSign());

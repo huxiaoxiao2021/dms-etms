@@ -68,6 +68,11 @@ public class BaseSendVehicle implements Serializable {
 
     private String createUserErp;
 
+    /**
+     * 车辆地图连接URL
+     */
+    private String vehicleMapUrl;
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
@@ -170,5 +175,13 @@ public class BaseSendVehicle implements Serializable {
 
     public void setCreateUserErp(String createUserErp) {
         this.createUserErp = createUserErp;
+    }
+
+    public String getVehicleMapUrl() {
+        return vehicleMapUrl;
+    }
+
+    public void setVehicleMapUrl(String vehicleMapUrl) {
+        this.vehicleMapUrl = vehicleMapUrl;
     }
 }

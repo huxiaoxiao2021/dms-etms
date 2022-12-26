@@ -51,6 +51,18 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
 
+    /**
+     * 更新到来时间或者即将到来时间，取最小值为准更新
+     * @param entity
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateComeTimeOrNearComeTime",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDao.updateComeTimeOrNearComeTime(entity);
+    }
+
     @Override
     public JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.findByTransWorkAndStartSite(entity);

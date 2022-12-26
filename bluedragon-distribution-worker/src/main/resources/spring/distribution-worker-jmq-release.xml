@@ -413,6 +413,15 @@
     <jmq:consumer id="jmq.tmsTransWorkCarArriveConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.trans.work.car.arrive}" listener="tmsTransWorkCarArriveConsumer"/>
     </jmq:consumer>
+    <!--运输始发场地车辆到来消息-->
+    <jmq:consumer id="jmq.tmsTransWorkCarComeConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.trans.work.car.come}" listener="tmsTransWorkCarComeConsumer"/>
+    </jmq:consumer>
+    <!--运输始发场地车辆即将到来消息-->
+    <jmq:consumer id="jmq.tmsAreaNearNoticeForBeginNodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.area.work.near.notice.begin}" listener="tmsAreaNearNoticeForBeginNodeConsumer"/>
+    </jmq:consumer>
+
     <!--运输司机到达消息-->
     <jmq:consumer id="jmq.tmsVehicleDetailStatusConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
