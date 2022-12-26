@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
 
 import java.util.List;
 
@@ -80,4 +81,12 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
   public List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity) {
     return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendCode", entity);
   }
+
+    public int updateBoardStatus(UpdateBoardStatusReq boardStatusReq) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBoardStatus", boardStatusReq);
+    }
+
+    public List<JyBizTaskComboardEntity> queryTaskBySendCodeList(List<String> batchCodes) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryTaskBySendCodeList",batchCodes);
+    }
 }

@@ -376,4 +376,29 @@
     AND create_time > #{createTime}
     group by end_site_id;
   </select>
+  <select id="queryTaskBySendCodeList" parameterType="java.util.List" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_comboard
+    where yn = 1
+    and board_status = 3
+    and send_code in
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+  <update id="updateBoardStatus" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq">
+    update jy_biz_task_comboard set board_status = #{boardStatus,jdbcType=TINYINT},
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
+    where id in
+    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </update>
 </mapper>

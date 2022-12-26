@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -118,4 +120,27 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     boardCountReq.setStatusList(statusList);
     return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
   }
+
+  @Override
+  public boolean updateBoardStatusBySendCodeList(List<String> batchCodes, String operateUserCode, String operateUserName) {
+    
+    // 查询任务id
+    List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCodeList(batchCodes);
+    
+    if (CollectionUtils.isEmpty(taskList)) {
+      return true;
+    }
+    
+    List<Long> taskIds = new ArrayList<>();
+    for (JyBizTaskComboardEntity entity : taskList) {
+      taskIds.add(entity.getId());
+    }
+    UpdateBoardStatusReq boardStatusReq = new UpdateBoardStatusReq();
+    boardStatusReq.setIds(taskIds);
+    boardStatusReq.setUpdateUserErp(operateUserCode);
+    boardStatusReq.setUpdateUserName(operateUserName);
+    boardStatusReq.setBoardStatus(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    return jyBizTaskComboardDao.updateBoardStatus(boardStatusReq) > 0;
+  }
+  
 }
