@@ -24,6 +24,8 @@ import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -141,6 +143,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     @Autowired
     @Qualifier("sendBarcodeTraceProducer")
     private DefaultJMQProducer sendBarcodeTraceProducer;
+
+    @Autowired
+    private RouterService routerService;
 
     /**
      * 包裹是否发货校验
@@ -483,21 +488,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     @Override
     public Integer getNextSiteCodeByRouter(String waybillCode, Integer siteCode) {
         try {
-            String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            if(StringUtils.isEmpty(router)){
-                logger.warn("根据运单号【{}】获取路由信息为空",waybillCode);
-                return null;
-            }
-            String[] routerSplit = router.split(Constants.WAYBILL_ROUTER_SPLIT);
-            if(routerSplit == null){
-                logger.warn("根据运单号【{}】获取路由信息为空",waybillCode);
-                return null;
-            }
-            for (int i = 0; i < routerSplit.length - 1; i++) {
-                if(siteCode.equals(Integer.valueOf(routerSplit[i]))){
-                    return Integer.valueOf(routerSplit[i+1]);
-                }
-            }
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(siteCode, waybillCode);
+            return routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
         }catch (Exception e){
             logger.error("根据运单号【{}】获取路由信息异常",waybillCode,e);
         }
