@@ -27,6 +27,8 @@
 		<result column="transport_type" property="transporttype" />
 		<result column="biz_source" property="bizSource" />
 		<result column="yn" property="yn" />
+        <result column="operator_type_code" property="operatorTypeCode" />
+        <result column="operator_id" property="operatorId" />		
 	</resultMap>
 	
 	<resultMap id="SendMList" type="java.lang.String">
@@ -58,7 +60,9 @@
 	excute_time,
 	board_code,
 	biz_source,
-    sendm_status
+    sendm_status,
+    operator_type_code,
+    operator_id
 	</sql>
 	
 	<select id="selectBySendCode" parameterType="SendM"
@@ -182,7 +186,9 @@
 		excute_time,
 		transport_type,
 		board_code,
-		biz_source
+		biz_source,
+		operator_type_code,
+		operator_id
 		)
 		VALUES
 		(
@@ -208,7 +214,9 @@
 		NOW(),
 		#{transporttype,jdbcType=INTEGER},
 		#{boardCode,jdbcType=VARCHAR},
-		#{bizSource,jdbcType=TINYINT})
+		#{bizSource,jdbcType=TINYINT},
+        #{operatorTypeCode,jdbcType=INTEGER},
+        #{operatorId,jdbcType=VARCHAR})
 	</insert>
 
 	<insert id = "addBatch">
@@ -237,7 +245,9 @@
 		excute_time,
 		transport_type,
 		board_code,
-		biz_source
+		biz_source,
+	    operator_type_code,
+	    operator_id
 		)
 		VALUES
 		<foreach collection="list" item="sendM" index="index" separator=",">
@@ -266,7 +276,9 @@
 			NOW(),
 			#{sendM.transporttype,jdbcType=INTEGER},
 			#{sendM.boardCode,jdbcType=VARCHAR},
-			#{sendM.bizSource,jdbcType=TINYINT})
+			#{sendM.bizSource,jdbcType=TINYINT},
+	        #{sendM.operatorTypeCode,jdbcType=INTEGER},
+	        #{sendM.operatorId,jdbcType=VARCHAR})
 		</foreach>
 	</insert>
 
@@ -315,6 +327,12 @@
 			<if test="shieldsCarId != null">
 				shields_car_id = #{shieldsCarId,jdbcType=INTEGER},
 			</if>
+            <if test="operatorTypeCode != null">
+                operator_type_code = #{operatorTypeCode,jdbcType=INTEGER},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId,jdbcType=VARCHAR},
+            </if>			
 		</set>
 		where send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</update>

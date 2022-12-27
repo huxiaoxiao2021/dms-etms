@@ -347,6 +347,16 @@ public class Task implements java.io.Serializable, TaskModeAware{
     private List<Integer> statusesList;
     /** 子类型 */
     private Integer subType;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
+    
     
     public Task() {
     }
@@ -1051,5 +1061,21 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
 	public void setSubType(Integer subType) {
 		this.subType = subType;
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 }
