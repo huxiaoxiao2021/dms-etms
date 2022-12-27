@@ -2177,7 +2177,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     if (BusinessUtil.isBoxcode(barCode)) {
                         matchDest = getBoxMatchDestId(barCode, taskSend.getStartSiteId(), new HashSet<Long>());
                     } else {
-                        matchDest = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
+                        final String waybillCode = WaybillUtil.getWaybillCode(barCode);
+                        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+                        if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign())) {
+                            ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
+                            matchQo.setHandoverSiteCode(taskSend.getStartSiteId().intValue());
+                            matchQo.setPreSortSiteCode(waybill.getOldSiteId());
+                            ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                            if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
+                                response.getMsgBoxes().clear();
+                                response.addConfirmBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
+                                return false;
+                            }
+                        }
+                        matchDest = getWaybillNextRouter(waybillCode, taskSend.getStartSiteId());
                     }
                     if (matchDest == null) {
                         return false;
