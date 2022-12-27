@@ -1554,7 +1554,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         return false;
                     } else if (chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                         result.toBizError();
-                        if (Objects.equals(chainResp.getCode(), SortingResponse.CODE_CROUTER_ERROR) || Objects.equals(chainResp.getCode(), Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1))) {
+                        if (Objects.equals(chainResp.getCode(), SortingResponse.CODE_CROUTER_ERROR)) {
                             final JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox(MsgBoxTypeEnum.CONFIRM, chainResp.getCode(), chainResp.getMessage());
                             final RouterValidateData routerValidateData = new RouterValidateData();
                             routerValidateData.setRouterNextSiteId(sendFindDestInfoDto.getRouterNextSiteId());
