@@ -216,12 +216,11 @@ public class IntegralServiceImpl implements IntegralService {
                 JyBaseScoreRuleDTO dto = new JyBaseScoreRuleDTO();
                 BeanUtils.copyProperties(rule, dto);
                 // 差值计算
-                // 如果是最大值
+                // 如果是最大值上限
                 if (rule.getLtValue().compareTo(BigDecimal.valueOf(Integer.MAX_VALUE / 2)) > 0
-                        && baseScore.getQuantity().compareTo(dto.getGtValue()) > 0) {
+                        && baseScore.getQuantity().compareTo(dto.getLtValue()) > 0) {
                     baseScore.setToNextQuantity(BigDecimal.ZERO);
                     baseScore.setNextScore(rule.getScore());
-                    continue;
                 }
                 // 如果在区间内算出差值
                 if (baseScore.getQuantity().compareTo(dto.getLtValue()) <= 0
