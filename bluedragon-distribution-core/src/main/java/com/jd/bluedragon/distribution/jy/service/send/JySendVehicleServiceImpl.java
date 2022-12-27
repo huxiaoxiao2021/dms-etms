@@ -777,7 +777,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private Long getWaybillNextRouter(String waybillCode, Long startSiteId) {
         RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
-        return routeNextDto == null? null : routeNextDto.getFirstNextSiteId().longValue();
+        return routeNextDto == null || routeNextDto.getFirstNextSiteId() == null? null : routeNextDto.getFirstNextSiteId().longValue();
     }
 
     /**
@@ -1768,7 +1768,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         if (CollectionUtils.isNotEmpty(waybillCodes)) {
                             for (String waybillCode : waybillCodes) {
                                 RouteNextDto routeNextDto = routerService.matchRouterNextNode(taskSend.getStartSiteId().intValue(), waybillCode);
-                                if (routeNextDto != null) {
+                                if (routeNextDto != null && routeNextDto.getFirstNextSiteId() != null) {
                                     routerStr = JsonHelper.toJson(routeNextDto.getNextSiteIdList());
                                     waybillForVerify = waybillCode;
                                     boxRouteDest = routeNextDto.getFirstNextSiteId().longValue();
@@ -1829,7 +1829,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (CollectionUtils.isNotEmpty(waybillCodes)) {
                     for (String waybillCode : waybillCodes) {
                         RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
-                        if (null != routeNextDto) {
+                        if (null != routeNextDto && routeNextDto.getFirstNextSiteId() != null) {
                             routerStr = JsonHelper.toJson(routeNextDto.getNextSiteIdList());
                             waybillForVerify = waybillCode;
                             boxRouteDest = routeNextDto.getFirstNextSiteId().longValue();
