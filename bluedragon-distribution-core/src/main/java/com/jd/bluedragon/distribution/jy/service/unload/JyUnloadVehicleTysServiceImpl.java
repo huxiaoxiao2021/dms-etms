@@ -48,6 +48,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -704,7 +705,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     .processTime(endTime, startTime)
                     .operateRequest(request)
                     .build();
-            logEngine.addLog(businessLogProfiler);
+//            logEngine.addLog(businessLogProfiler);
+
+            BusinessLogWriter.writeLog(businessLogProfiler);
         } catch (Exception e) {
             log.error("转运验货包裹查询运单系统不存在，操作日志记录失败：{},errMsg={}" ,JsonHelper.toJson(scanPackageDto), e.getMessage(), e);
         }
