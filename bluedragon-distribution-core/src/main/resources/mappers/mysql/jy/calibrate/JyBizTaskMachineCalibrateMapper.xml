@@ -20,7 +20,7 @@
         id, machine_code, calibrate_task_start_time, calibrate_task_close_time, create_user_erp, create_time, update_time, yn, ts
     </sql>
 
-    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO jy_biz_task_machine_calibrate (
             <trim suffixOverrides=",">
                 <if test="id != null">
@@ -139,6 +139,19 @@
             and machine_code = #{machineCode}
             and calibrate_task_start_time = #{calibrateTaskStartTime}
         </where>
+    </update>
+
+    <update id="batchCloseByIds" parameterType="java.util.List">
+        update jy_biz_task_machine_calibrate
+        set
+            calibrate_task_close_time = now(),
+            update_time = now()
+        where
+            yn = 1
+        and id in
+        <foreach item="id" index="index" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </update>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckRecord;
@@ -148,8 +149,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             machineTaskCondition.setCreateUserErp(request.getUser().getUserErp());
             JyBizTaskMachineCalibrateDetailEntity machineTaskEntity = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(machineTaskCondition);
 
-            boolean isCreateTaskFlag = false; // 是否创建设备维度记录标识
-            boolean isCreateTaskDetailFlag = false; // 是否创建设备任务明细维度标识
+            boolean isCreateTaskFlag = false; // 是否创建任务标识
             if(Objects.equals(request.getForceCreateTask(), true)){
                 // 强制创建任务
                 if(machineRecord != null && machineRecord.getCalibrateTaskCloseTime() == null){
@@ -157,11 +157,9 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     return;
                 }
                 isCreateTaskFlag = true;
-                isCreateTaskDetailFlag = true;
             }else if(machineRecord == null){
                 // 设备维度记录不存在（第一次扫描设备编码）
                 isCreateTaskFlag = true;
-                isCreateTaskDetailFlag = true;
             }else if(machineRecord.getCalibrateTaskCloseTime() != null){
                 // 设备任务已关闭
                 Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
@@ -171,7 +169,6 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     return;
                 }
                 isCreateTaskFlag = true;
-                isCreateTaskDetailFlag = true;
             }else {
                 // 设备任务未关闭
                 if(machineTaskEntity == null){
@@ -185,15 +182,11 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     result.error(String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_CREATED_WITH_OTHER_HINT, createUserErp));
                     return;
                 }
-                if(Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_COMPLETE.getCode())
-                        || Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_CLOSE.getCode())){
+                if(!Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_TODO.getCode())){
                     String errorMessage = String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_STATUS_ERROR_HINT, machineCode);
                     logger.error(errorMessage);
                     result.error(errorMessage);
                     return;
-                }
-                if(Objects.equals(machineTaskEntity.getTaskStatus(), JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_OVERTIME.getCode())){
-                    isCreateTaskDetailFlag = true;
                 }
             }
 
@@ -204,15 +197,13 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 machineEntity.setCalibrateTaskStartTime(new Date());
                 machineEntity.setCreateUserErp(userErp);
                 jyBizTaskMachineCalibrateService.insert(machineEntity);
-            }
-            if(isCreateTaskDetailFlag){
                 // 创建设备任务维度数据
                 JyBizTaskMachineCalibrateDetailEntity entity = initBaseData();
+                entity.setRefMachineKey(machineEntity.getId());
                 entity.setMachineCode(request.getMachineCode());
                 entity.setCreateUserErp(request.getUser().getUserErp());
                 jyBizTaskMachineCalibrateDetailService.insert(entity);
             }
-
         }catch (Exception e){
             logger.error("扫描设备编码:{}创建校准任务异常!", machineCode);
             throw e;
@@ -333,14 +324,14 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             return false;
         }
         String machineCode = request.getMachineCode();
-        if(StringUtils.isNotEmpty(machineCode)){
-            // 设备编码存在性校验
-            DeviceConfigDto deviceConfigDto = deviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode(machineCode);
-            if(deviceConfigDto == null || StringUtils.isEmpty(deviceConfigDto.getMachineCode())){
-                result.parameterError("设备编码不存在,请重新扫描!");
-                return false;
-            }
-        }
+//        if(StringUtils.isNotEmpty(machineCode)){
+//            // 设备编码存在性校验
+//            DeviceConfigDto deviceConfigDto = deviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode(machineCode);
+//            if(deviceConfigDto == null || StringUtils.isEmpty(deviceConfigDto.getMachineCode())){
+//                result.parameterError("设备编码不存在,请重新扫描!");
+//                return false;
+//            }
+//        }
         return true;
     }
 
@@ -605,6 +596,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         // 待更新id集合
         List<Long> ids = Lists.newArrayList();
+        Set<Long> refMachineIds = Sets.newHashSet();
 
         int offSet = 0;
         int pageSize = 100;
@@ -620,6 +612,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             }
             for (JyBizTaskMachineCalibrateDetailEntity entity : list) {
                 ids.add(entity.getId());
+                refMachineIds.add(entity.getRefMachineKey());
             }
             // 批量发消息推送咚咚
             batchSendPushDD(list);
@@ -632,9 +625,18 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 break;
             }
         }
+        // 批量关闭设备任务
+        batchCloseMachine(Lists.newArrayList(refMachineIds));
         // 任务状态批量更新为'超时'
         batchUpdateStatus(ids);
         return result;
+    }
+
+    private void batchCloseMachine(List<Long> refMachineIds) {
+        for (List<Long> singleList : Lists.partition(refMachineIds, 100)) {
+            // 100一批分批更新状态
+            jyBizTaskMachineCalibrateService.batchCloseByIds(singleList);
+        }
     }
 
     private void batchSendPushDD(List<JyBizTaskMachineCalibrateDetailEntity> list) {

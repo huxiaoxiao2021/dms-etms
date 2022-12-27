@@ -47,6 +47,11 @@ public class JyBizTaskMachineCalibrateServiceImpl implements JyBizTaskMachineCal
     }
 
     @Override
+    public int batchCloseByIds(List<Long> ids) {
+        return jyBizTaskMachineCalibrateDao.batchCloseByIds(ids);
+    }
+
+    @Override
     public List<JyBizTaskMachineCalibrateEntity> queryListByCondition(JyBizTaskMachineCalibrateEntity condition) {
         return jyBizTaskMachineCalibrateDao.queryListByCondition(condition);
     }

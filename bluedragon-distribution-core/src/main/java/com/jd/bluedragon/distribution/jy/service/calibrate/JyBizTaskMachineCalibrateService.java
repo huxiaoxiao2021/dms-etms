@@ -48,4 +48,12 @@ public interface JyBizTaskMachineCalibrateService {
      * @return
      */
     int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity);
+
+    /**
+     * 根据id批量关闭设备任务
+     *
+     * @param ids
+     * @return
+     */
+    int batchCloseByIds(List<Long> ids);
 }

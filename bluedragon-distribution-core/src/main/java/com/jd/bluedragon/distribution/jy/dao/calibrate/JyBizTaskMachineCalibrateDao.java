@@ -38,4 +38,8 @@ public class JyBizTaskMachineCalibrateDao extends BaseDao<JyBizTaskMachineCalibr
     public List<JyBizTaskMachineCalibrateEntity> queryListByCondition(JyBizTaskMachineCalibrateEntity condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryListByCondition", condition);
     }
+
+    public int batchCloseByIds(List<Long> list) {
+        return this.getSqlSession().update(NAMESPACE + ".batchCloseByIds", list);
+    }
 }

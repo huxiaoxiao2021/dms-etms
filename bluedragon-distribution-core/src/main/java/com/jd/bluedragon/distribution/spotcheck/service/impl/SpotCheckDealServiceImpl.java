@@ -936,17 +936,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         boolean isEligible = true;
         String machineCode = dwsMachineCalibrateMQ.getMachineCode();
-        if(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null){
-            logger.info("设备:{}的上次状态都不合格，时间:{}之前的抽检数据都不进行下发处理!",
-                    machineCode, DateHelper.formatDateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime())));
-            isEligible = false;
-        }
         Integer calibrateStatus = dwsMachineCalibrateMQ.getCalibrateStatus();
         if(!Objects.equals(calibrateStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
             logger.info("设备:{}的校准状态不合格，不进行抽检下发处理!", machineCode);
             isEligible = false;
         }
-        if(dwsMachineCalibrateMQ.getCalibrateTime() - dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()
+        if(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null){
+            logger.info("设备:{}的上次状态都不合格，时间:{}之前的抽检数据都不进行下发处理!",
+                    machineCode, DateHelper.formatDateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime())));
+            isEligible = false;
+        }else if(dwsMachineCalibrateMQ.getCalibrateTime() - dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()
                 > uccPropertyConfiguration.getMachineCalibrateIntervalTimeOfSpotCheck()){
             logger.info("设备:{}的两次合格时间间隔超过3h，判定为不合格!", machineCode);
             isEligible = false;
