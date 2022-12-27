@@ -721,6 +721,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             long startTime = System.currentTimeMillis();
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
+                log.info("JyUnloadVehicleTysServiceImpl.waybillScan--包裹号{}在运单系统不存在，scanPackageDto={}", barCode, JsonHelper.toJson(scanPackageDto));
                 if(uccPropertyConfiguration.getWaybillSysNonExistPackageInterceptSwitch()) {
                     invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                     return invokeResult;
