@@ -526,7 +526,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
             taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
-
+        // 重量、体积都操作校准了，校准任务结束
         boolean isFinished = !Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
                 && !Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode());
         if(isFinished){
@@ -541,8 +541,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
             taskDetail.setMachineStatus(machineStatus);
             jyBizTaskMachineCalibrateDetailService.update(taskDetail);
-            // 任务完成后创建新任务
-            createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
+            // 任务完成后并且设备合格，创建新任务
+            if (Objects.equals(machineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())) {
+                createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
+            }
         }else {
             jyBizTaskMachineCalibrateDetailService.update(taskDetail);
         }
