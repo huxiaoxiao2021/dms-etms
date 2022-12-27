@@ -60,8 +60,22 @@ public class JYTransferConfigProxy {
             return true;
         }
         return false;
+    }
 
-
+    /**
+     * 判断是否需要进行中转
+     *  目前需要有中转配置的是德邦春节业务
+     * @param waybillSign
+     * @param createSiteCode
+     * @param preSiteCode
+     * @return
+     */
+    public boolean isNeedTransfer(String waybillSign, Integer createSiteCode, Integer preSiteCode) {
+        ConfigTransferDpSiteMatchQo siteMatchQo = new ConfigTransferDpSiteMatchQo();
+        siteMatchQo.setHandoverSiteCode(createSiteCode);
+        siteMatchQo.setPreSortSiteCode(preSiteCode);
+        ConfigTransferDpSite configTransferDpSite = this.queryMatchConditionRecord(siteMatchQo);
+        return isMatchConfig(configTransferDpSite, waybillSign);
     }
 
 }

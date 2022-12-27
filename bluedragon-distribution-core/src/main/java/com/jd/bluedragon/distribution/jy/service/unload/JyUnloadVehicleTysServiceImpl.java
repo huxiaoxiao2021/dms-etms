@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -34,6 +35,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -133,6 +135,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
 
 
     @Override
@@ -561,7 +566,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             scanResult.setEndSiteId(Long.valueOf(request.getNextSiteCode()));
         }
         scanResult.setEndSiteName(request.getNextSiteName());
-        scanResult.setWarnMsg(new HashMap<String, String>(5));
+        scanResult.setWarnMsg(new HashMap<String, String>(7));
         scanResult.setConfirmMsg(new HashMap<String, String>(3));
         return scanResult;
     }
@@ -582,6 +587,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (waybill == null) {
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
+        }
+
+        //德邦单号场地转发提醒
+        if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), operateSiteCode, waybill.getOldSiteId())) {
+            Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
+            warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
         }
 
         checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
@@ -681,6 +692,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+
+        //德邦单号场地转发提醒
+        if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), scanPackageDto.getCurrentOperate().getSiteCode(), waybill.getOldSiteId())) {
+            Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
+            warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
+        }
+
         //易冻损校验
         checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
         scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
