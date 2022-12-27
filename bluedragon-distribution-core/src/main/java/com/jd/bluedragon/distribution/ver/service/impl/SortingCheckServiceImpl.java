@@ -334,7 +334,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         try {
             if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
-                filterContext = this.initContext(convert2PdaRequest(boardCombinationRequest));
+                filterContext = this.initFilterParam(boardCombinationRequest);
                 filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
                 //获取校验链
                 FilterChain boardCombinationChain = getBoardCombinationFilterChain();
@@ -367,17 +367,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
         this.addSortingCheckStatisticsLog(this.convertPdaOperateRequest(boardCombinationRequest), response.getCode(), response.getMessage());
         return response;
-    }
-
-    private PdaOperateRequest convert2PdaRequest(BoardCombinationRequest boardCombinationRequest) {
-        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-        pdaOperateRequest.setCreateSiteCode(boardCombinationRequest.getSiteCode());
-        pdaOperateRequest.setReceiveSiteCode(boardCombinationRequest.getReceiveSiteCode());
-        pdaOperateRequest.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
-        pdaOperateRequest.setBoxCode(boardCombinationRequest.getBoxOrPackageCode());
-        pdaOperateRequest.setBusinessType(boardCombinationRequest.getBusinessType());
-        pdaOperateRequest.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
-        return pdaOperateRequest;
     }
 
 
