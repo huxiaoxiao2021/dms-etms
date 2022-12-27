@@ -174,6 +174,7 @@ public class IntegralServiceImpl implements IntegralService {
             if (JC_LIST.contains(quotaEnum)) {
                 // 岗位分别的基础分 业务确认按照指标来
                 JyBaseScoreCalcuDetailDTO calcuDetailDTO = new JyBaseScoreCalcuDetailDTO();
+                calcuDetailDTO.setScore(detail.getScore());
                 calcuDetailDTO.setQuantity(detail.getQuantity());
                 calcuDetailDTO.setPositionType(detail.getPositionType());
                 calcuDetailDTO.setPositionTypeName(JyPositionTypeEnum.getName(detail.getPositionType()));
