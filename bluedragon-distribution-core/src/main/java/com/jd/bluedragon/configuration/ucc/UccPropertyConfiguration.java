@@ -1055,6 +1055,11 @@ public class UccPropertyConfiguration {
      */
     private Integer tysUnloadTaskSupplementScanLimitHours;
 
+    /**
+     * 运单系统查不到包裹号时的拦截校验开关： true 拦截  false 不拦截
+     */
+    private Boolean waybillSysNonExistPackageInterceptSwitch;
+
 
 
 
@@ -2552,5 +2557,13 @@ public class UccPropertyConfiguration {
 
     public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
         this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public Boolean getWaybillSysNonExistPackageInterceptSwitch() {
+        return waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
+        this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 }

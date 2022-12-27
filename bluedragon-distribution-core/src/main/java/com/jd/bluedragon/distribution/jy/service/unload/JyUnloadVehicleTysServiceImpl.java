@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
@@ -37,6 +38,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
@@ -48,6 +50,10 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
@@ -141,17 +147,20 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
     @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
+
+    @Autowired
     private WaybillService waybillService;
 
 
     @Resource
     private SortingService sortingService;
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
-
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private LogEngine logEngine;
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -602,10 +611,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String bizId = scanPackageDto.getBizId();
         Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
+        long startTime = System.currentTimeMillis();
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
+            log.info("JyUnloadVehicleTysServiceImpl.packageScan--包裹号{}在运单系统不存在，scanPackageDto={}", barCode, JsonHelper.toJson(scanPackageDto));
+            if(uccPropertyConfiguration.getWaybillSysNonExistPackageInterceptSwitch()) {
                 invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
-            return invokeResult;
+                return invokeResult;
+            }else {
+                invalidPackageAddLog(scanPackageDto, startTime);
+            }
         }
         String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
         Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
@@ -693,6 +708,29 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
+    private void invalidPackageAddLog(ScanPackageDto scanPackageDto, long startTime) {
+        try{
+            long endTime = new Date().getTime();
+            JSONObject request = new JSONObject();
+            request.put("packageCode", scanPackageDto.getScanCode());
+            request.put("operatorErp", scanPackageDto.getUser().getUserErp());
+            request.put("operatorSiteCode", scanPackageDto.getCurrentOperate().getSiteCode());
+            request.put("operatorSiteName", scanPackageDto.getCurrentOperate().getSiteName());
+
+            BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.INSPECTION_WAYBILL_QUERY_NON_EXIST)
+                    .methodName("JyUnloadVehicleTysServiceImpl#addInvalidPackageLog")
+                    .processTime(endTime, startTime)
+                    .operateRequest(request)
+                    .build();
+//            logEngine.addLog(businessLogProfiler);
+
+            BusinessLogWriter.writeLog(businessLogProfiler);
+        } catch (Exception e) {
+            log.error("转运验货包裹查询运单系统不存在，操作日志记录失败：{},errMsg={}" ,JsonHelper.toJson(scanPackageDto), e.getMessage(), e);
+        }
+    }
+
     private InvokeResult<ScanPackageRespDto> waybillScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
         String barCode = scanPackageDto.getScanCode();
@@ -701,10 +739,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         DeliveryPackageD packageD = null;
         String waybillCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(barCode)) {
+            long startTime = System.currentTimeMillis();
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
-                return invokeResult;
+                log.info("JyUnloadVehicleTysServiceImpl.waybillScan--包裹号{}在运单系统不存在，scanPackageDto={}", barCode, JsonHelper.toJson(scanPackageDto));
+                if(uccPropertyConfiguration.getWaybillSysNonExistPackageInterceptSwitch()) {
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
+                    return invokeResult;
+                }else {
+                    invalidPackageAddLog(scanPackageDto, startTime);
+                }
             }
             waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
             scanPackageDto.setScanCode(waybillCode);
@@ -762,7 +806,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
-
         return invokeResult;
     }
 
