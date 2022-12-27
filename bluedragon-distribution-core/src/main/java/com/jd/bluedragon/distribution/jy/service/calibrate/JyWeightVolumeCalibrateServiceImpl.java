@@ -324,14 +324,14 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             return false;
         }
         String machineCode = request.getMachineCode();
-//        if(StringUtils.isNotEmpty(machineCode)){
-//            // 设备编码存在性校验
-//            DeviceConfigDto deviceConfigDto = deviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode(machineCode);
-//            if(deviceConfigDto == null || StringUtils.isEmpty(deviceConfigDto.getMachineCode())){
-//                result.parameterError("设备编码不存在,请重新扫描!");
-//                return false;
-//            }
-//        }
+        if(StringUtils.isNotEmpty(machineCode)){
+            // 设备编码存在性校验
+            DeviceConfigDto deviceConfigDto = deviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode(machineCode);
+            if(deviceConfigDto == null || StringUtils.isEmpty(deviceConfigDto.getMachineCode())){
+                result.parameterError("设备编码不存在,请重新扫描!");
+                return false;
+            }
+        }
         return true;
     }
 
