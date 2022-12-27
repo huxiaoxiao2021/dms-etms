@@ -493,19 +493,23 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             result.error(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_REQUEST_ERROR);
             return result;
         }
-        JyBizTaskMachineCalibrateEntity entity = new JyBizTaskMachineCalibrateEntity();
-        entity.setMachineCode(request.getMachineCode());
-        entity.setCalibrateTaskStartTime(new Date(request.getCalibrateTaskStartTime()));
-        entity.setCalibrateTaskCloseTime(new Date());
-        entity.setUpdateTime(new Date());
+        JyBizTaskMachineCalibrateDetailEntity closeDetailTask = jyBizTaskMachineCalibrateDetailService.selectById(request.getMachineTaskId());
+        if (closeDetailTask == null || closeDetailTask.getRefMachineKey() == null) {
+            logger.error("dws承重量方查询任务明细出错！入参：{}", request);
+            result.error(String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_NOT_FIND_HINT, request.getMachineCode()));
+            return result;
+        }
+        JyBizTaskMachineCalibrateEntity closeMainTask = new JyBizTaskMachineCalibrateEntity();
+        closeMainTask.setId(closeDetailTask.getRefMachineKey());
+        closeMainTask.setCalibrateTaskCloseTime(new Date());
+        closeMainTask.setUpdateUserErp(request.getUser().getUserErp());
+        closeMainTask.setUpdateTime(new Date());
         //设备关闭后废弃当前的最新的处于待处理状态的任务
-        if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(entity) == Constants.CONSTANT_NUMBER_ONE){
-            JyBizTaskMachineCalibrateDetailEntity closeEntity = new JyBizTaskMachineCalibrateDetailEntity();
-            closeEntity.setId(request.getMachineTaskId());
-            closeEntity.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_CLOSE.getCode());
-            closeEntity.setUpdateUserErp(request.getUser().getUserErp());
-            closeEntity.setUpdateTime(new Date());
-            jyBizTaskMachineCalibrateDetailService.closeCalibrateDetailById(closeEntity);
+        if (jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(closeMainTask) == Constants.CONSTANT_NUMBER_ONE){
+            closeDetailTask.setTaskStatus(JyBizTaskMachineCalibrateTaskStatusEnum.TASK_STATUS_CLOSE.getCode());
+            closeDetailTask.setUpdateUserErp(request.getUser().getUserErp());
+            closeDetailTask.setUpdateTime(new Date());
+            jyBizTaskMachineCalibrateDetailService.closeCalibrateDetailById(closeDetailTask);
             result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, "任务关闭成功！");
         }else {
             logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", request);
