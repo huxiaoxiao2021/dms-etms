@@ -268,6 +268,12 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_STRAND_REPORT = 18000;
 
+    /**
+     * https://cf.jd.com/pages/viewpage.action?pageId=1050064709
+     * 全程跟踪扩展字段-equipmentCode：设备编码
+     */
+    public static final String EXTEND_PARAMETER_EQUIPMENT_CODE = "equipmentCode";
+
 
     private Long id;
 
@@ -301,6 +307,8 @@ public class WaybillStatus {
      * 返单号
      */
     private String returnWaybillCode;
+
+    private OperatorData operatorData;
 
     // 额外属性，同步运单全程跟踪对象属性
     private Map<String, Object> extendParamMap;
@@ -472,6 +480,14 @@ public class WaybillStatus {
     public void setReturnWaybillCode(String returnWaybillCode) {
         this.returnWaybillCode = returnWaybillCode;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 
     public Map<String, Object> getExtendParamMap() {
         return extendParamMap;

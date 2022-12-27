@@ -21,6 +21,15 @@ public class UnloadScanDto extends JyUnloadEntity {
      * 任务主键
      */
     private String taskId;
+    /**
+     * 1 分拣 2转运
+     */
+    private int taskType;
+    /**
+     * 补扫标识
+     */
+    private boolean supplementary;
+
 
     public String getGroupCode() {
         return groupCode;
@@ -37,4 +46,21 @@ public class UnloadScanDto extends JyUnloadEntity {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
+    public int getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(int taskType) {
+        this.taskType = taskType;
+    }
+
+    public boolean getSupplementary() {
+        return supplementary;
+    }
+
+    public void setSupplementary(boolean supplementary) {
+        this.supplementary = supplementary;
+    }
+
 }

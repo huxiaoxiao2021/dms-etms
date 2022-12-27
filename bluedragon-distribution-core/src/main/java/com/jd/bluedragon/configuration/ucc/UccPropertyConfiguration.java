@@ -18,6 +18,11 @@ public class UccPropertyConfiguration {
 
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
+    /*一键封车下线*/
+    private boolean offlineQuickSeal;
+
+    /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
+    private boolean enableGoodsAreaOfTysScan;
 
     private boolean offlineLogGlobalSwitch;
 
@@ -313,6 +318,11 @@ public class UccPropertyConfiguration {
     private String offlineTaskReportInterceptSites;
 
     /**
+     * 龙门架设备实操计算应拦截场地，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
+     */
+    private String scannerOperateCalculateIfInterceptSites;
+
+    /**
      * 称重良方规则标准
      */
     private String weightVolumeRuleStandard;
@@ -511,6 +521,12 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -525,6 +541,14 @@ public class UccPropertyConfiguration {
 
     public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
         this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
+
+    public boolean getEnableGoodsAreaOfTysScan() {
+        return enableGoodsAreaOfTysScan;
+    }
+
+    public void setEnableGoodsAreaOfTysScan(boolean enableGoodsAreaOfTysScan) {
+        this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
     }
 
     public String getBusinessLogQueryPageSwitch() {
@@ -822,6 +846,11 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordMoreThanHours;
 
     /**
+     * 自动签退查询数据-扫描小时数
+     */
+    private int notSignedOutRecordRangeHours = 12;
+
+    /**
      * 抽检改造开通场地
      *  多个场地以,分隔
      *  true表示全国
@@ -881,6 +910,26 @@ public class UccPropertyConfiguration {
     private String jySendTaskLoadRateLimit;
 
     /**
+     * 缓存时长
+     */
+    private Integer unloadCacheDurationHours;
+
+    /**
+     * 板上最多包裹数
+     */
+    private Integer unloadBoardBindingsMaxCount;
+
+    /**
+     * 包裹重量上限值，单位kg
+     */
+    private String packageWeightLimit;
+
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
+    /**
      * 面单举报异常配置
      */
     private String faceAbnormalReportConfig;
@@ -920,6 +969,46 @@ public class UccPropertyConfiguration {
      *  }
      */
     private String clientOfflineMenuConfig;
+
+    /**
+     * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
+     */
+    private Integer weightVolumeSwitchVersion;
+
+    /**
+     * 卸车岗列表页过滤最近N天数据
+     */
+    private Integer jyUnloadCarListQueryDayFilter;
+
+
+    /**
+     * 定时上传设备位置间隔 秒级时间戳 -1 - 表示不上传
+     */
+    private Integer uploadDeviceLocationInterval;
+    /**
+     * 实时判断设备操作位置异常开关 0 - 关，1 - 开
+     */
+    private Integer checkDeviceLocationInRealTimeSwitch;
+
+    /**
+     * 转运卸车任务交班最大次数
+     */
+    private Integer tysUnloadTaskHandoverMaxSize;
+
+    /**
+     * 转运卸车任务完成后补扫描小时数限制，超出该小时后禁止扫描
+     */
+    private Integer tysUnloadTaskSupplementScanLimitHours;
+
+    /**
+     * 运单系统查不到包裹号时的拦截校验开关： true 拦截  false 不拦截
+     */
+    private Boolean waybillSysNonExistPackageInterceptSwitch;
+
+
+
+
+
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1249,6 +1338,14 @@ public class UccPropertyConfiguration {
         this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
     }
 
+    public boolean getOfflineQuickSeal() {
+        return offlineQuickSeal;
+    }
+
+    public void setOfflineQuickSeal(boolean offlineQuickSeal) {
+        this.offlineQuickSeal = offlineQuickSeal;
+    }
+
     public String getSingleSendSwitchVerToWebSites() {
         return singleSendSwitchVerToWebSites;
     }
@@ -1468,6 +1565,31 @@ public class UccPropertyConfiguration {
             return false;
         }
         List<String> siteCodes = Arrays.asList(offlineTaskReportInterceptSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
+
+    public String getScannerOperateCalculateIfInterceptSites() {
+        return scannerOperateCalculateIfInterceptSites;
+    }
+
+    public void setScannerOperateCalculateIfInterceptSites(String scannerOperateCalculateIfInterceptSites) {
+        this.scannerOperateCalculateIfInterceptSites = scannerOperateCalculateIfInterceptSites;
+    }
+
+    public Boolean getScannerOperateCalculateIfInterceptNeedHandle(Integer siteId) {
+        if(StringUtils.isBlank(scannerOperateCalculateIfInterceptSites)){
+            return false;
+        }
+        if(Objects.equals("0", scannerOperateCalculateIfInterceptSites)){
+            return true;
+        }
+        if(Objects.equals("-1", scannerOperateCalculateIfInterceptSites)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(scannerOperateCalculateIfInterceptSites.split(Constants.SEPARATOR_COMMA));
         if(siteCodes.contains(siteId + "")){
             return true;
         }
@@ -1927,6 +2049,13 @@ public class UccPropertyConfiguration {
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
+	public int getNotSignedOutRecordRangeHours() {
+		return notSignedOutRecordRangeHours;
+	}
+
+	public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
+		this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
+	}
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }
@@ -2183,5 +2312,107 @@ public class UccPropertyConfiguration {
 
     public void setJyDemotionConfig(String jyDemotionConfig) {
         this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getUnloadCacheDurationHours() {
+        return unloadCacheDurationHours;
+    }
+
+    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
+        this.unloadCacheDurationHours = unloadCacheDurationHours;
+    }
+
+    public Integer getUnloadBoardBindingsMaxCount() {
+        return unloadBoardBindingsMaxCount;
+    }
+
+    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
+        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public String getPackageWeightLimit() {
+        return packageWeightLimit;
+    }
+
+    public void setPackageWeightLimit(String packageWeightLimit) {
+        this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+
+    public Integer getWeightVolumeSwitchVersion() {
+        return weightVolumeSwitchVersion;
+    }
+
+    public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
+        this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
+    }
+
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
+        this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
+    }
+
+
+    public Integer getUploadDeviceLocationInterval() {
+        return uploadDeviceLocationInterval;
+    }
+
+    public void setUploadDeviceLocationInterval(Integer uploadDeviceLocationInterval) {
+        this.uploadDeviceLocationInterval = uploadDeviceLocationInterval;
+    }
+
+    public Integer getCheckDeviceLocationInRealTimeSwitch() {
+        return checkDeviceLocationInRealTimeSwitch;
+    }
+
+    public void setCheckDeviceLocationInRealTimeSwitch(Integer checkDeviceLocationInRealTimeSwitch) {
+        this.checkDeviceLocationInRealTimeSwitch = checkDeviceLocationInRealTimeSwitch;
+    }
+
+    public boolean getCheckDeviceLocationInRealTimeSwitchIsOn() {
+        return Objects.equals(this.getCheckDeviceLocationInRealTimeSwitch(), Constants.YN_YES);
+    }
+
+    public Integer getTysUnloadTaskHandoverMaxSize() {
+        return tysUnloadTaskHandoverMaxSize;
+    }
+
+    public void setTysUnloadTaskHandoverMaxSize(Integer tysUnloadTaskHandoverMaxSize) {
+        this.tysUnloadTaskHandoverMaxSize = tysUnloadTaskHandoverMaxSize;
+    }
+
+    public Integer getTysUnloadTaskSupplementScanLimitHours() {
+        return tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
+        this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public Boolean getWaybillSysNonExistPackageInterceptSwitch() {
+        return waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
+        this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 }

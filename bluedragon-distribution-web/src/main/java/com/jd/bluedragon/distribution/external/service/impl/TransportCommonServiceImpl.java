@@ -14,10 +14,15 @@ import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
 import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -29,6 +34,7 @@ import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -64,6 +70,13 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
     @Resource
     private SortingService sortingService;
+    @Autowired
+    @Qualifier("jyGroupMemberService")
+    private JyGroupMemberService jyGroupMemberService;
+
+    @Resource
+    private TransferService transferService;
+
 
     @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.interceptValidateUnloadCar", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
@@ -406,4 +419,49 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         result.setData(sortingService.getPagePackageNoByBoxCode(request));
         return result;
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.saveOperatePdaVersion", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion) {
+        return transferService.saveOperatePdaVersion(sealCarCode, pdaVersion);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.delOperatePdaVersion", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> delOperatePdaVersion(String sealCarCode, String pdaVersion) {
+        return transferService.delOperatePdaVersion(sealCarCode, pdaVersion);
+    }
+
+
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.getOperatePdaVersion", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<String> getOperatePdaVersion(String sealCarCode) {
+        return transferService.getOperatePdaVersion(sealCarCode);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.queryMemberListByGroup", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<JyGroupMemberEntity>> queryMemberListByGroup(String groupCode) {
+        InvokeResult<List<JyGroupMemberEntity>> res = new InvokeResult<>();
+        try{
+            //查询小组在岗人员
+            JyGroupMemberQuery membersQuery = new JyGroupMemberQuery();
+            membersQuery.setGroupCode(groupCode);
+            membersQuery.setStatus(JyGroupMemberStatusEnum.IN.getCode());
+            List<JyGroupMemberEntity> resData = jyGroupMemberService.queryMemberListByGroup(membersQuery);
+            if(CollectionUtils.isEmpty(resData)) {
+                res.setMessage("查询数据为空");
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("TransportCommonServiceImpl.queryMemberListByGroup--查查询组成员服务异常, req={},errMsg={}", groupCode, e.getMessage(), e);
+            res.error("组成员查询服务异常：" + e.getMessage());
+            return res;
+        }
+    }
+
+
+
 }

@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.spotcheck.domain.*;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -22,5 +24,10 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
                 || !Objects.equals(spotCheckDto.getExcessType(), spotCheckContext.getExcessType())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
         }
+    }
+
+    @Override
+    protected boolean isSupportSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
+        return super.checkWoodenFrameService(context, result);
     }
 }

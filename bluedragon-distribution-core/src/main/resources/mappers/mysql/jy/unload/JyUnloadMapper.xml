@@ -23,6 +23,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="stageBizId" column="stage_biz_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -43,13 +44,15 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        stage_biz_id
     </sql>
 
     <insert id="insert" parameterType="JyUnloadEntity">
         INSERT INTO jy_unload (
                             id,
                             biz_id,
+                            stage_biz_id,
                             seal_car_code,
                             vehicle_number,
                             start_site_id,
@@ -68,6 +71,7 @@
                     ) VALUES (
                             #{id},
                             #{bizId},
+                            #{stageBizId},
                             #{sealCarCode},
                             #{vehicleNumber},
                             #{startSiteId},

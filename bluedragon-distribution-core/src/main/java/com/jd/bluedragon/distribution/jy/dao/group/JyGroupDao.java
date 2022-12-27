@@ -40,4 +40,7 @@ public class JyGroupDao extends BaseDao<JyGroupEntity> {
 	public JyGroupEntity queryByGroupCode(String groupCode) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryByGroupCode", groupCode);
 	}
+	public JyGroupEntity queryGroupByGroupCode(String groupCode) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryGroupByGroupCode", groupCode);
+	}
 }

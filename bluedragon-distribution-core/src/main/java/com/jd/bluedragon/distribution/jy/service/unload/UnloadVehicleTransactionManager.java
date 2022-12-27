@@ -98,6 +98,7 @@ public class UnloadVehicleTransactionManager {
         changeStatusParam.setUpdateUserErp(dto.getOperateUserErp());
         changeStatusParam.setUpdateUserName(dto.getOperateUserName());
         changeStatusParam.setUpdateTime(dto.getOperateTime());
+        changeStatusParam.setUnloadStartTime(dto.getOperateTime());
         changeStatusParam.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
         if(!jyBizTaskUnloadVehicleService.changeStatus(changeStatusParam)){
             throw new JyBizException(String.format("更新任务状态异常！bizId:%s",dto.getBizId()));

@@ -491,6 +491,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 		jdResult.setData(Boolean.FALSE);
         ReassignWaybillRequest requestData = JsonHelper.fromJson(reassignWaybillRequest.getData(), ReassignWaybillRequest.class);
 		if(requestData != null){
+			requestData.setInterfaceType(reassignWaybillRequest.getOperateType());
 			return reassignWaybillService.backScheduleAfter(requestData);
 		}else{
 			jdResult.toFail("请求参数中data值无效！");

@@ -27,4 +27,12 @@ public interface RouterService {
      */
     RouteNextDto matchRouterNextNode(Integer siteCode, String waybillCode);
 
+    /**
+     * 根据已知路由链路倒序查后续网点及上一网点
+     * @param siteCode   必填
+     * @param waybillCode   必填
+     * @param routerStr    选填，可null
+     * @return
+     */
+    public RouteNextDto matchNextNodeAndLastNodeByRouter(Integer siteCode, String waybillCode, String routerStr);
 }

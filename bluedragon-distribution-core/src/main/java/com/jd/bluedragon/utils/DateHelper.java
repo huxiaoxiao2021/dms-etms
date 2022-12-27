@@ -566,6 +566,13 @@ public class DateHelper {
 		}
 		return 0;
 	}
+
+    public static double betweenMinutes(Date startTime, Date endTime) {
+        if(startTime != null && endTime!= null && endTime.after(startTime)) {
+            return 1.0*(endTime.getTime() - startTime.getTime())/60/1000;
+        }
+        return 0;
+    }
     /**
      * 获取年月日 yyMMdd
      * @return
@@ -619,5 +626,51 @@ public class DateHelper {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTimeInMillis();
+    }
+
+
+    /**
+     * 获取几天前的零点
+     * @param date
+     * @param days
+     * @return
+     */
+    public static Date getZeroFromDay(Date date, Integer days) {
+        if(date == null){
+            return null;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DAY_OF_YEAR, days * -1);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
+
+    public static Date parse(String date, String format) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return sdf.parse(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+
+    /**
+     * 获取当月绩效结算时间 21日7点
+     * @return
+     */
+    public static Date getCurrentMonthAccrualSettlementTime(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 21);
+        calendar.set(Calendar.HOUR_OF_DAY, 7);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 }

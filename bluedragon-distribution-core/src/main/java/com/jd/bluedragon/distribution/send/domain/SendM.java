@@ -145,7 +145,17 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
     private List<String> boxCodeList;
 
     private transient Integer cancelPackageCount;
-
+    
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;
+	
     public Integer getCancelPackageCount() {
         return cancelPackageCount;
     }
@@ -424,4 +434,20 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }

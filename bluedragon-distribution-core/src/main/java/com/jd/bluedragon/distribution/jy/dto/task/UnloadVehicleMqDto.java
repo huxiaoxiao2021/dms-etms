@@ -19,6 +19,9 @@ public class UnloadVehicleMqDto implements Serializable {
     public static final String EXTEND_KEY_SCAN_PROGRESS = "totalScannedPackageProgress";
     public static final String EXTEND_KEY_TOTAL_COUNT = "totalSealPackageCount";
 
+    public static final String EXTEND_KEY_MORESCAN_COUNT = "moreScanTotalCount";
+    public static final String EXTEND_KEY_BOARD_COUNT = "totalScannedBoardCount";
+    public static final String EXTEND_KEY_INTERCEPT_COUNT = "totalScannedInterceptCount";
     // 封车编码
 
     private String sealCarCode;

@@ -28,6 +28,15 @@ public class PackageSendRequest extends DeliveryRequest {
      * 业务来源
      */
     private Integer bizSource;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
 
     public boolean getIsForceSend() {
         return isForceSend;
@@ -61,4 +70,20 @@ public class PackageSendRequest extends DeliveryRequest {
         this.sendForWholeBoard = sendForWholeBoard;
         return this;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }

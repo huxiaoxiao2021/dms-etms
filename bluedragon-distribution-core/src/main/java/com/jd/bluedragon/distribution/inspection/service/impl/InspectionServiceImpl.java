@@ -4,17 +4,17 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.AssertQueryManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -53,6 +53,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.asset.material.base.ResultData;
 import com.jd.etms.asset.material.base.ResultStateEnum;
 import com.jd.etms.asset.material.dto.MatterPackageRelationDto;
@@ -1106,6 +1107,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		return inspection(vo, inspectionBizSourceEnum);
 	}
 
+
 	@Override
     public InvokeResult<Boolean> inspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum){
 		InvokeResult<Boolean> result = new InvokeResult<>();
@@ -1243,6 +1245,8 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			}
 
 			//inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+			inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+			inspection.setOperatorId(inspection.getMachineCode());
 		}
 		if (inspections.size() == 0) {
 			invokeResult.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK);

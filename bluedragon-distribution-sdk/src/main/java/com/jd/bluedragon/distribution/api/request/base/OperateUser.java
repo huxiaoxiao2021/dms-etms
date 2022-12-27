@@ -22,7 +22,7 @@ public class OperateUser implements Serializable {
     /**
      *操作单位编号
      */
-    private int siteCode;
+    private Integer siteCode;
 
     /**
      *操作单位名称
@@ -74,7 +74,7 @@ public class OperateUser implements Serializable {
         return this;
     }
 
-    public int getSiteCode() {
+    public Integer getSiteCode() {
         return siteCode;
     }
 

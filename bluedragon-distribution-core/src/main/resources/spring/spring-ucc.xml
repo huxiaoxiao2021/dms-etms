@@ -40,6 +40,8 @@
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
+		<property name="offlineQuickSeal" value="${quick.seal.offline:false}"/>
+		<property name="enableGoodsAreaOfTysScan" value="${enableGoodsAreaOfTysScan:true}"/>
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
 		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
 		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
@@ -156,6 +158,7 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
@@ -167,7 +170,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
-        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:'80,150'}" />
+        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
@@ -191,6 +194,20 @@
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 
+		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
+		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
+		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
+		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
+		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
+		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
+		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
+
+		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
+		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
+		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -211,7 +228,9 @@
 			<list>
 				<value>uccPropertyConfiguration.asynbufferEnabledTaskType</value>
 				<value>uccPropertyConfiguration.cassandraGlobalSwitch</value>
-                <value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
+				<value>uccPropertyConfiguration.enableGoodsAreaOfTysScan</value>
+				<value>uccPropertyConfiguration.offlineQuickSeal</value>
+				<value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
                 <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
                 <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
                 <value>uccPropertyConfiguration.redisSwitchOn</value>
@@ -327,6 +346,7 @@
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.notSignedOutRecordRangeHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
@@ -363,6 +383,14 @@
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 
+				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
+				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.packageWeightLimit</value>
+				<value>uccPropertyConfiguration.waybillWeightLimit</value>
+				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
+				<value>uccPropertyConfiguration.goodsResidenceTime</value>
+				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
+				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
@@ -372,6 +400,12 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+
+				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
+				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
+
 			</list>
 		</property>
 	</bean>

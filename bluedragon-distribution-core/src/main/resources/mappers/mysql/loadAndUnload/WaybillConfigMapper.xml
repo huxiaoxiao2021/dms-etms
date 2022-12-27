@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao">
+    <resultMap id="waybillConfig" type="com.jd.bluedragon.distribution.jy.config.WaybillConfig">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="old_value" property="oldValue" jdbcType="INTEGER"/>
+        <result column="new_value" property="newValue" jdbcType="INTEGER"/>
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+        <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+        <result column="ts" property="ts" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, old_value, new_value, create_user_name, create_user_erp, create_time, update_time, yn, ts
+    </sql>
+
+    <select id="countByCondition" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*) from waybill_num_config
+        <where>
+            yn = 1
+            <if test="startTime != null and endTime != null">
+                and create_time between #{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </select>
+
+    <select id="findWaybillConfigList" parameterType="java.util.Map" resultMap="waybillConfig">
+        select <include refid="Base_Column_List"/> from waybill_num_config
+        <where>
+            yn = 1
+            <if test="startTime != null and endTime != null">
+                and create_time between #{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        order by create_time desc limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+
+    <select id="findLatestWaybillConfig" parameterType="java.util.Map" resultMap="waybillConfig">
+        select <include refid="Base_Column_List"/> from waybill_num_config
+        where yn = 1 order by create_time desc limit 1
+    </select>
+
+
+    <insert id="saveWaybillConfig" parameterType="com.jd.bluedragon.distribution.jy.config.WaybillConfig">
+        insert into waybill_num_config (old_value,new_value,create_user_name,create_user_erp,create_time,update_time,yn,ts)
+        values
+          (#{oldValue,jdbcType=INTEGER},
+           #{newValue,jdbcType=INTEGER},
+           #{createUserName,jdbcType=VARCHAR},
+           #{createUserErp,jdbcType=VARCHAR},
+           now(),
+           now(),
+           1,
+           now(3))
+    </insert>
+
+</mapper>

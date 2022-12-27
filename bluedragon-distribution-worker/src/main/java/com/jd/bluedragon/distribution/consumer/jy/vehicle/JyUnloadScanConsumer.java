@@ -9,14 +9,21 @@ import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSourceTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -24,6 +31,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -38,6 +46,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,7 +83,15 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private JyTaskGroupMemberService taskGroupMemberService;
 
     @Autowired
+    JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    @Autowired
+    JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
+
+    @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
@@ -108,12 +125,41 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
+        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
+        if(taskEntity.getId() != null  && Objects.isNull(taskEntity.getUnloadStartTime())) {
+            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+            entity.setId(taskEntity.getId());
+            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
+            entity.setUpdateTime(new Date());
+            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
             throw new RuntimeException("保存卸车扫描记录异常");
         }
+
+       /* 说明： 补扫任务一生成就是完成状态，后续不能再修改完成时间。
+        原因： 计提在任务完成时开始计算，
+            第一次任务完成时间在21号0点，为上一计提数据，21号7点前补扫包裹100件
+            25号0点再次补扫变更完成时间，任务为第二计提周期，补扫了200个包裹  此时本计提周期会推送 100 + 200 个包裹，计提重复
+        结果：任务完成时间只记录第一次
+        */
+        // 转运补扫子任务完结
+//        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
+//            if (unloadScanDto.getSupplementary()) {
+//                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+//                condition.setBizId(unloadScanDto.getStageBizId());
+//                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+//                condition.setEndTime(new Date());
+//                condition.setUpdateTime(new Date());
+//                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
+//                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
+//                jyBizTaskUnloadVehicleStageService.updateStatusByBizId(condition);
+//            }
+//        }
 
         // 插入验货或收货任务，发全程跟踪
         addTaskPersistent(unloadScanDto);
@@ -136,6 +182,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         unloadEntity.setUpdateUserName(unloadScanDto.getUpdateUserName());
         unloadEntity.setCreateTime(unloadScanDto.getCreateTime());
         unloadEntity.setUpdateTime(unloadScanDto.getUpdateTime());
+        unloadEntity.setStageBizId(unloadScanDto.getStageBizId());
 
         return unloadEntity;
     }

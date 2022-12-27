@@ -4,6 +4,8 @@ import com.jd.bluedragon.core.hint.manager.IHintApiManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.dms.comp.api.hint.vo.HintReq;
 import com.jd.dms.comp.api.hint.vo.HintResp;
+import com.jd.dms.comp.api.hint.vo.HintVoiceReq;
+import com.jd.dms.comp.api.hint.vo.HintVoiceResp;
 import com.jd.dms.comp.base.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,5 +63,11 @@ public class HintApiUnwrapManagerImpl implements IHintApiUnwrapManager {
     public HintResp getHint(String hintCode, Map<String, String> paramsMap) {
         ApiResult<HintResp> hintResult = hintApiManager.getHint(hintCode, paramsMap);
         return hintResult.checkSuccess() ? hintResult.getData() : null;
+    }
+
+    @Override
+    public HintVoiceResp getCommonHintVoiceConfig(HintVoiceReq req) {
+        ApiResult<HintVoiceResp> result = hintApiManager.getCommonHintVoiceConfig(req);
+        return result.checkSuccess() ? result.getData() : null;
     }
 }
