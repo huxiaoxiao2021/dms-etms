@@ -9,7 +9,6 @@ import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
-import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -24,9 +23,6 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
-import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal;
-import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealCode;
-import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -45,9 +41,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
-import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -63,14 +57,14 @@ import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
+
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.data.Json;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -507,7 +501,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
             invokeResult.setCode(NO_SEND_FLOW_CODE);
-            invokeResult.setMessage(NO_SEND_FLOW__MESSAGE);
+            invokeResult.setMessage(NO_SEND_FLOW_MESSAGE);
             return invokeResult;
         }
         BoardQueryResp boardQueryResp = new BoardQueryResp();
@@ -581,6 +575,57 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         invokeResult.setCode(JdResponse.CODE_OK);
         invokeResult.setMessage(JdResponse.MESSAGE_OK);
+        return invokeResult;
+    }
+
+    @Override
+    @Transactional(readOnly = false,propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String operateUserCode, String operateUserName) {
+        
+        // 更新批次状态
+        InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealCarCodeOfTms.getBatchCodes(), operateUserCode, operateUserName)) {
+            invokeResult.setData(Boolean.FALSE);
+            return invokeResult;
+        }
+        
+        // 根据派车单号查询发车任务
+        if (StringUtils.isEmpty(sealCarCodeOfTms.getTransWorkItemCode())) {
+            invokeResult.setData(Boolean.FALSE);
+            invokeResult.setMessage("派车单号为空");
+            return invokeResult;
+        }
+        JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+        query.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
+        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
+        if (jyBizTaskSendVehicleDetail == null || StringUtils.isEmpty(jyBizTaskSendVehicleDetail.getSendVehicleBizId())) {
+            invokeResult.setData(Boolean.FALSE);
+            invokeResult.setMessage("未查询到该派车单号的发车明细");
+            return invokeResult;
+        }
+        
+        // 根据业务主键逻辑删除封签号
+        List<String> sendSealCodeList = jySendSealCodeService.selectSealCodeByBizId(jyBizTaskSendVehicleDetail.getSendVehicleBizId());
+        if (CollectionUtils.isEmpty(sendSealCodeList)) {
+            invokeResult.setCode(RESULT_SUCCESS_CODE);
+            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+            invokeResult.setData(Boolean.TRUE);
+            return invokeResult;
+        }
+
+        JySendSealCodeEntity updateData = new JySendSealCodeEntity();
+        updateData.setUpdateUserErp(operateUserCode);
+        updateData.setUpdateUserName(operateUserName);
+        updateData.setSendVehicleBizId(jyBizTaskSendVehicleDetail.getSendVehicleBizId());
+        if (!jySendSealCodeService.deleteBySendVehicleBizId(updateData)) {
+            invokeResult.setData(Boolean.FALSE);
+            invokeResult.setMessage("删除封签号失败");
+            return invokeResult;
+        }
+        
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+        invokeResult.setData(Boolean.TRUE);
         return invokeResult;
     }
 

@@ -146,7 +146,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常！";
 
     public static final int NO_SEND_FLOW_CODE = 3040;
-    public static final String NO_SEND_FLOW__MESSAGE= "未获取到流向信息!";
+    public static final String NO_SEND_FLOW_MESSAGE= "未获取到流向信息!";
 
     public static final int BOARD_INFO_CODE = 3041;
     public static final String BOARD_INFO_MESSAGE= "获取板的详细信息异常！";

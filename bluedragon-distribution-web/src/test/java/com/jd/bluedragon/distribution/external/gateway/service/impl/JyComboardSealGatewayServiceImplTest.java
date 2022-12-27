@@ -15,8 +15,12 @@ import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
+import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +40,9 @@ public class JyComboardSealGatewayServiceImplTest {
     
     @Autowired
     private JyComboardSealGatewayService jyComboardSealGatewayService;
+    
+    @Autowired
+    private JySealVehicleService jySealVehicleService;
     
     @Test
     public void listComboardBySendFlowTest() {
@@ -121,5 +128,17 @@ public class JyComboardSealGatewayServiceImplTest {
         sealVehicleReq.setSendVehicleDetailBizId("TW22102400827098-004");
         JdCResponse<SealVehicleInfoResp> sealVehicleInfo = jyComboardSealGatewayService.getSealVehicleInfo(sealVehicleReq);
         System.out.println(JsonHelper.toJson(sealVehicleInfo));
+    }
+    
+    @Test
+    public void cancelSealCarTest() {
+        SealCarDto sealCarDto = new SealCarDto();
+        List<String> batchCodes = new ArrayList<>();
+        batchCodes.add("910-39-20221205212254643");
+        batchCodes.add("910-39-20221205212254654");
+        sealCarDto.setBatchCodes(batchCodes);
+        sealCarDto.setTransWorkItemCode("TW22121900853385-001");
+        InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarDto, "liwenji3", "李文吉");
+        System.out.println(JsonHelper.toJson(result));
     }
 }

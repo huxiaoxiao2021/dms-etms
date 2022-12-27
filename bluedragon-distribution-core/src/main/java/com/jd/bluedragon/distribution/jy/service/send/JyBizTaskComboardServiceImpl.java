@@ -124,6 +124,10 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   @Override
   public boolean updateBoardStatusBySendCodeList(List<String> batchCodes, String operateUserCode, String operateUserName) {
     
+    if (CollectionUtils.isEmpty(batchCodes)) {
+      return false;
+    }
+    
     // 查询任务id
     List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCodeList(batchCodes);
     

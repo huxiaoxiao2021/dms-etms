@@ -3,8 +3,9 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -56,7 +57,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
-    private JyBizTaskComboardService jyBizTaskComboardService;
+    private JySealVehicleService jySealVehicleService;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -96,7 +97,10 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 				logger.error("sendVehicleTransactionManager.resetSendStatusToseal error!内容为【{}】",message.getText(),e);
 			}
             try {
-                jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealCarCodeOfTms.getBatchCodes(),mqBody.getOperateUserCode(),mqBody.getOperateUserName());
+                InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarCodeOfTms, mqBody.getOperateUserCode(), mqBody.getOperateUserName());
+                if (result != null && !result.getData()) {
+                    logger.error("jyBizTaskComboardService.updateBoardStatusBySendCodeList 参数为【{}】 error!内容为【{}】",message.getText(),result.getMessage());
+                }
             } catch (Exception e) {
                 logger.error("jyBizTaskComboardService.updateBoardStatusBySendCodeList error!内容为【{}】",message.getText(),e);
             }

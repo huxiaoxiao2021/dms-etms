@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.etms.vos.dto.SealCarDto;
 
 
 public interface JySealVehicleService {
@@ -67,4 +68,10 @@ public interface JySealVehicleService {
      * 根据流向查询组板列表
      */
     InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
+
+    /**
+     * 取消封车 更新批次任务和封签列表
+     */
+    InvokeResult<Boolean> cancelSealCar(SealCarDto sealCarCodeOfTms, String operateUserCode, String operateUserName);
+    
 }
