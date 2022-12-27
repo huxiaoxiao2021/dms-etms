@@ -280,6 +280,7 @@ public class IntegralServiceImpl implements IntegralService {
         dto.setTitle("规则");
         dto.setContent("等待硕哥文案");
         jdCResponse.setData(dto);
+        jdCResponse.toSucceed();
         return jdCResponse;
     }
 
