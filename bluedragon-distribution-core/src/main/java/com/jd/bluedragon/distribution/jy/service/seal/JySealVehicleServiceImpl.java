@@ -586,6 +586,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealCarCodeOfTms.getBatchCodes(), operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
+            invokeResult.setMessage("更新板状态失败");
             return invokeResult;
         }
         
