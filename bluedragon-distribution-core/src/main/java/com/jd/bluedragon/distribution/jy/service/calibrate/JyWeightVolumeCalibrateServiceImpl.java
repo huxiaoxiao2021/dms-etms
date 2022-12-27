@@ -563,13 +563,19 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     && Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.ELIGIBLE.getCode()) ?
                     JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode() : JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
             taskDetail.setMachineStatus(machineStatus);
-            jyBizTaskMachineCalibrateDetailService.update(taskDetail);
-            // 任务完成后并且设备合格，创建新任务
-            if (Objects.equals(machineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())) {
-                createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
-            }
-        }else {
-            jyBizTaskMachineCalibrateDetailService.update(taskDetail);
+        }
+        jyBizTaskMachineCalibrateDetailService.update(taskDetail);
+        // 任务完成后并且设备合格，创建新任务明细
+        if (isFinished && Objects.equals(taskDetail.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())) {
+            createNewTaskAfterCompleteTask(dwsMachineCalibrateMQ, taskDetail);
+        }
+        // 任务完成后并且设备不合格，关闭设备主表任务
+        if (isFinished && Objects.equals(taskDetail.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode())) {
+            JyBizTaskMachineCalibrateEntity mainTask = new JyBizTaskMachineCalibrateEntity();
+            mainTask.setId(taskDetail.getRefMachineKey());
+            mainTask.setCalibrateTaskCloseTime(new Date());
+            mainTask.setUpdateTime(new Date());
+            jyBizTaskMachineCalibrateService.closeMachineCalibrateTask(mainTask);
         }
         return result;
     }
