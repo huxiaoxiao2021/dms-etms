@@ -164,6 +164,9 @@ public class InvokeResult<T> implements Serializable {
     public static final String EASY_FROZEN_TIPS_STORAGE_MESSAGE ="此运单为易冻品，请放至保温储存区等待发货!";
 
 
+    public static final int DP_SPECIAL_CODE = 32003;
+    public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
