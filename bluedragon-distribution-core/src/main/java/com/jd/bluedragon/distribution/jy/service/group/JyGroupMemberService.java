@@ -69,4 +69,10 @@ public interface JyGroupMemberService {
 	 * @return
 	 */
 	JdCResponse<JyGroupMemberResponse> queryMemberListByGroup(GroupMemberQueryRequest query);
+	/**
+	 * 查询小组信息
+	 * @param positionCode
+	 * @return
+	 */
+	JdCResponse<GroupMemberData> queryGroupMemberDataByPositionCode(String positionCode);	
 }
