@@ -20,9 +20,9 @@ public class JyBizTaskMachineCalibrateDetailEntity implements Serializable {
 	 */
 	private Long id;
 	/**
-	 * 站点id
+	 * 设备主表id
 	 */
-	private Integer siteCode;
+	private Long refMachineKey;
 	/**
 	 * 设备编码
 	 */
@@ -92,12 +92,12 @@ public class JyBizTaskMachineCalibrateDetailEntity implements Serializable {
 		return this.id = id;
 	}
 
-	public Integer getSiteCode() {
-		return siteCode;
+	public Long getRefMachineKey() {
+		return refMachineKey;
 	}
 
-	public void setSiteCode(Integer siteCode) {
-		this.siteCode = siteCode;
+	public void setRefMachineKey(Long refMachineKey) {
+		this.refMachineKey = refMachineKey;
 	}
 
 	public Long getId(){
