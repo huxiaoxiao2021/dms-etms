@@ -718,6 +718,16 @@ public class UccPropertyConfiguration {
 
     private int sealStatusBatchSizeLimit;
 
+    private boolean syncScheduleTaskSwitch;
+
+    public boolean getSyncScheduleTaskSwitch() {
+        return syncScheduleTaskSwitch;
+    }
+
+    public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
+        this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -820,7 +830,7 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
-    
+
     /**
      * 自动签退查询数据-扫描小时数
      */
