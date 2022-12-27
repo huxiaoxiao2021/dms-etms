@@ -954,4 +954,7 @@ public class HintCodeConstants {
     // 发货拦截：大促降级导致未查询到发货拦截包裹明细，请稍后查看!
     public static String JY_DEMOTION_MSG_SEND_INTERCEPT = "70011";
     /*** 拣运降级提示语 start **/
+
+    // 设备抽检任务已关闭并且未超过2小时，是否强制创建？
+    public static String JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT = "80001";
 }

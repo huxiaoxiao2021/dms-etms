@@ -15,6 +15,8 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
@@ -165,7 +167,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
                 if(System.currentTimeMillis() - machineRecord.getCalibrateTaskCloseTime().getTime() < intervalTime){
                     // explain：如果设备抽检任务关闭后，在2h内继续扫描设备编码，则进行友好提示（客户端可强制确定来创建新任务）
-                    result.customMessage(InvokeResult.CODE_CONFIRM, JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT);
+                    result.customMessage(InvokeResult.CODE_CONFIRM, HintService.getHint(HintCodeConstants.JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT));
                     return;
                 }
                 isCreateTaskFlag = true;
