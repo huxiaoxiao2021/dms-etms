@@ -30,6 +30,7 @@ public class IntegralGatewayServiceImpl implements IntegralGatewayService {
     public JdCResponse<JyIntegralDetailDTO> getSimpleJyIntegralInfo(IntegralRequest request) {
         JyIntegralDetailQuery query = new JyIntegralDetailQuery();
         query.setUserCode(request.getUser().getUserErp());
+        query.setSiteCode(request.getSiteCode());
         query.setQueryDate(request.getQueryDate());
         return integralService.getSimpleJyIntegralInfo(query);
     }
@@ -51,7 +52,7 @@ public class IntegralGatewayServiceImpl implements IntegralGatewayService {
     }
 
     @Override
-    public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
+    public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction(IntegralRequest request) {
         return integralService.getJyIntegralIntroduction();
     }
 

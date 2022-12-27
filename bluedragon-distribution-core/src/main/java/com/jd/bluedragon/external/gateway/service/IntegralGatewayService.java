@@ -32,7 +32,7 @@ public interface IntegralGatewayService {
     /*
      * 获取规则介绍
      */
-    JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction();
+    JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction(IntegralRequest request);
 
     /*
      * 获取规则描述

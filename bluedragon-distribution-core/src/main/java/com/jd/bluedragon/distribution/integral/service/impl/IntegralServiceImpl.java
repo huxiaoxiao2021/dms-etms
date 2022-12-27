@@ -90,7 +90,7 @@ public class IntegralServiceImpl implements IntegralService {
             } else {
                 result.setTotalIntegral(totalIntegral.get(Constants.Numbers.INTEGER_ZERO).getIntegral());
             }
-            handlerLastSignTime(result, query.getUserCode());
+            handlerLastSignTime(result, query.getUserCode(), query.getSiteCode());
             response.toSucceed();
             response.setData(result);
             return response;
@@ -100,9 +100,10 @@ public class IntegralServiceImpl implements IntegralService {
         }
     }
 
-    private void handlerLastSignTime(JyIntegralDetailDTO result, String userErp) {
+    private void handlerLastSignTime(JyIntegralDetailDTO result, String userErp, Long siteCode) {
         UserSignRecordQuery query = new UserSignRecordQuery();
         query.setUserCode(userErp);
+        query.setSiteCode(siteCode.intValue());
         try {
             UserSignRecord userSignRecord = userSignRecordDao.queryLastSignRecord(query);
             if (Objects.nonNull(userSignRecord)) {
