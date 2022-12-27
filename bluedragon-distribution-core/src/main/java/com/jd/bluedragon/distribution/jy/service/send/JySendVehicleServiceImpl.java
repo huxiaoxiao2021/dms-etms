@@ -2018,6 +2018,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         domain.setYn(1);
         domain.setCreateTime(request.getCurrentOperate().getOperateTime());
         domain.setOperateTime(request.getCurrentOperate().getOperateTime());
+        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
         return domain;
     }
 
