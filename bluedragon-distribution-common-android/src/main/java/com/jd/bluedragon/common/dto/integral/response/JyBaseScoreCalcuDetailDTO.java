@@ -61,6 +61,13 @@ public class JyBaseScoreCalcuDetailDTO {
     private String quotaName;
 
     /*
+     * 指标简称
+     */
+    private String abbreviation;
+
+
+
+    /*
      * 操作量转分数规则列表
      */
     private List<JyBaseScoreRuleDTO> ruleDTOList;
@@ -143,5 +150,13 @@ public class JyBaseScoreCalcuDetailDTO {
 
     public void setUnitName(String unitName) {
         this.unitName = unitName;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
     }
 }

@@ -207,6 +207,7 @@ public class IntegralServiceImpl implements IntegralService {
                 calcuDetailDTO.setPositionTypeName(JyPositionTypeEnum.getName(detail.getPositionType()));
                 calcuDetailDTO.setQuotaNo(detail.getQuotaNo());
                 calcuDetailDTO.setQuotaName(getName(detail.getQuotaNo()));
+                calcuDetailDTO.setAbbreviation(abbreviationMap.get(quotaEnum));
                 baseScores.add(calcuDetailDTO);
             }
         }
