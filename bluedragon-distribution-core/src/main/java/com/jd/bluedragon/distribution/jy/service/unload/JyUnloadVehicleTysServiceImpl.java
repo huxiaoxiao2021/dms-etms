@@ -1286,6 +1286,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
 
             List<UnloadTaskFlowDto> resData = new ArrayList<>();
+            PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
             List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByBizId(taskFlowDto.getBizId());
             if(CollectionUtils.isNotEmpty(jyUnloadVehicleBoardEntityList)) {
                 for(JyUnloadVehicleBoardEntity entity : jyUnloadVehicleBoardEntityList) {
@@ -1333,6 +1334,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             Integer extraScanCount = 0;
             Integer haveScanCount = 0;
 
+            PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
             JyUnloadVehicleBoardEntity entityParam = new JyUnloadVehicleBoardEntity();
             entityParam.setUnloadVehicleBizId(taskFlowDto.getBizId());
             entityParam.setEndSiteId(taskFlowDto.getEndSiteId());
