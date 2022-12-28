@@ -41,10 +41,11 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
              return result;
         }*/
 
-        // 只有(打印客户端的和站长工作台的) 包裹补打和换单打印走以下逻辑
+        // 只有(打印客户端的和站长工作台的) 包裹补打和换单打印、函速达走以下逻辑
         Integer operateType = context.getRequest().getOperateType();
         if(!WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(operateType)&&!WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(operateType)
-            &&!WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(operateType)&&!WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(operateType)){
+            &&!WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(operateType)&&!WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(operateType)
+            && !WaybillPrintOperateTypeEnum.SITE_HSD_PACKAGE_PRINT.getType().equals(operateType)){
             return result;
         }
 
