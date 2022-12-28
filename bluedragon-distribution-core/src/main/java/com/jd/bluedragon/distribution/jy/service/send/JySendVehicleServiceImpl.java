@@ -459,7 +459,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param entity
      * @return
      */
-    private List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
+    public List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), entity.getBizId());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
@@ -628,7 +628,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param vehicleStatusAggList
      * @param response
      */
-    private void assembleSendVehicleStatusAgg(List<JyBizTaskSendCountDto> vehicleStatusAggList, SendVehicleTaskResponse response) {
+    public void assembleSendVehicleStatusAgg(List<JyBizTaskSendCountDto> vehicleStatusAggList, SendVehicleTaskResponse response) {
         List<VehicleStatusStatis> statusAgg = Lists.newArrayListWithCapacity(vehicleStatusAggList.size());
         response.setStatusAgg(statusAgg);
 
@@ -814,7 +814,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return condition;
     }
 
-    private boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
+    public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
         if (request.getVehicleStatus() == null) {
             result.parameterError("请选择车辆状态！");
             return false;
