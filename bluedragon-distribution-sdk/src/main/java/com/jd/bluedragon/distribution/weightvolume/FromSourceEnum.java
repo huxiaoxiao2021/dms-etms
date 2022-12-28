@@ -82,5 +82,10 @@ public enum FromSourceEnum {
     /**
      * 抽检
      */
-    SPOT_CHECK;
+    SPOT_CHECK,
+
+    /**
+     * 德邦融合-嘉峪关项目
+     */
+    DPRH;
 }
