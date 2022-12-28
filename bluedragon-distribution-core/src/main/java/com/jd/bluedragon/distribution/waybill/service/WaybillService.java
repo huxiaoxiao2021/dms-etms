@@ -13,7 +13,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
 import java.util.Date;
-
 import java.util.List;
 
 public interface WaybillService {

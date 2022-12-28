@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 
 import java.util.Date;
@@ -55,8 +56,9 @@ public interface VirtualBoardService {
     JdCResponse<VirtualBoardResultDto> bindToBoard(BindToVirtualBoardPo bindToVirtualBoardPo);
 
     SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime);
-
     void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
+            Integer operateType, Integer bizSource);
+    void sendWaybillTrace(OperatorData operatorData,String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
                           Integer operateType, Integer bizSource);
 
     /**

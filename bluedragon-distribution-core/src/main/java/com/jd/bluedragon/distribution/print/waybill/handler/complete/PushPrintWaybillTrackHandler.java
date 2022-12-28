@@ -124,9 +124,7 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
                 // 快运改址打印：reprintType = 1
-                Map<String, Object> extendParamMap = Maps.newHashMap();
-                extendParamMap.put("reprintType", 1);
-                waybillStatus.setExtendParamMap(extendParamMap);
+                waybillStatus.putExtendParamMap("reprintType", 1);
             }
         }
     }
