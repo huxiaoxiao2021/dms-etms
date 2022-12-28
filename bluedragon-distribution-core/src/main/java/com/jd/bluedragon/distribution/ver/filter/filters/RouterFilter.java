@@ -75,24 +75,25 @@ public class RouterFilter implements Filter {
                 siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
                 ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteQo);
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
-                    if (Objects.equals(configTransferDpSite.getHandoverSiteCode(), request.getCreateSiteCode()) && BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                    if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
                         chain.doFilter(request, chain);
                         return;
                     }
-                    if (Objects.equals(configTransferDpSite.getHandoverSiteCode(), request.getCreateSiteCode()) && !BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                    if (!BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
                         Map<String, String> hintParams = new HashMap<String, String>();
                         hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
                         throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
                                 HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
                     }
+                } else {
+                    if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                        throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
+                                HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule()));
+                    }
                 }
-            }
-
-            if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
-                Map<String, String> hintParams = new HashMap<String, String>();
-                hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-                throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
-                        HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
+            } else if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
+                        HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule()));
             }
         }
 
