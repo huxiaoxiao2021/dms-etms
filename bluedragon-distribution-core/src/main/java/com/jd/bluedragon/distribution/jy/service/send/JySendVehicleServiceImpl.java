@@ -154,7 +154,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private UccPropertyConfiguration uccConfig;
 
     @Autowired
-    private JyBizTaskSendVehicleService taskSendVehicleService;
+    JyBizTaskSendVehicleService taskSendVehicleService;
 
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
@@ -367,14 +367,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         JyBizTaskSendSortTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
+        List<JyBizTaskSendVehicleEntity> vehiclePageList =querySendTaskOfPage(queryCondition, queryTaskSendDto, orderTypeEnum);
 
-        List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
-                queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
         if (CollectionUtils.isEmpty(vehiclePageList)) {
             return;
         }
 
         assemblePageSendTaskList(queryTaskSendDto, vehicleList, curQueryStatus, vehiclePageList);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity queryCondition, QueryTaskSendDto queryTaskSendDto, JyBizTaskSendSortTypeEnum orderTypeEnum) {
+        return taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
+            queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
     }
 
     private void assemblePageSendTaskList(QueryTaskSendDto queryTaskSendDto, List<BaseSendVehicle> vehicleList,

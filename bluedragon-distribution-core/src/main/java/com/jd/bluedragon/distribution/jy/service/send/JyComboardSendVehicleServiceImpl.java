@@ -129,6 +129,15 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
 
   @Override
+  public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(
+      JyBizTaskSendVehicleEntity queryCondition, QueryTaskSendDto queryTaskSendDto,
+      JyBizTaskSendSortTypeEnum orderTypeEnum) {
+    List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
+    return taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
+        queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryStatus);
+  }
+
+  @Override
   public boolean checkBeforeFetchTask(SendVehicleTaskRequest request,
       InvokeResult<SendVehicleTaskResponse> result) {
     if (request.getVehicleStatus() == null) {
@@ -217,8 +226,8 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     List<SendVehicleDetail> sendDestList = Lists.newArrayListWithCapacity(vehicleDetailList.size());
     for (JyBizTaskSendVehicleDetailEntity vehicleDetail : vehicleDetailList) {
       SendVehicleDetail detailVo = new SendVehicleDetail();
-      detailVo.setItemStatus(vehicleDetail.getVehicleStatus());
-      detailVo.setItemStatusDesc("");
+      detailVo.setItemStatus(convertVehicleStatus(vehicleDetail.getVehicleStatus()));
+      detailVo.setItemStatusDesc(JyBizTaskSendStatusEnum.getNameByCode(detailVo.getItemStatus()));
       detailVo.setPlanDepartTime(vehicleDetail.getPlanDepartTime());
       detailVo.setEndSiteId(vehicleDetail.getEndSiteId());
       detailVo.setEndSiteName(vehicleDetail.getEndSiteName());
