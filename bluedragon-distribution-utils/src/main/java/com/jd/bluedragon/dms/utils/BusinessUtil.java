@@ -2088,7 +2088,15 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
                 WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
     }
-
+    /**
+     * 判断运单维度是否有增值服务信息，waybillSign86位=1或者3
+     * @param waybillSign
+     * @return
+     */
+    public static boolean hasWaybillVas(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_1,WaybillSignConstants.CHAR_86_3);
+    }
     /**
      * 判断是否是返单
      */
