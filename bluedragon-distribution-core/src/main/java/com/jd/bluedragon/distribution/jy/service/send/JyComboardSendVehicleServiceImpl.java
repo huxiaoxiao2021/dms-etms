@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -71,7 +72,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
         sendDestDetail.setEndSiteId(detailEntity.getEndSiteId().intValue());
         sendDestDetail.setEndSiteName(detailEntity.getEndSiteName());
         sendDestDetail.setPlanDepartTime(detailEntity.getPlanDepartTime());
-        sendDestDetail.setVehicleStatus(detailEntity.getVehicleStatus());
+        sendDestDetail.setVehicleStatus(convertVehicleStatus(detailEntity.getVehicleStatus()));
 
         if (sendAggMap.containsKey(detailEntity.getEndSiteId().intValue())) {
           JyComboardAggsEntity itemAgg = sendAggMap.get(detailEntity.getEndSiteId().intValue());
@@ -91,4 +92,15 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     }
 
     return invokeResult;  }
+
+  /**
+   * 状态装换 
+   * 待发货 发货中 待封车 已作废 都转换成带封车状态
+   */
+  private Integer convertVehicleStatus(Integer vehicleStatus) {
+    if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleStatus)) {
+      return vehicleStatus;
+    }
+    return JyBizTaskSendStatusEnum.TO_SEAL.getCode();
+  }
 }
