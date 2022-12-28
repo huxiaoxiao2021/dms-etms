@@ -200,7 +200,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setPackageBarCode(tWaybillStatus.getPackageCode());
 		bdTraceDto.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
-		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
         setExtendParameter(tWaybillStatus,bdTraceDto);
 
 	}
@@ -213,7 +212,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
-		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
         setExtendParameter(tWaybillStatus,bdTraceDto);
 	}
 	/**
@@ -224,10 +222,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private void setExtendParameter(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
         if(tWaybillStatus.getOperatorData() != null
         		&& OperatorTypeEnum.AUTO_MACHINE.getCode().equals(tWaybillStatus.getOperatorData().getOperatorTypeCode())) {
-        	Map<String,Object> map = new HashMap<String,Object>();
-        	map.put(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
-        	bdTraceDto.setExtendParameter(map);
+			tWaybillStatus.putExtendParamMap(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
         }
+		if(tWaybillStatus.getExtendParamMap() != null && !tWaybillStatus.getExtendParamMap().isEmpty()){
+			bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
+		}
 	}
 	/**
 	 * tWaybillStatus转换成运单的对象WaybillSyncParameter
@@ -241,10 +240,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		WaybillSyncParameter parameter = new WaybillSyncParameter();
 		if(tWaybillStatus.getOperatorData() != null
         		&& OperatorTypeEnum.AUTO_MACHINE.getCode().equals(tWaybillStatus.getOperatorData().getOperatorTypeCode())) {
-        	Map<String,Object> map = new HashMap<String,Object>();
-        	map.put(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
-        	parameter.setExtendSyncParam(map);
+			tWaybillStatus.putExtendParamMap(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
         }
+		if(tWaybillStatus.getExtendParamMap() != null && !tWaybillStatus.getExtendParamMap().isEmpty()){
+			parameter.setExtendSyncParam(tWaybillStatus.getExtendParamMap());
+		}
 		return parameter;
 	}
 	// 没有注入运单号和包裹号 (解封车)
@@ -255,7 +255,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
-		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
         setExtendParameter(tWaybillStatus,bdTraceDto);
 	}
 

@@ -115,9 +115,7 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
                 // 快运改址补打：reprintType = 1
-                Map<String, Object> extendParamMap = Maps.newHashMap();
-                extendParamMap.put("reprintType", 1);
-                waybillStatus.setExtendParamMap(extendParamMap);
+                waybillStatus.putExtendParamMap("reprintType", 1);
             }
         }
     }
