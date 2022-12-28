@@ -38,6 +38,7 @@ import com.jd.bluedragon.distribution.trace.BarcodeTraceDto;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -279,7 +280,10 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         tWaybillStatus.setOperator(request.getOperateUserName());
         tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperateType(operateType);
-
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
+		operatorData.setOperatorId(request.getOperatorId());
+		tWaybillStatus.setOperatorData(operatorData);
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
             tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {

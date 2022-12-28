@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -186,7 +188,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(request.getMachineCode());    		
+            
+            virtualBoardService.sendWaybillTrace(operatorData,request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
             response.toSucceed();
@@ -559,6 +565,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setCreateTime(new Date());
         domain.setOperateTime(sendM.getOperateTime());
         domain.setBoardCode(sendM.getBoardCode());
+        
         return domain;
     }
 
@@ -584,6 +591,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
+        domain.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        domain.setOperatorId(request.getMachineCode());
         return domain;
     }
 

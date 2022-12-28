@@ -496,4 +496,17 @@ public class WaybillStatus {
     public void setExtendParamMap(Map<String, Object> extendParamMap) {
         this.extendParamMap = extendParamMap;
     }
+
+    /**
+     * 填充运单额外属性
+     *
+     * @param key
+     * @param value
+     */
+    public void putExtendParamMap(String key, Object value){
+        if(this.extendParamMap == null){
+            this.extendParamMap = Maps.newHashMap();
+        }
+        this.extendParamMap.put(key, value);
+    }
 }
