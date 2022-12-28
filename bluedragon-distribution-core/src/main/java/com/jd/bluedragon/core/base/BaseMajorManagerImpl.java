@@ -5,9 +5,15 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
+import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
@@ -24,12 +30,7 @@ import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
-import com.jd.ql.basic.dto.BaseStaffSiteDTO;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseStoreInfoDto;
-import com.jd.ql.basic.dto.PageDto;
-import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
@@ -49,11 +50,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -66,7 +63,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      * 监控key的前缀
      */
     private static final String UMP_KEY_PREFIX = UmpConstants.UMP_KEY_JSF_CLIENT+"basic.";
-    
+
     @Autowired
     @Qualifier("basicPrimaryWS")
     private BasicPrimaryWS basicPrimaryWS;
@@ -95,6 +92,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Autowired
     private WaybillPackageContainerApi waybillPackageContainerApi;
+
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 站点ID
@@ -937,5 +937,20 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             log.warn("校验路由信息失败!起始分拣中心code{},目的分拣中心code{},",boxCreateSiteDto.getDmsSiteCode(),boxReceiveSite.getDmsSiteCode());
             return false;
         }
+    }
+
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.securityCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public InvokeResult<Boolean> securityCheck(WaybillPrintRequest request) {
+        // 分拣打印才执行安全校验
+        if(WaybillPrintOperateTypeEnum.isInnerPrint(request.getOperateType())){
+            String userErp = request.getUserERP();
+            if(org.apache.commons.lang.StringUtils.isEmpty(userErp) && request.getUserCode() != null){
+                BaseStaffSiteOrgDto baseStaff = getBaseStaffByStaffId(request.getUserCode());
+                userErp = baseStaff == null ? null : baseStaff.getErp();
+            }
+            return securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, userErp, WaybillUtil.getWaybillCode(request.getBarCode()));
+        }
+        return new InvokeResult<>();
     }
 }

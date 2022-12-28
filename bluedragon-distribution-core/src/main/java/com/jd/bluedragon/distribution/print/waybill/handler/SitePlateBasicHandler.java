@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
@@ -33,9 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 /**
- * 
+ *
  * @ClassName: SitePlateBasicHandler
- * @Description: 
+ * @Description:
  * @author: wuyoude
  * @date: 2019年5月24日 下午3:32:53
  *
@@ -55,9 +57,12 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    
+
     @Autowired
     private PreSortingSecondService preSortingSecondService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     @Qualifier("thirdOverRunInterceptHandler")
@@ -82,6 +87,12 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
         // 调用服务
         try {
+            // 信息安全校验
+            InvokeResult<Boolean> securityCheckResult = baseMajorManager.securityCheck(context.getRequest());
+            if(!securityCheckResult.codeSuccess()){
+                result.toError(InterceptResult.CODE_ERROR, securityCheckResult.getMessage());
+                return result;
+            }
             Waybill waybill = loadBasicWaybillInfo(context,waybillCode,packOpeFlowFlg);
             if (waybill == null) {
             	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
@@ -123,7 +134,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
      */
     private Waybill loadBasicWaybillInfo(WaybillPrintContext context,String waybillCode,Integer packOpeFlowFlg) {
     	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
-    	if (baseEntity == null 
+    	if (baseEntity == null
     			||baseEntity.getResultCode() != 1
     			||baseEntity.getData()==null) {
     		return null;
