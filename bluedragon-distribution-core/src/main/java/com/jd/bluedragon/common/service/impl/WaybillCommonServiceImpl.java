@@ -737,18 +737,20 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     }
                 }
             }
-            //增值服务，打印京喜送达服务url
-            BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),DmsConstants.WAYBILL_VAS_JXD);
-            if (waybillVasJXD != null 
-            		&& waybillVasJXD.getData() != null){
-                Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
-            	String attachmentUrl = BusinessHelper.getAttachmentUrlForJxd(extendMap);
-                if(StringUtils.isNotBlank(attachmentUrl)) {
-                	target.setPopularizeMatrixCode(attachmentUrl);
-                    target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_JXD);
-                }
+            //判断是否有运单维度的增值服务
+            if (BusinessUtil.hasWaybillVas(waybill.getWaybillSign())){
+	            //增值服务，打印京喜送达服务url
+	            BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),DmsConstants.WAYBILL_VAS_JXD);
+	            if (waybillVasJXD != null 
+	            		&& waybillVasJXD.getData() != null){
+	                Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
+	            	String attachmentUrl = BusinessHelper.getAttachmentUrlForJxd(extendMap);
+	                if(StringUtils.isNotBlank(attachmentUrl)) {
+	                	target.setPopularizeMatrixCode(attachmentUrl);
+	                    target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_JXD);
+	                }
+	            }
             }
-            
             String customerCode = waybill.getCustomerCode();
             List<String> qlListConfigList = sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF);
             boolean signInChars = BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_61, WaybillSignConstants.CHAR_61_1,
