@@ -365,6 +365,7 @@ public class JYCenterServiceImpl implements JYCenterService {
 
         InvokeResult<Boolean> result = new InvokeResult<>();
         int failCount = 0, successCount = 0;
+        StringBuilder failMsg = new StringBuilder(), successMsg = new StringBuilder("OK");
 
         FromSourceEnum fromSource = FromSourceEnum.valueOf(
                 batchWeightVolumeRequest.getRequestProfile().getSysSource());
@@ -399,6 +400,12 @@ public class JYCenterServiceImpl implements JYCenterService {
                 entity.setOperatorId(-1);
                 entity.setOperatorCode(weightVolumeOperateInfo.getOperatorInfo().getOperateUserErp());
                 entity.setOperatorName(weightVolumeOperateInfo.getOperatorInfo().getOperateUserName());
+
+                if (weightVolumeOperateInfo.getOperatorInfo().getOperateTime() == null || weightVolumeOperateInfo.getOperatorInfo().getOperateTime() <= 0) {
+                    failCount++;
+                    failMsg.append("操作时间不正确;");
+                    continue;
+                }
                 entity.setOperateTime(new Date(weightVolumeOperateInfo.getOperatorInfo().getOperateTime()));
             }
             InvokeResult<Boolean> iterm = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
@@ -406,17 +413,19 @@ public class JYCenterServiceImpl implements JYCenterService {
                 successCount ++;
             } else {
                 failCount ++;
+                if (iterm != null) {
+                    failMsg.append(iterm.getMessage());
+                }
             }
         }
 
         if (successCount > 0 && failCount == 0) {
             result.success();
         } else if (successCount > 0 && failCount > 0) {
-            result.confirmMessage("部分失败");
+            result.confirmMessage("部分失败:" + failMsg.toString());
         } else if (successCount == 0) {
-            result.error("全部失败");
+            result.error("全部失败:" + failMsg.toString());
         }
-
         return result;
     }
 }

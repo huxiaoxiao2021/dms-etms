@@ -1217,8 +1217,8 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-            //通过waybillsign判断此运单是否包含增值服务
-            if(!BusinessUtil.isVasWaybill(waybillSign)){
+            //通过waybillsign判断此外单运单是否包含增值服务
+            if(!BusinessUtil.isSelf(waybillSign) && !BusinessUtil.isVasWaybill(waybillSign)){
                 log.warn("易冻损此运单不包含增值服务!");
                 return result;
             }
