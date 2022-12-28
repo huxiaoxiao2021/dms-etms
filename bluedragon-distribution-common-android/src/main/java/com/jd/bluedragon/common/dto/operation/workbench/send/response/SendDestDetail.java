@@ -38,6 +38,11 @@ public class SendDestDetail implements Serializable {
      */
     private Date planDepartTime;
 
+    /**
+     * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车，4-已作废
+     */
+    private Integer vehicleStatus;
+    
     public Integer getEndSiteId() {
         return endSiteId;
     }
@@ -76,5 +81,13 @@ public class SendDestDetail implements Serializable {
 
     public void setPlanDepartTime(Date planDepartTime) {
         this.planDepartTime = planDepartTime;
+    }
+
+    public Integer getVehicleStatus() {
+        return vehicleStatus;
+    }
+
+    public void setVehicleStatus(Integer vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
     }
 }

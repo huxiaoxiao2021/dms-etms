@@ -71,6 +71,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
         sendDestDetail.setEndSiteId(detailEntity.getEndSiteId().intValue());
         sendDestDetail.setEndSiteName(detailEntity.getEndSiteName());
         sendDestDetail.setPlanDepartTime(detailEntity.getPlanDepartTime());
+        sendDestDetail.setVehicleStatus(detailEntity.getVehicleStatus());
 
         if (sendAggMap.containsKey(detailEntity.getEndSiteId().intValue())) {
           JyComboardAggsEntity itemAgg = sendAggMap.get(detailEntity.getEndSiteId().intValue());
