@@ -143,9 +143,36 @@ public class IntegralServiceImpl implements IntegralService {
         List<JyIntegralDTO> details = integralProxy.queryIntegralPersonalQuotaByCondition(integralQuery);
         // 合并明细
         makeJyIntegralDetail(result, details);
+        handleRank(result);
         jdCResponse.setData(result);
         jdCResponse.toSucceed();
         return jdCResponse;
+    }
+
+    private void handleRank(JyIntegralDetailDTO result) {
+        // 对BaseScore指标排序
+        int j , k;
+        // flag来记录最后交换的位置，也就是排序的尾边界
+        int flag = result.getCalcuDetailDTOList().size();
+        // 排序未结束标志
+        while (flag > 0){
+            // k 来记录遍历的尾边界
+            k = flag;
+            flag = 0;
+            for(j = 1; j < k; j++){
+                // 前面的大于后面的就交换
+                if(result.getCalcuDetailDTOList().get(j-1).getQuotaNo().compareTo(result.getCalcuDetailDTOList().get(j).getQuotaNo()) > 0 ){
+                    // 交换
+                    JyBaseScoreCalcuDetailDTO baseTmp = new JyBaseScoreCalcuDetailDTO();
+                    baseTmp = result.getCalcuDetailDTOList().get(j-1);
+                    result.getCalcuDetailDTOList().set(j - 1, result.getCalcuDetailDTOList().get(j));
+                    result.getCalcuDetailDTOList().set(j, baseTmp);
+                    // 表示交换过数据;
+                    // 记录最新的尾边界.
+                    flag = j;
+                }
+            }
+        }
     }
 
     private void makeJyIntegralDetail(JyIntegralDetailDTO result, List<JyIntegralDTO> details) {
@@ -257,7 +284,6 @@ public class IntegralServiceImpl implements IntegralService {
                 JyIntegralDTO rootQuota = new JyIntegralDTO();
                 if (CollectionUtils.isEmpty(dtos)) {
                     dto.setUnitName(" ");
-                    continue;
                 } else {
                     rootQuota = dtos.get(Constants.NUMBER_ZERO);
                 }
@@ -278,8 +304,13 @@ public class IntegralServiceImpl implements IntegralService {
     public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
         JdCResponse<JyIntroductionDTO> jdCResponse = new JdCResponse<>();
         JyIntroductionDTO dto = new JyIntroductionDTO();
-        dto.setTitle("规则");
-        dto.setContent("等待硕哥文案");
+        dto.setTitle("规则介绍");
+        String builder = "每日个人积分由基础分和平均系数组成:\n" +
+                "1、积分=基础分 × 平均系数；\n" +
+                "2、其中基础分为本人在到车岗、卸车岗、发货岗作业的总得分；\n" +
+                "3、平均系数为所有岗位各项指标的平均系数；\n" +
+                "4、统计时间为自然日0点开始至统计时间，每个整点会进行重新计算，刷新覆盖数据。\n";
+        dto.setContent(builder);
         jdCResponse.setData(dto);
         jdCResponse.toSucceed();
         return jdCResponse;
