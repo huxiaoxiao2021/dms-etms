@@ -66,8 +66,10 @@ public class PartnerSiteFilter implements Filter {
                     }
                 } else {
                     if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                        Map<String, String> hintParams = new HashMap<String, String>();
+                        hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
                         throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
-                                HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule()));
+                                HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
                     }
                 }
             } else if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
