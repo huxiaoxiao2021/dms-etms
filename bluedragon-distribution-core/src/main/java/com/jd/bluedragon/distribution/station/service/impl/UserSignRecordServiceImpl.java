@@ -584,9 +584,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(gridResult.getMessage());
 			return result;
 		}
+		WorkStationGrid gridInfo = gridResult.getData();
 		//校验并组装签到数据
         UserSignRecord signInData = new UserSignRecord();
-        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData());
+        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridInfo);
         if(!result.isSucceed()) {
         	return result;
         }
@@ -595,28 +596,46 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
-        UserSignRecord signOutRequest = new UserSignRecord();
         boolean needSignOut = false;
+        boolean needSignIn = true;
         if(lastSignRecord != null) {
+        	//上次签到岗位和本次相同，不需要签到、签退
+            if(gridInfo.getBusinessKey() != null
+            		&& gridInfo.getBusinessKey().equals(lastSignRecord.getRefGridKey())) {
+            	needSignIn = false;
+            	needSignOut = false;
+            }else {
+            	//不同岗位，需要签退并重新签到
+            	needSignOut = true;
+            	needSignIn = true;
+            }
+		}
+        if(needSignOut) {
+        	UserSignRecord signOutRequest = new UserSignRecord();
         	signOutRequest.setId(lastSignRecord.getId());
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
-    		needSignOut = true;
+    		
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
     		context.signOutData.setSignOutTime(signOutRequest.getSignOutTime());
-		}
-        if(this.doSignIn(signInData)) {
-        	result.setData(this.toUserSignRecordData(signInData));
-        	if(needSignOut) {
-        		result.toSucceed("签到成功，自动将上次签到数据签退！");
-        	}else {
-        		result.toSucceed("签到成功！");
-        	}
-        	context.signInData = result.getData();
-        	context.signInFlag = true;
+        }
+        if(needSignIn) {
+            if(this.doSignIn(signInData)) {
+            	result.setData(this.toUserSignRecordData(signInData));
+            	if(needSignOut) {
+            		result.toSucceed("签到成功，自动将上次签到数据签退！");
+            	}else {
+            		result.toSucceed("签到成功！");
+            	}
+            	context.signInData = result.getData();
+            	context.signInFlag = true;
+            }else {
+            	result.toFail("签到失败！");
+            }
         }else {
-        	result.toFail("签到失败！");
+        	result.setData(this.toUserSignRecordData(lastSignRecord));
+        	result.toSucceed("已签到！");
         }
 		return result;
 	}
@@ -1002,7 +1021,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
 		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
+		// 当前数据库user_name字段可能还有外包临时工身份证号，需要兼容加密防止泄漏身份证号
 		data.setUserName(BusinessUtil.encryptIdCard(data.getUserName()));
+		//只有user_code是身份证号的才需要将userName设置成身份证号
+		if (BusinessUtil.isIdCardNo(data.getUserCode())) {
+			data.setUserName(BusinessUtil.encryptIdCard(data.getUserCode()));
+		}
 		if(data.getSignInTime() != null) {
 			String workHours = "";
 			String workTimes = "--";
@@ -1070,7 +1094,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		this.addOrRemoveMember(context);
-		result.getData().setGroupData(context.groupData);
+		if(context.groupData == null) {
+        	//没有做签到，查询group信息
+        	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
+        	if(groupResult!= null 
+        			&& groupResult.isSucceed()
+        			&& groupResult.getData()!= null) {
+        		result.getData().setGroupData(groupResult.getData());
+        	}else if(groupResult!= null){
+        		result.toFail(groupResult.getMessage());
+        	}else {
+        		result.toFail("获取岗位码对应的小组信息失败！");
+        	}
+		}else {
+			result.getData().setGroupData(context.groupData);
+		}
 		return result;
 	}
 	@Override

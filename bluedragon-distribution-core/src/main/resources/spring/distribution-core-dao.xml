@@ -856,6 +856,9 @@
     <bean id="jyBizTaskSendVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="goodsPhotoDao" class="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
 
     <bean id="jySendProductAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>

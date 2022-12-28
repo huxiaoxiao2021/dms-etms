@@ -18,7 +18,8 @@ public class UccPropertyConfiguration {
 
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
-
+    /*一键封车下线*/
+    private boolean offlineQuickSeal;
 
     /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
     private boolean enableGoodsAreaOfTysScan;
@@ -989,6 +990,26 @@ public class UccPropertyConfiguration {
      */
     private Integer checkDeviceLocationInRealTimeSwitch;
 
+    /**
+     * 转运卸车任务交班最大次数
+     */
+    private Integer tysUnloadTaskHandoverMaxSize;
+
+    /**
+     * 转运卸车任务完成后补扫描小时数限制，超出该小时后禁止扫描
+     */
+    private Integer tysUnloadTaskSupplementScanLimitHours;
+
+    /**
+     * 运单系统查不到包裹号时的拦截校验开关： true 拦截  false 不拦截
+     */
+    private Boolean waybillSysNonExistPackageInterceptSwitch;
+
+
+
+
+
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1315,6 +1336,14 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
         this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public boolean getOfflineQuickSeal() {
+        return offlineQuickSeal;
+    }
+
+    public void setOfflineQuickSeal(boolean offlineQuickSeal) {
+        this.offlineQuickSeal = offlineQuickSeal;
     }
 
     public String getSingleSendSwitchVerToWebSites() {
@@ -2361,5 +2390,29 @@ public class UccPropertyConfiguration {
 
     public boolean getCheckDeviceLocationInRealTimeSwitchIsOn() {
         return Objects.equals(this.getCheckDeviceLocationInRealTimeSwitch(), Constants.YN_YES);
+    }
+
+    public Integer getTysUnloadTaskHandoverMaxSize() {
+        return tysUnloadTaskHandoverMaxSize;
+    }
+
+    public void setTysUnloadTaskHandoverMaxSize(Integer tysUnloadTaskHandoverMaxSize) {
+        this.tysUnloadTaskHandoverMaxSize = tysUnloadTaskHandoverMaxSize;
+    }
+
+    public Integer getTysUnloadTaskSupplementScanLimitHours() {
+        return tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
+        this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public Boolean getWaybillSysNonExistPackageInterceptSwitch() {
+        return waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
+        this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 }

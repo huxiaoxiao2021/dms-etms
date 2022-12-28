@@ -21,5 +21,5 @@ public interface StrandService {
 
     void strandReportAndCancelDelivery(StrandReportRequest request) throws JMQException;
 
-    void sendStrandReportJmq(StrandReportRequest request) throws JMQException;
+    InvokeResult<Boolean> sendStrandReportJmq(StrandReportRequest request) throws JMQException;
 }

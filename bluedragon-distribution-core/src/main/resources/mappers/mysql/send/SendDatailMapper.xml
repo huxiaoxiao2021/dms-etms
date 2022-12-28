@@ -27,6 +27,8 @@
 		<result column="is_loss" property="isLoss"/>
 		<result column="feature_type" property="featureType"/>
 		<result column="biz_source" property="bizSource"/>
+        <result column="operator_type_code" property="operatorTypeCode" />
+        <result column="operator_id" property="operatorId" />		
 	</resultMap>
 	
 	<resultMap id="SendDetailList" type="java.lang.String" />
@@ -237,7 +239,9 @@
 	spare_reason,
 	is_loss,
 	feature_type,
-	biz_source
+	biz_source,
+    operator_type_code,
+    operator_id
    </sql>
   
 	<select id="querySendDatailsByBoxCode" parameterType="SendDetail"
@@ -489,6 +493,12 @@
 			<if test="bizSource != null">
 				, biz_source = #{bizSource,jdbcType=TINYINT}
 			</if>
+            <if test="operatorTypeCode != null">
+                ,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
+            </if>
+            <if test="operatorId != null">
+                ,operator_id = #{operatorId,jdbcType=VARCHAR}
+            </if>			
 		</set>
 		where package_barcode = #{packageBarcode,jdbcType=VARCHAR} 
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -528,6 +538,12 @@
 			<if test="bizSource != null">
 				, biz_source = #{bizSource,jdbcType=TINYINT}
 			</if>
+            <if test="operatorTypeCode != null">
+                ,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
+            </if>
+            <if test="operatorId != null">
+                ,operator_id = #{operatorId,jdbcType=VARCHAR}
+            </if> 			
 		</set>
 		where package_barcode = #{packageBarcode,jdbcType=VARCHAR} 
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}

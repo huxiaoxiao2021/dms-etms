@@ -35,6 +35,10 @@ public class LoginRequest extends BaseRequest{
      * 设备位置信息
      */
     private DeviceLocationInfo deviceLocationInfo;
+    /**
+     * 岗位信息
+     */
+    private String positionCode;
     
     public String getClientInfo() {
         return clientInfo;
@@ -83,4 +87,12 @@ public class LoginRequest extends BaseRequest{
     public void setDeviceLocationInfo(DeviceLocationInfo deviceLocationInfo) {
         this.deviceLocationInfo = deviceLocationInfo;
     }
+
+	public String getPositionCode() {
+		return positionCode;
+	}
+
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
+	}
 }

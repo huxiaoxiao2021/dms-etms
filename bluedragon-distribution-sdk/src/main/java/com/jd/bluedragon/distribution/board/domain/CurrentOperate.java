@@ -35,6 +35,15 @@ public class CurrentOperate implements Serializable {
      *分拣中心编码
      */
     private String dmsCode;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;
 
     public CurrentOperate() {
     }
@@ -92,4 +101,20 @@ public class CurrentOperate implements Serializable {
     public void setOrgName(String orgName) {
         this.orgName = orgName;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }

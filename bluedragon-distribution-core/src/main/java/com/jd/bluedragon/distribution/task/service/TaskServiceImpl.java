@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -981,6 +982,8 @@ public class TaskServiceImpl implements TaskService {
         request.setUserCode(dto.getOperatorID());
         request.setUserName(dto.getOperatorName());
         request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
+        request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        request.setOperatorId(dto.getMachineCode());
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
@@ -1026,6 +1029,8 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setBusinessType(50);
 		inspectionAS.setMachineCode(uPackage.getMachineCode());
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+        inspectionAS.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        inspectionAS.setOperatorId(uPackage.getMachineCode());
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }
