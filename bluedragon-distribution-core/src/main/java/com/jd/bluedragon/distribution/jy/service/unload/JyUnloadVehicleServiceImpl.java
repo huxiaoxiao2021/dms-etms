@@ -80,6 +80,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -706,8 +707,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             siteMatchQo.setHandoverSiteCode(request.getCurrentOperate().getSiteCode());
             ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteMatchQo);
             if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
-                result.setCode(32003);
-                result.setMessage("您扫描的" + barCode + "订单是转德邦订单，请单独码放并放置德邦货区，谢谢。");
+                result.setCode(InvokeResult.DP_SPECIAL_CODE);
+                result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));
             }
         }
 
