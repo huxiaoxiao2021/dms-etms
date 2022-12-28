@@ -62,6 +62,15 @@ public interface JyBizTaskComboardService {
    * 查询流向下板数量(某个流向-7日内所有未封车的板任务列表)
    * @return
    */
-    List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
+  List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
+
+  /**
+   * 取消封车
+   * @param batchCodes
+   * @param operateUserCode
+   * @param operateUserName
+   * @return
+   */
+  boolean updateBoardStatusBySendCodeList(List<String> batchCodes, String operateUserCode, String operateUserName);
 }
 

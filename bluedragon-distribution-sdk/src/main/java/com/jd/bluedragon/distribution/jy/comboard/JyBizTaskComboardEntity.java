@@ -47,6 +47,8 @@ public class JyBizTaskComboardEntity {
     private Date sealTime;
 
     private Date unsealTime;
+    
+    private Integer comboardSource;
 
     private transient List<Integer> statusList;
 
@@ -235,5 +237,13 @@ public class JyBizTaskComboardEntity {
 
     public void setBoardStatus(Integer boardStatus) {
         this.boardStatus = boardStatus;
+    }
+
+    public Integer getComboardSource() {
+        return comboardSource;
+    }
+
+    public void setComboardSource(Integer comboardSource) {
+        this.comboardSource = comboardSource;
     }
 }

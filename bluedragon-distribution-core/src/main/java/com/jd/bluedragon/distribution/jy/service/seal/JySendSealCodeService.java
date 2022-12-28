@@ -12,4 +12,9 @@ public interface JySendSealCodeService {
     int addBatch(List<JySendSealCodeEntity> list);
 
     int countByBiz(String sendVehicleBiz);
+
+    /**
+     * 根据业务主键逻辑删除封签号
+     */
+    boolean deleteBySendVehicleBizId(JySendSealCodeEntity jySendSealCodeEntity);
 }

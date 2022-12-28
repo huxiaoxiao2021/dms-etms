@@ -527,11 +527,19 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!--  拣运卸车服务  -->
+    <!--  组板发货 -->
     <bean id="jyComboardGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyComboardGatewayServiceImpl" />
     <jsf:provider id="jyComboardGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyComboardGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyComboardGatewayServiceImpl"
+                  server="dmsjsf" />
+
+    <!--  组板封车 -->
+    <bean id="jyComboardSealGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyComboardSealGatewayServiceImpl" />
+    <jsf:provider id="jyComboardSealGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyComboardSealGatewayServiceImpl"
                   server="dmsjsf" />
 </beans>

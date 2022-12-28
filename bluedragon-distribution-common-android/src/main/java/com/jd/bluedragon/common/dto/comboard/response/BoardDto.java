@@ -54,6 +54,11 @@ public class BoardDto implements Serializable {
 
     private String sendCode;
 
+    /**
+     * 组板入口类型
+     */
+    private String comboardSource;
+            
     List<GoodsCategoryDto> goodsCategoryDtos;
 
     public List<GoodsCategoryDto> getGoodsCategoryDtos() {
@@ -167,5 +172,13 @@ public class BoardDto implements Serializable {
 
     public void setVolume(String volume) {
         this.volume = volume;
+    }
+
+    public String getComboardSource() {
+        return comboardSource;
+    }
+
+    public void setComboardSource(String comboardSource) {
+        this.comboardSource = comboardSource;
     }
 }

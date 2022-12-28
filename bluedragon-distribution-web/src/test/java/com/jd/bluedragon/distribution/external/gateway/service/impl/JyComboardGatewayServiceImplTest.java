@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -31,6 +32,9 @@ public class JyComboardGatewayServiceImplTest {
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
 
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
+    
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -538,5 +542,13 @@ public class JyComboardGatewayServiceImplTest {
         req.setExcepType(1);
         JdCResponse<BoardExcepStatisticsResp> s = jyComboardGatewayService.queryExcepScanStatisticsUnderBoard(req);
         System.out.println(JsonHelper.toJson(s));
+    }
+    
+    @Test
+    public void updateBoardStatusBySendCodeListTest() {
+        List<String> batchCodes = new ArrayList<>();
+        batchCodes.add("910-39-20221205212254643");
+        batchCodes.add("910-39-20221205212254654");
+        jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCodes,"liwenji3","李文吉");
     }
 }
