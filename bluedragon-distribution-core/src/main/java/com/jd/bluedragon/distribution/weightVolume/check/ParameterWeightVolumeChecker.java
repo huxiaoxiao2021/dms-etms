@@ -106,13 +106,13 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
             result.setData(Boolean.FALSE);
             return result;
         }
-        if (!NumberHelper.gt0(entity.getOperatorId())) {
+        if (entity.getOperatorId() == null) {
             result.parameterError("获取用户ID异常【" + entity.getOperatorId() + "】");
             result.setData(Boolean.FALSE);
             return result;
         }
         if (StringHelper.isEmpty(entity.getOperatorCode())) {
-            result.parameterError("获取用户ERP异常【" + entity.getOperatorId() + "】");
+            result.parameterError("获取用户ERP异常【" + entity.getOperatorCode() + "】");
             result.setData(Boolean.FALSE);
             return result;
         }

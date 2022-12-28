@@ -193,6 +193,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL = 3000; // 打印回调大运单处理任务
 
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_INSPECTION = 1001;
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SORTING = 1002;
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SEND = 1003;
+
+
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
     public static final String TABLE_NAME_REVERSE = "task_reverse";
@@ -243,6 +248,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public static final String TABLE_NAME_POP_PRINT = "task_pop_print";
 
+    public static final String TABLE_NAME_JY_OPEN_CARGO_OPERATE = "task_jy_open_cargo_operate";
+
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -270,6 +277,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_CORSS_BOX_SEQ ="TABLE_NAME_CROSSBOX_SEQ";
     //平台打印，补发货数据tangcq
     public static final String TABLE_NAME_POP_PRINT_INSPECTION_SEQ ="TABLE_NAME_POP_PRINT_INSPECTION_SEQ";
+
+    public static final String TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ = "SEQ_JY_OPEN_CARGO_OPERATE";
 
 
     /** 任务数据通过redis,还是通过数据库 **/
@@ -639,6 +648,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if (Task.TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL.equals(type)) {
             return Task.TABLE_NAME_POP_PRINT;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_INSPECTION.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SORTING.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -689,6 +704,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
         	return Task.TABLE_NAME_CORSS_BOX_SEQ;
         }else if (Task.TABLE_NAME_POP_PRINT_INSPECTION.equals(tableName)){
             return Task.TABLE_NAME_POP_PRINT_INSPECTION_SEQ;
+        } else if (Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE.equals(tableName)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ;
         }
         
         return Task.TABLE_NAME_SORTING_SEQ;
@@ -989,6 +1006,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "BoardDeliveryCancelTask";
         }else if(TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return "CycleBoxStatusTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_INSPECTION.equals(type)) {
+            return "JYOpenInspectionTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SORTING.equals(type)) {
+            return "JYOpenSortingTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
+            return "JYOpenSendTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){

@@ -150,7 +150,12 @@ public enum SendBizSourceEnum {
      * 快运装车发货-新
      * 一单单发货
      */
-    COLD_LOAD_CAR_KY_SEND_NEW(28, "冷链快运装车发货-新")
+    COLD_LOAD_CAR_KY_SEND_NEW(28, "冷链快运装车发货-新"),
+
+    /**
+     * 德邦融合-嘉峪关项目
+     */
+    DPRH(29,"德邦发货")
     ;
 
     /**

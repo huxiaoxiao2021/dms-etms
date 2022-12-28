@@ -212,6 +212,21 @@
                     <entry key="task_pop_print_3000_PRE" value="${jmq.task.topic.pop.print.pre}" />
                     <entry key="task_pop_print_3000_UAT" value="${jmq.task.topic.pop.print.uat}" />
 
+					<!-- 拣运开放处理任务-验货 -->
+					<entry key="task_jy_open_cargo_operate_1001_DMS" value="${jmq.task.topic.jy.open.cargo.operate.inspection.dms}" />
+					<entry key="task_jy_open_cargo_operate_1001_PRE" value="${jmq.task.topic.jy.open.cargo.operate.inspection.pre}" />
+					<entry key="task_jy_open_cargo_operate_1001_UAT" value="${jmq.task.topic.jy.open.cargo.operate.inspection.uat}" />
+
+					<!-- 拣运开放处理任务-分拣 -->
+					<entry key="task_jy_open_cargo_operate_1002_DMS" value="${jmq.task.topic.jy.open.cargo.operate.sorting.dms}" />
+					<entry key="task_jy_open_cargo_operate_1002_PRE" value="${jmq.task.topic.jy.open.cargo.operate.sorting.pre}" />
+					<entry key="task_jy_open_cargo_operate_1002_UAT" value="${jmq.task.topic.jy.open.cargo.operate.sorting.uat}" />
+
+					<!-- 拣运开放处理任务-发货 -->
+					<entry key="task_jy_open_cargo_operate_1003_DMS" value="${jmq.task.topic.jy.open.cargo.operate.send.dms}" />
+					<entry key="task_jy_open_cargo_operate_1003_PRE" value="${jmq.task.topic.jy.open.cargo.operate.send.pre}" />
+					<entry key="task_jy_open_cargo_operate_1003_UAT" value="${jmq.task.topic.jy.open.cargo.operate.send.uat}" />
+
 				</map>
 	    	</constructor-arg>
 	    </bean>
