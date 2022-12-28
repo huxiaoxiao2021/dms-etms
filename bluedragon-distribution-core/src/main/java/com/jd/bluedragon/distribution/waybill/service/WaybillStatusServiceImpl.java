@@ -461,7 +461,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator()
 						+ "包裹补打");
-				this.log.info("向运单系统回传全程跟踪，包裹补打调用：" );
+				this.log.info("向运单系统回传全程跟踪，包裹补打调用：{}", JsonHelper.toJson(bdTraceDto));
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.log.info("向运单系统回传全程跟踪，包裹补打调用sendOrderTrace：" );
 				task.setYn(0);
