@@ -479,13 +479,4 @@
                   server="dmsjsf">
     </jsf:provider>
 
-<!--    &lt;!&ndash;  拣运扁平化接口   &ndash;&gt;-->
-<!--    <jsf:provider id="jyFlatServiceJsf"-->
-<!--                  interface="com.jd.bluedragon.distribution.integral.service.IntegralJsfService"-->
-<!--                  alias="${dms.jsf.alias}"-->
-<!--                  ref="integralJsfService"-->
-<!--                  server="dmsjsf">-->
-<!--    </jsf:provider>-->
-
-
 </beans>
