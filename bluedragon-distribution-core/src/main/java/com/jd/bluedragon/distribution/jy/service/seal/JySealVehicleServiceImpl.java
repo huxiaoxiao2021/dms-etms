@@ -498,7 +498,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
-        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>();
         if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
             invokeResult.setCode(NO_SEND_FLOW_CODE);
             invokeResult.setMessage(NO_SEND_FLOW_MESSAGE);
@@ -516,6 +516,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
         
         if (CollectionUtils.isEmpty(boardList)) {
+            invokeResult.setCode(RESULT_SUCCESS_CODE);
+            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
             return invokeResult;
         }
         
@@ -573,8 +575,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
             boardDtos.add(boardDto);
         }
-        invokeResult.setCode(JdResponse.CODE_OK);
-        invokeResult.setMessage(JdResponse.MESSAGE_OK);
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         return invokeResult;
     }
 
