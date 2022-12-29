@@ -585,6 +585,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.countByVehicleNumberAndStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
         if (condition == null) {
             return 0L;
@@ -593,6 +594,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.listUnloadVehicleTask",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
         List<JyBizTaskUnloadVehicleEntity> jyBizTaskUnloadVehicleEntityList = jyBizTaskUnloadVehicleDao.listUnloadVehicleTask(entity);
         if (ObjectHelper.isNotNull(jyBizTaskUnloadVehicleEntityList) && jyBizTaskUnloadVehicleEntityList.size() > 0) {
@@ -615,6 +617,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.entityConvertDto",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
         UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
         if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
@@ -637,6 +640,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryStatisticsByDiffDimension",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
@@ -652,12 +656,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
         JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
         return entityConvertDto(entity);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryStatistics",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
         JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
         if(packageStatistics == null) {
@@ -768,6 +774,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryByFuzzyVehicleNumberAndStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
         if (condition == null) {
             return new ArrayList<>();

@@ -95,7 +95,7 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.RouterServiceImpl.matchNextNodeByRouter", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.RouterServiceImpl.matchNextNodeAndLastNodeByRouter", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public RouteNextDto matchNextNodeAndLastNodeByRouter(Integer siteCode, String waybillCode, String routerStr){
         if(siteCode == null || StringUtils.isEmpty(waybillCode)){
             return RouteNextDto.NONE;
