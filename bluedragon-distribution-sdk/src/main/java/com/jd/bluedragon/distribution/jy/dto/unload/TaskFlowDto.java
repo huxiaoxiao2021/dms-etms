@@ -9,6 +9,16 @@ public class TaskFlowDto extends UnloadBaseDto implements Serializable {
     private Long endSiteId;
     private String goodsAreaCode;
 
+
+    /**
+     * 页码
+     */
+    private Integer pageNo;
+    /**
+     * 页容量
+     */
+    private Integer pageSize;
+
     public String getBizId() {
         return bizId;
     }
@@ -31,5 +41,21 @@ public class TaskFlowDto extends UnloadBaseDto implements Serializable {
 
     public void setGoodsAreaCode(String goodsAreaCode) {
         this.goodsAreaCode = goodsAreaCode;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
