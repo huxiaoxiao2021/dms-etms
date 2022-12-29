@@ -11,6 +11,8 @@ import java.math.BigDecimal;
  */
 public class DwsMachineCalibrateMQ implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     // 消息唯一码
     private String businessId;
     // 设备编码
@@ -41,8 +43,10 @@ public class DwsMachineCalibrateMQ implements Serializable {
     private Long calibrateTime;
     // 设备状态
     private Integer machineStatus;
-    // 上次设备合格时间
-    private Long previousMachineEligibleTime;
+    // 上次设备状态
+    private Integer previousMachineStatus;
+    // 上次校准时间
+    private Long previousCalibrateTime;
 
     public String getBusinessId() {
         return businessId;
@@ -164,11 +168,19 @@ public class DwsMachineCalibrateMQ implements Serializable {
         this.machineStatus = machineStatus;
     }
 
-    public Long getPreviousMachineEligibleTime() {
-        return previousMachineEligibleTime;
+    public Integer getPreviousMachineStatus() {
+        return previousMachineStatus;
     }
 
-    public void setPreviousMachineEligibleTime(Long previousMachineEligibleTime) {
-        this.previousMachineEligibleTime = previousMachineEligibleTime;
+    public void setPreviousMachineStatus(Integer previousMachineStatus) {
+        this.previousMachineStatus = previousMachineStatus;
+    }
+
+    public Long getPreviousCalibrateTime() {
+        return previousCalibrateTime;
+    }
+
+    public void setPreviousCalibrateTime(Long previousCalibrateTime) {
+        this.previousCalibrateTime = previousCalibrateTime;
     }
 }

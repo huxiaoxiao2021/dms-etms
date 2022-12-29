@@ -934,30 +934,24 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(!cacheCalibrateDealCacheIsSuc(key)){
             return;
         }
-        boolean isEligible = true;
-        String machineCode = dwsMachineCalibrateMQ.getMachineCode();
-        Integer calibrateStatus = dwsMachineCalibrateMQ.getCalibrateStatus();
-        if(!Objects.equals(calibrateStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
-            logger.info("设备:{}的校准状态不合格，不进行抽检下发处理!", machineCode);
-            isEligible = false;
-        }
-        if(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null){
-            logger.info("设备:{}的上次状态都不合格，时间:{}之前的抽检数据都不进行下发处理!",
-                    machineCode, DateHelper.formatDateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime())));
-            isEligible = false;
-        }else if(dwsMachineCalibrateMQ.getCalibrateTime() - dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()
-                > uccPropertyConfiguration.getMachineCalibrateIntervalTimeOfSpotCheck()){
-            logger.info("设备:{}的两次合格时间间隔超过3h，判定为不合格!", machineCode);
-            isEligible = false;
-        }
+        Integer currentMachineStatus = dwsMachineCalibrateMQ.getMachineStatus();
+        Integer previousMachineStatus = dwsMachineCalibrateMQ.getPreviousMachineStatus();
+        Long currentCalibrateTime = dwsMachineCalibrateMQ.getCalibrateTime();
+        Long previousCalibrateTime = dwsMachineCalibrateMQ.getPreviousCalibrateTime();
+
+        // 抽检数据是否合格
+        boolean isEligible = Objects.equals(currentMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
+                && Objects.equals(previousMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
+                && currentCalibrateTime != null && previousCalibrateTime != null
+                && (currentCalibrateTime - previousCalibrateTime <= uccPropertyConfiguration.getMachineCalibrateIntervalTimeOfSpotCheck());
 
         // 获取时间范围内的抽检数据后分批处理
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
         condition.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
-        // 如果上次合格时间不存在，则默认取24h之前的时间
-        Date previousMachineEligibleTime = dwsMachineCalibrateMQ.getPreviousMachineEligibleTime() == null
-                ? DateHelper.newTimeRangeHoursAgo(new Date(), 24) : new Date(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()); // 上传设备合格的时间
-        Date currentMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getCalibrateTime()); // 本次设备合格的时间
+        // 如果上次校准时间不存在，则默认取24h之前的时间
+        Date previousMachineEligibleTime = previousCalibrateTime == null
+                ? DateHelper.newTimeRangeHoursAgo(new Date(), 24) : new Date(previousCalibrateTime); // 上传设备校准时间
+        Date currentMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getCalibrateTime()); // 本次设备校准的时间
         condition.setReviewStartTime(previousMachineEligibleTime);
         condition.setReviewEndTime(currentMachineEligibleTime);
         condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
@@ -972,11 +966,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
             List<Message> messageList = Lists.newArrayList();
             for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckScrollResult.getList()) {
-                if(Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
-                        || Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode()) && !isEligible){
+                if(spotCheckDto.getMachineStatus() != null){
                     // 不处理的情况（此时表示状态已处理过）
-                    // 1、抽检数据的设备状态是合格的
-                    // 2、抽检数据的设备状态是不合格并且本次设备状态不合格
                     logger.warn("此次抽检数据不做下发处理...单号:{}场地:{}抽检数据的设备状态:{}本次消息的businessId:{}消息中设备是否合格:{}",
                             spotCheckDto.getPackageCode(), spotCheckDto.getReviewSiteCode(), spotCheckDto.getMachineStatus(),
                             dwsMachineCalibrateMQ.getBusinessId(), isEligible);

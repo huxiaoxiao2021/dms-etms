@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,12 +77,32 @@ public class DmsSpotCheckDealConsumerTest {
             dwsMachineCalibrateMQ.setMachineCode("ylq06261-DWS001");
             dwsMachineCalibrateMQ.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
             dwsMachineCalibrateMQ.setCalibrateTime(1664444491388L);
-            dwsMachineCalibrateMQ.setPreviousMachineEligibleTime(1664434800000L);
+            dwsMachineCalibrateMQ.setPreviousCalibrateTime(1664434800000L);
 
             Message message = new Message();
             message.setText(JsonHelper.toJson(dwsMachineCalibrateMQ));
 
             dwsWeightVolumeCalibrateConsumer.consume(message);
+            Assert.assertTrue(true);
+        }catch (Throwable e){
+            logger.error("设备校准mq处理异常!", e);
+            Assert.fail();
+        }
+    }
+
+    @Autowired
+    private DwsCalibrateDealSpotCheckConsumer dwsCalibrateDealSpotCheckConsumer;
+
+    @Test
+    public void consumer2() {
+        try {
+
+            WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+
+            Message message = new Message();
+            message.setText(JsonHelper.toJson(weightVolumeSpotCheckDto));
+
+            dwsCalibrateDealSpotCheckConsumer.consume(message);
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("设备校准mq处理异常!", e);
