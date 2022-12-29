@@ -1253,4 +1253,14 @@
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- 积分 -->
+    <jsf:consumer id="iJyPersonalIntegralStatisticsJSFService"
+                  interface="com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>
