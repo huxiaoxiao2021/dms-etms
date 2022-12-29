@@ -1286,7 +1286,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
 
             List<UnloadTaskFlowDto> resData = new ArrayList<>();
-            PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            //兼容历史功能：历史数据没有分页字段
+            if(taskFlowDto.getPageNo() != null && taskFlowDto.getPageSize() != null && taskFlowDto.getPageNo() > 0 && taskFlowDto.getPageSize() > 0) {
+                PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            }
             List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByBizId(taskFlowDto.getBizId());
             if(CollectionUtils.isNotEmpty(jyUnloadVehicleBoardEntityList)) {
                 for(JyUnloadVehicleBoardEntity entity : jyUnloadVehicleBoardEntityList) {
@@ -1334,7 +1337,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             Integer extraScanCount = 0;
             Integer haveScanCount = 0;
 
-            PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            //兼容历史功能：历史数据没有分页字段
+            if(taskFlowDto.getPageNo() != null && taskFlowDto.getPageSize() != null && taskFlowDto.getPageNo() > 0 && taskFlowDto.getPageSize() > 0) {
+                PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            }
             JyUnloadVehicleBoardEntity entityParam = new JyUnloadVehicleBoardEntity();
             entityParam.setUnloadVehicleBizId(taskFlowDto.getBizId());
             entityParam.setEndSiteId(taskFlowDto.getEndSiteId());
