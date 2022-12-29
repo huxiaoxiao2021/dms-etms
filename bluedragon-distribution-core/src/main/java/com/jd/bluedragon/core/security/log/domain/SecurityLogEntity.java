@@ -38,7 +38,7 @@ public class SecurityLogEntity {
 
     private final Object businessRequest;
 
-    private final Map<SecurityLogUniqueIdentifierKeyEnums,String> respKeyMapping;
+    private final Map<SecurityLogUniqueIdentifierKeyEnums,List<String>> respKeyMapping;
 
     private final Object businessResponse;
 

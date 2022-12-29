@@ -92,7 +92,7 @@ public class SecurityLogRecord {
 
     }
 
-    private static RespInfo createRespInfo(Map<SecurityLogUniqueIdentifierKeyEnums,String> keyMapping, List<?> businessResponses, SecurityLogOpEnums op, Integer resultNum) {
+    private static RespInfo createRespInfo(Map<SecurityLogUniqueIdentifierKeyEnums,List<String>> keyMapping, List<?> businessResponses, SecurityLogOpEnums op, Integer resultNum) {
 
         RespInfo respInfo = new RespInfo();
         respInfo.setStatus(SecurityLogRespInfoStatusEnums.SUCCESS.getCode());
@@ -109,8 +109,14 @@ public class SecurityLogRecord {
             JSONObject businessResponseJson = JSONObject.parseObject(businessResponse instanceof String? (String) businessResponse : JSONObject.toJSONString(businessResponse));
 
             JSONObject respInfoJson = new JSONObject();
-            for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
-                respInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry.getValue()));
+            for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, List<String>> keyEnumsStringEntrys : keyMapping.entrySet()) {
+                for (String keyEnumsStringEntry : keyEnumsStringEntrys.getValue()) {
+                    Object value = JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry);
+                    if (value == null) {
+                        continue;
+                    }
+                    respInfoJson.put(keyEnumsStringEntrys.getKey().name(), value);
+                }
             }
             UniqueIdentifier uniqueIdentifier = respInfoJson.toJavaObject(UniqueIdentifier.class);
             LogAcesUtil.encryptSecEntity(uniqueIdentifier);
