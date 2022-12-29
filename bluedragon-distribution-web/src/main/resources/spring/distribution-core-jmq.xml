@@ -673,7 +673,7 @@
         <property name="timeout" value="1000" />
     </bean>
     <!--  拣运组板岗-运单组板发货  -->
-    <bean id="waybillComboardProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+    <bean id="waybillComboardProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.waybill.comboard}" />
         <property name="timeout" value="1000" />
     </bean>
