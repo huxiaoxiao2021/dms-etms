@@ -254,6 +254,10 @@ public class IntegralServiceImpl implements IntegralService {
                 if (baseScore.getQuantity().compareTo(dto.getLtValue()) <= 0
                         && baseScore.getQuantity().compareTo(dto.getGtValue()) > 0) {
                     baseScore.setToNextQuantity(dto.getLtValue().subtract(baseScore.getQuantity()));
+                    if (dto.getLteSign().equals(Constants.CONSTANT_NUMBER_ONE) ||
+                            baseScore.getQuantity().compareTo(dto.getLtValue()) == 0) {
+                        baseScore.setToNextQuantity(BigDecimal.ONE);
+                    }
                 }
                 // 下一阶段分数
                 if (baseScore.getQuantity().compareTo(dto.getGtValue()) <= 0) {
