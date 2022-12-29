@@ -587,6 +587,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateDetailEntity entity = initBaseData();;
         entity.setMachineCode(dwsMachineCalibrateMQ.getMachineCode());
         entity.setCreateUserErp(completeTaskDetail.getCreateUserErp());
+        entity.setRefMachineKey(completeTaskDetail.getRefMachineKey());
         jyBizTaskMachineCalibrateDetailService.insert(entity);
     }
 
