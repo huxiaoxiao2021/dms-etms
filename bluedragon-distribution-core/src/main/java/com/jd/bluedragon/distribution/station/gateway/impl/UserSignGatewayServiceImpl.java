@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.gateway.impl;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +28,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 /**
  * 人员签到表--JsfService接口实现
@@ -90,6 +93,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			if(result.isSuccess()){
 				PositionData positionData = new PositionData();
 				BeanUtils.copyProperties(result.getData(),positionData);
+				if (Objects.nonNull(positionData.getDefaultMenuCode())) {
+					positionData.setPositionName(JyFuncCodeEnum.getFuncNameByCode(positionData.getDefaultMenuCode()));
+				}
 				response.setData(positionData);
 				response.toSucceed(result.getMessage());
 				return response;

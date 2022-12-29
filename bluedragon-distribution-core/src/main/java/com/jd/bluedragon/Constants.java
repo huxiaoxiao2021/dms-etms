@@ -1821,4 +1821,11 @@ public class Constants {
      */
     public static final Integer SORT_SEND_VEHICLE = 41;
 
+    /**
+     * 数字
+     */
+    public static final class Numbers {
+        public static final Integer INTEGER_ZERO = 0;
+    }
+
 }
