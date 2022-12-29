@@ -88,7 +88,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
                 OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
                 virtualBoardService.sendWaybillTrace(barCode, operatorInfo, dto.getBoardCode(),
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
-                        BizSourceEnum.PDA.getValue());
+                        dto.getBizSource().getValue());
             }
         }
     }

@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class ComboardScanReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -3505275696826500188L;
+    //  对外暴露的枚举 BusinessCodeFromSourceEnum
+    private String bizSource = "JY_APP";
     /**
      * 扫描单号
      */
@@ -64,6 +66,14 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     private Integer scanDetailCount;
     public String getBarCode() {
         return barCode;
+    }
+
+    public String getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(String bizSource) {
+        this.bizSource = bizSource;
     }
 
     public void setBarCode(String barCode) {

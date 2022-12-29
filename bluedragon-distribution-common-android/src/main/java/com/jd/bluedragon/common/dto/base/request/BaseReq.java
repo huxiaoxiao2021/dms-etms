@@ -43,4 +43,5 @@ public class BaseReq implements Serializable {
     public void setRequestId(String requestId) {
         this.requestId = requestId;
     }
+
 }
