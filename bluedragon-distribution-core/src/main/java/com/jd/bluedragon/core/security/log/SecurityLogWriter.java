@@ -75,6 +75,10 @@ public class SecurityLogWriter {
 
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.consignerTelText")
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.jsonData.consignerTelText")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.consignerTel")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.jsonData.consignerTel")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.consignerMobile")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.jsonData.consignerMobile")
 
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"data.consignerAddress")
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"data.jsonData.consignerAddress")
