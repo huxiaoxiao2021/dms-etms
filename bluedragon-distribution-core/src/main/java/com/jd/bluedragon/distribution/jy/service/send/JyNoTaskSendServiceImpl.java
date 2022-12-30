@@ -545,11 +545,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 }
                 finishTaskGroup(fromSvDetailTask);
                 if (ObjectHelper.isNotNull(bindVehicleDetailTaskReq.getGroupCode()) && taskSendFirstScan(bindVehicleDetailTaskReq)){
-                    if (!distributeAndStartScheduleTask(bindVehicleDetailTaskReq)) {
-                        log.error("绑定-同步给运输任务分配调度任务失败！bizId:{}", toSvTask.getBizId());
-                        throw new JyBizException("绑定运输任务失败！");
+                    if (distributeAndStartScheduleTask(bindVehicleDetailTaskReq)) {
+                        recordTaskMembers(bindVehicleDetailTaskReq);
                     }
-                    recordTaskMembers(bindVehicleDetailTaskReq);
+                    else {
+                        log.error("绑定-同步给运输任务分配调度任务失败！bizId:{}", toSvTask.getBizId());
+                        //throw new JyBizException("绑定运输任务失败！");
+                    }
                 }
             }
 
