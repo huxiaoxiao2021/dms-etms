@@ -36,6 +36,10 @@ public class JyBizTaskMachineCalibrateEntity implements Serializable {
 	 */
 	private String createUserErp;
 	/**
+	 * 修改人ERP
+	 */
+	private String updateUserErp;
+	/**
 	 * 创建时间
 	 */
 	private Date createTime;
@@ -84,7 +88,15 @@ public class JyBizTaskMachineCalibrateEntity implements Serializable {
 		return this.createUserErp = createUserErp;
 	}
 
-		public String getCreateUserErp(){
+	public String getUpdateUserErp() {
+		return updateUserErp;
+	}
+
+	public void setUpdateUserErp(String updateUserErp) {
+		this.updateUserErp = updateUserErp;
+	}
+
+	public String getCreateUserErp(){
 		return this.createUserErp;
 	}
 	public Date setCreateTime(Date createTime){

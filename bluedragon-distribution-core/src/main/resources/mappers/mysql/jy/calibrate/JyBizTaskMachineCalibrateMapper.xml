@@ -10,6 +10,7 @@
         <result property="calibrateTaskStartTime" column="calibrate_task_start_time"/>
         <result property="calibrateTaskCloseTime" column="calibrate_task_close_time"/>
         <result property="createUserErp" column="create_user_erp"/>
+        <result property="updateUserErp" column="update_user_erp"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
@@ -17,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, machine_code, calibrate_task_start_time, calibrate_task_close_time, create_user_erp, create_time, update_time, yn, ts
+        id, machine_code, calibrate_task_start_time, calibrate_task_close_time, create_user_erp, update_user_erp, create_time, update_time, yn, ts
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity" useGeneratedKeys="true" keyProperty="id">
@@ -83,6 +84,9 @@
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp} ,
             </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
             <if test="createTime != null">
                 create_time = #{createTime} ,
             </if>
@@ -101,6 +105,9 @@
             and machine_code = #{machineCode,jdbcType=VARCHAR}
             <if test="createUserErp != null and createUserErp != ''">
                 AND create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="updateUserErp != null and updateUserErp != ''">
+                AND update_user_erp = #{updateUserErp,jdbcType=VARCHAR}
             </if>
         </where>
     </update>
@@ -133,6 +140,7 @@
         <set>
             calibrate_task_close_time = #{calibrateTaskCloseTime},
             update_time = #{updateTime},
+            update_user_erp = #{updateUserErp}
         </set>
         <where>
             yn = 1
