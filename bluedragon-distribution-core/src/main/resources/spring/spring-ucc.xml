@@ -214,12 +214,15 @@
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
-
-
 		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
 		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
-
+		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
+		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
+		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:720000}"/>
+		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
+		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
+		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -415,6 +418,12 @@
 				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardSiteCTTPageSize</value>
 				<value>uccPropertyConfiguration.jyComboardScanUserBeginDay</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskDuration</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskQueryRange</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskForceCreateIntervalTime</value>
+				<value>uccPropertyConfiguration.machineCalibrateIntervalTimeOfSpotCheck</value>
+				<value>uccPropertyConfiguration.spotCheckIssueRelyOMachineStatus</value>
+				<value>uccPropertyConfiguration.spotCheckIssueRelyOnMachineStatusSiteSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
