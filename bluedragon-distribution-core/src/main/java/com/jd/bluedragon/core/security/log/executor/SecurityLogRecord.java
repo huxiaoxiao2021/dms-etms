@@ -115,7 +115,11 @@ public class SecurityLogRecord {
                     if (value == null) {
                         continue;
                     }
-                    respInfoJson.put(keyEnumsStringEntrys.getKey().name(), value);
+                    if (respInfoJson.containsKey(keyEnumsStringEntrys.getKey().name())) {
+                        respInfoJson.put(keyEnumsStringEntrys.getKey().name(),respInfoJson.get(keyEnumsStringEntrys.getKey().name()) + "," + value);
+                    } else {
+                        respInfoJson.put(keyEnumsStringEntrys.getKey().name(), value);
+                    }
                 }
             }
             UniqueIdentifier uniqueIdentifier = respInfoJson.toJavaObject(UniqueIdentifier.class);
