@@ -45,6 +45,9 @@ public class DwsWeightVolumeCalibrateConsumer extends MessageBaseConsumer {
                 logger.warn("dws称重量方校准消息体转换失败，内容为【{}】", message.getText());
                 return;
             }
+            if(logger.isInfoEnabled()){
+                logger.info("dws称重量方校准消息开始处理...:{}", message.getText());
+            }
             if(StringUtils.isEmpty(dwsMachineCalibrateMQ.getMachineCode())
                     || dwsMachineCalibrateMQ.getCalibrateStatus() == null
                     || dwsMachineCalibrateMQ.getMachineStatus() == null

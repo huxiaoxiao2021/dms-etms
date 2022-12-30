@@ -76,6 +76,9 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
             BaseDmsAutoJsfResponse<DwsCheckResponse> response = dmsCheckJsfService.getLastDwsCheckByTime(checkRequest);
 
             if (response != null && response.getData() != null) {
+                if(logger.isInfoEnabled()){
+                    logger.info("查询校验细节!入参:{},结果:{}", JsonHelper.toJson(checkRequest), JsonHelper.toJson(response.getData()));
+                }
                 return response.getData();
             }
         }catch (Exception e){
@@ -95,6 +98,9 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
         try {
             BaseDmsAutoJsfResponse<List<DwsCheckAroundRecord>> response = dmsCheckJsfService.batchSelectMachineStatus(list);
             if(response != null && CollectionUtils.isNotEmpty(response.getData())){
+                if(logger.isInfoEnabled()){
+                    logger.info("批量查询设备状态!入参:{},结果:{}", JsonHelper.toJson(list), JsonHelper.toJson(response.getData()));
+                }
                 return response.getData();
             }
         }catch (Exception e){

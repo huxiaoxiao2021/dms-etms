@@ -60,6 +60,9 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 logger.warn("dws设备校准抽检处理消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
+            if (logger.isInfoEnabled()){
+                logger.info("dws设备校准抽检处理开始...{}", message.getText());
+            }
             WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = JsonHelper.fromJsonUseGson(message.getText(), WeightVolumeSpotCheckDto.class);
             if(weightVolumeSpotCheckDto == null) {
                 logger.warn("dws设备校准抽检处理消息体转换失败，内容为【{}】", message.getText());
