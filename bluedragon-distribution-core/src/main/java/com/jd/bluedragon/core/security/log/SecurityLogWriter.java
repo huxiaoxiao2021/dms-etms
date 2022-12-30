@@ -149,6 +149,7 @@ public class SecurityLogWriter {
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
 
             Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = new SecurityLogUniqueIdentifierKeyMappingBuilder()
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode")
@@ -187,6 +188,7 @@ public class SecurityLogWriter {
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
 
             Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = new SecurityLogUniqueIdentifierKeyMappingBuilder()
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode")
@@ -231,6 +233,7 @@ public class SecurityLogWriter {
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "packageCode");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
 
             Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = new SecurityLogUniqueIdentifierKeyMappingBuilder()
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode")

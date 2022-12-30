@@ -873,6 +873,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
 		if (sendDs.size() > 0) {
+			CallerInfo callerInfo = Profiler.registerInfo("DMS.WORKER.SortingService.fixSendDAndSendTrack", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
 			// 获取直接发货和中转发货的SendM数据
@@ -907,6 +908,7 @@ public class SortingServiceImpl implements SortingService {
 			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
                 this.deliverGoodsNoticeMQ(sorting);
             }
+			Profiler.registerInfoEnd(callerInfo);
 		}
 	}
 
