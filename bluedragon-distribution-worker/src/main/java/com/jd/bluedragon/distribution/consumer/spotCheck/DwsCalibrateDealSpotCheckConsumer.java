@@ -117,7 +117,7 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
     }
 
     private Integer batchCheckWaybillMachineStatus(List<WeightVolumeSpotCheckDto> packDetailList) {
-        for (List<WeightVolumeSpotCheckDto> singleList : Lists.partition(packDetailList, 10)) {
+        for (List<WeightVolumeSpotCheckDto> singleList : Lists.partition(packDetailList, 100)) {
             List<DwsCheckPackageRequest> queryList = Lists.newArrayList();
             for (WeightVolumeSpotCheckDto packDto : singleList) {
                 DwsCheckPackageRequest dwsCheckPackageRequest = new DwsCheckPackageRequest();
