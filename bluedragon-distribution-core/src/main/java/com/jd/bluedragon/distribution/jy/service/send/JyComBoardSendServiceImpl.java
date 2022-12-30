@@ -2099,6 +2099,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         entity.setBoardCode(request.getBoardCode());
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
+        if (StringUtils.isEmpty(waybillCode)) {
+          log.error("运单取消组板失败：{}", waybillCode);
+          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+        }
         removeBoardBoxDto.setWaybillCode(waybillCode);
         barCodeList.add(waybillCode);
         if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
