@@ -2267,6 +2267,22 @@
             <artifactId>realtime-service-sdk</artifactId>
         </dependency>
 
+		<!-- jy_msp -->
+		<dependency>
+			<groupId>com.jdl.jy</groupId>
+			<artifactId>jy-msp-api</artifactId>
+		</dependency>
+		<!-- 京东短链 -->
+		<dependency>
+			<groupId>com.jd.shorturl</groupId>
+			<artifactId>shorturl-rpc-client</artifactId>
+		</dependency>
+		<!-- 人资 -->
+		<dependency>
+			<groupId>jd-omdm-client</groupId>
+			<artifactId>jd-omdm-client</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jd.wl.ai.cv</groupId>
 			<artifactId>ai-cv-center-outter-api-7</artifactId>

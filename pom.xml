@@ -44,6 +44,9 @@
         <jy.realtime.sdk.version>1.0.0-uat-SNAPSHOT</jy.realtime.sdk.version>
         <jy-basic-api.version>1.0-uat-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
+		<jy_msp_api_version>1.0.0-calibrate-SNAPSHOT</jy_msp_api_version>
+		<shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
+		<jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -336,6 +339,23 @@
                 <artifactId>realtime-service-sdk</artifactId>
                 <version>${jy.realtime.sdk.version}</version>
             </dependency>
+			<!-- // todo 排包 -->
+			<dependency>
+				<groupId>com.jdl.jy</groupId>
+				<artifactId>jy-msp-api</artifactId>
+				<version>${jy_msp_api_version}</version>
+			</dependency>
+			<!-- 京东短链 -->
+			<dependency>
+				<groupId>com.jd.shorturl</groupId>
+				<artifactId>shorturl-rpc-client</artifactId>
+				<version>${shorturl.rpc.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jd-omdm-client</groupId>
+				<artifactId>jd-omdm-client</artifactId>
+				<version>${jd.omdm.client.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.jd.eclp</groupId>
 				<artifactId>eclp-so-api</artifactId>

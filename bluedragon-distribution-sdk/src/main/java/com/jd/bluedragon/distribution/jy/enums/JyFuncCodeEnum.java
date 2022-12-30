@@ -12,6 +12,8 @@ public enum JyFuncCodeEnum {
     TYS_UNLOAD_CAR_POSITION("TYS_UNLOAD_CAR_POSITION", "转运卸车岗"),
     TYS_SEND_CAR_POSITION("TYS_SEND_CAR_POSITION", "转运发货封车岗"),
     COMBOARD_SEND_POSITION("COMBOARD_SEND_POSITION","分拣组板发货岗");
+    WEIGHT_VOLUME_CALIBRATE_POSITION("WEIGHT_VOLUME_CALIBRATE_POSITION", "称重量方校准岗"),
+    ;
 
     private static final Map<String, String> FUNC_CODE_ENUM_MAP;
 
