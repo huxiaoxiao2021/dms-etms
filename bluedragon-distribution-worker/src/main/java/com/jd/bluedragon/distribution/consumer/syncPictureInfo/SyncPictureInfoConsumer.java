@@ -50,6 +50,9 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
             log.warn("站点【{}】不能为空!",siteCode);
             return;
         }
+        if (log.isInfoEnabled()){
+            log.info("auto下发图片的消息体...{}", message.getText());
+        }
         spotCheckDealService.dealPictureUrl(packageCode, siteCode, pictureInfoMq.getUrl());
     }
 
