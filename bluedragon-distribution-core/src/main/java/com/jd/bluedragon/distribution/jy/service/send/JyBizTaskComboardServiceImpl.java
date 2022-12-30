@@ -9,13 +9,12 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -122,14 +121,14 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
-  public boolean updateBoardStatusBySendCodeList(List<String> batchCodes, String operateUserCode, String operateUserName) {
+  public boolean updateBoardStatusBySendCodeList(String batchCode, String operateUserCode, String operateUserName) {
     
-    if (CollectionUtils.isEmpty(batchCodes)) {
+    if (StringUtils.isEmpty(batchCode)) {
       return false;
     }
     
     // 查询任务id
-    List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCodeList(batchCodes);
+    List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCode(batchCode);
     
     if (CollectionUtils.isEmpty(taskList)) {
       return true;

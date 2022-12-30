@@ -97,12 +97,13 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 				logger.error("sendVehicleTransactionManager.resetSendStatusToseal error!内容为【{}】",message.getText(),e);
 			}
             try {
-                InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarCodeOfTms, mqBody.getOperateUserCode(), mqBody.getOperateUserName());
+                logger.info("开始操作取消封车：{} {}",message.getText(),JsonHelper.toJson(sealCarCodeOfTms));
+                InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarCodeOfTms, mqBody.getBatchCode(),mqBody.getOperateUserCode(), mqBody.getOperateUserName());
                 if (result != null && !result.getData()) {
-                    logger.error("jyBizTaskComboardService.updateBoardStatusBySendCodeList 参数为【{}】 error!内容为【{}】",message.getText(),result.getMessage());
+                    logger.error("jySealVehicleService.cancelSealCar 参数为【{}】 error!内容为【{}】",message.getText(),result.getMessage());
                 }
             } catch (Exception e) {
-                logger.error("jyBizTaskComboardService.updateBoardStatusBySendCodeList error!内容为【{}】",message.getText(),e);
+                logger.error("jySealVehicleService.cancelSealCar error!内容为【{}】",message.getText(),e);
             }
         }
     }

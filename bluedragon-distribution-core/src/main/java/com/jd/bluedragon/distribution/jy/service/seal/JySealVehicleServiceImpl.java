@@ -582,11 +582,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     @Transactional(readOnly = false,propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String operateUserCode, String operateUserName) {
+    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName) {
         
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealCarCodeOfTms.getBatchCodes(), operateUserCode, operateUserName)) {
+        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("更新板状态失败");
             return invokeResult;
