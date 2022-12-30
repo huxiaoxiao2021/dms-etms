@@ -35,6 +35,7 @@
     var errorData = []; //导入失败记录
 
     var CBM_DIV_KG_CODE = 10001; //批量导入 重泡比 校验失败码值
+    var CBM_DIV_KG_CODE_NEW = 600; //批量导入 重泡比 校验失败码值
 
     var allForcedToSubmit = 0; // 批量强制提交。 0 代表否 1代表是
     var b2cCount = 0; //批量强制提交场景下需要转网的单的个数
@@ -744,6 +745,11 @@ function allSubmitRemove(){
     for(var i = 0 ; i < errorData.length ; i++){
         var myRow = errorData[i];
         if(myRow.errorCode && CBM_DIV_KG_CODE == myRow.errorCode){
+            forcedToSubmit(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
+            allSubmitRemove();
+            break;
+        }
+        if(myRow.errorCode && CBM_DIV_KG_CODE_NEW == myRow.errorCode){
             forcedToSubmit(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
             allSubmitRemove();
             break;
