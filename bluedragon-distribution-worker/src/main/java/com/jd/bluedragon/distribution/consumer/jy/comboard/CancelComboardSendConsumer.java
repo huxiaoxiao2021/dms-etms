@@ -80,9 +80,13 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
             }
             sendM.setBoxCode(barCode);
             ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-            if (response != null && !response.getCode().equals(SUCCESS_CODE)){
+            if (response == null) {
+                log.error("取消发货失败：{}",barCode);
+                return;
+            }
+            if (!response.getCode().equals(SUCCESS_CODE)){
                 log.error("取消发货失败：{},{}",barCode,response.getMessage());
-                throw new JyBizException("取消发货失败");
+                return;
             }
             if (WaybillUtil.isWaybillCode(barCode)) {
                 // 异步取消组板
