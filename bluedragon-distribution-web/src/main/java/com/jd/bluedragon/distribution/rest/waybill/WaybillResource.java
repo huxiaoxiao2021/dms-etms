@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
+import com.google.common.collect.Maps;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -76,9 +77,12 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
+import com.jd.fastjson.JSONObject;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.staig.receiver.rpc.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -2606,5 +2610,246 @@ public class WaybillResource {
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
 		return spotCheckDto;
+	}
+
+	@Autowired
+	private DtcDataReceiverManager dtcDataReceiverManager;
+
+	@POST
+	@Path("/waybill/reverseComplement")
+	public void reverseComplement(String requestJson) {
+
+		JSONObject requestObject = JSON.parseObject(requestJson);
+		String sheet1 = requestObject.getString("sheet1");
+		List<Sheet1Row> sheet1List = JsonHelper.jsonToList(sheet1, Sheet1Row.class);
+		if(CollectionUtils.isEmpty(sheet1List)){
+			log.warn("sheet1转换为空!");
+			return;
+		}
+
+		// 批次号集合
+		Map<String, String> sendCodeMap = Maps.newHashMap();
+
+		String sheet2 = requestObject.getString("sheet2");
+		List<Sheet2Row> sheet2List = JsonHelper.jsonToList(sheet2, Sheet2Row.class);
+		if(CollectionUtils.isEmpty(sheet2List)){
+			log.warn("sheet2转换为空!");
+			return;
+		}
+		Map<String, Sheet2Row> sheet2map = Maps.newHashMap();
+		for (Sheet2Row sheet2Row : sheet2List) {
+			sheet2map.put(sheet2Row.getWaybillCode(), sheet2Row);
+		}
+
+		int dealCount = 0;
+
+		try {
+			for (Sheet1Row sheet1Row : sheet1List) {
+
+				String waybillCode = sheet1Row.getWaybillCode();
+				Integer receiveSiteCode = Integer.valueOf(sheet1Row.getReceiveSiteCode());
+				BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+				Integer orgId = bDto.getOrgId();
+				String dmdStoreId = bDto.getStoreCode();
+
+				String[] cky2AndStoreId = dmdStoreId.split("-");
+				String cky2 = cky2AndStoreId[1];
+				String storeId = cky2AndStoreId[2];
+
+
+				ReverseSendWms send = new ReverseSendWms();
+				// 设置值
+				send.setGuestBackType(0); // 表示客退
+				send.setIsInStore(0);
+				send.setLossQuantity(0); // 报丢数量
+				send.setOperateTime(DateHelper.formatDateTime(new Date())); // 发货时间
+				send.setBusiOrderCode(waybillCode);
+				send.setOrgId(orgId);
+				send.setCky2(Integer.valueOf(cky2));
+				Sheet2Row sheet2Row = sheet2map.get(waybillCode);
+				StringBuilder packageCodes = new StringBuilder();
+				List<String> packList = JsonHelper.jsonToList(sheet2Row.getPackListStr(), String.class);
+				if(!CollectionUtils.isEmpty(packList)){
+					for (int i = 0; i < packList.size(); i ++) {
+						if(i == 0){
+							packageCodes.append(packList.get(i));
+						}else {
+							packageCodes.append(Constants.SEPARATOR_COMMA).append(packList.get(i));
+						}
+					}
+					send.setPackageCodes(packageCodes.toString());
+				}
+				send.setOrderId(sheet2Row.getOrderId());
+				List<Product> proList = new ArrayList<Product>();
+				List<Goods> goodsList = JsonHelper.jsonToList(sheet2Row.getGoodsListStr(), Goods.class);
+				if(!CollectionUtils.isEmpty(goodsList)){
+					for (Goods goods : goodsList) {
+						Product product = new Product();
+						product.setProductId(goods.getSku());
+						product.setProductName(goods.getGoodName());
+						product.setProductNum(StringUtils.isEmpty(goods.getGoodCount()) ? null : Integer.valueOf(goods.getGoodCount()));
+						product.setProductPrice(goods.getGoodPrice());
+						product.setProductLoss("0");
+						proList.add(product);
+					}
+					send.setProList(proList);
+				}
+				send.setSendCode(generateSendCode(sendCodeMap, sheet1Row));
+				send.setSickWaybill(false);
+				send.setStoreId(Integer.valueOf(storeId));
+				send.setToken(""); //病单加token标识（仓储只关注是否为空，任务号方便我方根据报文核查）
+				send.setUserName(sheet1Row.getCreateUserName());
+				send.setXniType(0); // waybill.getWaybillType
+
+				String target = orgId + "," + cky2 + "," + storeId;
+				String outboundType = "OrderBackDl";
+				String source = "DMS";
+				String messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
+
+				log.info("运单号:{}的退货xml报文:{}", waybillCode, messageValue);
+
+				Result result = dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, waybillCode);
+
+				log.info("运单号:{}推仓数据结果:{}", waybillCode, JsonHelper.toJson(result));
+
+				dealCount ++;
+			}
+		}catch (Exception e){
+			log.error("逆向推送仓数据异常!", e);
+		}
+
+		log.info("已处理成功数量:{}", dealCount);
+
+		log.info("生成的批次号：{}", JsonHelper.toJson(sendCodeMap.values()));
+
+	}
+
+	private String generateSendCode(Map<String, String> sendCodeMap, Sheet1Row sheet1Row) {
+		String key = sheet1Row.getCreateSiteCode() + "-" + sheet1Row.getReceiveSiteCode();
+		if(sendCodeMap.containsKey(key)){
+			return sendCodeMap.get(key);
+		}
+		long createSiteCodeTmp = Long.parseLong(sheet1Row.getCreateSiteCode());
+		long receiveSiteCodeTmp = Long.parseLong(sheet1Row.getReceiveSiteCode());
+		String sendCode = SerialRuleUtil.generateSendCode(createSiteCodeTmp, receiveSiteCodeTmp, new Date());
+		sendCodeMap.put(key, sendCode);
+		return sendCode;
+	}
+
+	static class Sheet1Row {
+		private String waybillCode;
+		private String createSiteCode;
+		private String receiveSiteCode;
+		private String createUserName;
+
+		public String getWaybillCode() {
+			return waybillCode;
+		}
+
+		public void setWaybillCode(String waybillCode) {
+			this.waybillCode = waybillCode;
+		}
+
+		public String getCreateSiteCode() {
+			return createSiteCode;
+		}
+
+		public void setCreateSiteCode(String createSiteCode) {
+			this.createSiteCode = createSiteCode;
+		}
+
+		public String getReceiveSiteCode() {
+			return receiveSiteCode;
+		}
+
+		public void setReceiveSiteCode(String receiveSiteCode) {
+			this.receiveSiteCode = receiveSiteCode;
+		}
+
+		public String getCreateUserName() {
+			return createUserName;
+		}
+
+		public void setCreateUserName(String createUserName) {
+			this.createUserName = createUserName;
+		}
+	}
+
+	static class Sheet2Row {
+		private String waybillCode;
+		private String orderId;
+		private String packListStr;
+		private String goodsListStr;
+
+		public String getWaybillCode() {
+			return waybillCode;
+		}
+
+		public void setWaybillCode(String waybillCode) {
+			this.waybillCode = waybillCode;
+		}
+
+		public String getOrderId() {
+			return orderId;
+		}
+
+		public void setOrderId(String orderId) {
+			this.orderId = orderId;
+		}
+
+		public String getPackListStr() {
+			return packListStr;
+		}
+
+		public void setPackListStr(String packListStr) {
+			this.packListStr = packListStr;
+		}
+
+		public String getGoodsListStr() {
+			return goodsListStr;
+		}
+
+		public void setGoodsListStr(String goodsListStr) {
+			this.goodsListStr = goodsListStr;
+		}
+	}
+
+	static class Goods {
+		private String sku;
+		private String goodName;
+		private String goodCount;
+		private String goodPrice;
+
+		public String getSku() {
+			return sku;
+		}
+
+		public void setSku(String sku) {
+			this.sku = sku;
+		}
+
+		public String getGoodName() {
+			return goodName;
+		}
+
+		public void setGoodName(String goodName) {
+			this.goodName = goodName;
+		}
+
+		public String getGoodCount() {
+			return goodCount;
+		}
+
+		public void setGoodCount(String goodCount) {
+			this.goodCount = goodCount;
+		}
+
+		public String getGoodPrice() {
+			return goodPrice;
+		}
+
+		public void setGoodPrice(String goodPrice) {
+			this.goodPrice = goodPrice;
+		}
 	}
 }
