@@ -1049,12 +1049,16 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         record.setCreateTime(request.getCurrentOperate().getOperateTime());
         record.setUnsealTime(request.getCurrentOperate().getOperateTime());
         jyBizTaskComboardService.save(record);
+        request.setBizId(record.getBizId());
+      }else{
+        request.setBizId(entity.getBizId());
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
       Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
       }
+
       JyComboardEntity comboardEntity = createJyComboardRecord(request);
       comboardEntity.setCreateTime(request.getCurrentOperate().getOperateTime());
       comboardEntity.setUpdateTime(request.getCurrentOperate().getOperateTime());
