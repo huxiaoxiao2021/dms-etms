@@ -6,10 +6,18 @@ import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -56,6 +64,27 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   }
 
   @Override
+  public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
+    return retJdCResponse(jySendVehicleService.selectSealDest(request));
+  }
+
+  @Override
+  public JdCResponse<SendVehicleInfo> sendVehicleInfo(SendVehicleInfoRequest request) {
+    return retJdCResponse(jySendVehicleService.sendVehicleInfo(request));
+  }
+
+  @Override
+  public JdCResponse<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request) {
+    return retJdCResponse(jySendVehicleService.loadProgress(request));
+  }
+
+  @Override
+  public JdCResponse<SendAbnormalBarCode> interceptedBarCodeDetail(
+      SendAbnormalPackRequest request) {
+    return retJdCResponse(jySendVehicleService.interceptedBarCodeDetail(request));
+  }
+
+  @Override
   public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(
       SealVehicleInfoReq sealVehicleInfoReq) {
     return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
@@ -80,7 +109,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
     return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
   }
-  
+
   @Override
   public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
     return retJdCResponse(jyComBoardSendService.queryBelongBoardByBarCode(request));

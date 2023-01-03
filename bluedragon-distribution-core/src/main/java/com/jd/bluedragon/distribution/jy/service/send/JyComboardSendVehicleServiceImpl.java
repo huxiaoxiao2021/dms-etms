@@ -2,13 +2,17 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -110,8 +114,10 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
     return invokeResult;  }
 
-
-
+  @Override
+  public InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
+    return super.selectSealDest(request);
+  }
 
   public List<Integer> assembleStatusCon(Integer vehicleStatus){
     List<Integer> queryStatus =new ArrayList<>();
@@ -248,5 +254,18 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       return vehicleStatus;
     }
     return JyBizTaskSendStatusEnum.TO_SEAL.getCode();
+  }
+
+
+  @Override
+  public List<ToSealDestDetail> setSendDestDetail(SelectSealDestRequest request,
+      List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
+    return super.setSendDestDetail(request, vehicleDetailList);
+  }
+
+  @Override
+  public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend,
+      SendVehicleProgress progress) {
+    super.setSendProgressData(taskSend, progress);
   }
 }

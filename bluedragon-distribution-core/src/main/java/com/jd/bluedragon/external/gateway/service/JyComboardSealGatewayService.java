@@ -5,16 +5,25 @@ import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import java.util.List;
 
 public interface JyComboardSealGatewayService {
@@ -32,6 +41,29 @@ public interface JyComboardSealGatewayService {
    * @return
    */
   JdCResponse<List<SendDestDetail>> sendDestDetail(SendDetailRequest request);
+
+  /**
+   * 选择封车流向
+   * @param request
+   * @return
+   */
+  JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
+
+  /**
+   * 发货任务详情
+   * @param request
+   * @return
+   */
+  JdCResponse<SendVehicleInfo> sendVehicleInfo(SendVehicleInfoRequest request);
+
+  /**
+   * 发货进度
+   * @param request
+   * @return
+   */
+  JdCResponse<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request);
+
+  JdCResponse<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackRequest request);
 
   /**
    * 查询流向任务封车数据详情

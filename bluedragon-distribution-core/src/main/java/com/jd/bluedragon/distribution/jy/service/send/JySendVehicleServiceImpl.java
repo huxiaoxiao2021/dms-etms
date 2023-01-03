@@ -2530,7 +2530,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param taskSend
      * @param progress
      */
-    private void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
+    public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
         JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
 
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
@@ -2922,7 +2922,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param request
      * @param vehicleDetailList
      */
-    private List<ToSealDestDetail> setSendDestDetail(SelectSealDestRequest request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
+    public List<ToSealDestDetail> setSendDestDetail(SelectSealDestRequest request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
         List<ToSealDestDetail> sendDestDetails = new ArrayList<>();
         List<JySendAggsEntity> sendAggList = sendAggService.findBySendVehicleBiz(request.getSendVehicleBizId());
         Map<String, JySendAggsEntity> sendAggMap = new HashMap<>();
