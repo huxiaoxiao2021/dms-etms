@@ -61,6 +61,12 @@ public class BoardDto implements Serializable {
             
     List<GoodsCategoryDto> goodsCategoryDtos;
 
+
+    /**
+     * 选中状态
+     */
+    private boolean selectedFlag;
+    
     public List<GoodsCategoryDto> getGoodsCategoryDtos() {
         return goodsCategoryDtos;
     }
@@ -180,5 +186,13 @@ public class BoardDto implements Serializable {
 
     public void setComboardSource(String comboardSource) {
         this.comboardSource = comboardSource;
+    }
+
+    public boolean getSelectedFlag() {
+        return selectedFlag;
+    }
+
+    public void setSelectedFlag(boolean selectedFlag) {
+        this.selectedFlag = selectedFlag;
     }
 }
