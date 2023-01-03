@@ -2402,4 +2402,57 @@ public class UccPropertyConfiguration {
     public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
         this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
     }
+
+	public boolean iseNetSyncWaybillCodeAndBoxCode() {
+		return eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+		this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public List<Integer> getNeedValidateMainLineBizSourceCodes() {
+		return needValidateMainLineBizSourceCodes;
+	}
+
+	public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
+		this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
+	}
+
+	public List<Integer> getNotValidateTransTypeCodes() {
+		return notValidateTransTypeCodes;
+	}
+
+	public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
+		this.notValidateTransTypeCodes = notValidateTransTypeCodes;
+	}
+
+	public List<String> get_multiplePackageSpotCheckSitesList() {
+		return _multiplePackageSpotCheckSitesList;
+	}
+
+	public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
+		this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
+	}
+
+	public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
+		return hideSpecialStartSitePrintReplaceSymbolMaxLength;
+	}
+
+	public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
+		this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
+	}
+
+	public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
+		this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
+	}
+
+	public void setHideSpecialStartSitPrintDestinationSiteStrList(
+			List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
+		this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
+	}
+
+	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
+		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
 }

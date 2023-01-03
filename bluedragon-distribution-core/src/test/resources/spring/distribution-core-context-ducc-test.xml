@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd" default-lazy-init="true">
+
+ 	<aop:aspectj-autoproxy/>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>classpath:configured/app.properties</value>
+                <value>classpath:configured/db.properties</value>
+                <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/mq.properties</value>
+                <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/dms_crossbow.properties</value>
+                <value>classpath:configured/ucc.properties</value>
+                <value>classpath:configured/ducc.properties</value>
+                <value>classpath:configured/print.properties</value>
+                <value>classpath:configured/kafka.properties</value>
+                <value>classpath:configured/important.properties</value>
+                <value>classpath:configured/sms.properties</value>
+                <value>classpath:aces.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
+<!--	<bean id="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">-->
+<!--		<property name="ignoreResourceNotFound" value="true"/>-->
+<!--		<property name="secLocation" value="classpath:configured/important.properties"/>-->
+<!--	</bean>-->
+
+
+    <!-- <import resource="classpath:spring/spring-ucc.xml" /> -->
+    <import resource="classpath:spring/spring-ducc.xml" />
+</beans>

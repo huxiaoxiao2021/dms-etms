@@ -2061,12 +2061,23 @@
 		  <artifactId>addressTranslation-api</artifactId>
 		  <version>${addressTranslation-api.version}</version>
 		</dependency>
-		<!-- ducc -->
-		<dependency>
-		 <groupId>com.jd.laf.config</groupId>
-		 <artifactId>laf-config-client-jd-spring</artifactId>
-		 <version>${laf.client.version}</version>
-		</dependency>
+        <!-- ducc -->
+        <dependency>
+         <groupId>com.jd.laf.config</groupId>
+         <artifactId>laf-config-client-jd-spring</artifactId>
+         <version>${laf.client.version}</version>
+         <type>pom</type>
+         <exclusions>
+            <exclusion>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+            </exclusion>
+         </exclusions>
+        </dependency>
         <!-- see https://lbsapi.jd.com/iframe.html?nav=2&childNav=0-1&childURL=/doc/guide/addressService/geocodingService/ -->
         <!--京图开放平台，地图及围栏相关工具-->
         <!--根据IP获取经纬度，计算两点间的直线距离-->
