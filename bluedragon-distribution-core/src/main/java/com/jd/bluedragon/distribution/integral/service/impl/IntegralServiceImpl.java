@@ -309,13 +309,8 @@ public class IntegralServiceImpl implements IntegralService {
     public JdCResponse<JyIntroductionDTO> getJyIntegralIntroduction() {
         JdCResponse<JyIntroductionDTO> jdCResponse = new JdCResponse<>();
         JyIntroductionDTO dto = new JyIntroductionDTO();
-        dto.setTitle("规则介绍");
-        String builder = "每日个人积分由基础分和平均系数组成:\n" +
-                "1、积分=基础分 × 平均系数；\n" +
-                "2、其中基础分为本人在到车岗、卸车岗、发货岗作业的总得分；\n" +
-                "3、平均系数为所有岗位各项指标的平均系数；\n" +
-                "4、统计时间为自然日0点开始至统计时间，每个整点会进行重新计算，刷新覆盖数据。\n";
-        dto.setContent(builder);
+        String introduction = integralProxy.getJyIntegralIntroduction();
+        dto.setContent(introduction);
         jdCResponse.setData(dto);
         jdCResponse.toSucceed();
         return jdCResponse;
