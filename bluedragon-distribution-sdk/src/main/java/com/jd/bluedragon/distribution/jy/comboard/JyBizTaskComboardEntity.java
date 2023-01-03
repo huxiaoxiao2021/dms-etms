@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class JyBizTaskComboardEntity {
+public class JyBizTaskComboardEntity implements Serializable {
 
     public static final String BIZ_PREFIX = "CB%s";
     private Long id;
