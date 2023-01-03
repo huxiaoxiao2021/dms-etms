@@ -1,45 +1,7 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.security.log.SecurityLogWriter;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
+import com.google.common.collect.Maps;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -49,8 +11,14 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
@@ -59,6 +27,7 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -77,12 +46,20 @@ import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
@@ -91,14 +68,8 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.RestHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -106,15 +77,29 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
+import com.jd.fastjson.JSONObject;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.staig.receiver.rpc.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
@@ -2632,5 +2617,246 @@ public class WaybillResource {
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
 		return spotCheckDto;
+	}
+
+	@Autowired
+	private DtcDataReceiverManager dtcDataReceiverManager;
+
+	@POST
+	@Path("/waybill/reverseComplement")
+	public void reverseComplement(String requestJson) {
+
+		JSONObject requestObject = JSON.parseObject(requestJson);
+		String sheet1 = requestObject.getString("sheet1");
+		List<Sheet1Row> sheet1List = JsonHelper.jsonToList(sheet1, Sheet1Row.class);
+		if(CollectionUtils.isEmpty(sheet1List)){
+			log.warn("sheet1转换为空!");
+			return;
+		}
+
+		// 批次号集合
+		Map<String, String> sendCodeMap = Maps.newHashMap();
+
+		String sheet2 = requestObject.getString("sheet2");
+		List<Sheet2Row> sheet2List = JsonHelper.jsonToList(sheet2, Sheet2Row.class);
+		if(CollectionUtils.isEmpty(sheet2List)){
+			log.warn("sheet2转换为空!");
+			return;
+		}
+		Map<String, Sheet2Row> sheet2map = Maps.newHashMap();
+		for (Sheet2Row sheet2Row : sheet2List) {
+			sheet2map.put(sheet2Row.getWaybillCode(), sheet2Row);
+		}
+
+		int dealCount = 0;
+
+		try {
+			for (Sheet1Row sheet1Row : sheet1List) {
+
+				String waybillCode = sheet1Row.getWaybillCode();
+				Integer receiveSiteCode = Integer.valueOf(sheet1Row.getReceiveSiteCode());
+				BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+				Integer orgId = bDto.getOrgId();
+				String dmdStoreId = bDto.getStoreCode();
+
+				String[] cky2AndStoreId = dmdStoreId.split("-");
+				String cky2 = cky2AndStoreId[1];
+				String storeId = cky2AndStoreId[2];
+
+
+				ReverseSendWms send = new ReverseSendWms();
+				// 设置值
+				send.setGuestBackType(0); // 表示客退
+				send.setIsInStore(0);
+				send.setLossQuantity(0); // 报丢数量
+				send.setOperateTime(DateHelper.formatDateTime(new Date())); // 发货时间
+				send.setBusiOrderCode(waybillCode);
+				send.setOrgId(orgId);
+				send.setCky2(Integer.valueOf(cky2));
+				Sheet2Row sheet2Row = sheet2map.get(waybillCode);
+				StringBuilder packageCodes = new StringBuilder();
+				List<String> packList = JsonHelper.jsonToList(sheet2Row.getPackListStr(), String.class);
+				if(!CollectionUtils.isEmpty(packList)){
+					for (int i = 0; i < packList.size(); i ++) {
+						if(i == 0){
+							packageCodes.append(packList.get(i));
+						}else {
+							packageCodes.append(Constants.SEPARATOR_COMMA).append(packList.get(i));
+						}
+					}
+					send.setPackageCodes(packageCodes.toString());
+				}
+				send.setOrderId(sheet2Row.getOrderId());
+				List<Product> proList = new ArrayList<Product>();
+				List<Goods> goodsList = JsonHelper.jsonToList(sheet2Row.getGoodsListStr(), Goods.class);
+				if(!CollectionUtils.isEmpty(goodsList)){
+					for (Goods goods : goodsList) {
+						Product product = new Product();
+						product.setProductId(goods.getSku());
+						product.setProductName(goods.getGoodName());
+						product.setProductNum(StringUtils.isEmpty(goods.getGoodCount()) ? null : Integer.valueOf(goods.getGoodCount()));
+						product.setProductPrice(goods.getGoodPrice());
+						product.setProductLoss("0");
+						proList.add(product);
+					}
+					send.setProList(proList);
+				}
+				send.setSendCode(generateSendCode(sendCodeMap, sheet1Row));
+				send.setSickWaybill(false);
+				send.setStoreId(Integer.valueOf(storeId));
+				send.setToken(""); //病单加token标识（仓储只关注是否为空，任务号方便我方根据报文核查）
+				send.setUserName(sheet1Row.getCreateUserName());
+				send.setXniType(0); // waybill.getWaybillType
+
+				String target = orgId + "," + cky2 + "," + storeId;
+				String outboundType = "OrderBackDl";
+				String source = "DMS";
+				String messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
+
+				log.info("运单号:{}的退货xml报文:{}", waybillCode, messageValue);
+
+				Result result = dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, waybillCode);
+
+				log.info("运单号:{}推仓数据结果:{}", waybillCode, JsonHelper.toJson(result));
+
+				dealCount ++;
+			}
+		}catch (Exception e){
+			log.error("逆向推送仓数据异常!", e);
+		}
+
+		log.info("已处理成功数量:{}", dealCount);
+
+		log.info("生成的批次号：{}", JsonHelper.toJson(sendCodeMap.values()));
+
+	}
+
+	private String generateSendCode(Map<String, String> sendCodeMap, Sheet1Row sheet1Row) {
+		String key = sheet1Row.getCreateSiteCode() + "-" + sheet1Row.getReceiveSiteCode();
+		if(sendCodeMap.containsKey(key)){
+			return sendCodeMap.get(key);
+		}
+		long createSiteCodeTmp = Long.parseLong(sheet1Row.getCreateSiteCode());
+		long receiveSiteCodeTmp = Long.parseLong(sheet1Row.getReceiveSiteCode());
+		String sendCode = SerialRuleUtil.generateSendCode(createSiteCodeTmp, receiveSiteCodeTmp, new Date());
+		sendCodeMap.put(key, sendCode);
+		return sendCode;
+	}
+
+	static class Sheet1Row {
+		private String waybillCode;
+		private String createSiteCode;
+		private String receiveSiteCode;
+		private String createUserName;
+
+		public String getWaybillCode() {
+			return waybillCode;
+		}
+
+		public void setWaybillCode(String waybillCode) {
+			this.waybillCode = waybillCode;
+		}
+
+		public String getCreateSiteCode() {
+			return createSiteCode;
+		}
+
+		public void setCreateSiteCode(String createSiteCode) {
+			this.createSiteCode = createSiteCode;
+		}
+
+		public String getReceiveSiteCode() {
+			return receiveSiteCode;
+		}
+
+		public void setReceiveSiteCode(String receiveSiteCode) {
+			this.receiveSiteCode = receiveSiteCode;
+		}
+
+		public String getCreateUserName() {
+			return createUserName;
+		}
+
+		public void setCreateUserName(String createUserName) {
+			this.createUserName = createUserName;
+		}
+	}
+
+	static class Sheet2Row {
+		private String waybillCode;
+		private String orderId;
+		private String packListStr;
+		private String goodsListStr;
+
+		public String getWaybillCode() {
+			return waybillCode;
+		}
+
+		public void setWaybillCode(String waybillCode) {
+			this.waybillCode = waybillCode;
+		}
+
+		public String getOrderId() {
+			return orderId;
+		}
+
+		public void setOrderId(String orderId) {
+			this.orderId = orderId;
+		}
+
+		public String getPackListStr() {
+			return packListStr;
+		}
+
+		public void setPackListStr(String packListStr) {
+			this.packListStr = packListStr;
+		}
+
+		public String getGoodsListStr() {
+			return goodsListStr;
+		}
+
+		public void setGoodsListStr(String goodsListStr) {
+			this.goodsListStr = goodsListStr;
+		}
+	}
+
+	static class Goods {
+		private String sku;
+		private String goodName;
+		private String goodCount;
+		private String goodPrice;
+
+		public String getSku() {
+			return sku;
+		}
+
+		public void setSku(String sku) {
+			this.sku = sku;
+		}
+
+		public String getGoodName() {
+			return goodName;
+		}
+
+		public void setGoodName(String goodName) {
+			this.goodName = goodName;
+		}
+
+		public String getGoodCount() {
+			return goodCount;
+		}
+
+		public void setGoodCount(String goodCount) {
+			this.goodCount = goodCount;
+		}
+
+		public String getGoodPrice() {
+			return goodPrice;
+		}
+
+		public void setGoodPrice(String goodPrice) {
+			this.goodPrice = goodPrice;
+		}
 	}
 }
