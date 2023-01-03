@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -71,6 +70,6 @@ public interface JyBizTaskComboardService {
    * @param operateUserName
    * @return
    */
-  boolean updateBoardStatusBySendCodeList(List<String> batchCodes, String operateUserCode, String operateUserName);
+  boolean updateBoardStatusBySendCodeList(String batchCodes, String operateUserCode, String operateUserName);
 }
 

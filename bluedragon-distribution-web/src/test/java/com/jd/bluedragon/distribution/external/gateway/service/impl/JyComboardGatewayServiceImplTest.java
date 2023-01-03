@@ -549,6 +549,6 @@ public class JyComboardGatewayServiceImplTest {
         List<String> batchCodes = new ArrayList<>();
         batchCodes.add("910-39-20221205212254643");
         batchCodes.add("910-39-20221205212254654");
-        jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCodes,"liwenji3","李文吉");
+        jyBizTaskComboardService.updateBoardStatusBySendCodeList("dehudheu","liwenji3","李文吉");
     }
 }

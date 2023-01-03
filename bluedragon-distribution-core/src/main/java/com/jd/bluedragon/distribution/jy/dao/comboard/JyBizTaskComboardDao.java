@@ -86,7 +86,7 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
         return this.getSqlSession().update(NAMESPACE + ".updateBoardStatus", boardStatusReq);
     }
 
-    public List<JyBizTaskComboardEntity> queryTaskBySendCodeList(List<String> batchCodes) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryTaskBySendCodeList",batchCodes);
+    public List<JyBizTaskComboardEntity> queryTaskBySendCode(String sendCode) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryTaskBySendCode",sendCode);
     }
 }

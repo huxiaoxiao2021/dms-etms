@@ -498,7 +498,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
-        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>();
         if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
             invokeResult.setCode(NO_SEND_FLOW_CODE);
             invokeResult.setMessage(NO_SEND_FLOW_MESSAGE);
@@ -516,6 +516,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
         
         if (CollectionUtils.isEmpty(boardList)) {
+            invokeResult.setCode(RESULT_SUCCESS_CODE);
+            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
             return invokeResult;
         }
         
@@ -573,18 +575,18 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
             boardDtos.add(boardDto);
         }
-        invokeResult.setCode(JdResponse.CODE_OK);
-        invokeResult.setMessage(JdResponse.MESSAGE_OK);
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         return invokeResult;
     }
 
     @Override
     @Transactional(readOnly = false,propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String operateUserCode, String operateUserName) {
+    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName) {
         
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealCarCodeOfTms.getBatchCodes(), operateUserCode, operateUserName)) {
+        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("更新板状态失败");
             return invokeResult;
