@@ -88,4 +88,16 @@ public class IntegralProxy {
             throw new RuntimeException();
         }
     }
+
+
+    @JProfiler(jKey = "IntegralProxy.getJyIntegralIntroduction",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public String getJyIntegralIntroduction(){
+        ServiceResult<String> serviceResult = personalIntegralJSFService.getJyIntegralIntroduction();
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
 }
