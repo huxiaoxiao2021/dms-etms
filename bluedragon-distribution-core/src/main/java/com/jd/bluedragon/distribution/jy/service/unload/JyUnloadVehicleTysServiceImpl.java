@@ -1580,14 +1580,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             UnloadMasterChildTaskRespDto resData = new UnloadMasterChildTaskRespDto();
             //主任务
             JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
-            UnloadMasterTaskDto masterTask = new UnloadMasterTaskDto();
-            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
             if (jyMasterTask == null) {
-                resData.setUnloadMasterTaskDto(masterTask);
-                resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
-                res.setData(resData);
+                res.setMessage("查询为空");
                 return res;
             }
+            UnloadMasterTaskDto masterTask = new UnloadMasterTaskDto();
+            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+
             org.springframework.beans.BeanUtils.copyProperties(jyMasterTask, masterTask);
             resData.setUnloadMasterTaskDto(masterTask);
             if(queryChildTaskFlag != null && queryChildTaskFlag) {
