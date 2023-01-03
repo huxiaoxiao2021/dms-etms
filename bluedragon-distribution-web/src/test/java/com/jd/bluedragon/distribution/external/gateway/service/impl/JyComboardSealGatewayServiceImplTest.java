@@ -8,7 +8,9 @@ import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -139,5 +141,13 @@ public class JyComboardSealGatewayServiceImplTest {
         sealCarDto.setTransWorkItemCode("TW22121900853385-001");
         InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarDto,"9999" , "liwenji3", "李文吉");
         System.out.println(JsonHelper.toJson(result));
+    }
+    
+    @Test
+    public void loadProgressTest() {
+        SendVehicleProgressRequest request = new SendVehicleProgressRequest();
+        request.setSendVehicleBizId("SST22123000000018");
+        JdCResponse<SendVehicleProgress> jdCResponse = jyComboardSealGatewayService.loadProgress(request);
+        System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }

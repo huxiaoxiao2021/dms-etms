@@ -451,7 +451,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param weightOfTon
      * @return
      */
-    private BigDecimal convertTonToKg(BigDecimal weightOfTon) {
+    public BigDecimal convertTonToKg(BigDecimal weightOfTon) {
         return weightOfTon.multiply(BigDecimal.valueOf(1000));
     }
 
@@ -2555,20 +2555,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
     }
 
-    private Integer getDestTotal(String sendVehicleBizId) {
+    public Integer getDestTotal(String sendVehicleBizId) {
         JyBizTaskSendVehicleDetailEntity totalQ = new JyBizTaskSendVehicleDetailEntity();
         totalQ.setSendVehicleBizId(sendVehicleBizId);
         return taskSendVehicleDetailService.countByCondition(totalQ);
     }
 
-    private Integer getSealedDestTotal(String sendVehicleBizId) {
+    public Integer getSealedDestTotal(String sendVehicleBizId) {
         JyBizTaskSendVehicleDetailEntity sealedQ = new JyBizTaskSendVehicleDetailEntity();
         sealedQ.setSendVehicleBizId(sendVehicleBizId);
         sealedQ.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
         return taskSendVehicleDetailService.countByCondition(sealedQ);
     }
 
-    private BigDecimal dealLoadRate(BigDecimal loadWeight, BigDecimal standardWeight) {
+    public BigDecimal dealLoadRate(BigDecimal loadWeight, BigDecimal standardWeight) {
         if (!NumberHelper.gt0(standardWeight)) {
             return BigDecimal.ZERO;
         }
