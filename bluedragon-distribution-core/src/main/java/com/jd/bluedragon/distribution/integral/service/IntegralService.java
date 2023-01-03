@@ -14,6 +14,7 @@ import java.util.List;
  * @date 2022/12/19
  */
 public interface IntegralService {
+
     /*
      * 查询个人积分总览
      */
