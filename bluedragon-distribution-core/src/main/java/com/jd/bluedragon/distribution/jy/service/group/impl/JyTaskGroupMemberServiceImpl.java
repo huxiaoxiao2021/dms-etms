@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
@@ -19,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.jsf.gd.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service("jyTaskGroupMemberService")
 public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
-
+	private static final Logger logger = LoggerFactory.getLogger(JyTaskGroupMemberServiceImpl.class);
 	@Autowired
 	@Qualifier("jyTaskGroupMemberDao")
 	private JyTaskGroupMemberDao jyTaskGroupMemberDao;
@@ -61,6 +65,13 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 	public Result<Boolean> startTask(JyTaskGroupMemberEntity startData) {
 		Result<Boolean> result = new Result<Boolean>();
 		result.toSuccess();
+		if(startData == null 
+				|| StringUtils.isBlank(startData.getRefGroupCode())
+				|| StringUtils.isBlank(startData.getRefTaskId())) {
+			logger.warn("startTask-参数错误！groupCode和taskId不能为空！startData={}",JsonHelper.toJson(startData));
+			result.toFail("startTask-参数错误！groupCode和taskId不能为空！");
+			return  result;
+		}
 		//查询小组在岗人员
 		JyGroupMemberQuery membersQuery = new JyGroupMemberQuery();
 		membersQuery.setGroupCode(startData.getRefGroupCode());

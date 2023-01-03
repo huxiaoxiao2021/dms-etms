@@ -657,4 +657,20 @@ public class DateHelper {
             return null;
         }
     }
+
+
+
+    /**
+     * 获取当月绩效结算时间 21日7点
+     * @return
+     */
+    public static Date getCurrentMonthAccrualSettlementTime(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 21);
+        calendar.set(Calendar.HOUR_OF_DAY, 7);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
 }

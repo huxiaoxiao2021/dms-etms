@@ -788,6 +788,10 @@ public class Constants {
      */
     public static final Integer THIRD_SITE_SUB_TYPE = 16;
     /**
+     * 第三方配送站点-三级类型-邮政落地配-16001
+     */
+    public static final Integer THIRD_SITE_THIRD_TYPE_SMS = 16001;
+    /**
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
@@ -1267,15 +1271,24 @@ public class Constants {
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
     /**
-     * 外单易冻品增值服务编码
+     * 外单增值服务编码
      */
     public static final String EASY_FROZEN_SERVICE = "deductibleService";
+
+    /**
+     *外单易冻品增值服务编码
+     */
+    public static final String EASY_FROZEN_SERVICE_KEY = "39001003";
 
     /**
      * 自营单易冻品增值服务编码
      */
     public static final String SELF_EASY_FROZEN_SERVICE = "easyFreeze";
 
+    /**
+     * 特保单增值服务编码
+     */
+    public static final String LUXURY_SECURITY_SERVICE = "luxurySecurity";
 
     public static final String INSPECTION_TOKEN1="D945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
     public static final String INSPECTION_TOKEN2="E945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
