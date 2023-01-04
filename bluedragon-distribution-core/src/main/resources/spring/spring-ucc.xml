@@ -208,6 +208,7 @@
 		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
 
+		<property name="syncScheduleTaskSwitch" value="${syncScheduleTaskSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -391,6 +392,7 @@
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
 				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
 				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
+				<value>uccPropertyConfiguration.syncScheduleTaskSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
