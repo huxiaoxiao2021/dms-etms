@@ -390,6 +390,9 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   private void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, List<Long> endSiteCodeList,
                                    SendVehicleProgress progress) {
     List<Integer> codeList = new ArrayList<>();
+    for (Long siteCode : endSiteCodeList) {
+      codeList.add(siteCode.intValue());
+    }
     List<JyComboardAggsEntity> comboardAggs = null;
     try {
       comboardAggs = jyComboardAggsService.queryComboardAggs(taskSend.getStartSiteId().intValue(), codeList);

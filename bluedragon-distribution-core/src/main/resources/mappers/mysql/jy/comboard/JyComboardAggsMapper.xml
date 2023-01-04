@@ -21,11 +21,13 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="package_scanned_count" jdbcType="INTEGER" property="packageScannedCount" />
     <result column="box_scanned_count" jdbcType="INTEGER" property="boxScannedCount" />
+    <result column="weight" jdbcType="DOUBLE" property="weight" />
+    <result column="volume" jdbcType="DOUBLE" property="volume" />
   </resultMap>
   <sql id="Base_Column_List">
     id,operate_site_id,receive_site_id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count,
     more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn,
-    ts,package_scanned_count,box_scanned_count
+    ts,package_scanned_count,box_scanned_count,weight,volume
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select

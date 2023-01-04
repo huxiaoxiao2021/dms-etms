@@ -7,10 +7,12 @@ import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -29,6 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -148,6 +151,15 @@ public class JyComboardSealGatewayServiceImplTest {
         SendVehicleProgressRequest request = new SendVehicleProgressRequest();
         request.setSendVehicleBizId("SST22123000000018");
         JdCResponse<SendVehicleProgress> jdCResponse = jyComboardSealGatewayService.loadProgress(request);
+        System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+    
+    @Test
+    public void selectSealDestTest() {
+        SelectSealDestRequest request = new SelectSealDestRequest();
+        request.setCurrentOperate(new CurrentOperate(910,"888",new Date()));
+        request.setSendVehicleBizId("SST22123000000018");
+        JdCResponse<ToSealDestAgg> jdCResponse = jyComboardSealGatewayService.selectSealDest(request);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }
