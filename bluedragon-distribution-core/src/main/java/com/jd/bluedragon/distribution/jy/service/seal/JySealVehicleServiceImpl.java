@@ -23,10 +23,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
@@ -556,6 +553,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardDto.setBoardCode(board.getBoardCode());
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
             boardDto.setStatus(board.getBoardStatus());
+            boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(board.getBoardStatus()));
             
             if (boardScanCountMap.containsKey(board.getBoardCode())) {
                 JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
