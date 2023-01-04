@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.core.security.log.builder.SecurityLogHeaderBuilder;
 import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
 import com.jd.bluedragon.core.security.log.enums.*;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -115,6 +116,19 @@ public class SecurityLogRecord {
                     if (value == null) {
                         continue;
                     }
+
+                    //个性化的字段处理
+                    if (SecurityLogUniqueIdentifierKeyEnums.carryBillId.equals(keyEnumsStringEntrys.getKey())) {
+                        value = WaybillUtil.getWaybillCode(String.valueOf(value));
+                    } else if (SecurityLogUniqueIdentifierKeyEnums.receivePhone.equals(keyEnumsStringEntrys.getKey())) {
+                        if (((String) value).contains(com.jd.bluedragon.Constants.SEPARATOR_COMMA)) {
+                            String[] valueSplit = ((String) value).split(com.jd.bluedragon.Constants.SEPARATOR_COMMA);
+                            if (valueSplit.length>0) {
+                                value = valueSplit[0];
+                            }
+                        }
+                    }
+
                     respInfoJson.put(keyEnumsStringEntrys.getKey().name(), value);
                 }
             }
