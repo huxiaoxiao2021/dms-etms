@@ -297,4 +297,18 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendAggBak:%s";
 
+    /**
+     * 拣运发货产品类型统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_KEY = JY_CACHE_PREFIX + "jySendProductAgg:%s";
+
+    /**
+     * 拣运发货统计（备库）
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendProductAggBak:%s";
+
+
+
 }

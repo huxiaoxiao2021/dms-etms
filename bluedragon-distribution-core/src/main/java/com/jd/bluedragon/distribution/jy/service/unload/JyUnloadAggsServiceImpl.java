@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
@@ -37,6 +38,9 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Autowired
     private JyDuccConfigManager jyDuccConfigManager;
+
+    @Autowired
+    private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
 
     @Autowired
     private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
@@ -97,7 +101,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     }
 
     @Override
-    public int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity) {
+    public int insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity) {
         return jyUnloadAggsDao.insertOrUpdate(entity);
     }
 
@@ -124,10 +128,13 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
      * @return
      */
     private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
-        if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
-            return jyUnloadAggsDaoBak;
-        }else {
-            return jyUnloadAggsDao;
+        if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
+            if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
+                return jyUnloadAggsDaoBak;
+            }else {
+                return jyUnloadAggsDaoMain;
+            }
         }
+        return jyUnloadAggsDao;
     }
 }

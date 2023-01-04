@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -28,10 +27,10 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2022/10/11 17:04
  * @Description: 卸车进度汇总消费
  */
-@Service("jyUnloadCarAggsConsumer")
-public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
+@Service("jyUnloadCarAggsMainConsumer")
+public class JyUnloadCarAggsMainConsumer extends MessageBaseConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(JyUnloadCarAggsConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JyUnloadCarAggsMainConsumer.class);
 
     @Autowired
     private JyUnloadAggsService jyUnloadAggsService;
@@ -69,7 +68,7 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
                 return;
             }
         }
-        int result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggs(entity);
+        int result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsMain(entity);
         if(result >0){
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(entity.getVersion())) {

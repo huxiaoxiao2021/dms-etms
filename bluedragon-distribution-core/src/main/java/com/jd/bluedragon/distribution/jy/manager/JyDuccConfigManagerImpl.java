@@ -30,7 +30,7 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
                 return result.getData();
             }
         }catch (Exception e){
-            log.error("获取拣运发货岗主备开关切换值异常!");
+            log.error("获取拣运发货岗主备开关切换值异常!-{}",e.getMessage(),e);
         }
         return false;
     }
@@ -44,7 +44,63 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
                 return result.getData();
             }
         }catch (Exception e){
-            log.error("获取拣运卸车岗主备开关切换值异常!");
+            log.error("获取拣运卸车岗主备开关切换值异常!-{}",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getJySendProductAggsDataReadSwitch() {
+        try{
+            ServiceResult<Boolean> result = duccConfigJsfService.getJySendProductAggsDataReadSwitch();
+            log.info("获取拣运发货产品类型汇总主备数据读取开关-{}", JSON.toJSONString(result));
+            if(result != null && ServiceResult.SUCCESS_CODE == result.getCode()){
+                return result.getData();
+            }
+        }catch (Exception e){
+            log.error("获取拣运发货产品类型汇总主备数据读取开关值异常!-{}",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getJySendAggOldOrNewDataReadSwitch() {
+        try{
+            ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggOldOrNewDataReadSwitch();
+            log.info("获取拣运发货岗老库or新库数据读取开关-{}", JSON.toJSONString(result));
+            if(result != null && ServiceResult.SUCCESS_CODE == result.getCode()){
+                return result.getData();
+            }
+        }catch (Exception e){
+            log.error("获取拣运发货岗老库or新库数据读取开关异常!-{}",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getJyUnloadAggsOldOrNewDataReadSwitch() {
+        try{
+            ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsOldOrNewDataReadSwitch();
+            log.info("获取拣运卸车岗老库or新库数据读取开关-{}", JSON.toJSONString(result));
+            if(result != null && ServiceResult.SUCCESS_CODE == result.getCode()){
+                return result.getData();
+            }
+        }catch (Exception e){
+            log.error("获取拣运卸车岗老库or新库数据读取开关异常!-{}",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getJySendProductAggsOldOrNewDataReadSwitch() {
+        try{
+            ServiceResult<Boolean> result = duccConfigJsfService.getJySendProductAggsOldOrNewDataReadSwitch();
+            log.info("获取拣运卸车岗老库or新库数据读取开关-{}", JSON.toJSONString(result));
+            if(result != null && ServiceResult.SUCCESS_CODE == result.getCode()){
+                return result.getData();
+            }
+        }catch (Exception e){
+            log.error("获取拣运卸车岗老库or新库数据读取开关异常!-{}",e.getMessage(),e);
         }
         return false;
     }

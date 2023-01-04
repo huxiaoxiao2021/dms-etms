@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
@@ -14,9 +13,9 @@ import java.util.List;
  * @email
  * @date 2022-11-02 15:26:08
  */
-public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
+public class JySendProductAggsDaoMain extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
 
-    private final static String NAMESPACE = JySendProductAggsDao.class.getName();
+    private final static String NAMESPACE = JySendProductAggsDaoMain.class.getName();
 
     public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
@@ -30,6 +29,4 @@ public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  impl
     public int insertOrUpdate(JySendProductAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
-
-
 }

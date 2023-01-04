@@ -43,12 +43,13 @@
     <import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
     <import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
     <import resource="classpath:spring/distribution-core-datasource-jy-core.xml" />
-    <import resource="classpath:spring/distribution-core-datasource-jy-core-bak.xml" />
-
+    <import resource="classpath:spring/distribution-core-datasource-jy-core-agg-bak.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-jy-core-agg-main.xml" />
     <import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
     <import resource="classpath:spring/distribution-core-datasource-task.xml" />
     <import resource="classpath:spring/distribution-core-dao.xml" />
-    <import resource="classpath:spring/distribution-core-dao-bak.xml" />
+    <import resource="classpath:spring/distribution-core-agg-dao-bak.xml" />
+    <import resource="classpath:spring/distribution-core-agg-dao-main.xml" />
     <import resource="classpath:spring/distribution-core-ws.xml" />
     <import resource="classpath:spring/distribution-core-business.xml" />
 

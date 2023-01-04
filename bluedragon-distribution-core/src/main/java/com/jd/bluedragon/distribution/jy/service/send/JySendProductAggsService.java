@@ -14,17 +14,13 @@ import java.util.List;
  * @date 2022-11-02 15:26:08
  */
 public interface JySendProductAggsService {
-    JySendProductAggsEntity getVehicleSendStatistics(String sendVehicleBizId);
-
-    /**
-     * 按发车任务查发货流向进度
-     * @param sendVehicleBizId
-     * @return
-     */
-    List<JySendProductAggsEntity> findBySendVehicleBizId(String sendVehicleBizId);
 
     List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId);
 
     Long getToScanCountSum(String sendVehicleBizId);
+
+    int insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity);
+
+    int insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity);
 }
 

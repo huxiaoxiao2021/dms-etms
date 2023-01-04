@@ -20,4 +20,30 @@ public interface JyDuccConfigManager {
      * @return
      */
     Boolean getJyUnloadAggsDataReadSwitchInfo();
+
+    /**
+     * 获取拣运发货产品类型汇总主备数据读取开关
+     * @return
+     */
+    Boolean getJySendProductAggsDataReadSwitch();
+
+
+    /**
+     * 获取拣运发货岗老库or新库数据读取开关
+     * @return
+     */
+    Boolean getJySendAggOldOrNewDataReadSwitch();
+
+    /**
+     * 获取拣运卸车岗老库or新库数据读取开关
+     * @return
+     */
+    Boolean getJyUnloadAggsOldOrNewDataReadSwitch();
+
+    /**
+     * 获取拣运卸车岗老库or新库数据读取开关
+     * @return
+     */
+    Boolean getJySendProductAggsOldOrNewDataReadSwitch();
+
 }

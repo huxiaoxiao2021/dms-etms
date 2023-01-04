@@ -4,9 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean id="jySendAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplateBak"/>
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
     </bean>
     <bean id="jyUnloadAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplateBak"/>
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
     </bean>
 </beans>

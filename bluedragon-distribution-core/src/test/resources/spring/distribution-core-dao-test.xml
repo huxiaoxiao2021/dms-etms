@@ -42,7 +42,8 @@
 	<import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
-	<import resource="classpath:spring/distribution-core-dao-bak.xml" />
+	<import resource="classpath:spring/distribution-core-agg-dao-bak.xml" />
+	<import resource="classpath:spring/distribution-core-agg-dao-main.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-business.xml" />
 	<import resource="classpath:spring/distribution-core-log.xml" />

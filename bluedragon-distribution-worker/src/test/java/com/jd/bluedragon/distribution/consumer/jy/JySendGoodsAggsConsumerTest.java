@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsMainConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class JySendGoodsAggsConsumerTest {
     private static final Logger logger = LoggerFactory.getLogger(JySendGoodsAggsConsumerTest.class);
 
     @Autowired
-    private JySendGoodsAggsConsumer jySendGoodsAggsConsumer;
+    private JySendGoodsAggsMainConsumer jySendGoodsAggsConsumer;
 
     @Test
     public void consume() {

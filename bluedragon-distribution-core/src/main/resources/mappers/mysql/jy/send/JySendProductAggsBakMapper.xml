@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoBak">
 
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity" id="jySendProductAggsMap">
@@ -28,6 +28,7 @@
         yn,
         ts
     </sql>
+
 
 
 
@@ -134,6 +135,5 @@
         </if>
         ts = now()
     </update>
-
 
 </mapper>

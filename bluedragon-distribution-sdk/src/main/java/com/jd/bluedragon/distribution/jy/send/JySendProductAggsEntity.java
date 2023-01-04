@@ -58,6 +58,10 @@ public class JySendProductAggsEntity implements Serializable {
      */
     private Date ts;
 
+    /**
+     * 版本号
+     */
+    private Long version;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -138,5 +142,13 @@ public class JySendProductAggsEntity implements Serializable {
 
     public void setProductType(String productType) {
         this.productType = productType;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

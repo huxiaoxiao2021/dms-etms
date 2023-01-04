@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
@@ -111,6 +112,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Autowired
     private JyDuccConfigManager jyDuccConfigManager;
+
+    @Autowired
+    private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
 
     @Autowired
     private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
@@ -798,10 +802,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
-        if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
-            return jyUnloadAggsDaoBak;
-        }else {
-            return jyUnloadAggsDao;
+        if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
+            if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
+                return jyUnloadAggsDaoBak;
+            }else {
+                return jyUnloadAggsDaoMain;
+            }
         }
+        return jyUnloadAggsDao;
     }
 }

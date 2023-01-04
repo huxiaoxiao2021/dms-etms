@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak;
@@ -22,7 +23,12 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     JySendAggsDao jySendAggsDao;
 
     @Autowired
+    JySendAggsDaoMain jySendAggsDaoMain;
+
+    @Autowired
     JySendAggsDaoBak jySendAggsDaoBak;
+
+
 
 
     @Override
@@ -36,8 +42,8 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     }
 
     @Override
-    public int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity) {
-        return jySendAggsDao.insertOrUpdate(entity);
+    public int insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity) {
+        return jySendAggsDaoMain.insertOrUpdate(entity);
     }
 
     @Override
@@ -46,10 +52,14 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     }
 
     private JySendAggsDaoStrategy getJySendAggsDao(){
-        if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
-            return jySendAggsDaoBak;
-        }else {
-            return jySendAggsDao;
+
+        if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
+                return jySendAggsDaoBak;
+            }else {
+                return jySendAggsDaoMain;
+            }
         }
+        return jySendAggsDao;
     }
 }

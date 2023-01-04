@@ -22,10 +22,10 @@ public interface JySendAggsService {
      */
     List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 
-    //插入或修改
-    int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity);
+    //插入或修改主库
+    int insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity);
 
-    //插入或修改
+    //插入或修改备库
     int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity);
 }
 

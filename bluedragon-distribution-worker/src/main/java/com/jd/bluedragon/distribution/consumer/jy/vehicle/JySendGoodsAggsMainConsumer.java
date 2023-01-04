@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -28,9 +27,9 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2022/10/11 17:39
  * @Description:
  */
-@Service("jySendGoodsAggsConsumer")
-public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(JySendGoodsAggsConsumer.class);
+@Service("jySendGoodsAggsMainConsumer")
+public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(JySendGoodsAggsMainConsumer.class);
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -40,21 +39,21 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
     private JySendAggsService jySendAggsService;
 
     @Override
-    @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsMainConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
 
-        logger.info("JySendGoodsAggsConsumer consume 消息体-{}",message.getText());
+        logger.info("JySendGoodsAggsMainConsumer consume 消息体-{}",message.getText());
 
         if (StringHelper.isEmpty(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume --> 消息为空");
+            logger.warn("JySendGoodsAggsMainConsumer consume --> 消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+            logger.warn("JySendGoodsAggsMainConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         JySendAggsEntity entity = JsonHelper.fromJson(message.getText(), JySendAggsEntity.class);
-        logger.info("JySendGoodsAggsConsumer entity 消息体-{}", JSON.toJSONString(entity));
+        logger.info("JySendGoodsAggsMainConsumer entity 消息体-{}", JSON.toJSONString(entity));
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
@@ -64,15 +63,15 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
         if (redisClientOfJy.exists(versionMutex)) {
             Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
             if (!NumberHelper.gt(entity.getVersion(), version)) {
-                logger.warn("JySendGoodsAggsConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
+                logger.warn("JySendGoodsAggsMainConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
                 return;
             }
         }
-        int result = jySendAggsService.insertOrUpdateJySendGoodsAggs(entity);
+        int result = jySendAggsService.insertOrUpdateJySendGoodsAggsMain(entity);
         if(result >0){
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(entity.getVersion())) {
-                logger.info("JySendGoodsAggsConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
+                logger.info("JySendGoodsAggsMainConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
                 redisClientOfJy.set(versionMutex, entity.getVersion() + "");
                 redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
             }

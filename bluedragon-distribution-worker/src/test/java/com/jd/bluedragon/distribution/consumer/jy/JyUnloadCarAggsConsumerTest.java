@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsMainConsumer;
 import com.jd.bluedragon.distribution.consumer.send.CancelSendDetailPrintHandoverConsumerTest;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ public class JyUnloadCarAggsConsumerTest {
     private static final Logger logger = LoggerFactory.getLogger(JyUnloadCarAggsConsumerTest.class);
 
     @Autowired
-    private JyUnloadCarAggsConsumer jyUnloadCarAggsConsumer;
+    private JyUnloadCarAggsMainConsumer jyUnloadCarAggsConsumer;
 
     @Autowired
     private JyUnloadCarAggsBakConsumer bakConsumer;

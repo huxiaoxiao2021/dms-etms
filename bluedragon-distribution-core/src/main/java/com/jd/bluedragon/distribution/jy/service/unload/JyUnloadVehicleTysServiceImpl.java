@@ -141,6 +141,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private JyDuccConfigManager jyDuccConfigManager;
 
     @Autowired
+    private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
+
+    @Autowired
     private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
 
     @Override
@@ -1739,10 +1742,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      * @return
      */
     private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
-        if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
-            return jyUnloadAggsDaoBak;
-        }else {
-            return jyUnloadAggsDao;
+        if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
+            if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
+                return jyUnloadAggsDaoBak;
+            }else {
+                return jyUnloadAggsDaoMain;
+            }
         }
+        return jyUnloadAggsDao;
     }
 }

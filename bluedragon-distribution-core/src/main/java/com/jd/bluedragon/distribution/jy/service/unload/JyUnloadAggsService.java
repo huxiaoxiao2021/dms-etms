@@ -32,7 +32,7 @@ public interface JyUnloadAggsService {
      */
     List<ExcepScanDto>  queryExcepScanStatistics(JyUnloadAggsEntity entity);
 
-    int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity);
+    int insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity);
 
     int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity);
 
