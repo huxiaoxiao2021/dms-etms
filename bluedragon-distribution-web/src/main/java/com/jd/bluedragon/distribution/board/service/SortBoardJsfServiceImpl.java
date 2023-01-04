@@ -341,7 +341,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             response.toSucceed();
             return response;
         }catch (Exception e){
-            log.error("自动化组板操作发货异常，组板信息：{}", JsonHelper.toJson(request));
+            log.error("自动化组板操作发货异常，组板信息：{}", JsonHelper.toJson(request),e);
             response.toFail("自动化组板发货操作异常异常");
             return response;
         }
