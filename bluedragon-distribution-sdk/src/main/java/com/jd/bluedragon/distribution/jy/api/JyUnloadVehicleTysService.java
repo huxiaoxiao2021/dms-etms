@@ -126,6 +126,14 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<List<UnloadTaskFlowDto>> queryUnloadTaskFlow(String bizId);
 
+    /**
+     * 查询卸车任务下流向信息
+     * 支持分页
+     * @param taskFlowDto
+     * @return
+     */
+    InvokeResult<List<UnloadTaskFlowDto>> pageQueryUnloadTaskFlow(TaskFlowDto taskFlowDto);
+
 
     /**
      * 查询流向下组板信息
