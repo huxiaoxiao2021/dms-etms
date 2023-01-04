@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.google.common.collect.Maps;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
@@ -17,11 +16,12 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -32,6 +32,8 @@ import java.util.Objects;
  **/
 @Service("dealReprintHandler")
 public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+
+    private static final Logger logger = LoggerFactory.getLogger(DealReprintHandler.class);
 
     @Autowired
     private ReprintRecordService reprintRecordService;
@@ -114,6 +116,9 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
+                if(logger.isInfoEnabled()){
+                    logger.info("单号:{}的快运改址打印需新增额外属性!", printData.getWaybillCode());
+                }
                 // 快运改址补打：reprintType = 1
                 waybillStatus.putExtendParamMap("reprintType", 1);
             }
