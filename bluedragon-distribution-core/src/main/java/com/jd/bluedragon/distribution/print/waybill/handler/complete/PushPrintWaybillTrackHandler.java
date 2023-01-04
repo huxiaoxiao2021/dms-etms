@@ -123,6 +123,9 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
+                if(logger.isInfoEnabled()){
+                    logger.info("单号:{}的快运改址打印需新增额外属性!", printData.getWaybillCode());
+                }
                 // 快运改址打印：reprintType = 1
                 waybillStatus.putExtendParamMap("reprintType", 1);
             }

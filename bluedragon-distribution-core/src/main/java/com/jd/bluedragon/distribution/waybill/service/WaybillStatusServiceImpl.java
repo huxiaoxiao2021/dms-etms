@@ -888,7 +888,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator() + "包裹打印");
 
                 if (log.isInfoEnabled()) {
-                    log.info("向运单系统回传打印全程跟踪. {}", tWaybillStatus.getPackageCode());
+                    log.info("向运单系统回传单号:{}的打印全程跟踪. {}", tWaybillStatus.getPackageCode(), JsonHelper.toJson(bdTraceDto));
                 }
 
                 waybillQueryManager.sendBdTrace(bdTraceDto);
