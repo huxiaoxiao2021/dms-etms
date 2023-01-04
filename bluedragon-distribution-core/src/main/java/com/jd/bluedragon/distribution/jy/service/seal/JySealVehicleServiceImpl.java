@@ -555,7 +555,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardDto.setSendCode(board.getSendCode());
             boardDto.setBoardCode(board.getBoardCode());
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
-
+            boardDto.setStatus(board.getBoardStatus());
+            
             if (boardScanCountMap.containsKey(board.getBoardCode())) {
                 JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
                 boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
