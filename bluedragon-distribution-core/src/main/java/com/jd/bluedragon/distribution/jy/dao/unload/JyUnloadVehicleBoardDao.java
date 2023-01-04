@@ -29,6 +29,10 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByBizIdAndBoardCode", entity);
     }
 
+    public int countByStageBizId(String stageBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByStageBizId", stageBizId);
+    }
+
     /**
      * 按任务查询流向统计数据
      * @param bizId

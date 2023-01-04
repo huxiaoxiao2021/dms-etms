@@ -920,6 +920,11 @@ public class UccPropertyConfiguration {
     private Integer unloadBoardBindingsMaxCount;
 
     /**
+     * 任务上最多组板数
+     */
+    private Integer unloadTaskBoardMaxCount;
+
+    /**
      * 包裹重量上限值，单位kg
      */
     private String packageWeightLimit;
@@ -2328,6 +2333,14 @@ public class UccPropertyConfiguration {
 
     public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
         this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public Integer getUnloadTaskBoardMaxCount() {
+        return unloadTaskBoardMaxCount;
+    }
+
+    public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
+        this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
     }
 
     public String getPackageWeightLimit() {

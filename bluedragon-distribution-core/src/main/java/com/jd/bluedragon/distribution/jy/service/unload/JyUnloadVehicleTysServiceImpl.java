@@ -6,12 +6,11 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BoardCommonManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -144,6 +143,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private WaybillService waybillService;
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
     private LogEngine logEngine;
@@ -666,6 +667,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 }
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
+                // 组板数量校验
+                jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto);
                 // 是否发货校验
                 jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
                 // 运单超重校验
@@ -828,9 +831,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
             throw new JyBizException("暂不支持箱号！");
         }
+        if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+            throw new JyBizException("任务已结束，扫描失败！");
+        }
         String scanCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(scanCode)) {
             scanCode = WaybillUtil.getWaybillCode(scanCode);
+        }
+        // 妥投校验
+        boolean isFinished = waybillTraceManager.isWaybillFinished(scanCode);
+        if (isFinished) {
+            throw new JyBizException("运单已妥投,请确认是否继续操作.传入信息:" + scanCode);
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
         scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
@@ -897,15 +908,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
             return invokeResult;
         }
-        //补扫校验
-        InvokeResult<Void> invokeResultRes = scanSupplementCheck(unloadVehicleEntity);
-        if(!invokeResultRes.codeSuccess()) {
-            invokeResult.customMessage(RESULT_INTERCEPT_CODE, invokeResultRes.getMessage());
-            return invokeResult;
-        }
         // 通用校验
         checkScan(scanPackageDto, unloadVehicleEntity);
-//        // 校验跨场地支援权限
+        // 校验跨场地支援权限
         if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
             log.warn("任务流向与request流向不一致:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, "任务流向与request流向不一致");
