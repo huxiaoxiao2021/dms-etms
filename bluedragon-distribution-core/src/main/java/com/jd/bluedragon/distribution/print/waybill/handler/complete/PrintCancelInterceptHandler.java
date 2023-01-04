@@ -53,7 +53,7 @@ public class PrintCancelInterceptHandler implements Handler<WaybillPrintComplete
             kyAddressModifyPrintCancelInterceptMQ.setUserErp(request.getOperatorErp());
             kyAddressModifyPrintCancelInterceptMQ.setSiteCode(request.getOperateSiteCode());
             kyAddressModifyPrintCancelInterceptMQ.setSiteName(request.getOperateSiteName());
-            printCancelKyAddressModifyInterceptProducer.sendOnFailPersistent(kyAddressModifyPrintCancelInterceptMQ.getPackageCode(), JsonHelper.toJson(kyAddressModifyPrintCancelInterceptMQ));
+            printCancelKyAddressModifyInterceptProducer.sendOnFailPersistent(kyAddressModifyPrintCancelInterceptMQ.getWaybillCode(), JsonHelper.toJson(kyAddressModifyPrintCancelInterceptMQ));
             logger.info("单号:{}操作打印后取消快运改址拦截!", StringUtils.isEmpty(request.getPackageBarcode())
                     ? request.getWaybillCode() : request.getPackageBarcode());
         }
