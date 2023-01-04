@@ -28,7 +28,6 @@ import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -82,8 +81,6 @@ import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     JyTransportManager jyTransportManager;
-    @Autowired
-    JySendTransferService jySendTransferService;
     @Autowired
     DeliveryService deliveryService;
     @Autowired
