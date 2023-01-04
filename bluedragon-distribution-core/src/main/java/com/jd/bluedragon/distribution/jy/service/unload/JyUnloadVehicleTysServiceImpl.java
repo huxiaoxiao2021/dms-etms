@@ -1292,6 +1292,45 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.pageQueryUnloadTaskFlow",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<UnloadTaskFlowDto>> pageQueryUnloadTaskFlow(TaskFlowDto taskFlowDto) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.pageQueryUnloadTaskFlow--分页查询任务内流向统计服务--";
+        InvokeResult<List<UnloadTaskFlowDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(StringUtils.isBlank(taskFlowDto.getBizId())) {
+                res.error("参数缺失：bizId为空");
+                return  res;
+            }
+
+            List<UnloadTaskFlowDto> resData = new ArrayList<>();
+            //兼容历史功能：历史数据没有分页字段
+            if(taskFlowDto.getPageNo() != null && taskFlowDto.getPageSize() != null && taskFlowDto.getPageNo() > 0 && taskFlowDto.getPageSize() > 0) {
+                PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            }
+            List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByBizId(taskFlowDto.getBizId());
+            if(CollectionUtils.isNotEmpty(jyUnloadVehicleBoardEntityList)) {
+                for(JyUnloadVehicleBoardEntity entity : jyUnloadVehicleBoardEntityList) {
+                    UnloadTaskFlowDto unloadTaskFlowDto = new UnloadTaskFlowDto();
+                    unloadTaskFlowDto.setGoodsAreaCode(entity.getGoodsAreaCode());
+                    unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
+                    unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
+                    unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+                    resData.add(unloadTaskFlowDto);
+                }
+            }else {
+                res.setMessage("查询数据为空");
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, taskFlowDto.getBizId(), e.getMessage(), e);
+            res.error("分页查询任务内流向统计服务异常");
+            return res;
+        }
+    }
+
+    @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryComBoarUnderTaskFlow",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TaskFlowComBoardDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
         final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryComBoarUnderTaskFlow--查询流向内板维度统计数据服务--";
@@ -1316,6 +1355,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             Integer extraScanCount = 0;
             Integer haveScanCount = 0;
 
+            //兼容历史功能：历史数据没有分页字段
+            if(taskFlowDto.getPageNo() != null && taskFlowDto.getPageSize() != null && taskFlowDto.getPageNo() > 0 && taskFlowDto.getPageSize() > 0) {
+                PageHelper.startPage(taskFlowDto.getPageNo(), taskFlowDto.getPageSize());
+            }
             JyUnloadVehicleBoardEntity entityParam = new JyUnloadVehicleBoardEntity();
             entityParam.setUnloadVehicleBizId(taskFlowDto.getBizId());
             entityParam.setEndSiteId(taskFlowDto.getEndSiteId());
