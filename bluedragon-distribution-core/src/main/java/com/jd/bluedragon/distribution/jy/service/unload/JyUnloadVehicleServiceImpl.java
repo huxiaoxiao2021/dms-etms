@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -60,6 +61,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.easyFreeze.EasyFreezeSiteDto;
+import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -77,6 +80,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -149,6 +153,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -508,7 +515,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
-            result.setData(calculateScanPackageCount(request));
+//            result.setData(calculateScanPackageCount(request));
+            calculateScanPackageCount(request, result);
 
             // 记录卸车任务扫描进度
             recordUnloadProgress(result.getData(), request, taskUnloadVehicle);
@@ -656,6 +664,51 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         return scanCount;
+    }
+
+    private void calculateScanPackageCount(UnloadScanRequest request , InvokeResult<Integer> result) {
+        String barCode = request.getBarCode();
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
+
+
+        Waybill waybill = null;
+        Integer scanCount = 0;
+        if (WaybillUtil.isPackageCode(barCode)) {
+            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+            scanCount = 1;
+        }
+        else if (WaybillUtil.isWaybillCode(barCode)) {
+            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
+            if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
+                scanCount = waybill.getGoodNumber();
+            }
+        }
+        else if (BusinessHelper.isBoxcode(barCode)) {
+            CallerInfo inlineUmp = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleService.unloadScan.getCancelSendByBox");
+            List<SendDetail> list = deliveryService.getCancelSendByBox(barCode);
+            Profiler.registerInfoEnd(inlineUmp);
+            if (CollectionUtils.isNotEmpty(list)) {
+                scanCount = list.size();
+            }
+        }
+
+        result.setData(scanCount);
+
+        //春节项目的特殊逻辑
+        if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
+            ConfigTransferDpSiteMatchQo siteMatchQo = new ConfigTransferDpSiteMatchQo();
+            siteMatchQo.setPreSortSiteCode(waybill.getOldSiteId());
+            siteMatchQo.setHandoverSiteCode(request.getCurrentOperate().getSiteCode());
+            ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteMatchQo);
+            if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
+                result.setCode(InvokeResult.DP_SPECIAL_CODE);
+                result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));
+            }
+        }
+
+
     }
 
     private UnloadScanDto createUnloadDto(UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
