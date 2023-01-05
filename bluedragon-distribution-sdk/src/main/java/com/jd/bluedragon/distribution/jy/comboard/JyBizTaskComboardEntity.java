@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class JyBizTaskComboardEntity {
+public class JyBizTaskComboardEntity implements Serializable {
 
     public static final String BIZ_PREFIX = "CB%s";
     private Long id;
@@ -47,6 +48,8 @@ public class JyBizTaskComboardEntity {
     private Date sealTime;
 
     private Date unsealTime;
+
+    private Integer comboardSource;
 
     private transient List<Integer> statusList;
 
@@ -235,5 +238,13 @@ public class JyBizTaskComboardEntity {
 
     public void setBoardStatus(Integer boardStatus) {
         this.boardStatus = boardStatus;
+    }
+
+    public Integer getComboardSource() {
+        return comboardSource;
+    }
+
+    public void setComboardSource(Integer comboardSource) {
+        this.comboardSource = comboardSource;
     }
 }

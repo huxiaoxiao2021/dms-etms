@@ -6,10 +6,21 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.SortBoardJsfService;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.board.domain.Board;
+import com.jd.bluedragon.distribution.board.domain.BoardSendDto;
+import com.jd.bluedragon.distribution.board.domain.Response;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import java.util.Date;
+
+import jd.oom.client.orderfile.Business;
 import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +42,11 @@ public class JyComboardGatewayServiceImplTest {
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
 
+    @Autowired
+    JyComBoardSendService jyComBoardSendService;
+
+    @Autowired
+    SortBoardJsfService sortBoardJsfService;
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -370,6 +386,28 @@ public class JyComboardGatewayServiceImplTest {
         scanReq.setUser(user);
         JdCResponse re = jyComboardGatewayService.comboardScan(scanReq);
         System.out.println(JsonHelper.toJson(re));
+    }
+
+    @Test
+    public void comboardScanAutoMachineTest(){
+
+//
+//        BindBoardRequest req = new BindBoardRequest();
+//
+//        sortBoardJsfService.addToBoard(req);
+//
+//
+//
+//        BindBoardRequest scanReq = new BindBoardRequest();
+//
+//        scanReq.setBarcode("JDV000707422015-1-5-");
+//        Board board = new Board();
+//
+//        scanReq.setBoard(board);
+//
+//        Response<BoardSendDto> re = sortBoardJsfService.sortMachineComboard(scanReq);
+//
+//        System.out.println(JsonHelper.toJson(re));
     }
 
     @Test

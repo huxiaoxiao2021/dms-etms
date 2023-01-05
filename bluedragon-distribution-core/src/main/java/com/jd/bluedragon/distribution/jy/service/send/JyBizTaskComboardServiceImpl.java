@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
@@ -13,6 +14,10 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.jd.common.annotation.CacheMethod;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,5 +120,15 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
     boardCountReq.setStatusList(statusList);
     return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
+  }
+
+  @Override
+  @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+  @CacheMethod(key="JyBizTaskComboardServiceImpl.queryBizTaskByBoardCode-{0}-{1}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+  public JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode) {
+    JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
+    condition.setStartSiteId(Long.valueOf(siteCode));
+    condition.setBoardCode(boardCode);
+    return queryBizTaskByBoardCode(condition);
   }
 }
