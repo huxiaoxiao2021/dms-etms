@@ -134,71 +134,14 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.loadProgress",
           jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request) {
-    InvokeResult<SendVehicleProgress> invokeResult = new InvokeResult<>();
-    if (StringUtils.isBlank(request.getSendVehicleBizId())) {
-      invokeResult.parameterError();
-      return invokeResult;
-    }
-
-    try {
-
-      JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
-      if (taskSend == null) {
-        invokeResult.hintMessage("发车任务不存在！");
-        return invokeResult;
-      }
-
-      JyBizTaskSendVehicleDetailEntity endSiteListQuery = new JyBizTaskSendVehicleDetailEntity();
-      endSiteListQuery.setSendVehicleBizId(request.getSendVehicleBizId());
-      List<Long> endSiteList = taskSendVehicleDetailService.getAllSendDest(endSiteListQuery);
-      if (CollectionUtils.isEmpty(endSiteList)) {
-        invokeResult.hintMessage("发车流向不存在！");
-        return invokeResult;
-      }
-
-      SendVehicleProgress progress = new SendVehicleProgress();
-      invokeResult.setData(progress);
-
-      setSendProgressData(taskSend,endSiteList, progress);
-    } catch (Exception ex) {
-      log.error("查询发货进度失败. {}", JsonHelper.toJson(request), ex);
-      invokeResult.error("服务器异常，查询发货进度异常，请咚咚联系分拣小秘！");
-    }
-
-    return invokeResult;
+    return super.loadProgress(request);
   }
   @Override
   @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.loadProgress",
           jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
-    InvokeResult<ToSealDestAgg> invokeResult = new InvokeResult<>();
-    if (request.getCurrentOperate() == null
-            || request.getCurrentOperate().getSiteCode() <= 0
-            || StringUtils.isBlank(request.getSendVehicleBizId())) {
-      invokeResult.parameterError();
-      return invokeResult;
-    }
-
-    try {
-      List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
-      if (CollectionUtils.isEmpty(vehicleDetailList)) {
-        invokeResult.hintMessage("发货流向已作废！");
-        return invokeResult;
-      }
-
-      ToSealDestAgg toSealDestAgg = new ToSealDestAgg();
-      toSealDestAgg.setSealedTotal(getSealedDestTotal(request.getSendVehicleBizId()));
-      toSealDestAgg.setDestTotal(getDestTotal(request.getSendVehicleBizId()));
-
-      // 设置发货流向
-      toSealDestAgg.setDestList(this.setSendDestDetail(request, vehicleDetailList));
-      invokeResult.setData(toSealDestAgg);
-    } catch (Exception ex) {
-      log.error("获取发车流向失败. {}", JsonHelper.toJson(request), ex);
-      invokeResult.error("服务器异常，获取发车流向失败，请咚咚联系分拣小秘！");
-    }
-
-    return invokeResult;  }
+    return super.selectSealDest(request); 
+  }
 
   public List<Integer> assembleStatusCon(Integer vehicleStatus){
     List<Integer> queryStatus =new ArrayList<>();
@@ -387,10 +330,15 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return sendDestDetails;
   }
 
-  private void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, List<Long> endSiteCodeList,
-                                   SendVehicleProgress progress) {
+  @Override
+  public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
+
+    JyBizTaskSendVehicleDetailEntity endSiteListQuery = new JyBizTaskSendVehicleDetailEntity();
+    endSiteListQuery.setSendVehicleBizId(taskSend.getBizId());
+    List<Long> endSiteList = taskSendVehicleDetailService.getAllSendDest(endSiteListQuery);
+    
     List<Integer> codeList = new ArrayList<>();
-    for (Long siteCode : endSiteCodeList) {
+    for (Long siteCode : endSiteList) {
       codeList.add(siteCode.intValue());
     }
     List<JyComboardAggsEntity> comboardAggs = null;
