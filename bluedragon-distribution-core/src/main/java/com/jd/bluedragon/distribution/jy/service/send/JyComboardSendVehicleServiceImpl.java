@@ -51,6 +51,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.jd.bluedragon.Constants.DOUBLE_ZERO;
+import static com.jd.bluedragon.Constants.LONG_ZERO;
+
 
 @Slf4j
 @Service("jyComboardSendVehicleService")
@@ -355,19 +358,19 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     }
 
     if (!CollectionUtils.isEmpty(comboardAggs) && basicVehicleType != null) {
-      double loadVolume = 0.00;
-      double loadWeight = 0.00;
-      long waitScanCount = 0L;
-      long scannedPackCount = 0L;
-      long scannedBoxCount = 0L;
-      long interceptedPackCount = 0L;
+      double loadVolume = DOUBLE_ZERO;
+      double loadWeight = DOUBLE_ZERO;
+      long waitScanCount = Constants.;
+      long scannedPackCount = LONG_ZERO;
+      long scannedBoxCount = LONG_ZERO;
+      long interceptedPackCount = LONG_ZERO;
       for (JyComboardAggsEntity comboardAgg : comboardAggs) {
-        loadVolume += comboardAgg.getVolume() == null ? 0.00 : comboardAgg.getVolume();
-        loadWeight += comboardAgg.getWeight() == null ? 0.00 : comboardAgg.getWeight();
-        waitScanCount += comboardAgg.getWaitScanCount() == null ? 0 : comboardAgg.getWaitScanCount();
-        scannedPackCount += comboardAgg.getPackageScannedCount() == null ? 0 : comboardAgg.getPackageScannedCount();
-        scannedBoxCount += comboardAgg.getBoxScannedCount() == null ? 0 : comboardAgg.getBoxScannedCount();
-        interceptedPackCount += comboardAgg.getInterceptCount() == null ? 0 : comboardAgg.getInterceptCount();
+        loadVolume += comboardAgg.getVolume() == null ? DOUBLE_ZERO : comboardAgg.getVolume();
+        loadWeight += comboardAgg.getWeight() == null ? DOUBLE_ZERO : comboardAgg.getWeight();
+        waitScanCount += comboardAgg.getWaitScanCount() == null ? LONG_ZERO : comboardAgg.getWaitScanCount();
+        scannedPackCount += comboardAgg.getPackageScannedCount() == null ? LONG_ZERO : comboardAgg.getPackageScannedCount();
+        scannedBoxCount += comboardAgg.getBoxScannedCount() == null ? LONG_ZERO : comboardAgg.getBoxScannedCount();
+        interceptedPackCount += comboardAgg.getInterceptCount() == null ? LONG_ZERO : comboardAgg.getInterceptCount();
       }
       progress.setLoadRate(dealLoadRate(BigDecimal.valueOf(loadVolume), convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
       progress.setLoadVolume(BigDecimal.valueOf(loadVolume));
