@@ -151,6 +151,14 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return invokeResult;  }
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.loadProgress",
+          jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+  public InvokeResult<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request) {
+    return super.loadProgress(request);
+  }
+  @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.selectSealDest",
+          jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
     return super.selectSealDest(request);
   }
@@ -342,10 +350,15 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return sendDestDetails;
   }
 
-   public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, List<Long> endSiteCodeList,
-                                   SendVehicleProgress progress) {
+  @Override
+  public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
+
+    JyBizTaskSendVehicleDetailEntity endSiteListQuery = new JyBizTaskSendVehicleDetailEntity();
+    endSiteListQuery.setSendVehicleBizId(taskSend.getBizId());
+    List<Long> endSiteList = taskSendVehicleDetailService.getAllSendDest(endSiteListQuery);
+
     List<Integer> codeList = new ArrayList<>();
-    for (Long siteCode : endSiteCodeList) {
+    for (Long siteCode : endSiteList) {
       codeList.add(siteCode.intValue());
     }
     List<JyComboardAggsEntity> comboardAggs = null;
