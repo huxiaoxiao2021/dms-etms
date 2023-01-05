@@ -273,14 +273,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
-            // 图片缓存处理
-            if(!spotCheckPicUrlCacheDealIsSuc(packageCode, siteCode, pictureUrl)){
-                CallerInfo multiUploadCallerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl.multiUpload",
-                        Constants.UMP_APP_NAME_DMSWEB,false,true);
-                logger.warn("站点：{}包裹号：{}的图片已存在!", siteCode, packageCode);
-                Profiler.registerInfoEnd(multiUploadCallerInfo);
-                return;
-            }
             // 执行抽检改造
             executeReformPicDeal(packageCode, siteCode, pictureUrl);
 
@@ -293,13 +285,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
     }
 
-    private boolean spotCheckPicUrlCacheDealIsSuc(String packageCode, Integer siteCode, String pictureUrl) {
+    private boolean spotCheckPicUrlCacheDealIsSuc(boolean isMultiPack, String packageCode, Integer siteCode, String pictureUrl) {
         String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packageCode, siteCode);
         if(jimdbCacheService.exists(key)){
             return false;
         }
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setPackageCode(packageCode); // 包裹号和站点确定唯一
+        condition.setPackageCode(isMultiPack ? packageCode : WaybillUtil.getWaybillCode(packageCode)); // 一单一件：包裹号字段存的是运单号
         condition.setReviewSiteCode(siteCode);
         condition.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
         List<WeightVolumeSpotCheckDto> spotCheckDtos = spotCheckQueryManager.queryAllSpotCheckByCondition(condition);
@@ -315,7 +307,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     private void executeReformPicDeal(String packageCode, Integer siteCode, String pictureUrl) {
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-        if(isMultiPack(waybill, packageCode)){
+        boolean isMultiPack = isMultiPack(waybill, packageCode);
+        // 图片缓存处理
+        if(!spotCheckPicUrlCacheDealIsSuc(isMultiPack, packageCode, siteCode, pictureUrl)){
+            CallerInfo multiUploadCallerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl.multiUpload",
+                    Constants.UMP_APP_NAME_DMSWEB,false,true);
+            logger.warn("站点：{}包裹号：{}的图片已存在!", siteCode, packageCode);
+            Profiler.registerInfoEnd(multiUploadCallerInfo);
+            return;
+        }
+        if(isMultiPack){
             // 一单多件
             // 1、更新包裹明细维度数据
             // 2、更新总记录维度数据
