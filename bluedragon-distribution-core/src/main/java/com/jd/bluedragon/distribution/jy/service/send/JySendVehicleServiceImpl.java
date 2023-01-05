@@ -2706,7 +2706,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return invokeResult;
     }
 
-    private void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request,
+    public void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request,
                                       SendBarCodeQueryEntranceEnum entranceEnum, Integer queryFlag) {
         Pager<SendVehicleTaskQuery> queryPager = this.getInterceptOrForceBarCodeQuery(request);
         queryPager.getSearchVo().setQueryBarCodeFlag(queryFlag);

@@ -3,16 +3,23 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -24,10 +31,21 @@ import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.SendBarCodeQueryEntranceEnum;
+import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.NumberHelper;
 
 import java.math.BigDecimal;
+import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
+import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
+import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
+import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +82,8 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
   @Autowired
   private JyComboardAggsService jyComboardAggsService;
+  @Autowired
+  IJyComboardJsfManager comboardJsfManager;
 
   @Autowired
   private BasicQueryWSManager basicQueryWSManager;
@@ -140,10 +160,10 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return super.loadProgress(request);
   }
   @Override
-  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.loadProgress",
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.selectSealDest",
           jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
-    return super.selectSealDest(request); 
+    return super.selectSealDest(request);
   }
 
   public List<Integer> assembleStatusCon(Integer vehicleStatus){
@@ -339,7 +359,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     JyBizTaskSendVehicleDetailEntity endSiteListQuery = new JyBizTaskSendVehicleDetailEntity();
     endSiteListQuery.setSendVehicleBizId(taskSend.getBizId());
     List<Long> endSiteList = taskSendVehicleDetailService.getAllSendDest(endSiteListQuery);
-    
+
     List<Integer> codeList = new ArrayList<>();
     for (Long siteCode : endSiteList) {
       codeList.add(siteCode.intValue());
@@ -382,5 +402,58 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     }
     progress.setDestTotal(getDestTotal(taskSend.getBizId()));
     progress.setSealedTotal(getSealedDestTotal(taskSend.getBizId()));
+  }
+
+  @Override
+  public void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult,
+      SendAbnormalPackRequest request, SendBarCodeQueryEntranceEnum entranceEnum,
+      Integer queryFlag) {
+    if (SendBarCodeQueryEntranceEnum.INTERCEPT!=entranceEnum){
+      invokeResult.error("暂不支持该类型数据查询！");
+      return;
+    }
+
+    SendAbnormalBarCode barCodeVo = new SendAbnormalBarCode();
+    barCodeVo.setTotal(0L);
+    List<SendScanBarCode> barCodeList = new ArrayList<>();
+    barCodeVo.setBarCodeList(barCodeList);
+    invokeResult.setData(barCodeVo);
+
+    List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+    if (CollectionUtils.isEmpty(vehicleDetailList)) {
+      invokeResult.error("未查询到相关流向的信息！");
+      return;
+    }
+
+    List<String> receiveSiteIdList=new ArrayList<>();
+    for (JyBizTaskSendVehicleDetailEntity entity:vehicleDetailList){
+      receiveSiteIdList.add(String.valueOf(entity.getEndSiteId()));
+    }
+
+    Pager<JyComboardPackageDetail> query =assembleQueryScanCondition(request,receiveSiteIdList);
+    Pager<ComboardScanedDto> pager =comboardJsfManager.queryInterceptDetail(query);
+    if (pager != null && CollectionUtils.isNotEmpty(pager.getData())) {
+      barCodeVo.setTotal(pager.getTotal());
+      List<LabelOption> tags = new ArrayList<>();
+      tags.add(new LabelOption(BarCodeLabelOptionEnum.INTERCEPT.getCode(), BarCodeLabelOptionEnum.INTERCEPT.getName()));
+      for (ComboardScanedDto comboardScanedDto : pager.getData()) {
+        SendScanBarCode barCodeItem = new SendScanBarCode();
+        barCodeItem.setBarCode(comboardScanedDto.getBarCode());
+        barCodeItem.setTags(tags);
+        barCodeList.add(barCodeItem);
+      }
+    }
+  }
+
+  private Pager<JyComboardPackageDetail> assembleQueryScanCondition(SendAbnormalPackRequest request,List<String> receiveSiteIdList) {
+    Pager<JyComboardPackageDetail> pager = new Pager<>();
+    JyComboardPackageDetail con =new JyComboardPackageDetail();
+    con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    con.setReceiveSiteIdList(receiveSiteIdList);
+    con.setInterceptFlag(Constants.YN_YES);
+    pager.setSearchVo(con);
+    pager.setPageNo(request.getPageNumber());
+    pager.setPageSize(request.getPageSize());
+    return pager;
   }
 }
