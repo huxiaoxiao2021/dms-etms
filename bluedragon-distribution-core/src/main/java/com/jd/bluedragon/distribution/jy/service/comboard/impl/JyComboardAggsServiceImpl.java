@@ -175,6 +175,8 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
             jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
             jyComboardAggsEntity.setTs(dto.getCreateTime());
+            jyComboardAggsEntity.setVolume(dto.getVolume());
+            jyComboardAggsEntity.setWeight(dto.getWeight());
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
             saveCache(dto,jyComboardAggsEntity);
         }else{
