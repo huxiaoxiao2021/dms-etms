@@ -78,7 +78,29 @@
 			</set>
         </constructor-arg>
     </bean>
-
+    <!-- 获取包裹明细线程池配置，参考了jsf线程池配置，由于上层请求流量限制来自jsf，要考虑线程池不能成为瓶颈 -->
+    <bean id="executorparallelGetPackageExecutor" class="com.jd.bluedragon.utils.ThreadPoolExecutorFactory">
+        <property name="corePoolSize" value="${parallel.getpackage.Executor.corePoolSize:20}"/><!-- jsf:server配置: 初始线程数 20，所有接口共用，达到200请求就报错 -->
+        <property name="maxPoolSize" value="${parallel.getpackage.Executor.maxPoolSize:50}"/><!-- jsf:server配置: 默认线程池 200，但是是给所有的接口公用 -->
+        <property name="keepAliveSeconds" value="${parallel.getpackage.Executor.keepAliveSeconds:60}"/>
+        <property name="queueCapacity" value="${parallel.getpackage.Executor.queueCapacity:2000}"/><!-- jsf:server配置: 最大线程池200，最坏情况 一个请求分10页。队列需要200*20 -->
+        <property name="threadName" value="${parallel.getpackage.Executor.threadName:getPackageThread}"/>
+    </bean>
+    <!-- 并发任务处理线程池配置 -->
+    <bean id="concurrentJobHandlerExecutor" class="com.jd.bluedragon.utils.ThreadPoolExecutorFactory">
+        <property name="corePoolSize" value="${beans.concurrentJobHandlerExecutor.corePoolSize:10}"/><!-- jsf:server配置: 初始线程数 20，所有接口共用，达到200请求就报错 -->
+        <property name="maxPoolSize" value="${beans.concurrentJobHandlerExecutor.maxPoolSize:100}"/><!-- jsf:server配置: 默认线程池 200，但是是给所有的接口公用 -->
+        <property name="keepAliveSeconds" value="${beans.concurrentJobHandlerExecutor.keepAliveSeconds:60}"/>
+        <property name="queueCapacity" value="${beans.concurrentJobHandlerExecutor.queueCapacity:2000}"/><!-- jsf:server配置: 最大线程池200，最坏情况 一个请求分10页。队列需要200*20 -->
+        <property name="threadName" value="${beans.concurrentJobHandlerExecutor.threadName:concurrentJobHandlerThread}"/>
+    </bean>    
+	<bean id="parentConcurrentJobHandler" class="com.jd.bluedragon.dms.job.ConcurrentJobHandler" abstract="true">
+		<constructor-arg index="0" ref="concurrentJobHandlerExecutor"></constructor-arg>
+	</bean>
+	<bean id="checkCanAirToRoadJobHandler" class="com.jd.bluedragon.distribution.arAbnormal.CheckCanAirToRoadJobHandler" parent="parentConcurrentJobHandler">
+	</bean>
+    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
+    </bean>	
     <!-- 运单全程跟踪状态映射map
        邮政操作码   操作码说明   京东三方路由  京东三方路由说明    京东全程跟踪运单状态码说明   京东全程跟踪运单状态码
 		50  邮政接收    GOT 揽收  派送交接    -1630
