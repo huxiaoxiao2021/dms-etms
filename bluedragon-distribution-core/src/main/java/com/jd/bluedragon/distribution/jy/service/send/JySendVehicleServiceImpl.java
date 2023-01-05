@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -59,7 +60,6 @@ import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -1495,6 +1495,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
+        } catch (EconomicNetException e) {
+            log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
+            result.toError(e.getMessage());
         } catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
