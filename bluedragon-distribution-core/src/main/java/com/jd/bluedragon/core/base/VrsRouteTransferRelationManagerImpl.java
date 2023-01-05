@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.degrade.route.CommandQueryRecommendRoute;
@@ -83,13 +84,13 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     private String vrsRouteTransferRelationApiToken;
 
     @Resource
-    private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,hystrixRouteUccPropertyConfiguration).execute();
+            CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,dmsConfigManager.getHystrixRouteDuccPropertyConfiguration()).execute();
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
                 log.warn("查询远程路由中转信息失败,参数列表：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
                         ,startNode,endNodeCode,predictSendTime.getTime(),routeProduct);

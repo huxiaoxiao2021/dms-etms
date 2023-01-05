@@ -20,6 +20,7 @@
 				<value>classpath:configured/order_service_config.properties</value>
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
+				<value>classpath:configured/ducc.properties</value>
 				<value>classpath:configured/ucc.properties</value>
 				<value>classpath:configured/dms_crossbow.properties</value>
 				<value>classpath:configured/kafka.properties</value>
