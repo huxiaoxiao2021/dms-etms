@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -25,31 +26,29 @@ public class TestDucc {
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
+		 
+		 
 		 while(true) {
 			Property property1 = configuratorManager.getProperty("uccPropertyConfiguration.asynbufferEnabledTaskType");
 			System.out.println("uccPropertyConfiguration.asynbufferEnabledTaskType:" + property1.getString());
 			
-			//获取配置 方式3 (获取指定配置源下配置集合)
-			Configuration configuraiton = configuratorManager.getConfiguration("ucc_test");
-			System.out.println("resource configuration:" + configuraiton);
-			System.out.println("uccPropertyConfiguration.asynbufferEnabledTaskType:" + configuraiton.getProperty("uccPropertyConfiguration.asynbufferEnabledTaskType").getString());
-			//java进程退出时，可进行关闭
 			 DuccPropertyConfiguration ducc = (DuccPropertyConfiguration)appContext.getBean("duccPropertyConfiguration") ;
 			 UccPropertyConfiguration ucc = (UccPropertyConfiguration)appContext.getBean("uccPropertyConfiguration") ;
+			 
+			 DuccPropertyConfig ducc2 = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
 			 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 			 System.err.println("ducc:"+JsonHelper.toJson(ducc));
 			 
 			 System.err.println("ucc:"+JsonHelper.toJson(ucc));
+			 
+			 System.err.println("ducc:"+JsonHelper.toJson(ducc2));
 			 
 			 StringBuffer sfNeedCheck = new StringBuffer();
 			 for(Field field: ObjectHelper.getAllFieldsList(UccPropertyConfiguration.class)) {
 				 Object uccValue = ObjectHelper.getValue(ucc, field.getName());
 				 Object duccValue = ObjectHelper.getValue(ducc, field.getName());
 				 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
-				 if(checkResult) {
-					 System.out.println(field.getName()+":相同");
-				 }else {
-					 System.err.println(field.getName()+":值不相同"+",ucc="+uccValue +",ducc="+duccValue);
+				 if(!checkResult) {
 					 sfNeedCheck.append(field.getName()+":值不相同"+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
 				 }
 			 }

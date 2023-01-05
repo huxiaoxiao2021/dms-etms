@@ -12,21 +12,9 @@
 	    
     <context:component-scan base-package="com.jd.bluedragon.configuration.ducc"/>
     <context:annotation-config/>
-     <!-- 
-    <bean id="duccResource" class="com.jd.laf.config.Resource">
-        <constructor-arg index="0" type="java.lang.String" value="ucc_test"/>
-        <constructor-arg index="1" type="java.lang.String" value="${ducc.uri}"/>
-    </bean>
-    <bean id="configuratorManager" class="com.jd.laf.config.ConfiguratorManager" depends-on="duccResource" init-method="start">
-        <constructor-arg index="0" type="java.util.List">
-            <list>
-                <ref bean="duccResource"/>
-            </list>
-        </constructor-arg>
-        <property name="application" value="${ducc.app}"/>
-    </bean> -->
+
     <!-- hystrix 动态配置 -->
-    <bean name = "dhystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ducc.DhystrixRouteUccPropertyConfiguration">
+    <bean name = "hystrixRouteDuccPropertyConfiguration" class="com.jd.bluedragon.configuration.ducc.HystrixRouteDuccPropertyConfiguration">
         <property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
         <property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
         <property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
@@ -207,14 +195,14 @@
         <property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
         <property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
     </bean>
-    <laf-config:manager id="configuratorManager" application="myapp_test">
+    <laf-config:manager id="configuratorManager" application="${ducc.appName}">
         <laf-config:parameter key="autoListener" value="true"/>
         <!--
         可以有多个 resource； 每个 resource 通常对应一个 ducc profile；
         name 表示资源名称，ducc 要求 这个 name 进程内唯一；
         uri 是配置定位，可以在 ducc 管理端-配置页面上，点击按钮生成这个 uri 的模板，然后把 appName 和 token 修改成实际值即可；
         -->
-        <laf-config:resource name="ucc_test" uri="${ducc.uri}" />
+        <laf-config:resource name="${ducc.resource1.name}" uri="${ducc.resource1.uri}" />
         
 		<laf-config:listener-field key="uccPropertyConfiguration.asynbufferEnabledTaskType" field="asynbufferEnabledTaskType" beanName="duccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.cassandraGlobalSwitch" field="cassandraGlobalSwitch" beanName="duccPropertyConfiguration"/>
@@ -380,20 +368,19 @@
 		<laf-config:listener-field key="uccPropertyConfiguration.goodsResidenceTime" field="goodsResidenceTime" beanName="duccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.uploadDeviceLocationInterval" field="uploadDeviceLocationInterval" beanName="duccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch" field="checkDeviceLocationInRealTimeSwitch" beanName="duccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds" field="executionTimeoutInMilliseconds" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled" field="circuitBreakerEnabled" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.fallbackEnabled" field="fallbackEnabled" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.circuitBreakerErrorThresholdPercentage" field="circuitBreakerErrorThresholdPercentage" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.circuitBreakerForceOpen" field="circuitBreakerForceOpen" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds" field="circuitBreakerSleepWindowInMilliseconds" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.maximumSize" field="maximumSize" beanName="dhystrixRouteUccPropertyConfiguration"/>
-		<laf-config:listener-field key="hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold" field="circuitBreakerRequestVolumeThreshold" beanName="dhystrixRouteUccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.executionTimeoutInMilliseconds" field="executionTimeoutInMilliseconds" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.circuitBreakerEnabled" field="circuitBreakerEnabled" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.fallbackEnabled" field="fallbackEnabled" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.circuitBreakerErrorThresholdPercentage" field="circuitBreakerErrorThresholdPercentage" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.circuitBreakerForceOpen" field="circuitBreakerForceOpen" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds" field="circuitBreakerSleepWindowInMilliseconds" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.maximumSize" field="maximumSize" beanName="hystrixRouteDuccPropertyConfiguration"/>
+		<laf-config:listener-field key="hystrixRouteDuccPropertyConfiguration.circuitBreakerRequestVolumeThreshold" field="circuitBreakerRequestVolumeThreshold" beanName="hystrixRouteDuccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.jyUnloadCarListQueryDayFilter" field="jyUnloadCarListQueryDayFilter" beanName="duccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize" field="tysUnloadTaskHandoverMaxSize" beanName="duccPropertyConfiguration"/>
 		<laf-config:listener-field key="uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours" field="tysUnloadTaskSupplementScanLimitHours" beanName="duccPropertyConfiguration"/>
  
-        <!-- ducc管理端设置,key是：logger.level value是：ROOT=DEBUG ,配置后进行发布-->
-        <!-- 
-        <laf-config:listener-script key="logger.level" script="script/log4j2.js"/> -->
+        <!-- ducc管理端设置,key是：logger.level value是：ROOT=DEBUG ,配置后进行发布
+        <laf-config:listener-script key="logger.level" script="script/log4j2.js"/>-->
     </laf-config:manager>    
 </beans>

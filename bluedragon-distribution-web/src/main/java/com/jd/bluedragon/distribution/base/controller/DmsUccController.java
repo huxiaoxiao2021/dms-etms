@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ducc.DhystrixRouteUccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ducc.HystrixRouteDuccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -30,19 +31,10 @@ public class DmsUccController {
 	private static final Logger log = LoggerFactory.getLogger(DmsUccController.class);
 	
 	@Autowired
-	UccPropertyConfiguration ucc;
-	
-	@Autowired
 	HystrixRouteUccPropertyConfiguration ucc1;
 	
 	@Autowired
-	DuccPropertyConfiguration ducc;
-	
-	@Autowired
-	DhystrixRouteUccPropertyConfiguration ducc1;
-	
-	
-    
+	DmsConfigManager dmsConfigManager;
     /**
      * 获取ucc
      * @return
@@ -50,7 +42,7 @@ public class DmsUccController {
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/ucc")
     public @ResponseBody UccPropertyConfiguration ucc() {
-        return ucc;
+        return dmsConfigManager.getUccPropertyConfiguration();
     }
     /**
      * 获取ducc
@@ -59,7 +51,7 @@ public class DmsUccController {
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/ducc")
     public @ResponseBody DuccPropertyConfiguration ducc() {
-        return ducc;
+        return dmsConfigManager.getDuccPropertyConfiguration();
     } 
     /**
      * 获取ducc
@@ -72,26 +64,26 @@ public class DmsUccController {
     public @ResponseBody String check() throws Exception {
     	StringBuffer sf = new StringBuffer();
 		 for(Field field: ObjectHelper.getAllFieldsList(UccPropertyConfiguration.class)) {
-			 Object uccValue = ObjectHelper.getValue(ucc, field.getName());
-			 Object duccValue = ObjectHelper.getValue(ducc, field.getName());
+			 Object uccValue = ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfiguration(), field.getName());
+			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfiguration(), field.getName());
 			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
 			 if(checkResult) {
-				 log.info(field.getName()+":相同");
+				 log.info(field.getName()+":equal");
 			 }else {
-				 log.error(field.getName()+":值不相同"+",ucc="+uccValue +",ducc="+duccValue);
-				 sf.append(field.getName()+":值不相同"+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
+				 log.error(field.getName()+":no-equal"+",ucc="+uccValue +",ducc="+duccValue);
+				 sf.append(field.getName()+":no-equal"+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
 			 }
 		 }
 		 sf.append("\n");
 		 for(Field field: ObjectHelper.getAllFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(ucc1, field.getName());
-			 Object duccValue = ObjectHelper.getValue(ducc1, field.getName());
+			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getHystrixRouteDuccPropertyConfiguration(), field.getName());
 			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
 			 if(checkResult) {
-				 log.info(field.getName()+":相同");
+				 log.info(field.getName()+":equal");
 			 }else {
-				 log.error(field.getName()+":值不相同"+",ucc1="+uccValue +",ducc1="+duccValue);
-				 sf.append(field.getName()+":值不相同"+" \nucc1="+uccValue +"\nducc1="+duccValue+"\n");
+				 log.error(field.getName()+":no-equal"+",ucc1="+uccValue +",ducc1="+duccValue);
+				 sf.append(field.getName()+":no-equal"+" \nucc1="+uccValue +"\nducc1="+duccValue+"\n");
 			 }
 		 }		 
         return sf.toString();
