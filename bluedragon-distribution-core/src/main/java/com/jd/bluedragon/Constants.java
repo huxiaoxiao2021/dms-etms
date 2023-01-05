@@ -791,6 +791,12 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+
+    /**
+     * Long值-0
+     */
+    public static final Long LONG_ZERO = 0L;
+    
     /**
      * 配置信息-北京的分拣中心
      */
