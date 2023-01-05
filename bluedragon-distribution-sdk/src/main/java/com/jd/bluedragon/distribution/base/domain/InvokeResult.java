@@ -168,6 +168,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final String LUXURY_SECURITY_TIPS_MESSAGE ="此运单为特保单，请对包裹进行拍照!";
 
+    public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
+    public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败";
+    
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

@@ -10,6 +10,8 @@ import com.jd.bluedragon.external.gateway.service.RevokeExceptionGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author liwenji
  * @date 2023-01-04 16:12
@@ -21,7 +23,7 @@ public class RevokeExceptionGatewayServiceImpl implements RevokeExceptionGateway
     private IRevokeExceptionService revokeExceptionService;
     
     @Override
-    public JdCResponse<ExceptionReportResp> closeTransAbnormal(QueryExceptionReq query) {
+    public JdCResponse<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq query) {
         return retJdCResponse(revokeExceptionService.queryAbnormalPage(query));
     }
 

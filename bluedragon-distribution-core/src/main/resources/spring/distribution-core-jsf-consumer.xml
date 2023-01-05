@@ -1188,4 +1188,12 @@
                   protocol="jsf" alias="${jsf.jy_msp.alias}" timeout="${jsf.jy_msp.timeout}">
         <jsf:parameter key="token" value="$jsf.jy_msp.token}" hide="true"/>
     </jsf:consumer>
+
+    <!-- 异常提报查询 -->
+    <jsf:consumer id="transAbnormalSelectApiJsf" interface="com.jd.tms.dtp.api.DtpTransAbnormalSelectApi"
+                  protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}" 
+                  timeout="${jsf.transAbnormalSelectApi.timeout}" 
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

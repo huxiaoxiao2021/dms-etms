@@ -25,9 +25,14 @@ public class ExceptionReportResp {
     private Date reportTime;
 
     /**
+     * 撤销异常提报时间
+     */
+    private Long revokeSurplusTime;
+
+    /**
      * 线路类型
      */
-    private Integer lineType;
+    private String lineTypeName;
 
     /**
      * 异常类型
@@ -58,19 +63,27 @@ public class ExceptionReportResp {
         this.reportTime = reportTime;
     }
 
-    public Integer getLineType() {
-        return lineType;
-    }
-
-    public void setLineType(Integer lineType) {
-        this.lineType = lineType;
-    }
-
     public String getAbnormalTypeName() {
         return abnormalTypeName;
     }
 
     public void setAbnormalTypeName(String abnormalTypeName) {
         this.abnormalTypeName = abnormalTypeName;
+    }
+
+    public Long getRevokeSurplusTime() {
+        return revokeSurplusTime;
+    }
+
+    public void setRevokeSurplusTime(Long revokeSurplusTime) {
+        this.revokeSurplusTime = revokeSurplusTime;
+    }
+
+    public String getLineTypeName() {
+        return lineTypeName;
+    }
+
+    public void setLineTypeName(String lineTypeName) {
+        this.lineTypeName = lineTypeName;
     }
 }

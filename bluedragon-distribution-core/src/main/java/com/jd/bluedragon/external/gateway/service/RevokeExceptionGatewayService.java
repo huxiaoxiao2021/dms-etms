@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.revokeException.request.QueryExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.response.ExceptionReportResp;
 
+import java.util.List;
+
 /**
  * @author liwenji
  * 撤销异常封签 发布物流网关 由安卓调用
@@ -15,7 +17,7 @@ public interface RevokeExceptionGatewayService {
     /**
      * 查询当前场地封签异常信息
      */
-    JdCResponse<ExceptionReportResp> closeTransAbnormal(QueryExceptionReq query);
+    JdCResponse<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq query);
     
     /**
      * 撤销封签异常接口

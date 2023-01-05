@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.response.ExceptionReportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
+import java.util.List;
+
 /**
  * @author liwenji
  * @date 2023-01-04 16:15
@@ -16,7 +18,7 @@ public interface IRevokeExceptionService {
      * @param query
      * @return
      */
-    InvokeResult<ExceptionReportResp> queryAbnormalPage(QueryExceptionReq query);
+    InvokeResult<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq query);
 
     /**
      * 撤销异常提报
