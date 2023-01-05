@@ -367,7 +367,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     if (!CollectionUtils.isEmpty(comboardAggs) && basicVehicleType != null) {
       double loadVolume = DOUBLE_ZERO;
       double loadWeight = DOUBLE_ZERO;
-      long waitScanCount = Constants.;
+      long waitScanCount = LONG_ZERO;
       long scannedPackCount = LONG_ZERO;
       long scannedBoxCount = LONG_ZERO;
       long interceptedPackCount = LONG_ZERO;
