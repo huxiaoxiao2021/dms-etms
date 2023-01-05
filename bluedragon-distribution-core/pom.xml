@@ -1827,6 +1827,12 @@
 		<dependency>
 			<groupId>com.jdl.jy</groupId>
 			<artifactId>jy-msp-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>lombok</artifactId>
+					<groupId>org.projectlombok</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 京东短链 -->
 		<dependency>
@@ -1837,6 +1843,16 @@
 		<dependency>
 			<groupId>jd-omdm-client</groupId>
 			<artifactId>jd-omdm-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>resteasy-jaxrs</artifactId>
+					<groupId>org.jboss.resteasy</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>resteasy-netty4</artifactId>
+					<groupId>org.jboss.resteasy</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
