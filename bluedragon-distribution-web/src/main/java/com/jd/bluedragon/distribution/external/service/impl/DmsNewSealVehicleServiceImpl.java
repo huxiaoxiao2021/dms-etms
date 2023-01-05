@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
@@ -11,14 +11,12 @@ import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedDto;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedPo;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ import java.util.Objects;
  */
 @Service("dmsNewSealVehicleService")
 public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -46,11 +43,13 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Autowired
     @Qualifier("sealVehicleResource")
     private SealVehicleResource sealVehicleResource;
-
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
     @Autowired
     @Qualifier("sealBoxResource")
     private SealBoxResource sealBoxResource;
-
+    @Autowired
+    private VosManager vosManager;
     @Autowired
     DeliveryService deliveryService;
 
@@ -138,6 +137,28 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
         }
         return false;
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.getSealCarTimeBySendCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Long getSealCarTimeBySendCode(String sendCode) {
+        if(StringUtils.isBlank(sendCode)){
+            return null;
+        }
+        Long sealCarTimeBySendCode = newSealVehicleService.getSealCarTimeBySendCode(sendCode);
+        if (sealCarTimeBySendCode != null) {
+            return sealCarTimeBySendCode;
+        }
+        try {
+            SealCarDto sealCarDto = vosManager.querySealCarByBatchCode(sendCode);
+            if (sealCarDto != null) {
+                return sealCarDto.getSealCarTime().getTime();
+            }
+        } catch (Exception e) {
+            log.error("批次号取封车信息失败：{}",sendCode, e);
+        }
+        return null;
+    }
+
     /**
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
      */
