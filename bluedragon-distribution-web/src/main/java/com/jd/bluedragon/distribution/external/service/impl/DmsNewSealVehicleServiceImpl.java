@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedDto;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedPo;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -17,6 +19,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
