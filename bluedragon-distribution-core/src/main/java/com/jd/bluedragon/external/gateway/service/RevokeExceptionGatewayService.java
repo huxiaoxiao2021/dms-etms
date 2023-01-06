@@ -20,7 +20,7 @@ public interface RevokeExceptionGatewayService {
     JdCResponse<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq query);
     
     /**
-     * 撤销封签异常接口
+     * 撤销封签异常
      */
     JdCResponse<String> closeTransAbnormal(RevokeExceptionReq revokeExceptionReq);
 

@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.revokeException.request.QueryExceptionReq;
+import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.response.ExceptionReportResp;
 import com.jd.bluedragon.external.gateway.service.RevokeExceptionGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -27,7 +28,7 @@ public class RevokeExceptionGatewayServiceTest {
     private RevokeExceptionGatewayService revokeExceptionGatewayService;
     
     @Test
-    public void closeTransAbnormalTest() {
+    public void queryAbnormalPageTest() {
         QueryExceptionReq queryExceptionReq = new QueryExceptionReq();
         CurrentOperate operate = new CurrentOperate();
         operate.setSiteCode(910);
@@ -40,6 +41,21 @@ public class RevokeExceptionGatewayServiceTest {
         queryExceptionReq.setCurrentPage(1);
         JdCResponse<List<ExceptionReportResp>> listJdCResponse = revokeExceptionGatewayService.queryAbnormalPage(queryExceptionReq);
         System.out.println(JsonHelper.toJson(listJdCResponse));
+    }
+    
+    @Test
+    public void closeTransAbnormalTest() {
+        RevokeExceptionReq revokeExceptionReq = new RevokeExceptionReq();
+        revokeExceptionReq.setTransAbnormalCode("TAB23010300565637");
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        revokeExceptionReq.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("吴有德");
+        user.setUserErp("wuyoude");
+        revokeExceptionReq.setUser(user);
+        JdCResponse<String> stringJdCResponse = revokeExceptionGatewayService.closeTransAbnormal(revokeExceptionReq);
+        System.out.println(JsonHelper.toJson(stringJdCResponse));
     }
     
 }

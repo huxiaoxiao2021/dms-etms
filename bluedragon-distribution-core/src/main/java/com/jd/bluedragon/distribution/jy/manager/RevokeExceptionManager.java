@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.tms.dtp.dto.AccountDto;
-import com.jd.tms.dtp.dto.PageDto;
-import com.jd.tms.dtp.dto.TransAbnormalBillDetailDto;
-import com.jd.tms.dtp.dto.TransAbnormalBillQueryDto;
+import com.jd.tms.dtp.dto.*;
 
 /**
  * @author liwenji
@@ -21,4 +18,12 @@ public interface RevokeExceptionManager {
      * @return
      */
     InvokeResult<PageDto<TransAbnormalBillDetailDto>> queryAbnormalPage(AccountDto accountDto, TransAbnormalBillQueryDto transAbnormalBillQueryDto, PageDto<TransAbnormalBillDetailDto> pageDto);
+
+    /**
+     * 撤销封签异常提报功能
+     * @param accountDto
+     * @param transAbnormalExtendDto
+     * @return
+     */
+    InvokeResult<String> closeTransAbnormal(AccountDto accountDto, TransAbnormalExtendDto transAbnormalExtendDto);
 }

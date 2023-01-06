@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.dtp.api.DtpTransAbnormalSelectApi;
+import com.jd.tms.dtp.api.DtpTransAbnormalApi;
 import com.jd.tms.dtp.dto.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -25,6 +26,9 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
     @Autowired
     private DtpTransAbnormalSelectApi transAbnormalSelectApi;
     
+    @Autowired
+    private DtpTransAbnormalApi dtpTransAbnormalApi;
+    
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.RevokeExceptionManagerImpl.queryAbnormalPage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<PageDto<TransAbnormalBillDetailDto>> queryAbnormalPage(AccountDto accountDto, TransAbnormalBillQueryDto transAbnormalBillQueryDto, PageDto<TransAbnormalBillDetailDto> pageDto) {
@@ -42,7 +46,7 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
                 invokeResult.setMessage(QUERY_EXCEPTION_REPORT_MESSAGE);
             }
 
-            if (commonDto != null && CODE_SUCCESS == commonDto.getCode()) {
+            if (commonDto != null && CommonDto.CODE_SUCCESS == commonDto.getCode()) {
                 invokeResult.setCode(RESULT_SUCCESS_CODE);
                 invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                 invokeResult.setData(commonDto.getData());
@@ -53,7 +57,7 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
                 invokeResult.setCode(QUERY_EXCEPTION_REPORT_CODE);
                 invokeResult.setMessage(QUERY_EXCEPTION_REPORT_MESSAGE);
                 if (log.isErrorEnabled()) {
-                    log.error("查询封签异常提报失败,结果为：{}",JsonHelper.toJson(commonDto));
+                    log.error("查询封签异常提报失败,请求:{} {} {} 结果为：{}",JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalBillQueryDto),JsonHelper.toJson(pageDto),JsonHelper.toJson(commonDto));
                 }
             }
             
@@ -66,4 +70,47 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
         }
         return invokeResult;
     }
+
+    
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.RevokeExceptionManagerImpl.closeTransAbnormal", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<String> closeTransAbnormal(AccountDto accountDto, TransAbnormalExtendDto transAbnormalExtendDto) {
+        InvokeResult<String> invokeResult = new InvokeResult<>();
+        
+        try{
+            CommonDto<String> commonDto = dtpTransAbnormalApi.closeTransAbnormal(accountDto, transAbnormalExtendDto);
+            
+            if (commonDto == null) {
+                if (log.isErrorEnabled()) {
+                    log.error("撤销封签异常提报无返回数据：{} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto));
+                }
+                invokeResult.setCode(REVOKE_EXCEPTION_REPORT_CODE);
+                invokeResult.setMessage(REVOKE_EXCEPTION_REPORT_MESSAGE);
+            }
+
+            if (commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS) {
+                if (log.isInfoEnabled()) {
+                    log.error("撤销封签异常提报成功：{} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto));
+                }
+                invokeResult.setCode(RESULT_SUCCESS_CODE);
+                invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                invokeResult.setData(commonDto.getData());
+            }else {
+                invokeResult.setCode(REVOKE_EXCEPTION_REPORT_CODE);
+                invokeResult.setMessage(QUERY_EXCEPTION_REPORT_MESSAGE);
+                if (log.isErrorEnabled()) {
+                    log.error("撤销封签异常提报失败,请求：{} {} 结果为：{}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto),JsonHelper.toJson(commonDto));
+                }
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("撤销封签异常提报异常：{} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto),e);
+            }
+            invokeResult.setCode(REVOKE_EXCEPTION_REPORT_CODE);
+            invokeResult.setMessage(REVOKE_EXCEPTION_REPORT_MESSAGE);
+        }
+        
+        return invokeResult;
+    }
+
 }

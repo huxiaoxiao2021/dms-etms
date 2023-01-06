@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.revokeException;
 
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.revokeException.request.QueryExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.response.ExceptionReportResp;
@@ -10,10 +11,7 @@ import com.jd.bluedragon.distribution.jy.manager.RevokeExceptionManager;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jddl.executor.function.scalar.filter.In;
-import com.jd.tms.dtp.dto.AccountDto;
-import com.jd.tms.dtp.dto.PageDto;
-import com.jd.tms.dtp.dto.TransAbnormalBillDetailDto;
-import com.jd.tms.dtp.dto.TransAbnormalBillQueryDto;
+import com.jd.tms.dtp.dto.*;
 import com.sleepycat.je.tree.IN;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,7 +57,7 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
          
-        AccountDto accountDto = getAccountDto(request);
+        AccountDto accountDto = getAccountDto(request.getUser());
         
         TransAbnormalBillQueryDto transAbnormalBillQueryDto = getTransAbnormalBillQueryDto(request);
         
@@ -131,12 +129,12 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
         return queryDto;
     }
     
-    private AccountDto getAccountDto(QueryExceptionReq request) {
+    private AccountDto getAccountDto(User user) {
         AccountDto accountDto = new AccountDto();
         // 1:内网erp,2:外网PIN,3:APP-PIN请求,4:大屏erp请求 8:3pl-PIN，9:TFC
         accountDto.setSource(SOURCE);
-        accountDto.setUserCode(request.getUser().getUserErp());
-        accountDto.setUserName(request.getUser().getUserName());
+        accountDto.setUserCode(user.getUserErp());
+        accountDto.setUserName(user.getUserName());
         return accountDto;
     }
 
@@ -163,6 +161,12 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
 
     @Override
     public InvokeResult<String> closeTransAbnormal(RevokeExceptionReq revokeExceptionReq) {
-        return null;
+        
+        AccountDto accountDto = getAccountDto(revokeExceptionReq.getUser());
+        
+        TransAbnormalExtendDto transAbnormalExtendDto = new TransAbnormalExtendDto();
+        transAbnormalExtendDto.setTransAbnormalCode(revokeExceptionReq.getTransAbnormalCode());
+        
+        return revokeExceptionManager.closeTransAbnormal(accountDto,transAbnormalExtendDto);
     }
 }

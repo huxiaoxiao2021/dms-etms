@@ -25,7 +25,7 @@ public class RevokeExceptionGatewayServiceImpl implements RevokeExceptionGateway
     @Override
     public JdCResponse<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq query) {
         return retJdCResponse(revokeExceptionService.queryAbnormalPage(query));
-    }
+    }   
 
     @Override
     public JdCResponse<String> closeTransAbnormal(RevokeExceptionReq revokeExceptionReq) {
