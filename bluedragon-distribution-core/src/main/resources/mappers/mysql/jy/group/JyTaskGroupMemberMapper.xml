@@ -217,7 +217,7 @@
         <foreach collection="memberCodes" item="item" open="(" close=")" separator=",">
             #{item, jdbcType=VARCHAR}
         </foreach>        
-        AND (end_time is null or end_time &lt; #{endTime,jdbcType=TIMESTAMP})
+        AND (end_time is null or end_time &lt; #{endData.endTime,jdbcType=TIMESTAMP})
     </update>    
     <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member
