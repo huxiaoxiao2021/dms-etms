@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
+import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
@@ -117,7 +118,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private JyComboardAggsService jyComboardAggsService;
-    
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
@@ -505,19 +506,20 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
         invokeResult.setData(boardQueryResp);
-        
+
         // 获取当前场地未封车的板号
         SendFlowDto sendFlow = new SendFlowDto();
         sendFlow.setEndSiteId(request.getEndSiteId());
         sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        PageHelper.startPage(request.getPageNo(),request.getPageSize());
         List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
-        
+
         if (CollectionUtils.isEmpty(boardList)) {
             invokeResult.setCode(RESULT_SUCCESS_CODE);
             invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
             return invokeResult;
         }
-        
+
         // 获取板号扫描数量统计数据
         List<String> boardCodeList = getboardCodeList(boardList);
         List<JyComboardAggsEntity> boardScanCountList = new ArrayList<>();
@@ -527,7 +529,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList),e);
         }
         HashMap<String,JyComboardAggsEntity> boardScanCountMap = getBoardScanCountMap(boardScanCountList);
-        
+
         // 获取板号产品类型统计数据
         HashMap<String,List<GoodsCategoryDto>> goodsCategoryMap = new HashMap<>();
         try {
@@ -554,7 +556,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
             boardDto.setStatus(board.getBoardStatus());
             boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(board.getBoardStatus()));
-            
+
             if (boardScanCountMap.containsKey(board.getBoardCode())) {
                 JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
                 boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
@@ -566,7 +568,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     boardDto.setVolume(aggsEntity.getVolume().toString());
                 }
             }
-            
+
             if (goodsCategoryMap.containsKey(board.getBoardCode())) {
                 List<GoodsCategoryDto> goodsCategoryDtos = goodsCategoryMap.get(board.getBoardCode());
                 boardDto.setGoodsCategoryDtos(goodsCategoryDtos);
@@ -582,7 +584,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @Transactional(readOnly = false,propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName) {
-        
+
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCode, operateUserCode, operateUserName)) {
@@ -590,7 +592,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             invokeResult.setMessage("更新板状态失败");
             return invokeResult;
         }
-        
+
         // 根据派车单号查询发车任务
         if (StringUtils.isEmpty(sealCarCodeOfTms.getTransWorkItemCode())) {
             invokeResult.setData(Boolean.FALSE);
@@ -605,7 +607,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             invokeResult.setMessage("未查询到该派车单号的发车明细");
             return invokeResult;
         }
-        
+
         // 根据业务主键逻辑删除封签号
         List<String> sendSealCodeList = jySendSealCodeService.selectSealCodeByBizId(jyBizTaskSendVehicleDetail.getSendVehicleBizId());
         if (CollectionUtils.isEmpty(sendSealCodeList)) {
@@ -624,7 +626,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             invokeResult.setMessage("删除封签号失败");
             return invokeResult;
         }
-        
+
         invokeResult.setCode(RESULT_SUCCESS_CODE);
         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         invokeResult.setData(Boolean.TRUE);
@@ -639,7 +641,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return boardScanCountMap;
     }
 
-    
+
     private List<String> getboardCodeList(List<JyBizTaskComboardEntity> boardList) {
         List<String> boardCodeList = new ArrayList<>();
         for (JyBizTaskComboardEntity boardInfo : boardList) {
