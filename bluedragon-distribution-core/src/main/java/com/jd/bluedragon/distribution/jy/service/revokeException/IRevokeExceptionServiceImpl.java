@@ -51,6 +51,9 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     
     public static final Integer REVOKE_EXCEPTION_HOUR = 100;
     
+    // 提报状态 初始 10 ;已提交 20 ;待解释 30; 已解释 40; 已关闭 100;
+    public static final Byte SUBMIT_STATUS = 20;
+    
     @Override
     public InvokeResult<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq request) {
         if (!checkQueryExceptionReq(request)) {
@@ -126,6 +129,9 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
         if (!StringUtils.isEmpty(request.getVehicleNumber())) {
             queryDto.setVehicleNumber(request.getVehicleNumber());
         }
+        List<Byte> statusList = new ArrayList<>();
+        statusList.add(SUBMIT_STATUS);
+        queryDto.setStatusList(statusList);
         return queryDto;
     }
     

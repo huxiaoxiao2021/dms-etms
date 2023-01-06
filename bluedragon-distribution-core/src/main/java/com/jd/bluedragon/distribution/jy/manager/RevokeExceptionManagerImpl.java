@@ -55,7 +55,7 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
                 }
             }else {
                 invokeResult.setCode(QUERY_EXCEPTION_REPORT_CODE);
-                invokeResult.setMessage(QUERY_EXCEPTION_REPORT_MESSAGE);
+                invokeResult.setMessage(commonDto.getMessage());
                 if (log.isErrorEnabled()) {
                     log.error("查询封签异常提报失败,请求:{} {} {} 结果为：{}",JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalBillQueryDto),JsonHelper.toJson(pageDto),JsonHelper.toJson(commonDto));
                 }
@@ -90,14 +90,14 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager{
 
             if (commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS) {
                 if (log.isInfoEnabled()) {
-                    log.error("撤销封签异常提报成功：{} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto));
+                    log.error("撤销封签异常提报成功：{} {} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto),JsonHelper.toJson(commonDto));
                 }
                 invokeResult.setCode(RESULT_SUCCESS_CODE);
                 invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                 invokeResult.setData(commonDto.getData());
             }else {
                 invokeResult.setCode(REVOKE_EXCEPTION_REPORT_CODE);
-                invokeResult.setMessage(QUERY_EXCEPTION_REPORT_MESSAGE);
+                invokeResult.setMessage(commonDto.getMessage());
                 if (log.isErrorEnabled()) {
                     log.error("撤销封签异常提报失败,请求：{} {} 结果为：{}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalExtendDto),JsonHelper.toJson(commonDto));
                 }
