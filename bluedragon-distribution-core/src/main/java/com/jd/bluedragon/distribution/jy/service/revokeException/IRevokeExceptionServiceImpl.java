@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.revokeException;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.revokeException.request.QueryExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.tms.dtp.dto.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.sleepycat.je.tree.IN;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -55,20 +58,21 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     public static final Byte SUBMIT_STATUS = 20;
     
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.IRevokeExceptionServiceImpl.queryAbnormalPage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<ExceptionReportResp>> queryAbnormalPage(QueryExceptionReq request) {
         if (!checkQueryExceptionReq(request)) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
          
+        if (log.isInfoEnabled()) {
+            log.info("开始查询封签异常提报：{}",JsonHelper.toJson(request));
+        }
         AccountDto accountDto = getAccountDto(request.getUser());
         
         TransAbnormalBillQueryDto transAbnormalBillQueryDto = getTransAbnormalBillQueryDto(request);
         
         PageDto<TransAbnormalBillDetailDto> pageDto = getPageDto(request);
         
-        if (log.isInfoEnabled()) {
-            log.info("开始查询封签异常提报：{} {} {}", JsonHelper.toJson(accountDto),JsonHelper.toJson(transAbnormalBillQueryDto), JsonHelper.toJson(pageDto));
-        }
         InvokeResult<PageDto<TransAbnormalBillDetailDto>> invokeResult = revokeExceptionManager.queryAbnormalPage(accountDto, transAbnormalBillQueryDto, pageDto);
         
         if (invokeResult != null && invokeResult.getCode() != RESULT_SUCCESS_CODE) {
@@ -166,8 +170,12 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.IRevokeExceptionServiceImpl.closeTransAbnormal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> closeTransAbnormal(RevokeExceptionReq revokeExceptionReq) {
-        
+
+        if (log.isInfoEnabled()) {
+            log.info("开始撤销封签异常提报：{}",JsonHelper.toJson(revokeExceptionReq));
+        }
         AccountDto accountDto = getAccountDto(revokeExceptionReq.getUser());
         
         TransAbnormalExtendDto transAbnormalExtendDto = new TransAbnormalExtendDto();
