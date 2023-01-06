@@ -963,4 +963,7 @@ public class HintCodeConstants {
 
     //禁止发往德邦虚拟场地
     public static String JY_DP_TRANSFER_MESSAGE_2 = "28103";
+
+    // 设备抽检任务已关闭并且未超过2小时，是否强制创建？
+    public static String JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT = "80001";
 }

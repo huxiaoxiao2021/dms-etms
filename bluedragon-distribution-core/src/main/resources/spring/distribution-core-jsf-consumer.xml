@@ -1072,6 +1072,19 @@
                   timeout="10000">
         <jsf:parameter key="token" value="${basic.jsfGoodsArea.token}" hide="true" />
     </jsf:consumer>
+    <!-- 京东短链 -->
+    <jsf:consumer id="shortUrlService" interface="com.jd.shorturl.api.jsf.ShortUrlService"
+                  protocol="jsf" alias="${jsf.shortUrl.alias}" timeout="${jsf.shortUrl.timeout}">
+    </jsf:consumer>
+    <!--  MSP 系统依赖  -->
+    <jsf:consumer id="messageSendApi" interface="com.jdl.jy.msp.api.IMessageSendApi" alias="${jsf.jy_msp.alias}"
+                  protocol="jsf" timeout="${jsf.jy_msp.timeout}">
+        <jsf:parameter key="token" value="${jsf.jy_msp.token}" hide="true" />
+    </jsf:consumer>
+    <!-- 人员服务接口 -->
+    <jsf:consumer id="hrUserService" interface="com.jd.official.omdm.is.hr.HrUserService" alias="${jsf.hr.alias}"
+                  protocol="jsf" timeout="${jsf.hr.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
 
 
     <!--查询运单路由环节信息接口-->
