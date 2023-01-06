@@ -791,6 +791,16 @@ public class UccPropertyConfiguration {
 
     private Integer jyComboardSiteCTTPageSize;
 
+    private boolean syncScheduleTaskSwitch;
+
+    public boolean getSyncScheduleTaskSwitch() {
+        return syncScheduleTaskSwitch;
+    }
+
+    public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
+        this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
