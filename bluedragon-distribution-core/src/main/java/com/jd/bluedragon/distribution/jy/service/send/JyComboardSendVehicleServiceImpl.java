@@ -281,7 +281,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
   /**
    * 状态装换
-   * 待发货 发货中 待封车 已作废 都转换成带封车状态
+   * 待发货 发货中 待封车 已作废 都转换待封车状态
    */
   private Integer convertVehicleStatus(Integer vehicleStatus) {
     if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleStatus)) {
@@ -318,7 +318,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       ToSealDestDetail sendDestDetail = new ToSealDestDetail();
       sendDestDetail.setSendDetailBizId(detailEntity.getBizId());
       sendDestDetail.setItemStatus(detailEntity.getVehicleStatus());
-      sendDestDetail.setItemStatusDesc(JyBizTaskSendDetailStatusEnum.getNameByCode(detailEntity.getVehicleStatus()));
+      sendDestDetail.setItemStatusDesc(JyBizTaskSendDetailStatusEnum.getNameByCode(convertVehicleStatus(detailEntity.getVehicleStatus())));
 
       sendDestDetail.setEndSiteId(detailEntity.getEndSiteId().intValue());
       sendDestDetail.setEndSiteName(detailEntity.getEndSiteName());
