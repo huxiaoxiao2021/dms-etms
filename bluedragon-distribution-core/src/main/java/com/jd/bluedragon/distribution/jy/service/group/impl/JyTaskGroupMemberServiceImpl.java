@@ -130,7 +130,17 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		}
 		taskGroupMember.setUpdateUser(endData.getUpdateUser());
 		taskGroupMember.setUpdateUserName(endData.getUpdateUserName());
-		jyTaskGroupMemberDao.endWorkByTaskId(taskGroupMember);
+		
+		GroupMemberQueryRequest memberCodeListQuery = new GroupMemberQueryRequest();
+		memberCodeListQuery.setTaskId(endData.getRefTaskId());
+		//查询任务下MemberCode
+		List<String> memberCodeList = jyTaskGroupMemberDao.queryMemberCodeListByTaskId(memberCodeListQuery);
+		//查询在岗人员MemberCode
+		List<String> unSignOutMemberCodeList = jyGroupMemberService.queryUnSignOutMemberCodeList(memberCodeList);
+		
+		if(!CollectionUtils.isEmpty(unSignOutMemberCodeList)) {
+			jyTaskGroupMemberDao.endWorkByMemberCodeListForEndTask(taskGroupMember,unSignOutMemberCodeList);
+		}
 		return result;
 	}
 
@@ -143,10 +153,10 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 	}
 
 	@Override
-	public Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+	public Result<Boolean> endWorkByMemberCodeListForAutoSignOut(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
 		Result<Boolean> result = new Result<Boolean>();
 		result.toSuccess();
-		jyTaskGroupMemberDao.endWorkByMemberCodeList(endData,memberCodes);
+		jyTaskGroupMemberDao.endWorkByMemberCodeListForAutoSignOut(endData,memberCodes);
 		return result;
 	}
 
