@@ -52,7 +52,7 @@
     </select>
 
     <update id="insertOrUpdate" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity">
-        INSERT INTO jy_send_aggs
+        INSERT INTO jy_send_product_aggs
         (
         <if test="bizId != null">
             biz_id,

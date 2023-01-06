@@ -9,4 +9,7 @@
     <bean id="jyUnloadAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak">
         <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
     </bean>
+    <bean id="jySendProductAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoBak">
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
+    </bean>
 </beans>

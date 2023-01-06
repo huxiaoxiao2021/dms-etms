@@ -102,12 +102,12 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Override
     public int insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDao.insertOrUpdate(entity);
+        return jyUnloadAggsDaoMain.insertOrUpdate(entity);
     }
 
     @Override
     public int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDaoBak .insertOrUpdate(entity);
+        return jyUnloadAggsDaoBak.insertOrUpdate(entity);
     }
 
     private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {

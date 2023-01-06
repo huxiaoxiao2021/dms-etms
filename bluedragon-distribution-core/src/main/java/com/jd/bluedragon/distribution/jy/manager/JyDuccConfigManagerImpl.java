@@ -38,7 +38,7 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     @Override
     public Boolean getJyUnloadAggsDataReadSwitchInfo() {
         try{
-            ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggsDataReadSwitchInfo();
+            ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsDataReadSwitchInfo();
             log.info("获取拣运卸车岗主备开关切换值-{}", JSON.toJSONString(result));
             if(result != null && ServiceResult.SUCCESS_CODE == result.getCode()){
                 return result.getData();

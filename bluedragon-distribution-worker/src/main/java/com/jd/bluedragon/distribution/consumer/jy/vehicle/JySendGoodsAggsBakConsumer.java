@@ -39,21 +39,21 @@ public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
     private JySendAggsService jySendAggsService;
 
     @Override
-    @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsBakConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
 
-        logger.info("JySendGoodsAggsConsumer consume 消息体-{}",message.getText());
+        logger.info("JySendGoodsAggsBakConsumer consume 消息体-{}",message.getText());
 
         if (StringHelper.isEmpty(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume --> 消息为空");
+            logger.warn("JySendGoodsAggsBakConsumer consume --> 消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn("JySendGoodsAggsConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+            logger.warn("JySendGoodsAggsBakConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         JySendAggsEntity entity = JsonHelper.fromJson(message.getText(), JySendAggsEntity.class);
-        logger.info("JySendGoodsAggsConsumer entity 消息体-{}", JSON.toJSONString(entity));
+        logger.info("JySendGoodsAggsBakConsumer entity 消息体-{}", JSON.toJSONString(entity));
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
@@ -63,7 +63,7 @@ public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
         if (redisClientOfJy.exists(versionMutex)) {
             Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
             if (!NumberHelper.gt(entity.getVersion(), version)) {
-                logger.warn("JySendGoodsAggsConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
+                logger.warn("JySendGoodsAggsBakConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
                 return;
             }
         }
@@ -71,7 +71,7 @@ public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
         if(result >0){
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(entity.getVersion())) {
-                logger.info("JySendGoodsAggsConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
+                logger.info("JySendGoodsAggsBakConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
                 redisClientOfJy.set(versionMutex, entity.getVersion() + "");
                 redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
             }

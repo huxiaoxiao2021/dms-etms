@@ -52,7 +52,6 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     }
 
     private JySendAggsDaoStrategy getJySendAggsDao(){
-
         if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
             if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
                 return jySendAggsDaoBak;
