@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.38-SNAPSHOT</version>
+			<version>1.1.39-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -241,7 +241,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.3.2-SNAPSHOT</version>
+            <version>1.6.3.3-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1195,7 +1195,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.6-SNAPSHOT</version>
+			<version>1.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1830,6 +1830,38 @@
             <groupId>com.jdl.jy.realtime</groupId>
             <artifactId>realtime-service-sdk</artifactId>
         </dependency>
+
+		<!-- jy_msp -->
+		<dependency>
+			<groupId>com.jdl.jy</groupId>
+			<artifactId>jy-msp-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>lombok</artifactId>
+					<groupId>org.projectlombok</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- 京东短链 -->
+		<dependency>
+			<groupId>com.jd.shorturl</groupId>
+			<artifactId>shorturl-rpc-client</artifactId>
+		</dependency>
+		<!-- 人资 -->
+		<dependency>
+			<groupId>jd-omdm-client</groupId>
+			<artifactId>jd-omdm-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>resteasy-jaxrs</artifactId>
+					<groupId>org.jboss.resteasy</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>resteasy-netty4</artifactId>
+					<groupId>org.jboss.resteasy</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jd.wl.ai.cv</groupId>

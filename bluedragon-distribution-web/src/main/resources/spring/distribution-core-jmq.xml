@@ -698,4 +698,16 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!-- 设备校准推送咚咚消息 -->
+    <bean id="dwsCalibratePushDDProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.calibrate.pushDD}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 设备校准推送更新抽检消息 -->
+    <bean id="dwsCalibrateDealSpotCheckProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.calibrate.dealSpotCheck}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
 </beans>
