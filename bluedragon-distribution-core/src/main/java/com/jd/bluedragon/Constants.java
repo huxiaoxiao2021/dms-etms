@@ -1788,4 +1788,9 @@ public class Constants {
      */
     public static final Integer SORT_SEND_VEHICLE = 41;
 
+    /**
+     * 特殊字符正则
+     */
+    public static final String SPECIAL_CHAR_REGEX = "[\n\r\t`~!@#$%^&*()+=|{}':;,\\[\\].<>/?！￥…（）—【】‘；：”“’。， 、？]";
+
 }

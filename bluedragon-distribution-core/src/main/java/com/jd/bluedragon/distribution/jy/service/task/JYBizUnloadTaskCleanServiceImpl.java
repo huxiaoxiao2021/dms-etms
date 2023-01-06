@@ -141,7 +141,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
      *      * 待解状态 上游封车时间超过30天
      *      * 待卸状态 距离解封车时间超过10天
      *      * 卸车中状态 距离卸车任务开始时间超过5天
-     *      * 完成状态 距离完成时间超过5天
+     *      * 完成状态 距离完成时间超过30天
      */
 
     private List<JyBizTaskUnloadVehicleEntity> getCleanRule(){
@@ -174,7 +174,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         //完成
         JyBizTaskUnloadVehicleEntity doneRule = new JyBizTaskUnloadVehicleEntity();
         doneRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode());
-        doneRule.setUnloadFinishTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-5));
+        doneRule.setUnloadFinishTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-30));
         cleanRules.add(doneRule);
 
 

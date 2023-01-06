@@ -985,6 +985,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnloadCarListQueryDayFilter;
 
+    /**
+     * 卸车岗列表页已完成状态任务过滤最近N天数据
+     */
+    private Integer jyUnloadCarListDoneQueryDayFilter;
+
 
     /**
      * 定时上传设备位置间隔 秒级时间戳 -1 - 表示不上传
@@ -2374,6 +2379,14 @@ public class UccPropertyConfiguration {
 
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public Integer getJyUnloadCarListDoneQueryDayFilter() {
+        return jyUnloadCarListDoneQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListDoneQueryDayFilter(Integer jyUnloadCarListDoneQueryDayFilter) {
+        this.jyUnloadCarListDoneQueryDayFilter = jyUnloadCarListDoneQueryDayFilter;
     }
 
     public int getGoodsResidenceTime() {

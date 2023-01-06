@@ -201,6 +201,7 @@
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="jyUnloadCarListDoneQueryDayFilter" value="${jyUnloadCarListDoneQueryDayFilter:5}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
@@ -404,6 +405,7 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.jyUnloadCarListDoneQueryDayFilter</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
