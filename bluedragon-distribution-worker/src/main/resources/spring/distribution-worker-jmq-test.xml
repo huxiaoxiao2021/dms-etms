@@ -410,6 +410,14 @@
     <jmq:consumer id="jmq.tmsTransWorkCarArriveConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.trans.work.car.arrive}" listener="tmsTransWorkCarArriveConsumer"/>
     </jmq:consumer>
+    <!--运输始发场地车辆到来消息-->
+    <jmq:consumer id="jmq.tmsTransWorkCarComeConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.trans.work.car.come}" listener="tmsTransWorkCarComeConsumer"/>
+    </jmq:consumer>
+    <!--运输始发场地车辆即将到来消息-->
+    <jmq:consumer id="jmq.tmsAreaNearNoticeForBeginNodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.area.work.near.notice.begin}" listener="tmsAreaNearNoticeForBeginNodeConsumer"/>
+    </jmq:consumer>
     <!--运输司机到达消息-->
     <jmq:consumer id="jmq.tmsVehicleDetailStatusConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
@@ -462,6 +470,25 @@
     <!--  车辆到达消息处理  -->
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
+    </jmq:consumer>
+
+    <!--  jy转运卸车任务板关系创建消费 -->
+    <jmq:consumer id="jmq.jyUnloadTaskBoardRelationGenerateConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.task.board.relation}" listener="jyUnloadTaskBoardRelationGenerateConsume"/>
+    </jmq:consumer>
+
+    <!-- 设备位置上传消息处理 -->
+    <jmq:consumer id="jmq.dmsUploadDeviceLocationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocation}" listener="dmsUploadDeviceLocationConsumer"/>
+    </jmq:consumer>
+    <!-- 设备操作位置异常上传消息处理 -->
+    <jmq:consumer id="jmq.dmsUploadDeviceLocationExceptionOpConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" listener="dmsUploadDeviceLocationExceptionOpConsumer"/>
+    </jmq:consumer>
+
+    <!--  分拣发邮政消息处理  -->
+    <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
     </jmq:consumer>
 
     <!--  dws称重量方校准消息处理  -->

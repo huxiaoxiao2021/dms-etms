@@ -68,6 +68,14 @@ public class CacheKeyConstants {
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
 
+    public static final String REDIS_PREFIX_STAGE_TASK_CREATE = "jy.unload.stage.task.create-";
+    public static final int REDIS_PREFIX_STAGE_TASK_CREATE_TIMEOUT_SECONDS = 3;
+    public static final long REDIS_PREFIX_STAGE_TASK_CREATE_WAIT_SPIN_TIMESTAMP = 100;
+
+    public static final String REDIS_PREFIX_TASK_BOARD_CREATE = "jy.unload.task.board.relation.create-";
+    public static final int REDIS_PREFIX_TASK_BOARD_CREATE_TIMEOUT_SECONDS = 3;
+    public static final long REDIS_PREFIX_TASK_BOARD_CREATE_WAIT_SPIN_TIMESTAMP = 100;
+
     /***************************************** 抽检缓存start *******************************************/
 
     /**
@@ -264,6 +272,11 @@ public class CacheKeyConstants {
      * 网格计划操作-key
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
+
+    /**
+     * 滞留上报操作key，场地+箱号|批次|板号
+     */
+    public static final String CACHE_KEY_FORMAT_STRAND_REPORT = "dmsWeb:strandReport:%s:%s";
 
     /***************************************** 设备校准缓存start *******************************************/
     // 设备校准扫描-key

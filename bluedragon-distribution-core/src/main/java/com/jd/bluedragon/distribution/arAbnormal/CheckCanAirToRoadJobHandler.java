@@ -75,7 +75,7 @@ public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<Strin
 			return result;
 		}
 		for(List<String> tmp : resultList) {
-			if(!CollectionUtils.isNotEmpty(tmp)) {
+			if(CollectionUtils.isNotEmpty(tmp)) {
 				result.addAll(tmp);
 			}
 		}

@@ -386,8 +386,10 @@ public interface WaybillSignConstants {
 	 * 86
 	 */
 	int POSITION_86 = 86;
+	char CHAR_86_1 = '1';	
 	char CHAR_86_2 = '2';
 	char CHAR_86_3 = '3';
+	char CHAR_86_0 = '0';
 
 	/**
 	 * 66
@@ -423,4 +425,12 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_99 = 99;
 	char CHAR_99_1 = '1';
+
+
+	/**
+	 * 140
+	 */
+	int POSITION_140 = 140;
+	char CHAR_140_2 = '2';
+	char CHAR_140_1 = '1';
 }

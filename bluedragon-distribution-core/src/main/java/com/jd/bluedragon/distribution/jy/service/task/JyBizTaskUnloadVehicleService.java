@@ -193,4 +193,12 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
+
+
+    /**
+     * 根据车牌、状态、目的地查询任务信息
+     * @param condition
+     * @return
+     */
+    List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
 }

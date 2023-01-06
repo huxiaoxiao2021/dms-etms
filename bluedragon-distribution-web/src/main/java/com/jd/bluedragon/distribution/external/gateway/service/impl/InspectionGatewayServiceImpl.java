@@ -1,16 +1,22 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTypeRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
+import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
@@ -29,13 +35,18 @@ import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
@@ -44,6 +55,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.EXPRESS_CENTER_SITE_ID;
@@ -88,6 +101,18 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     @Autowired
     private InspectionService inspectionService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillRouteLinkQueryManager waybillRouteManager;
+
+    @Autowired
+    private EasyFreezeSiteManager easyFreezeSiteManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
@@ -261,6 +286,12 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         // 暂存校验
         tempStorageCheck(request, response);
 
+        //异动品校验
+        easyFreezeCheck(request,response);
+
+        //特保单校验
+        luxurySecurityCheck(request,response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -287,6 +318,17 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         }
 
         return response;
+    }
+
+    private void easyFreezeCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        //易冻品校验
+        Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
+        InvokeResult<Boolean> easyFreezeResult
+                = waybillService.checkEasyFreeze(request.getBarCode(), operateTime, request.getCreateSiteCode());
+        log.info("checkBeforeInspection -易冻品校验结果-{}",JSON.toJSONString(easyFreezeResult));
+        if(easyFreezeResult != null && easyFreezeResult.getData()){
+            response.addWarningBox(0, easyFreezeResult.getMessage());
+        }
     }
 
     private void checkWaybillCancel(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
@@ -347,5 +389,20 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
                 }
             }
         }
+    }
+
+    /**
+     * 特保单校验
+     * @param request
+     * @param response
+     */
+    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getCreateSiteCode(),
+                request.getBarCode(), "");
+        log.info("checkBeforeInspection -特保单校验结果-{}", JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
+        }
+        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 }

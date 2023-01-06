@@ -68,6 +68,15 @@ public class OperatorInfo implements Serializable {
      * 版本：做数据隔离
      */
     private Integer version;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
 
     public Integer getUserCode() {
         return userCode;
@@ -165,4 +174,20 @@ public class OperatorInfo implements Serializable {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }
