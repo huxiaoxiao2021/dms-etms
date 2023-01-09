@@ -652,7 +652,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         // 根据板号查询任务信息
         JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
         query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        query.setBoardCode(request.getBarCode());
+        query.setBoardCode(boardBoxInfoDto.getCode());
         JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
 
         if (comboardEntity == null) {

@@ -74,8 +74,8 @@ public class JyComboardSealGatewayServiceImplTest {
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         resp.setUser(user);
-        resp.setBarCode("JDV000707553583-2-5-");
-        JdCResponse<BoardDto> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
+        resp.setBarCode("JD0003403912885-1-1-");
+        JdCResponse<QueryBelongBoardResp> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
         System.out.println(JsonHelper.toJson(re));
     }
     
@@ -169,7 +169,7 @@ public class JyComboardSealGatewayServiceImplTest {
     @Test
     public void queryGoodsCategoryByBoardCode() {
         BoardReq boardReq = new BoardReq();
-        boardReq.setBoardCode("");
+        boardReq.setBoardCode("B22120600000071");
         JdCResponse<List<GoodsCategoryDto>> listJdCResponse = jyComboardSealGatewayService.queryGoodsCategoryByBoardCode(boardReq);
         System.out.println(JsonHelper.toJson(listJdCResponse));
     }
