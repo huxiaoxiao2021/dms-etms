@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -53,6 +54,8 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BarCodeTypeEnum;
 import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -145,6 +148,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 操作中心为始发中心+揽收类型为网点自送+运单状态为取消
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.kyExpressCancelCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String kyExpressCancelCheck(Integer operateSiteCode, Waybill waybill) {
         log.info("kyExpressCancelCheck-查询运单是否是取消状态:{}", JsonHelper.toJson(waybill));
         // 路由的第一站是否为始发中心
@@ -162,7 +166,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         return null;
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.isStartOrEndSite", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean isStartOrEndSite(Integer operateSiteCode, Waybill waybill, int locationFlag) {
         //操作所属站点code和目的转运中心code
         Integer finalRouterCode = getFinalOrFirstRouterFromDb(waybill, locationFlag);
@@ -174,7 +178,7 @@ public class JyUnloadVehicleCheckTysService {
             return false;
         }
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.getFinalOrFirstRouterFromDb", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getFinalOrFirstRouterFromDb(Waybill waybill, int locationFlag) {
         WaybillExt waybillExt = waybill.getWaybillExt();
         if (waybillExt != null) {
@@ -189,7 +193,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         return null;
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkPackageOverWeight", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void checkPackageOverWeight(DeliveryPackageD packageD, Waybill waybill, ScanPackageRespDto response) {
         String packageWeightLimit = uccPropertyConfiguration.getPackageWeightLimit();
         BigDecimal packageWeight = getPackageWeight(packageD, waybill);
@@ -199,7 +203,7 @@ public class JyUnloadVehicleCheckTysService {
             warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
         }
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkWaybillOverWeight", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void checkWaybillOverWeight(Waybill waybill) {
         String waybillWeightLimit = uccPropertyConfiguration.getWaybillWeightLimit();
         if (waybill.getAgainWeight() != null && waybill.getAgainWeight() > 0) {
@@ -212,7 +216,7 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.getPackageWeight", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BigDecimal getPackageWeight(DeliveryPackageD packageD, Waybill waybill) {
         BigDecimal packageWeight = null;
         // 获取包裹重量
@@ -244,6 +248,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 判断包裹是否扫描成功
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.packageIsScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageIsScan(ScanPackageDto request) throws LoadIllegalException {
         if (request.getIsForceCombination()) {
             return;
@@ -269,6 +274,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 判断包裹是否组板成功
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.packageIsComBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageIsComBoard(String barCode, String boardCode) throws LoadIllegalException {
         // 拦截的包裹不能重复组板
         if (StringUtils.isEmpty(boardCode)) {
@@ -294,6 +300,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 验货拦截及验货处理
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectionIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void inspectionIntercept(String barCode, Waybill waybill, UnloadScanDto unloadScanDto) throws LoadIllegalException {
         // 加盟商余额校验
         if (allianceBusiDeliveryDetailService.checkExist(waybill.getWaybillCode())
@@ -304,6 +311,7 @@ public class JyUnloadVehicleCheckTysService {
         unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.interceptValidateUnloadCar", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String interceptValidateUnloadCar(Waybill waybill, DeliveryPackageD deliveryPackageD, ScanPackageRespDto response, String barCode) {
         log.info("JyUnloadCarCheckServiceImpl-interceptValidateUnloadCar-barCode:{}", barCode);
         InvokeResult<String> result = new InvokeResult<>();
@@ -386,6 +394,7 @@ public class JyUnloadVehicleCheckTysService {
      * ka货物重量校验逻辑
      * @param waybillSign     标位
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.kaWaybillCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String kaWaybillCheck(String waybillSign, DeliveryPackageD deliveryPackageD) {
         if (deliveryPackageD != null) {
             // 非信任重量  信任重量不做重量体积拦截.---去除 信任非信任的判断逻辑，直接按照业务类型是否进行称重进行判断。
@@ -409,6 +418,7 @@ public class JyUnloadVehicleCheckTysService {
      * 跨越需求 增加目的转运中心+自提校验
      * 如果前面有运单信息 无需再次调用接口获取
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.kyExpressCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String kyExpressCheck(Waybill waybill, Integer operateSiteCode) {
         // 操作所属站点code和目的转运中心code 跨越路由
         boolean isEndSite = isStartOrEndSite(operateSiteCode, waybill, -1);
@@ -426,6 +436,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * B网营业厅增加寄付揽收完成校验
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.businessHallFreightSendReceiveCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     private boolean businessHallFreightSendReceiveCheck(String waybillCode, String waybillSign) {
         if (!BusinessUtil.isBusinessHallFreightSendAndForward(waybillSign)) {
             return Boolean.TRUE;
@@ -438,6 +449,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 根据运单号校验专网，true为专网
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.privateNetworkCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean privateNetworkCheck(Waybill waybill, ScanPackageRespDto response) {
         String waybillSign = waybill.getWaybillSign();
         // 是否专网
@@ -458,6 +470,7 @@ public class JyUnloadVehicleCheckTysService {
      * @param response 原始返回结果
      * @return ture:  校验成功，   false  校验失败
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.routerCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean routerCheck(ScanPackageRespDto response, ScanPackageDto request) throws LoadIllegalException {
         if (StringUtils.isEmpty(request.getBoardCode())) {
             //第一次则生成板号
@@ -501,7 +514,8 @@ public class JyUnloadVehicleCheckTysService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
         if (request.getNextSiteCode() == null) {
             // 此处直接返回，因为ver组板校验链会判断
-            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+//            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
+            throw new UnloadPackageBoardException("验货成功，未找到包裹下游流向场地，是否强制继续组板？");
         }
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
@@ -523,6 +537,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 是否发货校验
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.isSendCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void isSendCheck(ScanPackageDto scanPackageDto) {
         BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
         boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
@@ -534,6 +549,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 板上包裹数校验
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.packageCountCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageCountCheck(ScanPackageDto scanPackageDto) {
         Integer unloadBoardBindingsMaxCount = uccPropertyConfiguration.getUnloadBoardBindingsMaxCount();
         boardCommonManager.packageCountCheck(scanPackageDto.getBoardCode(), unloadBoardBindingsMaxCount);
@@ -542,6 +558,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * ver组板拦截
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.boardCombinationCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String boardCombinationCheck(ScanPackageDto request) {
         BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
         if(boardCommonRequest.getReceiveSiteCode() == null) {
@@ -557,6 +574,7 @@ public class JyUnloadVehicleCheckTysService {
         return null;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.createBoardCommonRequest", mState = {JProEnum.TP, JProEnum.FunctionError})
     private BoardCommonRequest createBoardCommonRequest(ScanPackageDto request) {
         BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
         boardCommonRequest.setBarCode(request.getScanCode());
@@ -584,6 +602,7 @@ public class JyUnloadVehicleCheckTysService {
      * 3、组板全程跟踪
      * </p>
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void dealUnloadAndBoxToBoard(ScanPackageDto request, ScanPackageRespDto result) throws LoadIllegalException {
         AddBoardBox addBoardBox = new AddBoardBox();
         String boardCode = "";
@@ -681,7 +700,7 @@ public class JyUnloadVehicleCheckTysService {
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.setComBoardCount", mState = {JProEnum.TP, JProEnum.FunctionError})
     private void setComBoardCount(ScanPackageDto request, ScanPackageRespDto result) {
         Response<List<String>> tcResponse = groupBoardManager.getBoxesByBoardCode(request.getBoardCode());
         if (tcResponse != null && InvokeResult.RESULT_SUCCESS_CODE == tcResponse.getCode()) {
@@ -690,7 +709,7 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.saveUnloadVehicleBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     private boolean saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
         //暂时不考虑异步
 //        jyTysTaskBoardRelationGenerate.sendOnFailPersistent(scanPackageDto.getBoardCode(), JsonHelper.toJson(scanPackageDto));
@@ -714,6 +733,7 @@ public class JyUnloadVehicleCheckTysService {
      * @param scanPackageDto
      * @return  只有成功插入数据为true
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.saveUnloadVehicleBoardHandler", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> saveUnloadVehicleBoardHandler(ScanPackageDto scanPackageDto) {
         InvokeResult<Boolean> res = new InvokeResult<>();
         res.success();
@@ -805,7 +825,8 @@ public class JyUnloadVehicleCheckTysService {
         entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
     }
 
-    public InvokeResult<Boolean> setStageBizId(UnloadScanDto unloadScanDto) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.setStageBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> setStageBizId(ScanPackageDto request, UnloadScanDto unloadScanDto) {
         InvokeResult<Boolean> res = new InvokeResult<>();
         res.success();
 
@@ -823,6 +844,11 @@ public class JyUnloadVehicleCheckTysService {
             //锁内二次确认
             if(entity != null) {
                 unlockIgnoreException(key);
+                InvokeResult<Void> invokeResult = scanAccrualNodeCheck(request, unloadScanDto, entity);
+                if(!invokeResult.codeSuccess()) {
+                    res.error(invokeResult.getMessage());
+                    return res;
+                }
                 unloadScanDto.setStageBizId(entity.getBizId());
                 return res;
             }
@@ -833,11 +859,71 @@ public class JyUnloadVehicleCheckTysService {
             //释放锁
             unlockIgnoreException(key);
         } else {
+            InvokeResult<Void> invokeResult = scanAccrualNodeCheck(request, unloadScanDto, entity);
+            if(!invokeResult.codeSuccess()) {
+                res.error(invokeResult.getMessage());
+                return res;
+            }
             unloadScanDto.setStageBizId(entity.getBizId());
         }
 
         return res;
     }
+
+    /**
+     *  补扫动作在计提周期节点前后的校验
+     * @param unloadScanDto
+     * @param entity
+     * @return
+     */
+    private InvokeResult<Void> scanAccrualNodeCheck(ScanPackageDto request, UnloadScanDto unloadScanDto, JyBizTaskUnloadVehicleStageEntity entity) {
+        String methodDesc = "JyUnloadVehicleCheckTysService.supplementScanAccrualNodeCheck--补扫任务计提周期校验--";
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        //无需校验上一周期时间， 任务完成3天后禁止补扫
+        Date accrualSettlementTime = DateHelper.getCurrentMonthAccrualSettlementTime();
+        if(StringUtils.isEmpty(request.getBoardCode())) {
+            //无板号两种场景： （1）人工模式补扫开板；（2）流水线模式补扫
+            if(unloadScanDto.getSupplementary()
+                    && entity.getEndTime() != null && entity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},无板号场景，该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                res.error("该任务已过计提周期，禁止补扫，可自建任务扫描");
+                return res;
+            }
+            return res;
+        }else {
+            JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity = jyUnloadVehicleBoardDao.selectByBoardCode(request.getBoardCode());
+            if(jyUnloadVehicleBoardEntity == null || jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId() == null) {
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{},扫描请求={}，扫描对象组装={}，查询操作的任务={}，扫描板号实际绑定的任务={}",
+                        JsonUtils.toJSONString(request), JsonUtils.toJSONString(unloadScanDto), JsonUtils.toJSONString(entity), JsonUtils.toJSONString(jyUnloadVehicleBoardEntity));
+            }
+            //补扫任务&操作的板是自己任务创建： 卡结算周期，过后禁止补扫
+            if(jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId().equals(entity.getBizId())
+                    && unloadScanDto.getSupplementary()
+                    && entity.getEndTime() != null && entity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                res.error("该任务已过计提周期，禁止补扫，可自建任务扫描");
+                return res;
+            }
+            //补扫或交班任务，操作的板是其他子任务创建，校验板号实际绑定任务是否已过计提周期，过后禁止操作
+            JyBizTaskUnloadVehicleStageEntity stageEntity = jyBizTaskUnloadVehicleStageService.queryByBizId(jyUnloadVehicleBoardEntity.getUnloadVehicleStageBizId());
+            if(JyBizTaskStageStatusEnum.COMPLETE.getCode().equals(stageEntity.getStatus())
+                    && stageEntity.getEndTime() != null && stageEntity.getEndTime().getTime() < accrualSettlementTime.getTime()
+                    && System.currentTimeMillis() >= accrualSettlementTime.getTime()) {
+                log.warn("{},该任务{}完成时间{}，当前时间已过计提周期{}，禁止扫描{}", methodDesc, entity.getBizId(), entity.getEndTime(), accrualSettlementTime, JsonUtils.toJSONString(unloadScanDto));
+                String msg = unloadScanDto.getSupplementary() ? "当前操作板为任务完成前创建，此任务已过计提周期无法扫描，可开新板进行扫描" : "当前操作板为交班前创建，此任务已过计提周期无法扫描，可开新板进行扫描";
+                res.error(msg);
+                return res;
+            }
+        }
+        return res;
+    }
+
 
     private void unlockIgnoreException(String key) {
         try{
@@ -896,8 +982,14 @@ public class JyUnloadVehicleCheckTysService {
         List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
         int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
         entity.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
-        entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-        entity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        if(unloadScanDto.getSupplementary()) {
+            entity.setType(JyBizTaskStageTypeEnum.SUPPLEMENT.getCode());
+            entity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            entity.setEndTime(now);
+        }else {
+            entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            entity.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        }
         entity.setStartTime(now);
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
@@ -959,6 +1051,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 拦截设置缓存
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void setCacheOfSealCarAndPackageIntercept(String bizId, String barCode) {
         try {
             int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
@@ -975,6 +1068,7 @@ public class JyUnloadVehicleCheckTysService {
      * @param response 返回对象
      * @param unloadVehicleEntity 卸车任务
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void setStartSiteForJyUnloadVehicle(ScanPackageDto request, ScanPackageRespDto response,
                                                 JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         String key = TYS_UNLOAD_PREFIX_SITE + Constants.SEPARATOR_HYPHEN + Constants.PDA_UNLOAD_TASK_PREFIX
@@ -1020,6 +1114,7 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkGoodsArea", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String checkGoodsArea(ScanPackageDto request, ScanPackageRespDto response) {
         int currentSiteCode = request.getCurrentOperate().getSiteCode();
         Integer nextSiteCode = request.getNextSiteCode();
@@ -1040,6 +1135,7 @@ public class JyUnloadVehicleCheckTysService {
         return null;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.updateJyUnloadVehicleStartSite", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void updateJyUnloadVehicleStartSite(ScanPackageDto request, ScanPackageRespDto response,
                                                JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         unloadVehicleEntity.setUpdateTime(new Date());
@@ -1052,6 +1148,7 @@ public class JyUnloadVehicleCheckTysService {
         response.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.assembleReturnData", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
         request.setStageBizId(unloadScanDto.getStageBizId());
         response.setStageBizId(unloadScanDto.getStageBizId());
@@ -1096,6 +1193,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 校验是否为KA运单 如果是不支持按大宗操作 66为3 强制拦截
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkIsKaWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkIsKaWaybill(Waybill waybill) {
         return BusinessUtil.needWeighingSquare(waybill.getWaybillSign());
     }
@@ -1135,6 +1233,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 判断运单是否重复扫描
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkWaybillScanIsRepeat", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkWaybillScanIsRepeat(String bizId, String waybillCode)
             throws LoadIllegalException {
         // 根据运单号获取卸车扫描记录
@@ -1146,6 +1245,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 运单验货扫描成功后设置缓存
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.waybillInspectSuccessAfter", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void waybillInspectSuccessAfter(String bizId, String waybillCode) {
         try {
             // 设置运单扫描记录
@@ -1156,7 +1256,7 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String checkIsMeetWaybillStandard(Waybill waybill) {
         // 默认使用ucc的配置
         int waybillLimit = uccPropertyConfiguration.getDazongPackageOperateMax();

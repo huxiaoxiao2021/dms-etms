@@ -306,4 +306,14 @@
         <property name="type" value="1324"/>
         <property name="desc" value="签到数据自动签退任务"/>
     </bean>
+
+    <bean id="machineCalibrateTask" class="com.jd.bluedragon.distribution.worker.calibrate.MachineCalibrateTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="MachineCalibrateTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1325"/>
+        <property name="desc" value="设备校准任务"/>
+    </bean>
 </beans>

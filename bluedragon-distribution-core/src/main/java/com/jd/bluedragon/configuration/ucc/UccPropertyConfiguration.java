@@ -18,7 +18,8 @@ public class UccPropertyConfiguration {
 
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
-
+    /*一键封车下线*/
+    private boolean offlineQuickSeal;
 
     /** 转运卸车扫描是否启用返回校验不通过的货区编码 **/
     private boolean enableGoodsAreaOfTysScan;
@@ -741,6 +742,16 @@ public class UccPropertyConfiguration {
 
     private int sealStatusBatchSizeLimit;
 
+    private boolean syncScheduleTaskSwitch;
+
+    public boolean getSyncScheduleTaskSwitch() {
+        return syncScheduleTaskSwitch;
+    }
+
+    public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
+        this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -988,6 +999,63 @@ public class UccPropertyConfiguration {
      * 实时判断设备操作位置异常开关 0 - 关，1 - 开
      */
     private Integer checkDeviceLocationInRealTimeSwitch;
+
+    /**
+     * 转运卸车任务交班最大次数
+     */
+    private Integer tysUnloadTaskHandoverMaxSize;
+
+    /**
+     * 转运卸车任务完成后补扫描小时数限制，超出该小时后禁止扫描
+     */
+    private Integer tysUnloadTaskSupplementScanLimitHours;
+
+    /**
+     * 运单系统查不到包裹号时的拦截校验开关： true 拦截  false 不拦截
+     */
+    private Boolean waybillSysNonExistPackageInterceptSwitch;
+
+
+
+
+
+
+    /**
+     * 设备校准任务时长
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskDuration;
+
+    /**
+     * 设备校准任务查询范围
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskQueryRange;
+
+    /**
+     * 设备任务强制创建的间隔时间
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskForceCreateIntervalTime;
+
+    /**
+     * 设备两次合格间隔时间（用于抽检下发校验）
+     *  单位：毫秒
+     */
+    private Long machineCalibrateIntervalTimeOfSpotCheck;
+
+    /**
+     * 设备下发是否依据设备状态标识
+     */
+    private boolean spotCheckIssueRelyOMachineStatus;
+
+    /**
+     * 抽检下发依据设备状态场地维度开关
+     *  多个场地以,分隔
+     *  ALL表示全国
+     *  空表示未开启
+     */
+    private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1315,6 +1383,14 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
         this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public boolean getOfflineQuickSeal() {
+        return offlineQuickSeal;
+    }
+
+    public void setOfflineQuickSeal(boolean offlineQuickSeal) {
+        this.offlineQuickSeal = offlineQuickSeal;
     }
 
     public String getSingleSendSwitchVerToWebSites() {
@@ -2361,5 +2437,77 @@ public class UccPropertyConfiguration {
 
     public boolean getCheckDeviceLocationInRealTimeSwitchIsOn() {
         return Objects.equals(this.getCheckDeviceLocationInRealTimeSwitch(), Constants.YN_YES);
+    }
+
+    public Integer getTysUnloadTaskHandoverMaxSize() {
+        return tysUnloadTaskHandoverMaxSize;
+    }
+
+    public void setTysUnloadTaskHandoverMaxSize(Integer tysUnloadTaskHandoverMaxSize) {
+        this.tysUnloadTaskHandoverMaxSize = tysUnloadTaskHandoverMaxSize;
+    }
+
+    public Integer getTysUnloadTaskSupplementScanLimitHours() {
+        return tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public void setTysUnloadTaskSupplementScanLimitHours(Integer tysUnloadTaskSupplementScanLimitHours) {
+        this.tysUnloadTaskSupplementScanLimitHours = tysUnloadTaskSupplementScanLimitHours;
+    }
+
+    public Boolean getWaybillSysNonExistPackageInterceptSwitch() {
+        return waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
+        this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public Long getMachineCalibrateTaskDuration() {
+        return machineCalibrateTaskDuration;
+    }
+
+    public void setMachineCalibrateTaskDuration(Long machineCalibrateTaskDuration) {
+        this.machineCalibrateTaskDuration = machineCalibrateTaskDuration;
+    }
+
+    public Long getMachineCalibrateTaskQueryRange() {
+        return machineCalibrateTaskQueryRange;
+    }
+
+    public void setMachineCalibrateTaskQueryRange(Long machineCalibrateTaskQueryRange) {
+        this.machineCalibrateTaskQueryRange = machineCalibrateTaskQueryRange;
+    }
+
+    public Long getMachineCalibrateTaskForceCreateIntervalTime() {
+        return machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public void setMachineCalibrateTaskForceCreateIntervalTime(Long machineCalibrateTaskForceCreateIntervalTime) {
+        this.machineCalibrateTaskForceCreateIntervalTime = machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public Long getMachineCalibrateIntervalTimeOfSpotCheck() {
+        return machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
+        this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getSpotCheckIssueRelyOMachineStatus() {
+        return spotCheckIssueRelyOMachineStatus;
+    }
+
+    public void setSpotCheckIssueRelyOMachineStatus(boolean spotCheckIssueRelyOMachineStatus) {
+        this.spotCheckIssueRelyOMachineStatus = spotCheckIssueRelyOMachineStatus;
+    }
+
+    public String getSpotCheckIssueRelyOnMachineStatusSiteSwitch() {
+        return spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
+        this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
     }
 }

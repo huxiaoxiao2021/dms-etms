@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckScrollResult;
+import com.jd.ql.dms.report.domain.spotcheck.SpotCheckUpdateRequest;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 
 import java.util.List;
@@ -70,4 +71,12 @@ public interface SpotCheckQueryManager {
      * @return
      */
     List<WeightVolumeSpotCheckDto> queryAllSpotCheckByCondition(SpotCheckQueryCondition condition);
+
+    /**
+     * 根据条件批量更新设备状态
+     *
+     * @param updateRequest
+     * @return
+     */
+    Integer batchUpdateMachineStatus(SpotCheckUpdateRequest updateRequest);
 }

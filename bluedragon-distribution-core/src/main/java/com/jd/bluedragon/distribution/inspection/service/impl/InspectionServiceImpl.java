@@ -14,6 +14,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -1244,6 +1245,8 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			}
 
 			//inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+			inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+			inspection.setOperatorId(inspection.getMachineCode());
 		}
 		if (inspections.size() == 0) {
 			invokeResult.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK);

@@ -40,6 +40,7 @@
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
+		<property name="offlineQuickSeal" value="${quick.seal.offline:false}"/>
 		<property name="enableGoodsAreaOfTysScan" value="${enableGoodsAreaOfTysScan:true}"/>
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
 		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
@@ -202,6 +203,16 @@
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
+		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
+		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
+		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
+		<property name="syncScheduleTaskSwitch" value="${syncScheduleTaskSwitch:true}"/>
+		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
+		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
+		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:720000}"/>
+		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
+		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
+		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -223,6 +234,7 @@
 				<value>uccPropertyConfiguration.asynbufferEnabledTaskType</value>
 				<value>uccPropertyConfiguration.cassandraGlobalSwitch</value>
 				<value>uccPropertyConfiguration.enableGoodsAreaOfTysScan</value>
+				<value>uccPropertyConfiguration.offlineQuickSeal</value>
 				<value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
                 <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
                 <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
@@ -384,6 +396,13 @@
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
 				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
 				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
+				<value>uccPropertyConfiguration.syncScheduleTaskSwitch</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskDuration</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskQueryRange</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskForceCreateIntervalTime</value>
+				<value>uccPropertyConfiguration.machineCalibrateIntervalTimeOfSpotCheck</value>
+				<value>uccPropertyConfiguration.spotCheckIssueRelyOMachineStatus</value>
+				<value>uccPropertyConfiguration.spotCheckIssueRelyOnMachineStatusSiteSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
@@ -395,6 +414,10 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
+				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
+				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
+
 			</list>
 		</property>
 	</bean>
