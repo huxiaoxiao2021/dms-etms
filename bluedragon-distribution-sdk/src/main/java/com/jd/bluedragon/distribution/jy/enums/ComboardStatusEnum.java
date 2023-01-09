@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
 public enum ComboardStatusEnum {
-  PROCESSING(1, "进行中","发货中"),
+  PROCESSING(1, "进行中","组板中"),
   FINISHED(2, "结束","待封车"),
   SEALED(3, "封车","已封车"),
   CANCEL_SEAL(4, "取消封车","待封车");

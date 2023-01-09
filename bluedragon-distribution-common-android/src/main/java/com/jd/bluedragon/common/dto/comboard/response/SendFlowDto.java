@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.comboard.response;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class SendFlowDto implements Serializable {
     private static final long serialVersionUID = 1663772914468225864L;
@@ -42,6 +43,8 @@ public class SendFlowDto implements Serializable {
     private BoardDto currentBoardDto;
 
     private Date queryTimeBegin;
+
+    private transient List<Integer> comboardSourceList;
 
     public Integer getEndSiteId() {
         return endSiteId;
@@ -137,5 +140,13 @@ public class SendFlowDto implements Serializable {
 
     public void setQueryTimeBegin(Date queryTimeBegin) {
         this.queryTimeBegin = queryTimeBegin;
+    }
+
+    public List<Integer> getComboardSourceList() {
+        return comboardSourceList;
+    }
+
+    public void setComboardSourceList(List<Integer> comboardSourceList) {
+        this.comboardSourceList = comboardSourceList;
     }
 }
