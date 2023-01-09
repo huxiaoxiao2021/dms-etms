@@ -79,4 +79,16 @@ public class JyUnloadAggsDaoBak extends BaseDao<JyUnloadAggsEntity> implements J
     public int insertOrUpdate(JyUnloadAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
+
+    public int updateByBizProductBoard(JyUnloadAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".updateByBizProductBoard", entity);
+    }
+
+    public int insertSelective(JyUnloadAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
+    }
+
+    public List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getUnloadAggsBakData", entity);
+    }
 }

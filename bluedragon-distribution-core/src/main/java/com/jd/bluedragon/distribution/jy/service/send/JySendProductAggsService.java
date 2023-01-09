@@ -22,5 +22,9 @@ public interface JySendProductAggsService {
     int insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity);
 
     int insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity);
+
+    List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query);
+
+    List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query);
 }
 

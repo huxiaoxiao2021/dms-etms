@@ -27,6 +27,10 @@ public interface JySendAggsService {
 
     //插入或修改备库
     int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity);
+
+    List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query);
+
+    List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
 }
 
 

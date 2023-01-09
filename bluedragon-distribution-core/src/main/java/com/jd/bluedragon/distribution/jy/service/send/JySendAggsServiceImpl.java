@@ -43,12 +43,32 @@ public class JySendAggsServiceImpl implements JySendAggsService {
 
     @Override
     public int insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity) {
-        return jySendAggsDaoMain.insertOrUpdate(entity);
+        int i = jySendAggsDaoMain.updateByBizId(entity);
+        int j = 0;
+        if(i == 0){
+            jySendAggsDaoMain.insertBySendAggEntity(entity);
+        }
+        return i + j;
     }
 
     @Override
     public int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
-        return jySendAggsDaoBak.insertOrUpdate(entity);
+        int i = jySendAggsDaoBak.updateByBizId(entity);
+        int j = 0;
+        if(i == 0){
+            jySendAggsDaoBak.insertBySendAggEntity(entity);
+        }
+        return i + j;
+    }
+
+    @Override
+    public List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query) {
+        return jySendAggsDaoMain.getSendAggMainData(query);
+    }
+
+    @Override
+    public List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query) {
+        return jySendAggsDaoBak.getSendAggBakData(query);
     }
 
     private JySendAggsDaoStrategy getJySendAggsDao(){

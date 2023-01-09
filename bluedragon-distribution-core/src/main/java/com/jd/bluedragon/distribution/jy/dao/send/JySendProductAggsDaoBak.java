@@ -30,5 +30,16 @@ public class JySendProductAggsDaoBak extends BaseDao<JySendProductAggsEntity>  i
         return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
 
+    public int updateByBizProduct(JySendProductAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".updateByBizProduct", entity);
+    }
+
+    public int insert(JySendProductAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    public List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity entity){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendProductAggBakData", entity);
+    }
 
 }

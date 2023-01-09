@@ -102,12 +102,32 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Override
     public int insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDaoMain.insertOrUpdate(entity);
+        int i = jyUnloadAggsDaoMain.updateByBizProductBoard(entity);
+        int j = 0;
+        if(i == 0){
+            j = jyUnloadAggsDaoMain.insertSelective(entity);
+        }
+        return i + j;
     }
 
     @Override
     public int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDaoBak.insertOrUpdate(entity);
+        int i = jyUnloadAggsDaoBak.updateByBizProductBoard(entity);
+        int j = 0;
+        if(i == 0){
+            j = jyUnloadAggsDaoBak.insertSelective(entity);
+        }
+        return i + j;
+    }
+
+    @Override
+    public List<JyUnloadAggsEntity> getUnloadAggsMainData(JyUnloadAggsEntity query) {
+        return jyUnloadAggsDaoMain.getUnloadAggsMainData(query);
+    }
+
+    @Override
+    public List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity query) {
+        return jyUnloadAggsDaoBak.getUnloadAggsBakData(query);
     }
 
     private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {

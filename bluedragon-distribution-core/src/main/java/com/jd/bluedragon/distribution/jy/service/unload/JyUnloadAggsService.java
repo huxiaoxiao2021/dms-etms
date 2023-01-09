@@ -36,5 +36,9 @@ public interface JyUnloadAggsService {
 
     int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity);
 
+    List<JyUnloadAggsEntity> getUnloadAggsMainData(JyUnloadAggsEntity query);
+
+    List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity query);
+
 
 }

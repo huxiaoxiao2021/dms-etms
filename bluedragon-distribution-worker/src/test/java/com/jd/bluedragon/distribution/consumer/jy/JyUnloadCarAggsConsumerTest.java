@@ -47,19 +47,20 @@ public class JyUnloadCarAggsConsumerTest {
                     "  \"operateSiteId\": 100,\n" +
                     "  \"productType\": \"TEST001\",\n" +
                     "  \"sealCarCode\": \"TEST1111\",\n" +
-                    "  \"shouldScanCount\": 100,\n" +
+                    "  \"shouldScanCount\": 10001,\n" +
                     "  \"totalLocalWithMoreScanCount\": 100,\n" +
                     "  \"totalScannedPackageCount\": 100,\n" +
                     "  \"totalSealPackageCount\": 100,\n" +
                     "  \"totalWithMoreScanCount\": 100,\n" +
                     "  \"ts\": 1665282671046,\n" +
-                    "  \"version\": 2,\n" +
+                    "  \"version\": 7,\n" +
+                    "  \"boardCode\": \"TEST1111\",\n" +
                     "  \"yn\": 1\n" +
                     "}";
             Message message = new Message();
             message.setText(body);
             jyUnloadCarAggsConsumer.consume(message);
-            //bakConsumer.consume(message);
+            bakConsumer.consume(message);
         }catch (Exception e) {
             logger.error("服务异常!", e);
             Assert.fail();

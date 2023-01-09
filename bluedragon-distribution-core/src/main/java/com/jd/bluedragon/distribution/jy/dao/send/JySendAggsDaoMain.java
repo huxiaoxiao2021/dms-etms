@@ -43,4 +43,16 @@ public class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySe
     public int insertOrUpdate(JySendAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
+
+    public int updateByBizId(JySendAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".updateByBizId", entity);
+    }
+
+    public int insertBySendAggEntity(JySendAggsEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".insertBySendAggEntity", entity);
+    }
+
+    public List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggMainData", query);
+    }
 }

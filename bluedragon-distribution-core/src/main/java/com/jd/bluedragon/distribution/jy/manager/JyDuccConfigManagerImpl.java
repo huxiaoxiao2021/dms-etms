@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jdl.jy.realtime.api.ducc.DuccConfigJsfService;
 import com.jdl.jy.realtime.base.ServiceResult;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     private DuccConfigJsfService duccConfigJsfService;
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggsDataReadSwitchInfo() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggsDataReadSwitchInfo();
@@ -36,6 +39,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     }
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsDataReadSwitchInfo() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsDataReadSwitchInfo();
@@ -50,6 +55,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     }
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJySendProductAggsDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendProductAggsDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJySendProductAggsDataReadSwitch();
@@ -64,6 +71,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     }
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggOldOrNewDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggOldOrNewDataReadSwitch();
@@ -78,6 +87,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     }
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsOldOrNewDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsOldOrNewDataReadSwitch();
@@ -92,6 +103,8 @@ public class JyDuccConfigManagerImpl implements JyDuccConfigManager{
     }
 
     @Override
+    @Cache(key = "JyDuccConfigManagerImpl.getJySendProductAggsOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendProductAggsOldOrNewDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = duccConfigJsfService.getJySendProductAggsOldOrNewDataReadSwitch();

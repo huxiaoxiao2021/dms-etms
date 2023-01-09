@@ -38,12 +38,32 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
 
     @Override
     public int insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity) {
-        return jySendProductAggsDaoMain.insertOrUpdate(entity);
+        int i = jySendProductAggsDaoMain.updateByBizProduct(entity);
+        int j = 0;
+        if(i == 0){
+            jySendProductAggsDaoMain.insert(entity);
+        }
+        return i + j;
     }
 
     @Override
     public int insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity) {
-        return jySendProductAggsDaoBak.insertOrUpdate(entity);
+        int i = jySendProductAggsDaoBak.updateByBizProduct(entity);
+        int j = 0;
+        if(i == 0){
+            jySendProductAggsDaoBak.insert(entity);
+        }
+        return i + j;
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query) {
+        return jySendProductAggsDaoMain.getSendProductAggMainData(query);
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query) {
+        return jySendProductAggsDaoBak.getSendProductAggBakData(query);
     }
 
     /**
@@ -60,5 +80,7 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
         }
         return jySendProductAggsDao;
     }
+
+
 
 }
