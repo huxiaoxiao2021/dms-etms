@@ -293,11 +293,6 @@
     <if test="boardCode!=null">
       AND board_code = #{boardCode}
     </if>
-    and comboard_source in
-    <foreach item="item" index="index" collection="comboardSourceList"
-             open="(" separator="," close=")">
-      #{item}
-    </foreach>
       AND yn = 1
   </select>
   <select id="queryInProcessBoardListBySendFlowList"
