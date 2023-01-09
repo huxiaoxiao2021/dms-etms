@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import java.util.List;
 
 /**
  * 组板发货岗基础服务
@@ -148,4 +151,10 @@ public interface JyComBoardSendService {
   InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 
   InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
+
+  /**
+   * 查询板货物分类
+   */
+  InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq);
+
 }

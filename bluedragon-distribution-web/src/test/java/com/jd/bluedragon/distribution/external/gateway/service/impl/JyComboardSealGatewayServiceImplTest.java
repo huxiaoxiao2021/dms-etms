@@ -142,7 +142,7 @@ public class JyComboardSealGatewayServiceImplTest {
         batchCodes.add("910-39-20221205212254654");
         sealCarDto.setBatchCodes(batchCodes);
         sealCarDto.setTransWorkItemCode("TW22121900853385-001");
-        InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarDto,"9999" , "liwenji3", "李文吉");
+        InvokeResult<Boolean> result = jySealVehicleService.updateBoardStatusAndSealCode(sealCarDto,"9999" , "liwenji3", "李文吉");
         System.out.println(JsonHelper.toJson(result));
     }
     

@@ -526,28 +526,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         try {
             boardScanCountList = jyComboardAggsService.queryComboardAggs(boardCodeList);
         } catch (Exception e) {
-            log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList),e);
+            log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList), e);
         }
-        HashMap<String,JyComboardAggsEntity> boardScanCountMap = getBoardScanCountMap(boardScanCountList);
+        HashMap<String, JyComboardAggsEntity> boardScanCountMap = getBoardScanCountMap(boardScanCountList);
 
-        // 获取板号产品类型统计数据
-        HashMap<String,List<GoodsCategoryDto>> goodsCategoryMap = new HashMap<>();
-        try {
-            for (String boardCode : boardCodeList) {
-                List<JyComboardAggsEntity> goodsCategoryList = jyComboardAggsService.queryComboardAggs(boardCode, UnloadProductTypeEnum.values());
-                List<GoodsCategoryDto> goodsCategoryDtoList = new ArrayList<>();
-                for (JyComboardAggsEntity aggsEntity : goodsCategoryList) {
-                    GoodsCategoryDto goodsCategoryDto = new GoodsCategoryDto();
-                    goodsCategoryDto.setType(aggsEntity.getProductType());
-                    goodsCategoryDto.setName(UnloadProductTypeEnum.getNameByCode(aggsEntity.getProductType()));
-                    goodsCategoryDto.setCount(aggsEntity.getScannedCount());
-                    goodsCategoryDtoList.add(goodsCategoryDto);
-                }
-                goodsCategoryMap.put(boardCode,goodsCategoryDtoList);
-            }
-        } catch (Exception e) {
-            log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList),e);
-        }
 
         for (JyBizTaskComboardEntity board : boardList) {
             BoardDto boardDto = new BoardDto();
@@ -569,11 +551,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 }
             }
 
-            if (goodsCategoryMap.containsKey(board.getBoardCode())) {
-                List<GoodsCategoryDto> goodsCategoryDtos = goodsCategoryMap.get(board.getBoardCode());
-                boardDto.setGoodsCategoryDtos(goodsCategoryDtos);
-            }
-
             boardDtos.add(boardDto);
         }
         invokeResult.setCode(RESULT_SUCCESS_CODE);
@@ -582,25 +559,39 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    @Transactional(readOnly = false,propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public InvokeResult<Boolean> cancelSealCar(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName) {
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public InvokeResult<Boolean> updateBoardStatusAndSealCode(com.jd.etms.vos.dto.SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName) {
 
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
-            invokeResult.setMessage("更新板状态失败");
+            invokeResult.setMessage("更新板状态失败！");
             return invokeResult;
         }
+        InvokeResult<Boolean> result = deleteBySendVehicleBizId(sealCarCodeOfTms.getTransWorkItemCode(), operateUserCode, operateUserName);
+        if (result != null && result.getData() == Boolean.FALSE) {
+            throw new JyBizException("删除封签列表失败！");
+        }
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+        invokeResult.setData(Boolean.TRUE);
+        return invokeResult;
+    }
+
+    @Override
+    public InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName) {
+        
+        InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
 
         // 根据派车单号查询发车任务
-        if (StringUtils.isEmpty(sealCarCodeOfTms.getTransWorkItemCode())) {
+        if (StringUtils.isEmpty(transWorkItemCode)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("派车单号为空");
             return invokeResult;
         }
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
-        query.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
+        query.setTransWorkItemCode(transWorkItemCode);
         JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
         if (jyBizTaskSendVehicleDetail == null || StringUtils.isEmpty(jyBizTaskSendVehicleDetail.getSendVehicleBizId())) {
             invokeResult.setData(Boolean.FALSE);
@@ -626,7 +617,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             invokeResult.setMessage("删除封签号失败");
             return invokeResult;
         }
-
         invokeResult.setCode(RESULT_SUCCESS_CODE);
         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         invokeResult.setData(Boolean.TRUE);

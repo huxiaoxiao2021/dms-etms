@@ -2257,6 +2257,26 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
+  @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.queryGoodsCategoryByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+  public InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq) {
+    if (StringUtils.isEmpty(boardReq.getBoardCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    List<GoodsCategoryDto> goodsCategoryList = new ArrayList<>();
+    
+    // 获取当前板号的产品类型扫描信息
+    List<JyComboardAggsEntity> productTypeList = null;
+    try {
+      productTypeList = jyComboardAggsService.
+              queryComboardAggs(boardReq.getBoardCode(), UnloadProductTypeEnum.values());
+    } catch (Exception e) {
+      log.info("获取板的详情信息失败：{}", JsonHelper.toJson(boardReq), e);
+    }
+    getGoodsCategoryList(goodsCategoryList, productTypeList);  
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,goodsCategoryList);
+  }
+
   private Pager<JyComboardPackageDetail> assembleQuerySendFlowExcepScan(SendFlowQueryReq request) {
     Pager<JyComboardPackageDetail> pager = new Pager<>();
     JyComboardPackageDetail con =new JyComboardPackageDetail();

@@ -72,5 +72,10 @@ public interface JySealVehicleService {
     /**
      * 取消封车 更新批次任务和封签列表
      */
-    InvokeResult<Boolean> cancelSealCar(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
+    InvokeResult<Boolean> updateBoardStatusAndSealCode(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
+
+    /**
+     * 根据transWorkItemCode删除封签明细
+     */
+    InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName);
 }
