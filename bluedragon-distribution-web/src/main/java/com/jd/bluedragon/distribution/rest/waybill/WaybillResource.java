@@ -588,6 +588,9 @@ public class WaybillResource {
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,null);
 
+			//记录安全日志
+			SecurityLogWriter.waybillResourceGetWaybillPackWrite(startDmsCode, waybillCodeOrPackage, null, waybill);
+
 			this.log.debug("运单号【{}】调用根据运单号获取运单包裹信息接口成功",waybillCode);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);

@@ -44,6 +44,16 @@ public class SortingRequest extends JdRequest {
     private List<String> packages;
 
     private Integer bizSource;
+    
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
 
     public String getBoxCode() {
         return this.boxCode;
@@ -177,5 +187,21 @@ public class SortingRequest extends JdRequest {
         return 31 + this.boxCode.hashCode() + this.packageCode.hashCode()
                 + this.receiveSiteCode.hashCode() + super.getBusinessType().hashCode();
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -40,6 +42,9 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
     @Autowired
     private DWSCheckManager dwsCheckManager;
 
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
+
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DmsSpotCheckDealConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
@@ -54,7 +59,8 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
                 return;
             }
             // 校验设备称重是否合规
-            if(!checkEquipmentWeightIsAccurate(packWeightVO)){
+            if(!spotCheckDealService.spotCheckIssueIsRelyOnMachineStatus(packWeightVO.getOperatorSiteCode())
+                    && !checkEquipmentWeightIsAccurate(packWeightVO)){
                 log.warn("设备:{}的称重不合规，此次称重单号:{}", packWeightVO.getMachineCode(), packWeightVO.getCodeStr());
                 return;
             }

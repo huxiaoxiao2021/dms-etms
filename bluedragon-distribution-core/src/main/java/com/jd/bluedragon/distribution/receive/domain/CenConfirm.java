@@ -66,6 +66,15 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 	
 	/*异常类型(退货验货)*/
     private String exceptionType;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
 
 	public CenConfirm() {
 		super();
@@ -354,5 +363,21 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 		this.receiveSiteCode = builder.receiveSiteCode;
 		this.updateTime = builder.updateTime;
 		this.type = builder.type;
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 }

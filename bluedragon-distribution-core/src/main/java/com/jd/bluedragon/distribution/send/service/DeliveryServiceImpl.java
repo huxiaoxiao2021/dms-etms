@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -110,6 +111,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -1912,6 +1914,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
+        sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
+        sortDomain.setOperatorId(domain.getOperatorId());        
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -3985,6 +3989,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tWaybillStatus.setWaybillCode(tSendDetail.getWaybillCode());
         tWaybillStatus.setSendCode(tSendDetail.getSendCode());
         tWaybillStatus.setBoxCode(tSendDetail.getBoxCode());
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorTypeCode(tSendDetail.getOperatorTypeCode());
+        operatorData.setOperatorId(tSendDetail.getOperatorId());
+        tWaybillStatus.setOperatorData(operatorData);
         return tWaybillStatus;
     }
 
@@ -5930,7 +5938,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
-
+        tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
+        tTask.setOperatorId(domain.getOperatorId());        
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -5990,7 +5999,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 tSendDetail.setExcuteTime(new Date());
                 tSendDetail.setExcuteCount(0);
                 tSendDetail.setOperateTime(task.getCreateTime());
-
+                tSendDetail.setOperatorTypeCode(task.getOperatorTypeCode());
+                tSendDetail.setOperatorId(task.getOperatorId());
+                if(sendM != null) {
+                    tSendDetail.setOperatorTypeCode(sendM.getOperatorTypeCode());
+                    tSendDetail.setOperatorId(sendM.getOperatorId());
+                }
                 if ((!tSendDetail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
                     tSendDetail.setSendCode(task.getBody());
                     tSendDetail.setYn(1);
@@ -6118,16 +6132,28 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
             return null;
         }
-        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
-        if(!economicNetService.isReady(box)){
-            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
-            try{
-                Thread.sleep(1000);
-            }catch (Exception e){}
-            if(!economicNetService.isReady(box)){
-                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
-            }
+//        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
+//        if(!economicNetService.isReady(box)){
+//            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
+//            try{
+//                Thread.sleep(1000);
+//            }catch (Exception e){}
+//
+//            if (economicNetService.isReady(box)) {
+//                log.info("处理中转发货时需要等待经济网箱包关系第二次请求初始化成功：{}", box.getCode());
+//            } else {
+//                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
+//            }
+//        } else {
+//            log.info("处理中转发货时需要等待经济网箱包关系第一次请求初始化成功：{}", box.getCode());
+//        }
+
+        if (economicNetService.isReady(box)) {
+            log.info("处理中转发货时需要等待经济网箱包关系请求初始化成功：{}", box.getCode());
+        } else {
+            throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
         }
+
         List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
         if(CollectionUtils.isEmpty(thirdBoxDetails)){
             return null;
@@ -6844,7 +6870,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }else{
             inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
         }
-
+        inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
+        inspection.setOperatorId(domain.getOperatorId());
+        
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));

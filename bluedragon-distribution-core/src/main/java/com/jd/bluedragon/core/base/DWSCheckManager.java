@@ -1,6 +1,12 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckAroundRecord;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckPackageRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的描述
@@ -18,4 +24,17 @@ public interface DWSCheckManager {
      * @return
      */
     Boolean checkDWSMachineWeightIsAccurate(String machineCode, Date weightTime);
+
+    /**
+     * 获取设备校验细节
+     */
+    DwsCheckResponse getLastDwsCheckByTime(DWSCheckRequest checkRequest);
+
+    /**
+     * 批量查询设备状态
+     *
+     * @param list
+     * @return
+     */
+    List<DwsCheckAroundRecord> batchSelectMachineStatus(List<DwsCheckPackageRequest> list);
 }

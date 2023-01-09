@@ -49,6 +49,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -294,6 +295,10 @@ public class SortingServiceImpl implements SortingService {
 		waybillStatus.setOperateType(true == sorting.isForward() ? WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING
 				: WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING);
 		waybillStatus.setOperateTime(sorting.getOperateTime());
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
+		operatorData.setOperatorId(sorting.getOperatorId());
+		waybillStatus.setOperatorData(operatorData);
 		return waybillStatus;
 	}
 
@@ -868,6 +873,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
 		if (sendDs.size() > 0) {
+			CallerInfo callerInfo = Profiler.registerInfo("DMS.WORKER.SortingService.fixSendDAndSendTrack", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
 			// 获取直接发货和中转发货的SendM数据
@@ -901,6 +907,7 @@ public class SortingServiceImpl implements SortingService {
 			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
                 this.deliverGoodsNoticeMQ(sorting);
             }
+			Profiler.registerInfoEnd(callerInfo);
 		}
 	}
 

@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -59,8 +60,8 @@ import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
@@ -95,6 +96,8 @@ import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
@@ -110,6 +113,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -136,6 +140,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private static final int TRANS_BILL_STATUS_CONFIRM = 15;
     private static final int TRANS_BILL_WORK_STATUS = 20;
+
+    @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
+    private String vehicleMapUrl;
 
     /**
      * 运单路由字段使用的分隔符
@@ -247,6 +254,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JySendProductAggsService jySendProductAggsService;
+
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -570,6 +580,35 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         // 任务标签
         baseSendVehicle.setTags(resolveTaskTag(entity, transWorkBillDto));
+
+        //车辆地图连接
+        baseSendVehicle.setVehicleMapUrl(makeVehicleMapUrl(entity));
+    }
+
+    /**
+     * 加工生成运输车辆地图URL
+     * @param entity
+     * @return
+     */
+    private String makeVehicleMapUrl(JyBizTaskSendVehicleEntity entity){
+        try{
+            //存在即将到达时间 或者 已到达时间时在设置
+            if(entity.getComeTime() == null && entity.getNearComeTime() == null){
+                return StringUtils.EMPTY;
+            }
+            //派车明细编码
+            String transWorkCode = entity.getTransWorkCode();
+            //当前操作场地编码 对应 任务始发场地7位编码
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(entity.getStartSiteId().intValue());
+            if(siteOrgDto != null){
+                return String.format(vehicleMapUrl,transWorkCode,siteOrgDto.getDmsSiteCode());
+            }else{
+                log.error("makeVehicleMapUrl 为获取到对应始发场地7位编码！ {}",entity.getStartSiteId());
+            }
+        }catch (Exception e){
+            log.error("makeVehicleMapUrl error {}",JsonHelper.toJson(entity),e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -582,12 +621,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
         List<LabelOption> tagList = new ArrayList<>();
 
-        // 司机是否领取任务
-        if (transWorkBillDto != null) {
-            // work_status = 20(已开始), status > 15(待接受)
-            if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
-                SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
-                tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+
+        //车辆到达状态 高于司机领取
+        SendVehicleLabelOptionEnum carCome = setCarCome(entity);
+        if(carCome != null) {
+            tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
+        }else{
+            // 司机是否领取任务
+            if (transWorkBillDto != null) {
+                // work_status = 20(已开始), status > 15(待接受)
+                if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+                    SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+                    tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+                }
             }
         }
 
@@ -762,6 +808,26 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         return null;
+    }
+
+    private Long getWaybillNextRouterWithTransferConfig(SendScanRequest request, String waybillCode, Integer startSiteId, Boolean manualCreatedFlag, JdVerifyResponse<SendScanResponse> response) {
+        Long matchDestIdByPack = getWaybillNextRouter(waybillCode, Long.valueOf(startSiteId));
+        if(request.getConfirmSendDestId() == null){
+            // 第二次确认路由，不需要处理
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign()) && manualCreatedFlag) {
+                ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
+                matchQo.setHandoverSiteCode(startSiteId);
+                matchQo.setPreSortSiteCode(waybill.getOldSiteId());
+                ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
+                    matchDestIdByPack = null;
+                    response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
+                    response.addWarningBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
+                }
+            }
+        }
+        return matchDestIdByPack;
     }
 
     /**
@@ -1335,8 +1401,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             singleDestFlag = false;
         }
         // 根据发货流向匹配出来的发货目的地
-        SendFindDestInfoDto sendFindDestInfoDto = this.matchSendDest(request, sendType, taskSend, allDestId);
+        SendFindDestInfoDto sendFindDestInfoDto = this.matchSendDest(request, sendType, taskSend, allDestId, result);
         logInfo("拣运发货匹配的目的地为: {}-{}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), sendFindDestInfoDto.getMatchSendDestId(), sendFindDestInfoDto.getRouterNextSiteId());
+        if (result.getCode() != JdVerifyResponse.CODE_SUCCESS) {
+            return result;
+        }
         if (sendFindDestInfoDto.getMatchSendDestId() == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
             if (singleDestFlag) {
                 if (sendFindDestInfoDto.getRouterNextSiteId() != null) {
@@ -1426,6 +1495,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
+        } catch (EconomicNetException e) {
+            log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
+            result.toError(e.getMessage());
         } catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
@@ -1749,7 +1821,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @return
      */
     private SendFindDestInfoDto matchSendDest(SendScanRequest request, SendKeyTypeEnum sendType,
-                                              JyBizTaskSendVehicleEntity taskSend, Set<Long> allDestId) {
+                                              JyBizTaskSendVehicleEntity taskSend, Set<Long> allDestId, JdVerifyResponse<SendScanResponse> response) {
         String barCode = request.getBarCode();
         long siteCode = request.getCurrentOperate().getSiteCode();
         // 根据发货流向匹配出来的发货目的地
@@ -1758,14 +1830,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         switch (sendType) {
             case BY_WAYBILL:
-                Long matchDestId = getWaybillNextRouter(barCode, siteCode);
+                Long matchDestId = getWaybillNextRouterWithTransferConfig(request, barCode, request.getCurrentOperate().getSiteCode(),taskSend.manualCreatedTask(), response);
                 if (allDestId.contains(matchDestId)) {
                     destSiteId = matchDestId;
                 }
                 sendFindDestInfoDto.setRouterNextSiteId(matchDestId);
                 break;
             case BY_PACKAGE:
-                Long matchDestIdByPack = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), siteCode);
+                Long matchDestIdByPack = getWaybillNextRouterWithTransferConfig(request, WaybillUtil.getWaybillCode(barCode), request.getCurrentOperate().getSiteCode(),taskSend.manualCreatedTask(), response);
                 if (allDestId.contains(matchDestIdByPack)) {
                     destSiteId = matchDestIdByPack;
                 }
@@ -2018,6 +2090,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         domain.setYn(1);
         domain.setCreateTime(request.getCurrentOperate().getOperateTime());
         domain.setOperateTime(request.getCurrentOperate().getOperateTime());
+        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
         return domain;
     }
 
@@ -2152,7 +2226,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     if (BusinessUtil.isBoxcode(barCode)) {
                         matchDest = getBoxMatchDestId(barCode, taskSend.getStartSiteId(), new HashSet<Long>());
                     } else {
-                        matchDest = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
+                        final String waybillCode = WaybillUtil.getWaybillCode(barCode);
+                        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+                        if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign())) {
+                            ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
+                            matchQo.setHandoverSiteCode(taskSend.getStartSiteId().intValue());
+                            matchQo.setPreSortSiteCode(waybill.getOldSiteId());
+                            ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                            if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
+                                response.getMsgBoxes().clear();
+                                response.addConfirmBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
+                                return false;
+                            }
+                        }
+                        matchDest = getWaybillNextRouter(waybillCode, taskSend.getStartSiteId());
                     }
                     if (matchDest == null) {
                         return false;
@@ -2413,6 +2500,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return true;
     }
 
+
     /**
      * 设置车长描述
      *
@@ -2435,6 +2523,27 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return carLengthStr;
     }
 
+
+    /**
+     * 设置车辆到来状态
+     *
+     * @param sendVehicleEntity
+     * @return
+     */
+    private SendVehicleLabelOptionEnum setCarCome(JyBizTaskSendVehicleEntity sendVehicleEntity) {
+        SendVehicleLabelOptionEnum carComeEnum = null;
+        // 即将到达 （对应当前始发场地来说 运输测称之为 【到来】，目的场地才叫【到达】，拣运这边业务倾向于叫到达）
+        // 已到达 （对应当前始发场地来说 运输测称之为 【到来】，目的场地才叫【到达】，拣运这边业务倾向于叫到达）
+        // 已到达 高于 即将
+        if(sendVehicleEntity.getNearComeTime()!=null){
+            carComeEnum = SendVehicleLabelOptionEnum.ABOUT_ARRIVE;
+        }
+        if(sendVehicleEntity.getComeTime()!=null){
+            carComeEnum = SendVehicleLabelOptionEnum.BE_ARRIVED;
+        }
+
+        return carComeEnum;
+    }
     private Long dealMinus(Number a, Number b) {
         return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
     }
