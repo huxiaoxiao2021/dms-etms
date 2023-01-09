@@ -43,7 +43,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Autowired
   @Qualifier("jyComboardSendVehicleService")
-  private IJySendVehicleService jySendVehicleService;
+  private IJySendVehicleService jyComboardSendVehicleService;
   @Autowired
   JySealVehicleService jySealVehicleService;
   @Autowired
@@ -57,33 +57,33 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Override
   public JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
-    return retJdCResponse(jySendVehicleService.fetchSendVehicleTask(request));
+    return retJdCResponse(jyComboardSendVehicleService.fetchSendVehicleTask(request));
   }
 
   @Override
   public JdCResponse<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
-    return retJdCResponse(jySendVehicleService.sendDestDetail(request));
+    return retJdCResponse(jyComboardSendVehicleService.sendDestDetail(request));
   }
 
   @Override
   public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
-    return retJdCResponse(jySendVehicleService.selectSealDest(request));
+    return retJdCResponse(jyComboardSendVehicleService.selectSealDest(request));
   }
 
   @Override
   public JdCResponse<SendVehicleInfo> sendVehicleInfo(SendVehicleInfoRequest request) {
-    return retJdCResponse(jySendVehicleService.sendVehicleInfo(request));
+    return retJdCResponse(jyComboardSendVehicleService.sendVehicleInfo(request));
   }
 
   @Override
   public JdCResponse<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request) {
-    return retJdCResponse(jySendVehicleService.loadProgress(request));
+    return retJdCResponse(jyComboardSendVehicleService.loadProgress(request));
   }
 
   @Override
   public JdCResponse<SendAbnormalBarCode> interceptedBarCodeDetail(
       SendAbnormalPackRequest request) {
-    return retJdCResponse(jySendVehicleService.interceptedBarCodeDetail(request));
+    return retJdCResponse(jyComboardSendVehicleService.interceptedBarCodeDetail(request));
   }
 
   @Override

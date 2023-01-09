@@ -235,12 +235,12 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     VehicleStatusStatis toSeal = new VehicleStatusStatis();
     toSeal.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
     toSeal.setVehicleStatusName(JyBizTaskSendStatusEnum.TO_SEAL.getName());
-    toSeal.setTotal(Long.valueOf(Constants.YN_NO));
+    toSeal.setTotal(LONG_ZERO);
 
     VehicleStatusStatis sealed = new VehicleStatusStatis();
     sealed.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
     sealed.setVehicleStatusName(JyBizTaskSendStatusEnum.SEALED.getName());
-    sealed.setTotal(Long.valueOf(Constants.YN_NO));
+    sealed.setTotal(LONG_ZERO);
 
     statusAgg.add(toSeal);
     statusAgg.add(sealed);
@@ -401,7 +401,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     }
 
     SendAbnormalBarCode barCodeVo = new SendAbnormalBarCode();
-    barCodeVo.setTotal(0L);
+    barCodeVo.setTotal(LONG_ZERO);
     List<SendScanBarCode> barCodeList = new ArrayList<>();
     barCodeVo.setBarCodeList(barCodeList);
     invokeResult.setData(barCodeVo);
