@@ -192,6 +192,7 @@
 		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
 		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
 		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="unloadTaskBoardMaxCount" value="${unloadTaskBoardMaxCount:10000}"/>
 		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
@@ -210,6 +211,8 @@
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="jyUnloadCarListDoneQueryDayFilter" value="${jyUnloadCarListDoneQueryDayFilter:5}"/>
+		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
@@ -398,6 +401,7 @@
 				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.unloadTaskBoardMaxCount</value>
 				<value>uccPropertyConfiguration.packageWeightLimit</value>
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
@@ -436,6 +440,7 @@
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.jyUnloadCarListDoneQueryDayFilter</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
