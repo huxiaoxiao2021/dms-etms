@@ -46,6 +46,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -807,8 +808,28 @@ public class SortingServiceImpl implements SortingService {
 		// PropertiesHelper.newInstance().getValue("enablePackageRetrieve");
 		// if( StringUtils.isNotBlank(retrieveFlag) &&
 		// "sure".equals(retrieveFlag)){
-		sendDetail = this.deliveryService.measureRetrieve(sendDetail);
+		sendDetail = this.deliveryService.measureRetrieve(sendDetail, null);
 		// }
+		this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
+		Profiler.registerInfoEnd(info);
+		return sendDetail;
+	}
+
+	/**
+	 * 添加send_d明细数据
+	 *
+	 * @param sorting
+	 * @return
+	 */
+	public SendDetail addSendDetail(SortingVO sorting) {
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail.SortingVO", false, true);
+		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
+		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+		this.fillSendDetailIfPickup(sendDetail);
+
+		DeliveryPackageD packageD = CollectionUtils.isNotEmpty(sorting.getPackageList())? sorting.getPackageList().get(0) : null;
+		sendDetail = this.deliveryService.measureRetrieve(sendDetail, packageD);
+
 		this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
 		Profiler.registerInfoEnd(info);
 		return sendDetail;
