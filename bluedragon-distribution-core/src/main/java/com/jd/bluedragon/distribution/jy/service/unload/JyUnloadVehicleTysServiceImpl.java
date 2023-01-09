@@ -175,7 +175,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 已完成状态单独计算，已完成要过滤完成时间
         JyBizTaskUnloadStatusEnum[] doneStatusEnums = {UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity doneStatusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
-        waitStatusStatisticsQueryParams.setActualArriveStartTime(doneUnloadQueryTimeRange());
+        doneStatusStatisticsQueryParams.setActualArriveStartTime(doneUnloadQueryTimeRange());
         List<JyBizTaskUnloadCountDto> doneStatusUnloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(doneStatusStatisticsQueryParams, null, doneStatusEnums);
         unloadCountDtos.addAll(doneStatusUnloadCountDtos);
 
