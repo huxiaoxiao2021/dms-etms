@@ -48,7 +48,7 @@ public interface JyTaskGroupMemberService {
 	 * @param endData
 	 * @return
 	 */
-	Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity taskGroupMember, List<String> memberCodes);
+	Result<Boolean> endWorkByMemberCodeListForAutoSignOut(JyTaskGroupMemberEntity taskGroupMember, List<String> memberCodes);
 	/**
 	 * 删除小组成员对应的任务数据
 	 * @param taskGroupMember

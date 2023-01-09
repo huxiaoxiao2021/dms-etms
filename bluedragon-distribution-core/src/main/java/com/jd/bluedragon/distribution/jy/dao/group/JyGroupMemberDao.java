@@ -139,4 +139,12 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	public JyGroupMemberEntity queryInDataByMachineCode(JyGroupMemberEntity memberData) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryInDataByMachineCode", memberData);
 	}
+	/**
+	 * 查询未签退人员-memberCode列表
+	 * @param memberCodeList
+	 * @return
+	 */
+	public List<String> queryUnSignOutMemberCodeList(List<String> memberCodeList) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryUnSignOutMemberCodeList", memberCodeList);
+	}
 }

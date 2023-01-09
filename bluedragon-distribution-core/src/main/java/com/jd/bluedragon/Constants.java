@@ -1753,9 +1753,9 @@ public class Constants {
 
     public static final String SEND_TASK_MANUAL_CREATED_PREFIX = "NSST";
     /**
-     * sql中in语句数量限制 200
+     * sql中in语句数量限制 100
      */
-    public static final int DB_SQL_IN_LIMIT_NUM = 200;
+    public static final int DB_SQL_IN_LIMIT_NUM = 100;
     
     /**
      * 传摆发货功能编码：0203004-gz
