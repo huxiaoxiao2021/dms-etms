@@ -656,7 +656,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 组板数量校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
-                jyUnloadVehicleCheckTysService.boardCountCheck(unloadScanDto.getStageBizId());
+                jyUnloadVehicleCheckTysService.boardCountCheck(unloadScanDto.getBizId(), unloadScanDto.getStageBizId());
             }
             // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
@@ -864,7 +864,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 妥投校验
         boolean isFinished = waybillTraceManager.isWaybillFinished(scanCode);
         if (isFinished) {
-            throw new JyBizException("运单已妥投,无法继续操作.传入信息:" + scanCode);
+            throw new JyBizException("运单已妥投，无法继续操作！");
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
         scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());

@@ -297,11 +297,11 @@
     </if>
   </select>
 
-  <select id="countByStageBizId" parameterType="java.lang.String" resultType="int">
+  <select id="countByBizIdAndStageBizId" parameterType="java.util.Map" resultType="int">
     select
      count(*)
     from jy_unload_vehicle_board
-    where unload_vehicle_stage_biz_id = #{stageBizId,jdbcType=VARCHAR} and yn = 1
+    where unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR} and unload_vehicle_stage_biz_id = #{stageBizId,jdbcType=VARCHAR} and yn = 1
   </select>
 
 </mapper>
