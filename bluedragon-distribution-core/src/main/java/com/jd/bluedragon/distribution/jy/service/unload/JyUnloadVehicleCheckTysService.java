@@ -559,11 +559,14 @@ public class JyUnloadVehicleCheckTysService {
      * 单个任务组板数量校验
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.boardCountCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void boardCountCheck(String bizId, String stageBizId) {
-        Integer unloadTaskBoardMaxCount = uccPropertyConfiguration.getUnloadTaskBoardMaxCount();
-        int count = jyUnloadVehicleBoardDao.countByBizIdAndStageBizId(bizId, stageBizId);
-        if (count >= unloadTaskBoardMaxCount) {
-            throw new LoadIllegalException("该任务绑定的组板数量已达上限" + count);
+    public void boardCountCheck(ScanPackageDto request, String stageBizId) {
+        // 只有开新板才校验
+        if (request.isCreateNewBoard()) {
+            Integer unloadTaskBoardMaxCount = uccPropertyConfiguration.getUnloadTaskBoardMaxCount();
+            int count = jyUnloadVehicleBoardDao.countByBizIdAndStageBizId(request.getBizId(), stageBizId);
+            if (count >= unloadTaskBoardMaxCount) {
+                throw new LoadIllegalException("该任务绑定的组板数量已达上限" + count);
+            }
         }
     }
 
