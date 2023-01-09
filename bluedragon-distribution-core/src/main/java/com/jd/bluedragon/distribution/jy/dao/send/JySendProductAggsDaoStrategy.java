@@ -18,11 +18,4 @@ public interface JySendProductAggsDaoStrategy {
 
     Long getToScanCountSum(String sendVehicleBizId);
 
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-    int insertOrUpdate(JySendProductAggsEntity entity);
 }

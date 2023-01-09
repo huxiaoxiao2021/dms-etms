@@ -14,8 +14,6 @@ import java.util.List;
  */
 public interface JyUnloadAggsDaoStrategy {
 
-    int insert(JyUnloadAggsEntity entity);
-
     List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
 
     //查包裹维度任务统计信息
@@ -34,11 +32,5 @@ public interface JyUnloadAggsDaoStrategy {
 
     JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto);
 
-    /**
-     * 新增或修改
-     *
-     * @param
-     * @return
-     */
-    int insertOrUpdate(JyUnloadAggsEntity entity);
+
 }

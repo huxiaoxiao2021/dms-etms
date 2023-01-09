@@ -34,16 +34,6 @@ public class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySen
         return this.getSqlSession().selectList(NAMESPACE + ".findBySendVehicleBiz", sendVehicleBizId);
     }
 
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-    public int insertOrUpdate(JySendAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
-    }
-
     public int updateByBizId(JySendAggsEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".updateByBizId", entity);
     }

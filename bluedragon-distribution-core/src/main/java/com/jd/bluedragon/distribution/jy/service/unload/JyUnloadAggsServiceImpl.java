@@ -1,16 +1,21 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
-import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +27,6 @@ import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -40,7 +44,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     private JyUnloadAggsDao jyUnloadAggsDao;
 
     @Autowired
-    private JyDuccConfigManager jyDuccConfigManager;
+    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
 
     @Autowired
     private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
@@ -54,15 +58,21 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
-        return getJyUnloadAggsDao().queryByBizId(entity);
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryByBizId");
+        List<JyUnloadAggsEntity> list = jyUnloadAggsDao.queryByBizId(entity);
+        Profiler.registerInfoEnd(info);
+        return list;
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryGoodsCategoryStatistics", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
-        List<GoodsCategoryDto> categoryDtoList = getJyUnloadAggsDao().queryGoodsCategoryStatistics(entity);
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryGoodsCategoryStatistics");
+        List<GoodsCategoryDto> categoryDtoList = jyUnloadAggsDao.queryGoodsCategoryStatistics(entity);
         if (ObjectHelper.isNotNull(categoryDtoList)) {
             for (GoodsCategoryDto categoryDto : categoryDtoList) {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
@@ -72,15 +82,21 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
                 }
             }
             Collections.sort(categoryDtoList, new GoodsCategoryDto.OrderComparator());
+            Profiler.registerInfoEnd(info);
             return categoryDtoList;
         }
+        Profiler.registerInfoEnd(info);
         return null;
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryExcepScanStatistics", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<ExcepScanDto> queryExcepScanStatistics(JyUnloadAggsEntity entity) {
-        ScanStatisticsDto scanStatisticsDto = getJyUnloadAggsDao().queryExcepScanStatistics(entity);
+
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryExcepScanStatistics");
+        ScanStatisticsDto scanStatisticsDto = jyUnloadAggsDao.queryExcepScanStatistics(entity);
         if (ObjectHelper.isNotNull(scanStatisticsDto)) {
             List<ExcepScanDto> excepScanDtoList = new ArrayList<>();
             ExcepScanDto waitScan = new ExcepScanDto();
@@ -101,29 +117,29 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
             excepScanDtoList.add(waitScan);
             excepScanDtoList.add(interceptScan);
             excepScanDtoList.add(extraScan);
+            Profiler.registerInfoEnd(info);
             return excepScanDtoList;
         }
+        Profiler.registerInfoEnd(info);
         return null;
     }
 
     @Override
-    public int insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity) {
-        int i = jyUnloadAggsDaoMain.updateByBizProductBoard(entity);
-        int j = 0;
-        if(i == 0){
-            j = jyUnloadAggsDaoMain.insertSelective(entity);
+    public Boolean insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity) {
+        Boolean result = jyUnloadAggsDaoMain.updateByBizProductBoard(entity) > 0;
+        if(!result){
+            return jyUnloadAggsDaoMain.insertSelective(entity) > 0;
         }
-        return i + j;
+        return result;
     }
 
     @Override
-    public int insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
-        int i = jyUnloadAggsDaoBak.updateByBizProductBoard(entity);
-        int j = 0;
-        if(i == 0){
-            j = jyUnloadAggsDaoBak.insertSelective(entity);
+    public Boolean insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
+        Boolean result = jyUnloadAggsDaoBak.updateByBizProductBoard(entity)>0;
+        if(!result){
+            return jyUnloadAggsDaoBak.insertSelective(entity) > 0;
         }
-        return i + j;
+        return result;
     }
 
     @Override
@@ -134,6 +150,56 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     @Override
     public List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity query) {
         return jyUnloadAggsDaoBak.getUnloadAggsBakData(query);
+    }
+
+    @Override
+    public JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryPackageStatistics");
+        JyUnloadAggsEntity entity = jyUnloadAggsDao.queryPackageStatistics(dto);
+        Profiler.registerInfoEnd(info);
+        return entity;
+    }
+
+    @Override
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderTask(DimensionQueryDto dto) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryWaybillStatisticsUnderTask");
+        JyUnloadAggsEntity entity = jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+        Profiler.registerInfoEnd(info);
+        return entity;
+    }
+
+    @Override
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderBoard(DimensionQueryDto dto) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryWaybillStatisticsUnderBoard");
+        JyUnloadAggsEntity entity = jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto);
+        Profiler.registerInfoEnd(info);
+        return entity;
+    }
+
+    @Override
+    public JyUnloadAggsEntity queryToScanAndMoreScanStatistics(String bizId) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryToScanAndMoreScanStatistics");
+        JyUnloadAggsEntity entity = jyUnloadAggsDao.queryToScanAndMoreScanStatistics(bizId);
+        Profiler.registerInfoEnd(info);
+        return entity;
+    }
+
+    @Override
+    public JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = getJyUnloadAggsDao();
+        String keyword = jyUnloadAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl"+keyword+".queryBoardStatistics");
+        JyUnloadAggsEntity entity = jyUnloadAggsDao.queryBoardStatistics(dto);
+        Profiler.registerInfoEnd(info);
+        return entity;
     }
 
     private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {

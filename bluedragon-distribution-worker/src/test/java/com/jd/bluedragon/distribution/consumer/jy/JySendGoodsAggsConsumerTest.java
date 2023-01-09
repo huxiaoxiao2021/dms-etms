@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsMainConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendProductAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendProductAggsMainConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsBakConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsMainConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsBakConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsMainConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;

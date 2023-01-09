@@ -25,7 +25,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
-import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
@@ -116,8 +116,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     BaseMajorManager baseMajorManager;
     @Autowired
-    private JyUnloadAggsDao jyUnloadAggsDao;
-    @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
     @Autowired
     private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
@@ -152,14 +150,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private JYTransferConfigProxy jyTransferConfigProxy;
 
 
-    @Autowired
-    private JyDuccConfigManager jyDuccConfigManager;
-
-    @Autowired
-    private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
-
-    @Autowired
-    private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -492,7 +482,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             previewData.setExceptScanDtoList(statisticsData.getExcepScanDtoList());
             previewData.setUnloadWaybillDtoList(statisticsData.getUnloadWaybillDtoList());
             // 查询待扫、本场地/非本场地多扫
-            JyUnloadAggsEntity aggsEntity = getJyUnloadAggsDao().queryToScanAndMoreScanStatistics(request.getBizId());
+            JyUnloadAggsEntity aggsEntity = jyUnloadAggsService.queryToScanAndMoreScanStatistics(request.getBizId());
             if (aggsEntity != null) {
                 previewData.setToScanCount(aggsEntity.getShouldScanCount() - aggsEntity.getActualScanCount());
                 previewData.setMoreScanLocalCount(aggsEntity.getMoreScanLocalCount());
@@ -1380,7 +1370,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
                 aggsQueryParams.setBizId(taskFlowDto.getBizId());
                 aggsQueryParams.setBoardCode(boardCode);
-                JyUnloadAggsEntity jyaggs = getJyUnloadAggsDao().queryBoardStatistics(aggsQueryParams);
+                JyUnloadAggsEntity jyaggs = jyUnloadAggsService.queryBoardStatistics(aggsQueryParams);
                 ComBoardAggDto aggDto = new ComBoardAggDto();
                 aggDto.setBoardCode(boardCode);
                 if(jyaggs != null) {
@@ -1870,7 +1860,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
             aggsQueryParams.setBizId(flowBoardDto.getBizId());
             aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
-            JyUnloadAggsEntity jyaggs = getJyUnloadAggsDao().queryBoardStatistics(aggsQueryParams);
+            JyUnloadAggsEntity jyaggs = jyUnloadAggsService.queryBoardStatistics(aggsQueryParams);
             if(jyaggs == null) {
                 log.warn("{}，查到该包裹已组板，但是jyUnloadAggs没有生成板上聚合数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
                 response.error("未查询到板上聚合数据");
@@ -1959,18 +1949,4 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
     }
 
-    /**
-     * 根据开关获取主库DAO 或者 备库DAO
-     * @return
-     */
-    private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
-        if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
-            if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
-                return jyUnloadAggsDaoBak;
-            }else {
-                return jyUnloadAggsDaoMain;
-            }
-        }
-        return jyUnloadAggsDao;
-    }
 }

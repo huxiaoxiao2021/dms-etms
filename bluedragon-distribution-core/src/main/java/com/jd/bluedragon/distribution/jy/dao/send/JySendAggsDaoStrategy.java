@@ -11,23 +11,11 @@ import java.util.List;
  */
 public interface JySendAggsDaoStrategy {
 
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-     int insert(JySendAggsEntity entity);
+
 
      JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId);
 
      List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-     int insertOrUpdate(JySendAggsEntity entity);
+
 }

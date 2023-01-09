@@ -1212,8 +1212,8 @@
     </jsf:consumer>
 
     <!--  拣运jy-realtime-service DUCC服务获取接口  -->
-    <jsf:consumer id="jyDuccConfigJsfService"
-                  interface="com.jdl.jy.realtime.api.ducc.DuccConfigJsfService"
+    <jsf:consumer id="jySendOrUnloadDataReadDuccConfigJsfService"
+                  interface="com.jdl.jy.realtime.api.ducc.SendOrUnloadDataReadDuccConfigJsfService"
                   protocol="jsf"
                   alias="${jsf.jy.realtime.alias}"
                   timeout="10000"

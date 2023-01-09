@@ -26,10 +26,6 @@ public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  impl
         return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
     }
 
-    @Override
-    public int insertOrUpdate(JySendProductAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
-    }
 
 
 }

@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsMainConsumer;
-import com.jd.bluedragon.distribution.consumer.send.CancelSendDetailPrintHandoverConsumerTest;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JyUnloadCarAggsBakConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JyUnloadCarAggsMainConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;

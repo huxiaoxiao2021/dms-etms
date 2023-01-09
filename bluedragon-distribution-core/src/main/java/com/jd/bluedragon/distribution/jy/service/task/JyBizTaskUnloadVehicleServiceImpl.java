@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
@@ -18,8 +17,9 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -37,7 +37,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,21 +102,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private JimdbSequenceGen redisJyBizIdSequenceGen;
 
     @Autowired
-    JyUnloadAggsDao jyUnloadAggsDao;
-    @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private JyDuccConfigManager jyDuccConfigManager;
-
-    @Autowired
-    private JyUnloadAggsDaoMain jyUnloadAggsDaoMain;
-
-    @Autowired
-    private JyUnloadAggsDaoBak jyUnloadAggsDaoBak;
+    private JyUnloadAggsService jyUnloadAggsService;
 
     /**
      * 根据bizId获取数据
@@ -657,9 +648,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            entity = getJyUnloadAggsDao().queryPackageStatistics(dto);
+            entity = jyUnloadAggsService.queryPackageStatistics(dto);
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            entity = getJyUnloadAggsDao().queryWaybillStatisticsUnderTask(dto);
+            entity = jyUnloadAggsService.queryWaybillStatisticsUnderTask(dto);
         }
         if (ObjectHelper.isNotNull(entity)) {
             ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
@@ -678,12 +669,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryStatistics",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
-        JyUnloadAggsEntity packageStatistics = getJyUnloadAggsDao().queryPackageStatistics(dto);
+        JyUnloadAggsEntity packageStatistics = jyUnloadAggsService.queryPackageStatistics(dto);
         if(packageStatistics == null) {
             return new InvokeResult<>(RESULT_SUCCESS_CODE, "未查到数据");
         }
         JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
-                getJyUnloadAggsDao().queryWaybillStatisticsUnderBoard(dto) : getJyUnloadAggsDao().queryWaybillStatisticsUnderTask(dto);
+                jyUnloadAggsService.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsService.queryWaybillStatisticsUnderTask(dto);
 
         StatisticsDto statisticsDto = new StatisticsDto();
         Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
@@ -804,18 +795,4 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return new ArrayList<>();
     }
 
-    /**
-     * 根据开关获取主库DAO 或者 备库DAO
-     * @return
-     */
-    private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
-        if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
-            if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
-                return jyUnloadAggsDaoBak;
-            }else {
-                return jyUnloadAggsDaoMain;
-            }
-        }
-        return jyUnloadAggsDao;
-    }
 }

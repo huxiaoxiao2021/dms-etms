@@ -292,11 +292,24 @@ public class CacheKeyConstants {
      */
     public static final String JY_UNLOAD_AGG_KEY = JY_CACHE_PREFIX + "jyUnloadAgg:%s";
 
+
+    /**
+     * 拣运卸车统计
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jyUnloadAggLock:%s";
+
     /**
      * 拣运卸车统计(备库)
      * sealCarCode
      */
     public static final String JY_UNLOAD_AGG_BAK_KEY = JY_CACHE_PREFIX + "jyUnloadAggBak:%s";
+
+    /**
+     * 拣运卸车统计(备库)
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jyUnloadAggBakLock:%s";
 
     /**
      * 拣运发货统计
@@ -305,10 +318,21 @@ public class CacheKeyConstants {
     public static final String JY_SEND_AGG_KEY = JY_CACHE_PREFIX + "jySendAgg:%s";
 
     /**
+     * 发货锁前缀
+     */
+    public static final String JY_SEND_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendAggLock:%s";
+
+    /**
      * 拣运发货统计（备库）
      * sealCarCode
      */
     public static final String JY_SEND_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendAggBak:%s";
+
+
+    /**
+     * 发货锁前缀
+     */
+    public static final String JY_SEND_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendAggBakLock:%s";
 
     /**
      * 拣运发货产品类型统计
@@ -317,11 +341,22 @@ public class CacheKeyConstants {
     public static final String JY_SEND_PRODUCT_AGG_KEY = JY_CACHE_PREFIX + "jySendProductAgg:%s";
 
     /**
+     * 拣运发货产品类型统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggLock:%s";
+
+    /**
      * 拣运发货统计（备库）
      * sealCarCode
      */
     public static final String JY_SEND_PRODUCT_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendProductAggBak:%s";
 
+    /**
+     * 拣运发货统计（备库）
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
 
 
 }

@@ -1,12 +1,14 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak;
-import com.jd.bluedragon.distribution.jy.manager.JyDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ import java.util.List;
 public class JySendAggsServiceImpl implements JySendAggsService {
 
     @Autowired
-    private JyDuccConfigManager jyDuccConfigManager;
+    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
 
     @Autowired
     JySendAggsDao jySendAggsDao;
@@ -29,36 +31,42 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     JySendAggsDaoBak jySendAggsDaoBak;
 
 
-
-
     @Override
     public JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId) {
-        return getJySendAggsDao().getVehicleSendStatistics(sendVehicleBizId);
+        JySendAggsDaoStrategy jySendAggsDao = getJySendAggsDao();
+        String keyword = jySendAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".getVehicleSendStatistics");
+        JySendAggsEntity entity = jySendAggsDao.getVehicleSendStatistics(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return entity;
     }
 
     @Override
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
-        return getJySendAggsDao().findBySendVehicleBiz(sendVehicleBizId);
+        JySendAggsDaoStrategy jySendAggsDao = getJySendAggsDao();
+        String keyword = jySendAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".findBySendVehicleBiz");
+        List<JySendAggsEntity> list = jySendAggsDao.findBySendVehicleBiz(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return list;
     }
 
     @Override
-    public int insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity) {
-        int i = jySendAggsDaoMain.updateByBizId(entity);
-        int j = 0;
-        if(i == 0){
-            jySendAggsDaoMain.insertBySendAggEntity(entity);
+    public Boolean insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity) {
+        Boolean result = jySendAggsDaoMain.updateByBizId(entity) > 0;
+        if(!result){
+            return jySendAggsDaoMain.insertBySendAggEntity(entity) > 0;
         }
-        return i + j;
+        return result;
     }
 
     @Override
-    public int insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
-        int i = jySendAggsDaoBak.updateByBizId(entity);
-        int j = 0;
-        if(i == 0){
-            jySendAggsDaoBak.insertBySendAggEntity(entity);
+    public Boolean insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
+        Boolean result = jySendAggsDaoBak.updateByBizId(entity) > 0;
+        if(!result){
+           return jySendAggsDaoBak.insertBySendAggEntity(entity) >0;
         }
-        return i + j;
+        return result;
     }
 
     @Override

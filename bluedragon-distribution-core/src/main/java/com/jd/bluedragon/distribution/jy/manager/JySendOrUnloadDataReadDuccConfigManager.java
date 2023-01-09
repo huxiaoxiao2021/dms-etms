@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
-import com.jdl.jy.realtime.base.ServiceResult;
-
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2022/12/21 18:31
  * @Description:
  */
-public interface JyDuccConfigManager {
+public interface JySendOrUnloadDataReadDuccConfigManager {
 
     /**
      * 获取拣运发货岗主备开关切换值
@@ -22,13 +20,6 @@ public interface JyDuccConfigManager {
     Boolean getJyUnloadAggsDataReadSwitchInfo();
 
     /**
-     * 获取拣运发货产品类型汇总主备数据读取开关
-     * @return
-     */
-    Boolean getJySendProductAggsDataReadSwitch();
-
-
-    /**
      * 获取拣运发货岗老库or新库数据读取开关
      * @return
      */
@@ -40,10 +31,6 @@ public interface JyDuccConfigManager {
      */
     Boolean getJyUnloadAggsOldOrNewDataReadSwitch();
 
-    /**
-     * 获取拣运卸车岗老库or新库数据读取开关
-     * @return
-     */
-    Boolean getJySendProductAggsOldOrNewDataReadSwitch();
+
 
 }

@@ -70,16 +70,6 @@ public class JyUnloadAggsDaoMain extends BaseDao<JyUnloadAggsEntity> implements 
         return this.getSqlSession().selectOne(NAMESPACE + ".queryBoardStatistics", dto);
     }
 
-    /**
-     * 新增或修改
-     *
-     * @param
-     * @return
-     */
-    public int insertOrUpdate(JyUnloadAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
-    }
-
     public int updateByBizProductBoard(JyUnloadAggsEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".updateByBizProductBoard", entity);
     }
