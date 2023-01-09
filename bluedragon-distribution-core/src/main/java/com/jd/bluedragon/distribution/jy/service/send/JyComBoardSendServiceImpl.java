@@ -571,7 +571,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyComboardEntity userQuery = new JyComboardEntity();
     userQuery.setGroupCode(request.getGroupCode());
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -7);
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
     List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
     resp.setScanUserList(userList);
@@ -593,7 +593,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
     BoardCountReq boardCountReq = new BoardCountReq();
-    Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -7);
+    Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(queryTime);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
