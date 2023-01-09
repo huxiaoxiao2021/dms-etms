@@ -653,6 +653,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
+            // 组板数量校验
+            if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
+                jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto);
+            }
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
@@ -688,8 +692,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 }
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
-                // 组板数量校验
-                jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto);
                 // 是否发货校验
                 jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
                 // 运单超重校验
@@ -862,7 +864,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 妥投校验
         boolean isFinished = waybillTraceManager.isWaybillFinished(scanCode);
         if (isFinished) {
-            throw new JyBizException("运单已妥投,请确认是否继续操作.传入信息:" + scanCode);
+            throw new JyBizException("运单已妥投,无法继续操作.传入信息:" + scanCode);
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
         scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
