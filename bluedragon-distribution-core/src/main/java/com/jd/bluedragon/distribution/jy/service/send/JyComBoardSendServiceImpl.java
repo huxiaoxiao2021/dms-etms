@@ -2178,7 +2178,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.cancelComboard", mState = {JProEnum.TP, JProEnum.FunctionError})
-  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+  @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
   public InvokeResult<Void> cancelComboard(CancelBoardReq request) {
     try {
       if (!checkBaseRequest(request)
