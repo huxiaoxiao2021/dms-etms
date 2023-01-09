@@ -300,11 +300,11 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("G00000059001");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22120600000014");
+        resp.setTemplateCode("CTT23010400000002");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
-        user.setUserName("李文吉");
+        user.setUserName("吴有德");
         user.setUserErp("wuyoude");
         resp.setUser(user);
         JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);

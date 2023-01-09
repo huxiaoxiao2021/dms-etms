@@ -306,6 +306,11 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
     and board_status = 1
     and yn = 1
   </select>
@@ -338,23 +343,33 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
     and yn = 1
     and board_status = 1
   </update>
   <select id="listBoardTaskBySendFlow" resultMap="BaseResultMap">
     SELECT
-    <include refid="Base_Column_List" />
+    <include refid="Base_Column_List"/>
     FROM
-      jy_biz_task_comboard
+    jy_biz_task_comboard
     WHERE
-      start_site_id =#{startSiteId}
-      AND end_site_id =#{endSiteId}
-      AND board_status IN
-          <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
-            #{item}
-          </foreach>
-      AND create_time > #{createTime}
-      AND yn = 1
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
   </select>
 
   <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
@@ -380,8 +395,13 @@
     <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
       #{item}
     </foreach>
-      and yn = 1
+    and yn = 1
     AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
     group by end_site_id;
   </select>
 </mapper>

@@ -46,10 +46,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.*;
-import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
@@ -600,6 +597,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     boardCountReq.setCreateTime(queryTime);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    boardCountReq.setComboardSourceList(comboardSourceList);
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
     HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
     // 获取当前流向执行中的板号
@@ -793,15 +793,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (aggsEntity != null) {
       sendFlowDto.setWaitScanCount(aggsEntity.getWaitScanCount());
     }
+    
     //查询流向下7天内未封车的板
     SendFlowDto sendFlow = new SendFlowDto();
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     sendFlow.setQueryTimeBegin(queryTime);
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(startSiteCode);
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    sendFlow.setComboardSourceList(comboardSourceList);
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
     sendFlowDto.setBoardCount(entities.size());
     BoardDto boardDto = new BoardDto();
+    
     // 查询当前板状态
     JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
     queryBoard.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
@@ -980,6 +985,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       req.setUpdateUserName(request.getUser().getUserName());
       req.setUpdateUserErp(request.getUser().getUserErp());
       req.setStartSiteId(startSiteId);
+      List<Integer> comboardSourceList = new ArrayList<>();
+      comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+      req.setComboardSourceList(comboardSourceList);
       if (!jyBizTaskComboardService.batchFinishBoardBySendFLowList(req)) {
         log.info("完结板失败，混扫任务编号：{}", request.getTemplateCode());
         return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
@@ -1310,6 +1318,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       SendFlowDto sendFlowDto = new SendFlowDto();
       sendFlowDto.setStartSiteId(request.getCurrentOperate().getSiteCode());
       sendFlowDto.setEndSiteId(request.getDestinationId());
+      List<Integer> comboardSourceList = new ArrayList<>();
+      comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+      sendFlowDto.setComboardSourceList(comboardSourceList);
       BoardDto boardDto = jyBizTaskComboardService.queryInProcessBoard(sendFlowDto);
       if (ObjectHelper.isNotNull(boardDto)) {
         if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
@@ -1777,6 +1788,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     //查询流向下7天内未封车的板
     SendFlowDto sendFlowDto = assemblySendFlowParams(request);
     Page page =PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    sendFlowDto.setComboardSourceList(comboardSourceList);
     List<JyBizTaskComboardEntity> entityList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlowDto);
     if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
       List<String> boardCodeList = new ArrayList<>();
@@ -2164,7 +2178,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.cancelComboard", mState = {JProEnum.TP, JProEnum.FunctionError})
-  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+  @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
   public InvokeResult<Void> cancelComboard(CancelBoardReq request) {
     try {
       if (!checkBaseRequest(request)
