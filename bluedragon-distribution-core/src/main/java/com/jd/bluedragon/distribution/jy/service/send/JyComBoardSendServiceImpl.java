@@ -2276,7 +2276,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           }
 
           JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
-          jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+          jyBizTaskComboardEntity.setId(comboardEntity.getId());
           jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
           if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
             log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
