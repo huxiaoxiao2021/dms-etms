@@ -74,5 +74,12 @@ public interface JyGroupMemberService {
 	 * @param positionCode
 	 * @return
 	 */
-	JdCResponse<GroupMemberData> queryGroupMemberDataByPositionCode(String positionCode);	
+	JdCResponse<GroupMemberData> queryGroupMemberDataByPositionCode(String positionCode);
+	
+	/**
+	 * 查询未签退人员-memberCode列表
+	 * @param memberCodeList
+	 * @return
+	 */
+	List<String> queryUnSignOutMemberCodeList(List<String> memberCodeList);
 }

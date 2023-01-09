@@ -38,11 +38,11 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
-import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -154,10 +154,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     private WaybillService waybillService;
 
-    @Autowired
-    private JYTransferConfigProxy jyTransferConfigProxy;
-
-
     @Resource
     private SortingService sortingService;
 
@@ -166,6 +162,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Autowired
     private LogEngine logEngine;
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
+
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -634,15 +633,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         }
 
+        //特保单校验
+        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign(),scanPackageRespDto);
+
         //德邦单号场地转发提醒
         if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), operateSiteCode, waybill.getOldSiteId())) {
             Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
         }
-
-        //特保单校验
-        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
-                barCode, waybill.getWaybillSign(),scanPackageRespDto);
 
         // 判断是否是跨越的取消订单
         String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
