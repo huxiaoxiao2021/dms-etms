@@ -2210,80 +2210,91 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
         return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
       }
-      if (request.isBulkFlag()) {
-        // 获取运单号
-        JyComboardEntity entity = new JyComboardEntity();
-        entity.setBoardCode(request.getBoardCode());
-        entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
-        if (StringUtils.isEmpty(waybillCode)) {
-          log.error("运单取消组板失败：{}", waybillCode);
-          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
-        }
-        removeBoardBoxDto.setWaybillCode(waybillCode);
-        barCodeList.add(waybillCode);
-        if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
-          log.error("运单取消组板失败：{}", waybillCode);
-          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
-        }
 
-        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
-        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
-        jyBizTaskComboardEntity.setHaveScanCount(Constants.NUMBER_ZERO);
-        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
-          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
-          throw new JyBizException("更新板任务失败");
-        }
+      String boardLockKey = String.format(Constants.JY_COMBOARD_BOARD_LOCK_PREFIX, request.getBoardCode());
+      if (!jimDbLock.lock(boardLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+        throw new JyBizException("当前系统繁忙,请稍后再试！");
+      }
+      
+      try {
+        if (request.isBulkFlag()) {
+          // 获取运单号
+          JyComboardEntity entity = new JyComboardEntity();
+          entity.setBoardCode(request.getBoardCode());
+          entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+          String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
+          if (StringUtils.isEmpty(waybillCode)) {
+            log.error("运单取消组板失败：{}", waybillCode);
+            return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+          }
+          removeBoardBoxDto.setWaybillCode(waybillCode);
+          barCodeList.add(waybillCode);
+          if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
+            log.error("运单取消组板失败：{}", waybillCode);
+            return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+          }
 
-        Response removeBoardBoxRes = groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
-        if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
-          log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
-          throw new JyBizException("取消组板失败");
-        }
-      } else {
-        // 如果为全选
-        if (request.isSelectAll()) {
-          BoardReq boardReq = new BoardReq();
-          boardReq.setBulkFlag(request.isBulkFlag());
-          boardReq.setBoardCode(request.getBoardCode());
-          boardReq.setGroupCode(request.getGroupCode());
-          boardReq.setCurrentOperate(request.getCurrentOperate());
-          boardReq.setUser(request.getUser());
-          InvokeResult<ComboardDetailResp> boxOrPackCodeList = listPackageOrBoxUnderBoard(boardReq);
-          if (boxOrPackCodeList != null
-                  && boxOrPackCodeList.getData() != null
-                  && !CollectionUtils.isEmpty(boxOrPackCodeList.getData().getComboardDetailDtoList())) {
-            for (ComboardDetailDto dto : boxOrPackCodeList.getData().getComboardDetailDtoList()) {
-              barCodeList.add(dto.getBarCode());
-            }
+          JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
+          jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+          jyBizTaskComboardEntity.setHaveScanCount(Constants.NUMBER_ZERO);
+          if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
+            log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
+            throw new JyBizException("更新板任务失败");
+          }
+
+          Response removeBoardBoxRes = groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
+          if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+            log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+            throw new JyBizException("取消组板失败");
           }
         } else {
-          // 包裹号或箱号
-          for (ComboardDetailDto comboardDetailDto : cancelList) {
-            barCodeList.add(comboardDetailDto.getBarCode());
+          // 如果为全选
+          if (request.isSelectAll()) {
+            BoardReq boardReq = new BoardReq();
+            boardReq.setBulkFlag(request.isBulkFlag());
+            boardReq.setBoardCode(request.getBoardCode());
+            boardReq.setGroupCode(request.getGroupCode());
+            boardReq.setCurrentOperate(request.getCurrentOperate());
+            boardReq.setUser(request.getUser());
+            InvokeResult<ComboardDetailResp> boxOrPackCodeList = listPackageOrBoxUnderBoard(boardReq);
+            if (boxOrPackCodeList != null
+                    && boxOrPackCodeList.getData() != null
+                    && !CollectionUtils.isEmpty(boxOrPackCodeList.getData().getComboardDetailDtoList())) {
+              for (ComboardDetailDto dto : boxOrPackCodeList.getData().getComboardDetailDtoList()) {
+                barCodeList.add(dto.getBarCode());
+              }
+            }
+          } else {
+            // 包裹号或箱号
+            for (ComboardDetailDto comboardDetailDto : cancelList) {
+              barCodeList.add(comboardDetailDto.getBarCode());
+            }
+          }
+          if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
+            log.error("按包裹箱取消组板失败：{}", JsonHelper.toJson(batchUpdateCancelReq));
+            return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+          }
+
+          JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
+          jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+          jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
+          if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
+            log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
+            throw new JyBizException("更新板任务失败");
+          }
+
+          Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+          if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+            log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+            throw new JyBizException("取消组板失败");
           }
         }
-        if (!jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq)) {
-          log.error("按包裹箱取消组板失败：{}", JsonHelper.toJson(batchUpdateCancelReq));
-          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
-        }
-
-        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
-        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
-        jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
-        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
-          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
-          throw new JyBizException("更新板任务失败");
-        }
-
-        Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
-        if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
-          log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
-          throw new JyBizException("取消组板失败");
-        }
+        // 异步发送取消组板和发货的全程跟踪
+        asyncSendCancelComboardAndSend(request, barCodeList);
+      }finally {
+        jimDbLock.releaseLock(boardLockKey, request.getRequestId());
       }
-      // 异步发送取消组板和发货的全程跟踪
-      asyncSendCancelComboardAndSend(request, barCodeList);
+      
     }catch (Exception e ) {
       if (log.isErrorEnabled()) {
         log.error("取消组板异常：{}",JsonHelper.toJson(request),e);
