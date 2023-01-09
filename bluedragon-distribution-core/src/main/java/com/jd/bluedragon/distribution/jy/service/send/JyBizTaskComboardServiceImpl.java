@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
     condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
+    condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
     if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
       BoardDto dto = new BoardDto();
@@ -61,6 +63,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     JyBizTaskComboardReq req = new JyBizTaskComboardReq();
     req.setStartSiteId(startSiteCode);
     req.setEndSiteCodeList(endSiteCodeList);
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    req.setComboardSourceList(comboardSourceList);
     return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
   }
 
@@ -104,6 +109,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
     condition.setStatusList(statusList);
+    condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
   }
 

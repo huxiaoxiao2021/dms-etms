@@ -54,6 +54,8 @@ public class JyBizTaskComboardEntity implements Serializable {
     private transient List<Integer> statusList;
 
     private transient List<String> sendCodeList;
+    
+    private transient List<Integer> comboardSourceList;
 
     public Date getSealTime() {
         return sealTime;
@@ -246,5 +248,13 @@ public class JyBizTaskComboardEntity implements Serializable {
 
     public void setComboardSource(Integer comboardSource) {
         this.comboardSource = comboardSource;
+    }
+
+    public List<Integer> getComboardSourceList() {
+        return comboardSourceList;
+    }
+
+    public void setComboardSourceList(List<Integer> comboardSourceList) {
+        this.comboardSourceList = comboardSourceList;
     }
 }
