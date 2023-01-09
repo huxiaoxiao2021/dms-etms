@@ -2451,6 +2451,14 @@ public class UccPropertyConfiguration {
         this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
     }
 
+    public Integer getUnloadTaskBoardMaxCount() {
+        return unloadTaskBoardMaxCount;
+    }
+
+    public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
+        this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
+    }
+
     public String getPackageWeightLimit() {
         return packageWeightLimit;
     }
