@@ -852,7 +852,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             throw new JyBizException("暂不支持箱号！");
         }
         if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
-            throw new JyBizException("任务已结束，扫描失败！");
+            throw new JyBizException("任务已被" + unloadVehicleEntity.getUpdateUserErp() + "操作卸车完成，请重新创建自建任务进行扫描！");
         }
         String scanCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(scanCode)) {

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
@@ -93,10 +94,16 @@ public class CollectGoodsAreaController {
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
+		String userCode = "";
 		try {
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			if (erpUser!=null) {
+				userCode = erpUser.getUserCode();
+			}
 			rest.setData(collectGoodsAreaService.deleteByIds(ids));
+			log.info("deleteByIds|删除集货区结束:userCode={},ids={}", userCode, ids);
 		} catch (Exception e) {
-			log.error("fail to delete！",e);
+			log.error("deleteByIds|删除集货区异常:userCode={},ids={}", userCode, ids, e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -110,11 +117,12 @@ public class CollectGoodsAreaController {
 	@RequestMapping(value = "/deleteByCodes")
 	public @ResponseBody JdResponse<Boolean> deleteByCodes(@RequestBody List<String> codes) {
 		JdResponse<Boolean> rest = new JdResponse<>();
+		String userCode = "";
 		try {
 			Integer createSiteCode = 0;
 
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			String userCode;
+
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
 				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
@@ -134,21 +142,26 @@ public class CollectGoodsAreaController {
 				List<CollectGoodsPlace> allPlaces = collectGoodsPlaceService.findPlaceByAreaCode(queryPlaceParam);
 				for(CollectGoodsPlace collectGoodsPlace : allPlaces){
 					if(!collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
+						log.warn("deleteByCodes|删除集货区失败,集货位存在包裹:userCode={},codes={},code={},collectGoodsPlace={}", userCode, codes, code, JSON.toJSONString(collectGoodsPlace));
 						rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
 						return rest;
 					}
+					log.info("deleteByCodes|删除集货区遍历:userCode={},codes={},code={},collectGoodsPlace={}", userCode, codes, code, JSON.toJSONString(collectGoodsPlace));
 				}
 			}
 			// 没有删除权限，直接返回
             if(collectGoodsAreaService.checkAuthority(createSiteCode)){
-                rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
+				log.warn("deleteByCodes|删除集货区无权限:userCode={},codes={}", userCode, codes);
+				rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
                 return rest;
             }
 			rest.setData(collectGoodsAreaService.deleteByCode(codes));
-            // 记录businessLog日志
+			log.info("deleteByCodes|删除集货区结束:userCode={},codes={}", userCode, codes);
+
+			// 记录businessLog日志
             collectGoodsAreaService.writeLog(userCode,createSiteCode,codes);
 		} catch (Exception e) {
-			log.error("fail to delete！",e);
+			log.error("deleteByCodes|删除集货区异常:userCode={},codes={}", userCode, codes, e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
