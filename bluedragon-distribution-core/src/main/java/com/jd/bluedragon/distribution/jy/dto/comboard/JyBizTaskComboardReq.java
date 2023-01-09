@@ -34,6 +34,11 @@ public class JyBizTaskComboardReq {
      * 板号
      */
     private String boardCode;
+
+    /**
+     * 组板入口
+     */
+    private transient List<Integer> comboardSourceList;
     
     public String getUpdateUserErp() {
         return updateUserErp;
@@ -73,5 +78,13 @@ public class JyBizTaskComboardReq {
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public List<Integer> getComboardSourceList() {
+        return comboardSourceList;
+    }
+
+    public void setComboardSourceList(List<Integer> comboardSourceList) {
+        this.comboardSourceList = comboardSourceList;
     }
 }

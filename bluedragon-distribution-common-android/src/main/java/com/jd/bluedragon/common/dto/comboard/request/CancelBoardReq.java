@@ -8,7 +8,8 @@ public class CancelBoardReq extends BaseReq implements Serializable {
 
   private static final long serialVersionUID = -5371386941373048606L;
   private List<ComboardDetailDto>  cancelList;
-
+  //  对外暴露的枚举 BusinessCodeFromSourceEnum
+  private String bizSource = "JY_APP";
   private String boardCode;
 
   /**
@@ -25,7 +26,15 @@ public class CancelBoardReq extends BaseReq implements Serializable {
    * 全选标识
    */
   private boolean selectAll;
-  
+
+  public String getBizSource() {
+    return bizSource;
+  }
+
+  public void setBizSource(String bizSource) {
+    this.bizSource = bizSource;
+  }
+
   public List<ComboardDetailDto> getCancelList() {
     return cancelList;
   }

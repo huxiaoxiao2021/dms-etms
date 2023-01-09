@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class BoardReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -6056651432686595714L;
+    //  对外暴露的枚举 BusinessCodeFromSourceEnum
+    private String bizSource = "JY_APP";
     /**
      * 板号
      */
@@ -16,6 +18,14 @@ public class BoardReq extends BaseReq implements Serializable {
      * 大宗标识
      */
     private boolean bulkFlag;
+
+    public String getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(String bizSource) {
+        this.bizSource = bizSource;
+    }
 
     public String getBoardCode() {
         return boardCode;

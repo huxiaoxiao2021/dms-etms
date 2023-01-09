@@ -19,6 +19,8 @@ public class BoardCountReq {
     
     private List<Integer> statusList;
 
+    private List<Integer> comboardSourceList;
+
     public Long getStartSiteId() {
         return startSiteId;
     }
@@ -49,5 +51,13 @@ public class BoardCountReq {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public List<Integer> getComboardSourceList() {
+        return comboardSourceList;
+    }
+
+    public void setComboardSourceList(List<Integer> comboardSourceList) {
+        this.comboardSourceList = comboardSourceList;
     }
 }

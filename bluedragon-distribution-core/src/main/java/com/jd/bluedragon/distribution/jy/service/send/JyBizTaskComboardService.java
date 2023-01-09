@@ -63,5 +63,8 @@ public interface JyBizTaskComboardService {
    * @return
    */
     List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
+
+  JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
+
 }
 
