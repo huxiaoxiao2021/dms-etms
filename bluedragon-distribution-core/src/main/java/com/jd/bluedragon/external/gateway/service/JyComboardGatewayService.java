@@ -82,7 +82,6 @@ public interface JyComboardGatewayService {
    */
   JdCResponse<ComboardScanResp> comboardScan(ComboardScanReq request);
 
-
   /**
    * 查询流向下组板统计信息列表-支撑下钻2
    */
@@ -139,4 +138,5 @@ public interface JyComboardGatewayService {
    * @return
    */
   JdCResponse<Void> cancelComboard(CancelBoardReq request);
+
 }

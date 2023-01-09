@@ -194,6 +194,8 @@
 		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
+		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
+		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 
 
 
@@ -373,6 +375,8 @@
 				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
 				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
 				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyComboardSiteCTTPageSize</value>
+				<value>uccPropertyConfiguration.jyComboardScanUserBeginDay</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

@@ -22,6 +22,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -74,11 +75,18 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         List<String> barCodeList = dto.getBarCodeList();
         SendM sendM = toSendM(dto);
         for (String barCode : barCodeList) {
+            if (StringUtils.isEmpty(barCode)) {
+                continue;
+            }
             sendM.setBoxCode(barCode);
             ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-            if (response != null && !response.getCode().equals(SUCCESS_CODE)){
+            if (response == null) {
+                log.error("取消发货失败：{}",barCode);
+                return;
+            }
+            if (!response.getCode().equals(SUCCESS_CODE)){
                 log.error("取消发货失败：{},{}",barCode,response.getMessage());
-                throw new JyBizException("取消发货失败");
+                return;
             }
             if (WaybillUtil.isWaybillCode(barCode)) {
                 // 异步取消组板
@@ -88,7 +96,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
                 OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
                 virtualBoardService.sendWaybillTrace(barCode, operatorInfo, dto.getBoardCode(),
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
-                        BizSourceEnum.PDA.getValue());
+                        dto.getBizSource().getValue());
             }
         }
     }

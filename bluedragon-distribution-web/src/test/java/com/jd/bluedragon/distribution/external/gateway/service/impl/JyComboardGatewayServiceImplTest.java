@@ -6,11 +6,22 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.SortBoardJsfService;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.board.domain.Board;
+import com.jd.bluedragon.distribution.board.domain.BoardSendDto;
+import com.jd.bluedragon.distribution.board.domain.Response;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import java.util.Date;
+
+import jd.oom.client.orderfile.Business;
 import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +43,11 @@ public class JyComboardGatewayServiceImplTest {
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
 
+    @Autowired
+    JyComBoardSendService jyComBoardSendService;
+
+    @Autowired
+    SortBoardJsfService sortBoardJsfService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
     
@@ -288,11 +304,11 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("G00000059001");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22120600000014");
+        resp.setTemplateCode("CTT23010400000002");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
-        user.setUserName("李文吉");
+        user.setUserName("吴有德");
         user.setUserErp("wuyoude");
         resp.setUser(user);
         JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);
@@ -374,6 +390,28 @@ public class JyComboardGatewayServiceImplTest {
         scanReq.setUser(user);
         JdCResponse re = jyComboardGatewayService.comboardScan(scanReq);
         System.out.println(JsonHelper.toJson(re));
+    }
+
+    @Test
+    public void comboardScanAutoMachineTest(){
+
+//
+//        BindBoardRequest req = new BindBoardRequest();
+//
+//        sortBoardJsfService.addToBoard(req);
+//
+//
+//
+//        BindBoardRequest scanReq = new BindBoardRequest();
+//
+//        scanReq.setBarcode("JDV000707422015-1-5-");
+//        Board board = new Board();
+//
+//        scanReq.setBoard(board);
+//
+//        Response<BoardSendDto> re = sortBoardJsfService.sortMachineComboard(scanReq);
+//
+//        System.out.println(JsonHelper.toJson(re));
     }
 
     @Test

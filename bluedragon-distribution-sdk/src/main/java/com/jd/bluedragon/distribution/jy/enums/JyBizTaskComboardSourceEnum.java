@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

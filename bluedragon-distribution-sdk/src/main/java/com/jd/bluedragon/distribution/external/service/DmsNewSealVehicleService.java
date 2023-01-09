@@ -119,6 +119,15 @@ public interface DmsNewSealVehicleService {
      * @return
      */
     boolean checkSendCodeIsSealed(String sendCode);
+
+    /**
+     * 获取批次号的封车时间，若为null或者小于等于0则表示未封车
+     *
+     * @param sendCode
+     * @return
+     */
+    Long getSealCarTimeBySendCode(String sendCode);
+
     /**
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
      *

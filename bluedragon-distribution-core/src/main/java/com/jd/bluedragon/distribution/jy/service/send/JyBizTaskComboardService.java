@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,8 +62,10 @@ public interface JyBizTaskComboardService {
    * 查询流向下板数量(某个流向-7日内所有未封车的板任务列表)
    * @return
    */
-  List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
+    List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
 
+  JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
+  
   /**
    * 取消封车
    * @param batchCodes
