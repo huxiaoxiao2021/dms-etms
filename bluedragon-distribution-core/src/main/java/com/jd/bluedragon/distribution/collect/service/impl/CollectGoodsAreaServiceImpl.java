@@ -68,9 +68,9 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 	}
 
 	@Override
-	public boolean deleteByCode(List<String> codes) {
+	public boolean deleteByCode(Integer createSiteCode, List<String> codes) {
 
-		return collectGoodsAreaDao.deleteByCode(codes)>0 && collectGoodsPlaceService.deleteByAreaCode(codes);
+		return collectGoodsAreaDao.deleteByCode(createSiteCode, codes)>0 && collectGoodsPlaceService.deleteByAreaCode(createSiteCode, codes);
 	}
 
     /**

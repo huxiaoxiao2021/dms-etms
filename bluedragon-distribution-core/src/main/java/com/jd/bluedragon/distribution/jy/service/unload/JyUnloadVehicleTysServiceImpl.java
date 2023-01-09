@@ -459,11 +459,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadCompleteRequest.setMoreScanLocalCount(request.getMoreScanLocalCount());
         unloadCompleteRequest.setMoreScanOutCount(request.getMoreScanOutCount());
         InvokeResult<Boolean> result = unloadVehicleService.submitUnloadCompletion(unloadCompleteRequest);
+        // 无论成功与否，都发送MQ
+        sendTaskCompleteMqHandler(doingChildTask, request);
         if (RESULT_SUCCESS_CODE != result.getCode() || !Boolean.TRUE.equals(result.getData())) {
             log.warn("{}完成失败,req={}", methodDesc, JsonHelper.toJson(request));
             return result;
         }
-        sendTaskCompleteMqHandler(doingChildTask, request);
         return result;
 
     }

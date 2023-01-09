@@ -155,7 +155,7 @@ public class CollectGoodsAreaController {
 				rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
                 return rest;
             }
-			rest.setData(collectGoodsAreaService.deleteByCode(codes));
+			rest.setData(collectGoodsAreaService.deleteByCode(createSiteCode, codes));
 			log.info("deleteByCodes|删除集货区结束:userCode={},codes={}", userCode, codes);
 
 			// 记录businessLog日志

@@ -60,7 +60,7 @@ public interface CollectGoodsPlaceService extends Service<CollectGoodsPlace> {
      */
     CollectGoodsPlace findPlaceByCode(Integer createSiteCode,String placeCode);
 
-    boolean deleteByAreaCode(List<String> codes);
+    boolean deleteByAreaCode(Integer createSiteCode, List<String> codes);
 
     List<CollectGoodsPlace> findPlaceByAreaCode(CollectGoodsPlace collectGoodsPlace);
 }
