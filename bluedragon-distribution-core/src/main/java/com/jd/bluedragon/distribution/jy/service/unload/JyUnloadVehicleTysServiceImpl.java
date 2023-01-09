@@ -653,11 +653,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
+            UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 组板数量校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
-                jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto);
+                jyUnloadVehicleCheckTysService.boardCountCheck(unloadScanDto.getStageBizId());
             }
-            UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
             // 组装返回数据
