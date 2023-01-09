@@ -560,10 +560,6 @@ public class JyUnloadVehicleCheckTysService {
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.boardCountCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void boardCountCheck(ScanPackageDto scanPackageDto) {
-        // 如果本次不是开新版，就不校验
-        if (!scanPackageDto.isCreateNewBoard()) {
-            return;
-        }
         Integer unloadTaskBoardMaxCount = uccPropertyConfiguration.getUnloadTaskBoardMaxCount();
         int count = jyUnloadVehicleBoardDao.countByStageBizId(scanPackageDto.getStageBizId());
         if (count >= unloadTaskBoardMaxCount) {
