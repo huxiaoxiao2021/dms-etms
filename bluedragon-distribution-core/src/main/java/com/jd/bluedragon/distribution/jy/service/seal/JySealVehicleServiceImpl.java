@@ -520,6 +520,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
         Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
         sendFlow.setQueryTimeBegin(time);
+        List<Integer> comboardSourceList = new ArrayList<>();
+        comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+        comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
+        sendFlow.setComboardSourceList(comboardSourceList);
         PageHelper.startPage(request.getPageNo(),request.getPageSize());
         List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
