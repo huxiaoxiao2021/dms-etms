@@ -7,6 +7,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
@@ -2225,7 +2226,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("运单取消组板失败：{}", waybillCode);
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
+
+        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
+        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+        jyBizTaskComboardEntity.setHaveScanCount(Constants.NUMBER_ZERO);
+        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
+          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
+          throw new JyBizException("更新板任务失败");
+        }
+
+        Response removeBoardBoxRes = groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
+        if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+          log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+          throw new JyBizException("取消组板失败");
+        }
       } else {
         // 如果为全选
         if (request.isSelectAll()) {
@@ -2253,7 +2267,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("按包裹箱取消组板失败：{}", JsonHelper.toJson(batchUpdateCancelReq));
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+
+        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
+        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+        jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
+        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
+          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
+          throw new JyBizException("更新板任务失败");
+        }
+
+        Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+        if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+          log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+          throw new JyBizException("取消组板失败");
+        }
       }
       // 异步发送取消组板和发货的全程跟踪
       asyncSendCancelComboardAndSend(request, barCodeList);
@@ -2315,8 +2342,22 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("按包裹箱取消组板失败：{}", JsonHelper.toJson(batchUpdateCancelReq));
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
+
+        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
+        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
+        jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
+        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
+          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
+          throw new JyBizException("更新板任务失败");
+        }
       }
-      groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+      
+      Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+      if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+        log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+        throw new JyBizException("取消组板失败");
+      }
+      
       // 异步发送取消组板和发货的全程跟踪
       asyncSendCancelComboardAndSend(request, barCodeList);
     }catch (Exception e ) {
