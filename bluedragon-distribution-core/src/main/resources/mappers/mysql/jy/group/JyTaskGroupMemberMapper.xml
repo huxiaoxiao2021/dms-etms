@@ -171,18 +171,7 @@
         AND ref_group_member_code = #{refGroupMemberCode}
         AND end_time is null
     </update> 
-    <update id="endWorkByTaskId" parameterType="JyTaskGroupMemberEntity">
-        UPDATE jy_task_group_member
-        SET
-            update_time = #{updateTime, jdbcType=TIMESTAMP},
-            update_user = #{updateUser, jdbcType=VARCHAR},
-            update_user_name = #{updateUserName, jdbcType=VARCHAR},
-            end_time = #{endTime,jdbcType=TIMESTAMP}
-        WHERE
-            yn = 1
-        AND ref_task_id = #{refTaskId}
-        AND (end_time is null or end_time &lt; #{endTime,jdbcType=TIMESTAMP})
-    </update>
+    
     <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="String">
         select
             ref_group_member_code
@@ -200,7 +189,7 @@
           and ref_task_id = #{refTaskId}
     </select>    
     
-    <update id="endWorkByMemberCodeList" parameterType="JyTaskGroupMemberEntity">
+    <update id="endWorkByMemberCodeListForAutoSignOut" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member
         SET
             update_time = #{endData.updateTime, jdbcType=TIMESTAMP},
@@ -211,10 +200,25 @@
             yn = 1
         AND ref_group_member_code in
         <foreach collection="memberCodes" item="item" open="(" close=")" separator=",">
-            #{item, jdbcType=BIGINT}
+            #{item, jdbcType=VARCHAR}
+        </foreach>        
+        AND end_time is null
+    </update> 
+    <update id="endWorkByMemberCodeListForEndTask" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{endData.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{endData.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{endData.updateUserName, jdbcType=VARCHAR},
+            end_time = #{endData.endTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_group_member_code in
+        <foreach collection="memberCodes" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=VARCHAR}
         </foreach>        
         AND (end_time is null or end_time &lt; #{endData.endTime,jdbcType=TIMESTAMP})
-    </update> 
+    </update>    
     <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member
         SET
