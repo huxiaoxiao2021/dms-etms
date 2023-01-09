@@ -113,6 +113,7 @@ import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
@@ -988,16 +989,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScan", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
-    baseCheck(request);
-    comboardCheck(request);
+    try {
+      baseCheck(request);
+      comboardCheck(request);
+      getOrCreateBoardCode(request);
+      comboardCheckChain(request);
+      sendCheck(request);
 
-    getOrCreateBoardCode(request);
-
-    comboardCheckChain(request);
-    sendCheck(request);
-
-    execComboard(request);
-    execSend(request);
+      execComboard(request);
+      execSend(request);
+    } catch (JyBizException e) {
+      log.error("传站组板即发货扫描异常",e);
+      return new InvokeResult(CODE_ERROR, e.getMessage());
+    }
 
     ComboardScanResp resp = new ComboardScanResp();
     resp.setEndSiteId(request.getDestinationId());
@@ -1457,9 +1461,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void sendInterceptChain(ComboardScanReq request, SendM sendM, SendKeyTypeEnum sendType) {
     if (!BusinessHelper.isBoxcode(request.getBarCode())) {
       SortingCheck sortingCheck = deliveryService.getSortingCheck(sendM);
-        /*if (request.getValidateIgnore() != null) {
-          sortingCheck.setValidateIgnore(this.convertValidateIgnore(request.getValidateIgnore()));
-        }*/
       FilterChain filterChain = sortingCheckService.matchJyDeliveryFilterChain(sendType);
       SortingJsfResponse chainResp = sortingCheckService
           .doSingleSendCheckWithChain(sortingCheck, true, filterChain);
