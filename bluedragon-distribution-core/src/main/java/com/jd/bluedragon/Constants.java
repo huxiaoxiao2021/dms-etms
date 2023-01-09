@@ -1828,4 +1828,9 @@ public class Constants {
         public static final Integer INTEGER_ZERO = 0;
     }
 
+    /**
+     * 特殊字符正则
+     */
+    public static final String SPECIAL_CHAR_REGEX = "[\n\r\t`~!@#$%^&*()+=|{}':;,\\[\\].<>/?！￥…（）—【】‘；：”“’。， 、？]";
+
 }

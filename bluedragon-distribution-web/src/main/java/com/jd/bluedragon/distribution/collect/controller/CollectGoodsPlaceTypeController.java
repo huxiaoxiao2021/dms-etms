@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceTypeCondition;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceTypeService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -98,10 +100,17 @@ public class CollectGoodsPlaceTypeController {
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
+		String userCode = "";
 		try {
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			if (erpUser != null) {
+				userCode = erpUser.getUserCode();
+			}
+
 			rest.setData(collectGoodsPlaceTypeService.deleteByIds(ids));
+			log.info("deleteByIds|删除集货位类型结束:userCode={},ids={}", userCode, ids);
 		} catch (Exception e) {
-			log.error("fail to delete！",e);
+			log.error("deleteByIds|删除集货位类型异常:userCode={},ids={}", userCode, ids, e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;

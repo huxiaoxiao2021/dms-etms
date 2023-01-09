@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
@@ -145,27 +146,31 @@ public class CollectGoodsPlaceController {
 	@RequestMapping(value = "/update")
 	public @ResponseBody JdResponse<Boolean> update(@RequestBody CollectGoodsPlace collectGoodsPlace) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		String userCode = "";
+		String userName = "";
 		try {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			String userCode = "";
-			String userName = "";
-
-			CollectGoodsPlace updatePlace = collectGoodsPlaceService.findById(collectGoodsPlace.getId());
-			if(!updatePlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
-				rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
-				return rest;
-			}
 
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
 				userName = erpUser.getUserName();
 			}
 
+			CollectGoodsPlace updatePlace = collectGoodsPlaceService.findById(collectGoodsPlace.getId());
+			if(!updatePlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
+				log.warn("update|修改集货位失败,集货位存在包裹:userCode={},collectGoodsPlace={}", userCode, JSON.toJSONString(collectGoodsPlace));
+				rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
+				return rest;
+			}
+
+			log.info("update|修改集货位查找结果:userCode={},updatePlace={}", userCode, JSON.toJSONString(updatePlace));
+
 			collectGoodsPlace.setUpdateUser(userCode+"|"+userName);
 			collectGoodsPlaceService.saveOrUpdate(collectGoodsPlace);
+			log.info("update|修改集货位结束:userCode={},collectGoodsPlace={}", userCode, JSON.toJSONString(collectGoodsPlace));
 
 		} catch (Exception e) {
-			log.error("fail to save！",e);
+			log.error("update|修改集货位异常:userCode={},collectGoodsPlace={}", userCode, collectGoodsPlace, e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -174,11 +179,12 @@ public class CollectGoodsPlaceController {
 	@RequestMapping(value = "/saveType")
 	public @ResponseBody JdResponse<Boolean> saveType(@RequestBody CollectGoodsPlaceCondition condition) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		String userCode = "";
+		String userName = "";
 		try {
 
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-			String userCode = "";
-			String userName = "";
+
 			Integer createSiteCode = new Integer(0);
 			String createSiteName = "";
 
@@ -198,9 +204,9 @@ public class CollectGoodsPlaceController {
 			condition.setCreateSiteName(createSiteName);
 			condition.setCreateUser(userCode+"|"+userName);
 			rest.setData(collectGoodsPlaceService.savePalceType(condition));
-
+			log.info("saveType|保存集货位类型结束:userCode={},condition={}", userCode, JSON.toJSON(condition));
 		} catch (Exception e) {
-			log.error("fail to save！",e);
+			log.error("saveType|保存集货位类型异常:userCode={},condition={}", userCode, JSON.toJSON(condition), e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -215,29 +221,33 @@ public class CollectGoodsPlaceController {
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
+		String userCode = "";
 		try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if(erpUser == null){
                 rest.toError("未获取到登录人信息！");
                 return rest;
             }
-            String userCode = erpUser.getUserCode();
+            userCode = erpUser.getUserCode();
             Integer createSiteCode = getLoginUserSiteCode(userCode);
             // 没有删除权限，直接返回
             if(collectGoodsAreaService.checkAuthority(createSiteCode)){
-                rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
+				log.warn("deleteByIds|删除集货位无权限:userCode={},createSiteCode={},ids={}", userCode, createSiteCode, ids);
+				rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
                 return rest;
             }
 
 			for(Long id : ids){
 				CollectGoodsPlace collectGoodsPlace = collectGoodsPlaceService.findById(id);
 				if(!collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
-				    rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
+					log.warn("deleteByIds|删除集货位失败,集货位存在包裹:userCode={},createSiteCode={},ids={},id={},collectGoodsPlace={}", userCode, createSiteCode, ids, id, JSON.toJSONString(collectGoodsPlace));
+					rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
 					return rest;
 				}
+				log.info("deleteByIds|删除集货位遍历:userCode={},createSiteCode={},id={},collectGoodsPlace={}", userCode, createSiteCode, id, JSON.toJSONString(collectGoodsPlace));
 			}
 			rest.setData(collectGoodsPlaceService.deleteByIds(ids));
-
+			log.info("deleteByIds|删除集货位结束:userCode={},createSiteCode={},ids={}", userCode, createSiteCode, ids);
             // 记录businessLog日志
             List<String> codes = new ArrayList<>();
             for (Long id : ids){
@@ -245,7 +255,7 @@ public class CollectGoodsPlaceController {
             }
             collectGoodsAreaService.writeLog(userCode,createSiteCode,codes);
 		} catch (Exception e) {
-			log.error("fail to delete！",e);
+			log.error("deleteByIds|删除集货位异常:userCode={},ids={}", userCode, ids, e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
