@@ -4,8 +4,11 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
+import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
@@ -72,7 +75,7 @@ public class JyComboardSealGatewayServiceImplTest {
         user.setUserErp("liwenji3");
         resp.setUser(user);
         resp.setBarCode("JDV000707553583-2-5-");
-        JdCResponse<QueryBelongBoardResp> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
+        JdCResponse<BoardDto> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
         System.out.println(JsonHelper.toJson(re));
     }
     
@@ -161,5 +164,13 @@ public class JyComboardSealGatewayServiceImplTest {
         request.setSendVehicleBizId("SST22123000000018");
         JdCResponse<ToSealDestAgg> jdCResponse = jyComboardSealGatewayService.selectSealDest(request);
         System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+    
+    @Test
+    public void queryGoodsCategoryByBoardCode() {
+        BoardReq boardReq = new BoardReq();
+        boardReq.setBoardCode("");
+        JdCResponse<List<GoodsCategoryDto>> listJdCResponse = jyComboardSealGatewayService.queryGoodsCategoryByBoardCode(boardReq);
+        System.out.println(JsonHelper.toJson(listJdCResponse));
     }
 }

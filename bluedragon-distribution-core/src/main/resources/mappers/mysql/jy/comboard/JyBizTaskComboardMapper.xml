@@ -347,6 +347,7 @@
       AND create_time > #{createTime}
     </if>
       AND yn = 1
+      ORDER BY create_time DESC
   </select>
 
   <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
