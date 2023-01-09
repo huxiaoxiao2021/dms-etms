@@ -312,7 +312,7 @@ public class StrandServiceImpl implements StrandService {
     	}
     	RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getSiteCode(), waybillCode);
     	//加载路由信息，设置下一站站点
-    	if(routeNextDto != null) {
+    	if(routeNextDto != null && routeNextDto.getFirstNextSiteId() != null) {
     		strandDetailMessage.setRouterNextSiteCode(routeNextDto.getFirstNextSiteId());
     	}else {
     		log.warn("滞留明细初始化：{}加载路由下一站失败，路由信息不存在！",waybillCode);
