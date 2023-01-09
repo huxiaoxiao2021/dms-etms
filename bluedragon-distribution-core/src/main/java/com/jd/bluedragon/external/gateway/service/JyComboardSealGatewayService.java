@@ -106,7 +106,7 @@ public interface JyComboardSealGatewayService {
   /**
    * 根据包裹号或者箱号 定位所在的板
    */
-  JdCResponse<BoardDto> queryBelongBoardByBarCode(QueryBelongBoardReq request);
+  JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 
 
   /**

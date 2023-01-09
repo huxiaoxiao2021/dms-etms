@@ -633,11 +633,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    public InvokeResult<BoardDto> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
+    public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
         if (StringUtils.isEmpty(request.getBarCode())) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
+        QueryBelongBoardResp belongBoardResp = new QueryBelongBoardResp();
         BoardDto boardDto = new BoardDto();
+        belongBoardResp.setBoardDto(boardDto);
         // 查询板号信息
         BoardBoxInfoDto boardBoxInfoDto = groupBoardManager.getBoardBoxInfo(request.getBarCode(), request.getCurrentOperate().getSiteCode());
         if (boardBoxInfoDto != null && boardBoxInfoDto.getCode() != null) {
@@ -677,7 +679,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 boardDto.setVolume(aggsEntity.getVolume().toString());
             }
         }
-        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, boardDto);
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, belongBoardResp);
     }
 
     private HashMap<String, JyComboardAggsEntity> getBoardScanCountMap(List<JyComboardAggsEntity> boardScanCountList) {

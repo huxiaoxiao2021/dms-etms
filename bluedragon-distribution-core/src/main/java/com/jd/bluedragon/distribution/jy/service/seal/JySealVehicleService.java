@@ -85,5 +85,5 @@ public interface JySealVehicleService {
     /**
      * 根据包裹|箱号查询板详情信息
      */
-    InvokeResult<BoardDto> queryBelongBoardByBarCode(QueryBelongBoardReq request);
+    InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 }

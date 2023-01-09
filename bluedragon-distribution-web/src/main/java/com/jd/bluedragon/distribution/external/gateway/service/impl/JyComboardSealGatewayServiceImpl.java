@@ -114,7 +114,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   }
 
   @Override
-  public JdCResponse<BoardDto> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
+  public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
     return retJdCResponse(jySealVehicleService.queryBelongBoardByBarCode(request));
   }
 
