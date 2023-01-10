@@ -284,11 +284,6 @@ public class UccPropertyConfiguration {
     private boolean checkBoxSendedSwitchOn;
 
     /**
-     * 启用运输新接口-开关 1-开启 0-关闭
-     */
-    private Integer usePdaSorterApi;
-
-    /**
      * BC箱号强制绑定循环集包袋开关(黑名单)
      * 配置的走新的逻辑，不配置的走以前的逻辑
      * 注: 仅为了上线使用
@@ -349,20 +344,11 @@ public class UccPropertyConfiguration {
      *  3)、字符串true代表全国
      */
     private String printHandoverListSites;
-    /**
-     * 是否开启新发货交接逻辑
-     */
-    private boolean newPrintHandoverListSwitch;
 
     /**
      * 校验站点子类型是否三方：16
      */
     private boolean checkSiteSubType;
-
-    /**
-     * 解封车查看运单包裹是否集齐
-     */
-    private String unSealCarHandlePackageFullCollectedSwitch;
 
     /**
      * 发货交接清单-汇总scrollId查询单批次查询数量
@@ -387,10 +373,6 @@ public class UccPropertyConfiguration {
      * @return
      */
     private Integer dazongPackageOperateMax;
-    /**
-     * 分拣租板大宗可扫描件数最少数量
-     */
-    private Integer bulkScanPackageMinCount;
 
     /**
      * 是否校验签单返还
@@ -513,16 +495,6 @@ public class UccPropertyConfiguration {
     private double spotCheckNoExcessLimit;
 
     /**
-     * 一单多件抽检功能开关，0-关，1-开
-     */
-    private int multiplePackageSpotCheckSwitch;
-
-    /**
-     * 一单多件抽检场地配置，配置ALL表示全部开启
-     */
-    private String multiplePackageSpotCheckSites;
-
-    /**
      * 老发货异步任务开关
      */
     private String deliverySendAsyncSite;
@@ -609,6 +581,16 @@ public class UccPropertyConfiguration {
     }
 
     /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
+
+    /**
      * 读转运卸车表开关
      */
     private boolean readUnloadFromTys;
@@ -632,7 +614,6 @@ public class UccPropertyConfiguration {
      * 打印客户端无权限菜单配置
      */
     private String noAuthMenuConfig;
-    private String noAuthMenuConfigUat;
     /**
      * 打印客户端无权限菜单配置
      */
@@ -642,7 +623,6 @@ public class UccPropertyConfiguration {
      * 打印客户端菜单功能配置
      */
     private String menuCodeFuncConfig;
-    private String menuCodeFuncConfigUat;
     /**
      * 打印客户端菜单功能配置
      */
@@ -652,11 +632,6 @@ public class UccPropertyConfiguration {
      * 站点平台打印是否校验功能
      */
     private boolean sitePlateIsCheckFunc;
-
-    /**
-     * B网面单路由是否开启新模式
-     */
-    private boolean bTemplateRouterExecuteNew;
 
     /**
      * 预分拣返调度校验同城
@@ -677,14 +652,6 @@ public class UccPropertyConfiguration {
      * 是否限制终端人员使用包裹补打 1：限制 0：不限制
      */
     private String limitSiteUsePackReprint;
-
-    /**
-     * 抽检改造开通场地
-     *  多个场地以,分隔
-     *  true表示全国
-     *  空表示未开启
-     */
-    private String spotCheckReformSiteCodes;
 
     /**
      * 是否对restAPI鉴权的开关
@@ -744,8 +711,6 @@ public class UccPropertyConfiguration {
 
     private Integer jySendTaskCreateTimeBeginDay;
 
-    private Integer jyComboardTaskCreateTimeBeginDay;
-
     /**
      * 切换转运基础服务开关
      */
@@ -775,21 +740,7 @@ public class UccPropertyConfiguration {
 
     private boolean syncJySealStatusSwitch;
 
-    private boolean syncJyCZSealStatusSwitch;
-
     private int sealStatusBatchSizeLimit;
-
-    public boolean getSyncJyCZSealStatusSwitch() {
-        return syncJyCZSealStatusSwitch;
-    }
-
-    public void setSyncJyCZSealStatusSwitch(boolean syncJyCZSealStatusSwitch) {
-        this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
-    }
-
-    private Integer jyComboardScanUserBeginDay;
-
-    private Integer jyComboardSiteCTTPageSize;
 
     private boolean syncScheduleTaskSwitch;
 
@@ -910,6 +861,14 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordRangeHours = 12;
 
     /**
+     * 抽检改造开通场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String spotCheckReformSiteCodes;
+
+    /**
      * AI识别图片开关
      */
     private boolean aiDistinguishSwitch;
@@ -946,11 +905,6 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
-     * 面单举报异常配置
-     */
-    private String faceAbnormalReportConfig;
-
-    /**
      * 拣运发车任务满载率上限。eg:150
      */
     private Integer jySendTaskLoadRateUpperLimit;
@@ -976,11 +930,6 @@ public class UccPropertyConfiguration {
     private Integer unloadBoardBindingsMaxCount;
 
     /**
-     * 任务上最多组板数
-     */
-    private Integer unloadTaskBoardMaxCount;
-
-    /**
      * 包裹重量上限值，单位kg
      */
     private String packageWeightLimit;
@@ -990,6 +939,10 @@ public class UccPropertyConfiguration {
      */
     private String waybillWeightLimit;
 
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
 
     /**
      * 身份证识别切量开关，全量上线之后，可以删除
@@ -1037,24 +990,6 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnloadCarListQueryDayFilter;
 
-    /**
-     * 卸车岗列表页已完成状态任务过滤最近N天数据
-     */
-    private Integer jyUnloadCarListDoneQueryDayFilter;
-
-
-    /**
-     * 租板-板可组件数上限
-     */
-    private Integer jyComboardCountLimit;
-
-    public Integer getJyComboardCountLimit() {
-        return jyComboardCountLimit;
-    }
-
-    public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
-        this.jyComboardCountLimit = jyComboardCountLimit;
-    }
 
     /**
      * 定时上传设备位置间隔 秒级时间戳 -1 - 表示不上传
@@ -1626,14 +1561,6 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
-    public Integer getUsePdaSorterApi() {
-		return usePdaSorterApi;
-	}
-
-	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
-		this.usePdaSorterApi = usePdaSorterApi;
-	}
-
 	public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
@@ -1748,32 +1675,6 @@ public class UccPropertyConfiguration {
         this.checkSiteSubType = checkSiteSubType;
     }
 
-    public String getUnSealCarHandlePackageFullCollectedSwitch() {
-        return unSealCarHandlePackageFullCollectedSwitch;
-    }
-
-    public UccPropertyConfiguration setUnSealCarHandlePackageFullCollectedSwitch(String unSealCarHandlePackageFullCollectedSwitch) {
-        this.unSealCarHandlePackageFullCollectedSwitch = unSealCarHandlePackageFullCollectedSwitch;
-        return this;
-    }
-
-    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
-        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
-            return false;
-        }
-        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
-            return true;
-        }
-        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
-            return false;
-        }
-        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
-        if(siteCodes.contains(siteId + "")){
-            return true;
-        }
-        return false;
-    }
-
     public int getScrollQuerySize() {
         return scrollQuerySize;
     }
@@ -1828,14 +1729,6 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
         this.spotCheckIssueControl = spotCheckIssueControl;
-    }
-
-    public boolean getNewPrintHandoverListSwitch() {
-        return newPrintHandoverListSwitch;
-    }
-
-    public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
-        this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
     }
 
     public int getHideSpecialStartSitePrintSwitch() {
@@ -1973,6 +1866,14 @@ public class UccPropertyConfiguration {
 
     public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
         this.itmsBizEnableSwitch = itmsBizEnableSwitch;
+    }
+
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
+
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
 
     public int getMultiplePackageSpotCheckSwitch() {
@@ -2116,14 +2017,6 @@ public class UccPropertyConfiguration {
         this.androidIsExecuteNewSpotCheck = androidIsExecuteNewSpotCheck;
     }
 
-    public String getUseNewInventorySiteCodes() {
-        return useNewInventorySiteCodes;
-    }
-
-    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
-        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
-    }
-
     public String getNoAuthMenuConfig() {
         return noAuthMenuConfig;
     }
@@ -2164,30 +2057,6 @@ public class UccPropertyConfiguration {
         this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
     }
 
-    public String getNoAuthMenuConfigUat() {
-        return noAuthMenuConfigUat;
-    }
-
-    public void setNoAuthMenuConfigUat(String noAuthMenuConfigUat) {
-        this.noAuthMenuConfigUat = noAuthMenuConfigUat;
-    }
-
-    public String getMenuCodeFuncConfigUat() {
-        return menuCodeFuncConfigUat;
-    }
-
-    public void setMenuCodeFuncConfigUat(String menuCodeFuncConfigUat) {
-        this.menuCodeFuncConfigUat = menuCodeFuncConfigUat;
-    }
-
-    public boolean getBTemplateRouterExecuteNew() {
-        return bTemplateRouterExecuteNew;
-    }
-
-    public void setBTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
-        this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
-    }
-
     public String getJudgePackagePrintedIncludeSiteTerminal() {
         return judgePackagePrintedIncludeSiteTerminal;
     }
@@ -2218,6 +2087,14 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
+    }
+
+    public int getNotSignedOutRecordMoreThanHours() {
+        return notSignedOutRecordMoreThanHours;
+    }
+
+    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
+        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
 	public int getNotSignedOutRecordRangeHours() {
 		return notSignedOutRecordRangeHours;
@@ -2256,14 +2133,6 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckReformSiteCodes(String spotCheckReformSiteCodes) {
         this.spotCheckReformSiteCodes = spotCheckReformSiteCodes;
-    }
-
-    public int getNotSignedOutRecordMoreThanHours() {
-        return notSignedOutRecordMoreThanHours;
-    }
-
-    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
-        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
 
     public Integer getPackConsumableSwitch() {
@@ -2435,46 +2304,6 @@ public class UccPropertyConfiguration {
         this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 
-    public Integer getUnloadCacheDurationHours() {
-        return unloadCacheDurationHours;
-    }
-
-    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
-        this.unloadCacheDurationHours = unloadCacheDurationHours;
-    }
-
-    public Integer getUnloadBoardBindingsMaxCount() {
-        return unloadBoardBindingsMaxCount;
-    }
-
-    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
-        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
-    }
-
-    public Integer getUnloadTaskBoardMaxCount() {
-        return unloadTaskBoardMaxCount;
-    }
-
-    public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
-        this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
-    }
-
-    public String getPackageWeightLimit() {
-        return packageWeightLimit;
-    }
-
-    public void setPackageWeightLimit(String packageWeightLimit) {
-        this.packageWeightLimit = packageWeightLimit;
-    }
-
-    public String getWaybillWeightLimit() {
-        return waybillWeightLimit;
-    }
-
-    public void setWaybillWeightLimit(String waybillWeightLimit) {
-        this.waybillWeightLimit = waybillWeightLimit;
-    }
-
     public String getNotValidateTransTypeCodesList() {
         return notValidateTransTypeCodesList;
     }
@@ -2532,6 +2361,39 @@ public class UccPropertyConfiguration {
         this.jyDemotionConfig = jyDemotionConfig;
     }
 
+    public Integer getUnloadCacheDurationHours() {
+        return unloadCacheDurationHours;
+    }
+
+    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
+        this.unloadCacheDurationHours = unloadCacheDurationHours;
+    }
+
+    public Integer getUnloadBoardBindingsMaxCount() {
+        return unloadBoardBindingsMaxCount;
+    }
+
+    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
+        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public String getPackageWeightLimit() {
+        return packageWeightLimit;
+    }
+
+    public void setPackageWeightLimit(String packageWeightLimit) {
+        this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+
     public Integer getWeightVolumeSwitchVersion() {
         return weightVolumeSwitchVersion;
     }
@@ -2540,20 +2402,12 @@ public class UccPropertyConfiguration {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
-    public Integer getJyUnloadCarListQueryDayFilter() {
-        return jyUnloadCarListQueryDayFilter;
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
     }
 
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
-    }
-
-    public Integer getJyUnloadCarListDoneQueryDayFilter() {
-        return jyUnloadCarListDoneQueryDayFilter;
-    }
-
-    public void setJyUnloadCarListDoneQueryDayFilter(Integer jyUnloadCarListDoneQueryDayFilter) {
-        this.jyUnloadCarListDoneQueryDayFilter = jyUnloadCarListDoneQueryDayFilter;
     }
 
     public int getGoodsResidenceTime() {
@@ -2564,37 +2418,6 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
-    public Integer getBulkScanPackageMinCount() {
-        return bulkScanPackageMinCount;
-    }
-
-    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
-        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
-    }
-
-    public Integer getJyComboardTaskCreateTimeBeginDay() {
-        return jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
-        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public Integer getJyComboardScanUserBeginDay() {
-        return jyComboardScanUserBeginDay;
-    }
-
-    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
-        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
-    }
-
-    public Integer getJyComboardSiteCTTPageSize() {
-        return jyComboardSiteCTTPageSize;
-    }
-
-    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
-        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
-    }
 
     public Integer getUploadDeviceLocationInterval() {
         return uploadDeviceLocationInterval;
