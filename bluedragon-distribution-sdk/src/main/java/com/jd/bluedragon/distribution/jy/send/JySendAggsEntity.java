@@ -139,6 +139,11 @@ public class JySendAggsEntity implements Serializable {
     private Integer totalNotScannedWaybillCount;
     private Integer totalForceWaybillCount;
 
+    /**
+     * 并发锁id
+     */
+    private String uid;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -367,6 +372,14 @@ public class JySendAggsEntity implements Serializable {
         return version;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     public void setVersion(Long version) {
         this.version = version;
     }
@@ -409,4 +422,6 @@ public class JySendAggsEntity implements Serializable {
     public void setTotalForceWaybillCount(Integer totalForceWaybillCount) {
         this.totalForceWaybillCount = totalForceWaybillCount;
     }
+
+
 }

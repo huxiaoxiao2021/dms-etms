@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsBakConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsMainConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsBakConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsMainConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,8 +26,13 @@ public class JySendGoodsAggsConsumerTest {
     private static final Logger logger = LoggerFactory.getLogger(JySendGoodsAggsConsumerTest.class);
 
     @Autowired
-    private JySendGoodsAggsConsumer jySendGoodsAggsConsumer;
-
+    private JySendGoodsAggsMainConsumer jySendGoodsAggsMainConsumer;
+    @Autowired
+    private JySendGoodsAggsBakConsumer jySendGoodsAggsBakConsumer;
+    @Autowired
+    private JySendProductAggsMainConsumer jySendProductAggsMainConsumer;
+    @Autowired
+    private JySendProductAggsBakConsumer jySendProductAggsBakConsumer;
     @Test
     public void consume() {
         try {
@@ -62,12 +70,31 @@ public class JySendGoodsAggsConsumerTest {
                     "  \"vehicleStatus\": 100,\n" +
                     "  \"vehicleVolume\": 0.0,\n" +
                     "  \"vehicleWeight\": 0.0,\n" +
-                    "  \"version\": 2,\n" +
+                    "  \"version\": 8,\n" +
+                    "  \"yn\": 1\n" +
+                    "}\n";
+
+            String body1 = "{\n" +
+                    "  \"bizId\": \"TEST002\",\n" +
+                    "  \"createTime\": 1665283255773,\n" +
+                    "  \"id\": 1000,\n" +
+                    "  \"operateSiteId\": 100,\n" +
+                    "  \"receiveSiteId\": 100,\n" +
+                    "  \"productType\": \"NONE\",\n" +
+                    "  \"shouldScanCount\": 100010101,\n" +
+                    "  \"sendVehicleBizId\": \"TEST002\",\n" +
+                    "  \"version\": 10,\n" +
                     "  \"yn\": 1\n" +
                     "}\n";
             Message message = new Message();
             message.setText(body);
-            jySendGoodsAggsConsumer.consume(message);
+
+            Message message1 = new Message();
+            message1.setText(body1);
+            jySendGoodsAggsMainConsumer.consume(message);
+            jySendGoodsAggsBakConsumer.consume(message);
+            jySendProductAggsMainConsumer.consume(message1);
+            jySendProductAggsBakConsumer.consume(message1);
         } catch (Exception e) {
             logger.error("服务异常!", e);
             Assert.fail();

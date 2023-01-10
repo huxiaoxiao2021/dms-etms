@@ -30,22 +30,6 @@
     </sql>
 
 
-    <select id="getVehicleSendStatistics" parameterType="java.lang.String" resultMap="jySendProductAggsMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        from jy_send_product_aggs
-        WHERE send_vehicle_biz_id = #{sendVehicleBizId}
-        and yn = 1 limit 1
-    </select>
-
-    <select id="findBySendVehicleBizId" parameterType="java.lang.String" resultMap="jySendProductAggsMap">
-        SELECT
-            <include refid="Base_Column_List"/>
-        FROM jy_send_product_aggs
-        WHERE
-            yn = 1
-        AND send_vehicle_biz_id = #{sendVehicleBizId}
-    </select>
 
     <select id="getSendVehicleProductTypeList" parameterType="java.lang.String" resultType="com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType">
         select product_type as productType,
@@ -66,7 +50,6 @@
           AND send_vehicle_biz_id = #{sendVehicleBizId}
 
     </select>
-
 
 
 </mapper>
