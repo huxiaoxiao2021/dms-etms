@@ -32,6 +32,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -103,6 +104,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
+	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
@@ -783,6 +785,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能包含特殊字符");
 			return result;
 		}
+		if(StringUtils.isBlank(signRequest.getOperateUserCode()) 
+				|| StringUtils.isBlank(signRequest.getOperateUserName())) {
+			result.toFail(MSG_EMPTY_OPERATE);
+			return result;
+		}
 		return result;
 	}
 	private JdCResponse<WorkStationGrid> checkAndGetWorkStationGrid(UserSignRequest signInRequest){
@@ -1229,6 +1236,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRequest userSignRequest = context.getUserSignRequest();
 		if(userSignRequest == null || userSignRequest.getRecordId() == null) {
 			result.toFail("签到记录Id不能为空！");
+			return result;
+		}
+		if(StringUtils.isBlank(userSignRequest.getOperateUserCode()) 
+				|| StringUtils.isBlank(userSignRequest.getOperateUserName())) {
+			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
 		}
 		UserSignRecordData data = queryUserSignRecordDataById(userSignRequest.getRecordId());
