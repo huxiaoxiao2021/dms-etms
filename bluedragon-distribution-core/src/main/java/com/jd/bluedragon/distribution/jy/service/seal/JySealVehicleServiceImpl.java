@@ -664,6 +664,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
         } else {
             boardDto.setSendCode(comboardEntity.getSendCode());
+            boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(comboardEntity.getComboardSource()));
+            boardDto.setStatus(comboardEntity.getBoardStatus());
+            boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(comboardEntity.getBoardStatus()));
         }
 
         JyComboardAggsEntity aggsEntity = null;
