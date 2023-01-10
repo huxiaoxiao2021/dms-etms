@@ -45,6 +45,16 @@ public class JyComboardAggsEntity {
 
     private Double volume;
 
+    private Integer packageTotalScannedCount;
+
+    public Integer getPackageTotalScannedCount() {
+        return packageTotalScannedCount;
+    }
+
+    public void setPackageTotalScannedCount(Integer packageTotalScannedCount) {
+        this.packageTotalScannedCount = packageTotalScannedCount;
+    }
+
     public Integer getOperateSiteId() {
         return operateSiteId;
     }

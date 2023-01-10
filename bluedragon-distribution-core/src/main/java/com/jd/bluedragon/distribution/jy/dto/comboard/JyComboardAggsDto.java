@@ -71,6 +71,10 @@ public class JyComboardAggsDto extends JyAggsDto{
      * 体积
      */
     private Double volume;
+    /**
+     * 包含箱内包裹统计
+     */
+    private Integer packageTotalScannedCount;
 
     public String getSendFlow() {
         if (operateSiteId == null || receiveSiteId == null) {

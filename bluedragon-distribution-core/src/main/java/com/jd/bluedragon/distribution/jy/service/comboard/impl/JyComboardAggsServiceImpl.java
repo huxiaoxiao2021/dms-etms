@@ -166,6 +166,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
                     Objects.equals(jyComboardAggsEntity.getInterceptCount(),dto.getInterceptCount())&&
                     Objects.equals(jyComboardAggsEntity.getWeight(),dto.getWeight())&&
                     Objects.equals(jyComboardAggsEntity.getVolume(),dto.getVolume())&&
+                    Objects.equals(jyComboardAggsEntity.getPackageTotalScannedCount(),dto.getPackageTotalScannedCount())&&
                     Objects.equals(jyComboardAggsEntity.getMoreScannedCount(),dto.getMoreScannedCount())){
                 return;
             }
