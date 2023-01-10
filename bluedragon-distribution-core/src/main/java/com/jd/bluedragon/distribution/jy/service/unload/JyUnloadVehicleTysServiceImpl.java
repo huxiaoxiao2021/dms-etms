@@ -20,14 +20,13 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.*;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
@@ -125,8 +124,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     BaseMajorManager baseMajorManager;
     @Autowired
-    private JyUnloadAggsDao jyUnloadAggsDao;
-    @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
     @Autowired
     private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
@@ -165,6 +162,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private LogEngine logEngine;
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
+
 
 
     @Override
@@ -521,7 +519,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             previewData.setExceptScanDtoList(statisticsData.getExcepScanDtoList());
             previewData.setUnloadWaybillDtoList(statisticsData.getUnloadWaybillDtoList());
             // 查询待扫、本场地/非本场地多扫
-            JyUnloadAggsEntity aggsEntity = jyUnloadAggsDao.queryToScanAndMoreScanStatistics(request.getBizId());
+            JyUnloadAggsEntity aggsEntity = jyUnloadAggsService.queryToScanAndMoreScanStatistics(request.getBizId());
             if (aggsEntity != null) {
                 previewData.setToScanCount(aggsEntity.getShouldScanCount() - aggsEntity.getActualScanCount());
                 previewData.setMoreScanLocalCount(aggsEntity.getMoreScanLocalCount());
@@ -1492,7 +1490,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
                 aggsQueryParams.setBizId(taskFlowDto.getBizId());
                 aggsQueryParams.setBoardCode(boardCode);
-                JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+                JyUnloadAggsEntity jyaggs = jyUnloadAggsService.queryBoardStatistics(aggsQueryParams);
                 ComBoardAggDto aggDto = new ComBoardAggDto();
                 aggDto.setBoardCode(boardCode);
                 if(jyaggs != null) {
@@ -1982,7 +1980,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
             aggsQueryParams.setBizId(flowBoardDto.getBizId());
             aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
-            JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+            JyUnloadAggsEntity jyaggs = jyUnloadAggsService.queryBoardStatistics(aggsQueryParams);
             if(jyaggs == null) {
                 log.warn("{}，查到该包裹已组板，但是jyUnloadAggs没有生成板上聚合数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
                 response.error("未查询到板上聚合数据");

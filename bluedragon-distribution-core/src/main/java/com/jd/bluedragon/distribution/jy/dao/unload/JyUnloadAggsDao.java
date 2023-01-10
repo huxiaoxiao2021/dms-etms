@@ -15,7 +15,7 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-04-01 16:23:35
  */
-public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
+public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAggsDaoStrategy {
 
     private static final String DB_TABLE_NAME = "uat_jy_unload_aggs";
 
@@ -68,13 +68,4 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryBoardStatistics", dto);
     }
 
-    /**
-     * 新增或修改
-     *
-     * @param
-     * @return
-     */
-    public int insertOrUpdate(JyUnloadAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
-    }
 }

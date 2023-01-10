@@ -1271,4 +1271,13 @@
                   protocol="jsf" timeout="${jsf.hr.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!--  拣运jy-realtime-service DUCC服务获取接口  -->
+    <jsf:consumer id="jySendOrUnloadDataReadDuccConfigJsfService"
+                  interface="com.jdl.jy.realtime.api.ducc.SendOrUnloadDataReadDuccConfigJsfService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 </beans>
