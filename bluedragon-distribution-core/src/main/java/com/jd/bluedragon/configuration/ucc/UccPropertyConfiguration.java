@@ -1582,7 +1582,7 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
-    public String getAllBCBoxFilterWebSite() {
+	public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
 
@@ -2423,8 +2423,8 @@ public class UccPropertyConfiguration {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
-    public Integer getJyUnloadCarListQueryDayFilter() {
-        return jyUnloadCarListQueryDayFilter;
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
     }
 
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {

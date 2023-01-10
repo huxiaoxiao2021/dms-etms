@@ -456,12 +456,6 @@
     <jmq:consumer id="jmq.faceReportNotifyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.face.report.notify}" listener="faceReportNotifyConsumer"/>
     </jmq:consumer>
-
-    <!--  车辆到达消息处理  -->
-    <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
-    </jmq:consumer>
-
     <!--  任务调度通知消息  -->
     <jmq:consumer id="jmq.jyScheduleTaskNotifyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskNotifyConsumer"/>
@@ -474,6 +468,12 @@
     <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
+
+    <!--  车辆到达消息处理  -->
+    <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
+    </jmq:consumer>
+    
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
