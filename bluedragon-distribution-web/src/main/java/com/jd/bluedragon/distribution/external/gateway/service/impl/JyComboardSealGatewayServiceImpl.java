@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
+import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
@@ -112,11 +115,16 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Override
   public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
-    return retJdCResponse(jyComBoardSendService.queryBelongBoardByBarCode(request));
+    return retJdCResponse(jySealVehicleService.queryBelongBoardByBarCode(request));
   }
 
   @Override
   public JdCResponse<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
     return retJdCResponse(jySealVehicleService.listComboardBySendFlow(request));
+  }
+
+  @Override
+  public JdCResponse<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq) {
+    return retJdCResponse(jyComBoardSendService.queryGoodsCategoryByBoardCode(boardReq));
   }
 }

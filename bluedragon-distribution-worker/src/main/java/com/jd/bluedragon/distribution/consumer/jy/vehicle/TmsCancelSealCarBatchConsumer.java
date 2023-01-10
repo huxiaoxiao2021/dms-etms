@@ -96,15 +96,15 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 			} catch (Exception e) {
 				logger.error("sendVehicleTransactionManager.resetSendStatusToseal error!内容为【{}】",message.getText(),e);
 			}
-        try {
-            logger.info("开始操作取消封车：{} {}",message.getText(),JsonHelper.toJson(sealCarCodeOfTms));
-            InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarCodeOfTms, mqBody.getBatchCode(),mqBody.getOperateUserCode(), mqBody.getOperateUserName());
-            if (result != null && !result.getData()) {
-                logger.error("jySealVehicleService.cancelSealCar 参数为【{}】 error!内容为【{}】",message.getText(),result.getMessage());
+            try {
+                logger.info("开始操作取消封车：{} {}",message.getText(),JsonHelper.toJson(sealCarCodeOfTms));
+                InvokeResult<Boolean> result = jySealVehicleService.updateBoardStatusAndSealCode(sealCarCodeOfTms, mqBody.getBatchCode(),mqBody.getOperateUserCode(), mqBody.getOperateUserName());
+                if (result != null && !result.getData()) {
+                    logger.error("jySealVehicleService.cancelSealCar 参数为【{}】 error!内容为【{}】",message.getText(),result.getMessage());
+                }
+            } catch (Exception e) {
+                logger.error("jySealVehicleService.cancelSealCar error!内容为【{}】",message.getText(),e);
             }
-        } catch (Exception e) {
-            logger.error("jySealVehicleService.cancelSealCar error!内容为【{}】",message.getText(),e);
-        }
         }
     }
 

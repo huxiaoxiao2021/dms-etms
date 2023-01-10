@@ -4,8 +4,11 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
+import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
@@ -73,7 +76,7 @@ public class JyComboardSealGatewayServiceImplTest {
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         resp.setUser(user);
-        resp.setBarCode("JDV000707553583-2-5-");
+        resp.setBarCode("JD0003403912885-1-1-");
         JdCResponse<QueryBelongBoardResp> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
         System.out.println(JsonHelper.toJson(re));
     }
@@ -144,7 +147,7 @@ public class JyComboardSealGatewayServiceImplTest {
         batchCodes.add("910-39-20221205212254654");
         sealCarDto.setBatchCodes(batchCodes);
         sealCarDto.setTransWorkItemCode("TW22121900853385-001");
-        InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarDto,"9999" , "liwenji3", "李文吉");
+        InvokeResult<Boolean> result = jySealVehicleService.updateBoardStatusAndSealCode(sealCarDto,"9999" , "liwenji3", "李文吉");
         System.out.println(JsonHelper.toJson(result));
     }
 
@@ -163,6 +166,14 @@ public class JyComboardSealGatewayServiceImplTest {
         request.setSendVehicleBizId("SST22123000000018");
         JdCResponse<ToSealDestAgg> jdCResponse = jyComboardSealGatewayService.selectSealDest(request);
         System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+
+    @Test
+    public void queryGoodsCategoryByBoardCode() {
+        BoardReq boardReq = new BoardReq();
+        boardReq.setBoardCode("B22120600000071");
+        JdCResponse<List<GoodsCategoryDto>> listJdCResponse = jyComboardSealGatewayService.queryGoodsCategoryByBoardCode(boardReq);
+        System.out.println(JsonHelper.toJson(listJdCResponse));
     }
 
     @Test

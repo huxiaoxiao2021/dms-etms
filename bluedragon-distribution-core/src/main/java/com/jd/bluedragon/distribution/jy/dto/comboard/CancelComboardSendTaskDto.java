@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
+
 import java.util.List;
 
 /**
@@ -46,6 +48,16 @@ public class CancelComboardSendTaskDto {
      * 运单号
      */
     private List<String> barCodeList;
+
+    private BizSourceEnum bizSource;
+
+    public BizSourceEnum getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(BizSourceEnum bizSource) {
+        this.bizSource = bizSource;
+    }
 
     public int getUserCode() {
         return userCode;

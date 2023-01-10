@@ -21,7 +21,7 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="bulk_flag" jdbcType="BIT" property="bulkFlag" />
     <result column="have_scan_count" jdbcType="INTEGER" property="haveScanCount" />
-    <result column="comboard_source" jdbcType="BIT" property="comboardSource"/>
+    <result column="comboard_source" jdbcType="INTEGER" property="comboardSource" />
   </resultMap>
   <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
     <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
@@ -30,7 +30,7 @@
   <sql id="Base_Column_List">
     id, biz_id, board_code, send_code, board_status, start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts, bulk_flag, have_scan_count, comboard_source
+    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -48,14 +48,14 @@
       start_site_name, end_site_id, end_site_name,
       create_user_erp, create_user_name, update_user_erp,
       update_user_name, create_time, update_time,
-      yn, ts, bulk_flag, have_scan_count
+      yn, ts, bulk_flag, have_scan_count,comboard_source
       )
     values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR},
       #{sendCode,jdbcType=VARCHAR}, #{boardStatus,jdbcType=TINYINT}, #{startSiteId,jdbcType=BIGINT},
       #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, #{endSiteName,jdbcType=VARCHAR},
       #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR},
       #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
-      #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}, #{bulkFlag,jdbcType=BIT}, #{haveScanCount,jdbcType=INTEGER}
+      #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}, #{bulkFlag,jdbcType=BIT}, #{haveScanCount,jdbcType=INTEGER}, #{comboardSource,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
@@ -118,6 +118,9 @@
       <if test="haveScanCount != null">
         have_scan_count,
       </if>
+      <if test="comboardSource != null">
+        comboard_source,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -176,6 +179,9 @@
       </if>
       <if test="haveScanCount != null">
         #{haveScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="comboardSource != null">
+        #{comboardSource,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -242,7 +248,10 @@
       <if test="unsealTime != null">
         unseal_time = #{unsealTime,jdbcType=TIMESTAMP},
       </if>
-        </set>
+      <if test="comboardSource != null">
+        comboard_source = #{comboardSource,jdbcType=INTEGER},
+      </if>
+    </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
@@ -264,7 +273,8 @@
       yn = #{yn,jdbcType=BIT},
       ts = #{ts,jdbcType=TIMESTAMP},
       bulk_flag = #{bulkFlag,jdbcType=BIT},
-        have_scan_count = #{haveScanCount,jdbcType=INTEGER}
+        have_scan_count = #{haveScanCount,jdbcType=INTEGER},
+      comboard_source = #{comboardSource,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="queryBoardTask" resultMap="BaseResultMap">
@@ -293,6 +303,11 @@
     from jy_biz_task_comboard where start_site_id = #{startSiteId,jdbcType=BIGINT}
     and end_site_id in
     <foreach item="item" index="index" collection="endSiteCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
              open="(" separator="," close=")">
       #{item}
     </foreach>
@@ -328,25 +343,34 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
     and yn = 1
     and board_status = 1
   </update>
   <select id="listBoardTaskBySendFlow" resultMap="BaseResultMap">
     SELECT
-    <include refid="Base_Column_List" />
+    <include refid="Base_Column_List"/>
     FROM
-      jy_biz_task_comboard
+    jy_biz_task_comboard
     WHERE
-      start_site_id =#{startSiteId}
-      AND end_site_id =#{endSiteId}
-      AND board_status IN
-          <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
-            #{item}
-          </foreach>
-    <if test="createTime != null">
-      AND create_time > #{createTime}
-    </if>
-      AND yn = 1
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    ORDER BY create_time DESC
   </select>
 
   <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
@@ -372,8 +396,13 @@
     <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
       #{item}
     </foreach>
-      and yn = 1
+    and yn = 1
     AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
     group by end_site_id;
   </select>
   <select id="queryTaskBySendCode" parameterType="java.lang.String" resultMap="BaseResultMap">

@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
+import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
@@ -72,5 +75,15 @@ public interface JySealVehicleService {
     /**
      * 取消封车 更新批次任务和封签列表
      */
-    InvokeResult<Boolean> cancelSealCar(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
+    InvokeResult<Boolean> updateBoardStatusAndSealCode(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
+
+    /**
+     * 根据transWorkItemCode删除封签明细
+     */
+    InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName);
+
+    /**
+     * 根据包裹|箱号查询板详情信息
+     */
+    InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 }

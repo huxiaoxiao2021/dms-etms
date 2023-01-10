@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import java.util.List;
 
 /**
  * 组板发货岗基础服务
@@ -86,6 +89,11 @@ public interface JyComBoardSendService {
    */
   InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request);
 
+  /**
+   * 扫描(组板+发货)
+   */
+  InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request);
+
 
   /**
    * 查询流向下组板统计信息列表-支撑下钻2
@@ -141,6 +149,12 @@ public interface JyComBoardSendService {
   InvokeResult<Void> cancelComboard(CancelBoardReq request);
 
   /**
+   * 取消组板
+   * @return
+   */
+  InvokeResult<Void> cancelSortMachineComboard(CancelBoardReq request);
+
+  /**
    * 根据包裹号或者箱号 定位所在的板
    * @param request
    * @return
@@ -148,4 +162,10 @@ public interface JyComBoardSendService {
   InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 
   InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
+
+  /**
+   * 查询板货物分类
+   */
+  InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq);
+
 }
