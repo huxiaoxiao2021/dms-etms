@@ -5631,7 +5631,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 补全包裹重量
      */
     @Override
-    public SendDetail measureRetrieve(SendDetail sendDetail) {
+    public SendDetail measureRetrieve(SendDetail sendDetail, DeliveryPackageD packageD) {
+        if (null != packageD && Objects.equals(packageD.getPackageBarcode(), sendDetail.getPackageBarcode())) {
+            sendDetail.setWeight(packageD.getGoodWeight());
+            return sendDetail;
+        }
 
         //一单多件调用接口获取包裹欣慰为空处理
         BaseEntity<List<DeliveryPackageD>> waybillWSRs = new BaseEntity<List<DeliveryPackageD>>();
