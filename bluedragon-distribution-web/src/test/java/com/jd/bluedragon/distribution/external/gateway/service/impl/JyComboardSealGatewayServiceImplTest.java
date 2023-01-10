@@ -10,8 +10,10 @@ import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
@@ -41,13 +43,13 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyComboardSealGatewayServiceImplTest {
-    
+
     @Autowired
     private JyComboardSealGatewayService jyComboardSealGatewayService;
-    
+
     @Autowired
     private JySealVehicleService jySealVehicleService;
-    
+
     @Test
     public void listComboardBySendFlowTest() {
         BoardQueryReq boardQueryReq = new BoardQueryReq();
@@ -58,7 +60,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<BoardQueryResp> jdCResponse = jyComboardSealGatewayService.listComboardBySendFlow(boardQueryReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
-    
+
     @Test
     public void queryBelongBoardByBarCodeTest() {
         QueryBelongBoardReq resp = new QueryBelongBoardReq();
@@ -75,7 +77,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<QueryBelongBoardResp> re = jyComboardSealGatewayService.queryBelongBoardByBarCode(resp);
         System.out.println(JsonHelper.toJson(re));
     }
-    
+
     @Test
     public void listSealCodeByBizIdTest() {
         SealCodeReq sealCodeReq = new SealCodeReq();
@@ -83,7 +85,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<SealCodeResp> jdCResponse = jyComboardSealGatewayService.listSealCodeByBizId(sealCodeReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
-    
+
     @Test
     public void checkTransCodeTest() {
         CheckTransportReq checkTransportReq = new CheckTransportReq();
@@ -92,7 +94,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse jdCResponse = jyComboardSealGatewayService.checkTransCode(checkTransportReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
-    
+
     @Test
     public void sendDestDetailTest() {
         SendDetailRequest sendDetailRequest = new SendDetailRequest();
@@ -103,7 +105,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<List<SendDestDetail>> listJdCResponse = jyComboardSealGatewayService.sendDestDetail(sendDetailRequest);
         System.out.println(JsonHelper.toJson(listJdCResponse));
     }
-    
+
     @Test
     public void saveSealVehicleTest() {
         SealVehicleReq sealVehicleReq = new SealVehicleReq();
@@ -124,7 +126,7 @@ public class JyComboardSealGatewayServiceImplTest {
         sealVehicleReq.setUser(user);
         jyComboardSealGatewayService.saveSealVehicle(sealVehicleReq );
     }
-    
+
     @Test
     public void getSealVehicleInfoTest() {
         SealVehicleInfoReq sealVehicleReq = new SealVehicleInfoReq();
@@ -133,7 +135,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<SealVehicleInfoResp> sealVehicleInfo = jyComboardSealGatewayService.getSealVehicleInfo(sealVehicleReq);
         System.out.println(JsonHelper.toJson(sealVehicleInfo));
     }
-    
+
     @Test
     public void cancelSealCarTest() {
         SealCarDto sealCarDto = new SealCarDto();
@@ -145,7 +147,7 @@ public class JyComboardSealGatewayServiceImplTest {
         InvokeResult<Boolean> result = jySealVehicleService.cancelSealCar(sealCarDto,"9999" , "liwenji3", "李文吉");
         System.out.println(JsonHelper.toJson(result));
     }
-    
+
     @Test
     public void loadProgressTest() {
         SendVehicleProgressRequest request = new SendVehicleProgressRequest();
@@ -153,7 +155,7 @@ public class JyComboardSealGatewayServiceImplTest {
         JdCResponse<SendVehicleProgress> jdCResponse = jyComboardSealGatewayService.loadProgress(request);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
-    
+
     @Test
     public void selectSealDestTest() {
         SelectSealDestRequest request = new SelectSealDestRequest();
@@ -161,5 +163,22 @@ public class JyComboardSealGatewayServiceImplTest {
         request.setSendVehicleBizId("SST22123000000018");
         JdCResponse<ToSealDestAgg> jdCResponse = jyComboardSealGatewayService.selectSealDest(request);
         System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+
+    @Test
+    public void fetchSendVehicleTaskTest() {
+        SendVehicleTaskRequest sendVehicleTaskRequest = new SendVehicleTaskRequest();
+        sendVehicleTaskRequest.setPageNumber(1);
+        sendVehicleTaskRequest.setPageSize(100);
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        sendVehicleTaskRequest.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        sendVehicleTaskRequest.setUser(user);
+        JdCResponse<SendVehicleTaskResponse> response = jyComboardSealGatewayService.fetchSendVehicleTask(sendVehicleTaskRequest);
+        System.out.println(JsonHelper.toJson(response));
     }
 }
