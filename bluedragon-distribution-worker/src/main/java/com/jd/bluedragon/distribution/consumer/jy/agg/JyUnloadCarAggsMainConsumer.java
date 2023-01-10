@@ -63,7 +63,7 @@ public class JyUnloadCarAggsMainConsumer extends MessageBaseConsumer {
             return;
         }
 
-        String lockKey =String.format(CacheKeyConstants.JY_UNLOAD_AGG_LOCK_KEY,entity.getBizId());
+        String lockKey =String.format(CacheKeyConstants.JY_UNLOAD_AGG_LOCK_KEY,entity.getUid());
         try{
             //加锁处理
             Boolean lock = redisClientOfJy.set(lockKey, "1", 1, TimeUnit.MINUTES, false);

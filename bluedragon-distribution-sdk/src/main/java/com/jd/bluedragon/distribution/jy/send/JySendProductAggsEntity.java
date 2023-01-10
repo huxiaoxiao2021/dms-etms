@@ -63,6 +63,11 @@ public class JySendProductAggsEntity implements Serializable {
      */
     private Long version;
 
+    /**
+     * 并发锁id
+     */
+    private String uid;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -150,5 +155,13 @@ public class JySendProductAggsEntity implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

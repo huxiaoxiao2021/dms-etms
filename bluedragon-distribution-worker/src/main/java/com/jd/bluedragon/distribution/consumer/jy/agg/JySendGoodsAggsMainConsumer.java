@@ -60,7 +60,7 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
         if(!checkResult){
             return;
         }
-        String lockKey =String.format(CacheKeyConstants.JY_SEND_AGG_LOCK_KEY,entity.getBizId());
+        String lockKey =String.format(CacheKeyConstants.JY_SEND_AGG_LOCK_KEY,entity.getUid());
 
         try{
             Boolean lock = redisClientOfJy.set(lockKey, "1", 1, TimeUnit.MINUTES, false);
