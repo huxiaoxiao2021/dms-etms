@@ -17,8 +17,6 @@ public interface JyUnloadAggsService {
 
     int insert(JyUnloadAggsEntity entity);
 
-    int insertOrUpdate(JyUnloadAggsEntity entity);
-
     List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
 
     /**

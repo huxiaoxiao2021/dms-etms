@@ -58,10 +58,6 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         return jyUnloadAggsDao.insert(entity);
     }
 
-    @Override
-    public int insertOrUpdate(JyUnloadAggsEntity entity) {
-        return jyUnloadAggsDao.insertOrUpdate(entity);
-    }
 
     @Override
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
