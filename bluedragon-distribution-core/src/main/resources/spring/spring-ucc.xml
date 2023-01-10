@@ -196,10 +196,12 @@
 
 		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
 		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="unloadTaskBoardMaxCount" value="${unloadTaskBoardMaxCount:100}"/>
 		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="jyUnloadCarListDoneQueryDayFilter" value="${jyUnloadCarListDoneQueryDayFilter:5}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
@@ -390,6 +392,7 @@
 
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.unloadTaskBoardMaxCount</value>
 				<value>uccPropertyConfiguration.packageWeightLimit</value>
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
@@ -414,6 +417,7 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
+				<value>uccPropertyConfiguration.jyUnloadCarListDoneQueryDayFilter</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
