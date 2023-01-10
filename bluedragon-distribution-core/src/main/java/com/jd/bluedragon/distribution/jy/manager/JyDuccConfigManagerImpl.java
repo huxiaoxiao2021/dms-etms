@@ -20,14 +20,14 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
     private static final Logger log = LoggerFactory.getLogger(JyDuccConfigManagerImpl.class);
 
     @Autowired
-    private SendOrUnloadDataReadDuccConfigJsfService duccConfigJsfService;
+    private SendOrUnloadDataReadDuccConfigJsfService jySendOrUnloadDataReadDuccConfigJsfService;
 
     @Override
     @Cache(key = "JyDuccConfigManagerImpl.getJySendAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
             redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggsDataReadSwitchInfo() {
         try{
-            ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggsDataReadSwitchInfo();
+            ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJySendAggsDataReadSwitchInfo();
             log.info("获取拣运发货岗主备开关切换值-{}", JSON.toJSONString(result));
             if(result != null && ServiceResult.SUCCESS_CODE == result.getCode() && result.getData() != null){
                 return result.getData();
@@ -43,7 +43,7 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
             redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsDataReadSwitchInfo() {
         try{
-            ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsDataReadSwitchInfo();
+            ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJyUnloadAggsDataReadSwitchInfo();
             log.info("获取拣运卸车岗主备开关切换值-{}", JSON.toJSONString(result));
             if(result != null && ServiceResult.SUCCESS_CODE == result.getCode() && result.getData() != null ){
                 return result.getData();
@@ -60,7 +60,7 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
             redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggOldOrNewDataReadSwitch() {
         try{
-            ServiceResult<Boolean> result = duccConfigJsfService.getJySendAggOldOrNewDataReadSwitch();
+            ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJySendAggOldOrNewDataReadSwitch();
             log.info("获取拣运发货岗老库or新库数据读取开关-{}", JSON.toJSONString(result));
             if(result != null && ServiceResult.SUCCESS_CODE == result.getCode() && result.getData() != null){
                 return result.getData();
@@ -76,7 +76,7 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
             redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsOldOrNewDataReadSwitch() {
         try{
-            ServiceResult<Boolean> result = duccConfigJsfService.getJyUnloadAggsOldOrNewDataReadSwitch();
+            ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJyUnloadAggsOldOrNewDataReadSwitch();
             log.info("获取拣运卸车岗老库or新库数据读取开关-{}", JSON.toJSONString(result));
             if(result != null && ServiceResult.SUCCESS_CODE == result.getCode() && result.getData() != null){
                 return result.getData();
