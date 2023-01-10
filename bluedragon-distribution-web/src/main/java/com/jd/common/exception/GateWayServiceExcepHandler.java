@@ -5,10 +5,16 @@ import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
 import com.jd.bluedragon.enums.EnvEnum;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.CodeSignature;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,14 +32,14 @@ public class GateWayServiceExcepHandler {
     @Value("${app.config.runningMode}")
     protected String env;
 
-    @Around("execution(* com.jd.bluedragon.distribution.external.gateway.service.impl..*.*(..)) && @within(com.jd.bluedragon.common.UnifiedExceptionProcess)")
-    public JdCResponse serviceExceptionHandler(ProceedingJoinPoint proceedingJoinPoint) {
-        JdCResponse jdCResponse;
-        try {
-            jdCResponse = (JdCResponse) proceedingJoinPoint.proceed();
-        } catch (Throwable throwable) {
-            log.error("GateWayServiceExcepHandler catch exception:",throwable);
-
+  @Around("execution(* com.jd.bluedragon.distribution.external.gateway.service.impl..*.*(..)) && @within(com.jd.bluedragon.common.UnifiedExceptionProcess)")
+  public JdCResponse serviceExceptionHandler(ProceedingJoinPoint jp) {
+    JdCResponse jdCResponse;
+    try {
+      jdCResponse = (JdCResponse) jp.proceed();
+    } catch (Throwable throwable) {
+      Map<String, Object> params =getRequestArgs(jp);
+      log.error("UnifiedExceptionProcess catch exception：{}，requestArgs：{}", throwable,JsonHelper.toJson(params));
             if (throwable instanceof MiniStoreBizException) {
                 MiniStoreBizException exception = (MiniStoreBizException) throwable;
                 return new JdCResponse(exception.getCode(), exception.getMessage());
@@ -52,4 +58,23 @@ public class GateWayServiceExcepHandler {
         }
         return jdCResponse;
     }
+
+  private Map<String, Object> getRequestArgs(ProceedingJoinPoint jp) {
+    Map<String, Object> params = new HashMap();
+    try {
+      MethodSignature ms = (MethodSignature) jp.getSignature();
+      Method method =ms.getMethod();
+      params.put("method",method.getName());
+      //Class<?> targetClass = jp.getTarget().getClass();
+      //Method targetMethod = targetClass.getDeclaredMethod(ms.getName(), ms.getParameterTypes());
+      Object[] args = jp.getArgs();
+      String[] names = ((CodeSignature) jp.getSignature()).getParameterNames();
+      for (int i = 0; i < names.length; i++) {
+        params.put(names[i], args[i]);
+      }
+    } catch (Exception e) {
+      log.error("统一异常处理获取请求参数异常",e);
+    }
+    return params;
+  }
 }
