@@ -2557,7 +2557,7 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
         this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
-    
+    }
     public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
         this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
     }
