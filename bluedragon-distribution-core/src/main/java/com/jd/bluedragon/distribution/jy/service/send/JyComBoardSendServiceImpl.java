@@ -795,7 +795,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (aggsEntity != null) {
       sendFlowDto.setWaitScanCount(aggsEntity.getWaitScanCount());
     }
-    
+
     //查询流向下7天内未封车的板
     SendFlowDto sendFlow = new SendFlowDto();
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
@@ -808,7 +808,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
     sendFlowDto.setBoardCount(entities.size());
     BoardDto boardDto = new BoardDto();
-    
+
     // 查询当前板状态
     JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
     queryBoard.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
@@ -1991,7 +1991,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     BoardExcepStatisticsResp resp =new BoardExcepStatisticsResp();
     try {
       JyComboardAggsEntity jyComboardAggsEntity =jyComboardAggsService.queryComboardAggs(request.getBoardCode());
-      if (ObjectHelper.isNotNull(jyComboardAggsEntity)){
+      if (ObjectHelper.isNotNull(jyComboardAggsEntity) && checkIfExcep(jyComboardAggsEntity)){
         List<ExcepScanDto> excepScanDtoList = assembleExcepScanDtoList(jyComboardAggsEntity);
         resp.setExcepScanDtoList(excepScanDtoList);
 
@@ -2014,6 +2014,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.error("queryExcepScanStatisticsUnderBoard 查询流向待扫数据异常",e);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+  }
+
+  private boolean checkIfExcep(JyComboardAggsEntity jyComboardAggsEntity) {
+    if (ObjectHelper.isNotNull(jyComboardAggsEntity.getInterceptCount())
+        && jyComboardAggsEntity.getInterceptCount()>0){
+      return true;
+    }
+    return false;
   }
 
   private Pager<JyComboardPackageDetail> assembleQueryExcepScan(BoardExcepStatisticsReq request) {
@@ -2215,7 +2223,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!jimDbLock.lock(boardLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
         throw new JyBizException("当前系统繁忙,请稍后再试！");
       }
-      
+
       try {
         if (request.isBulkFlag()) {
           // 获取运单号
@@ -2294,7 +2302,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }finally {
         jimDbLock.releaseLock(boardLockKey, request.getRequestId());
       }
-      
+
     }catch (Exception e ) {
       if (log.isErrorEnabled()) {
         log.error("取消组板异常：{}",JsonHelper.toJson(request),e);
@@ -2362,13 +2370,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           throw new JyBizException("更新板任务失败");
         }
       }
-      
+
       Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
       if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
         log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
         throw new JyBizException("取消组板失败");
       }
-      
+
       // 异步发送取消组板和发货的全程跟踪
       asyncSendCancelComboardAndSend(request, barCodeList);
     }catch (Exception e ) {
