@@ -2,13 +2,14 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
     @Override
     public boolean doSorting(SortingVO sorting) {
         log.info("分拣PackageService任务doSorting:单号={},isCancel={}", sorting.getWaybillCode(), sorting.getIsCancel());
+        String keyword = this.getClass().getSimpleName();
+        CallerInfo sendMonitor = ProfilerHelper.registerInfo("DMSWORKER."+keyword+".doSorting",
+                Constants.UMP_APP_NAME_DMSWORKER);
         if(sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
             //分拣
             getSortingService().fillSortingIfPickup(sorting);
@@ -46,6 +50,7 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             // 取消分拣
             getSortingService().canCancel(sorting);
         }
+        Profiler.registerInfoEnd(sendMonitor);
         return true;
     }
 
