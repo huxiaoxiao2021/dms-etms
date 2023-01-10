@@ -930,6 +930,11 @@ public class UccPropertyConfiguration {
     private Integer unloadBoardBindingsMaxCount;
 
     /**
+     * 任务上最多组板数
+     */
+    private Integer unloadTaskBoardMaxCount;
+
+    /**
      * 包裹重量上限值，单位kg
      */
     private String packageWeightLimit;
@@ -989,6 +994,11 @@ public class UccPropertyConfiguration {
      * 卸车岗列表页过滤最近N天数据
      */
     private Integer jyUnloadCarListQueryDayFilter;
+
+    /**
+     * 卸车岗列表页已完成状态任务过滤最近N天数据
+     */
+    private Integer jyUnloadCarListDoneQueryDayFilter;
 
 
     /**
@@ -1561,7 +1571,7 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
-	public String getAllBCBoxFilterWebSite() {
+    public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
 
@@ -2377,6 +2387,14 @@ public class UccPropertyConfiguration {
         this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
     }
 
+    public Integer getUnloadTaskBoardMaxCount() {
+        return unloadTaskBoardMaxCount;
+    }
+
+    public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
+        this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
+    }
+
     public String getPackageWeightLimit() {
         return packageWeightLimit;
     }
@@ -2402,12 +2420,20 @@ public class UccPropertyConfiguration {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
-    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
-        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
     }
 
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public Integer getJyUnloadCarListDoneQueryDayFilter() {
+        return jyUnloadCarListDoneQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListDoneQueryDayFilter(Integer jyUnloadCarListDoneQueryDayFilter) {
+        this.jyUnloadCarListDoneQueryDayFilter = jyUnloadCarListDoneQueryDayFilter;
     }
 
     public int getGoodsResidenceTime() {
