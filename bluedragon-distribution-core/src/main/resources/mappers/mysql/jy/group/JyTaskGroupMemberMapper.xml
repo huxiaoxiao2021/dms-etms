@@ -218,6 +218,7 @@
             #{item, jdbcType=VARCHAR}
         </foreach>        
         AND (end_time is null or end_time &lt; #{endData.endTime,jdbcType=TIMESTAMP})
+        AND ref_task_id = #{endData.refTaskId, jdbcType=VARCHAR}
     </update>    
     <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member
