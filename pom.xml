@@ -339,7 +339,7 @@
                 <artifactId>realtime-service-sdk</artifactId>
                 <version>${jy.realtime.sdk.version}</version>
             </dependency>
-			<!-- // todo 排包 -->
+			<!-- jy_msp -->
 			<dependency>
 				<groupId>com.jdl.jy</groupId>
 				<artifactId>jy-msp-api</artifactId>
