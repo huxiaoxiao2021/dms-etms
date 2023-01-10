@@ -92,15 +92,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private PositionManager positionManager;
 
 	@Autowired
-	private PositionRecordService positionRecordService;
-
-
-	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+	/**
+	 * 签到作废-小时数限制
+	 */
+	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
+	private double deleteCheckHours;
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
@@ -1248,9 +1250,22 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("签到数据无效|已作废！");
 			return result;
 		}
+		Date currentDate = new Date();
+		//作废时间限制
+		double workHoursDouble = DateHelper.betweenHours(data.getSignInTime(), currentDate);
+		if(workHoursDouble > this.deleteCheckHours) {
+			result.toFail("签到时间已超过"+deleteCheckHours+"小时，无法操作作废！");
+			return result;
+		}
+		//删除权限校验
+		JdCResponse<Boolean> permissionCheckResult = checkHaveDeletePermission(data,userSignRequest.getOperateUserCode());
+		if(!permissionCheckResult.isSucceed()) {
+			result.toFail(permissionCheckResult.getMessage());
+			return result;
+		}
 		UserSignRecord deleteData = new UserSignRecord();
 		deleteData.setId(data.getId());
-		deleteData.setUpdateTime(new Date());
+		deleteData.setUpdateTime(currentDate);
 		deleteData.setUpdateUser(userSignRequest.getOperateUserCode());
 		deleteData.setUpdateUserName(userSignRequest.getOperateUserName());
 		this.deleteById(deleteData);
@@ -1258,6 +1273,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		data.setYn(Constants.YN_NO);
 		result.setData(data);
 		return result;
+	}
+	private JdCResponse<Boolean> checkHaveDeletePermission(UserSignRecordData data,String operateUserCode){
+		
 	}
 	/**
 	 * 签到处理上下文
