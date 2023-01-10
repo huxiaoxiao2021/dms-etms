@@ -24,6 +24,8 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
@@ -531,6 +533,23 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             invokeResult.setCode(RESULT_SUCCESS_CODE);
             invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
             return invokeResult;
+        }
+        
+        //查询流向下7天内未封车的板总数
+        BoardCountReq boardCountReq = new BoardCountReq();
+        boardCountReq.setCreateTime(time);
+        List<Integer> endSiteIdList = new ArrayList<>();
+        endSiteIdList.add(request.getEndSiteId());
+        boardCountReq.setEndSiteIdList(endSiteIdList);
+        boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        List<Integer> sourceList = new ArrayList<>();
+        sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+        sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());        
+        boardCountReq.setComboardSourceList(sourceList);
+        List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
+        
+        if (!CollectionUtils.isEmpty(entityList)) {
+            boardQueryResp.setBoardTotal(entityList.get(0).getBoardCount().longValue());
         }
 
         // 获取板号扫描数量统计数据

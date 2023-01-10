@@ -370,7 +370,7 @@
       #{item}
     </foreach>
     AND yn = 1
-    ORDER BY create_time DESC
+    ORDER BY ID DESC
   </select>
 
   <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
