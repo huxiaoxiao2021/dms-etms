@@ -164,7 +164,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 /**
  * @ClassName JySendVehicleServiceImpl
- * @Description å‘è´§å²—ç½‘å…³é€»è¾‘åŠ å·¥æœåŠ¡
+ * @Description ·¢»õ¸ÚÍø¹ØÂß¼­¼Ó¹¤·şÎñ
  * @Author wyh
  * @Date 2022/5/29 14:31
  **/
@@ -182,7 +182,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private String vehicleMapUrl;
 
     /**
-     * è¿å•è·¯ç”±å­—æ®µä½¿ç”¨çš„åˆ†éš”ç¬¦
+     * ÔËµ¥Â·ÓÉ×Ö¶ÎÊ¹ÓÃµÄ·Ö¸ô·û
      */
     private static final String WAYBILL_ROUTER_SPLIT = "\\|";
     private static final int VEHICLE_NUMBER_FOUR = 4;
@@ -309,7 +309,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
         InvokeResult<SendVehicleTaskResponse> result = new InvokeResult<>();
 
-        // å‚æ•°æ ¡éªŒ
+        // ²ÎÊıĞ£Ñé
         if (!checkBeforeFetchTask(request, result)) {
             return result;
         }
@@ -322,7 +322,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             JyBizTaskSendVehicleEntity condition = makeFetchCondition(queryTaskSendDto);
 
-            // æ ¹æ®åŒ…è£¹å·æœªæŸ¥åˆ°å‘è´§æµå‘çš„ä»»åŠ¡
+            // ¸ù¾İ°ü¹üºÅÎ´²éµ½·¢»õÁ÷ÏòµÄÈÎÎñ
             List<String> sendVehicleBizList = resolveSearchKeyword(result, queryTaskSendDto);
             if (!result.codeSuccess()) {
                 return result;
@@ -336,18 +336,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            // æŒ‰ä»»åŠ¡çŠ¶æ€ç»Ÿè®¡å‘è´§ä»»åŠ¡æ•°é‡
+            // °´ÈÎÎñ×´Ì¬Í³¼Æ·¢»õÈÎÎñÊıÁ¿
             assembleSendVehicleStatusAgg(vehicleStatusAggList, response);
 
             queryTaskSendDto.setSendVehicleBizList(sendVehicleBizList);
 
-            // æŒ‰ä»»åŠ¡çŠ¶æ€ç»„è£…è½¦è¾†æ•°æ®
+            // °´ÈÎÎñ×´Ì¬×é×°³µÁ¾Êı¾İ
             assembleSendVehicleData(response, queryTaskSendDto);
 
             result.setData(response);
         } catch (Exception e) {
-            log.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸. {}", JsonHelper.toJson(request), e);
-            result.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÈÎÎñÒì³£. {}", JsonHelper.toJson(request), e);
+            result.error("²éÑ¯·¢³µÈÎÎñÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return result;
@@ -360,7 +360,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             QueryTaskSendDto queryTaskSendDto = setQueryTaskSendDto(request);
             JyBizTaskSendVehicleEntity condition = makeFetchCondition(queryTaskSendDto);
             condition.setVehicleStatus(request.getVehicleStatus());
-            // æ ¹æ®åŒ…è£¹å·æœªæŸ¥åˆ°å‘è´§æµå‘çš„ä»»åŠ¡
+            // ¸ù¾İ°ü¹üºÅÎ´²éµ½·¢»õÁ÷ÏòµÄÈÎÎñ
             List<String> sendVehicleBizList = invokeResult.getData().getSendVehicleBizList();
             List<JyBizTaskSendLineTypeCountDto> lineTypeAggList =
                     taskSendVehicleService.sumTaskByLineType(condition, sendVehicleBizList);
@@ -368,7 +368,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æŒ‰çº¿è·¯ç±»å‹ç»Ÿè®¡å‘è´§ä»»åŠ¡æ•°
+     * °´ÏßÂ·ÀàĞÍÍ³¼Æ·¢»õÈÎÎñÊı
      * @param lineTypeAggList
      */
     private List<JyLineTypeDto> transformLineTypeAgg(List<JyBizTaskSendLineTypeCountDto> lineTypeAggList) {
@@ -392,7 +392,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         queryTaskSendDto.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         queryTaskSendDto.setEndSiteId(request.getEndSiteId());
         queryTaskSendDto.setKeyword(request.getKeyword());
-        //è®¾ç½®é»˜è®¤é¢„è®¡å‘è´§æ—¶é—´æŸ¥è¯¢èŒƒå›´
+        //ÉèÖÃÄ¬ÈÏÔ¤¼Æ·¢»õÊ±¼ä²éÑ¯·¶Î§
         try {
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
                 queryTaskSendDto.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
@@ -407,13 +407,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
 
         } catch (Exception e) {
-            log.error("æŸ¥è¯¢å‘è´§ä»»åŠ¡è®¾ç½®é»˜è®¤æŸ¥è¯¢æ¡ä»¶å¼‚å¸¸ï¼Œå…¥å‚{}", JsonHelper.toJson(request), e.getMessage(), e);
+            log.error("²éÑ¯·¢»õÈÎÎñÉèÖÃÄ¬ÈÏ²éÑ¯Ìõ¼şÒì³££¬Èë²Î{}", JsonHelper.toJson(request), e.getMessage(), e);
         }
         return queryTaskSendDto;
     }
 
     /**
-     * æŒ‰çŠ¶æ€ç»„è£…è½¦è¾†æ•°æ®
+     * °´×´Ì¬×é×°³µÁ¾Êı¾İ
      * @param response
      * @param queryTaskSendDto
      */
@@ -422,7 +422,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         SendVehicleData sendVehicleData = new SendVehicleData();
         sendVehicleData.setVehicleStatus(curQueryStatus.getCode());
 
-        // æŒ‰è½¦è¾†çŠ¶æ€ç»„è£…
+        // °´³µÁ¾×´Ì¬×é×°
         makeVehicleList(sendVehicleData, queryTaskSendDto);
 
         switch (curQueryStatus) {
@@ -442,7 +442,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æŒ‰è½¦è¾†çŠ¶æ€ç»„è£…è½¦è¾†åˆ—è¡¨
+     * °´³µÁ¾×´Ì¬×é×°³µÁ¾ÁĞ±í
      * @param sendVehicleData
      * @param queryTaskSendDto
      */
@@ -452,7 +452,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         JyBizTaskSendStatusEnum curQueryStatus = JyBizTaskSendStatusEnum.getEnumByCode(queryTaskSendDto.getVehicleStatuses().get(0));
 
-        // è®¾ç½®æ’åºæ–¹å¼
+        // ÉèÖÃÅÅĞò·½Ê½
         JyBizTaskSendSortTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
@@ -469,10 +469,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private void assemblePageSendTaskList(QueryTaskSendDto queryTaskSendDto, List<BaseSendVehicle> vehicleList,
                                           JyBizTaskSendStatusEnum curQueryStatus, List<JyBizTaskSendVehicleEntity> vehiclePageList) {
         for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
-            // åˆå§‹åŒ–åŸºç¡€å­—æ®µ
+            // ³õÊ¼»¯»ù´¡×Ö¶Î
             BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
 
-            // è®¾ç½®ä¸ªæ€§åŒ–å­—æ®µ
+            // ÉèÖÃ¸öĞÔ»¯×Ö¶Î
             switch (curQueryStatus) {
                 case TO_SEND:
                     ToSendVehicle toSendVehicle = (ToSendVehicle) baseSendVehicle;
@@ -505,7 +505,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æŒ‰é‡é‡è®¡ç®—è½¦è¾†è£…è½½ç‡
+     * °´ÖØÁ¿¼ÆËã³µÁ¾×°ÔØÂÊ
      * @param entity
      * @return
      */
@@ -519,10 +519,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (!NumberHelper.gt0(vehicleType)) {
             return BigDecimal.ZERO;
         }
-        // æ ¹æ®è½¦å‹ä»è¿è¾“è·å¾—è½¦å‹æ»¡è½½ä½“ç§¯
+        // ¸ù¾İ³µĞÍ´ÓÔËÊä»ñµÃ³µĞÍÂúÔØÌå»ı
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
         if (basicVehicleType == null || basicVehicleType.getWeight() == null) {
-            log.warn("ä»è¿è¾“åŸºç¡€èµ„æ–™è·å–è½¦å‹å¤±è´¥. {}", vehicleType);
+            log.warn("´ÓÔËÊä»ù´¡×ÊÁÏ»ñÈ¡³µĞÍÊ§°Ü. {}", vehicleType);
             return BigDecimal.ZERO;
         }
 
@@ -530,7 +530,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * é‡é‡å•ä½è½¬ä¸ºKG
+     * ÖØÁ¿µ¥Î»×ªÎªKG
      * @param weightOfTon
      * @return
      */
@@ -539,7 +539,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è®¾ç½®å‘è´§æµå‘æ•°æ®
+     * ÉèÖÃ·¢»õÁ÷ÏòÊı¾İ
      * @param queryTaskSendDto
      * @param curQueryStatus
      * @param entity
@@ -568,7 +568,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è®¾ç½®å‘è´§æµå‘çŠ¶æ€çš„æè¿°
+     * ÉèÖÃ·¢»õÁ÷Ïò×´Ì¬µÄÃèÊö
      * @param vehicleDetail
      * @return
      */
@@ -577,30 +577,30 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String fmtDesc;
         switch (detailStatus) {
             case TO_SEND:
-                fmtDesc = "æœªæ‰«";
+                fmtDesc = "Î´É¨";
                 break;
             case SENDING:
-                fmtDesc = "å·²æ‰«";
+                fmtDesc = "ÒÑÉ¨";
                 break;
             case TO_SEAL:
-                fmtDesc = "å¾…å°è½¦";
+                fmtDesc = "´ı·â³µ";
                 break;
             case SEALED:
                 if (vehicleDetail.getSealCarTime() != null) {
                     String formatTime = DateHelper.formatDate(vehicleDetail.getSealCarTime(), DateHelper.DATE_FORMAT_HHmm);
-                    fmtDesc = formatTime + "å°";
+                    fmtDesc = formatTime + "·â";
                 } else {
-                    fmtDesc = "å·²å°è½¦";
+                    fmtDesc = "ÒÑ·â³µ";
                 }
                 break;
             default:
-                return "æœªçŸ¥";
+                return "Î´Öª";
         }
         return fmtDesc;
     }
 
     /**
-     * ç»„è£…å‘è½¦ä»»åŠ¡åŸºç¡€æ•°æ®
+     * ×é×°·¢³µÈÎÎñ»ù´¡Êı¾İ
      * @param curQueryStatus
      * @param entity
      * @return
@@ -629,7 +629,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è®¾ç½®å‘è´§ä»»åŠ¡é€šç”¨å±æ€§
+     * ÉèÖÃ·¢»õÈÎÎñÍ¨ÓÃÊôĞÔ
      * @param entity
      * @param baseSendVehicle
      */
@@ -647,32 +647,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         baseSendVehicle.setLineTypeName(entity.getLineTypeName());
         baseSendVehicle.setCreateUserErp(entity.getCreateUserErp());
 
-        // ä»»åŠ¡æ ‡ç­¾
+        // ÈÎÎñ±êÇ©
         baseSendVehicle.setTags(resolveTaskTag(entity, transWorkBillDto));
 
-        //è½¦è¾†åœ°å›¾è¿æ¥
+        //³µÁ¾µØÍ¼Á¬½Ó
         baseSendVehicle.setVehicleMapUrl(makeVehicleMapUrl(entity));
     }
 
     /**
-     * åŠ å·¥ç”Ÿæˆè¿è¾“è½¦è¾†åœ°å›¾URL
+     * ¼Ó¹¤Éú³ÉÔËÊä³µÁ¾µØÍ¼URL
      * @param entity
      * @return
      */
     private String makeVehicleMapUrl(JyBizTaskSendVehicleEntity entity){
         try{
-            //å­˜åœ¨å³å°†åˆ°è¾¾æ—¶é—´ æˆ–è€… å·²åˆ°è¾¾æ—¶é—´æ—¶åœ¨è®¾ç½®
+            //´æÔÚ¼´½«µ½´ïÊ±¼ä »òÕß ÒÑµ½´ïÊ±¼äÊ±ÔÚÉèÖÃ
             if(entity.getComeTime() == null && entity.getNearComeTime() == null){
                 return StringUtils.EMPTY;
             }
-            //æ´¾è½¦æ˜ç»†ç¼–ç 
+            //ÅÉ³µÃ÷Ï¸±àÂë
             String transWorkCode = entity.getTransWorkCode();
-            //å½“å‰æ“ä½œåœºåœ°ç¼–ç  å¯¹åº” ä»»åŠ¡å§‹å‘åœºåœ°7ä½ç¼–ç 
+            //µ±Ç°²Ù×÷³¡µØ±àÂë ¶ÔÓ¦ ÈÎÎñÊ¼·¢³¡µØ7Î»±àÂë
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(entity.getStartSiteId().intValue());
             if(siteOrgDto != null){
                 return String.format(vehicleMapUrl,transWorkCode,siteOrgDto.getDmsSiteCode());
             }else{
-                log.error("makeVehicleMapUrl ä¸ºè·å–åˆ°å¯¹åº”å§‹å‘åœºåœ°7ä½ç¼–ç ï¼ {}",entity.getStartSiteId());
+                log.error("makeVehicleMapUrl Îª»ñÈ¡µ½¶ÔÓ¦Ê¼·¢³¡µØ7Î»±àÂë£¡ {}",entity.getStartSiteId());
             }
         }catch (Exception e){
             log.error("makeVehicleMapUrl error {}",JsonHelper.toJson(entity),e);
@@ -681,7 +681,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è§£æä»»åŠ¡æ ‡ç­¾
+     * ½âÎöÈÎÎñ±êÇ©
      *
      * @param entity
      * @param transWorkBillDto
@@ -691,14 +691,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         List<LabelOption> tagList = new ArrayList<>();
 
 
-        //è½¦è¾†åˆ°è¾¾çŠ¶æ€ é«˜äºå¸æœºé¢†å–
+        //³µÁ¾µ½´ï×´Ì¬ ¸ßÓÚË¾»úÁìÈ¡
         SendVehicleLabelOptionEnum carCome = setCarCome(entity);
         if(carCome != null) {
             tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
         }else{
-            // å¸æœºæ˜¯å¦é¢†å–ä»»åŠ¡
+            // Ë¾»úÊÇ·ñÁìÈ¡ÈÎÎñ
             if (transWorkBillDto != null) {
-                // work_status = 20(å·²å¼€å§‹), status > 15(å¾…æ¥å—)
+                // work_status = 20(ÒÑ¿ªÊ¼), status > 15(´ı½ÓÊÜ)
                 if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
                     SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
                     tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
@@ -706,7 +706,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        // è½¦é•¿
+        // ³µ³¤
         String carLengthDesc = setCarLength(entity);
         SendVehicleLabelOptionEnum carLengthTag = SendVehicleLabelOptionEnum.CAR_LENGTH;
         tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
@@ -715,7 +715,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æŸ¥è¯¢è°ƒåº¦ä»»åŠ¡ID
+     * ²éÑ¯µ÷¶ÈÈÎÎñID
      *
      * @param bizId
      * @return
@@ -742,7 +742,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æŒ‰çŠ¶æ€ç»Ÿè®¡å‘è´§ä»»åŠ¡æ•°
+     * °´×´Ì¬Í³¼Æ·¢»õÈÎÎñÊı
      *
      * @param vehicleStatusAggList
      * @param response
@@ -761,8 +761,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ ¹æ®åŒ…è£¹å·æŸ¥è¯¢è·¯ç”±ä¸‹ä¸€è·³çš„å‘è´§ä»»åŠ¡
-     * å–å½“å‰æ“ä½œæœºæ„çš„ä¸‹ä¸€è·³ä½œä¸ºå‘è´§ç›®çš„åœ°æŸ¥è¯¢å‘è´§æµå‘ä»»åŠ¡
+     * ¸ù¾İ°ü¹üºÅ²éÑ¯Â·ÓÉÏÂÒ»ÌøµÄ·¢»õÈÎÎñ
+     * È¡µ±Ç°²Ù×÷»ú¹¹µÄÏÂÒ»Ìø×÷Îª·¢»õÄ¿µÄµØ²éÑ¯·¢»õÁ÷ÏòÈÎÎñ
      * @param result
      * @param queryTaskSendDto
      * @return
@@ -775,7 +775,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         long startSiteId = queryTaskSendDto.getStartSiteId();
         Long endSiteId = null;
 
-        // å–å½“å‰æ“ä½œç½‘ç‚¹çš„è·¯ç”±ä¸‹ä¸€èŠ‚ç‚¹
+        // È¡µ±Ç°²Ù×÷ÍøµãµÄÂ·ÓÉÏÂÒ»½Úµã
         if (WaybillUtil.isPackageCode(queryTaskSendDto.getKeyword())) {
             endSiteId = getWaybillNextRouter(WaybillUtil.getWaybillCode(queryTaskSendDto.getKeyword()), startSiteId);
         } else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
@@ -785,32 +785,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
                 return sendVehicleBizList;
             }
-            result.hintMessage("æœªæ£€ç´¢åˆ°ç›¸åº”çš„å‘è´§ä»»åŠ¡æ•°æ®ï¼");
+            result.hintMessage("Î´¼ìË÷µ½ÏàÓ¦µÄ·¢»õÈÎÎñÊı¾İ£¡");
             return null;
         } else {
-            //è½¦ç‰Œå·åå››ä½æ£€ç´¢
+            //³µÅÆºÅºóËÄÎ»¼ìË÷
             if (queryTaskSendDto.getKeyword().length() == VEHICLE_NUMBER_FOUR) {
                 List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
                 if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
                     return sendVehicleBizList;
                 }
-                result.hintMessage("æœªæ£€ç´¢åˆ°ç›¸åº”çš„å‘è´§ä»»åŠ¡æ•°æ®ï¼");
+                result.hintMessage("Î´¼ìË÷µ½ÏàÓ¦µÄ·¢»õÈÎÎñÊı¾İ£¡");
             } else {
-                result.hintMessage("è¾“å…¥ä½æ•°é”™è¯¯ï¼Œæœªæ£€ç´¢åˆ°å‘è´§ä»»åŠ¡æ•°æ®ï¼");
+                result.hintMessage("ÊäÈëÎ»Êı´íÎó£¬Î´¼ìË÷µ½·¢»õÈÎÎñÊı¾İ£¡");
             }
             return null;
         }
 
         if (endSiteId == null) {
-            result.hintMessage("è¿å•çš„è·¯ç”±æ²¡æœ‰å½“å‰åœºåœ°ï¼");
+            result.hintMessage("ÔËµ¥µÄÂ·ÓÉÃ»ÓĞµ±Ç°³¡µØ£¡");
             return null;
         }
 
-        // æ ¹æ®è·¯ç”±ä¸‹ä¸€èŠ‚ç‚¹æŸ¥è¯¢å‘è´§æµå‘çš„ä»»åŠ¡
+        // ¸ù¾İÂ·ÓÉÏÂÒ»½Úµã²éÑ¯·¢»õÁ÷ÏòµÄÈÎÎñ
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId, endSiteId);
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findBySiteAndStatus(detailQ, null);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
-            String msg = String.format("è¯¥åŒ…è£¹æ²¡æœ‰è·¯ç”±ä¸‹ä¸€ç«™[%s]çš„å‘è´§ä»»åŠ¡ï¼", endSiteId);
+            String msg = String.format("¸Ã°ü¹üÃ»ÓĞÂ·ÓÉÏÂÒ»Õ¾[%s]µÄ·¢»õÈÎÎñ£¡", endSiteId);
             result.hintMessage(msg);
             return null;
         }
@@ -827,7 +827,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             if (log.isInfoEnabled()){
-                log.info("æ ¹æ®ä»»åŠ¡ç®€ç æŸ¥è¯¢TransWorkItemDtoä¿¡æ¯ï¼š{}",JsonHelper.toJson(transWorkItemDto));
+                log.info("¸ù¾İÈÎÎñ¼òÂë²éÑ¯TransWorkItemDtoĞÅÏ¢£º{}",JsonHelper.toJson(transWorkItemDto));
             }
             if (ObjectHelper.isNotNull(transWorkItemDto) && ObjectHelper.isNotNull(transWorkItemDto.getTransWorkCode())) {
                 List<String> tranWorkCodes = new ArrayList<>();
@@ -835,7 +835,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 List<JyBizTaskSendVehicleEntity> entityList = taskSendVehicleService.findSendTaskByTransWorkCode(tranWorkCodes, queryTaskSendDto.getStartSiteId());
                 if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
                     if (log.isInfoEnabled()){
-                        log.info("æ ¹æ®æ´¾è½¦å•å·æŸ¥è¯¢ä»»åŠ¡bizIdï¼š{}",JsonHelper.toJson(transWorkItemDto));
+                        log.info("¸ù¾İÅÉ³µµ¥ºÅ²éÑ¯ÈÎÎñbizId£º{}",JsonHelper.toJson(transWorkItemDto));
                     }
                     List<String> bizIdList = new ArrayList<>();
                     for (JyBizTaskSendVehicleEntity entity : entityList) {
@@ -854,11 +854,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(queryTaskSendDto.getStartSiteId().intValue());
             if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsSiteCode())) {
-                log.info("getBaseSiteBySiteIdæœªè·å–åˆ°" + queryTaskSendDto.getStartSiteId() + "ç«™ç‚¹ä¿¡æ¯");
+                log.info("getBaseSiteBySiteIdÎ´»ñÈ¡µ½" + queryTaskSendDto.getStartSiteId() + "Õ¾µãĞÅÏ¢");
                 return null;
             }
         } catch (Exception e) {
-            log.error("getBaseSiteBySiteIdè·å–ç«™ç‚¹ä¿¡æ¯å¼‚å¸¸", e);
+            log.error("getBaseSiteBySiteId»ñÈ¡Õ¾µãĞÅÏ¢Òì³£", e);
             return null;
         }
 
@@ -881,7 +881,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private Long getWaybillNextRouterWithTransferConfig(SendScanRequest request, String waybillCode, Integer startSiteId, Boolean manualCreatedFlag, JdVerifyResponse<SendScanResponse> response) {
         Long matchDestIdByPack = getWaybillNextRouter(waybillCode, Long.valueOf(startSiteId));
         if(request.getConfirmSendDestId() == null){
-            // ç¬¬äºŒæ¬¡ç¡®è®¤è·¯ç”±ï¼Œä¸éœ€è¦å¤„ç†
+            // µÚ¶ş´ÎÈ·ÈÏÂ·ÓÉ£¬²»ĞèÒª´¦Àí
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
             if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign()) && manualCreatedFlag) {
                 ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
@@ -891,7 +891,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                     matchDestIdByPack = null;
                     response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-                    response.addWarningBox(101, "æ‚¨æ‰«æçš„" + waybillCode + "è®¢å•æ˜¯è½¬å¾·é‚¦è®¢å•ï¼Œéœ€æ‰‹åŠ¨é€‰æ‹©ä¸‹æ¸¸ç›®çš„åœ°ï¼Œè°¢è°¢ã€‚");
+                    response.addWarningBox(101, "ÄúÉ¨ÃèµÄ" + waybillCode + "¶©µ¥ÊÇ×ªµÂ°î¶©µ¥£¬ĞèÊÖ¶¯Ñ¡ÔñÏÂÓÎÄ¿µÄµØ£¬Ğ»Ğ»¡£");
                 }
             }
         }
@@ -899,7 +899,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è·å–è¿å•è·¯ç”±ä¸‹ä¸€èŠ‚ç‚¹
+     * »ñÈ¡ÔËµ¥Â·ÓÉÏÂÒ»½Úµã
      * @param waybillCode
      * @param startSiteId
      * @return
@@ -910,7 +910,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * ç»„è£…å‘è½¦ä»»åŠ¡æŸ¥è¯¢æ¡ä»¶
+     * ×é×°·¢³µÈÎÎñ²éÑ¯Ìõ¼ş
      * @param queryTaskSendDto
      * @return
      */
@@ -930,19 +930,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
         if (request.getVehicleStatus() == null) {
-            result.parameterError("è¯·é€‰æ‹©è½¦è¾†çŠ¶æ€ï¼");
+            result.parameterError("ÇëÑ¡Ôñ³µÁ¾×´Ì¬£¡");
             return false;
         }
         if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
-            result.parameterError("ç¼ºå°‘åˆ†é¡µå‚æ•°ï¼");
+            result.parameterError("È±ÉÙ·ÖÒ³²ÎÊı£¡");
             return false;
         }
         if (request.getCurrentOperate() == null || !NumberHelper.gt0(request.getCurrentOperate().getSiteCode())) {
-            result.parameterError("ç¼ºå°‘å½“å‰åœºåœ°ä¿¡æ¯ï¼");
+            result.parameterError("È±ÉÙµ±Ç°³¡µØĞÅÏ¢£¡");
             return false;
         }
         if (request.getLineType() == null) {
-            result.parameterError("è¯·é€‰æ‹©çº¿è·¯ç±»å‹ï¼");
+            result.parameterError("ÇëÑ¡ÔñÏßÂ·ÀàĞÍ£¡");
             return false;
         }
         return true;
@@ -958,20 +958,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return result;
         }
 
-        // æ— ä»»åŠ¡å‘è´§åªæœ‰ä¸€ä¸ªæµå‘
+        // ÎŞÈÎÎñ·¢»õÖ»ÓĞÒ»¸öÁ÷Ïò
         JyBizTaskSendVehicleDetailEntity sendDestQ = new JyBizTaskSendVehicleDetailEntity();
         sendDestQ.setSendVehicleBizId(vehicleTaskReq.getBizId());
         sendDestQ.setStartSiteId((long) vehicleTaskReq.getCurrentOperate().getSiteCode());
         JyBizTaskSendVehicleDetailEntity curSendDest = taskSendVehicleDetailService.findSendDetail(sendDestQ);
         if (curSendDest == null) {
-            result.hintMessage("æ— ä»»åŠ¡ç»‘å®šä¹‹å‰å¿…é¡»å‘è´§ï¼");
+            result.hintMessage("ÎŞÈÎÎñ°ó¶¨Ö®Ç°±ØĞë·¢»õ£¡");
             return result;
         }
         try {
             curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
-            // ç»Ÿè®¡å‘è´§ä»»åŠ¡æ•°é‡
+            // Í³¼Æ·¢»õÈÎÎñÊıÁ¿
             Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
             VehicleTaskResp taskResp = new VehicleTaskResp();
             result.setData(taskResp);
@@ -982,7 +982,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            // é»˜è®¤æŒ‰é¢„è®¡å‘è½¦æ—¶é—´æ’åº
+            // Ä¬ÈÏ°´Ô¤¼Æ·¢³µÊ±¼äÅÅĞò
             curSendDest.setSendVehicleBizId(null);
             curSendDest.setTransferFlag(TransFlagEnum.IN.getCode());
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
@@ -994,19 +994,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
 
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
-                // ç»„è£…å‘è½¦ä»»åŠ¡
+                // ×é×°·¢³µÈÎÎñ
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
                 vehicleTaskList.add(vehicleTaskDto);
 
-                // ç»„è£…å‘è½¦ä»»åŠ¡æµå‘æ˜ç»†
+                // ×é×°·¢³µÈÎÎñÁ÷ÏòÃ÷Ï¸
                 this.initVehicleTaskDetails(sendVehicleEntity, vdList);
             }
         } catch (Exception e) {
-            log.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸. {}", JsonHelper.toJson(vehicleTaskReq), e);
-            result.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÈÎÎñÒì³£. {}", JsonHelper.toJson(vehicleTaskReq), e);
+            result.error("²éÑ¯·¢³µÈÎÎñÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return result;
@@ -1042,7 +1042,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
 
-            // æ ¹æ®ç›®çš„åœ°åŒ¹é…çš„å‘è´§æµå‘å·²å°è½¦ï¼Œå‘è½¦ä»»åŠ¡éœ€è¦å‰”é™¤æ‰
+            // ¸ù¾İÄ¿µÄµØÆ¥ÅäµÄ·¢»õÁ÷ÏòÒÑ·â³µ£¬·¢³µÈÎÎñĞèÒªÌŞ³ıµô
             this.needToRemoveSendTask(queryTaskSendDto, needToRemoveTask, detailEntity);
 
             VehicleDetailTaskDto detailTaskDto = new VehicleDetailTaskDto();
@@ -1099,7 +1099,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public InvokeResult<VehicleTaskResp> fetchSendTaskForTransfer(TransferVehicleTaskReq vehicleTaskReq) {
         InvokeResult<VehicleTaskResp> result = new InvokeResult<>();
         if (vehicleTaskReq.getCurrentOperate() == null || vehicleTaskReq.getCurrentOperate().getSiteCode() < 0) {
-            result.parameterError("ç¼ºå°‘åœºåœ°ä¿¡æ¯");
+            result.parameterError("È±ÉÙ³¡µØĞÅÏ¢");
             return result;
         }
 
@@ -1107,18 +1107,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JyBizTaskSendVehicleDetailEntity queryDetail = new JyBizTaskSendVehicleDetailEntity();
             queryDetail.setStartSiteId(startSiteId);
-            // é€‰æ‹©è½¬å‡ºä»»åŠ¡ï¼Œè½¬å‡ºæŒ‰åŒ…è£¹æ‰«æè®°å½•åŒ¹é…å‘è´§ä»»åŠ¡
+            // Ñ¡Ôñ×ª³öÈÎÎñ£¬×ª³ö°´°ü¹üÉ¨Ãè¼ÇÂ¼Æ¥Åä·¢»õÈÎÎñ
             if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
                 if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
                     return result;
                 }
             }
-            // é€‰æ‹©è½¬å…¥ä»»åŠ¡ï¼ŒåŒ…è£¹æŒ‰è·¯ç”±ç›®çš„åœ°åŒ¹é…å‘è´§ä»»åŠ¡
+            // Ñ¡Ôñ×ªÈëÈÎÎñ£¬°ü¹ü°´Â·ÓÉÄ¿µÄµØÆ¥Åä·¢»õÈÎÎñ
             else {
                 if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
                     Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), startSiteId);
                     if (nextRouter == null) {
-                        result.hintMessage("è¿å•è·¯ç”±é‡Œæ²¡æœ‰å½“å‰åœºåœ°ï¼");
+                        result.hintMessage("ÔËµ¥Â·ÓÉÀïÃ»ÓĞµ±Ç°³¡µØ£¡");
                         return result;
                     }
                     queryDetail.setEndSiteId(nextRouter);
@@ -1145,20 +1145,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
 
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
-                // ç»„è£…å‘è½¦ä»»åŠ¡
+                // ×é×°·¢³µÈÎÎñ
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
                 vehicleTaskList.add(vehicleTaskDto);
 
-                // ç»„è£…å‘è½¦ä»»åŠ¡æµå‘æ˜ç»†
+                // ×é×°·¢³µÈÎÎñÁ÷ÏòÃ÷Ï¸
                 this.initVehicleTaskDetails(sendVehicleEntity, vdList);
             }
         }
         catch (Exception e) {
-            log.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸. {}", JsonHelper.toJson(vehicleTaskReq), e);
-            result.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÈÎÎñÒì³£. {}", JsonHelper.toJson(vehicleTaskReq), e);
+            result.error("²éÑ¯·¢³µÈÎÎñÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return result;
@@ -1170,7 +1170,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public InvokeResult<VehicleTaskResp> fetchSendTaskForTransferV2(TransferVehicleTaskReq vehicleTaskReq) {
         InvokeResult<VehicleTaskResp> result = new InvokeResult<>();
         if (vehicleTaskReq.getCurrentOperate() == null || vehicleTaskReq.getCurrentOperate().getSiteCode() < 0) {
-            result.parameterError("ç¼ºå°‘åœºåœ°ä¿¡æ¯");
+            result.parameterError("È±ÉÙ³¡µØĞÅÏ¢");
             return result;
         }
 
@@ -1179,7 +1179,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JyBizTaskSendVehicleDetailEntity queryDetail = new JyBizTaskSendVehicleDetailEntity();
             queryDetail.setStartSiteId(startSiteId);
-            //åŒ…è£¹å·
+            //°ü¹üºÅ
             if (WaybillUtil.isPackageCode(barCode)){
                 if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
                     if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
@@ -1187,7 +1187,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         if (boardCode == null) {
                             return result;
                         }
-                        // å½“åŒ…è£¹å·å­˜åœ¨å¯¹åº”çš„æ¿å·æ—¶ï¼Œå†æ¬¡æ ¹æ®æ¿å·æŸ¥è¯¢
+                        // µ±°ü¹üºÅ´æÔÚ¶ÔÓ¦µÄ°åºÅÊ±£¬ÔÙ´Î¸ù¾İ°åºÅ²éÑ¯
                         vehicleTaskReq.setBarCode(boardCode);
                         if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
                             return result;
@@ -1198,18 +1198,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 else {
                     Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), startSiteId);
                     if (nextRouter == null) {
-                        result.hintMessage("è¿å•è·¯ç”±é‡Œæ²¡æœ‰å½“å‰åœºåœ°ï¼");
+                        result.hintMessage("ÔËµ¥Â·ÓÉÀïÃ»ÓĞµ±Ç°³¡µØ£¡");
                         return result;
                     }
                     queryDetail.setEndSiteId(nextRouter);
                 }
 
             }
-            //æ‰¹æ¬¡å·
+            //Åú´ÎºÅ
             else if (BusinessUtil.isSendCode(barCode)){
                 queryDetail.setEndSiteId(Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(barCode)));
             }
-            //ä»»åŠ¡ç®€ç 
+            //ÈÎÎñ¼òÂë
             else if (BusinessUtil.isTaskSimpleCode(barCode)){
                 String transWorkItemCode =getTransWorkItemCodeBySimpleCode(barCode);
                 if (null==transWorkItemCode){
@@ -1218,7 +1218,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
                 queryDetail.setTransWorkItemCode(transWorkItemCode);
             }
-            //ä¸æ˜¯çº¯æ•°å­—--å¹¶ä¸”æ˜¯4ä½-æŒ‰è½¦ç‰Œå·
+            //²»ÊÇ´¿Êı×Ö--²¢ÇÒÊÇ4Î»-°´³µÅÆºÅ
             else if (!NumberHelper.gt0(barCode) && VEHICLE_NUMBER_FOUR ==barCode.length()){
                 List<String> transWorkCodeList =getTransWorkCodeByVehicleNum(vehicleTaskReq);
                 if (null==transWorkCodeList){
@@ -1227,11 +1227,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
                 queryDetail.setTransWorkCodeList(transWorkCodeList);
             }
-            //çº¯æ•°å­—
+            //´¿Êı×Ö
             else if (NumberHelper.gt0(barCode)){
-                //å››ä½ ä¼˜å…ˆæŒ‰è½¦ç‰Œå·
+                //ËÄÎ» ÓÅÏÈ°´³µÅÆºÅ
                 if (VEHICLE_NUMBER_FOUR ==barCode.length()){
-                    //æ²¡æŸ¥åˆ°å†æŒ‰ç›®çš„ç«™ç‚¹åŒ¹é…
+                    //Ã»²éµ½ÔÙ°´Ä¿µÄÕ¾µãÆ¥Åä
                     List<String> transWorkCodeList =getTransWorkCodeByVehicleNum(vehicleTaskReq);
                     if (ObjectHelper.isNotNull(transWorkCodeList) && findExitTaskRecordByTransWorkCode(transWorkCodeList,startSiteId)){
                         queryDetail.setTransWorkCodeList(transWorkCodeList);
@@ -1240,14 +1240,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         queryDetail.setEndSiteId(Long.valueOf(barCode));
                     }
                 }
-                //æŒ‰ç«™ç‚¹åŒ¹é…
+                //°´Õ¾µãÆ¥Åä
                 else {
                     queryDetail.setEndSiteId(Long.valueOf(barCode));
                 }
             }
             else {
-                //ä¸æ”¯æŒè¯¥ç±»å‹
-                result.parameterError("æš‚ä¸æ”¯æŒè¯¥ç±»å‹æ¡ç ï¼");
+                //²»Ö§³Ö¸ÃÀàĞÍ
+                result.parameterError("Ôİ²»Ö§³Ö¸ÃÀàĞÍÌõÂë£¡");
                 return result;
             }
 
@@ -1271,20 +1271,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
 
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
-                // ç»„è£…å‘è½¦ä»»åŠ¡
+                // ×é×°·¢³µÈÎÎñ
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
                 vehicleTaskList.add(vehicleTaskDto);
 
-                // ç»„è£…å‘è½¦ä»»åŠ¡æµå‘æ˜ç»†
+                // ×é×°·¢³µÈÎÎñÁ÷ÏòÃ÷Ï¸
                 this.initVehicleTaskDetails(sendVehicleEntity, vdList);
             }
         }
         catch (Exception e) {
-            log.error("æŸ¥è¯¢è¿ç§»ä»»åŠ¡åˆ—è¡¨å¼‚å¸¸. {}", JsonHelper.toJson(vehicleTaskReq), e);
-            result.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯Ç¨ÒÆÈÎÎñÁĞ±íÒì³£. {}", JsonHelper.toJson(vehicleTaskReq), e);
+            result.error("²éÑ¯·¢³µÈÎÎñÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return result;
@@ -1293,7 +1293,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private String getBoardCodeByPackageCode(String packageCode, int createSiteCode) {
         Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(packageCode, createSiteCode);
         if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())) {
-            log.warn("fetchSendTaskForTransferV2|æœªæ ¹æ®åŒ…è£¹å·æ‰¾åˆ°åŒ¹é…çš„æ¿å·,barCode={},response={}", packageCode, JsonHelper.toJson(boardResponse));
+            log.warn("fetchSendTaskForTransferV2|Î´¸ù¾İ°ü¹üºÅÕÒµ½Æ¥ÅäµÄ°åºÅ,barCode={},response={}", packageCode, JsonHelper.toJson(boardResponse));
             return null;
         }
         Board board = boardResponse.getData();
@@ -1328,11 +1328,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(vehicleTaskReq.getCurrentOperate().getSiteCode());
             if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsSiteCode())) {
-                log.info("getBaseSiteBySiteIdæœªè·å–åˆ°" + vehicleTaskReq.getCurrentOperate().getSiteCode() + "ç«™ç‚¹ä¿¡æ¯");
+                log.info("getBaseSiteBySiteIdÎ´»ñÈ¡µ½" + vehicleTaskReq.getCurrentOperate().getSiteCode() + "Õ¾µãĞÅÏ¢");
                 return null;
             }
         } catch (Exception e) {
-            log.error("getBaseSiteBySiteIdè·å–ç«™ç‚¹ä¿¡æ¯å¼‚å¸¸", e);
+            log.error("getBaseSiteBySiteId»ñÈ¡Õ¾µãĞÅÏ¢Òì³£", e);
             return null;
         }
 
@@ -1346,7 +1346,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ ¹æ®å‘è´§ç›®çš„åœ°æŸ¥å‘è´§ä»»åŠ¡
+     * ¸ù¾İ·¢»õÄ¿µÄµØ²é·¢»õÈÎÎñ
      * @param result
      * @param queryTaskSendDto
      * @param sendVehicleBizList
@@ -1359,9 +1359,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findBySiteAndStatus(detailQ, queryTaskSendDto.getVehicleStatuses());
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
             if (queryByRoute) {
-                result.hintMessage("æ²¡æœ‰è·¯ç”±ä¸‹ä¸€ç«™çš„å‘è´§è®°å½•!");
+                result.hintMessage("Ã»ÓĞÂ·ÓÉÏÂÒ»Õ¾µÄ·¢»õ¼ÇÂ¼!");
             } else {
-                result.hintMessage("æ²¡æœ‰è¯¥ç›®çš„åœ°çš„å‘è´§è®°å½•!");
+                result.hintMessage("Ã»ÓĞ¸ÃÄ¿µÄµØµÄ·¢»õ¼ÇÂ¼!");
             }
             return false;
         }
@@ -1373,7 +1373,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ ¹æ®åŒ…è£¹å·æŸ¥å‘è´§ä»»åŠ¡
+     * ¸ù¾İ°ü¹üºÅ²é·¢»õÈÎÎñ
      * @param vehicleTaskReq
      * @param result
      * @param queryDetail
@@ -1387,7 +1387,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JySendEntity sendEntity = jySendService.queryByCodeAndSite(new JySendEntity(vehicleTaskReq.getBarCode(), startSiteId));
             if (sendEntity == null) {
-                result.hintMessage("æ²¡æœ‰è¯¥åŒ…è£¹çš„å‘è´§è®°å½•!");
+                result.hintMessage("Ã»ÓĞ¸Ã°ü¹üµÄ·¢»õ¼ÇÂ¼!");
                 return false;
             }
 
@@ -1397,7 +1397,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             searchExistRecord.setEndSiteId(sendEntity.getReceiveSiteId());
             JyBizTaskSendVehicleDetailEntity sendDetail = taskSendVehicleDetailService.findSendDetail(searchExistRecord);
             if (sendDetail != null && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(sendDetail.getVehicleStatus())) {
-                result.hintMessage("è¯¥åŒ…è£¹åŒ¹é…çš„å‘è´§æµå‘å·²ç»å°è½¦ï¼Œä¸å…è®¸è½¬ç§»!");
+                result.hintMessage("¸Ã°ü¹üÆ¥ÅäµÄ·¢»õÁ÷ÏòÒÑ¾­·â³µ£¬²»ÔÊĞí×ªÒÆ!");
                 return false;
             }
 
@@ -1422,32 +1422,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
 
-        logInfo("æ‹£è¿å‘è´§æ‰«æ:{}", JsonHelper.toJson(request));
+        logInfo("¼ğÔË·¢»õÉ¨Ãè:{}", JsonHelper.toJson(request));
 
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
         result.toSuccess();
 
-        // åŸºç¡€æ ¡éªŒ
+        // »ù´¡Ğ£Ñé
         if (!sendRequestBaseCheck(result, request)) {
             return result;
         }
         JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
         if (taskSend == null) {
-            result.toFail("å‘è´§ä»»åŠ¡ä¸å­˜åœ¨ï¼");
+            result.toFail("·¢»õÈÎÎñ²»´æÔÚ£¡");
             return result;
         }
         if (taskSend.manualCreatedTask() && taskSend.noTaskBindVehicle()) {
             result.toFail(NO_SCAN_AFTER_BIND_TASK_MESSAGE);
             return result;
         }
-        // ä¸šåŠ¡åœºæ™¯æ ¡éªŒ
+        // ÒµÎñ³¡¾°Ğ£Ñé
         if (!sendRequestBizCheck(result, request, taskSend)) {
             return result;
         }
 
         String barCode = request.getBarCode();
         SendKeyTypeEnum sendType = getSendType(barCode);
-        // è·å–æœ¬æ¬¡æ‰«æåŒ¹é…çš„å‘è´§ç›®çš„åœ°
+        // »ñÈ¡±¾´ÎÉ¨ÃèÆ¥ÅäµÄ·¢»õÄ¿µÄµØ
         List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         Set<Long> allDestId = new HashSet<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
@@ -1457,9 +1457,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (allDestId.size() > 1) {
             singleDestFlag = false;
         }
-        // æ ¹æ®å‘è´§æµå‘åŒ¹é…å‡ºæ¥çš„å‘è´§ç›®çš„åœ°
+        // ¸ù¾İ·¢»õÁ÷ÏòÆ¥Åä³öÀ´µÄ·¢»õÄ¿µÄµØ
         SendFindDestInfoDto sendFindDestInfoDto = this.matchSendDest(request, sendType, taskSend, allDestId, result);
-        logInfo("æ‹£è¿å‘è´§åŒ¹é…çš„ç›®çš„åœ°ä¸º: {}-{}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), sendFindDestInfoDto.getMatchSendDestId(), sendFindDestInfoDto.getRouterNextSiteId());
+        logInfo("¼ğÔË·¢»õÆ¥ÅäµÄÄ¿µÄµØÎª: {}-{}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), sendFindDestInfoDto.getMatchSendDestId(), sendFindDestInfoDto.getRouterNextSiteId());
         if (result.getCode() != JdVerifyResponse.CODE_SUCCESS) {
             return result;
         }
@@ -1469,16 +1469,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     sendFindDestInfoDto.setMatchSendDestId(new ArrayList<>(allDestId).get(0));
                 } else {
                     result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-                    result.addWarningBox(0, "æœªåŒ¹é…åˆ°å‘è´§ä¸‹ä¸€ç«™ï¼Œè¯·æ‰‹åŠ¨é€‰æ‹©ï¼");
+                    result.addWarningBox(0, "Î´Æ¥Åäµ½·¢»õÏÂÒ»Õ¾£¬ÇëÊÖ¶¯Ñ¡Ôñ£¡");
                     return result;
                 }
             } else {
                 result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-                result.addWarningBox(0, "æœªåŒ¹é…åˆ°å‘è´§ä¸‹ä¸€ç«™ï¼Œè¯·æ‰‹åŠ¨é€‰æ‹©ï¼");
+                result.addWarningBox(0, "Î´Æ¥Åäµ½·¢»õÏÂÒ»Õ¾£¬ÇëÊÖ¶¯Ñ¡Ôñ£¡");
                 return result;
             }
         }
-        // å®é™…å‘è´§ç›®çš„åœ°
+        // Êµ¼Ê·¢»õÄ¿µÄµØ
         Long sendDestId = sendFindDestInfoDto.getMatchSendDestId();
         if (NumberHelper.gt0(request.getConfirmSendDestId())) {
             sendDestId = request.getConfirmSendDestId();
@@ -1495,11 +1495,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             if (curSendDetail == null) {
                 result.toBizError();
-                result.addInterceptBox(0, "è¯¥å‘è´§æµå‘å·²å°è½¦ï¼");
+                result.addInterceptBox(0, "¸Ã·¢»õÁ÷ÏòÒÑ·â³µ£¡");
                 return result;
             }
             if (curSendDetail != null && SendTaskExcepLabelEnum.CANCEL.getCode().equals(curSendDetail.getExcepLabel())) {
-                result.toFail("è¯¥æµå‘å·²è¢«å–æ¶ˆï¼Œè¯·å‹¿ç»§ç»­æ‰«æï¼Œå·²æ‰«è´§ç‰©è¯·è¿ç§»ï¼");
+                result.toFail("¸ÃÁ÷ÏòÒÑ±»È¡Ïû£¬ÇëÎğ¼ÌĞøÉ¨Ãè£¬ÒÑÉ¨»õÎïÇëÇ¨ÒÆ£¡");
                 return result;
             }
             SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -1507,12 +1507,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
 
-            // å‘è´§çŠ¶æ€æ ¡éªŒ
+            // ·¢»õ×´Ì¬Ğ£Ñé
             if (!doSendStatusVerify(result, sendType, sendResult, sendM)) {
                 return result;
             }
 
-            // æ‰§è¡Œå‘è´§å‰å‰ç½®æ ¡éªŒé€»è¾‘
+            // Ö´ĞĞ·¢»õÇ°Ç°ÖÃĞ£ÑéÂß¼­
             if (!execSendInterceptChain(request, result, sendType, sendResult, sendM, sendFindDestInfoDto)) {
                 return result;
             }
@@ -1527,23 +1527,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 jySendService.save(sendEntity);
             }
 
-            // ç»‘å®šé›†åŒ…è¢‹é€»è¾‘
+            // °ó¶¨¼¯°ü´üÂß¼­
             if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
                 BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
                 InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
                 if (!bindMaterialRet.codeSuccess()) {
-                    result.toFail("ç»‘å®šå¤±è´¥ï¼š" + bindMaterialRet.getMessage());
+                    result.toFail("°ó¶¨Ê§°Ü£º" + bindMaterialRet.getMessage());
                     return result;
                 }
             }
 
-            // æ‰§è¡Œä¸€è½¦ä¸€å•å‘è´§é€»è¾‘
+            // Ö´ĞĞÒ»³µÒ»µ¥·¢»õÂß¼­
             sendResult = this.execPackageSend(sendType, sendResult, sendM);
             if (!sendResultToJdResp(result, sendResult)) {
                 return result;
             }
 
-            // åŒ…è£¹é¦–æ¬¡æ‰«æé€»è¾‘
+            // °ü¹üÊ×´ÎÉ¨ÃèÂß¼­
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
 
             SendScanResponse sendScanResponse = new SendScanResponse();
@@ -1557,8 +1557,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
         } catch (Exception ex) {
-            log.error("å‘è´§ä»»åŠ¡æ‰«æå¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            result.toError("æœåŠ¡å™¨å¼‚å¸¸ï¼Œå‘è´§ä»»åŠ¡æ‰«æå¤±è´¥ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("·¢»õÈÎÎñÉ¨ÃèÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            result.toError("·şÎñÆ÷Òì³££¬·¢»õÈÎÎñÉ¨ÃèÊ§°Ü£¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return result;
@@ -1573,7 +1573,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         if (sameDirections.size() > 0) {
-            //1.è¿‡æ»¤å·²å°è½¦çš„æµå‘
+            //1.¹ıÂËÒÑ·â³µµÄÁ÷Ïò
             Iterator it = sameDirections.iterator();
             while (it.hasNext()) {
                 JyBizTaskSendVehicleDetailEntity detail = (JyBizTaskSendVehicleDetailEntity) it.next();
@@ -1581,7 +1581,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     it.remove();
                 }
             }
-            //2.æŒ‰æ—¶é—´å€’æ’ï¼ˆè¿‡æ»¤å®Œå°è½¦çŠ¶æ€åä»ç„¶æœ‰å¤šä¸ªåŒæµå‘çš„è¯ å°±é€‰æ‹©æœ€æ™šé‚£ä¸ªï¼‰
+            //2.°´Ê±¼äµ¹ÅÅ£¨¹ıÂËÍê·â³µ×´Ì¬ºóÈÔÈ»ÓĞ¶à¸öÍ¬Á÷ÏòµÄ»° ¾ÍÑ¡Ôñ×îÍíÄÇ¸ö£©
             if (sameDirections.size() > 1) {
                 Collections.sort(sameDirections, new JyBizTaskSendVehicleDetailEntity.DetailComparatorByTime());
             }
@@ -1634,7 +1634,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ‰§è¡Œå‘è´§æ‹¦æˆªé“¾
+     * Ö´ĞĞ·¢»õÀ¹½ØÁ´
      * @param request
      * @param result
      * @param sendType
@@ -1670,7 +1670,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         }
                         return false;
                     } else {
-                        // æ‹¦æˆªæ—¶ä¿å­˜æ‹¦æˆªè®°å½•
+                        // À¹½ØÊ±±£´æÀ¹½Ø¼ÇÂ¼
                         JySendEntity sendEntity = this.createJySendRecord(request, sendM.getReceiveSiteCode(), sendM.getSendCode(), request.getBarCode());
                         sendEntity.setForceSendFlag(0);
                         sendEntity.setInterceptFlag(1);
@@ -1693,7 +1693,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-        // æ ¡éªŒæ˜¯å¦å·²ç»å‘è´§
+        // Ğ£ÑéÊÇ·ñÒÑ¾­·¢»õ
         deliveryService.multiSendVerification(sendM, sendResult);
         if (Objects.equals(sendResult.getKey(), SendResult.CODE_SENDED)) {
             result.toBizError();
@@ -1701,7 +1701,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-        // æ ¡éªŒå‘è´§æ‰¹æ¬¡å·çŠ¶æ€
+        // Ğ£Ñé·¢»õÅú´ÎºÅ×´Ì¬
         StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
         if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
             result.toBizError();
@@ -1713,7 +1713,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     private SendResult execPackageSend(SendKeyTypeEnum sendType, SendResult sendResult, SendM sendM) {
-        boolean oldForceSend = true; // è·³è¿‡åŸæœ‰æ‹¦æˆªæ ¡éªŒï¼Œä½¿ç”¨æ–°æ ¡éªŒé€»è¾‘
+        boolean oldForceSend = true; // Ìø¹ıÔ­ÓĞÀ¹½ØĞ£Ñé£¬Ê¹ÓÃĞÂĞ£ÑéÂß¼­
         boolean cancelLastSend = ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND.equals(sendResult.getInterceptCode());
         switch (sendType) {
             case BY_WAYBILL:
@@ -1738,9 +1738,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private boolean dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         boolean firstScanFlag = false;
-        // å‘è´§æµå‘é¦–æ¬¡æ‰«æ
+        // ·¢»õÁ÷ÏòÊ×´ÎÉ¨Ãè
         if (taskSendDestFirstScan(request, curSendDetail.getBizId())) {
-            logInfo("å‘è´§ä»»åŠ¡æµå‘[{}-{}]é¦–æ¬¡æ‰«æ, ä»»åŠ¡çŠ¶æ€å˜ä¸ºâ€œå‘è´§ä¸­â€. {}", request.getSendVehicleBizId(), curSendDetail.getEndSiteId(),
+            logInfo("·¢»õÈÎÎñÁ÷Ïò[{}-{}]Ê×´ÎÉ¨Ãè, ÈÎÎñ×´Ì¬±äÎª¡°·¢»õÖĞ¡±. {}", request.getSendVehicleBizId(), curSendDetail.getEndSiteId(),
                     JsonHelper.toJson(request));
             firstScanFlag = true;
             updateSendVehicleStatus(request, taskSend, curSendDetail);
@@ -1756,9 +1756,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        // å‘è´§ä»»åŠ¡é¦–æ¬¡æ‰«æè®°å½•ç»„å‘˜ä¿¡æ¯
+        // ·¢»õÈÎÎñÊ×´ÎÉ¨Ãè¼ÇÂ¼×éÔ±ĞÅÏ¢
         if (taskSendFirstScan(request)) {
-            logInfo("å‘è´§ä»»åŠ¡[{}]é¦–æ¬¡æ‰«æ, ä»»åŠ¡çŠ¶æ€å˜ä¸ºâ€œå‘è´§ä¸­â€. {}", request.getSendVehicleBizId(), JsonHelper.toJson(request));
+            logInfo("·¢»õÈÎÎñ[{}]Ê×´ÎÉ¨Ãè, ÈÎÎñ×´Ì¬±äÎª¡°·¢»õÖĞ¡±. {}", request.getSendVehicleBizId(), JsonHelper.toJson(request));
 
             distributeAndStartScheduleTask(request);
 
@@ -1776,7 +1776,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         req.setSiteName(request.getCurrentOperate().getSiteName());
         req.setBoxCode(barCode);
         req.setMaterialCode(request.getMaterialCode());
-        req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // ç»‘å®š
+        req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // °ó¶¨
         return req;
     }
 
@@ -1805,12 +1805,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         Result<Boolean> startTask = taskGroupMemberService.startTask(startData);
 
-        logInfo("å‘è´§ä»»åŠ¡[{}-{}]é¦–æ¬¡æ‰«æè®°å½•ç»„å‘˜.", request.getSendVehicleBizId(), request.getVehicleNumber());
-        logInfo("å¸è½¦ä»»åŠ¡é¦–æ¬¡æ‰«æè®°å½•ç»„å‘˜. {}, {}", request.getSendVehicleBizId(), JsonHelper.toJson(startTask));
+        logInfo("·¢»õÈÎÎñ[{}-{}]Ê×´ÎÉ¨Ãè¼ÇÂ¼×éÔ±.", request.getSendVehicleBizId(), request.getVehicleNumber());
+        logInfo("Ğ¶³µÈÎÎñÊ×´ÎÉ¨Ãè¼ÇÂ¼×éÔ±. {}, {}", request.getSendVehicleBizId(), JsonHelper.toJson(startTask));
     }
 
     /**
-     * åˆ†é…å‘è´§è°ƒåº¦ä»»åŠ¡
+     * ·ÖÅä·¢»õµ÷¶ÈÈÎÎñ
      * @param request
      * @return
      */
@@ -1833,7 +1833,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (WaybillUtil.isWaybillCode(barCode)) {
             sendType = SendKeyTypeEnum.BY_WAYBILL;
         } else if (BusinessUtil.isBoardCode(barCode)) {
-            // TODO æ”¯æŒæ‰«ææ¿å·
+            // TODO Ö§³ÖÉ¨Ãè°åºÅ
             sendType = SendKeyTypeEnum.BY_BOARD;
         } else if (WaybillUtil.isPackageCode(barCode)) {
             sendType = SendKeyTypeEnum.BY_PACKAGE;
@@ -1844,20 +1844,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ ¹æ®å‘è´§æµå‘æŸ¥è¯¢æ‰¹æ¬¡
+     * ¸ù¾İ·¢»õÁ÷Ïò²éÑ¯Åú´Î
      * @param request
      * @param detail
      * @return
      */
     private String getOrCreateSendCode(SendScanRequest request, JyBizTaskSendVehicleDetailEntity detail) {
-        // éåŒæµå‘è¿ç§»ä¼šç”Ÿæˆæ–°æ‰¹æ¬¡ï¼Œä¸€ä¸ªæµå‘ä¸æ­¢ä¸€ä¸ªæ‰¹æ¬¡
+        // ·ÇÍ¬Á÷ÏòÇ¨ÒÆ»áÉú³ÉĞÂÅú´Î£¬Ò»¸öÁ÷Ïò²»Ö¹Ò»¸öÅú´Î
         String curDestSendCode = jySendCodeService.findEarliestSendCode(detail.getBizId());
 
         String sendCode;
         if (StringUtils.isBlank(curDestSendCode)) {
-            Profiler.businessAlarm("dms.web.JySendVehicleService.getOrCreateSendCode", "[æ‹£è¿APP]å‘è´§åŒ¹é…å‘è´§æ‰¹æ¬¡å¤±è´¥ï¼Œå°†æ–°å»ºæ‰¹æ¬¡ï¼");
-            logWarn("å‘è´§æµå‘è·å–æ‰¹æ¬¡å·ä¸ºç©º! {}", detail.getBizId());
-            // é¦–æ¬¡æ‰«æç”Ÿæˆæ‰¹æ¬¡
+            Profiler.businessAlarm("dms.web.JySendVehicleService.getOrCreateSendCode", "[¼ğÔËAPP]·¢»õÆ¥Åä·¢»õÅú´ÎÊ§°Ü£¬½«ĞÂ½¨Åú´Î£¡");
+            logWarn("·¢»õÁ÷Ïò»ñÈ¡Åú´ÎºÅÎª¿Õ! {}", detail.getBizId());
+            // Ê×´ÎÉ¨ÃèÉú³ÉÅú´Î
             sendCode = generateSendCode((long) request.getCurrentOperate().getSiteCode(), detail.getEndSiteId(), request.getUser().getUserErp());
 
             this.saveSendCode(request, sendCode, detail.getBizId());
@@ -1869,11 +1869,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * æ ¹æ®å‘è´§æµå‘åŒ¹é…å‘è´§çš„ç›®çš„åœ°
+     * ¸ù¾İ·¢»õÁ÷ÏòÆ¥Åä·¢»õµÄÄ¿µÄµØ
      * <ul>
-     *     <li>è¿å•ã€åŒ…è£¹ï¼šæ ¹æ®è·¯ç”±åŒ¹é…</li>
-     *     <li>ç®±å·å…ˆæ ¹æ®ç›®çš„åœ°åŒ¹é…ï¼ŒæœªåŒ¹é…å†å‡ºæ¥å†ä»ç®±é‡Œå–ä¸‰å•æ ¹æ®è·¯ç”±åŒ¹é…</li>
-     *     <li>åŒ¹é…å‡ºæ¥çš„ç›®çš„åœ°ä¸åœ¨å‘è´§æµå‘é‡Œï¼Œéœ€è¦ç”¨æˆ·ç¡®è®¤</li>
+     *     <li>ÔËµ¥¡¢°ü¹ü£º¸ù¾İÂ·ÓÉÆ¥Åä</li>
+     *     <li>ÏäºÅÏÈ¸ù¾İÄ¿µÄµØÆ¥Åä£¬Î´Æ¥ÅäÔÙ³öÀ´ÔÙ´ÓÏäÀïÈ¡Èıµ¥¸ù¾İÂ·ÓÉÆ¥Åä</li>
+     *     <li>Æ¥Åä³öÀ´µÄÄ¿µÄµØ²»ÔÚ·¢»õÁ÷ÏòÀï£¬ĞèÒªÓÃ»§È·ÈÏ</li>
      * </ul>
      * @param request
      * @param sendType
@@ -1885,7 +1885,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                                               JyBizTaskSendVehicleEntity taskSend, Set<Long> allDestId, JdVerifyResponse<SendScanResponse> response) {
         String barCode = request.getBarCode();
         long siteCode = request.getCurrentOperate().getSiteCode();
-        // æ ¹æ®å‘è´§æµå‘åŒ¹é…å‡ºæ¥çš„å‘è´§ç›®çš„åœ°
+        // ¸ù¾İ·¢»õÁ÷ÏòÆ¥Åä³öÀ´µÄ·¢»õÄ¿µÄµØ
         Long destSiteId = null;
         final SendFindDestInfoDto sendFindDestInfoDto = new SendFindDestInfoDto();
 
@@ -1905,14 +1905,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendFindDestInfoDto.setRouterNextSiteId(matchDestIdByPack);
                 break;
             case BY_BOX:
-                // å…ˆæ ¹æ®ç®±å·ç›®çš„åœ°å–ï¼Œå†ä»ç®±å·é‡Œå–ä¸‰ä¸ªè¿å•ï¼Œæ ¹æ®è·¯ç”±åŒ¹é…å‘è´§æµå‘ï¼Œéœ€è¦å¼¹çª—æç¤º fixme è§£å°ç‰ˆåä½¿ç”¨æŠ½å‡ºçš„å­æ–¹æ³• getBoxMatchDestId
+                // ÏÈ¸ù¾İÏäºÅÄ¿µÄµØÈ¡£¬ÔÙ´ÓÏäºÅÀïÈ¡Èı¸öÔËµ¥£¬¸ù¾İÂ·ÓÉÆ¥Åä·¢»õÁ÷Ïò£¬ĞèÒªµ¯´°ÌáÊ¾ fixme ½â·â°æºóÊ¹ÓÃ³é³öµÄ×Ó·½·¨ getBoxMatchDestId
                 Box box = boxService.findBoxByCode(barCode);
                 if (box != null) {
                     if (allDestId.contains(box.getReceiveSiteCode().longValue())) {
                         destSiteId = box.getReceiveSiteCode().longValue();
                     } else {
                         List<String> waybillCodes = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(barCode, 3);
-                        // è·å–è¿å•å¯¹åº”çš„è·¯ç”±
+                        // »ñÈ¡ÔËµ¥¶ÔÓ¦µÄÂ·ÓÉ
                         String routerStr = null;
                         String waybillForVerify = null;
                         Long boxRouteDest = null;
@@ -1927,17 +1927,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                                 }
                             }
                             if (StringUtils.isBlank(routerStr)) {
-                                logWarn("æ‹£è¿å‘è´§æ ¹æ®ç®±å·æœªè·å–åˆ°è·¯ç”±. ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.",
+                                logWarn("¼ğÔË·¢»õ¸ù¾İÏäºÅÎ´»ñÈ¡µ½Â·ÓÉ. ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}, ²Ù×÷Õ¾µãÎª{}.",
                                         barCode, waybillCodes, taskSend.getStartSiteId());
                             }
                         }
                         if (boxRouteDest != null) {
-                            logInfo("æ‹£è¿å‘è´§æ ¹æ®ç®±å·åŒ¹é…è·¯ç”±ã€æˆåŠŸã€‘, ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}," +
-                                            " è¿›è¡Œæ£€éªŒçš„è¿å•ä¸º{}, è¿å•çš„è·¯ç”±ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.",
+                            logInfo("¼ğÔË·¢»õ¸ù¾İÏäºÅÆ¥ÅäÂ·ÓÉ¡¾³É¹¦¡¿, ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}," +
+                                            " ½øĞĞ¼ìÑéµÄÔËµ¥Îª{}, ÔËµ¥µÄÂ·ÓÉÎª{}, ²Ù×÷Õ¾µãÎª{}.",
                                     barCode, waybillCodes, waybillForVerify, routerStr, taskSend.getStartSiteId());
                         } else {
-                            logWarn("æ‹£è¿å‘è´§æ ¹æ®ç®±å·åŒ¹é…è·¯ç”±ã€å¤±è´¥ã€‘, ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}," +
-                                            " è¿›è¡Œæ£€éªŒçš„è¿å•ä¸º{}, è¿å•çš„è·¯ç”±ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.",
+                            logWarn("¼ğÔË·¢»õ¸ù¾İÏäºÅÆ¥ÅäÂ·ÓÉ¡¾Ê§°Ü¡¿, ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}," +
+                                            " ½øĞĞ¼ìÑéµÄÔËµ¥Îª{}, ÔËµ¥µÄÂ·ÓÉÎª{}, ²Ù×÷Õ¾µãÎª{}.",
                                     barCode, waybillCodes, waybillForVerify, routerStr, taskSend.getStartSiteId());
                         }
                         if (allDestId.contains(boxRouteDest)) {
@@ -1970,16 +1970,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è·å–ç®±å·è·¯ç”±
-     * @param barCode ç®±å·
-     * @param startSiteId èµ·å§‹ç›®çš„åœ°
-     * @param allDestId æŒ‡å®šèŒƒå›´çš„åŒ¹é…ç›®çš„åœ°ï¼Œå¦‚æœæ­¤å€¼ä¼ ç©ºå¯¹è±¡ï¼Œåˆ™ä¼šè¿”å›è·å–åˆ°çš„è·¯ç”±ç›®çš„åœ°
-     * @return åŒ¹é…çš„ç®±å·ç›®çš„åœ°
+     * »ñÈ¡ÏäºÅÂ·ÓÉ
+     * @param barCode ÏäºÅ
+     * @param startSiteId ÆğÊ¼Ä¿µÄµØ
+     * @param allDestId Ö¸¶¨·¶Î§µÄÆ¥ÅäÄ¿µÄµØ£¬Èç¹û´ËÖµ´«¿Õ¶ÔÏó£¬Ôò»á·µ»Ø»ñÈ¡µ½µÄÂ·ÓÉÄ¿µÄµØ
+     * @return Æ¥ÅäµÄÏäºÅÄ¿µÄµØ
      * @author fanggang7
-     * @time 2022-10-21 16:40:19 å‘¨äº”
+     * @time 2022-10-21 16:40:19 ÖÜÎå
      */
     private Long getBoxMatchDestId(String barCode, Long startSiteId, Set<Long> allDestId) {
-        // å…ˆæ ¹æ®ç®±å·ç›®çš„åœ°å–ï¼Œå†ä»ç®±å·é‡Œå–ä¸‰ä¸ªè¿å•ï¼Œæ ¹æ®è·¯ç”±åŒ¹é…å‘è´§æµå‘ï¼Œéœ€è¦å¼¹çª—æç¤º
+        // ÏÈ¸ù¾İÏäºÅÄ¿µÄµØÈ¡£¬ÔÙ´ÓÏäºÅÀïÈ¡Èı¸öÔËµ¥£¬¸ù¾İÂ·ÓÉÆ¥Åä·¢»õÁ÷Ïò£¬ĞèÒªµ¯´°ÌáÊ¾
         Long destSiteId = null;
         Box box = boxService.findBoxByCode(barCode);
         if (box != null) {
@@ -1987,7 +1987,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 destSiteId = box.getReceiveSiteCode().longValue();
             } else {
                 List<String> waybillCodes = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(barCode, 3);
-                // è·å–è¿å•å¯¹åº”çš„è·¯ç”±
+                // »ñÈ¡ÔËµ¥¶ÔÓ¦µÄÂ·ÓÉ
                 String routerStr = null;
                 String waybillForVerify = null;
                 Long boxRouteDest = null;
@@ -2002,15 +2002,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         }
                     }
                     if (StringUtils.isBlank(routerStr)) {
-                        logWarn("æ‹£è¿å‘è´§æ ¹æ®ç®±å·æœªè·å–åˆ°è·¯ç”±. ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.", barCode, waybillCodes, startSiteId);
+                        logWarn("¼ğÔË·¢»õ¸ù¾İÏäºÅÎ´»ñÈ¡µ½Â·ÓÉ. ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}, ²Ù×÷Õ¾µãÎª{}.", barCode, waybillCodes, startSiteId);
                     }
                 }
                 if (boxRouteDest != null) {
-                    logInfo("æ‹£è¿å‘è´§æ ¹æ®ç®±å·åŒ¹é…è·¯ç”±ã€æˆåŠŸã€‘, ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}," +
-                                    " è¿›è¡Œæ£€éªŒçš„è¿å•ä¸º{}, è¿å•çš„è·¯ç”±ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
+                    logInfo("¼ğÔË·¢»õ¸ù¾İÏäºÅÆ¥ÅäÂ·ÓÉ¡¾³É¹¦¡¿, ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}," +
+                                    " ½øĞĞ¼ìÑéµÄÔËµ¥Îª{}, ÔËµ¥µÄÂ·ÓÉÎª{}, ²Ù×÷Õ¾µãÎª{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
                 } else {
-                    logWarn("æ‹£è¿å‘è´§æ ¹æ®ç®±å·åŒ¹é…è·¯ç”±ã€å¤±è´¥ã€‘, ç®±å·{}, å–åˆ°çš„è¿å•ä¸º{}," +
-                                    " è¿›è¡Œæ£€éªŒçš„è¿å•ä¸º{}, è¿å•çš„è·¯ç”±ä¸º{}, æ“ä½œç«™ç‚¹ä¸º{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
+                    logWarn("¼ğÔË·¢»õ¸ù¾İÏäºÅÆ¥ÅäÂ·ÓÉ¡¾Ê§°Ü¡¿, ÏäºÅ{}, È¡µ½µÄÔËµ¥Îª{}," +
+                                    " ½øĞĞ¼ìÑéµÄÔËµ¥Îª{}, ÔËµ¥µÄÂ·ÓÉÎª{}, ²Ù×÷Õ¾µãÎª{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
                 }
                 if (CollectionUtils.isEmpty(allDestId) || allDestId.contains(boxRouteDest)) {
                     destSiteId = boxRouteDest;
@@ -2040,7 +2040,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * ç»Ÿè®¡æœ¬æ¬¡æ‰«æçš„åŒ…è£¹æ•°é‡
+     * Í³¼Æ±¾´ÎÉ¨ÃèµÄ°ü¹üÊıÁ¿
      *
      * @param request
      * @param sendType
@@ -2079,7 +2079,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         int count = 0;
         for (String code : packOrBoxCodes) {
             if (BusinessUtil.isBoxcode(code)) {
-                log.info("=====getPackageNumFromPackOrBoxCodes=======æ ¹æ®ç®±å·è·å–é›†åŒ…åŒ…è£¹ {}", code);
+                log.info("=====getPackageNumFromPackOrBoxCodes=======¸ù¾İÏäºÅ»ñÈ¡¼¯°ü°ü¹ü {}", code);
                 List<String> pCodes = getPackageCodesByBoxCodeOrSendCode(code, siteCode);
                 if (pCodes != null && pCodes.size() > 0) {
                     count = count + pCodes.size();
@@ -2092,7 +2092,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     private List<String> getPackageCodesByBoxCodeOrSendCode(String boxOrSendCode, Integer siteCode) {
-        //æ„å»ºæŸ¥è¯¢sendDetailçš„æŸ¥è¯¢å‚æ•°
+        //¹¹½¨²éÑ¯sendDetailµÄ²éÑ¯²ÎÊı
         SendDetailDto sendDetail = initSendDetail(boxOrSendCode, siteCode);
         if (BusinessUtil.isBoxcode(boxOrSendCode)) {
             return sendDetailService.queryPackageCodeByboxCode(sendDetail);
@@ -2114,7 +2114,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * åˆ¤æ–­æ˜¯å¦æ˜¯å‘è½¦ä»»åŠ¡æµå‘çš„ç¬¬ä¸€æ¬¡æ‰«æ
+     * ÅĞ¶ÏÊÇ·ñÊÇ·¢³µÈÎÎñÁ÷ÏòµÄµÚÒ»´ÎÉ¨Ãè
      * @param request
      * @param sendDetailBizId
      * @return
@@ -2126,14 +2126,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             firstScanned = true;
 
-            logInfo("å•å·æ˜¯å‘è½¦ä»»åŠ¡æµå‘çš„é¦–æ¬¡æ‰«æ. [{}], {}", mutexKey, JsonHelper.toJson(request));
+            logInfo("µ¥ºÅÊÇ·¢³µÈÎÎñÁ÷ÏòµÄÊ×´ÎÉ¨Ãè. [{}], {}", mutexKey, JsonHelper.toJson(request));
         }
 
         return firstScanned;
     }
 
     /**
-     * åˆ¤æ–­æ˜¯å¦æ˜¯å‘è½¦ä»»åŠ¡çš„ç¬¬ä¸€æ¬¡æ‰«æ
+     * ÅĞ¶ÏÊÇ·ñÊÇ·¢³µÈÎÎñµÄµÚÒ»´ÎÉ¨Ãè
      * @param request
      * @return
      */
@@ -2142,7 +2142,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String mutexKey = getSendTaskBizCacheKey(request.getSendVehicleBizId());
         if (redisClientOfJy.set(mutexKey, request.getBarCode(), SEND_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
             firstScanned = true;
-            logInfo("å•å·æ˜¯å‘è½¦ä»»åŠ¡çš„é¦–æ¬¡æ‰«æ. [{}], {}", mutexKey, JsonHelper.toJson(request));
+            logInfo("µ¥ºÅÊÇ·¢³µÈÎÎñµÄÊ×´ÎÉ¨Ãè. [{}], {}", mutexKey, JsonHelper.toJson(request));
         }
 
         return firstScanned;
@@ -2189,7 +2189,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     /**
-     * è¯·æ±‚æ‹¼è£…SendMå‘è´§å¯¹è±¡
+     * ÇëÇóÆ´×°SendM·¢»õ¶ÔÏó
      *
      * @param request
      * @return
@@ -2238,7 +2238,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     /**
-     * å‘è´§æ‰«æåŸºç¡€æ ¡éªŒï¼Œæ ¡éªŒåªè¿”å›failç±»å‹
+     * ·¢»õÉ¨Ãè»ù´¡Ğ£Ñé£¬Ğ£ÑéÖ»·µ»ØfailÀàĞÍ
      * @param response
      * @param request
      * @return
@@ -2249,47 +2249,47 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 && !WaybillUtil.isWaybillCode(barCode)
                 && !WaybillUtil.isPackageCode(barCode)
                 && !BusinessUtil.isBoardCode(barCode)) {
-            // FIXME æŒ‰åŠŸèƒ½é…ç½®åŠ¨æ€æ ¡éªŒ
-            response.toFail("åªæ”¯æŒæ‰«æåŒ…è£¹ã€è¿å•ã€ç®±å·å’Œæ¿å·ï¼");
+            // FIXME °´¹¦ÄÜÅäÖÃ¶¯Ì¬Ğ£Ñé
+            response.toFail("Ö»Ö§³ÖÉ¨Ãè°ü¹ü¡¢ÔËµ¥¡¢ÏäºÅºÍ°åºÅ£¡");
             return false;
         }
 
         int siteCode = request.getCurrentOperate().getSiteCode();
         if (!NumberHelper.gt0(siteCode)) {
-            response.toFail("ç¼ºå°‘æ“ä½œåœºåœ°ï¼");
+            response.toFail("È±ÉÙ²Ù×÷³¡µØ£¡");
             return false;
         }
 
         if (StringUtils.isBlank(request.getGroupCode())) {
-            response.toFail("æ‰«æå‰è¯·ç»‘å®šå°ç»„ï¼");
+            response.toFail("É¨ÃèÇ°Çë°ó¶¨Ğ¡×é£¡");
             return false;
         }
 
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
-            response.toFail("è¯·é€‰æ‹©å‘è½¦ä»»åŠ¡ï¼");
+            response.toFail("ÇëÑ¡Ôñ·¢³µÈÎÎñ£¡");
             return false;
         }
 
-        // è®¾ç½®é»˜è®¤æ‰«ææ–¹å¼
+        // ÉèÖÃÄ¬ÈÏÉ¨Ãè·½Ê½
         if (request.getBarCodeType() == null) {
             request.setBarCodeType(SendVehicleScanTypeEnum.SCAN_ONE.getCode());
         }
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
         if (barCodeType == null) {
-            response.toFail("è¯·æ‰«ææ­£ç¡®çš„æ¡ç ï¼");
+            response.toFail("ÇëÉ¨ÃèÕıÈ·µÄÌõÂë£¡");
             return false;
         }
         if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))) {
-            response.toFail("è¯·æ‰«æåŒ…è£¹å·æˆ–ç®±å·ï¼");
+            response.toFail("ÇëÉ¨Ãè°ü¹üºÅ»òÏäºÅ£¡");
             return false;
         }
         if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
             if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
-                response.toFail("è¯·æ‰«æåŒ…è£¹å·æˆ–è¿å•å·ï¼");
+                response.toFail("ÇëÉ¨Ãè°ü¹üºÅ»òÔËµ¥ºÅ£¡");
                 return false;
             }
-            // @mark æ³¨æ„æ­¤å¤„ï¼ŒæŒ‰è¿å•å·æ‰«ææ—¶ï¼Œå¦‚æœæ˜¯æ‰«çš„åŒ…è£¹å·ï¼Œåˆ™å°†åŒ…è£¹å·è½¬æˆè¿å•å·
+            // @mark ×¢Òâ´Ë´¦£¬°´ÔËµ¥ºÅÉ¨ÃèÊ±£¬Èç¹ûÊÇÉ¨µÄ°ü¹üºÅ£¬Ôò½«°ü¹üºÅ×ª³ÉÔËµ¥ºÅ
             request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
 
@@ -2302,12 +2302,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * å‘è´§æ‰«æä¸šåŠ¡åœºæ™¯æ ¡éªŒ
-     * <h2>å®¢æˆ·ç«¯å¼¹çª—æç¤ºç±»å‹</h2>
+     * ·¢»õÉ¨ÃèÒµÎñ³¡¾°Ğ£Ñé
+     * <h2>¿Í»§¶Ëµ¯´°ÌáÊ¾ÀàĞÍ</h2>
      * <ul>
-     *     <li>ç»‘å®šé›†åŒ…è¢‹ï¼š{@link MsgBoxTypeEnum.INTERCEPT}</li>
-     *     <li>æ— ä»»åŠ¡é¦–æ¬¡æ‰«æç¡®è®¤ç›®çš„åœ°ï¼š{@link MsgBoxTypeEnum.CONFIRM}</li>
-     *     <li>æ‹¦æˆªé“¾ï¼š{@link MsgBoxTypeEnum.INTERCEPT}</li>
+     *     <li>°ó¶¨¼¯°ü´ü£º{@link MsgBoxTypeEnum.INTERCEPT}</li>
+     *     <li>ÎŞÈÎÎñÊ×´ÎÉ¨ÃèÈ·ÈÏÄ¿µÄµØ£º{@link MsgBoxTypeEnum.CONFIRM}</li>
+     *     <li>À¹½ØÁ´£º{@link MsgBoxTypeEnum.INTERCEPT}</li>
      * </ul>
      * @param response
      * @param request
@@ -2320,24 +2320,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         int siteCode = request.getCurrentOperate().getSiteCode();
 
         if (taskSend.getStartSiteId().intValue() != siteCode) {
-            response.toFail("å½“å‰å‘è½¦ä»»åŠ¡å§‹å‘IDä¸å²—ä½æ‰€å±å•ä½IDä¸ä¸€è‡´!");
+            response.toFail("µ±Ç°·¢³µÈÎÎñÊ¼·¢IDÓë¸ÚÎ»ËùÊôµ¥Î»ID²»Ò»ÖÂ!");
             return false;
         }
 
         Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
-            // æ— ä»»åŠ¡å‘è´§æœªç¡®è®¤ç›®çš„åœ°ä¿¡æ¯
+            // ÎŞÈÎÎñ·¢»õÎ´È·ÈÏÄ¿µÄµØĞÅÏ¢
             if (taskSend.manualCreatedTask()) {
                 if (Boolean.FALSE.equals(request.getNoTaskConfirmDest()) || !NumberHelper.gt0(request.getConfirmSendDestId())) {
                     if (!BusinessUtil.isBoxcode(barCode) && !WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode)) {
                         response.toBizError();
-                        response.addInterceptBox(0, "æ— ä»»åŠ¡é¦–æ¬¡æ‰«æåªèƒ½æ˜¯è¿å•æˆ–åŒ…è£¹æˆ–ç®±å·ï¼");
+                        response.addInterceptBox(0, "ÎŞÈÎÎñÊ×´ÎÉ¨ÃèÖ»ÄÜÊÇÔËµ¥»ò°ü¹ü»òÏäºÅ£¡");
                         return false;
                     }
-                    // æ— ä»»åŠ¡é¦–æ¬¡æ‰«æè¿”å›ç›®çš„åœ°
+                    // ÎŞÈÎÎñÊ×´ÎÉ¨Ãè·µ»ØÄ¿µÄµØ
                     Long matchDest = null;
                     response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
-                    response.addConfirmBox(0, "æ— ä»»åŠ¡å‘è´§è¯·ç¡®è®¤å‘è´§æµå‘");
+                    response.addConfirmBox(0, "ÎŞÈÎÎñ·¢»õÇëÈ·ÈÏ·¢»õÁ÷Ïò");
                     if (BusinessUtil.isBoxcode(barCode)) {
                         matchDest = getBoxMatchDestId(barCode, taskSend.getStartSiteId(), new HashSet<Long>());
                     } else {
@@ -2350,7 +2350,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                             ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
                             if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                                 response.getMsgBoxes().clear();
-                                response.addConfirmBox(101, "æ‚¨æ‰«æçš„" + waybillCode + "è®¢å•æ˜¯è½¬å¾·é‚¦è®¢å•ï¼Œéœ€æ‰‹åŠ¨é€‰æ‹©ä¸‹æ¸¸ç›®çš„åœ°ï¼Œè°¢è°¢ã€‚");
+                                response.addConfirmBox(101, "ÄúÉ¨ÃèµÄ" + waybillCode + "¶©µ¥ÊÇ×ªµÂ°î¶©µ¥£¬ĞèÊÖ¶¯Ñ¡ÔñÏÂÓÎÄ¿µÄµØ£¬Ğ»Ğ»¡£");
                                 return false;
                             }
                         }
@@ -2368,40 +2368,40 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
                     return false;
                 } else {
-                    // å®¢æˆ·ç«¯ç¡®è®¤æµå‘åä¿å­˜æ— ä»»åŠ¡çš„å‘è´§æµå‘ fixme ç­‰å‘è´§æˆåŠŸåæ‰å¯è®°å½•å·²ç¡®è®¤æµå‘ï¼Ÿ
+                    // ¿Í»§¶ËÈ·ÈÏÁ÷Ïòºó±£´æÎŞÈÎÎñµÄ·¢»õÁ÷Ïò fixme µÈ·¢»õ³É¹¦ºó²Å¿É¼ÇÂ¼ÒÑÈ·ÈÏÁ÷Ïò£¿
                     JyBizTaskSendVehicleDetailEntity noTaskDetail = makeNoTaskSendDetail(request, taskSend);
-                    logInfo("åˆå§‹åŒ–æ— ä»»åŠ¡å‘è´§æ˜ç»†. {}", JsonHelper.toJson(noTaskDetail));
+                    logInfo("³õÊ¼»¯ÎŞÈÎÎñ·¢»õÃ÷Ï¸. {}", JsonHelper.toJson(noTaskDetail));
                     transactionManager.saveTaskSendAndDetail(null, noTaskDetail);
 
-                    logInfo("å¯ç”¨æ— ä»»åŠ¡å‘è´§ä»»åŠ¡. {}", JsonHelper.toJson(taskSend));
+                    logInfo("ÆôÓÃÎŞÈÎÎñ·¢»õÈÎÎñ. {}", JsonHelper.toJson(taskSend));
                     this.enableNoTask(taskSend);
 
-                    // ä¿å­˜æ— ä»»åŠ¡å‘è´§å¤‡æ³¨
+                    // ±£´æÎŞÈÎÎñ·¢»õ±¸×¢
                     //saveNoTaskRemark(request);
                 }
             } else {
                 response.toBizError();
-                response.addInterceptBox(0, "å‘è´§æµå‘éƒ½å·²ä½œåºŸï¼");
+                response.addInterceptBox(0, "·¢»õÁ÷Ïò¶¼ÒÑ×÷·Ï£¡");
                 return false;
             }
         }
 
-        // æ ¡éªŒç®±å·æ˜¯å¦ç»‘å®šé›†åŒ…è¢‹
+        // Ğ£ÑéÏäºÅÊÇ·ñ°ó¶¨¼¯°ü´ü
         if (BusinessHelper.isBoxcode(barCode)) {
             Box box = boxService.findBoxByCode(barCode);
             if (box == null) {
                 response.toBizError();
-                response.addPromptBox(0, "æœªæŸ¥æ‰¾åˆ°å¯¹åº”çš„ç®±å·æ•°æ®ï¼Œè¯·æ‰«ææˆ–è¾“å…¥æ­£ç¡®çš„ç®±å·ï¼");
+                response.addPromptBox(0, "Î´²éÕÒµ½¶ÔÓ¦µÄÏäºÅÊı¾İ£¬ÇëÉ¨Ãè»òÊäÈëÕıÈ·µÄÏäºÅ£¡");
                 return false;
             }
             if (BusinessHelper.isBCBoxType(box.getType())) {
                 boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode);
                 if (needBindMaterialBag) {
-                    // ç®±å·æœªç»‘å®šé›†åŒ…è¢‹
+                    // ÏäºÅÎ´°ó¶¨¼¯°ü´ü
                     if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
                         if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
                             response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                            response.addInterceptBox(0, "è¯·æ‰«ææˆ–è¾“å…¥æ­£ç¡®çš„é›†åŒ…è¢‹ï¼");
+                            response.addInterceptBox(0, "ÇëÉ¨Ãè»òÊäÈëÕıÈ·µÄ¼¯°ü´ü£¡");
                             return false;
                         }
                     }
@@ -2430,7 +2430,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * å¯ç”¨æ— ä»»åŠ¡å‘è´§
+     * ÆôÓÃÎŞÈÎÎñ·¢»õ
      * @param taskSend
      */
     private void enableNoTask(JyBizTaskSendVehicleEntity taskSend) {
@@ -2454,7 +2454,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         noTaskDetail.setEndSiteId(request.getConfirmSendDestId());
         BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteBySiteId(noTaskDetail.getEndSiteId().intValue());
         noTaskDetail.setEndSiteName(endSite == null ? StringUtils.EMPTY : endSite.getSiteName());
-        // TODO æŒ‡å®šè‡ªå»ºä»»åŠ¡çš„é¢„è®¡å‘è½¦æ—¶é—´
+        // TODO Ö¸¶¨×Ô½¨ÈÎÎñµÄÔ¤¼Æ·¢³µÊ±¼ä
         Date noTaskPlanDate = new Date();
         noTaskDetail.setPlanDepartTime(noTaskPlanDate);
         noTaskDetail.setCreateUserErp("sys.dms");
@@ -2486,8 +2486,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendAttachmentService.saveAttachment(attachment);
             sendCarArriveStatus(attachment, request);
         } catch (Exception ex) {
-            log.error("å‘è´§æ‹ç…§ä¸Šä¼ å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼Œæ‹ç…§ä¸Šä¼ å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("·¢»õÅÄÕÕÉÏ´«Ê§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬ÅÄÕÕÉÏ´«Òì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -2511,9 +2511,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 jySendArriveStatusDto.setImgList(request.getImgList());
             }
             sendCarArriveStatusProducer.send(jySendArriveStatusDto.getTransWorkCode(), JsonHelper.toJson(jySendArriveStatusDto));
-            log.info("æ¨é€MQæ•°æ®ä¸ºtopic:{}->body:{}", "sendCarArriveStatusProducer", JsonHelper.toJson(jySendArriveStatusDto));
+            log.info("ÍÆËÍMQÊı¾İÎªtopic:{}->body:{}", "sendCarArriveStatusProducer", JsonHelper.toJson(jySendArriveStatusDto));
         } catch (Exception e) {
-            log.error("æ‹£è¿å‘è´§ä»»åŠ¡è½¦è¾†æ‹ç…§MQå‘é€å¤±è´¥,æ´¾è½¦å•å·:{} :  ", jyBizTaskSendVehicle.getTransWorkCode(), e);
+            log.error("¼ğÔË·¢»õÈÎÎñ³µÁ¾ÅÄÕÕMQ·¢ËÍÊ§°Ü,ÅÉ³µµ¥ºÅ:{} :  ", jyBizTaskSendVehicle.getTransWorkCode(), e);
         }
     }
 
@@ -2556,7 +2556,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             JyBizTaskSendVehicleEntity sendVehicleEntity = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
             if (sendVehicleEntity == null) {
-                invokeResult.hintMessage("å‘è´§ä»»åŠ¡ä¸å­˜åœ¨ï¼");
+                invokeResult.hintMessage("·¢»õÈÎÎñ²»´æÔÚ£¡");
                 return invokeResult;
             }
 
@@ -2567,11 +2567,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return invokeResult;
             }
 
-            // è®¾ç½®ç›®çš„åœ°ä¿¡æ¯
+            // ÉèÖÃÄ¿µÄµØĞÅÏ¢
             setSendVehicleDestInfo(request, sendVehicleInfo);
         } catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡è¯¦æƒ…å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å‘è½¦ä»»åŠ¡è¯¦æƒ…å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÈÎÎñÏêÇéÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯·¢³µÈÎÎñÏêÇéÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -2586,7 +2586,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         sendVehicleInfo.setDestCount(vehicleDetailList.size());
 
-        // å•æµå‘
+        // µ¥Á÷Ïò
         if (Objects.equals(sendVehicleInfo.getDestCount(), Constants.CONSTANT_NUMBER_ONE)) {
             JyBizTaskSendVehicleDetailEntity oneTargetItem = vehicleDetailList.get(0);
             sendVehicleInfo.setSendDetailBizId(oneTargetItem.getBizId());
@@ -2600,9 +2600,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
         JySendAttachmentEntity attachmentEntity = sendAttachmentService.selectBySendVehicleBizId(new JySendAttachmentEntity(request.getSendVehicleBizId()));
-        // å‘è´§å‰æ‹ç…§æ ‡è¯†
+        // ·¢»õÇ°ÅÄÕÕ±êÊ¶
         boolean sendPhotoFlag = false;
-        // å°è½¦å‰æ‹ç…§æ ‡è¯†
+        // ·â³µÇ°ÅÄÕÕ±êÊ¶
         boolean sealPhotoFlag = false;
         if (attachmentEntity != null) {
             sendPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getImgUrl());
@@ -2610,7 +2610,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         sendVehicleInfo.setPhoto(sendPhotoFlag);
         sendVehicleInfo.setSealPhoto(sealPhotoFlag);
-        // æ— ä»»åŠ¡ä¸éœ€æ‹ç…§
+        // ÎŞÈÎÎñ²»ĞèÅÄÕÕ
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);
         }
@@ -2629,7 +2629,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     /**
-     * è®¾ç½®è½¦é•¿æè¿°
+     * ÉèÖÃ³µ³¤ÃèÊö
      * @param sendVehicleEntity
      * @return
      */
@@ -2642,7 +2642,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 DecimalFormat df = new DecimalFormat("###.0");
                 carLengthStr = String.format(SendVehicleLabelOptionEnum.CAR_LENGTH.getName(), df.format(carLength / 100));
             } catch (NumberFormatException e) {
-                log.error("è§£æè½¦é•¿å¤±è´¥. {}", JsonHelper.toJson(basicVehicleType));
+                log.error("½âÎö³µ³¤Ê§°Ü. {}", JsonHelper.toJson(basicVehicleType));
             }
         }
 
@@ -2651,16 +2651,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     /**
-     * è®¾ç½®è½¦è¾†åˆ°æ¥çŠ¶æ€
+     * ÉèÖÃ³µÁ¾µ½À´×´Ì¬
      *
      * @param sendVehicleEntity
      * @return
      */
     private SendVehicleLabelOptionEnum setCarCome(JyBizTaskSendVehicleEntity sendVehicleEntity) {
         SendVehicleLabelOptionEnum carComeEnum = null;
-        // å³å°†åˆ°è¾¾ ï¼ˆå¯¹åº”å½“å‰å§‹å‘åœºåœ°æ¥è¯´ è¿è¾“æµ‹ç§°ä¹‹ä¸º ã€åˆ°æ¥ã€‘ï¼Œç›®çš„åœºåœ°æ‰å«ã€åˆ°è¾¾ã€‘ï¼Œæ‹£è¿è¿™è¾¹ä¸šåŠ¡å€¾å‘äºå«åˆ°è¾¾ï¼‰
-        // å·²åˆ°è¾¾ ï¼ˆå¯¹åº”å½“å‰å§‹å‘åœºåœ°æ¥è¯´ è¿è¾“æµ‹ç§°ä¹‹ä¸º ã€åˆ°æ¥ã€‘ï¼Œç›®çš„åœºåœ°æ‰å«ã€åˆ°è¾¾ã€‘ï¼Œæ‹£è¿è¿™è¾¹ä¸šåŠ¡å€¾å‘äºå«åˆ°è¾¾ï¼‰
-        // å·²åˆ°è¾¾ é«˜äº å³å°†
+        // ¼´½«µ½´ï £¨¶ÔÓ¦µ±Ç°Ê¼·¢³¡µØÀ´Ëµ ÔËÊä²â³ÆÖ®Îª ¡¾µ½À´¡¿£¬Ä¿µÄ³¡µØ²Å½Ğ¡¾µ½´ï¡¿£¬¼ğÔËÕâ±ßÒµÎñÇãÏòÓÚ½Ğµ½´ï£©
+        // ÒÑµ½´ï £¨¶ÔÓ¦µ±Ç°Ê¼·¢³¡µØÀ´Ëµ ÔËÊä²â³ÆÖ®Îª ¡¾µ½À´¡¿£¬Ä¿µÄ³¡µØ²Å½Ğ¡¾µ½´ï¡¿£¬¼ğÔËÕâ±ßÒµÎñÇãÏòÓÚ½Ğµ½´ï£©
+        // ÒÑµ½´ï ¸ßÓÚ ¼´½«
         if(sendVehicleEntity.getNearComeTime()!=null){
             carComeEnum = SendVehicleLabelOptionEnum.ABOUT_ARRIVE;
         }
@@ -2690,7 +2690,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
             if (CollectionUtils.isEmpty(vehicleDetailList)) {
-                invokeResult.hintMessage("å‘è´§æµå‘ä¸ºç©º");
+                invokeResult.hintMessage("·¢»õÁ÷ÏòÎª¿Õ");
                 return invokeResult;
             }
             List<SendDestDetail> sendDestDetails = new ArrayList<>();
@@ -2720,8 +2720,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendDestDetails.add(sendDestDetail);
             }
         } catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è´§ä»»åŠ¡æµå‘å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å‘è´§ä»»åŠ¡æµå‘å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢»õÈÎÎñÁ÷ÏòÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯·¢»õÈÎÎñÁ÷ÏòÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -2740,7 +2740,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
             if (taskSend == null) {
-                invokeResult.hintMessage("å‘è½¦ä»»åŠ¡ä¸å­˜åœ¨ï¼");
+                invokeResult.hintMessage("·¢³µÈÎÎñ²»´æÔÚ£¡");
                 return invokeResult;
             }
 
@@ -2748,24 +2748,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.setData(progress);
 
             setSendProgressData(taskSend, progress);
-            // flinkç§¯å‹å¯¼è‡´è¿›åº¦ä¸å‡†ï¼Œæç¤ºå‰å°å‹å¥½æç¤º
+            // flink»ıÑ¹µ¼ÖÂ½ø¶È²»×¼£¬ÌáÊ¾Ç°Ì¨ÓÑºÃÌáÊ¾
             if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_SEND_IS_DEMOTION)){
-                throw new JyDemotionException("è¿›åº¦æ•°æ®ä¸å‡†ï¼Œflinké™çº§!");
+                throw new JyDemotionException("½ø¶ÈÊı¾İ²»×¼£¬flink½µ¼¶!");
             }
         }
         catch (JyDemotionException e){
             invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_PROCESS_NOT_ACCURATE, false));
         }
         catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è´§è¿›åº¦å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å‘è´§è¿›åº¦å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢»õ½ø¶ÈÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯·¢»õ½ø¶ÈÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
     }
 
     /**
-     * è®¾ç½®å‘è´§è¿›åº¦
+     * ÉèÖÃ·¢»õ½ø¶È
      * @param taskSend
      * @param progress
      */
@@ -2790,9 +2790,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
             progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
         }
-        log.info("è·å–å¾…æ‰«æ•°æ®å…¥å‚--{}",taskSend.getBizId());
+        log.info("»ñÈ¡´ıÉ¨Êı¾İÈë²Î--{}",taskSend.getBizId());
         Long toScanCountSum = jySendProductAggsService.getToScanCountSum(taskSend.getBizId());
-        log.info("è·å–å¾…æ‰«æ•°æ®--{}",toScanCountSum);
+        log.info("»ñÈ¡´ıÉ¨Êı¾İ--{}",toScanCountSum);
         progress.setToScanCount(toScanCountSum);
 
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
@@ -2832,19 +2832,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             JyBizTaskSendVehicleDetailEntity taskDetail = taskSendVehicleDetailService.findByBizId(request.getSendDetailBizId());
             if (taskDetail == null) {
-                invokeResult.hintMessage("å‘è´§æµå‘å·²ä½œåºŸï¼");
+                invokeResult.hintMessage("·¢»õÁ÷ÏòÒÑ×÷·Ï£¡");
                 return invokeResult;
             }
 
             SendAbnormalResponse response = new SendAbnormalResponse();
-            response.setNormalFlag(Boolean.TRUE); // é»˜è®¤æ­£å¸¸
+            response.setNormalFlag(Boolean.TRUE); // Ä¬ÈÏÕı³£
             invokeResult.setData(response);
 
             if (!getSendTaskNormalStatus(request, invokeResult, taskDetail, response)) {
                 return invokeResult;
             }
 
-            // å¼ºåˆ¶å‰å¾€å°è½¦æˆ–è€…ä»»åŠ¡çŠ¶æ€æ­£å¸¸ï¼Œä»»åŠ¡çŠ¶æ€å˜ä¸ºå¾…å°è½¦
+            // Ç¿ÖÆÇ°Íù·â³µ»òÕßÈÎÎñ×´Ì¬Õı³££¬ÈÎÎñ×´Ì¬±äÎª´ı·â³µ
             if (request.getForceGoToSeal() || response.getNormalFlag()) {
                 JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(taskDetail.getSendVehicleBizId());
                 taskDetail.setUpdateTime(new Date());
@@ -2856,19 +2856,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendVehicleTransactionManager.updateTaskStatus(taskSend, taskDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
             }
         } catch (Exception ex) {
-            log.error("åˆ¤æ–­å‘è´§å¼‚å¸¸çŠ¶æ€å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("ÅĞ¶Ï·¢»õÒì³£×´Ì¬Ê§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
     }
 
     /**
-     * æ ¡éªŒå‘è´§ä»»åŠ¡æ˜¯å¦å¼‚å¸¸
+     * Ğ£Ñé·¢»õÈÎÎñÊÇ·ñÒì³£
      * <ul>
-     *     <li>æ— ä»»åŠ¡å‘è´§å¿…é¡»ç»‘å®šä»»åŠ¡æ‰èƒ½å°è½¦</li>
-     *     <li>å•æµå‘ä»»åŠ¡ç›´æ¥æ ¡éªŒï¼Œå¤šæµå‘åªåœ¨æœ€åä¸€ä¸ªæµå‘å°è½¦æ—¶æ ¡éªŒ</li>
-     *     <li>æ‹¦æˆª&å¼ºæ‰«æˆ–è£…è½½ç‡ä¸è¶³ï¼Œä¸¤è€…éƒ½æ»¡è¶³æ—¶å¼‚å¸¸ä¼˜å…ˆ</li>
+     *     <li>ÎŞÈÎÎñ·¢»õ±ØĞë°ó¶¨ÈÎÎñ²ÅÄÜ·â³µ</li>
+     *     <li>µ¥Á÷ÏòÈÎÎñÖ±½ÓĞ£Ñé£¬¶àÁ÷ÏòÖ»ÔÚ×îºóÒ»¸öÁ÷Ïò·â³µÊ±Ğ£Ñé</li>
+     *     <li>À¹½Ø&Ç¿É¨»ò×°ÔØÂÊ²»×ã£¬Á½Õß¶¼Âú×ãÊ±Òì³£ÓÅÏÈ</li>
      * </ul>
      * @param request
      * @param invokeResult
@@ -2878,7 +2878,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private boolean getSendTaskNormalStatus(SendAbnormalRequest request, InvokeResult<SendAbnormalResponse> invokeResult,
                                             JyBizTaskSendVehicleDetailEntity taskDetail, SendAbnormalResponse response) {
-        // å¼ºåˆ¶å‰å¾€å°è½¦è·³è¿‡æ ¡éªŒ
+        // Ç¿ÖÆÇ°Íù·â³µÌø¹ıĞ£Ñé
         if (request.getForceGoToSeal()) {
             return true;
         }
@@ -2900,14 +2900,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        // æ— ä»»åŠ¡å‘è´§æ ¡éªŒæ˜¯å¦ç»‘å®šäº†å‘è½¦ä»»åŠ¡
+        // ÎŞÈÎÎñ·¢»õĞ£ÑéÊÇ·ñ°ó¶¨ÁË·¢³µÈÎÎñ
         JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(sendVehicleBizId);
         if (taskSend.manualCreatedTask()) {
-            invokeResult.hintMessage("æ— ä»»åŠ¡ä¸å…è®¸å°è½¦ï¼");
+            invokeResult.hintMessage("ÎŞÈÎÎñ²»ÔÊĞí·â³µ£¡");
             return false;
         }
 
-        // å½“å‰å°è½¦æµå‘æ˜¯æœ€åä¸€ä¸ª
+        // µ±Ç°·â³µÁ÷ÏòÊÇ×îºóÒ»¸ö
         if (sealedDestCount == destList.size() - 1) {
             boolean existAbnormal = jySendService.findSendRecordExistAbnormal(taskSend.getStartSiteId(), sendVehicleBizId);
             if (existAbnormal) {
@@ -2946,8 +2946,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_INTERCEPT, false));
         }
         catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è½¦æ‹¦æˆªåŒ…è£¹è®°å½•å¼‚å¸¸. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢æ‹¦æˆªåŒ…è£¹è®°å½•å¤±è´¥ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÀ¹½Ø°ü¹ü¼ÇÂ¼Òì³£. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯À¹½Ø°ü¹ü¼ÇÂ¼Ê§°Ü£¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -2977,7 +2977,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * å¤„ç†åŒ…è£¹å±•ç¤ºæ ‡ç­¾
+     * ´¦Àí°ü¹üÕ¹Ê¾±êÇ©
      * @param entranceEnum
      * @param detailVo
      * @return
@@ -3029,8 +3029,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_FORCE, false));
         }
         catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è½¦å¼ºåˆ¶å‘è´§åŒ…è£¹è®°å½•å¼‚å¸¸. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å¼ºåˆ¶å‘è´§åŒ…è£¹è®°å½•å¤±è´¥ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÇ¿ÖÆ·¢»õ°ü¹ü¼ÇÂ¼Òì³£. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯Ç¿ÖÆ·¢»õ°ü¹ü¼ÇÂ¼Ê§°Ü£¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -3055,8 +3055,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_ABNORMAL, false));
         }
         catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è½¦å¼‚å¸¸åŒ…è£¹è®°å½•å¼‚å¸¸. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å¼‚å¸¸åŒ…è£¹è®°å½•å¤±è´¥ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÒì³£°ü¹ü¼ÇÂ¼Òì³£. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯Òì³£°ü¹ü¼ÇÂ¼Ê§°Ü£¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -3088,7 +3088,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
             if (CollectionUtils.isEmpty(vehicleDetailList)) {
-                invokeResult.hintMessage("å‘è´§æµå‘å·²ä½œåºŸï¼");
+                invokeResult.hintMessage("·¢»õÁ÷ÏòÒÑ×÷·Ï£¡");
                 return invokeResult;
             }
 
@@ -3096,12 +3096,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             toSealDestAgg.setSealedTotal(this.getSealedDestTotal(request.getSendVehicleBizId()));
             toSealDestAgg.setDestTotal(this.getDestTotal(request.getSendVehicleBizId()));
 
-            // è®¾ç½®å‘è´§æµå‘
+            // ÉèÖÃ·¢»õÁ÷Ïò
             toSealDestAgg.setDestList(this.setSendDestDetail(request, vehicleDetailList));
             invokeResult.setData(toSealDestAgg);
         } catch (Exception ex) {
-            log.error("è·å–å‘è½¦æµå‘å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼Œè·å–å‘è½¦æµå‘å¤±è´¥ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("»ñÈ¡·¢³µÁ÷ÏòÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬»ñÈ¡·¢³µÁ÷ÏòÊ§°Ü£¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -3128,16 +3128,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
                     if (isTrunkOrBranch) {
                         boolean needIntercept = Boolean.TRUE;
-                        //è¡¥å……åˆ¤æ–­è¿åŠ›çš„è¿è¾“æ–¹å¼æ˜¯å¦åŒ…å«é“è·¯æˆ–è€…èˆªç©º
+                        //²¹³äÅĞ¶ÏÔËÁ¦µÄÔËÊä·½Ê½ÊÇ·ñ°üº¬ÌúÂ·»òÕßº½¿Õ
                         if (receiveSiteDto != null && createSiteDto != null) {
                             TransportResourceDto transportResourceDto = new TransportResourceDto();
-                            // å§‹å‘åŒºåŸŸ
+                            // Ê¼·¢ÇøÓò
                             transportResourceDto.setStartOrgCode(String.valueOf(createSiteDto.getOrgId()));
-                            // å§‹å‘ç«™
+                            // Ê¼·¢Õ¾
                             transportResourceDto.setStartNodeId(createSite);
-                            // ç›®çš„åŒºåŸŸ
+                            // Ä¿µÄÇøÓò
                             transportResourceDto.setEndOrgCode(String.valueOf(receiveSiteDto.getOrgId()));
-                            // ç›®çš„ç«™
+                            // Ä¿µÄÕ¾
                             transportResourceDto.setEndNodeId(receiveSite);
                             List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                             if (transportResourceDtos != null) {
@@ -3156,7 +3156,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     }
                 }
             } catch (Exception e) {
-                log.error("checkMainLineSendTask-æ ¡éªŒå¼‚å¸¸", e);
+                log.error("checkMainLineSendTask-Ğ£ÑéÒì³£", e);
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
@@ -3208,7 +3208,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * è®¾ç½®å‘è´§æµå‘æ•°æ®
+     * ÉèÖÃ·¢»õÁ÷ÏòÊı¾İ
      * @param request
      * @param vehicleDetailList
      */
@@ -3258,18 +3258,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         try {
             final SendTaskInfo sendTaskInfo = new SendTaskInfo();
-            // æŸ¥è¯¢ä¸»ä»»åŠ¡æ•°æ®
+            // ²éÑ¯Ö÷ÈÎÎñÊı¾İ
             JyBizTaskSendVehicleEntity sendVehicleEntity = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
             if (sendVehicleEntity == null) {
-                invokeResult.hintMessage("å‘è´§ä»»åŠ¡ä¸å­˜åœ¨ï¼");
+                invokeResult.hintMessage("·¢»õÈÎÎñ²»´æÔÚ£¡");
                 return invokeResult;
             }
             this.fillSendTaskInfo(sendTaskInfo, sendVehicleEntity);
 
-            // æŸ¥è¯¢æ˜ç»†åˆ—è¡¨
+            // ²éÑ¯Ã÷Ï¸ÁĞ±í
             List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
             if (CollectionUtils.isEmpty(vehicleDetailList)) {
-                invokeResult.hintMessage("å‘è´§æµå‘ä¸ºç©º");
+                invokeResult.hintMessage("·¢»õÁ÷ÏòÎª¿Õ");
                 return invokeResult;
             }
             List<SendTaskItemDetail> sendTaskItemDetails = new ArrayList<>();
@@ -3278,12 +3278,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
             sendTaskInfo.setDetailList(sendTaskItemDetails);
 
-            // æŸ¥è¯¢å‘è´§è¿›åº¦
+            // ²éÑ¯·¢»õ½ø¶È
             SendVehicleProgress progress = new SendVehicleProgress();
             setSendProgressData(sendVehicleEntity, progress);
             sendTaskInfo.setSendVehicleProgress(progress);
 
-            // æŸ¥è¯¢æ‰¹æ¬¡
+            // ²éÑ¯Åú´Î
             final List<JySendCodeEntity> sendCodeEntityList = jySendCodeService.queryByVehicleBizId(request.getSendVehicleBizId());
             if (CollectionUtils.isNotEmpty(sendCodeEntityList)) {
                 Map<String, List<String>> sendCodeEntityMapGbDetailIdMap = new HashMap<>();
@@ -3307,8 +3307,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
             invokeResult.setData(sendTaskInfo);
         } catch (Exception ex) {
-            log.error("æŸ¥è¯¢å‘è½¦ä»»åŠ¡è¯¦æƒ…å¤±è´¥. {}", JsonHelper.toJson(request), ex);
-            invokeResult.error("æœåŠ¡å™¨å¼‚å¸¸ï¼ŒæŸ¥è¯¢å‘è½¦ä»»åŠ¡è¯¦æƒ…å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("²éÑ¯·¢³µÈÎÎñÏêÇéÊ§°Ü. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("·şÎñÆ÷Òì³££¬²éÑ¯·¢³µÈÎÎñÏêÇéÒì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
 
         return invokeResult;
@@ -3330,37 +3330,37 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public InvokeResult<List<SendVehicleProductTypeAgg>> sendVehicleToScanAggByProduct(SendVehicleCommonRequest request) {
         InvokeResult<List<SendVehicleProductTypeAgg>> result = new InvokeResult<>();
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
-            result.parameterError("è¯·é€‰æ‹©å‘è½¦ä»»åŠ¡ï¼");
+            result.parameterError("ÇëÑ¡Ôñ·¢³µÈÎÎñ£¡");
             return result;
         }
         try {
             List<SendVehicleProductTypeAgg> productTypeList = Lists.newArrayList();
             result.setData(productTypeList);
-            log.info("ç»Ÿè®¡å¾…æ‰«äº§å“ç±»å‹å’ŒåŒ…è£¹æ€»æ•°å…¥å‚-{}", JSON.toJSONString(request));
+            log.info("Í³¼Æ´ıÉ¨²úÆ·ÀàĞÍºÍ°ü¹ü×ÜÊıÈë²Î-{}", JSON.toJSONString(request));
             List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(request.getSendVehicleBizId());
-            log.info("ç»Ÿè®¡å¾…æ‰«äº§å“ç±»å‹å’ŒåŒ…è£¹æ€»æ•°ç»“æœ-{}",JSON.toJSONString(sendVehicleProductTypeList));
+            log.info("Í³¼Æ´ıÉ¨²úÆ·ÀàĞÍºÍ°ü¹ü×ÜÊı½á¹û-{}",JSON.toJSONString(sendVehicleProductTypeList));
             if (CollectionUtils.isEmpty(sendVehicleProductTypeList)) {
                 return result;
             }
             makeToScanCountAggByProduct(productTypeList, sendVehicleProductTypeList);
         }
         catch (Exception ex) {
-            log.error("æŒ‰äº§å“ç±»å‹ç»Ÿè®¡å¾…æ‰«åŒ…è£¹æ€»æ•°å¼‚å¸¸. {}-{}", JsonHelper.toJson(request), ex.getMessage(),ex);
-            result.error("æŸ¥è¯¢å¾…æ‰«åŒ…è£¹æ•°æ®æœåŠ¡å™¨å¼‚å¸¸ï¼Œè¯·å’šå’šè”ç³»åˆ†æ‹£å°ç§˜ï¼");
+            log.error("°´²úÆ·ÀàĞÍÍ³¼Æ´ıÉ¨°ü¹ü×ÜÊıÒì³£. {}-{}", JsonHelper.toJson(request), ex.getMessage(),ex);
+            result.error("²éÑ¯´ıÉ¨°ü¹üÊı¾İ·şÎñÆ÷Òì³££¬ÇëßËßËÁªÏµ·Ö¼ğĞ¡ÃØ£¡");
         }
         return result;
     }
 
     @Override
     public InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest  request) {
-        log.info("JySendVehicleServiceImpl.SendVehicleToScanPackageDetail-å‘è½¦å²—æŒ‰äº§å“ç±»å‹æŸ¥è¯¢å¾…æ‰«åŒ…è£¹ä¿¡æ¯å…¥å‚-{}", JSON.toJSONString(request));
+        log.info("JySendVehicleServiceImpl.SendVehicleToScanPackageDetail-·¢³µ¸Ú°´²úÆ·ÀàĞÍ²éÑ¯´ıÉ¨°ü¹üĞÅÏ¢Èë²Î-{}", JSON.toJSONString(request));
         InvokeResult<SendVehicleToScanPackageDetailResponse> invokeResult = new InvokeResult<>();
         if(request == null || StringUtils.isBlank(request.getSendVehicleBizId()) || StringUtils.isBlank(request.getProductType())){
-            invokeResult.parameterError("æŸ¥è¯¢å‚æ•°ä¸èƒ½ä¸ºç©ºï¼");
+            invokeResult.parameterError("²éÑ¯²ÎÊı²»ÄÜÎª¿Õ£¡");
             return invokeResult;
         }
         if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
-            invokeResult.parameterError("æŸ¥è¯¢åˆ†é¡µä¿¡æ¯ä¸èƒ½ä¸ºç©ºï¼");
+            invokeResult.parameterError("²éÑ¯·ÖÒ³ĞÅÏ¢²»ÄÜÎª¿Õ£¡");
         }
         try {
             JyBizTaskSendVehicleDetailEntity entity = new JyBizTaskSendVehicleDetailEntity();
@@ -3368,7 +3368,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(entity);
 
-            log.info("å‘è½¦å²—æŒ‰äº§å“ç±»å‹æŸ¥è¯¢å¾…æ‰«åŒ…è£¹è·å–ç›®çš„åœ°-{}  ç»“æœ-{}",JSON.toJSONString(entity),JSON.toJSONString(receiveIds));
+            log.info("·¢³µ¸Ú°´²úÆ·ÀàĞÍ²éÑ¯´ıÉ¨°ü¹ü»ñÈ¡Ä¿µÄµØ-{}  ½á¹û-{}",JSON.toJSONString(entity),JSON.toJSONString(receiveIds));
 
             Pager<SendVehiclePackageDetailQuery> queryPager = new Pager<>();
             SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
@@ -3400,8 +3400,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }catch (JyDemotionException e){
             invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_INTERCEPT, false));
         }catch (Exception e){
-            log.error("SendVehicleToScanPackageDetail-å‘è½¦å²—æŒ‰äº§å“ç±»å‹æŸ¥è¯¢å¾…æ‰«åŒ…è£¹ä¿¡æ¯å¼‚å¸¸! å…¥å‚-{},{}",JSON.toJSONString(request),e.getMessage(),e);
-            invokeResult.error("å‘è½¦å²—æŒ‰äº§å“ç±»å‹æŸ¥è¯¢å¾…æ‰«åŒ…è£¹ä¿¡æ¯å¼‚å¸¸!");
+            log.error("SendVehicleToScanPackageDetail-·¢³µ¸Ú°´²úÆ·ÀàĞÍ²éÑ¯´ıÉ¨°ü¹üĞÅÏ¢Òì³£! Èë²Î-{},{}",JSON.toJSONString(request),e.getMessage(),e);
+            invokeResult.error("·¢³µ¸Ú°´²úÆ·ÀàĞÍ²éÑ¯´ıÉ¨°ü¹üĞÅÏ¢Òì³£!");
         }
         return invokeResult;
     }

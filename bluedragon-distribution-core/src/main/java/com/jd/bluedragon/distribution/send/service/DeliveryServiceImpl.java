@@ -6084,16 +6084,28 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
             return null;
         }
-        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
-        if(!economicNetService.isReady(box)){
-            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
-            try{
-                Thread.sleep(1000);
-            }catch (Exception e){}
-            if(!economicNetService.isReady(box)){
-                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
-            }
+//        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
+//        if(!economicNetService.isReady(box)){
+//            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
+//            try{
+//                Thread.sleep(1000);
+//            }catch (Exception e){}
+//
+//            if (economicNetService.isReady(box)) {
+//                log.info("处理中转发货时需要等待经济网箱包关系第二次请求初始化成功：{}", box.getCode());
+//            } else {
+//                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
+//            }
+//        } else {
+//            log.info("处理中转发货时需要等待经济网箱包关系第一次请求初始化成功：{}", box.getCode());
+//        }
+
+        if (economicNetService.isReady(box)) {
+            log.info("处理中转发货时需要等待经济网箱包关系请求初始化成功：{}", box.getCode());
+        } else {
+            throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
         }
+
         List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
         if(CollectionUtils.isEmpty(thirdBoxDetails)){
             return null;
