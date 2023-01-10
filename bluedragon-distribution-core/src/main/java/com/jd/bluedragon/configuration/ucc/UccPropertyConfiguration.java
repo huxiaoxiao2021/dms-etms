@@ -744,8 +744,8 @@ public class UccPropertyConfiguration {
 
     private Integer jySendTaskCreateTimeBeginDay;
 
-    private Integer jyComboardTaskCreateTimeBeginDay;
 
+    private Integer jyComboardTaskCreateTimeBeginDay;
     /**
      * 切换转运基础服务开关
      */
@@ -792,7 +792,7 @@ public class UccPropertyConfiguration {
     private Integer jyComboardSiteCTTPageSize;
 
     private boolean syncScheduleTaskSwitch;
-
+    
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -1078,11 +1078,6 @@ public class UccPropertyConfiguration {
      * 运单系统查不到包裹号时的拦截校验开关： true 拦截  false 不拦截
      */
     private Boolean waybillSysNonExistPackageInterceptSwitch;
-
-
-
-
-
 
     /**
      * 设备校准任务时长
@@ -2563,38 +2558,6 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
-    public Integer getBulkScanPackageMinCount() {
-        return bulkScanPackageMinCount;
-    }
-
-    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
-        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
-    }
-
-    public Integer getJyComboardTaskCreateTimeBeginDay() {
-        return jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
-        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public Integer getJyComboardScanUserBeginDay() {
-        return jyComboardScanUserBeginDay;
-    }
-
-    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
-        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
-    }
-
-    public Integer getJyComboardSiteCTTPageSize() {
-        return jyComboardSiteCTTPageSize;
-    }
-
-    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
-        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
-    }
-
     public Integer getUploadDeviceLocationInterval() {
         return uploadDeviceLocationInterval;
     }
@@ -2667,6 +2630,33 @@ public class UccPropertyConfiguration {
         return machineCalibrateIntervalTimeOfSpotCheck;
     }
 
+    public Integer getBulkScanPackageMinCount() {
+        return bulkScanPackageMinCount;
+    }
+
+    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
+    }
+
+    public Integer getJyComboardTaskCreateTimeBeginDay() {
+        return jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public Integer getJyComboardScanUserBeginDay() {
+        return jyComboardScanUserBeginDay;
+    }
+
+    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
+        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
+    }
+
+    public Integer getJyComboardSiteCTTPageSize() {
+        return jyComboardSiteCTTPageSize;
+    }
     public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
     }
@@ -2685,5 +2675,8 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
         this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
+        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
     }
 }
