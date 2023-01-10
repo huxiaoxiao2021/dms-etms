@@ -225,7 +225,7 @@
         box_scanned_count = #{boxScannedCount},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}  and ts <![CDATA[ <= ]]>  #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
