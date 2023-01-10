@@ -322,6 +322,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         //截取车牌后4位逻辑
         if(!StringUtils.isEmpty(entity.getVehicleNumber())){
+            // 过滤车牌号中的特殊字符
+            String vehicleNumber = entity.getVehicleNumber().replaceAll(Constants.SPECIAL_CHAR_REGEX, "");
+            entity.setVehicleNumber(vehicleNumber);
             int vl = entity.getVehicleNumber().length();
             String fvn = entity.getVehicleNumber();
             if(vl > 4){
