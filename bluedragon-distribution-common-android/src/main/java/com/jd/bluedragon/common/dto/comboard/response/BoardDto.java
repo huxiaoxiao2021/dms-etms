@@ -66,6 +66,11 @@ public class BoardDto implements Serializable {
      * 选中状态
      */
     private boolean selectedFlag;
+
+    /**
+     * 展开状态
+     */
+    private boolean extendFlag;
     
     public List<GoodsCategoryDto> getGoodsCategoryDtos() {
         return goodsCategoryDtos;
@@ -194,5 +199,13 @@ public class BoardDto implements Serializable {
 
     public void setSelectedFlag(boolean selectedFlag) {
         this.selectedFlag = selectedFlag;
+    }
+
+    public boolean isExtendFlag() {
+        return extendFlag;
+    }
+
+    public void setExtendFlag(boolean extendFlag) {
+        this.extendFlag = extendFlag;
     }
 }
