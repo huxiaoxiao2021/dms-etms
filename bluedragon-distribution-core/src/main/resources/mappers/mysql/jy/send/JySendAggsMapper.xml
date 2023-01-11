@@ -404,4 +404,11 @@
         AND send_vehicle_biz_id = #{sendVehicleBizId}
     </select>
 
+    <select id="getSendAggsListByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery" resultMap="jySendAggsMap">
+        select * from jy_send_aggs
+        where yn =1
+        and operate_site_id = #{operateSiteId}
+        and create_time between #{startTime} and #{endTime}
+
+    </select>
 </mapper>

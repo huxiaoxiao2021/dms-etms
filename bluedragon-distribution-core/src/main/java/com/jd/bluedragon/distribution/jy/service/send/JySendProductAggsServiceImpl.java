@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dao.send.*;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -76,6 +77,11 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     @Override
     public List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query) {
         return jySendProductAggsDaoBak.getSendProductAggBakData(query);
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
+        return jySendProductAggsDao.getSendAggsListByCondition(query);
     }
 
     /**

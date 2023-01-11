@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 
 import java.util.List;
 
@@ -31,6 +32,8 @@ public interface JySendAggsService {
     List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query);
 
     List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
+
+    List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query);
 }
 
 
