@@ -90,10 +90,8 @@ public class CrossDistributionFilter implements Filter {
         if (!Objects.equals(request.getReceiveSiteCode(), 2078033)) {
             // 德邦春节项目的错发校验跳过
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
-                ConfigTransferDpSiteMatchQo siteQo = new ConfigTransferDpSiteMatchQo();
-                siteQo.setHandoverSiteCode(request.getCreateSiteCode());
-                siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
-                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteQo);
+                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
+                        .queryMatchConditionRecord(request.getCreateSiteCode(), request.getWaybillSite().getCode());
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
                     if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
                         chain.doFilter(request, chain);

@@ -408,6 +408,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Override
 	public boolean taskToSorting(List<Sorting> sortings) {
+		CallerInfo callerInfo = Profiler.registerInfo("DMSWORKER.SortingService.taskToSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
@@ -421,6 +422,7 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
+		Profiler.registerInfoEnd(callerInfo);
 		return true;
 	}
 

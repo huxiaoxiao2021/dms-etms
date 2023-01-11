@@ -702,10 +702,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         //春节项目的特殊逻辑
         if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
-            ConfigTransferDpSiteMatchQo siteMatchQo = new ConfigTransferDpSiteMatchQo();
-            siteMatchQo.setPreSortSiteCode(waybill.getOldSiteId());
-            siteMatchQo.setHandoverSiteCode(request.getCurrentOperate().getSiteCode());
-            ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteMatchQo);
+            ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
+                    .queryMatchConditionRecord(request.getCurrentOperate().getSiteCode(),waybill.getOldSiteId());
             if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
                 result.setCode(InvokeResult.DP_SPECIAL_CODE);
                 result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));

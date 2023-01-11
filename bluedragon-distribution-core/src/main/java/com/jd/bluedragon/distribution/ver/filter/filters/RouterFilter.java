@@ -73,7 +73,8 @@ public class RouterFilter implements Filter {
                 ConfigTransferDpSiteMatchQo siteQo = new ConfigTransferDpSiteMatchQo();
                 siteQo.setHandoverSiteCode(request.getCreateSiteCode());
                 siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
-                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteQo);
+                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
+                        .queryMatchConditionRecord(request.getCreateSiteCode(), request.getWaybillSite().getCode());
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
                     if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
                         chain.doFilter(request, chain);
