@@ -884,10 +884,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // 第二次确认路由，不需要处理
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
             if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign()) && manualCreatedFlag) {
-                ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
-                matchQo.setHandoverSiteCode(startSiteId);
-                matchQo.setPreSortSiteCode(waybill.getOldSiteId());
-                ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                ConfigTransferDpSite resultCof = jyTransferConfigProxy.ionRecord(startSiteId,waybill.getOldSiteId());
                 if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                     matchDestIdByPack = null;
                     response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
@@ -2344,10 +2341,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         final String waybillCode = WaybillUtil.getWaybillCode(barCode);
                         Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
                         if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign())) {
-                            ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
-                            matchQo.setHandoverSiteCode(taskSend.getStartSiteId().intValue());
-                            matchQo.setPreSortSiteCode(waybill.getOldSiteId());
-                            ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                            ConfigTransferDpSite resultCof = jyTransferConfigProxy
+                                    .queryMatchConditionRecord(taskSend.getStartSiteId().intValue(),waybill.getOldSiteId());
                             if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                                 response.getMsgBoxes().clear();
                                 response.addConfirmBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");
