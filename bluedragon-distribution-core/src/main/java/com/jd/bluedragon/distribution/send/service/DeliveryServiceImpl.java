@@ -3913,6 +3913,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
             List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
 
+            CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
                 tSendDetail.setStatus(1);
@@ -3958,13 +3959,24 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendDetailList.add(tSendDetail);
                 }
             }
+            if(log.isInfoEnabled() && sendDetails.size() > 10) {
+                log.info("DeliveryService.updateWaybillStatus更新运单回传之后状态, 參數sendDetails大小为", sendDetails.size());
+            }
+            Profiler.registerInfoEnd(info0);
 
+
+            // 加入UMP监控
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.1", false, true);
             // 批量发送发货明细MQ消息
             this.dmsWorkSendDetailMQ.batchSendOnFailPersistent(sendDetailMQList);
+            Profiler.registerInfoEnd(info1);
 
+            CallerInfo info2 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.2", false, true);
             // 批量添加回传全程跟踪状态任务
             this.addWaybillStatusTask(waybillStatusList, sendTypeList);
+            Profiler.registerInfoEnd(info2);
 
+            CallerInfo info3 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.3", false, true);
             if (!sendDetailList.isEmpty()) {
                 this.updateWaybillStatusByPackage(sendDetailList);
             }
@@ -3972,6 +3984,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (!cancelSendList.isEmpty()) {
                 this.updateSendStatusByPackage(cancelSendList);
             }
+            Profiler.registerInfoEnd(info3);
+
         }
         return true;
     }
