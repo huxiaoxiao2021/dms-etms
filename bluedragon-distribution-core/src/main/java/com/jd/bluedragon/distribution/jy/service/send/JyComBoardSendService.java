@@ -159,4 +159,11 @@ public interface JyComBoardSendService {
   InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 
   InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
+
+  /**
+   * 删除混扫任务
+   * @param request
+   * @return
+   */
+  InvokeResult deleteCTTGroup(DeleteCTTGroupReq request);
 }

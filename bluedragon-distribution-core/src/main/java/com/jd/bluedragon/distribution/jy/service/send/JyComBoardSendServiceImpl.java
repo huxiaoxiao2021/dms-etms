@@ -2525,6 +2525,34 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
+  @Override
+  public InvokeResult deleteCTTGroup(DeleteCTTGroupReq request) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    
+    // 获取混扫任务下的流向信息
+    JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+    condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+    condition.setTemplateCode(request.getTemplateCode());
+    condition.setGroupCode(request.getGroupCode());
+    List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+
+    List<Long> ids = new ArrayList<>();
+    for (JyGroupSortCrossDetailEntity entity : entityList) {
+      ids.add(entity.getId());
+    }
+    JyCTTGroupUpdateReq updateReq = new JyCTTGroupUpdateReq();
+    updateReq.setIds(ids);
+    updateReq.setUpdateUserErp(request.getUser().getUserErp());
+    updateReq.setUpdateUserName(request.getUser().getUserName());
+    updateReq.setUpdateTime(new Date());
+    if (!jyGroupSortCrossDetailService.deleteByIds(updateReq)) {
+      return new InvokeResult(RESULT_PARAMETER_ERROR_CODE,"删除混扫任务失败！");
+    }
+    return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+  }
+
   private Pager<JyComboardPackageDetail> assembleQuerySendFlowExcepScan(SendFlowQueryReq request) {
     Pager<JyComboardPackageDetail> pager = new Pager<>();
     JyComboardPackageDetail con =new JyComboardPackageDetail();
