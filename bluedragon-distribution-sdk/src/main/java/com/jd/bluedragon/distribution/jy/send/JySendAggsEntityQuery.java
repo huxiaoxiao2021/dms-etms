@@ -36,6 +36,35 @@ public class JySendAggsEntityQuery implements Serializable {
      */
     private Date endTime;
 
+    public String getBizId() {
+        return bizId;
+    }
 
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 
+    public Long getOperateSiteId() {
+        return operateSiteId;
+    }
+
+    public void setOperateSiteId(Long operateSiteId) {
+        this.operateSiteId = operateSiteId;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 }
