@@ -145,6 +145,9 @@
         <if test="bizId!=null">
             and biz_id =#{bizId}
         </if>
+        <if test="productType != null">
+            and  product_type = #{productType}
+        </if>
     </select>
 
 </mapper>

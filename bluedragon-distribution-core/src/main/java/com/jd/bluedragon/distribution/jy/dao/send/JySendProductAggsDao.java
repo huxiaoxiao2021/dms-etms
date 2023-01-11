@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
+import com.jd.bluedragon.distribution.jy.send.*;
 
 import java.util.List;
 
@@ -26,6 +24,10 @@ public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  impl
         return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
     }
 
+
+    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
+    }
 
 
 }

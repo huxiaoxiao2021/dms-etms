@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,11 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     @Override
     public List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query) {
         return jySendAggsDaoBak.getSendAggBakData(query);
+    }
+
+    @Override
+    public List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query) {
+        return jySendAggsDao.getSendAggsListByCondition(query);
     }
 
     private JySendAggsDaoStrategy getJySendAggsDao(){

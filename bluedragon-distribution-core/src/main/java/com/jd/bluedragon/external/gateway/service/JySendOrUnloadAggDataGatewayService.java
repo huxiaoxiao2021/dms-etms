@@ -1,7 +1,10 @@
 package com.jd.bluedragon.external.gateway.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 
 import java.util.List;
@@ -12,16 +15,9 @@ import java.util.List;
  * @Description:
  */
 public interface JySendOrUnloadAggDataGatewayService {
-    List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query);
 
-    List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
+    JdCResponse<Boolean> checkJySendAggsData(JySendAggsEntityQuery query);
 
-    List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query);
 
-    List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query);
-
-    List<JyUnloadAggsEntity> getUnloadAggsMainData(JyUnloadAggsEntity query);
-
-    List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity query);
-
+    JdCResponse<Boolean> checkJySendProductAggsData(JySendProductAggsEntityQuery query);
 }

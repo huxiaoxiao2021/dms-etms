@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 
 import java.util.List;
 
@@ -39,4 +40,8 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> implements JySendAg
     public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
         return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
     }
+    public List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
+    }
+
 }
