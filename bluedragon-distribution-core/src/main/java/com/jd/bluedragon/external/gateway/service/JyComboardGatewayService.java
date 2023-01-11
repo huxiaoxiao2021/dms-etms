@@ -139,4 +139,9 @@ public interface JyComboardGatewayService {
    */
   JdCResponse<Void> cancelComboard(CancelBoardReq request);
 
+  JdCResponse erpPasswdCheck(UserInfoReq request);
+
+
+  JdCResponse deleteCTTGroup(DeleteCTTGroupReq request);
+
 }
