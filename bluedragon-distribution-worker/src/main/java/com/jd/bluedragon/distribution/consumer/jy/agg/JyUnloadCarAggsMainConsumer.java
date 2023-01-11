@@ -45,9 +45,6 @@ public class JyUnloadCarAggsMainConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = ProfilerHelper.registerInfo("DMS.WORKER.JyUnloadCarAggsMainConsumer.consume");
-
-        logger.info("JyUnloadCarAggsMainConsumer consume 消息体-{}",message.getText());
-
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JyUnloadCarAggsMainConsumer consume --> 消息为空");
             return;
@@ -57,7 +54,6 @@ public class JyUnloadCarAggsMainConsumer extends MessageBaseConsumer {
             return;
         }
         JyUnloadAggsEntity entity = JsonHelper.fromJson(message.getText(), JyUnloadAggsEntity.class);
-        logger.info("JyUnloadCarAggsMainConsumer entity 消息体-{}", JSON.toJSONString(entity));
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
