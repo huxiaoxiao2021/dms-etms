@@ -42,7 +42,7 @@ public class JySendOrUnloadAggDataGatewayServiceImpl implements JySendOrUnloadAg
         List<JySendAggsEntity> oldDataList = jySendAggsService.getSendAggsListByCondition(query);
         log.info("JySendAggs从老库获取的数据集合大小-{} ----{}", oldDataList.size(), JSON.toJSONString(oldDataList));
         if (CollectionUtils.isNotEmpty(oldDataList)) {
-            for (int i = 1; i <= oldDataList.size(); i++) {
+            for (int i = 0; i < oldDataList.size(); i++) {
                 List<JySendAggsEntity> sendAggMainData = jySendAggsService.getSendAggMainData(oldDataList.get(i));
                 log.info("JySendAggs主库获取的第{}条数据为-{}", i, JSON.toJSONString(sendAggMainData));
                 List<JySendAggsEntity> sendAggBakData = jySendAggsService.getSendAggBakData(oldDataList.get(i));
@@ -59,7 +59,7 @@ public class JySendOrUnloadAggDataGatewayServiceImpl implements JySendOrUnloadAg
         List<JySendProductAggsEntity> oldDataList = jySendProductAggsService.getSendAggsListByCondition(query);
         log.info("JySendProductAggs从老库获取的数据集合大小-{} ----{}", oldDataList.size(), JSON.toJSONString(oldDataList));
         if(CollectionUtils.isNotEmpty(oldDataList)){
-            for (int i = 1; i <= oldDataList.size(); i++) {
+            for (int i = 0; i < oldDataList.size(); i++) {
                 List<JySendProductAggsEntity> sendProductAggMainData = jySendProductAggsService.getSendProductAggMainData(oldDataList.get(i));
                 log.info("JySendProductAggs主库获取的第{}条数据为-{}", i, JSON.toJSONString(sendProductAggMainData));
                 List<JySendProductAggsEntity> sendProductAggBakData = jySendProductAggsService.getSendProductAggBakData(oldDataList.get(i));
