@@ -139,9 +139,19 @@ public interface JyComboardGatewayService {
    */
   JdCResponse<Void> cancelComboard(CancelBoardReq request);
 
+  /**
+   * 校验用户名和密码逻辑
+   * @param request
+   * @return
+   */
   JdCResponse erpPasswdCheck(UserInfoReq request);
 
 
+  /**
+   * 删除混扫任务逻辑
+   * @param request
+   * @return
+   */
   JdCResponse deleteCTTGroup(DeleteCTTGroupReq request);
 
 }
