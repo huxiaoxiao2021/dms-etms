@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.jy.service.revokeException;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.revokeException.CancelTransAbnormalMQ;
 import com.jd.bluedragon.common.dto.revokeException.request.QueryExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.request.RevokeExceptionReq;
 import com.jd.bluedragon.common.dto.revokeException.response.ExceptionReportResp;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.TmsLineTypeEnum;
@@ -12,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.manager.RevokeExceptionManager;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jddl.executor.function.scalar.filter.In;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.tms.dtp.dto.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -21,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.record.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,6 +60,10 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     
     // 提报状态 初始 10 ;已提交 20 ;待解释 30; 已解释 40; 已关闭 100;
     public static final Byte SUBMIT_STATUS = 20;
+
+    @Autowired
+    @Qualifier("cancelTransAbnormalProducer")
+    private DefaultJMQProducer cancelTransAbnormalProducer;
     
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.IRevokeExceptionServiceImpl.queryAbnormalPage", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -173,6 +181,9 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.IRevokeExceptionServiceImpl.closeTransAbnormal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> closeTransAbnormal(RevokeExceptionReq revokeExceptionReq) {
 
+        if (StringUtils.isEmpty(revokeExceptionReq.getTransAbnormalCode())) {
+            return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+        }
         if (log.isInfoEnabled()) {
             log.info("开始撤销封签异常提报：{}",JsonHelper.toJson(revokeExceptionReq));
         }
@@ -180,7 +191,26 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
         
         TransAbnormalExtendDto transAbnormalExtendDto = new TransAbnormalExtendDto();
         transAbnormalExtendDto.setTransAbnormalCode(revokeExceptionReq.getTransAbnormalCode());
+
+        InvokeResult<String> invokeResult = revokeExceptionManager.closeTransAbnormal(accountDto, transAbnormalExtendDto);
         
-        return revokeExceptionManager.closeTransAbnormal(accountDto,transAbnormalExtendDto);
+        if(invokeResult.getCode() == RESULT_SUCCESS_CODE) {
+            // 推送积分消息
+            sendCancelTransAbnormalMQ(revokeExceptionReq);
+        }
+        return invokeResult;
+    }
+
+    private void sendCancelTransAbnormalMQ(RevokeExceptionReq revokeExceptionReq) {
+        CancelTransAbnormalMQ abnormalMQ = new CancelTransAbnormalMQ();
+        abnormalMQ.setTransAbnormalCode(revokeExceptionReq.getTransAbnormalCode());
+        abnormalMQ.setCreateTime(new Date());
+        abnormalMQ.setSource(SOURCE);
+        abnormalMQ.setUserCode(revokeExceptionReq.getUser().getUserErp());
+        try {
+            cancelTransAbnormalProducer.send(revokeExceptionReq.getTransAbnormalCode(),JsonHelper.toJson(abnormalMQ));
+        } catch (JMQException e) {
+            log.error("撤销封签异常推送MQ失败：{}",JsonHelper.toJson(abnormalMQ));
+        }
     }
 }

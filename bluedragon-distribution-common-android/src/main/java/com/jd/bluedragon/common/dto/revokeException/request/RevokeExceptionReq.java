@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 /**
  * @author liwenji
  * @description 撤销异常提报
+ * https://cf.jd.com/pages/viewpage.action?pageId=1030282832
  * @date 2023-01-04 14:21
  */
 public class RevokeExceptionReq extends BaseReq {
