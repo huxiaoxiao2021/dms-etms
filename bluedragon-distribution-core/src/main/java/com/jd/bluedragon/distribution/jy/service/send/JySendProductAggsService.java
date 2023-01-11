@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
 import java.util.List;
@@ -26,5 +27,7 @@ public interface JySendProductAggsService {
     List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query);
 
     List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query);
+
+    List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query);
 }
 
