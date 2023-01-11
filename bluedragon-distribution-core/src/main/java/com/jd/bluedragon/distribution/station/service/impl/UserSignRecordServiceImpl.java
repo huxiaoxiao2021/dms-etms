@@ -1341,7 +1341,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(ObjectUtils.equals(operateUserCode, ownerUserErp)) {
 			return result;
 		}
-		if(StringUtils.isNotBlank(ownerUserErp)) {
+		//权限验证失败
+		if(StringUtils.isBlank(ownerUserErp)) {
 			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_1, createUser));
 		}else {
 			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_2, createUser,ownerUserErp));
