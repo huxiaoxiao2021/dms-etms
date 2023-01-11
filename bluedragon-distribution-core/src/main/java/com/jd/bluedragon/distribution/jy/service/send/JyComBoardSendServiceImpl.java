@@ -709,6 +709,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardDto.setBoxHaveScanCount(boardFlow.getBoxScannedCount());
         boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
         boardDto.setInterceptCount(boardFlow.getInterceptCount());
+        boardDto.setBoardScanLimit(ucc.getJyComboardCountLimit());
         // 已扫比例
         int scanCount = 0;
         if (boardFlow.getPackageScannedCount()!=null) {
@@ -808,6 +809,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
     sendFlowDto.setBoardCount(entities.size());
     BoardDto boardDto = new BoardDto();
+    boardDto.setBoardScanLimit(ucc.getJyComboardCountLimit());
 
     // 查询当前板状态
     JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
