@@ -2246,6 +2246,7 @@ public class UccPropertyConfiguration {
         return jyComboardSiteCTTPageSize;
     }
 
+    
     public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
         this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
     }

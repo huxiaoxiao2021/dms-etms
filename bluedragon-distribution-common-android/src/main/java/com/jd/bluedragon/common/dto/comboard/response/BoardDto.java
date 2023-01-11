@@ -43,6 +43,11 @@ public class BoardDto implements Serializable {
 
     private String sendCode;
 
+    /**
+     * 板扫描上线
+     */
+    private Integer boardScanLimit;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -129,5 +134,13 @@ public class BoardDto implements Serializable {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public Integer getBoardScanLimit() {
+        return boardScanLimit;
+    }
+
+    public void setBoardScanLimit(Integer boardScanLimit) {
+        this.boardScanLimit = boardScanLimit;
     }
 }
