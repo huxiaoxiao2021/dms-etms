@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 
@@ -307,7 +308,7 @@ public interface DeliveryService {
     /**
      * 补全包裹重量
      */
-    SendDetail measureRetrieve(SendDetail sendDetail);
+    SendDetail measureRetrieve(SendDetail sendDetail, DeliveryPackageD packageD);
 
     /**
      * 一单多件包裹不全验证
