@@ -84,10 +84,7 @@ public class JYTransferConfigProxy {
      * @return
      */
     public boolean isNeedTransfer(String waybillSign, Integer createSiteCode, Integer preSiteCode) {
-        ConfigTransferDpSiteMatchQo siteMatchQo = new ConfigTransferDpSiteMatchQo();
-        siteMatchQo.setHandoverSiteCode(createSiteCode);
-        siteMatchQo.setPreSortSiteCode(preSiteCode);
-        ConfigTransferDpSite configTransferDpSite = this.queryMatchConditionRecord(siteMatchQo);
+        ConfigTransferDpSite configTransferDpSite = this.queryMatchConditionRecord(createSiteCode, preSiteCode);
         return isMatchConfig(configTransferDpSite, waybillSign);
     }
 
