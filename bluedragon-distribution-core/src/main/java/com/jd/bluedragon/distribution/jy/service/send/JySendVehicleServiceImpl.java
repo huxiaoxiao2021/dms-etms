@@ -821,7 +821,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // 第二次确认路由，不需要处理
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
             if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign()) && manualCreatedFlag) {
-                ConfigTransferDpSite resultCof = jyTransferConfigProxy.ionRecord(startSiteId,waybill.getOldSiteId());
+                ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(startSiteId,waybill.getOldSiteId());
                 if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                     matchDestIdByPack = null;
                     response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
