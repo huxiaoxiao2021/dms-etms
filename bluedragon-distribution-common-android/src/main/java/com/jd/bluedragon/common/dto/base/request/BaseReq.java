@@ -8,6 +8,7 @@ public class BaseReq implements Serializable {
     private static final long serialVersionUID = 301807412701085234L;
     private CurrentOperate currentOperate;
     private User user;
+    private String groupCode;
 
     public CurrentOperate getCurrentOperate() {
         return currentOperate;
@@ -23,5 +24,13 @@ public class BaseReq implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 }

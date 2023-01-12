@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -19,6 +21,8 @@ import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -27,7 +31,9 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -37,6 +43,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.coo.ucc.common.utils.JsonUtils;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -52,6 +59,8 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +139,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private RouterService routerService;
 
     /**
      * 包裹是否发货校验
@@ -263,7 +275,10 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         tWaybillStatus.setOperator(request.getOperateUserName());
         tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperateType(operateType);
-
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
+		operatorData.setOperatorId(request.getOperatorId());
+		tWaybillStatus.setOperatorData(operatorData);
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
             tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
@@ -434,21 +449,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     @Override
     public Integer getNextSiteCodeByRouter(String waybillCode, Integer siteCode) {
         try {
-            String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            if(StringUtils.isEmpty(router)){
-                logger.warn("根据运单号【{}】获取路由信息为空",waybillCode);
-                return null;
-            }
-            String[] routerSplit = router.split(Constants.WAYBILL_ROUTER_SPLIT);
-            if(routerSplit == null){
-                logger.warn("根据运单号【{}】获取路由信息为空",waybillCode);
-                return null;
-            }
-            for (int i = 0; i < routerSplit.length - 1; i++) {
-                if(siteCode.equals(Integer.valueOf(routerSplit[i]))){
-                    return Integer.valueOf(routerSplit[i+1]);
-                }
-            }
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(siteCode, waybillCode);
+            return routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
         }catch (Exception e){
             logger.error("根据运单号【{}】获取路由信息异常",waybillCode,e);
         }

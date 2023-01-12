@@ -99,4 +99,69 @@
 	</bean>
 	<bean id="checkCanAirToRoadJobHandler" class="com.jd.bluedragon.distribution.arAbnormal.CheckCanAirToRoadJobHandler" parent="parentConcurrentJobHandler">
 	</bean>
+    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
+    </bean>	
+    <!-- 运单全程跟踪状态映射map
+       邮政操作码   操作码说明   京东三方路由  京东三方路由说明    京东全程跟踪运单状态码说明   京东全程跟踪运单状态码
+		50  邮政接收    GOT 揽收  派送交接    -1630
+		53  到达邮政处理中心    ARRIVAL_C   中转到（中转场/分拣中心）   分拣中心验货  10
+		52  离开邮政处理中心    DEPARTURE_C 中转发（中转场/分拣中心）   分拣中心发货  16
+		60  到达邮政投递网点    ARRIVAL_S   入站（站点）  站点验货    80
+		70  派件  SENT_SCAN   派件  配送员收货   110
+		80  妥投  SIGNED  妥投（客户签收）    妥投  150
+		90  未妥投 ABNORMAL_DELIVERY   配送异常    配送异常    -320
+		81  收件人已取走  SELF_SIGNED 签收  签收  -970
+		51  邮政退回    BACK_C  接货中心退货至分拣中心状态   接货中心退货至分拣中心状态   8
+    -->
+    <bean id="tracesOperTypeMap" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperTypeMap">
+         <property name="stateCodeToEmsMap">
+           <map key-type="java.lang.String" value-type="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+			<entry key="-1630"  value-ref="emsTraces50"/>
+			<entry key="10"     value-ref="emsTraces53"/>
+			<entry key="16"     value-ref="emsTraces52"/>
+			<entry key="80"     value-ref="emsTraces60"/>
+			<entry key="110"    value-ref="emsTraces70"/>
+			<entry key="150"    value-ref="emsTraces80"/>
+			<entry key="-320"   value-ref="emsTraces90"/>
+			<entry key="-970"   value-ref="emsTraces81"/>
+			<entry key="8"      value-ref="emsTraces51"/>				
+           </map>
+        </property>
+    </bean>
+    <bean id="emsTraces50" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "50"/>
+        <property name="name" value = "邮政接收"/>
+    </bean>
+    <bean id="emsTraces53" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "53"/>
+        <property name="name" value = "到达邮政处理中心"/>
+    </bean>
+    <bean id="emsTraces52" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "52"/>
+        <property name="name" value = "离开邮政处理中心"/>
+    </bean>
+    <bean id="emsTraces60" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "60"/>
+        <property name="name" value = "到达邮政投递网点"/>
+    </bean>
+    <bean id="emsTraces70" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "70"/>
+        <property name="name" value = "派件"/>
+    </bean>
+    <bean id="emsTraces80" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "80"/>
+        <property name="name" value = "妥投"/>
+    </bean>
+    <bean id="emsTraces90" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "90"/>
+        <property name="name" value = "未妥投"/>
+    </bean>
+    <bean id="emsTraces81" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "81"/>
+        <property name="name" value = "收件人已取走"/>
+    </bean>
+    <bean id="emsTraces51" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+        <property name="code" value = "51"/>
+        <property name="name" value = "邮政退回"/>
+    </bean>               
 </beans>

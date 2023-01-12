@@ -202,7 +202,7 @@
 
 	<delete id="deleteByAreaCode" parameterType="List">
 		delete from collect_goods_place
-		where collect_goods_area_code in
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT} and collect_goods_area_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 			#{item,jdbcType=VARCHAR}
 		</foreach>

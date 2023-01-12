@@ -32,7 +32,7 @@ public class RouterFilterTest extends TestCase {
     private RouterService routerService;
 
     public void testDoFilter() throws Exception{
-        RouteNextDto routeNextDto = new RouteNextDto(null,true,null);
+        RouteNextDto routeNextDto = new RouteNextDto(null,true,null, null);
         when(routerService.matchRouterNextNode(anyInt(),anyString())).thenReturn(routeNextDto);
         when(siteService.getDmsShortNameByCode(anyInt())).thenReturn("11111");
         FilterContext filterContext = new FilterContext();

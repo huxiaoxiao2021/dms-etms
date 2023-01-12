@@ -6,6 +6,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,6 +27,16 @@ public class SortingWaybillSplitServiceImpl extends SortingPackServiceImpl{
                     sortingTarget.setBoxCode(packageD.getPackageBarcode());
                 }
                 sortingTarget.setPackageCode(packageD.getPackageBarcode());
+
+                /*
+                    循环处理sortingVO对象的waybillDtoBaseEntity属性包含了全部的包裹对象，会占用额外的内存，此处进行优化
+                    1. 每个sortingVo对象不会包含全部的packageDList
+                    2. 在每个循环中，会包含获取packInfo的重复行为，直接使用DeliveryPackageD对象的属性进行赋值
+                 */
+                if (sortingTarget.getWaybillDto() != null) {
+                    sortingTarget.getWaybillDto().setPackageList(Collections.singletonList(packageD));
+                }
+
                 super.doSorting(sortingTarget);
             }
         }else{

@@ -40,6 +40,15 @@ public class BoardCombinationRequest extends JdRequest {
      * 操作来源：1:pda 2:分拣机
      */
     private Integer bizSource;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
 
     public String getBoardCode() {
         return boardCode;
@@ -112,4 +121,20 @@ public class BoardCombinationRequest extends JdRequest {
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }

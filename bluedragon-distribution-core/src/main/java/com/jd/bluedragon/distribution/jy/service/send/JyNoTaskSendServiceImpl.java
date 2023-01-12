@@ -5,8 +5,11 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
@@ -18,11 +21,13 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
 import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -42,13 +47,19 @@ import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -70,8 +81,6 @@ import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     JyTransportManager jyTransportManager;
-    @Autowired
-    JySendTransferService jySendTransferService;
     @Autowired
     DeliveryService deliveryService;
     @Autowired
@@ -113,6 +122,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private IJySendService jySendService;
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+    @Autowired
+    @Qualifier("jyTaskGroupMemberService")
+    private JyTaskGroupMemberService taskGroupMemberService;
+    private static final int SEND_SCAN_BAR_EXPIRE = 6;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -163,6 +180,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.createVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
@@ -171,9 +189,63 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
+        // 创建发货调度任务
+        if (uccConfig.getSyncScheduleTaskSwitch() && !createSendScheduleTask(jyBizTaskSendVehicleEntity)){
+            log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
+            throw new JyBizException("创建任务失败！");
+        }
+
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
+    /**
+     * 创建发货调度任务
+     * @param sendVehicleEntity
+     * @return
+     */
+    public boolean createSendScheduleTask(JyBizTaskSendVehicleEntity sendVehicleEntity){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(sendVehicleEntity.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        req.setOpeUser(sendVehicleEntity.getCreateUserErp());
+        req.setOpeUserName(sendVehicleEntity.getCreateUserName());
+        req.setOpeTime(new Date());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+    /**
+     * 关闭调度任务
+     * @param entity
+     * @return
+     */
+    private boolean closeScheduleTask(JyBizTaskSendVehicleEntity entity){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(entity.getBizId());
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.SEND.getCode()));
+        req.setOpeUser(entity.getUpdateUserErp());
+        req.setOpeUserName(entity.getUpdateUserName());
+        req.setOpeTime(new Date());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+    private void finishTaskGroup(JyBizTaskSendVehicleDetailEntity sendStatusQ) {
+        String taskId = getJyScheduleTaskId(sendStatusQ.getSendVehicleBizId());
+        if (StringUtils.isBlank(taskId)) {
+            return;
+        }
+        JyTaskGroupMemberEntity endData = new JyTaskGroupMemberEntity();
+        endData.setRefTaskId(taskId);
+        endData.setUpdateUser(sendStatusQ.getUpdateUserErp());
+        endData.setUpdateUserName(sendStatusQ.getUpdateUserName());
+        endData.setUpdateTime(sendStatusQ.getUpdateTime());
+        Result<Boolean> result = taskGroupMemberService.endTask(endData);
+
+        if (log.isInfoEnabled()){
+            log.info("封车完成关闭小组任务. data:{}, result:{}", JsonHelper.toJson(endData), JsonHelper.toJson(result));
+        }
+    }
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
@@ -191,6 +263,68 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         return entity;
+    }
+
+    private boolean distributeAndStartScheduleTask(BindVehicleDetailTaskReq request) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(request.getToSendVehicleBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        req.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
+        req.setDistributionTarget(request.getGroupCode());
+        req.setDistributionTime(request.getCurrentOperate().getOperateTime());
+        req.setOpeUser(request.getUser().getUserErp());
+        req.setOpeUserName(request.getUser().getUserName());
+        req.setOpeTime(req.getDistributionTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.distributeAndStartScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+
+    private boolean taskSendFirstScan(BindVehicleDetailTaskReq request) {
+        boolean firstScanned = false;
+        String mutexKey = getSendTaskBizCacheKey(request.getToSendVehicleBizId());
+        String requestId =UUID.randomUUID().toString().replace("-","");
+        if (redisClientOfJy.set(mutexKey,requestId , SEND_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
+            firstScanned = true;
+            if (log.isInfoEnabled()){
+                log.info("单号是发车任务的首次扫描. [{}], {}", mutexKey, JsonHelper.toJson(request));
+            }
+        }
+        return firstScanned;
+    }
+
+    public String getSendTaskBizCacheKey(String sendVehicleBiz) {
+        return String.format(CacheKeyConstants.JY_SEND_TASK_FIRST_SCAN_KEY, sendVehicleBiz);
+    }
+    private void recordTaskMembers(BindVehicleDetailTaskReq request) {
+        JyTaskGroupMemberEntity startData = new JyTaskGroupMemberEntity();
+        startData.setRefGroupCode(request.getGroupCode());
+        startData.setRefTaskId(getJyScheduleTaskId(request.getToSendVehicleBizId()));
+
+        startData.setSiteCode(request.getCurrentOperate().getSiteCode());
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
+        startData.setOrgCode(baseSite != null ? baseSite.getOrgId() : -1);
+
+        startData.setCreateUser(request.getUser().getUserErp());
+        startData.setCreateUserName(request.getUser().getUserName());
+
+        Result<Boolean> startTask = taskGroupMemberService.startTask(startData);
+        if (log.isInfoEnabled()) {
+            log.info("发货任务首次扫描记录组员. {}, {}", request.getToSendVehicleBizId(), JsonHelper.toJson(startTask));}
+    }
+
+    /**
+     * 查询调度任务ID
+     *
+     * @param bizId
+     * @return
+     */
+    private String getJyScheduleTaskId(String bizId) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
     private String genSendVehicleTaskBizNo(CreateVehicleTaskReq createVehicleTaskReq) {
@@ -238,6 +372,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         detailEntity.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
         detailEntity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
         jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        //关闭调度任务
+        if (uccConfig.getSyncScheduleTaskSwitch()){
+            if (!closeScheduleTask(entity)){
+                log.error("删除自建任务-同步关闭发货调度任务失败！bizId:{}",entity.getBizId());
+                throw new JyBizException("删除任务失败！");
+            }
+            finishTaskGroup(detailEntity);
+        }
         //删除任务-发货绑定关系+取消发货
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
@@ -297,7 +439,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
         }
         return result;
-    }    
+    }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -392,6 +534,23 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
+            //关闭调度任务
+            if (uccConfig.getSyncScheduleTaskSwitch()){
+                if (!closeScheduleTask(fromSvTask)){
+                    log.error("绑定-同步关闭发货调度任务失败！bizId:{}",fromSvTask.getBizId());
+                    throw new JyBizException("绑定运输任务失败！");
+                }
+                finishTaskGroup(fromSvDetailTask);
+                if (ObjectHelper.isNotNull(bindVehicleDetailTaskReq.getGroupCode()) && taskSendFirstScan(bindVehicleDetailTaskReq)){
+                    if (distributeAndStartScheduleTask(bindVehicleDetailTaskReq)) {
+                        recordTaskMembers(bindVehicleDetailTaskReq);
+                    }
+                    else {
+                        log.error("绑定-同步给运输任务分配调度任务失败！bizId:{}", toSvTask.getBizId());
+                        //throw new JyBizException("绑定运输任务失败！");
+                    }
+                }
+            }
 
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }

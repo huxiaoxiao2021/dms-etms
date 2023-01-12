@@ -439,7 +439,7 @@
                   ref="boxLimitJsfService"
                   server="dmsjsf">
     </jsf:provider>
-    
+
     <!--  任务组员JSF服务   -->
     <jsf:provider id="jyTaskGroupMemberJsfServiceId"
                   interface="com.jd.bluedragon.distribution.jy.api.group.JyTaskGroupMemberJsfService"
@@ -470,5 +470,30 @@
                   ref="jyUnloadVehicleTysService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--  判断是否为合流车JSF服务   -->
+    <jsf:provider id="transportRelatedJSFService"
+                  interface="com.jd.bluedragon.distribution.transport.service.TransportRelatedJSFService"
+                  alias="${dms.jsf.alias}"
+                  ref="transportRelatedJSFServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jyJsfSendVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JySendVehicleTysJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jySendVehicleTysJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  拣运开放接口   -->
+    <jsf:provider id="jyCenterServiceJsf"
+                  interface="com.jd.bluedragon.distribution.open.JYCenterService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyCenterService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
 
 </beans>

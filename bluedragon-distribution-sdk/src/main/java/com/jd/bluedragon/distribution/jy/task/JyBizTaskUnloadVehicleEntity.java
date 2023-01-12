@@ -191,6 +191,11 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer taskType;
 
+    /**
+     * 时间字段过滤查询：解封车时间 状态等于待卸状态时使用update_time代替，因为解封车时间使用的是flink加工的字段防止有延迟
+     */
+    private Date actualArriveStartTime;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -536,4 +541,12 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         this.railwayPfNo = railwayPfNo;
     }
 
+
+    public Date getActualArriveStartTime() {
+        return actualArriveStartTime;
+    }
+
+    public void setActualArriveStartTime(Date actualArriveStartTime) {
+        this.actualArriveStartTime = actualArriveStartTime;
+    }
 }
