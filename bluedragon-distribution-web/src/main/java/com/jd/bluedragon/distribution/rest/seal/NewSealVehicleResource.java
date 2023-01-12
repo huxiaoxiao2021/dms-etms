@@ -415,7 +415,7 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             //1.检查批次号
-            checkBatchCode(sealVehicleResponse, batchCode);
+            checkBatchCode(sealVehicleResponse, batchCode, null);
             //批次号校验通过,且是按运力编码封车，需要校验目的地是否一致
             if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                 //2.获取运力信息并检查目的站点
@@ -466,7 +466,7 @@ public class NewSealVehicleResource {
         String transportCode = sealCarPreRequest.getTransportCode();
         try {
             //1.检查批次号
-            checkBatchCode(sealVehicleResponse, sendCode);
+            checkBatchCode(sealVehicleResponse, sendCode, sealCarPreRequest.getSealCarSource());
             if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                 //按任务封车 干支封车拦截校验
@@ -492,10 +492,25 @@ public class NewSealVehicleResource {
                      * 校验规则
                      *  1、普通封车：校验运力编码目的地和批次目的地一致
                      *  2、传摆封车：满足1或者目的地站点类型是中转场
+                     *  3、校验【封车操作人场地】必须为批次号【始发地】或【目的地】其中之一；满足其一可操作空铁摆渡封车，否则无法封车成功。规避批次流向封错的问题【空铁新需求】
                      * */
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
                     Integer endNodeId = vtsDto.getData().getEndNodeId();
-                    if (receiveSiteCode.equals(endNodeId)) {
+                    if (sealCarPreRequest.getCreateSiteCode() != null
+                            && SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarPreRequest.getSealCarSource())
+                            && newsealVehicleService.isAirTransport(vtsDto.getData())) {
+                        Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
+                        Integer receiveSiteCodeInSendCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+                        if (Objects.equals(sealCarPreRequest.getCreateSiteCode(), createSiteCodeInSendCode)
+                                || Objects.equals(sealCarPreRequest.getCreateSiteCode(), receiveSiteCodeInSendCode)) {
+                            sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                        } else {
+                            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                            sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_TRANSPORT_START_END_RANGE_ERROR);
+                        }
+
+                    } else if (receiveSiteCode.equals(endNodeId)) {
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
@@ -1247,7 +1262,7 @@ public class NewSealVehicleResource {
      * @param batchCode
      * @return
      */
-    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode) {
+    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode, Integer sealCarSource) {
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
         //1.批次号是否符合编码规范，不合规范直接返回参数错误
         if (receiveSiteCode == null) {
@@ -1264,8 +1279,13 @@ public class NewSealVehicleResource {
             return;
         }
 
-        //2.是否已经封车
-        CommonDto<Boolean> isSealed = newsealVehicleService.isBatchCodeHasSealed(batchCode);
+        //2.是否已经封车: 同一个批次号，T开头空铁运力封几次都行 ， 非T空铁运力的只能封一次，不能重复封车 【空铁新增逻辑】
+        CommonDto<Boolean> isSealed = null;
+        if (Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), sealCarSource)) {
+            isSealed = newsealVehicleService.isBatchCodeHasSealedExcludeAirFerry(batchCode);
+        } else {
+            isSealed = newsealVehicleService.isBatchCodeHasSealed(batchCode);
+        }
         if (isSealed == null) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
