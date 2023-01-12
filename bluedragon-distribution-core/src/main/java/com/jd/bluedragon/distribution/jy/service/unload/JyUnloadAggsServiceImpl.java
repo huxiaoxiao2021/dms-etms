@@ -223,12 +223,16 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
      */
     private JyUnloadAggsDaoStrategy getJyUnloadAggsDao(){
         if(jyDuccConfigManager.getJyUnloadAggsOldOrNewDataReadSwitch()){
+            log.info("getJyUnloadAggsDao-getJyUnloadAggsOldOrNewDataReadSwitch 读新库开启");
             if(jyDuccConfigManager.getJyUnloadAggsDataReadSwitchInfo()){
+                log.info("getJySendAggsDao-getJyUnloadAggsDataReadSwitchInfo 读备库开启");
                 return jyUnloadAggsDaoBak;
             }else {
+                log.info("getJyUnloadAggsDao-getJyUnloadAggsDataReadSwitchInfo 读主库开启");
                 return jyUnloadAggsDaoMain;
             }
         }
+        log.info("getJyUnloadAggsDao-getJyUnloadAggsOldOrNewDataReadSwitch 关闭");
         return jyUnloadAggsDao;
     }
 }
