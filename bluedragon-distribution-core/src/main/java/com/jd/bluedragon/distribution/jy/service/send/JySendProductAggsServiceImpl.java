@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.List;
 
 @Service("jySendProductAggsService")
 public class JySendProductAggsServiceImpl implements JySendProductAggsService {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JySendProductAggsDao jySendProductAggsDao;
@@ -90,12 +93,16 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
      */
     private JySendProductAggsDaoStrategy getJySendProductAggsDao(){
         if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 读新库开启");
             if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
+                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读备库开启");
                 return jySendProductAggsDaoBak;
             }else {
+                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读主库开启");
                 return jySendProductAggsDaoMain;
             }
         }
+        log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 关闭");
         return jySendProductAggsDao;
     }
 

@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.util.List;
 
 @Service("jySendAggsService")
 public class JySendAggsServiceImpl implements JySendAggsService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
@@ -87,12 +91,16 @@ public class JySendAggsServiceImpl implements JySendAggsService {
 
     private JySendAggsDaoStrategy getJySendAggsDao(){
         if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            log.info("getJySendAggsDao-JySendAggOldOrNewDataReadSwitch 读新库开启");
             if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
+                log.info("getJySendAggsDao--JySendAggsDataReadSwitch 读备库开启");
                 return jySendAggsDaoBak;
             }else {
+                log.info("getJySendAggsDao-JySendAggsDataReadSwitch 读主库开启");
                 return jySendAggsDaoMain;
             }
         }
+        log.info("getJySendAggsDao-JySendAggOldOrNewDataReadSwitch 关闭");
         return jySendAggsDao;
     }
 
