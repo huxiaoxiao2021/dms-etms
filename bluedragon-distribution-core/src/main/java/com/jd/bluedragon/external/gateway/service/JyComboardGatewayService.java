@@ -152,6 +152,6 @@ public interface JyComboardGatewayService {
    * @param request
    * @return
    */
-  JdCResponse deleteCTTGroup(DeleteCTTGroupReq request);
+  JdCResponse<String> deleteCTTGroup(DeleteCTTGroupReq request);
 
 }

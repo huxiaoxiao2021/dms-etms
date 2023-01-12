@@ -155,7 +155,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse deleteCTTGroup(DeleteCTTGroupReq request) {
+  public JdCResponse<String> deleteCTTGroup(DeleteCTTGroupReq request) {
     return retJdCResponse(jyComBoardSendService.deleteCTTGroup(request));
   }
 

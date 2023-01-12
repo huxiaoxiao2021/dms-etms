@@ -591,7 +591,7 @@ public class JyComboardGatewayServiceImplTest {
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         deleteCTTGroupReq.setUser(user);
-        JdCResponse jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
+        JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }

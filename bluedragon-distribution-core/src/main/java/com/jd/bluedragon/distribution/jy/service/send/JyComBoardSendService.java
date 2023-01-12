@@ -165,5 +165,5 @@ public interface JyComBoardSendService {
    * @param request
    * @return
    */
-  InvokeResult deleteCTTGroup(DeleteCTTGroupReq request);
+  InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request);
 }

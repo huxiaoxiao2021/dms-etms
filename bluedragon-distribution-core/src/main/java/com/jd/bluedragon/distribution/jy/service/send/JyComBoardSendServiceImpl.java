@@ -2526,7 +2526,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  public InvokeResult deleteCTTGroup(DeleteCTTGroupReq request) {
+  public InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -2550,7 +2550,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!jyGroupSortCrossDetailService.deleteByIds(updateReq)) {
       return new InvokeResult(RESULT_PARAMETER_ERROR_CODE,"删除混扫任务失败！");
     }
-    return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,request.getTemplateCode());
   }
 
   private Pager<JyComboardPackageDetail> assembleQuerySendFlowExcepScan(SendFlowQueryReq request) {
