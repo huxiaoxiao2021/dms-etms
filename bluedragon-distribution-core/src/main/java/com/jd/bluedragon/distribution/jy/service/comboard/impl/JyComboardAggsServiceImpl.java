@@ -178,14 +178,18 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setTs(dto.getCreateTime());
             jyComboardAggsEntity.setVolume(dto.getVolume());
             jyComboardAggsEntity.setWeight(dto.getWeight());
+            jyComboardAggsEntity.setPackageTotalScannedCount(dto.getPackageTotalScannedCount());
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
             saveCache(dto,jyComboardAggsEntity);
         }else{
-            if (null == dto.getWaitScanCount()&&
-                    null == dto.getScannedCount()&&
-                    null == dto.getBoardCount()&&
-                    null == dto.getInterceptCount()&&
-                    null == dto.getMoreScannedCount()){
+            if (null == dto.getWaitScanCount() &&
+                    null == dto.getScannedCount() &&
+                    null == dto.getBoardCount() &&
+                    null == dto.getInterceptCount() &&
+                    null == dto.getMoreScannedCount() &&
+                    null == dto.getWeight() &&
+                    null == dto.getVolume() &&
+                    null == dto.getPackageTotalScannedCount()){
                 //全为空的数据丢弃
                 return;
             }
@@ -195,6 +199,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
             jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
             jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+            jyComboardAggsEntity.setVolume(dto.getVolume());
+            jyComboardAggsEntity.setWeight(dto.getWeight());
+            jyComboardAggsEntity.setPackageTotalScannedCount(dto.getPackageTotalScannedCount());
             jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
             jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
             jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
