@@ -436,6 +436,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
+        condition.setTaskType(request.getTaskType());
 
         return condition;
     }
@@ -476,6 +477,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return false;
         }
 
+        if (request.getTaskType() == null) {
+            request.setTaskType(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_DMS.getCode());
+        }
         return true;
     }
 
