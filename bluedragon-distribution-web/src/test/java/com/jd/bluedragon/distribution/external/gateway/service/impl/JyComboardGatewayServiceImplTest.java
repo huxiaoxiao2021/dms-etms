@@ -577,4 +577,21 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<BoardExcepStatisticsResp> s = jyComboardGatewayService.queryExcepScanStatisticsUnderBoard(req);
         System.out.println(JsonHelper.toJson(s));
     }
+    
+    @Test
+    public void deleteCTTGroupTest() {
+        DeleteCTTGroupReq deleteCTTGroupReq = new DeleteCTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        deleteCTTGroupReq.setCurrentOperate(operate);
+        deleteCTTGroupReq.setGroupCode("G00000059001");
+        deleteCTTGroupReq.setTemplateCode("CTT22121400000010");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        deleteCTTGroupReq.setUser(user);
+        JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
+        System.out.println(JsonHelper.toJson(jdCResponse));
+    }
 }

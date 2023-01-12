@@ -41,6 +41,20 @@ public class JyComboardAggsEntity {
 
     private Integer boxScannedCount;
 
+    private Double weight;
+
+    private Double volume;
+
+    private Integer packageTotalScannedCount;
+
+    public Integer getPackageTotalScannedCount() {
+        return packageTotalScannedCount;
+    }
+
+    public void setPackageTotalScannedCount(Integer packageTotalScannedCount) {
+        this.packageTotalScannedCount = packageTotalScannedCount;
+    }
+
     public Integer getOperateSiteId() {
         return operateSiteId;
     }
@@ -191,5 +205,21 @@ public class JyComboardAggsEntity {
 
     public void setBoxScannedCount(Integer boxScannedCount) {
         this.boxScannedCount = boxScannedCount;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }

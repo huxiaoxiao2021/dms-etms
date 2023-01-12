@@ -149,6 +149,16 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
     return retJdCResponse(jyComBoardSendService.cancelComboard(request));
   }
 
+  @Override
+  public JdCResponse erpPasswdCheck(UserInfoReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<String> deleteCTTGroup(DeleteCTTGroupReq request) {
+    return retJdCResponse(jyComBoardSendService.deleteCTTGroup(request));
+  }
+
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
         invokeResult.getData());

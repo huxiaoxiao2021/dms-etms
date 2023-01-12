@@ -21,11 +21,14 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="package_scanned_count" jdbcType="INTEGER" property="packageScannedCount" />
     <result column="box_scanned_count" jdbcType="INTEGER" property="boxScannedCount" />
+    <result column="weight" jdbcType="DOUBLE" property="weight" />
+    <result column="volume" jdbcType="DOUBLE" property="volume" />
+    <result column="package_total_scanned_count" jdbcType="INTEGER" property="packageTotalScannedCount" />
   </resultMap>
   <sql id="Base_Column_List">
     id,operate_site_id,receive_site_id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count,
     more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn,
-    ts,package_scanned_count,box_scanned_count
+    ts,package_scanned_count,box_scanned_count,weight,volume,package_total_scanned_count
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -37,18 +40,7 @@
     delete from jy_comboard_aggs
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
-    insert into jy_comboard_aggs (id,operate_site_id,receive_site_id, send_flow, biz_id,
-      board_code, product_type, scan_type,
-      scanned_count, board_count, more_scanned_count,
-      intercept_count, wait_scan_count, create_time,
-      update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT},#{operateSiteId,jdbcType=INTEGER}, #{receiveSiteId,jdbcType=INTEGER},  #{sendFlow,jdbcType=VARCHAR},
-            #{bizId,jdbcType=VARCHAR},#{boardCode,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{scanType,jdbcType=TINYINT},
-      #{scannedCount,jdbcType=INTEGER}, #{boardCount,jdbcType=INTEGER}, #{moreScannedCount,jdbcType=INTEGER},
-      #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
-      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
-  </insert>
+
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     insert into jy_comboard_aggs
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -109,6 +101,15 @@
       <if test="boxScannedCount != null">
         box_scanned_count,
       </if>
+      <if test="weight != null">
+        weight,
+      </if>
+      <if test="volume != null">
+        volume,
+      </if>
+      <if test="packageTotalScannedCount != null">
+        package_total_scanned_count,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -168,6 +169,15 @@
       <if test="boxScannedCount != null">
          #{boxScannedCount},
       </if>
+      <if test="weight != null">
+        #{weight},
+      </if>
+      <if test="volume != null">
+        #{volume},
+      </if>
+      <if test="packageTotalScannedCount != null">
+        #{packageTotalScannedCount},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeyAndTs" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
@@ -224,6 +234,15 @@
       <if test="boxScannedCount != null">
         box_scanned_count = #{boxScannedCount},
       </if>
+      <if test="weight != null">
+        weight = #{weight},
+      </if>
+      <if test="volume != null">
+        volume = #{volume},
+      </if>
+      <if test="packageTotalScannedCount != null">
+        package_total_scanned_count = #{packageTotalScannedCount},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -244,6 +263,9 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       yn = #{yn,jdbcType=BIT},
+        weight = #{weight},
+        volume = #{volume},
+        package_total_scanned_count = #{packageTotalScannedCount},
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
