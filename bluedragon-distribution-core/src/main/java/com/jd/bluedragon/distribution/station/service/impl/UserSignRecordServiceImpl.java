@@ -108,8 +108,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
-	private static final String MSG_FORMAT_HAS_NO_PERMISSION_1 = "您不可以操作，请联系签到操作人 %s 操作!";
-	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人 %s、网格负责人 %s 操作！";
+	private static final String MSG_FORMAT_HAS_NO_PERMISSION_1 = "您不可以操作，请联系签到操作人%s操作!";
+	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
@@ -1341,8 +1341,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(ObjectUtils.equals(operateUserCode, ownerUserErp)) {
 			return result;
 		}
-		//权限验证失败
-		if(StringUtils.isBlank(ownerUserErp)) {
+		//同时为空，不校验
+		if(StringUtils.isBlank(ownerUserErp) && StringUtils.isBlank(createUser)) {
+			return result;
+		}
+		//权限验证失败-网格负责人为空
+		//1、、创建人和负责人是同一个人
+		if(StringUtils.isBlank(ownerUserErp) || ObjectUtils.equals(createUser, ownerUserErp)) {
 			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_1, createUser));
 		}else {
 			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_2, createUser,ownerUserErp));
