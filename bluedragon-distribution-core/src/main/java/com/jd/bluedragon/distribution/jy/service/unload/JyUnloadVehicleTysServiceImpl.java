@@ -630,6 +630,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.success();
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
+            // 校验操作人与任务的相关性
+            String checkResult = checkPositionCodeSimilarity(scanPackageDto.getBizId(), scanPackageDto.getCurrentOperate().getPositionCode());
+            if (checkResult != null) {
+                log.warn("scan|当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", JsonUtils.toJSONString(scanPackageDto), checkResult);
+                invokeResult.customMessage(RESULT_INTERCEPT_CODE, checkResult);
+                return invokeResult;
+            }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
@@ -1084,6 +1091,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.success();
         log.info("invoking jy scanForPipelining,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
+            // 校验操作人与任务的相关性
+            String checkResult = checkPositionCodeSimilarity(scanPackageDto.getBizId(), scanPackageDto.getCurrentOperate().getPositionCode());
+            if (checkResult != null) {
+                log.warn("scanForPipelining|当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", JsonUtils.toJSONString(scanPackageDto), checkResult);
+                invokeResult.customMessage(RESULT_INTERCEPT_CODE, checkResult);
+                return invokeResult;
+            }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
