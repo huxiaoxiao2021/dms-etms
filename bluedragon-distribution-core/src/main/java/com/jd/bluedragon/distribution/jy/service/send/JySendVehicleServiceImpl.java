@@ -65,6 +65,8 @@ import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConf
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.TransTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
@@ -254,6 +256,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JySendProductAggsService jySendProductAggsService;
+
+    @Autowired
+    private RouterService routerService;
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
@@ -816,10 +821,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // 第二次确认路由，不需要处理
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
             if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign()) && manualCreatedFlag) {
-                ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
-                matchQo.setHandoverSiteCode(startSiteId);
-                matchQo.setPreSortSiteCode(waybill.getOldSiteId());
-                ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(startSiteId,waybill.getOldSiteId());
                 if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                     matchDestIdByPack = null;
                     response.setCode(SendScanResponse.CODE_CONFIRM_DEST);
@@ -838,30 +840,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @return
      */
     private Long getWaybillNextRouter(String waybillCode, Long startSiteId) {
-        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-        return getRouteNextSite(startSiteId, routerStr);
-    }
-
-    /**
-     * 从路由里解析下一站
-     *
-     * @param startSiteId
-     * @param routerStr
-     * @return
-     */
-    private Long getRouteNextSite(Long startSiteId, String routerStr) {
-        if (StringUtils.isNotBlank(routerStr)) {
-            String[] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLIT);
-            for (int i = 0; i < routerNodes.length - 1; i++) {
-                long curNode = Long.parseLong(routerNodes[i]);
-                long nextNode = Long.parseLong(routerNodes[i + 1]);
-                if (curNode == startSiteId) {
-                    return nextNode;
-                }
-            }
-        }
-
-        return null;
+        RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
+        return routeNextDto == null || routeNextDto.getFirstNextSiteId() == null? null : routeNextDto.getFirstNextSiteId().longValue();
     }
 
     /**
@@ -1857,10 +1837,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         Long boxRouteDest = null;
                         if (CollectionUtils.isNotEmpty(waybillCodes)) {
                             for (String waybillCode : waybillCodes) {
-                                routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-                                if (StringHelper.isNotEmpty(routerStr)) {
+                                RouteNextDto routeNextDto = routerService.matchRouterNextNode(taskSend.getStartSiteId().intValue(), waybillCode);
+                                if (routeNextDto != null && routeNextDto.getFirstNextSiteId() != null) {
+                                    routerStr = JsonHelper.toJson(routeNextDto.getNextSiteIdList());
                                     waybillForVerify = waybillCode;
-                                    boxRouteDest = getRouteNextSite(taskSend.getStartSiteId(), routerStr);
+                                    boxRouteDest = routeNextDto.getFirstNextSiteId().longValue();
                                     break;
                                 }
                             }
@@ -1917,10 +1898,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 Long boxRouteDest = null;
                 if (CollectionUtils.isNotEmpty(waybillCodes)) {
                     for (String waybillCode : waybillCodes) {
-                        routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-                        if (StringHelper.isNotEmpty(routerStr)) {
+                        RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
+                        if (null != routeNextDto && routeNextDto.getFirstNextSiteId() != null) {
+                            routerStr = JsonHelper.toJson(routeNextDto.getNextSiteIdList());
                             waybillForVerify = waybillCode;
-                            boxRouteDest = getRouteNextSite(startSiteId, routerStr);
+                            boxRouteDest = routeNextDto.getFirstNextSiteId().longValue();
                             break;
                         }
                     }
@@ -2229,10 +2211,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         final String waybillCode = WaybillUtil.getWaybillCode(barCode);
                         Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
                         if (waybill != null && BusinessHelper.isDPWaybill1_2(waybill.getWaybillSign())) {
-                            ConfigTransferDpSiteMatchQo matchQo = new ConfigTransferDpSiteMatchQo();
-                            matchQo.setHandoverSiteCode(taskSend.getStartSiteId().intValue());
-                            matchQo.setPreSortSiteCode(waybill.getOldSiteId());
-                            ConfigTransferDpSite resultCof = jyTransferConfigProxy.queryMatchConditionRecord(matchQo);
+                            ConfigTransferDpSite resultCof = jyTransferConfigProxy
+                                    .queryMatchConditionRecord(taskSend.getStartSiteId().intValue(),waybill.getOldSiteId());
                             if (jyTransferConfigProxy.isMatchConfig(resultCof, waybill.getWaybillSign())) {
                                 response.getMsgBoxes().clear();
                                 response.addConfirmBox(101, "您扫描的" + waybillCode + "订单是转德邦订单，需手动选择下游目的地，谢谢。");

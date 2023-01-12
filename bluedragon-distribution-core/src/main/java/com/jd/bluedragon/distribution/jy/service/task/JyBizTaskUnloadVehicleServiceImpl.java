@@ -314,6 +314,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         //截取车牌后4位逻辑
         if(!StringUtils.isEmpty(entity.getVehicleNumber())){
+            // 过滤车牌号中的特殊字符
+            String vehicleNumber = entity.getVehicleNumber().replaceAll(Constants.SPECIAL_CHAR_REGEX, "");
+            entity.setVehicleNumber(vehicleNumber);
             int vl = entity.getVehicleNumber().length();
             String fvn = entity.getVehicleNumber();
             if(vl > 4){
@@ -321,7 +324,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
-        entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        if (entity.getTaskType() == null) {
+            entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        }
 
         // 初始默认数据
         if(entity.getManualCreatedFlag() == null){
@@ -544,6 +549,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setEndSiteName(dto.getOperateSiteName());
         initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
         initParams.setManualCreatedFlag(1);
+        initParams.setRefGroupCode(dto.getGroupCode());
 
         initParams.setCreateUserErp(dto.getOperateUserErp());
         initParams.setCreateUserName(dto.getOperateUserName());
@@ -551,6 +557,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setUpdateUserName(dto.getOperateUserErp());
         initParams.setCreateTime(new Date());
         initParams.setUpdateTime(new Date());
+        initParams.setTaskType(dto.getTaskType());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
             return initParams;
