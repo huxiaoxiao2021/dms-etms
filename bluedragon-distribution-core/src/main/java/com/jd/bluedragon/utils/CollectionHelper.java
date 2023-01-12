@@ -157,10 +157,10 @@ public class CollectionHelper<E> {
         for(int i=1;i<=201;i++) {
         	s.add(""+i);
         }
-        System.out.print(splitList(s,2,100));
-        System.out.print(splitList(s,10000000,100));
-        System.out.print(splitList(s,Integer.MAX_VALUE,100));
-        System.out.print(splitList(s,2,Integer.MAX_VALUE));
+        System.out.println(splitList(s,2,100));
+        System.out.println(splitList(s,10000000,100));
+        System.out.println(splitList(s,Integer.MAX_VALUE,100));
+        System.out.println(splitList(s,2,Integer.MAX_VALUE));
     }
 
 }
