@@ -527,6 +527,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 			checkResult.toFail("请求参数无效！缺少menuCode和siteType");
 			return checkResult;
 		}
+		CheckMenuAuthResponse respData = new CheckMenuAuthResponse();
+		checkResult.setData(respData);
 		// 菜单下线提示
 		if(checkMenuIsOffline(checkMenuAuthRequest.getMenuCode(), checkResult)){
 			return checkResult;
@@ -549,10 +551,15 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         user.setUserErp(checkMenuAuthRequest.getUserCode());
         menuUsageConfigRequestDto.setUser(user);
         MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
-
-        if(clientMenuUsageConfig != null && Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
-        	checkResult.toFail(clientMenuUsageConfig.getMsg());
-        	return checkResult; 
+        if(clientMenuUsageConfig != null) {
+        	respData.setCanUse(clientMenuUsageConfig.getCanUse());
+        	respData.setMsg(clientMenuUsageConfig.getMsg());
+        	respData.setMsgType(clientMenuUsageConfig.getMsgType());
+        	//菜单不可用
+        	if(Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
+        		checkResult.toFail(clientMenuUsageConfig.getMsg());
+	        	return checkResult; 
+        	}
         }
 		return checkResult;
 	}
