@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.inspection;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.JyBaseReq;
 import com.jd.bluedragon.common.dto.base.request.User;
@@ -59,6 +60,8 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.base.Pager;
@@ -147,6 +150,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:23:19 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.createNoTaskInspectionTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<InspectionTaskDetail> createNoTaskInspectionTask(InspectionNoTaskRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.createNoTaskInspectionTask param {}", JsonHelper.toJson(request));
         Result<InspectionTaskDetail> result = Result.success();
@@ -286,6 +290,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:23:19 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.inspectionTaskDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<InspectionTaskDetail> inspectionTaskDetail(InspectionCommonRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.inspectionTaskDetail param {}", JsonHelper.toJson(request));
         Result<InspectionTaskDetail> result = Result.success();
@@ -382,6 +387,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:28:59 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.inspectionScan", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<Integer> inspectionScan(InspectionScanRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.inspectionScan param {}", JsonHelper.toJson(request));
         JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
@@ -701,6 +707,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:28:59 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.interceptBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<InspectionInterceptDto> interceptBarCodeDetail(InspectionCommonRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.interceptBarCodeDetail param {}", JsonHelper.toJson(request));
         Result<InspectionInterceptDto> result = Result.success();
@@ -796,6 +803,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:28:59 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.inspectionFinishPreview", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<InspectionFinishPreviewData> inspectionFinishPreview(InspectionCommonRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.inspectionFinishPreview param {}", JsonHelper.toJson(request));
         Result<InspectionFinishPreviewData> result = Result.success();
@@ -890,6 +898,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @time 2022-10-09 14:28:59 周日
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseInspectionServiceImpl.submitInspectionCompletion", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<Boolean> submitInspectionCompletion(InspectionCommonRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.submitInspectionCompletion param {}", JsonHelper.toJson(request));
         Result<Boolean> result = Result.success("操作成功");
