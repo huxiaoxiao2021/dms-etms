@@ -194,4 +194,45 @@
         </property>
     </bean>
 
+    <!--  发运单信息邮政-外协平台接口  -->
+    <bean id="emsWaybillInfoManager" class="com.jd.bluedragon.external.crossbow.postal.manager.EmsWaybillInfoManager">
+            <property name="brandCode" value="${dms.external.postal.brandCode}" />
+            <property name="secret" value="${dms.external.postal.secret}" />
+            <property name="crossbowConfig">
+                <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                    <property name="domain" value="${dms.external.postal.emsWaybillInfo.domain}" />
+                    <property name="api" value="${dms.external.postal.emsWaybillInfo.api}" />
+                    <property name="appKey" value="${dms.external.postal.emsWaybillInfo.appKey}" />
+                    <property name="appSecret" value="${dms.external.postal.emsWaybillInfo.appSecret}" />
+                    <property name="customerId" value="${dms.external.postal.emsWaybillInfo.customerId}" />
+                    <property name="securityEnum" value="default_" />
+                </bean>
+            </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+    <!--  发运单全程跟踪邮政-外协平台接口  -->
+    <bean id="emsTracesCompanyManager" class="com.jd.bluedragon.external.crossbow.postal.manager.EmsTracesCompanyManager">
+            <property name="brandCode" value="${dms.external.postal.brandCode}" />
+            <property name="secret" value="${dms.external.postal.secret}" />
+            <property name="crossbowConfig">
+                <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                    <property name="domain" value="${dms.external.postal.emsTracesCompany.domain}" />
+                    <property name="api" value="${dms.external.postal.emsTracesCompany.api}" />
+                    <property name="appKey" value="${dms.external.postal.emsTracesCompany.appKey}" />
+                    <property name="appSecret" value="${dms.external.postal.emsTracesCompany.appSecret}" />
+                    <property name="customerId" value="${dms.external.postal.emsTracesCompany.customerId}" />
+                    <property name="securityEnum" value="default_" />
+                </bean>
+            </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+        
 </beans>

@@ -35,6 +35,7 @@
     var errorData = []; //导入失败记录
 
     var CBM_DIV_KG_CODE = 10001; //批量导入 重泡比 校验失败码值
+    var CBM_DIV_KG_CODE_NEW = 600; //批量导入 重泡比 校验失败码值
 
     var allForcedToSubmit = 0; // 批量强制提交。 0 代表否 1代表是
     var b2cCount = 0; //批量强制提交场景下需要转网的单的个数
@@ -440,29 +441,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
                 /*重量体积最大限额校验*/
                 isExcessResult(codeStr,weight,cbm);
-                if(flag){
-                    return;
-                }
 
-                /*校验密度*/
-                if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
-                    var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
-
-                    $.messager.confirm('请您仔细确认',messageBodyStr
-                        ,function(confirmFlag){
-                            if(confirmFlag == true){
-                                /*提交业务流程*/
-                                doAddProgressFunc();
-                                return;
-                            }else {
-                                return;
-                            }
-                        }
-                    );
-                    return;
-                }
-                /*提交业务流程*/
-                doAddProgressFunc();
             }
 
         }
@@ -483,9 +462,19 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         ,function(confirmFlag){
                             if(confirmFlag != true){
                                 flag = true;
+                            } else {
+                                /*提交业务流程*/
+                                doAddProgressFunc();
                             }
                         }
                     );
+                }
+                if(result.code == 400) {
+                    $.messager.alert('数据错误',result.message);
+                }
+                if(result.code == 200) {
+                    /*提交业务流程*/
+                    doAddProgressFunc();
                 }
             }
         });
@@ -756,6 +745,11 @@ function allSubmitRemove(){
     for(var i = 0 ; i < errorData.length ; i++){
         var myRow = errorData[i];
         if(myRow.errorCode && CBM_DIV_KG_CODE == myRow.errorCode){
+            forcedToSubmit(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
+            allSubmitRemove();
+            break;
+        }
+        if(myRow.errorCode && CBM_DIV_KG_CODE_NEW == myRow.errorCode){
             forcedToSubmit(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
             allSubmitRemove();
             break;

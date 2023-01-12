@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConf
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
 import com.jd.bluedragon.distribution.consumable.domain.*;
@@ -87,6 +88,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
     @Autowired
     private WorkingConfigQueryService workingConfigQueryService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
 	@Override
 	public Dao<WaybillConsumableRecord> getDao() {
@@ -479,19 +483,49 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
         String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
 
-        boolean canModify = canModify(waybillCode);
+        boolean canModify = canModifyNew(waybillCode);
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        boolean isWaybillConsumableOnlyConfirm = waybill != null && !BusinessUtil.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign());
+        int packageNumber = waybill != null && waybill.getGoodNumber() != null? waybill.getGoodNumber() : 1;
+
 
         //组装运单耗材打包人关系表数据
         List<WaybillConsumableRelationPDADto> dbBatchUpdateList = new ArrayList<>();
         for(WaybillConsumablePdaDto poTemp : waybillConsumablePackConfirmReq.getWaybillConsumableDtoList()) {
 
-            /* 打木架类型的耗材必须要有体积，且大于0 小于999.999 */
+            /*
+				木箱、木架：耗材数量限制999
+				木托盘：
+					单包裹：单个耗材数量不超5个，即单个耗材上限数量=包裹数量（1个）*5=5个，防呆提醒话术：每种耗材数量不能超过5个/包裹；
+					一单多件：耗材数量不超当前包裹数量*5，即耗材上限数量=包裹数量*5，防呆提醒话术：每种耗材数量不能超过5个/包裹。
+				以上三种类型打包装后体积必填，限制为100方
+			 */
             if (
                     (ConsumableCodeEnums.isWoodenConsumable(poTemp.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(poTemp.getConsumableTypeCode()))
-                    &&
-                    (poTemp.getConfirmVolume() == null || poTemp.getConfirmVolume() <= 0d || poTemp.getConfirmVolume() > 999.999d)
+                            &&
+                            (poTemp.getConfirmVolume() == null || poTemp.getConfirmVolume() <= 0d || poTemp.getConfirmVolume() > 100d)
             ) {
-                throw new RuntimeException("数据格式不对，请录入大于0小于1000的数据");
+                throw new RuntimeException("确认体积数据格式不对，请录入大于0小于100方的数据");
+            }
+
+            if (PackingTypeEnum.TY004.getTypeCode().equals(poTemp.getConsumableTypeCode()) || ConsumableCodeEnums.MX.getCode().equals(poTemp.getConsumableCode())) {
+                //木箱判断标准：耗材类型为【TY004】；耗材编码为【09092050】
+                if (poTemp.getConfirmQuantity() == null || poTemp.getConfirmQuantity() <= 0 || poTemp.getConfirmQuantity() > 999d) {
+                    throw new RuntimeException("木箱耗材数量不能为空且不能超过999");
+                }
+            }
+            if (PackingTypeEnum.TY003.getTypeCode().equals(poTemp.getConsumableTypeCode()) || ConsumableCodeEnums.MJ.getCode().equals(poTemp.getConsumableCode())) {
+                //木架判断标准：耗材类型为【TY003】；耗材编码为【09092048】
+                if (poTemp.getConfirmQuantity() == null || poTemp.getConfirmQuantity() <= 0 || poTemp.getConfirmQuantity() > 999d) {
+                    throw new RuntimeException("木架耗材数量不能为空且不能超过999");
+                }
+
+            }
+            if (PackingTypeEnum.TY008.getTypeCode().equals(poTemp.getConsumableTypeCode()) || ConsumableCodeEnums.MTP.getCode().equals(poTemp.getConsumableCode())) {
+                //木托盘判断标准：耗材类型为【TY004】；耗材编码为【09092049】
+                if (poTemp.getConfirmQuantity() == null || poTemp.getConfirmQuantity() <= 0 || poTemp.getConfirmQuantity() > packageNumber * 5d) {
+                    throw new RuntimeException("每种木托盘耗材数量不能超过5个/包裹");
+                }
             }
 
             WaybillConsumableRelationPDADto dbParam = new WaybillConsumableRelationPDADto();
@@ -506,7 +540,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             if(poTemp.getConsumableCode() == null || poTemp.getConfirmQuantity() == null) {
                 throw new RuntimeException("运单耗材编码及确认数量不可为空");
             }
-            if (canModify) {
+            if (canModify && isWaybillConsumableOnlyConfirm) {
                 dbParam.setConfirmQuantity(poTemp.getConfirmQuantity());
             }
             dbParam.setConsumableCode(poTemp.getConsumableCode());

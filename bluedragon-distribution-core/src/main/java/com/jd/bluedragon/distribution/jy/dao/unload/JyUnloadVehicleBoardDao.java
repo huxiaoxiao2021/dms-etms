@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.jy.dao.unload;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity> {
 
@@ -27,6 +29,13 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
 
     public JyUnloadVehicleBoardEntity selectByBizIdAndBoardCode(JyUnloadVehicleBoardEntity entity){
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByBizIdAndBoardCode", entity);
+    }
+
+    public int countByBizIdAndStageBizId(String bizId, String stageBizId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("bizId", bizId);
+        map.put("stageBizId", stageBizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByBizIdAndStageBizId", map);
     }
 
     /**

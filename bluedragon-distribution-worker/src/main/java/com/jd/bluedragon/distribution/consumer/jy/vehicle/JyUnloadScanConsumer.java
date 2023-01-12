@@ -141,19 +141,25 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             throw new RuntimeException("保存卸车扫描记录异常");
         }
 
+       /* 说明： 补扫任务一生成就是完成状态，后续不能再修改完成时间。
+        原因： 计提在任务完成时开始计算，
+            第一次任务完成时间在21号0点，为上一计提数据，21号7点前补扫包裹100件
+            25号0点再次补扫变更完成时间，任务为第二计提周期，补扫了200个包裹  此时本计提周期会推送 100 + 200 个包裹，计提重复
+        结果：任务完成时间只记录第一次
+        */
         // 转运补扫子任务完结
-        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
-            if (unloadScanDto.getSupplementary()) {
-                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
-                condition.setBizId(unloadScanDto.getStageBizId());
-                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
-                condition.setEndTime(new Date());
-                condition.setUpdateTime(new Date());
-                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
-                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
-                jyBizTaskUnloadVehicleStageService.updateStatusByBizId(condition);
-            }
-        }
+//        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
+//            if (unloadScanDto.getSupplementary()) {
+//                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+//                condition.setBizId(unloadScanDto.getStageBizId());
+//                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+//                condition.setEndTime(new Date());
+//                condition.setUpdateTime(new Date());
+//                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
+//                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
+//                jyBizTaskUnloadVehicleStageService.updateStatusByBizId(condition);
+//            }
+//        }
 
         // 插入验货或收货任务，发全程跟踪
         addTaskPersistent(unloadScanDto);

@@ -17,14 +17,12 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
-import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -34,6 +32,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -105,6 +104,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
+	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
@@ -444,16 +444,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if (notSignedOutRecordMoreThanHours < 0) {
             return result;
         }
-
-        Date signInTime = new Date(System.currentTimeMillis() - (long) notSignedOutRecordMoreThanHours * 3600 * 1000);
+        int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
+        //扫描范围不能小于1小时
+        if(notSignedOutRecordRangeHours < 1) {
+        	notSignedOutRecordRangeHours = 1;
+        }
+        Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -notSignedOutRecordMoreThanHours);
+        Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
-
-
+        log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTime, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
@@ -582,9 +586,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(gridResult.getMessage());
 			return result;
 		}
+		WorkStationGrid gridInfo = gridResult.getData();
 		//校验并组装签到数据
         UserSignRecord signInData = new UserSignRecord();
-        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData());
+        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridInfo);
         if(!result.isSucceed()) {
         	return result;
         }
@@ -593,28 +598,46 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
-        UserSignRecord signOutRequest = new UserSignRecord();
         boolean needSignOut = false;
+        boolean needSignIn = true;
         if(lastSignRecord != null) {
+        	//上次签到岗位和本次相同，不需要签到、签退
+            if(gridInfo.getBusinessKey() != null
+            		&& gridInfo.getBusinessKey().equals(lastSignRecord.getRefGridKey())) {
+            	needSignIn = false;
+            	needSignOut = false;
+            }else {
+            	//不同岗位，需要签退并重新签到
+            	needSignOut = true;
+            	needSignIn = true;
+            }
+		}
+        if(needSignOut) {
+        	UserSignRecord signOutRequest = new UserSignRecord();
         	signOutRequest.setId(lastSignRecord.getId());
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
-    		needSignOut = true;
+    		
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
     		context.signOutData.setSignOutTime(signOutRequest.getSignOutTime());
-		}
-        if(this.doSignIn(signInData)) {
-        	result.setData(this.toUserSignRecordData(signInData));
-        	if(needSignOut) {
-        		result.toSucceed("签到成功，自动将上次签到数据签退！");
-        	}else {
-        		result.toSucceed("签到成功！");
-        	}
-        	context.signInData = result.getData();
-        	context.signInFlag = true;
+        }
+        if(needSignIn) {
+            if(this.doSignIn(signInData)) {
+            	result.setData(this.toUserSignRecordData(signInData));
+            	if(needSignOut) {
+            		result.toSucceed("签到成功，自动将上次签到数据签退！");
+            	}else {
+            		result.toSucceed("签到成功！");
+            	}
+            	context.signInData = result.getData();
+            	context.signInFlag = true;
+            }else {
+            	result.toFail("签到失败！");
+            }
         }else {
-        	result.toFail("签到失败！");
+        	result.setData(this.toUserSignRecordData(lastSignRecord));
+        	result.toSucceed("已签到！");
         }
 		return result;
 	}
@@ -754,13 +777,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
 			signRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
-			return result;
 		}else if(StringHelper.isEmpty(signRequest.getUserCode())) {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
 		if (signRequest.getUserCode().contains("$")) {
 			result.toFail("用户编码不能包含特殊字符");
+			return result;
+		}
+		if(StringUtils.isBlank(signRequest.getOperateUserCode()) 
+				|| StringUtils.isBlank(signRequest.getOperateUserName())) {
+			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
 		}
 		return result;
@@ -809,7 +836,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
-		signInData.setUserName(signInData.getUserCode());
+		//身份证拍照签到的直接设置姓名，erp签到的需要查基础资料
+		signInData.setUserName(signInRequest.getUserName());
 		signInData.setModeType(signInRequest.getModeType());
 		// 计算班次
 		Integer waveCode = calculateWave(signInRequest);
@@ -1000,7 +1028,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
 		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
+		// 当前数据库user_name字段可能还有外包临时工身份证号，需要兼容加密防止泄漏身份证号
 		data.setUserName(BusinessUtil.encryptIdCard(data.getUserName()));
+		//只有user_code是身份证号的才需要将userName设置成身份证号
+		if (BusinessUtil.isIdCardNo(data.getUserCode())) {
+			data.setUserName(BusinessUtil.encryptIdCard(data.getUserCode()));
+		}
 		if(data.getSignInTime() != null) {
 			String workHours = "";
 			String workTimes = "--";
@@ -1068,7 +1101,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		this.addOrRemoveMember(context);
-		result.getData().setGroupData(context.groupData);
+		if(context.groupData == null) {
+        	//没有做签到，查询group信息
+        	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
+        	if(groupResult!= null 
+        			&& groupResult.isSucceed()
+        			&& groupResult.getData()!= null) {
+        		result.getData().setGroupData(groupResult.getData());
+        	}else if(groupResult!= null){
+        		result.toFail(groupResult.getMessage());
+        	}else {
+        		result.toFail("获取岗位码对应的小组信息失败！");
+        	}
+		}else {
+			result.getData().setGroupData(context.groupData);
+		}
 		return result;
 	}
 	@Override
@@ -1101,7 +1148,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private void addOrRemoveMember(UserSignContext context){
-		
+
 		if(context.deleteData != null) {
 			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
@@ -1149,6 +1196,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 	}
+
+	@Override
+	@JProfiler(jKey = "DMS.WEB.UserSignRecordService.queryUnsignedOutRecordByRefGridKey", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey){
+		Result result = new Result<>();
+		result.toSuccess();
+		ArrayList<UserSignRecord> listData = new ArrayList<>();
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setRefGridKey(refGridKey);
+		long total = userSignRecordDao.queryTotalUnsignedOutRecordByRefGridKey(refGridKey);
+		for(int offset = 0; offset < total; offset += query.getLimit()){
+			query.setOffset(offset);
+			listData.addAll(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(query));
+		}
+		result.setData(listData);
+		return result;
+	}
 	@Override
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
 		UserSignContext context = new UserSignContext();
@@ -1172,6 +1236,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRequest userSignRequest = context.getUserSignRequest();
 		if(userSignRequest == null || userSignRequest.getRecordId() == null) {
 			result.toFail("签到记录Id不能为空！");
+			return result;
+		}
+		if(StringUtils.isBlank(userSignRequest.getOperateUserCode()) 
+				|| StringUtils.isBlank(userSignRequest.getOperateUserName())) {
+			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
 		}
 		UserSignRecordData data = queryUserSignRecordDataById(userSignRequest.getRecordId());
@@ -1233,8 +1302,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		 * 操作时间
 		 */
 		private String operateTime;
-		
-		
+
+
 		public UserSignRequest getUserSignRequest() {
 			return userSignRequest;
 		}

@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -85,6 +86,21 @@ public class DeviceConfigInfoJsfServiceManagerImpl implements DeviceConfigInfoJs
             Profiler.registerInfoEnd(info);
         }
         return baseDmsAutoJsfResponse;
+    }
+
+    @Override
+    public DeviceConfigDto findOneDeviceConfigByMachineCode(String machineCode) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DeviceConfigInfoJsfServiceManager.findOneDeviceConfigByMachineCode",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            return deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(machineCode);
+        }catch (Exception e){
+            log.error("根据设备编码:{}查询设备详情异常!", machineCode, e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
     }
 }
     

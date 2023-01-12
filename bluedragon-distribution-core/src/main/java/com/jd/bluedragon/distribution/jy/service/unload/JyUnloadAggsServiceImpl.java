@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,8 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,27 +41,31 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return jyUnloadAggsDao.queryByBizId(entity);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryGoodsCategoryStatistics", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
         List<GoodsCategoryDto> categoryDtoList = jyUnloadAggsDao.queryGoodsCategoryStatistics(entity);
         if (ObjectHelper.isNotNull(categoryDtoList)) {
             for (GoodsCategoryDto categoryDto : categoryDtoList) {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
-
+                categoryDto.setOrder(GoodsTypeEnum.getGoodsOrder(categoryDto.getType()));
                 if (!ObjectHelper.isNotNull(entity.getBoardCode())) {//板没有待扫的语义数据
                     categoryDto.setWaitScanCount(getWaitScan(entity.getBizId(), categoryDto.getShouldScanCount(), categoryDto.getHaveScanCount()));
                 }
             }
+            Collections.sort(categoryDtoList, new GoodsCategoryDto.OrderComparator());
             return categoryDtoList;
         }
         return null;
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadAggsServiceImpl.queryExcepScanStatistics", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<ExcepScanDto> queryExcepScanStatistics(JyUnloadAggsEntity entity) {
         ScanStatisticsDto scanStatisticsDto = jyUnloadAggsDao.queryExcepScanStatistics(entity);
         if (ObjectHelper.isNotNull(scanStatisticsDto)) {

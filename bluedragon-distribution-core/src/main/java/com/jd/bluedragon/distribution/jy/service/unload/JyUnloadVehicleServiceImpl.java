@@ -14,12 +14,15 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleB
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.ql.dms.common.constants.JyConstants;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
@@ -33,12 +36,14 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -46,10 +51,13 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.constants.CodeConstants;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -67,6 +75,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -126,6 +135,22 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private JyDemotionService jyDemotionService;
+
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private WaybillRouteLinkQueryManager waybillRouteManager;
+
+    @Autowired
+    private EasyFreezeSiteManager easyFreezeSiteManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private JYTransferConfigProxy jyTransferConfigProxy;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -479,17 +504,22 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (!checkBeforeScan(result, request)) {
             return result;
         }
-
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
-            result.setData(calculateScanPackageCount(request));
+//            result.setData(calculateScanPackageCount(request));
+            calculateScanPackageCount(request, result);
 
             // 记录卸车任务扫描进度
             recordUnloadProgress(result.getData(), request, taskUnloadVehicle);
+        }
+        catch (EconomicNetException e) {
+            log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
+            result.error(e.getMessage());
+            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode(), request.getBizId()));
         }
         catch (Exception ex) {
             log.error("卸车扫描失败. {}", JsonHelper.toJson(request), ex);
@@ -634,6 +664,51 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         return scanCount;
+    }
+
+    private void calculateScanPackageCount(UnloadScanRequest request , InvokeResult<Integer> result) {
+        String barCode = request.getBarCode();
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
+
+
+        Waybill waybill = null;
+        Integer scanCount = 0;
+        if (WaybillUtil.isPackageCode(barCode)) {
+            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+            scanCount = 1;
+        }
+        else if (WaybillUtil.isWaybillCode(barCode)) {
+            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
+            if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
+                scanCount = waybill.getGoodNumber();
+            }
+        }
+        else if (BusinessHelper.isBoxcode(barCode)) {
+            CallerInfo inlineUmp = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleService.unloadScan.getCancelSendByBox");
+            List<SendDetail> list = deliveryService.getCancelSendByBox(barCode);
+            Profiler.registerInfoEnd(inlineUmp);
+            if (CollectionUtils.isNotEmpty(list)) {
+                scanCount = list.size();
+            }
+        }
+
+        result.setData(scanCount);
+
+        //春节项目的特殊逻辑
+        if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
+            ConfigTransferDpSiteMatchQo siteMatchQo = new ConfigTransferDpSiteMatchQo();
+            siteMatchQo.setPreSortSiteCode(waybill.getOldSiteId());
+            siteMatchQo.setHandoverSiteCode(request.getCurrentOperate().getSiteCode());
+            ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(siteMatchQo);
+            if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
+                result.setCode(InvokeResult.DP_SPECIAL_CODE);
+                result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));
+            }
+        }
+
+
     }
 
     private UnloadScanDto createUnloadDto(UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
@@ -968,6 +1043,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     private void convertAggEntityToPage(List<UnloadScanAggByProductType> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
+
+
         for (JyUnloadAggsEntity aggEntity : unloadAggList) {
             UnloadScanAggByProductType item = new UnloadScanAggByProductType();
             item.setProductType(aggEntity.getProductType());
@@ -1011,9 +1088,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             ProductTypeAgg item = new ProductTypeAgg();
             item.setProductType(aggEntity.getProductType());
             item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setOrder(UnloadProductTypeEnum.getOrderByCode(item.getProductType()));
             item.setCount(dealMinus(aggEntity.getShouldScanCount(), aggEntity.getActualScanCount()));
             productTypeList.add(item);
         }
+        Collections.sort(productTypeList,new ProductTypeAgg.OrderComparator());
     }
 
     private Long dealMinus(Number a, Number b) {

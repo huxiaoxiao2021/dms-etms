@@ -75,4 +75,33 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
         }
         return ImmutablePair.of(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE);
     }
+
+    @Override
+    public String isMergeCar(Integer siteCode, String transWorkCode, String sealCarCode,
+                                                             String simpleCode, String vehicleNumber) {
+        if(siteCode == null || StringUtils.isEmpty(transWorkCode) && StringUtils.isEmpty(sealCarCode)
+                && StringUtils.isEmpty(simpleCode) && StringUtils.isEmpty(vehicleNumber)){
+            return null;
+        }
+        BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+        stopoverQueryDto.setSiteCode(operateSite == null ? null : operateSite.getDmsSiteCode());
+        stopoverQueryDto.setTransWorkCode(transWorkCode);
+        stopoverQueryDto.setSealCarCode(sealCarCode);
+        stopoverQueryDto.setSimpleCode(simpleCode);
+        stopoverQueryDto.setVehicleNumber(vehicleNumber);
+        StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDto);
+        //日志+UMP 实现类包装
+        if(stopoverInfoDto == null){
+            return "否";
+        }
+        // 站点类型=经停  且 装车计数=0  且 卸车计数＞0
+        if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
+                && Objects.equals(stopoverInfoDto.getLoadCount(), 0)
+                && NumberHelper.isPositiveNumber(stopoverInfoDto.getUnloadCount())){
+            return "是";
+        } else {
+            return "否";
+        }
+    }
 }

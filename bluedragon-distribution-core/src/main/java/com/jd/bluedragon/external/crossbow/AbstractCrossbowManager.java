@@ -84,7 +84,16 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
     protected Map<String, String> getMyUrlParams(Object condition) {
         return Collections.emptyMap();
     }
-
+    
+    /**
+     * 构建header参数
+     * @param condition 相应的条件
+     * @return 返回三方接口的header请求参数
+     */
+    protected Map<String, String> getMyHeaderParams(Object condition) {
+        return Collections.emptyMap();
+    }
+    
     /**
      * 调用物流基础组件crossbow的执行器
      * @param condition 三方公司的接口请求体
@@ -101,8 +110,9 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
 
             P parameter = getMyRequestBody(condition);
             Map<String, String> urlParams = getMyUrlParams(condition);
+            Map<String, String> headerParams = getMyHeaderParams(condition);
             return deSerializeResponse(
-                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType), urlParams)
+                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType), urlParams, headerParams)
                     ,responseType);
 
         } catch (RuntimeException e) {
