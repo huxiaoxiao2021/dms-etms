@@ -214,6 +214,9 @@ public class OrderWebService {
 		if (exportResult != null && exportResult.isSuccess()) {
 			return exportResult.getData();
 		}
+		if (log.isInfoEnabled()) {
+			log.info("getOrder:查询订单信息失败,getOrderById返回值：{}", JsonHelper.toJsonMs(exportResult));
+		}
 		return null;
 	}
 
@@ -318,13 +321,13 @@ public class OrderWebService {
 	public jd.oom.client.orderfile.Order getHistoryOrder(long orderId) {
 		jd.oom.client.orderfile.ServiceSoap oomOrderFileServerSoap = (jd.oom.client.orderfile.ServiceSoap) SpringHelper
 		        .getBean("oomOrderFileServerSoap");
-		
+
 		OrderArchiveInfo orderArchiveInfo = oomOrderFileServerSoap.getOrderArchiveInfo(orderId,
 		        OrderLoadFlag.getLoadFlag("全部"));
 		if (orderArchiveInfo != null){
 			return orderArchiveInfo.getOrder();
 		}
-		
+
 		return null;
 	}
 
