@@ -421,7 +421,8 @@
     <if test="updateUserName != null and updateUserName != ''">
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
     </if>
-    update_time = now()
+    update_time = now(),
+    unseal_time = now()                                
     where id in
     <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
       #{item}
