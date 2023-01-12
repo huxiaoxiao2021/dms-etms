@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 
@@ -78,6 +79,10 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 				continue;
 			}
 			JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
+			taskMember.setMemberType(member.getMemberType());
+			taskMember.setMachineCode(member.getMachineCode());
+			taskMember.setDeviceTypeCode(member.getDeviceTypeCode());
+			taskMember.setDeviceTypeName(member.getDeviceTypeName());
 			taskMember.setRefGroupMemberCode(member.getMemberCode());
 			taskMember.setRefGroupCode(member.getRefGroupCode());
 			taskMember.setRefTaskId(startData.getRefTaskId());
@@ -115,6 +120,30 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		taskGroupMember.setUpdateUser(endData.getUpdateUser());
 		taskGroupMember.setUpdateUserName(endData.getUpdateUserName());
 		jyTaskGroupMemberDao.endWorkByTaskId(taskGroupMember);
+		return result;
+	}
+
+	@Override
+	public Result<List<JyTaskGroupMemberEntity>> queryMemberListByTaskId(JyTaskGroupMemberQuery query) {
+		Result<List<JyTaskGroupMemberEntity>> result = new Result<>();
+		result.toSuccess();
+		result.setData(jyTaskGroupMemberDao.queryMemberListByTaskId(query));
+		return result;
+	}
+
+	@Override
+	public Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+		Result<Boolean> result = new Result<Boolean>();
+		result.toSuccess();
+		jyTaskGroupMemberDao.endWorkByMemberCodeList(endData,memberCodes);
+		return result;
+	}
+
+	@Override
+	public Result<Boolean> deleteByMemberCode(JyTaskGroupMemberEntity taskGroupMember) {
+		Result<Boolean> result = new Result<Boolean>();
+		result.toSuccess();
+		jyTaskGroupMemberDao.deleteByMemberCode(taskGroupMember);
 		return result;
 	}
 }

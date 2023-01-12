@@ -1,24 +1,39 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
+import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
+import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -39,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  * @Description: 到车卸车任务服务类
  */
 @Service("jyBizTaskUnloadVehicleService")
-public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicleService{
+public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicleService {
 
     private final static String JY_BIZ_TASK_BIZ_ID_PREFIX = "XCZJ%s";
     /**
@@ -54,6 +72,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * 一次自旋时间 单位毫秒
      */
     private final static int SPIN_TIME_OF_MS = 100;
+
+    /**
+     * 卸车岗任务类型： 1 分拣 2转运
+     */
+    public static final Integer UNLOAD_TASK_CATEGORY_TYS = 2;
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 1;
 
     private Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleServiceImpl.class);
 
@@ -74,6 +98,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Qualifier("redisJyBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
 
+    @Autowired
+    JyUnloadAggsDao jyUnloadAggsDao;
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     /**
      * 根据bizId获取数据
      *
@@ -81,7 +113,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskUnloadVehicleEntity findByBizId(String bizId) {
         return jyBizTaskUnloadVehicleDao.findByBizId(bizId);
     }
@@ -93,7 +125,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByTransWorkItemCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByTransWorkItemCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskUnloadVehicleEntity findByTransWorkItemCode(String transWorkItemCode) {
         return jyBizTaskUnloadVehicleDao.findByTransWorkItemCode(transWorkItemCode);
     }
@@ -105,7 +137,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findIdByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findIdByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Long findIdByBizId(String bizId) {
         return jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
     }
@@ -117,14 +149,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4Status",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4Status", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
-        if(enums == null){
+        if (enums == null) {
             // 如果入参状态为空 则全部状态匹配
             enums = JyBizTaskUnloadStatusEnum.values();
         }
         List<Integer> statusOfCodes = new ArrayList<>();
-        for(JyBizTaskUnloadStatusEnum statusEnum : enums){
+        for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
             statusOfCodes.add(statusEnum.getCode());
         }
         //获取数据
@@ -140,14 +172,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4StatusAndLine",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4StatusAndLine", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
-        if(enums == null){
+        if (enums == null) {
             // 如果入参状态为空 则全部状态匹配
             enums = JyBizTaskUnloadStatusEnum.values();
         }
         List<Integer> statusOfCodes = new ArrayList<>();
-        for(JyBizTaskUnloadStatusEnum statusEnum : enums){
+        for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
             statusOfCodes.add(statusEnum.getCode());
         }
 
@@ -168,25 +200,26 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByConditionOfPage",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByConditionOfPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize, List<String> sealCarCodes) {
         Integer offset = 0;
         Integer limit = pageSize;
-        if(pageNum > 0 ){
-            offset = ( pageNum - 1 ) * pageSize;
+        if (pageNum > 0) {
+            offset = (pageNum - 1) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
-        if(offset + limit > ucc.getJyTaskPageMax()){
+        if (offset + limit > ucc.getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
-        return jyBizTaskUnloadVehicleDao.findByConditionOfPage(condition,typeEnum,offset,limit, sealCarCodes);
+        return jyBizTaskUnloadVehicleDao.findByConditionOfPage(condition, typeEnum, offset, limit, sealCarCodes);
     }
 
     /**
      * 改变状态
      * 如果此次更新的状态 在 当前状态前置节点则不更新直接返回成功
      * 比如 当前状态是卸车中 本次更新到待卸车 则直接返回成功
+     *
      * @param entity 业务主键 必填 状态 必填 修改人必填 修改时间必填
      * @return
      */
@@ -284,6 +317,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
+        entity.setTaskType(getTaskType(entity.getEndSiteId()));
+
         // 初始默认数据
         if(entity.getManualCreatedFlag() == null){
             entity.setManualCreatedFlag(0);
@@ -505,6 +540,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setEndSiteName(dto.getOperateSiteName());
         initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
         initParams.setManualCreatedFlag(1);
+
+        initParams.setCreateUserErp(dto.getOperateUserErp());
+        initParams.setCreateUserName(dto.getOperateUserName());
+        initParams.setUpdateUserErp(dto.getOperateUserName());
+        initParams.setUpdateUserName(dto.getOperateUserErp());
+        initParams.setCreateTime(new Date());
+        initParams.setUpdateTime(new Date());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
             return initParams;
@@ -518,6 +560,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     /**
      * 生成BIZID逻辑
      * XCZJ2204050000001
+     *
      * @return
      */
     private String genBizId(){
@@ -540,12 +583,186 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         return source.getOrder() < target.getOrder();
     }
-    
-	@Override
-	public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
-		if(condition == null) {
-			return 0L;
-		}
-		return jyBizTaskUnloadVehicleDao.countByVehicleNumberAndStatus(condition);
-	}
+
+    @Override
+    public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
+        if (condition == null) {
+            return 0L;
+        }
+        return jyBizTaskUnloadVehicleDao.countByVehicleNumberAndStatus(condition);
+    }
+
+    @Override
+    public List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
+        List<JyBizTaskUnloadVehicleEntity> jyBizTaskUnloadVehicleEntityList = jyBizTaskUnloadVehicleDao.listUnloadVehicleTask(entity);
+        if (ObjectHelper.isNotNull(jyBizTaskUnloadVehicleEntityList) && jyBizTaskUnloadVehicleEntityList.size() > 0) {
+            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+            for (JyBizTaskUnloadVehicleEntity unloadTask : jyBizTaskUnloadVehicleEntityList) {
+                UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
+                unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
+            }
+            return unloadVehicleTaskDtoList;
+        }
+        return null;
+    }
+
+    private String getJyScheduleTaskId(String bizId) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
+    }
+
+    @Override
+    public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
+        UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
+        if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
+            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress());
+        }
+        if (ObjectHelper.isNotNull(entity.getMoreCount())) {
+            unloadVehicleTaskDto.setExtraScanCount(entity.getMoreCount().intValue());
+        }
+        if (ObjectHelper.isNotNull(entity.getComboardCount())) {
+            unloadVehicleTaskDto.setComBoardCount(entity.getComboardCount());
+        }
+        if (ObjectHelper.isNotNull(entity.getInterceptCount())) {
+            unloadVehicleTaskDto.setInterceptCount(entity.getInterceptCount());
+        }
+        if (ObjectHelper.isNotNull(entity.getTagsSign())) {
+            unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(entity.getTagsSign()));
+        }
+        unloadVehicleTaskDto.setTaskId(getJyScheduleTaskId(entity.getBizId()));
+        return unloadVehicleTaskDto;
+    }
+
+    @Override
+    public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
+        JyUnloadAggsEntity entity = null;
+        if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
+            entity = jyUnloadAggsDao.queryPackageStatistics(dto);
+        } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
+            entity = jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+        }
+        if (ObjectHelper.isNotNull(entity)) {
+            ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
+            return scanStatisticsDto;
+        }
+        return null;
+    }
+
+    @Override
+    public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
+        JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
+        return entityConvertDto(entity);
+    }
+
+    @Override
+    public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
+        JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
+        if(packageStatistics == null) {
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, "未查到数据");
+        }
+        JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
+                jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+
+        StatisticsDto statisticsDto = new StatisticsDto();
+        Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
+                : (int)(packageStatistics.getTotalScannedPackageCount() * 100.0 / packageStatistics.getTotalSealPackageCount());
+        statisticsDto.setProcessPercent(processPercent);
+//        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
+        statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
+        statisticsDto.setHaveScanCount(packageStatistics.getActualScanCount());
+        if(packageStatistics.getShouldScanCount() == null || packageStatistics.getShouldScanCount() == 0 || packageStatistics.getActualScanCount() == null) {
+            statisticsDto.setWaitScanCount(0);
+        }else {
+            statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
+        }
+        statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
+        statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
+        statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalSealWaybillCount());
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
+    }
+
+    private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--req:entity={}", JsonUtils.toJSONString(entity));
+        }
+        ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
+        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (int)(entity.getTotalScannedPackageCount() * 100.0 / entity.getTotalSealPackageCount());
+        scanStatisticsDto.setProcessPercent(processPercent);
+        if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
+            scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
+            scanStatisticsDto.setHaveScanCount(entity.getActualScanCount());
+            if(entity.getShouldScanCount() == null || entity.getShouldScanCount() == 0 || entity.getActualScanCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount() - entity.getActualScanCount());
+            }
+            scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
+            scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
+            scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
+            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
+        } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
+            scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
+            scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
+            if(entity.getTotalSealWaybillCount() == null || entity.getTotalSealWaybillCount() == 0 ||  entity.getTotalScannedWaybillCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            }
+            scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
+            scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
+            scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
+            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
+        }
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--res:scanStatisticsDto={}", JsonUtils.toJSONString(scanStatisticsDto));
+        }
+        return scanStatisticsDto;
+    }
+
+    private List<LabelOptionDto> resolveTagSign(String tagSign) {
+        List<LabelOptionDto> tagList = new ArrayList<>();
+
+        // 是否抽检
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_1)) {
+            UnloadTaskLabelEnum spotCheck = UnloadTaskLabelEnum.SPOT_CHECK;
+            tagList.add(new LabelOptionDto(spotCheck.getCode(), spotCheck.getName(), spotCheck.getDisplayOrder()));
+        }
+
+        // 逐单卸
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_2)) {
+            UnloadTaskLabelEnum unloadSingleBill = UnloadTaskLabelEnum.UNLOAD_SINGLE_BILL;
+            tagList.add(new LabelOptionDto(unloadSingleBill.getCode(), unloadSingleBill.getName(), unloadSingleBill.getDisplayOrder()));
+        }
+
+        // 半车卸
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_3)) {
+            UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.UNLOAD_HALF_CAR;
+            tagList.add(new LabelOptionDto(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
+        }
+
+        return tagList;
+    }
+
+
+    /**
+     * 根据操作场地区分卸车任务为分拣任务还是转运任务
+     *
+     * @param endSiteId
+     * @return
+     */
+    private Integer getTaskType(Long endSiteId) {
+        if(endSiteId == null) {
+            logger.warn("JyBizTaskUnloadVehicleServiceImpl.getTaskType--卸车任务区分来源分拣还是转运，流向为空");
+            return null;
+        }
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteId.intValue());
+        if(baseStaffSiteOrgDto == null) {
+            logger.warn("JyBizTaskUnloadVehicleServiceImpl.getTaskType--卸车任务区分来源分拣还是转运，基础资料未查到场地，endSiteId={}", endSiteId);
+            return null;
+        }
+        return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
+    }
 }

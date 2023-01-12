@@ -42,6 +42,18 @@
     <bean id="unDivSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_main_undiv"/>
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-undiv.xml"/>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
     </bean>
 
     <bean id="unDivSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">

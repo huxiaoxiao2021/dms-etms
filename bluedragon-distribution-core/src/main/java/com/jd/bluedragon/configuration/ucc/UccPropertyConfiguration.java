@@ -881,6 +881,26 @@ public class UccPropertyConfiguration {
     private String jySendTaskLoadRateLimit;
 
     /**
+     * 缓存时长
+     */
+    private Integer unloadCacheDurationHours;
+
+    /**
+     * 板上最多包裹数
+     */
+    private Integer unloadBoardBindingsMaxCount;
+
+    /**
+     * 包裹重量上限值，单位kg
+     */
+    private String packageWeightLimit;
+
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
+    /**
      * 面单举报异常配置
      */
     private String faceAbnormalReportConfig;
@@ -2183,5 +2203,37 @@ public class UccPropertyConfiguration {
 
     public void setJyDemotionConfig(String jyDemotionConfig) {
         this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getUnloadCacheDurationHours() {
+        return unloadCacheDurationHours;
+    }
+
+    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
+        this.unloadCacheDurationHours = unloadCacheDurationHours;
+    }
+
+    public Integer getUnloadBoardBindingsMaxCount() {
+        return unloadBoardBindingsMaxCount;
+    }
+
+    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
+        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public String getPackageWeightLimit() {
+        return packageWeightLimit;
+    }
+
+    public void setPackageWeightLimit(String packageWeightLimit) {
+        this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
     }
 }

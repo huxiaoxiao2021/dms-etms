@@ -40,6 +40,8 @@
 		<mapper resource="mappers/mysql/jy/group/JyTaskGroupMemberMapper.xml" />
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskUnloadVehicleMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyBizUnloadVehicleBatchMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyUnloadVehicleBoardMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyBizTaskUnloadVehicleStageMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/config/JyWorkMapFuncConfigMapper.xml" />
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleMapper.xml" />

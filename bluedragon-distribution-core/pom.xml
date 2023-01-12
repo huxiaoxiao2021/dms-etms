@@ -101,7 +101,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.70</version>
+            <version>1.2.83-jdsec.rc1</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.3-SNAPSHOT</version>
+			<version>2.0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1126,7 +1126,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.9-SNAPSHOT</version>
+			<version>1.0.10-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->
@@ -1909,6 +1909,12 @@
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ql.basic</groupId>
+			<artifactId>ql-basic-facade</artifactId>
+			<version>2.0.12-online-SNAPSHOT</version>
 		</dependency>
 
     </dependencies>

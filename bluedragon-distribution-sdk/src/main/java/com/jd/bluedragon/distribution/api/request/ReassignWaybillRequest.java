@@ -22,8 +22,12 @@ public class ReassignWaybillRequest extends JdRequest {
     
     /* 现场调度站点名称 */
     private String changeSiteName;
-    
-    public String getPackageBarcode() {
+
+	/*打印入口*/
+	private Integer interfaceType;
+
+
+	public String getPackageBarcode() {
   		return packageBarcode;
   	}
 
@@ -70,6 +74,13 @@ public class ReassignWaybillRequest extends JdRequest {
  	public void setChangeSiteName(String changeSiteName) {
  		this.changeSiteName = changeSiteName;
  	}
-  	
 
+
+	public Integer getInterfaceType() {
+		return interfaceType;
+	}
+
+	public void setInterfaceType(Integer interfaceType) {
+		this.interfaceType = interfaceType;
+	}
 }
