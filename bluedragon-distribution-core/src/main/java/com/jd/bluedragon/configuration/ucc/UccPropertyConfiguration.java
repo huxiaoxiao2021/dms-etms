@@ -722,7 +722,21 @@ public class UccPropertyConfiguration {
 
     private boolean syncJySealStatusSwitch;
 
+    private boolean syncJyCZSealStatusSwitch;
+
     private int sealStatusBatchSizeLimit;
+
+    public boolean getSyncJyCZSealStatusSwitch() {
+        return syncJyCZSealStatusSwitch;
+    }
+
+    public void setSyncJyCZSealStatusSwitch(boolean syncJyCZSealStatusSwitch) {
+        this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
+    }
+
+    private Integer jyComboardScanUserBeginDay;
+
+    private Integer jyComboardSiteCTTPageSize;
 
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
@@ -2218,5 +2232,22 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
         this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public Integer getJyComboardScanUserBeginDay() {
+        return jyComboardScanUserBeginDay;
+    }
+
+    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
+        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
+    }
+
+    public Integer getJyComboardSiteCTTPageSize() {
+        return jyComboardSiteCTTPageSize;
+    }
+
+    
+    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
+        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
     }
 }

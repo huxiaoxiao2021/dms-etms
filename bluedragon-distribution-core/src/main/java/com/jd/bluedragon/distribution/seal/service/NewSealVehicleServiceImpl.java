@@ -26,9 +26,14 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsCondition;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -174,6 +179,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     JdiQueryWSManager jdiQueryWSManager;
+    @Autowired
+    JyBizTaskComboardService jyBizTaskComboardService;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -330,6 +337,40 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         } catch (Exception e) {
             log.error("syncJySealStatus error",e);
         }
+    }
+
+    private void syncJyCZSealStatus(List<SealCarDto> sealCarDtos) {
+        try {
+            if (uccPropertyConfiguration.getSyncJyCZSealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+                List<String> sendCodes =new ArrayList();
+                for (SealCarDto sealCarDto:sealCarDtos){
+                    sendCodes.addAll(sealCarDto.getBatchCodes());
+                }
+                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                    return;
+                }
+                JyBizTaskComboardEntity condition =new JyBizTaskComboardEntity();
+                condition.setSendCodeList(sendCodes);
+                List<JyBizTaskComboardEntity> bizTaskComboardEntities =jyBizTaskComboardService.listBoardTaskBySendCode(condition);
+                if (ObjectHelper.isNotNull(bizTaskComboardEntities)){
+                    for (JyBizTaskComboardEntity entity:bizTaskComboardEntities){
+                        checkAndUpdateComboardTaskStatus(entity);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("syncJyCZSealStatus error",e);
+        }
+    }
+
+    private void checkAndUpdateComboardTaskStatus(JyBizTaskComboardEntity entity) {
+	    if (ObjectHelper.isNotNull(entity) &&ComboardStatusEnum.SEALED.getCode()!=entity.getBoardStatus()){
+          JyBizTaskComboardEntity jyBizTaskComboardEntity =new JyBizTaskComboardEntity();
+          jyBizTaskComboardEntity.setId(entity.getId());
+          jyBizTaskComboardEntity.setBoardStatus(ComboardStatusEnum.SEALED.getCode());
+          jyBizTaskComboardEntity.setSealTime(new Date());
+          jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity);
+      }
     }
 
 
@@ -574,6 +615,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
             syncJySealStatus(successSealCarList);
+            syncJyCZSealStatus(successSealCarList);
         }
 
         //记录封车操作数据

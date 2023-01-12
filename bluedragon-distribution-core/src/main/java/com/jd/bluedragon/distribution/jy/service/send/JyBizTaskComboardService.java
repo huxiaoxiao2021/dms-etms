@@ -56,10 +56,15 @@ public interface JyBizTaskComboardService {
    */
   List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(SendFlowDto sendFlowDto);
 
+  List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity);
+
   /**
    * 查询流向下板数量(某个流向-7日内所有未封车的板任务列表)
    * @return
    */
     List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
+
+  JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
+
 }
 

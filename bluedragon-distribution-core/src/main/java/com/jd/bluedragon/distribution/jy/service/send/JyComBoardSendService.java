@@ -86,6 +86,11 @@ public interface JyComBoardSendService {
    */
   InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request);
 
+  /**
+   * 扫描(组板+发货)
+   */
+  InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request);
+
 
   /**
    * 查询流向下组板统计信息列表-支撑下钻2
@@ -136,8 +141,15 @@ public interface JyComBoardSendService {
 
   /**
    * 取消组板
+   * @return
    */
-  InvokeResult cancelComboard(CancelBoardReq request);
+  InvokeResult<Void> cancelComboard(CancelBoardReq request);
+
+  /**
+   * 取消组板
+   * @return
+   */
+  InvokeResult<Void> cancelSortMachineComboard(CancelBoardReq request);
 
   /**
    * 根据包裹号或者箱号 定位所在的板
@@ -147,4 +159,11 @@ public interface JyComBoardSendService {
   InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 
   InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
+
+  /**
+   * 删除混扫任务
+   * @param request
+   * @return
+   */
+  InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request);
 }

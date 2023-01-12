@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class JyBizTaskComboardEntity {
+public class JyBizTaskComboardEntity implements Serializable {
 
     public static final String BIZ_PREFIX = "CB%s";
     private Long id;
@@ -14,7 +15,7 @@ public class JyBizTaskComboardEntity {
 
     private String sendCode;
 
-    private Integer status;
+    private Integer boardStatus;
 
     private Long startSiteId;
 
@@ -42,9 +43,43 @@ public class JyBizTaskComboardEntity {
 
     private Boolean bulkFlag;
 
-    private Integer count;
+    private Integer haveScanCount;
+
+    private Date sealTime;
+
+    private Date unsealTime;
+
+    private Integer comboardSource;
 
     private transient List<Integer> statusList;
+
+    private transient List<String> sendCodeList;
+    
+    private transient List<Integer> comboardSourceList;
+
+    public Date getSealTime() {
+        return sealTime;
+    }
+
+    public void setSealTime(Date sealTime) {
+        this.sealTime = sealTime;
+    }
+
+    public Date getUnsealTime() {
+        return unsealTime;
+    }
+
+    public void setUnsealTime(Date unsealTime) {
+        this.unsealTime = unsealTime;
+    }
+
+    public List<String> getSendCodeList() {
+        return sendCodeList;
+    }
+
+    public void setSendCodeList(List<String> sendCodeList) {
+        this.sendCodeList = sendCodeList;
+    }
 
     public Long getId() {
         return id;
@@ -76,14 +111,6 @@ public class JyBizTaskComboardEntity {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Long getStartSiteId() {
@@ -190,13 +217,6 @@ public class JyBizTaskComboardEntity {
         this.bulkFlag = bulkFlag;
     }
 
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
 
     public List<Integer> getStatusList() {
         return statusList;
@@ -204,5 +224,37 @@ public class JyBizTaskComboardEntity {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public Integer getHaveScanCount() {
+        return haveScanCount;
+    }
+
+    public void setHaveScanCount(Integer haveScanCount) {
+        this.haveScanCount = haveScanCount;
+    }
+
+    public Integer getBoardStatus() {
+        return boardStatus;
+    }
+
+    public void setBoardStatus(Integer boardStatus) {
+        this.boardStatus = boardStatus;
+    }
+
+    public Integer getComboardSource() {
+        return comboardSource;
+    }
+
+    public void setComboardSource(Integer comboardSource) {
+        this.comboardSource = comboardSource;
+    }
+
+    public List<Integer> getComboardSourceList() {
+        return comboardSourceList;
+    }
+
+    public void setComboardSourceList(List<Integer> comboardSourceList) {
+        this.comboardSourceList = comboardSourceList;
     }
 }

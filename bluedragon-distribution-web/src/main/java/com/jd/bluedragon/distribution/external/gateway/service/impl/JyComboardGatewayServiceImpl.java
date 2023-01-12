@@ -79,12 +79,12 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse finishBoard(BoardReq request) {
+  public JdCResponse<Void> finishBoard(BoardReq request) {
     return retJdCResponse(jyComBoardSendService.finishBoard(request));
   }
 
   @Override
-  public JdCResponse finishBoardsUnderCTTGroup(CTTGroupReq request) {
+  public JdCResponse<Void> finishBoardsUnderCTTGroup(CTTGroupReq request) {
     return retJdCResponse(jyComBoardSendService.finishBoardsUnderCTTGroup(request));
   }
 
@@ -145,8 +145,18 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse cancelComboard(CancelBoardReq request) {
+  public JdCResponse<Void> cancelComboard(CancelBoardReq request) {
     return retJdCResponse(jyComBoardSendService.cancelComboard(request));
+  }
+
+  @Override
+  public JdCResponse erpPasswdCheck(UserInfoReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<String> deleteCTTGroup(DeleteCTTGroupReq request) {
+    return retJdCResponse(jyComBoardSendService.deleteCTTGroup(request));
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

@@ -153,15 +153,15 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int SEND_FLOE_CTT_CODE = 3042;
     public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常！";
-
+    
     public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
-    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "获取混扫任务信息异常！";
+    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "未获取到相应的混扫任务信息！";
 
     public static final int PACKAGE_OR_BOX_UNDER_BOARD_CODE = 3044;
     public static final String PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE = "获取组板下的包裹号|运单号|箱号异常！";
 
     public static final int CANCEL_COM_BOARD_CODE = 3045;
-    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板异常！";
+    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板失败！";
 
     public static final int FINISH_BOARD_AGAIN_CODE = 3046;
     public static final String FINISH_BOARD_AGAIN_MESSAGE = "该板已完结，请刷新页面！";
@@ -196,7 +196,16 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
     public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
+    
+    public static final int  CREATE_GROUP_CTT_DATA_CODE = 3058;
+    public static final String CREATE_GROUP_CTT_DATA_MESSAGE = "保存本场地常用的笼车集合失败！";
 
+    public static final int NOT_FIND_CTT_CODE = 3059;
+    public static final String NOT_FIND_CTT_MESSAGE= "未获取到滑道笼车信息！";
+
+    public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
+    public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
+    
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

@@ -174,4 +174,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query) {
         return jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
     }
+
+    @Override
+    public boolean deleteByIds(JyCTTGroupUpdateReq jyCTTGroupUpdateReq) {
+        return jyGroupSortCrossDetailDao.deleteByIds(jyCTTGroupUpdateReq) > 0;
+    }
 }

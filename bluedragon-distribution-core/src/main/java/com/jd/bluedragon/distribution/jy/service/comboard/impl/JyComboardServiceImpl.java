@@ -8,7 +8,10 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.jd.bluedragon.dms.utils.BusinessUtil.encryptIdCard;
 
 /**
  * @author liwenji
@@ -21,10 +24,23 @@ public class JyComboardServiceImpl implements JyComboardService {
     private JyComboardDao jyComboardDao;
 
     @Override
-    public List<User> queryUserByStartSiteCode(Long startSiteId) {
-        return jyComboardDao.queryUserByStartSiteCode(startSiteId);
+    public List<User> queryUserByStartSiteCode(JyComboardEntity entity) {
+        try {
+            List<User> users = jyComboardDao.queryUserByStartSiteCode(entity);
+            hideInfo(users);
+            return users;
+        }catch (Exception e) {
+            return new ArrayList<>();
+        }
+        
     }
 
+    private void hideInfo(List<User> userList) {
+        for (User user : userList) {
+            user.setUserErp(encryptIdCard(user.getUserErp()));
+        }
+    }
+    
     @Override
     public int save(JyComboardEntity entity) {
         return jyComboardDao.insertSelective(entity);
@@ -39,8 +55,8 @@ public class JyComboardServiceImpl implements JyComboardService {
     }
 
     @Override
-    public int batchUpdateCancelFlag(BatchUpdateCancelReq req) {
-        return jyComboardDao.batchUpdateCancelFlag(req);
+    public boolean batchUpdateCancelFlag(BatchUpdateCancelReq req) {
+        return jyComboardDao.batchUpdateCancelFlag(req) > 0;
     }
 
     @Override

@@ -17,7 +17,7 @@ public interface JyComboardService {
      * @param startSiteId
      * @return
      */
-    List<User> queryUserByStartSiteCode(Long startSiteId);
+    List<User> queryUserByStartSiteCode(JyComboardEntity startSiteId);
 
     /**
      * 根据板号获取运单号
@@ -34,5 +34,5 @@ public interface JyComboardService {
      * @param req
      * @return
      */
-    int batchUpdateCancelFlag(BatchUpdateCancelReq req);
+    boolean batchUpdateCancelFlag(BatchUpdateCancelReq req);
 }
