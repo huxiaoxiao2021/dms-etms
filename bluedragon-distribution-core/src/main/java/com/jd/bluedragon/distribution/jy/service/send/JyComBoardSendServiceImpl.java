@@ -2363,14 +2363,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("按包裹箱取消组板失败：{}", JsonHelper.toJson(batchUpdateCancelReq));
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-
-        JyBizTaskComboardEntity jyBizTaskComboardEntity = new JyBizTaskComboardEntity();
-        jyBizTaskComboardEntity.setBizId(comboardEntity.getBizId());
-        jyBizTaskComboardEntity.setHaveScanCount(comboardEntity.getHaveScanCount() - barCodeList.size());
-        if (jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity) < 0) {
-          log.error("更新组板任务表失败：{}", JsonHelper.toJson(jyBizTaskComboardEntity));
-          throw new JyBizException("更新板任务失败");
-        }
       }
 
       Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
