@@ -421,7 +421,7 @@ public class SendVehicleTransactionManager {
     		return false;
     	}
     	//数据分组
-    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Integer.MAX_VALUE,Constants.DB_SQL_IN_LIMIT_NUM);
+    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Constants.DB_SQL_IN_MAX_GROUP_NUM,Constants.DB_SQL_IN_LIMIT_NUM);
     	
     	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
     	checkQuery.setStartSiteId(startSiteId);
