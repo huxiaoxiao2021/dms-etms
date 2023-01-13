@@ -44,6 +44,11 @@ public class ExceptionReportResp {
      */
     private String abnormalTypeName;
 
+    /**
+     * 系统时间
+     */
+    private Long sysTime;
+
     public String getTransAbnormalCode() {
         return transAbnormalCode;
     }
@@ -98,5 +103,13 @@ public class ExceptionReportResp {
 
     public void setLineType(Integer lineType) {
         this.lineType = lineType;
+    }
+
+    public Long getSysTime() {
+        return sysTime;
+    }
+
+    public void setSysTime(Long sysTime) {
+        this.sysTime = sysTime;
     }
 }
