@@ -69,6 +69,11 @@ public class JyBizTaskUnloadDto implements Serializable {
      */
     private Integer vehicleStatus;
 
+    /**
+     * 任务类型
+     */
+    private Integer taskType;
+
     public String getTaskId() {
         return taskId;
     }
@@ -163,5 +168,13 @@ public class JyBizTaskUnloadDto implements Serializable {
 
     public void setVehicleStatus(Integer vehicleStatus) {
         this.vehicleStatus = vehicleStatus;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }

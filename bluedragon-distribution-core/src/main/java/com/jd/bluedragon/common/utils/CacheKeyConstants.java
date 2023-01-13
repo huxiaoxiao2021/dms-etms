@@ -286,4 +286,9 @@ public class CacheKeyConstants {
     // 设备校准抽检处理-key
     public static final String CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL = "dwsCalibrate.spotDeal:%s";
     /***************************************** 设备校准缓存end *******************************************/
+    /**
+     * 接货仓验货 任务缓存，按group_code唯一存在
+     */
+    public static final String JY_WAREHOUSE_INSPECTION_TASK_EXIST_KEY = JY_CACHE_PREFIX + "ware_inspec:group_code:%s";
+
 }
