@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.goodsPrint;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.uim.annotation.Authorization;
@@ -65,6 +67,8 @@ public class GoodsPrintController extends DmsBaseController {
     @RequestMapping(value = "/listData")
     public @ResponseBody JdResponse<List<GoodsPrintDto>> listData(@RequestBody GoodsPrintDto goodsPrint) {
         try {
+            LoginUser loginUser = getLoginUser();
+            log.info("托寄物打印查询erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
             return goodsPrintService.query(goodsPrint);
         }catch (Exception e){
             JdResponse jdResponse=new JdResponse();
@@ -83,6 +87,8 @@ public class GoodsPrintController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
         BufferedWriter bfw = null;
         try {
+            LoginUser loginUser = getLoginUser();
+            log.info("托寄物打印导出erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
             exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.GOODS_PRINT_REPORT.getCode());
             String fileName = "托寄物品名";
             //设置文件后缀
