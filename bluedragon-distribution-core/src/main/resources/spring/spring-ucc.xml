@@ -218,14 +218,14 @@
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
-		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
+		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:2000}"/>
 		<property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
 		<property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
-		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:10}"/>
+		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:100}"/>
 		<property name="circuitBreakerForceOpen" value="${route.circuitBreakerForceOpen:false}"/>
-		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:5000}"/>
+		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:120000}"/>
 		<property name="maximumSize" value="${route.maximumSize:4}"/>
-		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:2}"/>
+		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:6}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
