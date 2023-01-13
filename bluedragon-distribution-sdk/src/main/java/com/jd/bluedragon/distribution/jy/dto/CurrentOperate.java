@@ -36,6 +36,16 @@ public class CurrentOperate implements Serializable {
      */
     private String dmsCode;
 
+    /**
+     * 人员组号
+     */
+    private String groupCode;
+
+    /**
+     * 网格码
+     */
+    private String positionCode;
+
     public CurrentOperate() {
     }
 
@@ -91,5 +101,21 @@ public class CurrentOperate implements Serializable {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
     }
 }
