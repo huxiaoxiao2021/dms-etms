@@ -16,7 +16,6 @@ import java.util.List;
  * @author liwenji
  * @date 2023-01-04 16:12
  */
-@Service
 public class RevokeExceptionGatewayServiceImpl implements RevokeExceptionGatewayService {
     
     @Autowired
