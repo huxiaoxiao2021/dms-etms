@@ -515,7 +515,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (positionCode.equals(currentPositionCode)) {
             return null;
         }
-        return "你当前所在网格码为" + currentPositionCode + "，任务所在网格码为" + positionCode + "，你无权操作！";
+        return "你当前所在网格码为" + currentPositionCode + "，该任务所在网格码为" + positionCode + "，你无权操作！";
     }
 
     /**
