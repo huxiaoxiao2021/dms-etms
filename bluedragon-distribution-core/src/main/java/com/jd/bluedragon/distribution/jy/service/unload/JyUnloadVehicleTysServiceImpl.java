@@ -25,8 +25,11 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
@@ -65,6 +68,9 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -162,6 +168,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private LogEngine logEngine;
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+    @Autowired
+    @Qualifier("jyGroupService")
+    private JyGroupService jyGroupService;
 
 
 
@@ -441,6 +452,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.completeUnloadTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> completeUnloadTask(UnloadCompleteDto request) {
         String methodDesc = "JyUnloadVehicleTysServiceImpl.completeUnloadTask--完成任务--";
+
+        // 校验操作人与任务的相关性
+        String checkResult = checkPositionCodeSimilarity(request.getBizId(), request.getCurrentOperate().getPositionCode());
+        if (checkResult != null) {
+            log.warn("{}当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", methodDesc, JsonUtils.toJSONString(request), checkResult);
+            InvokeResult<Boolean> result = new InvokeResult<>();
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(checkResult);
+            return result;
+        }
+
         //子任务完成
         JyBizTaskUnloadVehicleStageEntity doingChildTask = jyBizTaskUnloadVehicleStageService.selectUnloadDoingStageTask(request.getBizId());
         if (doingChildTask != null) {
@@ -483,6 +505,53 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         return result;
 
+    }
+
+    private String checkPositionCodeSimilarity(String bizId, String currentPositionCode) {
+        if (StringUtils.isBlank(currentPositionCode)) {
+            return null;
+        }
+        // 获取当前调度任务分配的组号
+        String groupCode = getJyScheduleDistributionTarget(bizId);
+        if (groupCode == null) {
+            log.warn("checkPositionCodeSimilarity|根据bizId与任务类型去JySchedule表查找组号为空:bizId={},currentPositionCode={}", bizId, currentPositionCode);
+            return null;
+        }
+        // 根据组号获取岗位码
+        String positionCode = getJyGroupPositionCode(groupCode);
+        if (positionCode == null) {
+            log.warn("checkPositionCodeSimilarity|根据JySchedule表中的组号去JyGroup表查找岗位码为空:bizId={},currentPositionCode={},groupCode={}", bizId, currentPositionCode, groupCode);
+            return null;
+        }
+        if (positionCode.equals(currentPositionCode)) {
+            return null;
+        }
+        return "你当前所在网格码为" + currentPositionCode + ",任务所在网格码为" + positionCode + ",你无权操作！";
+    }
+
+    /**
+     * 根据bizId与任务类型查询调度任务分配目标
+     */
+    private String getJyScheduleDistributionTarget(String bizId) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        if (scheduleTask == null) {
+            return null;
+        }
+        return scheduleTask.getDistributionTarget();
+    }
+
+    /**
+     * 根据组号查询网格码
+     */
+    private String getJyGroupPositionCode(String groupCode) {
+        JyGroupEntity groupInfo = jyGroupService.queryGroupByGroupCode(groupCode);
+        if (groupInfo == null) {
+            return null;
+        }
+        return groupInfo.getPositionCode();
     }
 
     @Override
@@ -576,6 +645,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.success();
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
+            // 校验操作人与任务的相关性
+            String checkResult = checkPositionCodeSimilarity(scanPackageDto.getBizId(), scanPackageDto.getCurrentOperate().getPositionCode());
+            if (checkResult != null) {
+                log.warn("scan|当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", JsonUtils.toJSONString(scanPackageDto), checkResult);
+                invokeResult.customMessage(RESULT_INTERCEPT_CODE, checkResult);
+                return invokeResult;
+            }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
@@ -1100,6 +1176,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.success();
         log.info("invoking jy scanForPipelining,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
+            // 校验操作人与任务的相关性
+            String checkResult = checkPositionCodeSimilarity(scanPackageDto.getBizId(), scanPackageDto.getCurrentOperate().getPositionCode());
+            if (checkResult != null) {
+                log.warn("scanForPipelining|当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", JsonUtils.toJSONString(scanPackageDto), checkResult);
+                invokeResult.customMessage(RESULT_INTERCEPT_CODE, checkResult);
+                return invokeResult;
+            }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
