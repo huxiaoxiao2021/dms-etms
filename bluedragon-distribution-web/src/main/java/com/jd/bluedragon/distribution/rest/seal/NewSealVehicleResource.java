@@ -498,7 +498,8 @@ public class NewSealVehicleResource {
                     Integer endNodeId = vtsDto.getData().getEndNodeId();
                     if (sealCarPreRequest.getCreateSiteCode() != null
                             && SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarPreRequest.getSealCarSource())
-                            && newsealVehicleService.isAirTransport(vtsDto.getData())) {
+                            && newsealVehicleService.isAirTransport(vtsDto.getData())
+                            && transportCode.startsWith("T")) {
                         Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
                         Integer receiveSiteCodeInSendCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
                         if (Objects.equals(sealCarPreRequest.getCreateSiteCode(), createSiteCodeInSendCode)
