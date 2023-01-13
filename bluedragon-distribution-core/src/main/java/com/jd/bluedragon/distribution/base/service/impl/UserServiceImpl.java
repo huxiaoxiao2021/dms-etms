@@ -233,11 +233,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             if (loginUserResponse == null || !Objects.equals(loginUserResponse.getCode(), JdResponse.CODE_OK)) {
                 return;
             }
-            final DeviceInfo deviceInfo = loginRequest.getDeviceInfo();
+            DeviceInfo deviceInfo = loginRequest.getDeviceInfo();
             final DeviceLocationInfo deviceLocationInfo = loginRequest.getDeviceLocationInfo();
             if (deviceInfo == null) {
+                deviceInfo = new DeviceInfo();
                 log.warn("UserServiceImpl.handleDeviceLocation deviceInfo null {}", JsonHelper.toJson(loginRequest));
-                return;
+                // return;
             }
 
             DeviceLocationUploadPo deviceLocationUploadPo = new DeviceLocationUploadPo();
