@@ -1,6 +1,7 @@
 package com.jd.bluedragon.configuration.ucc;
 
 /**
+ * 配置解释 https://cf.jd.com/pages/viewpage.action?pageId=575172590
  * @program: bluedragon-distribution
  * @description: hystrix 动态配置
  * @author: xumigen

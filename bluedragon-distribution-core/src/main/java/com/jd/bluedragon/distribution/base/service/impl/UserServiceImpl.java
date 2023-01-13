@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -79,9 +83,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
-	@Autowired
-	@Qualifier("baseService")
-	protected LoginService baseService;
+    @Autowired
+    private BaseService baseService;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -135,7 +138,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     		request.setCheckVersion(Boolean.FALSE);
     		request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
     	}
-		return baseService.clientLoginIn(request);
+		return clientLoginIn(request);
 	}
 
     /**
@@ -153,7 +156,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setCheckVersion(Boolean.FALSE);
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
-        LoginUserResponse loginUserResponse = baseService.clientLoginIn(request);
+        LoginUserResponse loginUserResponse = clientLoginIn(request);
         this.getAndSaveToken(request, loginUserResponse);
         this.handleDeviceLocation(request, loginUserResponse);
         return loginUserResponse;
@@ -525,6 +528,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 			checkResult.toFail("请求参数无效！缺少menuCode和siteType");
 			return checkResult;
 		}
+		CheckMenuAuthResponse respData = new CheckMenuAuthResponse();
+		checkResult.setData(respData);
 		// 菜单下线提示
 		if(checkMenuIsOffline(checkMenuAuthRequest.getMenuCode(), checkResult)){
 			return checkResult;
@@ -534,8 +539,29 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	        List<String> smsSiteMenuBlacklist = sysConfigService.getStringListConfig(Constants.SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST);
 	        if(smsSiteMenuBlacklist.contains(checkMenuAuthRequest.getMenuCode())) {
 	        	checkResult.toFail(HintService.getHint(HintCodeConstants.PRINT_CLINET_SMS_SITE_MENU_NOAUTH));
+	        	return checkResult;
 	        }
 		}
+		//菜单权限验证，按场地限制
+        MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+        menuUsageConfigRequestDto.setMenuCode(checkMenuAuthRequest.getMenuCode());
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(checkMenuAuthRequest.getSiteCode());
+        menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+        User user = new User();
+        user.setUserErp(checkMenuAuthRequest.getUserCode());
+        menuUsageConfigRequestDto.setUser(user);
+        MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+        if(clientMenuUsageConfig != null) {
+        	respData.setCanUse(clientMenuUsageConfig.getCanUse());
+        	respData.setMsg(clientMenuUsageConfig.getMsg());
+        	respData.setMsgType(clientMenuUsageConfig.getMsgType());
+        	//菜单不可用
+        	if(Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
+        		checkResult.toFail(clientMenuUsageConfig.getMsg());
+	        	return checkResult; 
+        	}
+        }
 		return checkResult;
 	}
 
