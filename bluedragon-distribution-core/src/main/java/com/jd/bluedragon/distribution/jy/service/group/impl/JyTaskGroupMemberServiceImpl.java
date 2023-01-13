@@ -144,7 +144,7 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		List<String> memberCodeList = jyTaskGroupMemberDao.queryMemberCodeListByTaskId(memberCodeListQuery);
 		
 		if(!CollectionUtils.isEmpty(memberCodeList)) {
-			List<List<String>> memberCodeGroupList = CollectionHelper.splitList(memberCodeList, Integer.MAX_VALUE, Constants.DB_SQL_IN_LIMIT_NUM);
+			List<List<String>> memberCodeGroupList = CollectionHelper.splitList(memberCodeList, Constants.DB_SQL_IN_MAX_GROUP_NUM, Constants.DB_SQL_IN_LIMIT_NUM);
 			for(List<String> memberCodes : memberCodeGroupList) {
 				//查询在岗人员MemberCode
 				List<String> unSignOutMemberCodeList = jyGroupMemberService.queryUnSignOutMemberCodeList(memberCodes);
