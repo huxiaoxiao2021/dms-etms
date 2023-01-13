@@ -30,9 +30,14 @@ public class ExceptionReportResp {
     private Long revokeSurplusTime;
 
     /**
-     * 线路类型
+     * 线路类型名称
      */
     private String lineTypeName;
+
+    /**
+     * 线路类型
+     */
+    private Integer lineType;
 
     /**
      * 异常类型
@@ -85,5 +90,13 @@ public class ExceptionReportResp {
 
     public void setLineTypeName(String lineTypeName) {
         this.lineTypeName = lineTypeName;
+    }
+
+    public Integer getLineType() {
+        return lineType;
+    }
+
+    public void setLineType(Integer lineType) {
+        this.lineType = lineType;
     }
 }

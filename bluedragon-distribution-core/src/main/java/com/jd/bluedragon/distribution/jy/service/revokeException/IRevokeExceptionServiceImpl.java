@@ -109,6 +109,7 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
                     reportResp.setTransAbnormalCode(dto.getTransAbnormalCode());
                     reportResp.setVehicleNumber(dto.getVehicleNumber());
                     reportResp.setReportTime(dto.getCreateTime());
+                    reportResp.setLineType(dto.getTransType().intValue());
                     reportResp.setLineTypeName(TmsLineTypeEnum.getLineType(dto.getTransType().intValue()).getName());
                     reportResp.setAbnormalTypeName(dto.getAbnormalTypeName());
                     reportResp.setRevokeSurplusTime(new Date().getTime() - dto.getCreateTime().getTime());
