@@ -206,7 +206,7 @@ public class JyUnloadVehicleCheckTysService {
         String packageWeightLimit = uccPropertyConfiguration.getPackageWeightLimit();
         BigDecimal packageWeight = getPackageWeight(packageD, waybill);
         if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
-            log.info("包裹超重:packageCode={},weight={},limit={}", packageD.getPackageBarcode(), packageWeight.toPlainString(), packageWeightLimit);
+            log.info("包裹超重:packageCode={},weight={},limit={}", response.getBarCode(), packageWeight.toPlainString(), packageWeightLimit);
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
         }
