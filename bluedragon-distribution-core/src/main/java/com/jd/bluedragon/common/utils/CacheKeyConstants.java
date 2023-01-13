@@ -273,8 +273,6 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
 
-
-
     /**
      * 接货仓验货 任务缓存，按group_code唯一存在
      */
@@ -288,7 +286,6 @@ public class CacheKeyConstants {
     public static final String BOARD_SCAN_TYPE_PACKAGE = "package";
     public static final String BOARD_SCAN_TYPE_BOX = "box";
     public static final String BOARD_SCAN_TYPE_ELSE = "else";
-
 
     /**
      * 滞留上报操作key，场地+箱号|批次|板号
@@ -375,6 +372,5 @@ public class CacheKeyConstants {
      * sealCarCode
      */
     public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
-
 
 }

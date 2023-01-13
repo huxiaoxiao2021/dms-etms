@@ -48,6 +48,8 @@ public class DeviceLocationInfo implements Serializable {
      */
     private List<WifiInfoDto> wifiInfoList;
 
+    private BigDecimal distanceToSite;
+
     public String getIpv4() {
         return ipv4;
     }
@@ -102,5 +104,13 @@ public class DeviceLocationInfo implements Serializable {
 
     public void setWifiInfoList(List<WifiInfoDto> wifiInfoList) {
         this.wifiInfoList = wifiInfoList;
+    }
+
+    public BigDecimal getDistanceToSite() {
+        return distanceToSite;
+    }
+
+    public void setDistanceToSite(BigDecimal distanceToSite) {
+        this.distanceToSite = distanceToSite;
     }
 }
