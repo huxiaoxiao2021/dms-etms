@@ -555,4 +555,11 @@
                   ref="goodsPhotoInfoGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--  异常提报撤销  -->
+    <jsf:provider id="jsfRevokeExceptionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.RevokeExceptionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="revokeExceptionGatewayService"
+                  server="dmsjsf" />
 </beans>
