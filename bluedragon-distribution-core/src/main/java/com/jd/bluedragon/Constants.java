@@ -1756,7 +1756,10 @@ public class Constants {
      * sql中in语句数量限制 100
      */
     public static final int DB_SQL_IN_LIMIT_NUM = 100;
-    
+    /**
+     * sql拆分-最大分组数 10000
+     */
+    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;    
     /**
      * 传摆发货功能编码：0203004-gz
      */
