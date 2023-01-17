@@ -530,7 +530,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         try {
             final Result<Boolean> handleResult = this.uploadLocationInfo(deviceLocationUploadPo);
             if (!handleResult.isSuccess()) {
-                log.warn("DeviceLocationServiceImpl.handleDmsUploadDeviceLocationConsume uploadLocationInfo fail {}", JsonHelper.toJson(deviceLocationUploadPo));
+                log.warn("DeviceLocationServiceImpl.handleDmsUploadDeviceLocationConsume uploadLocationInfo fail {} {}", JsonHelper.toJson(deviceLocationUploadPo), JsonHelper.toJson(handleResult));
                 return result.toFail(handleResult.getMessage());
             }
         } catch (Exception e) {
