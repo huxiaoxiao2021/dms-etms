@@ -62,6 +62,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1521,6 +1522,13 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
 
+            // 在得物商家的名单范围内，禁止返调度
+            final boolean matchDewuReSortCondition = this.matchTerminalSiteReSortDewuCondition(waybill.getCustomerCode(), userInfo.getSiteCode());
+            if(matchDewuReSortCondition){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
+            }
+
             // 当前校验必须放在最后
             //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
             InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
@@ -1574,4 +1582,29 @@ public class WaybillServiceImpl implements WaybillService {
         }
 		return false;
 	}
+
+    /**
+     * 匹配是否为终端场地操作得物类型返调度操作条件
+     * @param customerCode 商家编号
+     * @param siteCode 用户信息
+     * @return
+     */
+    @Override
+    public boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode) {
+        try {
+            if (customerCode == null || siteCode == null) {
+                return false;
+            }
+            final BaseSite siteInfo = baseMajorManager.getSiteBySiteCode(siteCode);
+            if (siteInfo == null) {
+                return false;
+            }
+            if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("matchTerminalSiteReSortDewuCondition exception ", e);
+        }
+        return false;
+    }
 }

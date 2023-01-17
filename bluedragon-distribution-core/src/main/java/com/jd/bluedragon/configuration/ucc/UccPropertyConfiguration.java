@@ -1067,6 +1067,12 @@ public class UccPropertyConfiguration {
      */
     private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
 
+    /**
+     * 得物产品类型的商家名单
+     *  多个场地以,分隔
+     */
+    private String dewuCustomerCodes;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2535,5 +2541,36 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
         this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public String getDewuCustomerCodes() {
+        return dewuCustomerCodes;
+    }
+
+    public void setDewuCustomerCodes(String dewuCustomerCodes) {
+        this.dewuCustomerCodes = dewuCustomerCodes;
+        this.dewuCustomerCodeList = this.getDewuCustomerCodeList();
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> dewuCustomerCodeList = new ArrayList<>();
+
+    public List<String> getDewuCustomerCodeList() {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(String.valueOf(customerCode))){
+            return true;
+        }
+        return false;
     }
 }
