@@ -320,7 +320,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             }
             PointDto endPoint = new PointDto();
             endPoint.setLat(BigDecimal.valueOf(transFenceInfoVo.getLat()));
-            endPoint.setLat(BigDecimal.valueOf(transFenceInfoVo.getLat()));
+            endPoint.setLng(BigDecimal.valueOf(transFenceInfoVo.getLng()));
             final Result<BigDecimal> lengthResult = wlLbsApiWrapResultManager.getLength(null, startPoint, endPoint);
             if (lengthResult.isSuccess() && lengthResult.getData() != null) {
                 final BigDecimal distance = lengthResult.getData();

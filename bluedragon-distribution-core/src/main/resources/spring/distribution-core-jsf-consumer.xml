@@ -1219,7 +1219,7 @@
     <!-- 获取两点间的直线距离 -->
     <jsf:consumer id="jsfGeoToolService"
                   interface="com.jd.lbs.jdlbsapi.geotool.GeoToolService"
-                  alias="${jsf.wlLbs.geoCoding.alias}"
+                  alias="${jsf.wlLbs.geoTool.alias}"
                   timeout="${jsf.wlLbs.geoTool.timeout}"
                   retries="${jsf.wlLbs.geoTool.retries}"
                   serialization="hessian"
