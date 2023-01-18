@@ -66,7 +66,7 @@
     </sql>
 
     <insert id="insert" parameterType="JyUnloadAggsEntity">
-        INSERT INTO uat_jy_unload_aggs (id,
+        INSERT INTO jy_unload_aggs (id,
                                     biz_id,
                                     seal_car_code,
                                     operate_site_id,
@@ -106,7 +106,7 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM
-        uat_jy_unload_aggs
+        jy_unload_aggs
         WHERE
         yn = 1
         AND biz_id = #{bizId, jdbcType=VARCHAR}
@@ -125,7 +125,7 @@
         total_seal_package_count,
         total_scanned_package_count
         FROM
-        uat_jy_unload_aggs
+        jy_unload_aggs
         WHERE yn = 1 and
         biz_id = #{bizId}
         <if test="boardCode!=null">
@@ -141,7 +141,7 @@
         SUM(more_scan_local_count) more_scan_local_count,
         SUM(more_scan_out_count) more_scan_out_count
         FROM
-        uat_jy_unload_aggs
+        jy_unload_aggs
         WHERE yn = 1 and biz_id = #{bizId}
     </select>
 
@@ -149,7 +149,7 @@
             parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
                select SUM(actual_scan_waybill_count)   actual_scan_waybill_count
-        FROM uat_jy_unload_aggs
+        FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
           and board_code = #{boardCode}
           and yn = 1
@@ -166,7 +166,7 @@
                total_more_scan_out_waybill_count,
                total_seal_package_count,
                total_scanned_package_count
-        FROM uat_jy_unload_aggs
+        FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
           and yn = 1 limit 1
     </select>
@@ -176,7 +176,7 @@
         SELECT product_type type,SUM(should_scan_count) shouldScanCount,
         SUM(actual_scan_count) haveScanCount,
         SUM(more_scan_total_count) moreScanTotalCount
-        from uat_jy_unload_aggs
+        from jy_unload_aggs
         WHERE biz_id = #{bizId}
         <if test="boardCode!=null and boardCode!='' ">
             AND board_code =#{boardCode}
@@ -192,7 +192,7 @@
         SUM(more_scan_total_count) extraScanCount,
         SUM(intercept_actual_scan_count) interceptCount
         FROM
-        uat_jy_unload_aggs
+        jy_unload_aggs
         WHERE
         biz_id = #{bizId}
         <if test="boardCode!=null and boardCode!='' ">
@@ -204,7 +204,7 @@
     <select id="queryBoardStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
         SELECT biz_id, board_code, sum(actual_scan_count) actual_scan_count, sum(more_scan_total_count) more_scan_total_count
-        FROM  uat_jy_unload_aggs
+        FROM  jy_unload_aggs
         WHERE yn = 1 and biz_id = #{bizId} and board_code =#{boardCode}
     </select>
 
