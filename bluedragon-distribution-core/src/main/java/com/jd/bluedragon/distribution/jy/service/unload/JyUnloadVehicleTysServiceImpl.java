@@ -175,7 +175,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private JyGroupService jyGroupService;
 
 
-
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.listUnloadVehicleTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
