@@ -1591,6 +1591,7 @@ public class WaybillServiceImpl implements WaybillService {
      */
     @Override
     public boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode) {
+        log.info("matchTerminalSiteReSortDewuCondition param customerCode: {} siteCode: {}", customerCode, siteCode);
         try {
             if (customerCode == null || siteCode == null) {
                 return false;
@@ -1599,6 +1600,8 @@ public class WaybillServiceImpl implements WaybillService {
             if (siteInfo == null) {
                 return false;
             }
+            log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", uccPropertyConfiguration.matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
             if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
                 return true;
             }

@@ -2568,7 +2568,7 @@ public class UccPropertyConfiguration {
         if(StringUtils.isBlank(dewuCustomerCodes)){
             return false;
         }
-        if(dewuCustomerCodeList.contains(String.valueOf(customerCode))){
+        if(dewuCustomerCodeList.contains(customerCode)){
             return true;
         }
         return false;
