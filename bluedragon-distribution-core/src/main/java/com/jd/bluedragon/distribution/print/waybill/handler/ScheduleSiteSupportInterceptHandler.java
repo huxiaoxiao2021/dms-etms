@@ -112,6 +112,13 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                 }
             }
 
+            // 站点类型不能操作得物类型货物返调度
+            final boolean matchTerminalSiteReSortDewuCondition = waybillService.matchTerminalSiteReSortDewuCondition(context.getBigWaybillDto().getWaybill().getCustomerCode(), context.getRequest().getSiteCode());
+            if(matchTerminalSiteReSortDewuCondition){
+                result.toError(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
+            }
+
             // 特殊品类自营逆向单不能返调度到仓
             if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(waybill.getSendPayMap())
                     && BusinessUtil.isWmsSite(scheduleSiteOrgDto.getSiteType())){
@@ -181,12 +188,6 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                     result.toError(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
                     return result;
                 }
-            }
-
-            final boolean matchTerminalSiteReSortDewuCondition = waybillService.matchTerminalSiteReSortDewuCondition(context.getBigWaybillDto().getWaybill().getCustomerCode(), context.getRequest().getSiteCode());
-            if(matchTerminalSiteReSortDewuCondition){
-                result.toError(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
-                return result;
             }
 
         } catch (Exception e) {
