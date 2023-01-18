@@ -302,6 +302,11 @@ public class CacheKeyConstants {
     /***************************************** 设备校准缓存end *******************************************/
 
     /**
+     * 接货仓验货 任务缓存，按group_code唯一存在
+     */
+    public static final String JY_WAREHOUSE_INSPECTION_TASK_EXIST_KEY = JY_CACHE_PREFIX + "ware_inspec:group_code:%s";
+
+    /**
      * 拣运卸车统计
      * sealCarCode
      */
@@ -372,5 +377,6 @@ public class CacheKeyConstants {
      * sealCarCode
      */
     public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
+
 
 }

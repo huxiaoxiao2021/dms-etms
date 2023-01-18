@@ -793,7 +793,7 @@ public class UccPropertyConfiguration {
     private Integer jyComboardSiteCTTPageSize;
 
     private boolean syncScheduleTaskSwitch;
-    
+
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -1115,6 +1115,12 @@ public class UccPropertyConfiguration {
      *  空表示未开启
      */
     private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
+
+    /**
+     * 得物产品类型的商家名单
+     *  多个场地以,分隔
+     */
+    private String dewuCustomerCodes;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2678,5 +2684,36 @@ public class UccPropertyConfiguration {
     }
     public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
         this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+    }
+
+    public String getDewuCustomerCodes() {
+        return dewuCustomerCodes;
+    }
+
+    public void setDewuCustomerCodes(String dewuCustomerCodes) {
+        this.dewuCustomerCodes = dewuCustomerCodes;
+        this.dewuCustomerCodeList = this.getDewuCustomerCodeList();
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> dewuCustomerCodeList = new ArrayList<>();
+
+    public List<String> getDewuCustomerCodeList() {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(customerCode)){
+            return true;
+        }
+        return false;
     }
 }

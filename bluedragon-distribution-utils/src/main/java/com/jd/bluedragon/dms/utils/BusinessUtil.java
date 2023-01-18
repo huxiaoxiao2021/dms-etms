@@ -1145,6 +1145,26 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是终端 （siteType =4或8）或（siteType =16且subType =128或16或1605或99或1604）
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType, Integer subType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+
+        List<Integer> terminalSiteSubTypeList = new ArrayList<Integer>();
+        terminalSiteSubTypeList.add(128);
+        terminalSiteSubTypeList.add(16);
+        terminalSiteSubTypeList.add(1605);
+        terminalSiteSubTypeList.add(99);
+        terminalSiteSubTypeList.add(1604);
+
+        return terminalSiteTypeList.contains(siteType) || (siteType != null && siteType == 16 && terminalSiteSubTypeList.contains(subType));
+    }
+
+    /**
      * 判断是否是车队
      * @param siteType
      * @return

@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -14,6 +16,7 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -63,6 +66,8 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
 
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -190,6 +195,12 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                 LOGGER.warn("ScheduleSiteSupportInterceptHandler.handler 预分拣站点滑道信息为空,targetSiteCode:{},dmsSiteCode:{},waybillCode:{}",
                         context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode(),waybillCode);
                 result.toWeakSuccess(crossResult.getCode(),crossResult.getMessage());
+                return result;
+            }
+
+            final boolean matchTerminalSiteReSortDewuCondition = waybillService.matchTerminalSiteReSortDewuCondition(context.getBigWaybillDto().getWaybill().getCustomerCode(), context.getRequest().getSiteCode());
+            if(matchTerminalSiteReSortDewuCondition){
+                result.toError(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
                 return result;
             }
 
