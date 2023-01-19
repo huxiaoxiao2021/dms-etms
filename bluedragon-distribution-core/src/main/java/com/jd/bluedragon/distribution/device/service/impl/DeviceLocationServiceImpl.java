@@ -326,8 +326,12 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             final Result<BigDecimal> lengthResult = wlLbsApiWrapResultManager.getLength(null, startPoint, endPoint);
             if (lengthResult.isSuccess() && lengthResult.getData() != null) {
                 final BigDecimal distance = lengthResult.getData();
-                if(deviceLocationInfo.getDistanceToSite() != null && deviceLocationInfo.getDistanceToSite().compareTo(distance) > 0){
+                if(deviceLocationInfo.getDistanceToSite() == null){
                     deviceLocationInfo.setDistanceToSite(distance);
+                } else {
+                    if(deviceLocationInfo.getDistanceToSite().compareTo(distance) > 0){
+                        deviceLocationInfo.setDistanceToSite(distance);
+                    }
                 }
             }
         }
