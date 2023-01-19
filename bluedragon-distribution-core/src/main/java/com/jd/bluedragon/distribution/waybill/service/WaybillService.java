@@ -226,4 +226,12 @@ public interface WaybillService {
      */
     InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String waybillCode, String waybilSign);
 
+    /**
+     * 匹配是否为终端场地操作得物类型返调度操作条件
+     * @param customerCode 商家编号
+     * @param siteCode 场地编码
+     * @return
+     */
+    boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode);
+
 }

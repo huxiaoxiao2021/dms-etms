@@ -215,6 +215,7 @@
 		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
+		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -406,6 +407,7 @@
 				<value>uccPropertyConfiguration.machineCalibrateIntervalTimeOfSpotCheck</value>
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOMachineStatus</value>
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOnMachineStatusSiteSwitch</value>
+                <value>uccPropertyConfiguration.dewuCustomerCodes</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
