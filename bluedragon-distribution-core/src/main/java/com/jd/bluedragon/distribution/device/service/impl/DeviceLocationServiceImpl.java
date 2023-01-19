@@ -265,7 +265,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             //  2.1 判断设备经纬度是否在场地围栏内
             if (hasLocation) {
                 // 有经纬度计算坐标点到围栏中心点的直线距离
-                this.calculateSiteDistance(deviceLocationInfo, transFenceInfoVoList);
+                this.calculateSiteDistance(deviceLocationUploadPo, transFenceInfoVoList);
                 final Coordinate coordinate = CoordinateTransformUtil.transformWGS84ToGCJ02(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
                 LatLng point = new LatLng(coordinate.getLatitude(), coordinate.getLongitude());
                 final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
@@ -306,9 +306,11 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         return result;
     }
 
-    private Result<Boolean> calculateSiteDistance(DeviceLocationInfo deviceLocationInfo, List<TransFenceInfoVo> transFenceInfoVoList) {
+    private Result<Boolean> calculateSiteDistance(DeviceLocationUploadPo deviceLocationUploadPo, List<TransFenceInfoVo> transFenceInfoVoList) {
         Result<Boolean> result = Result.success();
         PointDto startPoint = new PointDto();
+
+        DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
         startPoint.setLat(deviceLocationInfo.getLatitude());
         startPoint.setLng(deviceLocationInfo.getLongitude());
 
