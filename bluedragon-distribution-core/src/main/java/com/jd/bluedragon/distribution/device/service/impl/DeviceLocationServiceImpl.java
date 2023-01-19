@@ -331,6 +331,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
                 }
             }
         }
+        log.info("DeviceLocationServiceImpl.calculateSiteDistance deviceLocationUploadPo: {}", JsonHelper.toJson(deviceLocationUploadPo));
         return result;
     }
 
