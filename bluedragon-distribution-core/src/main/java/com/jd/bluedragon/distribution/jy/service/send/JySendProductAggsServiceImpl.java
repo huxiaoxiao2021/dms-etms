@@ -1,8 +1,16 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.jy.dao.send.*;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,30 +19,93 @@ import java.util.List;
 
 @Service("jySendProductAggsService")
 public class JySendProductAggsServiceImpl implements JySendProductAggsService {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JySendProductAggsDao jySendProductAggsDao;
 
+    @Autowired
+    private JySendProductAggsDaoMain jySendProductAggsDaoMain;
 
-    @Override
-    public JySendProductAggsEntity getVehicleSendStatistics(String sendVehicleBizId) {
-        return jySendProductAggsDao.getVehicleSendStatistics(sendVehicleBizId);
-    }
+    @Autowired
+    private JySendProductAggsDaoBak jySendProductAggsDaoBak;
 
-    @Override
-    public List<JySendProductAggsEntity> findBySendVehicleBizId(String sendVehicleBizId) {
-        return jySendProductAggsDao.findBySendVehicleBizId(sendVehicleBizId);
-    }
+    @Autowired
+    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
 
     @Override
     public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId) {
-        return jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
+
+        JySendProductAggsDaoStrategy jySendProductAggsDao = getJySendProductAggsDao();
+        String keyword = jySendProductAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getSendVehicleProductTypeList");
+        List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return list;
     }
 
     @Override
     public Long getToScanCountSum(String sendVehicleBizId) {
-        return jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
+        JySendProductAggsDaoStrategy jySendProductAggsDao = getJySendProductAggsDao();
+        String keyword = jySendProductAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getToScanCountSum");
+        Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return toScanCountSum;
     }
+
+    @Override
+    public Boolean insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity) {
+        Boolean result = jySendProductAggsDaoMain.updateByBizProduct(entity)>0;
+        if(!result){
+            return jySendProductAggsDaoMain.insert(entity)>0;
+        }
+        return result;
+    }
+
+    @Override
+    public Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity) {
+        Boolean result = jySendProductAggsDaoBak.updateByBizProduct(entity) >0;
+        if(!result){
+            return jySendProductAggsDaoBak.insert(entity) > 0;
+        }
+        return result;
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query) {
+        return jySendProductAggsDaoMain.getSendProductAggMainData(query);
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query) {
+        return jySendProductAggsDaoBak.getSendProductAggBakData(query);
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
+        return jySendProductAggsDao.getSendAggsListByCondition(query);
+    }
+
+    /**
+     * 获取具体的DAO
+     * @return
+     */
+    private JySendProductAggsDaoStrategy getJySendProductAggsDao(){
+        if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 读新库开启");
+            if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
+                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读备库开启");
+                return jySendProductAggsDaoBak;
+            }else {
+                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读主库开启");
+                return jySendProductAggsDaoMain;
+            }
+        }
+        log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 关闭");
+        return jySendProductAggsDao;
+    }
+
 
 
 }
