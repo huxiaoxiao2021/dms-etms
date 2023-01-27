@@ -65,7 +65,16 @@
         <trans-fence-api.version>1.0-jdk1.7-SNAPSHOT</trans-fence-api.version>
         <vividsolutions.jts.version>1.13</vividsolutions.jts.version>
     </properties>
-	
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.16</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 		<dependency>
