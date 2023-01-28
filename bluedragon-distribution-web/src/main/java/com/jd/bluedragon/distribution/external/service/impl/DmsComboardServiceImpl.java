@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -9,10 +8,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.external.domain.*;
 import com.jd.bluedragon.distribution.external.service.DmsComboardService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
-import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
-import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -139,7 +136,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
     JyBizTaskComboardEntity board = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
 
     if (board == null) {
-      log.error("未找到板的批次信息：{}", JsonHelper.toJson(request.getBarCode()));
+      log.error("未找到板的批次信息：{}", JsonHelper.toJson(boardBoxInfoDto.getCode()));
       return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
     } else {
       boardDto.setSendCode(board.getSendCode());

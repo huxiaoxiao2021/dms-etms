@@ -25,6 +25,11 @@ import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.external.domain.BoardQueryRequest;
+import com.jd.bluedragon.distribution.external.domain.BoardQueryResponse;
+import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardRequest;
+import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardResponse;
+import com.jd.bluedragon.distribution.external.service.DmsComboardService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -52,6 +57,9 @@ public class JyComboardSealGatewayServiceImplTest {
 
     @Autowired
     private JySealVehicleService jySealVehicleService;
+    
+    @Autowired
+    private DmsComboardService dmsComboardService;
 
     @Test
     public void listComboardBySendFlowTest() {
@@ -191,5 +199,30 @@ public class JyComboardSealGatewayServiceImplTest {
         sendVehicleTaskRequest.setUser(user);
         JdCResponse<SendVehicleTaskResponse> response = jyComboardSealGatewayService.fetchSendVehicleTask(sendVehicleTaskRequest);
         System.out.println(JsonHelper.toJson(response));
+    }
+    
+    @Test
+    public void dmsListComboardBySendFlowTest() {
+        BoardQueryRequest boardQueryRequest = new BoardQueryRequest();
+        
+        boardQueryRequest.setPageNo(1);
+        boardQueryRequest.setPageSize(10);
+        boardQueryRequest.setStartSiteId(910);
+        boardQueryRequest.setEndSiteId(39);
+
+        InvokeResult<BoardQueryResponse> boardQueryResponseInvokeResult = dmsComboardService.listComboardBySendFlow(boardQueryRequest);
+
+        System.out.println(JsonHelper.toJson(boardQueryResponseInvokeResult));
+    }
+    
+    @Test
+    public void dmsQueryBelongBoardByBarCode() {
+        QueryBelongBoardRequest queryBelongBoardRequest = new QueryBelongBoardRequest();
+        
+        queryBelongBoardRequest.setStartSiteId(910);
+        queryBelongBoardRequest.setBarCode("JD0003418873279-1-1-");
+
+        InvokeResult<QueryBelongBoardResponse> queryBelongBoardResponseInvokeResult = dmsComboardService.queryBelongBoardByBarCode(queryBelongBoardRequest);
+        System.out.println(JsonHelper.toJson(queryBelongBoardResponseInvokeResult));
     }
 }
