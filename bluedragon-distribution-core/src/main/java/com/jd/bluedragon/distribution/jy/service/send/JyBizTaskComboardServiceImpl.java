@@ -114,6 +114,25 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
+  public List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlow(SendFlowDto sendFlowDto) {
+    JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
+    condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
+    condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
+    condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    condition.setStatusList(statusList);
+    List<Integer> sealStatusList = new ArrayList<>();
+    sealStatusList.add(ComboardStatusEnum.SEALED.getCode());
+    condition.setSealStatusList(sealStatusList);
+    condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
+    condition.setSealTime(sendFlowDto.getQuerySealTimeBegin());
+    return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
+  }
+
+  @Override
   public List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity) {
     return jyBizTaskComboardDao.listBoardTaskBySendCode(entity);
   }

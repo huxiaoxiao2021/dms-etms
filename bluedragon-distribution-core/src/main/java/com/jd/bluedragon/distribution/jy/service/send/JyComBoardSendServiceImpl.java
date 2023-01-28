@@ -1789,13 +1789,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } catch (Exception e) {
       log.error("queryBoardStatisticsUnderSendFlow 查询流向统计数据异常",e);
     }
-    //查询流向下7天内未封车的板
+    //查询流向下7天内未封车的板 和两日内已封车的板
     SendFlowDto sendFlowDto = assemblySendFlowParams(request);
     Page page =PageHelper.startPage(request.getPageNo(),request.getPageSize());
-    List<Integer> comboardSourceList = new ArrayList<>();
-    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-    sendFlowDto.setComboardSourceList(comboardSourceList);
-    List<JyBizTaskComboardEntity> entityList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlowDto);
+    List<JyBizTaskComboardEntity> entityList = jyBizTaskComboardService.listSealOrUnSealedBoardTaskBySendFlow(sendFlowDto);
     if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
       List<String> boardCodeList = new ArrayList<>();
       List<BoardDto> boardDtoList = new ArrayList<>();
@@ -1837,9 +1834,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     sendFlowDto.setStartSiteId(request.getCurrentOperate().getSiteCode());
     sendFlowDto.setEndSiteId(request.getEndSiteId());
     sendFlowDto.setQueryTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay()));
+    sendFlowDto.setQuerySealTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskSealTimeBeginDay()));
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    sendFlowDto.setComboardSourceList(comboardSourceList);
     return sendFlowDto;
   }
-
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.queryHaveScanStatisticsUnderBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(HaveScanStatisticsReq request) {
