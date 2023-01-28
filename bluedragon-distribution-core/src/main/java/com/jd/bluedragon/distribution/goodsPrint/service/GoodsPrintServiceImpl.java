@@ -4,17 +4,31 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.GoodsPrintEsManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsPrint.service.domain.GoodsPrintExportDto;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +37,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author tangchunqing
@@ -45,7 +56,25 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     private GoodsPrintEsManager goodsPrintEsManager;
 
     @Autowired
+    private SendDetailService sendDetailService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
+    private ExecutorService executorService = new ThreadPoolExecutor(2, 10,
+            60L, TimeUnit.SECONDS,
+            new SynchronousQueue(), new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r,"托寄物查询打印");
+        }
+    });
 
     private static final String BARCODE_SPLITER_QUERY = "\n";
     private static final String BARCODE_SPLITER_EXPORT = "\r\n";
@@ -66,7 +95,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         Map<String, Long> realCodes = Maps.newHashMap();
         for (String sendCode : sendCodes) {
             if (BusinessHelper.isSendCode(sendCode)) {
-                Long num = goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusCount(sendCode);
+                Long num = findGoodsPrintBySendCodeAndStatusCount(sendCode);
                 if (num > 0L) {
                     count=count.add(new BigDecimal(num));
                     realCodes.put(sendCode, num);
@@ -85,7 +114,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         List<GoodsPrintDto> result = new ArrayList<GoodsPrintDto>(count.intValue());
         String sendCodeString="";
         for (String sendCode : realCodes.keySet()) {
-            result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatus(sendCode));
+            result.addAll(findGoodsPrintBySendCodeAndStatus(sendCode));
             sendCodeString += Constants.SEPARATOR_COMMA+sendCode;
         }
         jdResponse.setData(result);
@@ -95,6 +124,108 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             jdResponse.setMessage("");
         }
         return jdResponse;
+    }
+
+    private long findGoodsPrintBySendCodeAndStatusCount(String sendCode){
+        SendDetailDto params = new SendDetailDto();
+        params.setSendCode(sendCode);
+        params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
+        return sendDetailService.queryWaybillCountBybatchCode(params);
+    }
+
+    private List<GoodsPrintDto> findGoodsPrintBySendCodeAndStatus(String sendCode){
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintServiceImpl.findGoodsPrintBySendCodeAndStatus",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        SendDetailDto params = new SendDetailDto();
+        params.setSendCode(sendCode);
+        params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
+        params.setReceiveSiteCode(Integer.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCodeNew(sendCode)));
+        List<SendDetail> sendDetailList = findSendPageByParams(params);
+        final BaseStaffSiteOrgDto createSite = this.baseMajorManager.getBaseSiteBySiteId(params.getCreateSiteCode());
+        final BaseStaffSiteOrgDto receiveSite = this.baseMajorManager.getBaseSiteBySiteId(params.getReceiveSiteCode());
+        List<GoodsPrintDto> goodsPrintDtoList = new ArrayList<>();
+        Set<String> waybillCodeSet = new HashSet<>();
+        List<Future<GoodsPrintDto>> futureList = new ArrayList<>();
+        for (final SendDetail item:sendDetailList) {
+            futureList.add(executorService.submit(new Callable<GoodsPrintDto>() {
+                @Override
+                public GoodsPrintDto call() throws Exception {
+                    return extracted(createSite, receiveSite, item);
+                }
+            }));
+        }
+        for(Future<GoodsPrintDto> future : futureList){
+            try {
+                GoodsPrintDto goodsPrintDto = future.get(5,TimeUnit.SECONDS);
+                if(waybillCodeSet.contains(goodsPrintDto.getWaybillCode())) {
+                    continue;
+                }
+                waybillCodeSet.add(goodsPrintDto.getWaybillCode());
+                goodsPrintDtoList.add(goodsPrintDto);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+        }
+        Profiler.registerInfoEnd(info);
+        return goodsPrintDtoList;
+    }
+
+    private List<SendDetail> findSendPageByParams(SendDetailDto params){
+        if(StringUtils.isEmpty(params.getSendCode())){
+            return null;
+        }
+        Integer limit = 2000;
+        Integer offset = 0;
+        params.setOffset(offset);
+        params.setLimit(limit);
+        List<SendDetail>  result = new ArrayList<>();
+        List<SendDetail>  sendDetailList = sendDetailService.findSendPageByParams(params);
+        result.addAll(sendDetailList);
+        while (sendDetailList.size() >= limit && offset < 10000){
+            offset++;
+            params.setOffset(offset);
+            sendDetailList = sendDetailService.findSendPageByParams(params);
+            result.addAll(sendDetailList);
+        }
+        return result;
+    }
+
+    private GoodsPrintDto extracted(BaseStaffSiteOrgDto createSite, BaseStaffSiteOrgDto receiveSite, SendDetail item) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintServiceImpl.extracted",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        GoodsPrintDto goodsPrintDto = new GoodsPrintDto();
+        try {
+            goodsPrintDto.setBoxCode(item.getBoxCode());
+            goodsPrintDto.setSendCode(item.getSendCode());
+            goodsPrintDto.setCreateSiteCode(item.getCreateSiteCode());
+            goodsPrintDto.setWaybillCode(item.getWaybillCode());
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(item.getWaybillCode());
+            goodsPrintDto.setVendorId(waybill.getVendorId());
+            goodsPrintDto.setWaybillCode(waybill.getWaybillCode());
+            if (createSite != null) {
+                goodsPrintDto.setCreateSiteCode(createSite.getSiteCode());
+                goodsPrintDto.setCreateSiteName(createSite.getSiteName());
+            }
+            if (receiveSite != null) {
+                goodsPrintDto.setReceiveSiteCode(receiveSite.getSiteCode());
+                goodsPrintDto.setReceiveSiteName(receiveSite.getSiteName());
+            }
+            goodsPrintDto.setOperateTime(item.getOperateTime());
+            if (BusinessUtil.isBoxcode(item.getBoxCode())) {
+                goodsPrintDto.setBoxCode(item.getBoxCode());
+            }
+            if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
+                goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());
+            }
+            return goodsPrintDto;
+        } catch (Exception e) {
+            log.error("托寄物打印封装item[{}]",JsonHelper.toJson(item),e);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return goodsPrintDto;
     }
 
     @Override
