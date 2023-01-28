@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
@@ -35,6 +36,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Autowired
   JyBizTaskComboardDao jyBizTaskComboardDao;
+
+  @Autowired
+  UccPropertyConfiguration ucc;
 
   @Override
   public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
@@ -129,7 +133,12 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setSealStatusList(sealStatusList);
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     condition.setSealTime(sendFlowDto.getQuerySealTimeBegin());
-    return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
+    // 执行sql开关，默认执行or
+    if (ucc.getJyComboardListBoardSqlSwitch()) {
+      return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
+    }else {
+      return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlowUnionAll(condition);
+    }
   }
 
   @Override

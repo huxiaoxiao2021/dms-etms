@@ -740,6 +740,11 @@ public class UccPropertyConfiguration {
 
     private Integer jyComboardTaskSealTimeBeginDay;
 
+    /**
+     * 组板岗板列表sql开关
+     */
+    private Boolean jyComboardListBoardSqlSwitch;
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -2259,5 +2264,13 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardTaskSealTimeBeginDay(Integer jyComboardTaskSealTimeBeginDay) {
         this.jyComboardTaskSealTimeBeginDay = jyComboardTaskSealTimeBeginDay;
+    }
+
+    public Boolean getJyComboardListBoardSqlSwitch() {
+        return jyComboardListBoardSqlSwitch;
+    }
+
+    public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
+        this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 }
