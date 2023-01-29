@@ -383,8 +383,8 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="lineType!=null">
-                AND line_type =#{lineType}
+            <if test="entity.lineType!=null">
+                AND line_type =#{entity.lineType}
             </if>
 
     </select>
