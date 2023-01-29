@@ -42,6 +42,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -659,6 +660,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
         if (StringUtils.isEmpty(request.getBarCode())) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+        }
+        if (!BusinessHelper.isBoxcode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
+            return new InvokeResult<>(CHECK_BARCODE_CODE,"请扫描包裹号或者箱号！");
         }
         QueryBelongBoardResp belongBoardResp = new QueryBelongBoardResp();
         BoardDto boardDto = new BoardDto();
