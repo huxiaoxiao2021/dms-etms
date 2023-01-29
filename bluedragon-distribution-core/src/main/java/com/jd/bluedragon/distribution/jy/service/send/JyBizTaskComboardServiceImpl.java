@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
@@ -35,6 +36,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Autowired
   JyBizTaskComboardDao jyBizTaskComboardDao;
+
+  @Autowired
+  UccPropertyConfiguration ucc;
 
   @Override
   public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
@@ -111,6 +115,30 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setStatusList(statusList);
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
+  }
+
+  @Override
+  public List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlow(SendFlowDto sendFlowDto) {
+    JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
+    condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
+    condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
+    condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    condition.setStatusList(statusList);
+    List<Integer> sealStatusList = new ArrayList<>();
+    sealStatusList.add(ComboardStatusEnum.SEALED.getCode());
+    condition.setSealStatusList(sealStatusList);
+    condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
+    condition.setSealTime(sendFlowDto.getQuerySealTimeBegin());
+    // 执行sql开关，默认执行or
+    if (ucc.getJyComboardListBoardSqlSwitch()) {
+      return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
+    }else {
+      return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlowUnionAll(condition);
+    }
   }
 
   @Override

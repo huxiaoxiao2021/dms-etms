@@ -56,6 +56,12 @@ public interface JyBizTaskComboardService {
    */
   List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(SendFlowDto sendFlowDto);
 
+  /**
+   * 查询流向下板列表(某个流向-7日内所有未封车 2日内所有已封车的板任务列表)
+   * @return
+   */
+  List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlow(SendFlowDto sendFlowDto);
+  
   List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity);
 
   /**

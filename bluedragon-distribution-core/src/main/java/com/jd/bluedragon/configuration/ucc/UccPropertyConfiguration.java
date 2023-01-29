@@ -802,6 +802,13 @@ public class UccPropertyConfiguration {
         this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
     }
 
+    private Integer jyComboardTaskSealTimeBeginDay;
+
+    /**
+     * 组板岗板列表sql开关
+     */
+    private Boolean jyComboardListBoardSqlSwitch;
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -2715,5 +2722,21 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public Integer getJyComboardTaskSealTimeBeginDay() {
+        return jyComboardTaskSealTimeBeginDay;
+    }
+
+    public void setJyComboardTaskSealTimeBeginDay(Integer jyComboardTaskSealTimeBeginDay) {
+        this.jyComboardTaskSealTimeBeginDay = jyComboardTaskSealTimeBeginDay;
+    }
+
+    public Boolean getJyComboardListBoardSqlSwitch() {
+        return jyComboardListBoardSqlSwitch;
+    }
+
+    public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
+        this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 }

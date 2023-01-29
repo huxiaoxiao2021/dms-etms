@@ -540,6 +540,26 @@ public class JyComboardGatewayServiceImplTest {
     }
 
     @Test
+    public void queryBoardStatisticsUnderSendFlowTest() {
+        BoardStatisticsReq boardStatisticsReq = new BoardStatisticsReq();
+        CurrentOperate operate = new CurrentOperate();
+        boardStatisticsReq.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        boardStatisticsReq.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        boardStatisticsReq.setUser(user);
+        boardStatisticsReq.setPageNo(1);
+        boardStatisticsReq.setPageSize(50);
+        boardStatisticsReq.setEndSiteId(39);
+        JdCResponse<BoardStatisticsResp> boardStatisticsRespJdCResponse = jyComboardGatewayService.queryBoardStatisticsUnderSendFlow(boardStatisticsReq);
+
+        System.out.println(JsonHelper.toJson(boardStatisticsRespJdCResponse));
+    }
+    
+    @Test
     public void listPackageDetailUnderBoxTest() {
         BoxQueryReq resp = new BoxQueryReq();
         CurrentOperate operate = new CurrentOperate();

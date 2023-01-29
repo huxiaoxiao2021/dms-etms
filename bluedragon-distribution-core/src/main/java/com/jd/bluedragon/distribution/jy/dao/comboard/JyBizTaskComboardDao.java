@@ -80,4 +80,12 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
   public List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity) {
     return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendCode", entity);
   }
+
+    public List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlow(JyBizTaskComboardEntity condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listSealOrUnSealedBoardTaskBySendFlow", condition);
+    }
+
+    public List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlowUnionAll(JyBizTaskComboardEntity condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listSealOrUnSealedBoardTaskBySendFlowUnionAll", condition);
+    }
 }
