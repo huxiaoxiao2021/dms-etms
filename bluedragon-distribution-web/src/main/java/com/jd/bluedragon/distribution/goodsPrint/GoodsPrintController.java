@@ -68,7 +68,7 @@ public class GoodsPrintController extends DmsBaseController {
     public @ResponseBody JdResponse<List<GoodsPrintDto>> listData(@RequestBody GoodsPrintDto goodsPrint) {
         try {
             LoginUser loginUser = getLoginUser();
-            log.info("托寄物打印查询erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
+            log.warn("托寄物打印查询erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
             return goodsPrintService.query(goodsPrint);
         }catch (Exception e){
             JdResponse jdResponse=new JdResponse();
@@ -88,7 +88,7 @@ public class GoodsPrintController extends DmsBaseController {
         BufferedWriter bfw = null;
         try {
             LoginUser loginUser = getLoginUser();
-            log.info("托寄物打印导出erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
+            log.warn("托寄物打印导出erp[{}]goodsPrint[{}]",loginUser.getUserErp(), JsonHelper.toJson(goodsPrint));
             exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.GOODS_PRINT_REPORT.getCode());
             String fileName = "托寄物品名";
             //设置文件后缀

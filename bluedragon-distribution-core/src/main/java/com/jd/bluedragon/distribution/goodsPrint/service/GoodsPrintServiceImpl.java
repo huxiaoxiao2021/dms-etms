@@ -130,7 +130,9 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         SendDetailDto params = new SendDetailDto();
         params.setSendCode(sendCode);
         params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
-        return sendDetailService.queryWaybillCountBybatchCode(params);
+        long num = sendDetailService.queryWaybillCountBybatchCode(params);
+        log.warn("批次下数量num[{}]params[{}]",num,JsonHelper.toJson(params));
+        return num;
     }
 
     private List<GoodsPrintDto> findGoodsPrintBySendCodeAndStatus(String sendCode){
@@ -183,11 +185,13 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         params.setLimit(limit);
         List<SendDetail>  result = new ArrayList<>();
         List<SendDetail>  sendDetailList = sendDetailService.findSendPageByParams(params);
+        log.warn("批次下数据num[{}]params[{}]",sendDetailList.size(),JsonHelper.toJson(params));
         result.addAll(sendDetailList);
         while (sendDetailList.size() >= limit && offset < 10000){
             offset++;
             params.setOffset(offset);
             sendDetailList = sendDetailService.findSendPageByParams(params);
+            log.warn("批次下数据num[{}]params[{}]",sendDetailList.size(),JsonHelper.toJson(params));
             result.addAll(sendDetailList);
         }
         return result;
