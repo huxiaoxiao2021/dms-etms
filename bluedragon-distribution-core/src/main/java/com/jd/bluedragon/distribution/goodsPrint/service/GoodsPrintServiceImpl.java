@@ -67,9 +67,9 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
-    private ExecutorService executorService = new ThreadPoolExecutor(2, 10,
+    private ExecutorService executorService = new ThreadPoolExecutor(8, 10,
             60L, TimeUnit.SECONDS,
-            new SynchronousQueue(), new ThreadFactory() {
+            new ArrayBlockingQueue(100000), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             return new Thread(r,"托寄物查询打印");
