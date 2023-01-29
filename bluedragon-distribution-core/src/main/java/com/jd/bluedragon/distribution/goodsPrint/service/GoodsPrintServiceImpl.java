@@ -301,6 +301,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
      * @param key
      * @return
      */
+    @Override
     public boolean getWaybillFromEsOperator(String key) {
         try {
             byte[] valueBytes = redisClientCache.get(key.getBytes());
@@ -315,6 +316,22 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         }
     }
 
+    /**
+     * 写缓存 如果往es里写过，就不重复写了 同一批发货，同一批运单可能很多包裹，所以减少重复操作
+     *
+     * @param key
+     * @return
+     */
+    public boolean setWaybillFromEsOperator(String key) {
+        try {
+            redisClientCache.setEx(key, "1", 600L, TimeUnit.SECONDS);
+            log.info("[getWaybillFromEsOperator]缓存数据key:{}",key);
+            return true;
+        } catch (Exception e) {
+            log.error("[getWaybillFromEsOperator]缓存数据出错,key = {} 错误信息为：{}" ,key, e.getMessage());
+            return false;
+        }
+    }
 
     /**
      * 删除缓存
@@ -322,6 +339,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
      * @param key
      * @return
      */
+    @Override
     public void deleteWaybillFromEsOperator(String key) {
         try {
             redisClientCache.del(key);
