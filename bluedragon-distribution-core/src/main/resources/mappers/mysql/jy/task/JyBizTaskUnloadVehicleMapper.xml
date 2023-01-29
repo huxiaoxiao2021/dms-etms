@@ -666,7 +666,9 @@
             <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
-
+            <if test="refGroupCode != null">
+                ref_group_code =#{refGroupCode},
+            </if>
         </set>
         <where>
             id = #{id}
