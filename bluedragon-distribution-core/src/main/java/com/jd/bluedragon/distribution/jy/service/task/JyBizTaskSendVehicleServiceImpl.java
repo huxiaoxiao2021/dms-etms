@@ -73,6 +73,12 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    public List<JyBizTaskSendCountDto> sumTaskByVehicleStatusForTransfer(
+        JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        return jyBizTaskSendVehicleDao.sumTaskByVehicleStatusForTransfer(entity, sendVehicleBizList);
+    }
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.querySendTaskOfPage",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,

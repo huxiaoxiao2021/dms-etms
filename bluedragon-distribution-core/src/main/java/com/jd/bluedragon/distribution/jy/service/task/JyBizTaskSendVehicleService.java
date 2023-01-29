@@ -42,6 +42,13 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
 
     /**
+     * 传站
+     * @param entity
+     * @param sendVehicleBizList
+     * @return
+     */
+    List<JyBizTaskSendCountDto> sumTaskByVehicleStatusForTransfer(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
+    /**
      * 分页查询发货任务
      * @param entity
      * @param sendVehicleBizList

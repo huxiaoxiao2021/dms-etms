@@ -55,6 +55,16 @@ public class QueryTaskSendDto implements Serializable {
     private Date lastPlanDepartTimeEnd;
     private Date createTimeBegin;
 
+    private int rand;
+
+    public int getRand() {
+        return rand;
+    }
+
+    public void setRand(int rand) {
+        this.rand = rand;
+    }
+
     public Integer getPageNumber() {
         return pageNumber;
     }

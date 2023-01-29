@@ -179,6 +179,9 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                 JyBizTaskSendVehicleDetailEntity taskSendVehicleDetailEntity = addSendTaskDetail(workItemDto, startSiteInfo, endSiteInfo, sendVehicleBiz);
 
                 if (taskSendVehicleDetailEntity != null) {
+                    JyLineTypeEnum detailLineType = TmsLineTypeEnum.getLineType(workItemDto.getTransType());
+                    taskSendVehicleDetailEntity.setLineType(detailLineType.getCode());
+                    taskSendVehicleDetailEntity.setLineTypeName(detailLineType.getName());
                     transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
                 }
             }
