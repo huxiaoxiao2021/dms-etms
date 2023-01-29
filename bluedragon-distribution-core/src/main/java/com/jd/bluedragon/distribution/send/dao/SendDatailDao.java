@@ -430,9 +430,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".findSendPageByParams", params);
     }
 
-    public Integer findSendPageByParamsCount(SendDetailDto params) {
-        return this.getSqlSession().selectOne(namespace + ".findSendPageByParamsCount", params);
-    }
 
     public Integer queryWaybillCountBybatchCode(SendDetailDto params) {
         return this.getSqlSession().selectOne(namespace + ".queryWaybillCountBybatchCode", params);
