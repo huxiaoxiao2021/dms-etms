@@ -150,6 +150,10 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         Set<String> waybillCodeSet = new HashSet<>();
         List<Future<GoodsPrintDto>> futureList = new ArrayList<>();
         for (final SendDetail item:sendDetailList) {
+            if(waybillCodeSet.contains(item.getWaybillCode())) {
+                continue;
+            }
+            waybillCodeSet.add(item.getWaybillCode());
             futureList.add(executorService.submit(new Callable<GoodsPrintDto>() {
                 @Override
                 public GoodsPrintDto call() throws Exception {
@@ -160,10 +164,6 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         for(Future<GoodsPrintDto> future : futureList){
             try {
                 GoodsPrintDto goodsPrintDto = future.get(5,TimeUnit.SECONDS);
-                if(waybillCodeSet.contains(goodsPrintDto.getWaybillCode())) {
-                    continue;
-                }
-                waybillCodeSet.add(goodsPrintDto.getWaybillCode());
                 goodsPrintDtoList.add(goodsPrintDto);
             } catch (InterruptedException e) {
                 e.printStackTrace();
