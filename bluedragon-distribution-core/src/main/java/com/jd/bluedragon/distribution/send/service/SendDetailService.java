@@ -40,7 +40,6 @@ public interface SendDetailService {
      */
     List<SendDetail> findSendPageByParams(SendDetailDto params);
 
-    Integer findSendPageByParamsCount(SendDetailDto params);
 
     Integer queryWaybillCountBybatchCode(SendDetailDto params);
     public Integer querySendDCountBySendCode(String sendCode);
