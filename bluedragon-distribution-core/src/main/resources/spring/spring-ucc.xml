@@ -227,6 +227,12 @@
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
+		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
+		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
+
+
+
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -445,6 +451,9 @@
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
+
+				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
 
 			</list>
 		</property>
