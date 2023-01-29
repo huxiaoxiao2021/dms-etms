@@ -130,8 +130,10 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         SendDetailDto params = new SendDetailDto();
         params.setSendCode(sendCode);
         params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
+        params.setOffset(1);
+        params.setLimit(1);
         long num = sendDetailService.queryWaybillCountBybatchCode(params);
-        log.warn("批次下数量num[{}]params[{}]",num,JsonHelper.toJson(params));
+        log.warn("批次下数量num[{}]SendCode[{}]CreateSiteCode[{}]",num,params.getSendCode(),params.getCreateSiteCode());
         return num;
     }
 
@@ -313,22 +315,6 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         }
     }
 
-    /**
-     * 写缓存 如果往es里写过，就不重复写了 同一批发货，同一批运单可能很多包裹，所以减少重复操作
-     *
-     * @param key
-     * @return
-     */
-    public boolean setWaybillFromEsOperator(String key) {
-        try {
-            redisClientCache.setEx(key, "1", 600L, TimeUnit.SECONDS);
-            log.info("[getWaybillFromEsOperator]缓存数据key:{}",key);
-            return true;
-        } catch (Exception e) {
-            log.error("[getWaybillFromEsOperator]缓存数据出错,key = {} 错误信息为：{}" ,key, e.getMessage());
-            return false;
-        }
-    }
 
     /**
      * 删除缓存
