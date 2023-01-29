@@ -430,6 +430,14 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".findSendPageByParams", params);
     }
 
+    public Integer findSendPageByParamsCount(SendDetailDto params) {
+        return this.getSqlSession().selectOne(namespace + ".findSendPageByParamsCount", params);
+    }
+
+    public Integer queryWaybillCountBybatchCode(SendDetailDto params) {
+        return this.getSqlSession().selectOne(namespace + ".queryWaybillCountBybatchCode", params);
+    }
+
     @JProfiler(jKey = "DMSWEB.SendDetailDao.queryWaybillCountBySendCode", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(SendDetail sendDetail){
         if (sendDetail.getCreateSiteCode() == null || sendDetail.getSendCode() == null) {
