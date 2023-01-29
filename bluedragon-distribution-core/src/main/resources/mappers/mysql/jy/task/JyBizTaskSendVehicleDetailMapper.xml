@@ -327,6 +327,12 @@
             create_user_erp,
             create_user_name,
             create_time,
+            <if test="lineType != null">
+                line_type,
+            </if>
+            <if test="lineTypeName != null">
+                line_type_name,
+            </if>
             yn
         )
         VALUES
@@ -345,6 +351,12 @@
             #{createUserErp},
             #{createUserName},
             NOW(),
+            <if test="lineType != null">
+                #{lineType},
+            </if>
+            <if test="lineTypeName != null">
+                #{lineTypeName},
+            </if>
             1
        )
     </insert>
