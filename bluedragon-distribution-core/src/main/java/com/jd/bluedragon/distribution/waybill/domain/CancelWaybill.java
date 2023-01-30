@@ -17,6 +17,7 @@ public class CancelWaybill {
     public static final Integer FEATURE_TYPE_ORDER_MODIFY = 6; // 运单修改配送方式拦截订单
     public static final Integer FEATURE_TYPE_C_TRANSPORT_B= 7; // 运单C网转B网
     public static final Integer FEATURE_TYPE_B_TRANSPORT_C = 8; //运单B网转C网
+    public static final Integer FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT = 9; //快运改址拦截
 
     public static final String BUSINESS_TYPE_LOCK = "1"; //业务类型 1 锁定
     public static final String BUSINESS_TYPE_UNLOCK = "2";//业务类型 2 解锁
@@ -33,7 +34,7 @@ public class CancelWaybill {
 
     /**根据运单拦截 包裹也需要处理的类型*/
     public static ImmutableList<Integer> FEATURE_TYPES_NEED_PACKAGE_DEAL =
-            ImmutableList.of(FEATURE_TYPE_ORDER_MODIFY, FEATURE_TYPE_C_TRANSPORT_B, FEATURE_TYPE_B_TRANSPORT_C);
+            ImmutableList.of(FEATURE_TYPE_ORDER_MODIFY, FEATURE_TYPE_C_TRANSPORT_B, FEATURE_TYPE_B_TRANSPORT_C, FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
     /**待处理的包裹最多查询数量*/
     public static final Integer BLOCK_PACKAGE_QUERY_NUMBER = 10;
     /*拦截完成后需要做后续操作的（比如发jmq给别的应用）*/
