@@ -83,6 +83,13 @@ public interface NewSealVehicleService {
     public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode);
 
 
+    /**
+     * VOS查询批次号是否已被封车接口，空铁摆渡的除外
+     * @param batchCode
+     * @return
+     */
+    public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode);
+
     InvokeResult<Void> checkBatchCode(String batchCode);
 
     /**
@@ -256,5 +263,11 @@ public interface NewSealVehicleService {
      * @return
      */
     NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request);
+
+    /**
+     * 判断是否是空铁运力
+     * @return
+     */
+    boolean isAirTransport(TransportResourceDto transportResourceDto);
 
 }
