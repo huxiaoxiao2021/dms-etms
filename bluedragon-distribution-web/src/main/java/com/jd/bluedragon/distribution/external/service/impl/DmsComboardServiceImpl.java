@@ -104,6 +104,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
       boardDto.setEndSiteId(board.getEndSiteId().intValue());
       boardDto.setCreateUserErp(board.getCreateUserErp());
       boardDto.setCreateUserName(board.getCreateUserName());
+      boardDto.setComboardSiteId(board.getStartSiteId().intValue());
       boardDtos.add(boardDto);
     }
     invokeResult.setCode(RESULT_SUCCESS_CODE);

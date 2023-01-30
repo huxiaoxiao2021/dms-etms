@@ -17,6 +17,7 @@ public class BoardDto implements Serializable {
   private String createUserErp;
   private String createUserName;
   private Integer comboardSource;
+  private Integer comboardSiteId;
 
   public String getBoardCode() {
     return boardCode;
@@ -96,5 +97,13 @@ public class BoardDto implements Serializable {
 
   public void setComboardSource(Integer comboardSource) {
     this.comboardSource = comboardSource;
+  }
+
+  public Integer getComboardSiteId() {
+    return comboardSiteId;
+  }
+
+  public void setComboardSiteId(Integer comboardSiteId) {
+    this.comboardSiteId = comboardSiteId;
   }
 }
