@@ -129,7 +129,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     private long findGoodsPrintBySendCodeAndStatusCount(String sendCode){
         SendDetailDto params = new SendDetailDto();
         params.setSendCode(sendCode);
-        params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
+        params.setCreateSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
         params.setOffset(1);
         params.setLimit(1);
         long num = sendDetailService.queryWaybillCountBybatchCode(params);
@@ -141,8 +141,8 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintServiceImpl.findGoodsPrintBySendCodeAndStatus",Constants.UMP_APP_NAME_DMSWEB, false, true);
         SendDetailDto params = new SendDetailDto();
         params.setSendCode(sendCode);
-        params.setCreateSiteCode(Integer.valueOf(BusinessUtil.getCreateSiteCodeFromSendCodeNew(sendCode)));
-        params.setReceiveSiteCode(Integer.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCodeNew(sendCode)));
+        params.setCreateSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
+        params.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
         List<SendDetail> sendDetailList = findSendPageByParams(params);
         final BaseStaffSiteOrgDto createSite = this.baseMajorManager.getBaseSiteBySiteId(params.getCreateSiteCode());
         final BaseStaffSiteOrgDto receiveSite = this.baseMajorManager.getBaseSiteBySiteId(params.getReceiveSiteCode());
