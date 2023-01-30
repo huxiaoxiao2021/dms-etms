@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
+import java.util.List;
 import java.util.Date;
 
 public interface WaybillService {
@@ -137,6 +138,16 @@ public interface WaybillService {
     BlockResponse checkWaybillBlock(String waybillCode, Integer featureType);
 
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
+
+    /**
+     * 根据featureType查询拦截
+     *
+     * @param packageCode
+     * @param featureTypes
+     * @return
+     */
+    BlockResponse checkPackageBlockByFeatureTypes(String packageCode, List<Integer> featureTypes);
+    BlockResponse checkWaybillBlockByFeatureTypes(String waybillCode, List<Integer> featureTypes);
 
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
 
