@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.jddl.executor.function.scalar.filter.In;
 
 import java.util.Date;
 import java.util.List;
@@ -38,6 +39,9 @@ public interface SendDetailService {
      * @return
      */
     List<SendDetail> findSendPageByParams(SendDetailDto params);
+
+
+    Integer queryWaybillCountBybatchCode(SendDetailDto params);
     public Integer querySendDCountBySendCode(String sendCode);
     /**
      * 根据批次号查询 包裹号
