@@ -168,4 +168,11 @@ public interface JyComBoardSendService {
    */
   InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq);
 
+
+  /**
+   * 删除混扫任务
+   * @param request
+   * @return
+   */
+  InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request);
 }

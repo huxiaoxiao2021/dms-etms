@@ -63,6 +63,19 @@ public class JyComboardAggsDto extends JyAggsDto{
      * 更新时间
      */
     private Date updateTime;
+    /**
+     * 重量
+     */
+    private Double weight;
+    /**
+     * 体积
+     */
+    private Double volume;
+    /**
+     * 包含箱内包裹统计
+     */
+    private Integer packageTotalScannedCount;
+
     public String getSendFlow() {
         if (operateSiteId == null || receiveSiteId == null) {
             return null;

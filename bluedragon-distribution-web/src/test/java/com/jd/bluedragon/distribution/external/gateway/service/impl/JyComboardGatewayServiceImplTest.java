@@ -544,6 +544,26 @@ public class JyComboardGatewayServiceImplTest {
     }
 
     @Test
+    public void queryBoardStatisticsUnderSendFlowTest() {
+        BoardStatisticsReq boardStatisticsReq = new BoardStatisticsReq();
+        CurrentOperate operate = new CurrentOperate();
+        boardStatisticsReq.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        boardStatisticsReq.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        boardStatisticsReq.setUser(user);
+        boardStatisticsReq.setPageNo(1);
+        boardStatisticsReq.setPageSize(50);
+        boardStatisticsReq.setEndSiteId(39);
+        JdCResponse<BoardStatisticsResp> boardStatisticsRespJdCResponse = jyComboardGatewayService.queryBoardStatisticsUnderSendFlow(boardStatisticsReq);
+
+        System.out.println(JsonHelper.toJson(boardStatisticsRespJdCResponse));
+    }
+    
+    @Test
     public void listPackageDetailUnderBoxTest() {
         BoxQueryReq resp = new BoxQueryReq();
         CurrentOperate operate = new CurrentOperate();
@@ -588,5 +608,22 @@ public class JyComboardGatewayServiceImplTest {
         batchCodes.add("910-39-20221205212254643");
         batchCodes.add("910-39-20221205212254654");
         jyBizTaskComboardService.updateBoardStatusBySendCodeList("dehudheu","liwenji3","李文吉");
+    }
+    
+    @Test
+    public void deleteCTTGroupTest() {
+        DeleteCTTGroupReq deleteCTTGroupReq = new DeleteCTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        deleteCTTGroupReq.setCurrentOperate(operate);
+        deleteCTTGroupReq.setGroupCode("G00000059001");
+        deleteCTTGroupReq.setTemplateCode("CTT22121400000010");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        deleteCTTGroupReq.setUser(user);
+        JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
+        System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }

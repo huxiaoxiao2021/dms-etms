@@ -428,4 +428,78 @@
       #{item}
     </foreach>
   </update>
+  <select id="listSealOrUnSealedBoardTaskBySendFlow" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE (
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1) OR (
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="sealStatusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND seal_time > #{sealTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    )
+    order by id desc 
+  </select>
+  <select id="listSealOrUnSealedBoardTaskBySendFlowUnionAll" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE 
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1 union all
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="sealStatusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND seal_time > #{sealTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    order by id desc
+  </select>
 </mapper>

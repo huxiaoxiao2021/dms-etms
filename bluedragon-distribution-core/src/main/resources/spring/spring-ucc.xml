@@ -196,6 +196,8 @@
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
+		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
+		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
 
 
 
@@ -387,6 +389,9 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
+
 			</list>
 		</property>
 	</bean>

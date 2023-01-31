@@ -42,9 +42,17 @@ public class SendFlowDto implements Serializable {
      */
     private BoardDto currentBoardDto;
 
+    /**
+     * 未封车时间
+     */
     private Date queryTimeBegin;
 
-    private transient List<Integer> comboardSourceList;
+    /**
+     * 已封车时间
+     */
+    private Date querySealTimeBegin;
+    
+    private List<Integer> comboardSourceList;
 
     public Integer getEndSiteId() {
         return endSiteId;
@@ -148,5 +156,13 @@ public class SendFlowDto implements Serializable {
 
     public void setComboardSourceList(List<Integer> comboardSourceList) {
         this.comboardSourceList = comboardSourceList;
+    }
+
+    public Date getQuerySealTimeBegin() {
+        return querySealTimeBegin;
+    }
+
+    public void setQuerySealTimeBegin(Date querySealTimeBegin) {
+        this.querySealTimeBegin = querySealTimeBegin;
     }
 }

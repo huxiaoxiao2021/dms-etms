@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.dto.comboard.request.RemoveCTTReq;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
+
 import java.util.List;
 
 /**
@@ -63,4 +65,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query);
+
+    /**
+     * 根据ID批量删除
+     * @param jyCTTGroupUpdateReq
+     * @return
+     */
+    boolean deleteByIds(JyCTTGroupUpdateReq jyCTTGroupUpdateReq);
 }

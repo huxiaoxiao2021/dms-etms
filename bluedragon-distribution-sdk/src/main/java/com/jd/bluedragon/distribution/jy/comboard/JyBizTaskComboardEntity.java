@@ -51,8 +51,16 @@ public class JyBizTaskComboardEntity implements Serializable {
 
     private Integer comboardSource;
 
+    /**
+     * 未封车状态
+     */
     private transient List<Integer> statusList;
 
+    /**
+     * 已封车状态
+     */
+    private transient List<Integer> sealStatusList;
+    
     private transient List<String> sendCodeList;
     
     private transient List<Integer> comboardSourceList;
@@ -256,5 +264,13 @@ public class JyBizTaskComboardEntity implements Serializable {
 
     public void setComboardSourceList(List<Integer> comboardSourceList) {
         this.comboardSourceList = comboardSourceList;
+    }
+
+    public List<Integer> getSealStatusList() {
+        return sealStatusList;
+    }
+
+    public void setSealStatusList(List<Integer> sealStatusList) {
+        this.sealStatusList = sealStatusList;
     }
 }

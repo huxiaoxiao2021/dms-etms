@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
@@ -14,9 +15,13 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsConditio
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.WaybillServiceRelationDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.enums.comboard.ComboardBarCodeTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,21 +61,26 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 
     @Override
     public boolean saveAggs(Message message) {
+
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(  "DMSWEB.JyComboardAggsServiceImpl.saveAggs");
         JyComboardAggsDto dto = JsonHelper.fromJson(message.getText(), JyComboardAggsDto.class);
         try {
             if (!lock(dto)){
                 // 获取锁当前数据丢弃
                 return false;
             }
+            log.info("组板岗统计数据更新:"+JsonHelper.toJson(dto));
             saveOrUpdate(dto);
             //冗余包裹、箱号数量
             redundancyPackageAndBox(dto);
             return true;
         }catch (Exception e){
             log.error("saveAggs error :param json 【{}】",JsonHelper.toJson(dto),e);
+            Profiler.functionError(callerInfo);
             return false;
         }finally {
             unLock(dto);
+            Profiler.registerInfoEnd(callerInfo);
         }
     }
 
@@ -164,6 +174,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
                     Objects.equals(jyComboardAggsEntity.getScannedCount(),dto.getScannedCount())&&
                     Objects.equals(jyComboardAggsEntity.getBoardCount(),dto.getBoardCount())&&
                     Objects.equals(jyComboardAggsEntity.getInterceptCount(),dto.getInterceptCount())&&
+                    Objects.equals(jyComboardAggsEntity.getWeight(),dto.getWeight())&&
+                    Objects.equals(jyComboardAggsEntity.getVolume(),dto.getVolume())&&
+                    Objects.equals(jyComboardAggsEntity.getPackageTotalScannedCount(),dto.getPackageTotalScannedCount())&&
                     Objects.equals(jyComboardAggsEntity.getMoreScannedCount(),dto.getMoreScannedCount())){
                 return;
             }
@@ -173,14 +186,20 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
             jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
             jyComboardAggsEntity.setTs(dto.getCreateTime());
+            jyComboardAggsEntity.setVolume(dto.getVolume());
+            jyComboardAggsEntity.setWeight(dto.getWeight());
+            jyComboardAggsEntity.setPackageTotalScannedCount(dto.getPackageTotalScannedCount());
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
             saveCache(dto,jyComboardAggsEntity);
         }else{
-            if (null == dto.getWaitScanCount()&&
-                    null == dto.getScannedCount()&&
-                    null == dto.getBoardCount()&&
-                    null == dto.getInterceptCount()&&
-                    null == dto.getMoreScannedCount()){
+            if (null == dto.getWaitScanCount() &&
+                    null == dto.getScannedCount() &&
+                    null == dto.getBoardCount() &&
+                    null == dto.getInterceptCount() &&
+                    null == dto.getMoreScannedCount() &&
+                    null == dto.getWeight() &&
+                    null == dto.getVolume() &&
+                    null == dto.getPackageTotalScannedCount()){
                 //全为空的数据丢弃
                 return;
             }
@@ -190,6 +209,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
             jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
             jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+            jyComboardAggsEntity.setVolume(dto.getVolume());
+            jyComboardAggsEntity.setWeight(dto.getWeight());
+            jyComboardAggsEntity.setPackageTotalScannedCount(dto.getPackageTotalScannedCount());
             jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
             jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
             jyComboardAggsEntity.setCreateTime(dto.getCreateTime());

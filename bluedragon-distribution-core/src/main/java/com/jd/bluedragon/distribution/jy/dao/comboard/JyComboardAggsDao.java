@@ -14,9 +14,6 @@ public class JyComboardAggsDao extends BaseDao<JyComboardAggsEntity> {
         return this.getSqlSession().delete(NAMESPACE + ".deleteByPrimaryKey", id);
     }
 
-    public int insert(JyComboardAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
-    }
     public int insertSelective(JyComboardAggsEntity record) {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", record);
     }

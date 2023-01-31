@@ -738,6 +738,13 @@ public class UccPropertyConfiguration {
 
     private Integer jyComboardSiteCTTPageSize;
 
+    private Integer jyComboardTaskSealTimeBeginDay;
+
+    /**
+     * 组板岗板列表sql开关
+     */
+    private Boolean jyComboardListBoardSqlSwitch;
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -2246,7 +2253,24 @@ public class UccPropertyConfiguration {
         return jyComboardSiteCTTPageSize;
     }
 
+    
     public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
         this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+    }
+
+    public Integer getJyComboardTaskSealTimeBeginDay() {
+        return jyComboardTaskSealTimeBeginDay;
+    }
+
+    public void setJyComboardTaskSealTimeBeginDay(Integer jyComboardTaskSealTimeBeginDay) {
+        this.jyComboardTaskSealTimeBeginDay = jyComboardTaskSealTimeBeginDay;
+    }
+
+    public Boolean getJyComboardListBoardSqlSwitch() {
+        return jyComboardListBoardSqlSwitch;
+    }
+
+    public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
+        this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 }
