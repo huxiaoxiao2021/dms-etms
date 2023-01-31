@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.worker.offline;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -82,6 +83,9 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     @Autowired
     private DefaultJMQProducer dmsBusinessOperateOfflineTaskSendProducer;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@Override
 	public Task parse(Task task, String ownSign) {
 		return task;
@@ -89,7 +93,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 	@Override
 	public boolean execute(TaskContext<Task> taskContext, String ownSign){
         boolean result = false;
-		String body = taskContext.getTask().getBody();
+        String body = taskContext.getTask().getBody();
 		if (StringUtils.isBlank(body)) {
 			return result;
 		}
@@ -97,6 +101,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             log.info("OfflineCoreTaskExecutor.execute taskContext: {}", JSON.toJSONString(taskContext));
             JSONArray taskList = JSONObject.parseArray(body);
             Integer taskType = taskList.getJSONObject(0).getInteger("taskType");
+            Integer createSiteCode = taskContext.getTask().getCreateSiteCode();
+            if (!uccPropertyConfiguration.isOffLineAllowedSite(createSiteCode)) {
+                log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
+                return false;
+            }
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
             }else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE
