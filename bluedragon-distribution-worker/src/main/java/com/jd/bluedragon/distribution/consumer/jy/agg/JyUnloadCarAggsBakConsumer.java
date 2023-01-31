@@ -73,6 +73,7 @@ public class JyUnloadCarAggsBakConsumer extends MessageBaseConsumer {
                     }
                 }
                 Boolean result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsBak(entity);
+                logger.info("JyUnloadCarAggsBakConsumer-执行结果-{}",result);
                 if(result){
                     // 消费成功，记录数据版本号
                     if (NumberHelper.gt0(entity.getVersion())) {
