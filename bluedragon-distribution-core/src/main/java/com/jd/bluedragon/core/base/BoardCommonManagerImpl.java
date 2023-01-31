@@ -50,6 +50,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.coo.ucc.common.utils.JsonUtils;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -61,13 +62,13 @@ import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.MoveBoxRequest;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
 import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.jd.ql.dms.common.constants.OperateDeviceTypeConstants.PDA;
 
 /**
  * 组板公用操作实现
@@ -100,9 +103,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private GroupBoardManager groupBoardManager;
 
     @Autowired
-    private JsfSortingResourceService jsfSortingResourceService;
-
-    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -114,6 +114,11 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    @Qualifier("sendBarcodeTraceProducer")
+    private DefaultJMQProducer sendBarcodeTraceProducer;
+
 
     @Autowired
     private BoxService boxService;
@@ -144,10 +149,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
-
-    @Autowired
-    @Qualifier("sendBarcodeTraceProducer")
-    private DefaultJMQProducer sendBarcodeTraceProducer;
 
     @Autowired
     private RouterService routerService;
@@ -338,7 +339,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             if (StringUtils.isBlank(nextSiteName)) {
                 BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
                 if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
-                    logger.warn("按包裹创建板：根据站点【{}】获取站点名称为空!", nextSiteCode);
+                    logger.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
                     return result;
                 }
@@ -400,7 +401,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         }
         return result;
     }
-
 
     /**
      * 组板转移
@@ -473,12 +473,11 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             String boardNew = request.getBoardCode();
             // 取消组板的全称跟踪 -- 旧板号
             request.setBoardCode(boardOld);
-            sendWaybillTraceMq(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
 
             // 组板的全称跟踪 -- 新板号
             request.setBoardCode(boardNew);
-            sendWaybillTraceMq(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
             result.setData(tcResponse.getData());
         } else {
@@ -727,38 +726,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         }
         return result;
     }
-
-
-//    /**
-//     * 发送箱号组板全程跟踪
-//     * @param request
-//     * @param operateType 操作类型
-//     */
-//    @Override
-//    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType) {
-//        if(!BusinessUtil.isBoxcode(request.getBarCode())) {
-//            return;
-//        }
-//        Box box = boxService.findBoxByCode(request.getBarCode());
-//        Sorting sorting = new Sorting();
-//        sorting.setBoxCode(request.getBarCode());
-//        sorting.setCreateSiteCode(box.getCreateSiteCode());
-//        List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
-//        if(CollectionUtils.isEmpty(sortingList)) {
-//            if(logger.isInfoEnabled()) {
-//                logger.info("按箱{}未查询到箱内包裹，箱信息={}", request.getBarCode(), JsonHelper.toJson(box));
-//            }
-//        }
-////        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
-//        for (Sorting s:sortingList){
-//            BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
-//            boardCommonRequest.setBarCode(s.getPackageCode());
-//            if(logger.isInfoEnabled()) {
-//                logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
-//            }
-//            sendWaybillTrace(boardCommonRequest, operateType);
-//        }
-//    }
 
     /**
      * 生产箱包全流程跟踪jmq
