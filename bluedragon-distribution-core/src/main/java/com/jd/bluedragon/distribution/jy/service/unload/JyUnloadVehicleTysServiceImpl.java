@@ -1842,8 +1842,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             //主任务
             JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
             if (jyMasterTask == null) {
-                res.setMessage("查询为空");
-                return res;
+                jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizIdIgnoreYn(masterBizId);
+                if (jyMasterTask == null) {
+                    res.setMessage("查询为空");
+                    return res;
+                }
+                log.warn("{}查到卸车主任务yn=0,masterBizId={}", methodDesc, masterBizId);
             }
             UnloadMasterTaskDto masterTask = new UnloadMasterTaskDto();
             List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
