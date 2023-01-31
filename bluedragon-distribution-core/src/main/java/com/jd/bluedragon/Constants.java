@@ -795,6 +795,12 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+
+    /**
+     * Long值-0
+     */
+    public static final Long LONG_ZERO = 0L;
+    
     /**
      * 配置信息-北京的分拣中心
      */
@@ -1842,4 +1848,9 @@ public class Constants {
     /** 运力编码：火车站网点类型 */
     public static final Integer NODE_TYPE_RAILWAY = 9;
 
+
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
 }

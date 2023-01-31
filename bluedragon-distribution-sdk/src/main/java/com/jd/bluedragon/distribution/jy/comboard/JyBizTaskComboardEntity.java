@@ -224,7 +224,7 @@ public class JyBizTaskComboardEntity implements Serializable {
     public void setBulkFlag(Boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
     }
-
+    
 
     public List<Integer> getStatusList() {
         return statusList;

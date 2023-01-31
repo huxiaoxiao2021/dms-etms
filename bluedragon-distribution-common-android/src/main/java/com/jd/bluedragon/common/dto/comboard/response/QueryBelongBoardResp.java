@@ -13,6 +13,11 @@ public class QueryBelongBoardResp implements Serializable {
    */
   private Integer endSiteId;
 
+  /**
+   * 板详情
+   */
+  private BoardDto boardDto;
+
   public String getBoardCode() {
     return boardCode;
   }
@@ -27,5 +32,13 @@ public class QueryBelongBoardResp implements Serializable {
 
   public void setEndSiteId(Integer endSiteId) {
     this.endSiteId = endSiteId;
+  }
+
+  public BoardDto getBoardDto() {
+    return boardDto;
+  }
+
+  public void setBoardDto(BoardDto boardDto) {
+    this.boardDto = boardDto;
   }
 }

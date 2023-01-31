@@ -1,11 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
+import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
+import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
+import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
+import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.etms.vos.dto.SealCarDto;
 
 
 public interface JySealVehicleService {
@@ -26,10 +32,17 @@ public interface JySealVehicleService {
 
 
     /**
-     * 提交封车
+     * 提交封车-干支封车
      *
      */
     InvokeResult sealVehicle(SealVehicleReq sealVehicleReq);
+
+
+    /**
+     * 传站封车
+     *
+     */
+    InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq);
 
 
     /**
@@ -48,4 +61,29 @@ public interface JySealVehicleService {
      */
     InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request);
 
+
+    /**
+     * 校验运力编码的目的地是否一致
+     */
+    InvokeResult checkTransCodeScan(CheckTransportReq reqcuest);
+
+    /**
+     * 根据流向查询组板列表
+     */
+    InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
+
+    /**
+     * 取消封车 更新批次任务和封签列表
+     */
+    InvokeResult<Boolean> updateBoardStatusAndSealCode(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
+
+    /**
+     * 根据transWorkItemCode删除封签明细
+     */
+    InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName);
+
+    /**
+     * 根据包裹|箱号查询板详情信息
+     */
+    InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 }

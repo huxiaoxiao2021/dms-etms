@@ -6,7 +6,7 @@ import java.util.Date;
 
 /**
  * 发车业务任务表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -155,6 +155,16 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private transient Date lastPlanDepartTimeEnd;
 
 	private transient Date createTimeBegin;
+
+	private transient int rand;
+
+	public int getRand() {
+		return rand;
+	}
+
+	public void setRand(int rand) {
+		this.rand = rand;
+	}
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;

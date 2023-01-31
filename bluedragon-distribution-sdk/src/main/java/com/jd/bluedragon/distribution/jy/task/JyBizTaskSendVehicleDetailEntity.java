@@ -153,6 +153,25 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 		this.transferFlag = transferFlag;
 	}
 
+	private Integer lineType;
+	private String lineTypeName;
+
+	public Integer getLineType() {
+		return lineType;
+	}
+
+	public void setLineType(Integer lineType) {
+		this.lineType = lineType;
+	}
+
+	public String getLineTypeName() {
+		return lineTypeName;
+	}
+
+	public void setLineTypeName(String lineTypeName) {
+		this.lineTypeName = lineTypeName;
+	}
+
 	public List<String> getTransWorkCodeList() {
 		return transWorkCodeList;
 	}
