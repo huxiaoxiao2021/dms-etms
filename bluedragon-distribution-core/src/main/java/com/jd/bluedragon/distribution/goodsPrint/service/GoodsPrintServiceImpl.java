@@ -144,6 +144,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         params.setCreateSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
         params.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
         List<SendDetail> sendDetailList = findSendPageByParams(params);
+        log.warn("查询总数num[{}]",sendDetailList.size());
         final BaseStaffSiteOrgDto createSite = this.baseMajorManager.getBaseSiteBySiteId(params.getCreateSiteCode());
         final BaseStaffSiteOrgDto receiveSite = this.baseMajorManager.getBaseSiteBySiteId(params.getReceiveSiteCode());
         List<GoodsPrintDto> goodsPrintDtoList = new ArrayList<>();
@@ -189,8 +190,8 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         List<SendDetail>  sendDetailList = sendDetailService.findSendPageByParams(params);
         log.warn("批次下数据num[{}]params[{}]",sendDetailList.size(),JsonHelper.toJson(params));
         result.addAll(sendDetailList);
-        while (sendDetailList.size() >= limit && offset < 10000){
-            offset++;
+        while (sendDetailList.size() >= limit && offset < 80000){
+            offset+=limit;
             params.setOffset(offset);
             sendDetailList = sendDetailService.findSendPageByParams(params);
             log.warn("批次下数据num[{}]params[{}]",sendDetailList.size(),JsonHelper.toJson(params));
