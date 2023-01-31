@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -16,6 +17,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
   GroupBoardManager groupBoardManager;
   
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<BoardQueryResponse> listComboardBySendFlow(BoardQueryRequest request) {
     InvokeResult<BoardQueryResponse> invokeResult = new InvokeResult<>();
     if (request == null || request.getEndSiteId() == null 
@@ -113,6 +117,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
   }
   
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.queryBelongBoardByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<QueryBelongBoardResponse> queryBelongBoardByBarCode(
       QueryBelongBoardRequest request) {
     if (StringUtils.isEmpty(request.getBarCode())) {
