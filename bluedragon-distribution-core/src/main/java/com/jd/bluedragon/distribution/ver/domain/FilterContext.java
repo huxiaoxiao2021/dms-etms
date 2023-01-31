@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.ver.domain;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
+import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
@@ -94,6 +95,13 @@ public class FilterContext {
      * 忽略验证的条件
      */
     private ValidateIgnore validateIgnore;
+
+    /**
+     * 板对象
+     */
+    private Board board;
+
+
 
     /**
      * 判断是否有预分拣站点
@@ -346,4 +354,14 @@ public class FilterContext {
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
     }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+
 }

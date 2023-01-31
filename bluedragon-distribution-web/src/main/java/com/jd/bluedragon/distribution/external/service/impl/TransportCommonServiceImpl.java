@@ -77,7 +77,6 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     @Resource
     private TransferService transferService;
 
-
     @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.interceptValidateUnloadCar", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
     public InvokeResult<Boolean> interceptValidateUnloadCar(TransportServiceRequest transportServiceRequest) {

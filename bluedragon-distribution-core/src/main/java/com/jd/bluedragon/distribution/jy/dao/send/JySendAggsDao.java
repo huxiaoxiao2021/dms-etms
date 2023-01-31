@@ -39,4 +39,8 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> implements JySendAg
         return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
     }
 
+
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
+    }
 }
