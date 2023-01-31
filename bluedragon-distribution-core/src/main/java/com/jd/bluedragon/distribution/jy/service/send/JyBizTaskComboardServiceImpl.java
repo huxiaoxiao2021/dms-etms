@@ -9,18 +9,20 @@ import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.jd.common.annotation.CacheMethod;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -107,7 +109,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
     condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
-    condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    if (sendFlowDto.getQueryTimeBegin() != null ) {
+      condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    }
     List<Integer> statusList = new ArrayList<>();
     statusList.add(ComboardStatusEnum.PROCESSING.getCode());
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
@@ -165,4 +169,31 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setBoardCode(boardCode);
     return queryBizTaskByBoardCode(condition);
   }
+
+  @Override
+  public boolean updateBoardStatusBySendCodeList(String batchCode, String operateUserCode, String operateUserName) {
+    
+    if (StringUtils.isEmpty(batchCode)) {
+      return false;
+    }
+    
+    // 查询任务id
+    List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCode(batchCode);
+    
+    if (CollectionUtils.isEmpty(taskList)) {
+      return true;
+    }
+    
+    List<Long> taskIds = new ArrayList<>();
+    for (JyBizTaskComboardEntity entity : taskList) {
+      taskIds.add(entity.getId());
+    }
+    UpdateBoardStatusReq boardStatusReq = new UpdateBoardStatusReq();
+    boardStatusReq.setIds(taskIds);
+    boardStatusReq.setUpdateUserErp(operateUserCode);
+    boardStatusReq.setUpdateUserName(operateUserName);
+    boardStatusReq.setBoardStatus(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    return jyBizTaskComboardDao.updateBoardStatus(boardStatusReq) > 0;
+  }
+  
 }

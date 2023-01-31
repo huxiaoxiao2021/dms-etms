@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * @ClassName SendVehicleTaskRequest
@@ -53,6 +54,12 @@ public class SendVehicleTaskRequest implements Serializable {
      * 最晚计划发车时间 范围查找-结束时间
      */
     private Date lastPlanDepartTimeEnd;
+
+    private int rand =new Random().nextInt(9 );
+
+    public int getRand() {
+        return rand;
+    }
 
     public Integer getPageNumber() {
         return pageNumber;

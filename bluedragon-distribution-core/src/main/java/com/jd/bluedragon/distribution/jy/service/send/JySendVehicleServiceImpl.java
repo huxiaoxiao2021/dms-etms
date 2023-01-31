@@ -185,7 +185,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * 运单路由字段使用的分隔符
      */
     private static final String WAYBILL_ROUTER_SPLIT = "\\|";
-    private static final int VEHICLE_NUMBER_FOUR = 4;
+    static final int VEHICLE_NUMBER_FOUR = 4;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -199,7 +199,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private UccPropertyConfiguration uccConfig;
 
     @Autowired
-    private JyBizTaskSendVehicleService taskSendVehicleService;
+    JyBizTaskSendVehicleService taskSendVehicleService;
 
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
@@ -330,8 +330,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             response.setSendVehicleBizList(sendVehicleBizList);
 
-            List<JyBizTaskSendCountDto> vehicleStatusAggList =
-                    taskSendVehicleService.sumTaskByVehicleStatus(condition, sendVehicleBizList);
+            List<JyBizTaskSendCountDto> vehicleStatusAggList =sumTaskByVehicleStatus(condition, sendVehicleBizList);
+
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
@@ -383,6 +383,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return lineTypeAgg;
     }
 
+    List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition, List<String> sendVehicleBizList) {
+        return taskSendVehicleService.sumTaskByVehicleStatus(condition, sendVehicleBizList);
+    }
+
     private QueryTaskSendDto setQueryTaskSendDto(SendVehicleTaskRequest request) {
         QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
         queryTaskSendDto.setPageNumber(request.getPageNumber());
@@ -409,6 +413,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
         }
+        queryTaskSendDto.setRand(request.getRand());
         return queryTaskSendDto;
     }
 
@@ -456,14 +461,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         JyBizTaskSendSortTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
+        List<JyBizTaskSendVehicleEntity> vehiclePageList =querySendTaskOfPage(queryCondition, queryTaskSendDto, orderTypeEnum);
 
-        List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
-                queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
         if (CollectionUtils.isEmpty(vehiclePageList)) {
             return;
         }
 
         assemblePageSendTaskList(queryTaskSendDto, vehicleList, curQueryStatus, vehiclePageList);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity queryCondition, QueryTaskSendDto queryTaskSendDto, JyBizTaskSendSortTypeEnum orderTypeEnum) {
+        return taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
+            queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
     }
 
     private void assemblePageSendTaskList(QueryTaskSendDto queryTaskSendDto, List<BaseSendVehicle> vehicleList,
@@ -534,7 +543,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param weightOfTon
      * @return
      */
-    private BigDecimal convertTonToKg(BigDecimal weightOfTon) {
+    public BigDecimal convertTonToKg(BigDecimal weightOfTon) {
         return weightOfTon.multiply(BigDecimal.valueOf(1000));
     }
 
@@ -545,7 +554,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param entity
      * @return
      */
-    private List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
+    public List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), entity.getBizId());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
@@ -747,7 +756,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param vehicleStatusAggList
      * @param response
      */
-    private void assembleSendVehicleStatusAgg(List<JyBizTaskSendCountDto> vehicleStatusAggList, SendVehicleTaskResponse response) {
+    public void assembleSendVehicleStatusAgg(List<JyBizTaskSendCountDto> vehicleStatusAggList, SendVehicleTaskResponse response) {
         List<VehicleStatusStatis> statusAgg = Lists.newArrayListWithCapacity(vehicleStatusAggList.size());
         response.setStatusAgg(statusAgg);
 
@@ -767,7 +776,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param queryTaskSendDto
      * @return
      */
-    private <T> List<String> resolveSearchKeyword(InvokeResult<T> result, QueryTaskSendDto queryTaskSendDto) {
+    public  <T> List<String> resolveSearchKeyword(InvokeResult<T> result, QueryTaskSendDto queryTaskSendDto) {
         if (StringUtils.isBlank(queryTaskSendDto.getKeyword())) {
             return null;
         }
@@ -822,7 +831,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return new ArrayList<>(sendVehicleBizSet);
     }
 
-    private List<String> querySendVehicleBizIdByTaskSimpleCode(QueryTaskSendDto queryTaskSendDto) {
+    public List<String> querySendVehicleBizIdByTaskSimpleCode(QueryTaskSendDto queryTaskSendDto) {
         com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(queryTaskSendDto.getKeyword());
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
@@ -848,7 +857,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return null;
     }
 
-    private List<String> querySendVehicleBizIdByVehicleFuzzy(QueryTaskSendDto queryTaskSendDto) {
+    public List<String> querySendVehicleBizIdByVehicleFuzzy(QueryTaskSendDto queryTaskSendDto) {
         TransWorkFuzzyQueryParam param = new TransWorkFuzzyQueryParam();
         BaseStaffSiteOrgDto baseStaffSiteOrgDto;
         try {
@@ -901,7 +910,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param startSiteId
      * @return
      */
-    private Long getWaybillNextRouter(String waybillCode, Long startSiteId) {
+    public Long getWaybillNextRouter(String waybillCode, Long startSiteId) {
         RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
         return routeNextDto == null || routeNextDto.getFirstNextSiteId() == null? null : routeNextDto.getFirstNextSiteId().longValue();
     }
@@ -922,6 +931,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (ObjectHelper.isNotNull(queryTaskSendDto.getCreateTimeBegin())) {
             condition.setCreateTimeBegin(queryTaskSendDto.getCreateTimeBegin());
         }
+        condition.setRand(queryTaskSendDto.getRand());
         return condition;
     }
 
@@ -2764,7 +2774,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param taskSend
      * @param progress
      */
-    private void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
+    public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
         JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
 
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
@@ -2795,20 +2805,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
     }
 
-    private Integer getDestTotal(String sendVehicleBizId) {
+    public Integer getDestTotal(String sendVehicleBizId) {
         JyBizTaskSendVehicleDetailEntity totalQ = new JyBizTaskSendVehicleDetailEntity();
         totalQ.setSendVehicleBizId(sendVehicleBizId);
         return taskSendVehicleDetailService.countByCondition(totalQ);
     }
 
-    private Integer getSealedDestTotal(String sendVehicleBizId) {
+    public Integer getSealedDestTotal(String sendVehicleBizId) {
         JyBizTaskSendVehicleDetailEntity sealedQ = new JyBizTaskSendVehicleDetailEntity();
         sealedQ.setSendVehicleBizId(sendVehicleBizId);
         sealedQ.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
         return taskSendVehicleDetailService.countByCondition(sealedQ);
     }
 
-    private BigDecimal dealLoadRate(BigDecimal loadWeight, BigDecimal standardWeight) {
+    public BigDecimal dealLoadRate(BigDecimal loadWeight, BigDecimal standardWeight) {
         if (!NumberHelper.gt0(standardWeight)) {
             return BigDecimal.ZERO;
         }
@@ -2948,7 +2958,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return invokeResult;
     }
 
-    private void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request,
+    public void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request,
                                       SendBarCodeQueryEntranceEnum entranceEnum, Integer queryFlag) {
         Pager<SendVehicleTaskQuery> queryPager = this.getInterceptOrForceBarCodeQuery(request);
         queryPager.getSearchVo().setQueryBarCodeFlag(queryFlag);
@@ -3207,7 +3217,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param request
      * @param vehicleDetailList
      */
-    private List<ToSealDestDetail> setSendDestDetail(SelectSealDestRequest request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
+    public List<ToSealDestDetail> setSendDestDetail(SelectSealDestRequest request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
         List<ToSealDestDetail> sendDestDetails = new ArrayList<>();
         List<JySendAggsEntity> sendAggList = sendAggService.findBySendVehicleBiz(request.getSendVehicleBizId());
         Map<String, JySendAggsEntity> sendAggMap = new HashMap<>();

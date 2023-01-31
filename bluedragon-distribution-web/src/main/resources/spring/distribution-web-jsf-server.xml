@@ -506,4 +506,12 @@
 
 
 
+    <!--  对外提供组板相关服务  -->
+    <jsf:provider id="jsfDmsComboardService"
+      interface="com.jd.bluedragon.distribution.external.service.DmsComboardService"
+      alias="${dms.jsf.alias}"
+      ref="dmsComboardService"
+      server="dmsjsf">
+    </jsf:provider>
+
 </beans>

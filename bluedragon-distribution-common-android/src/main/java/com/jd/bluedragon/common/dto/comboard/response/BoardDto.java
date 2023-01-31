@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class BoardDto implements Serializable {
     private static final long serialVersionUID = -7996926947828471326L;
@@ -20,6 +21,16 @@ public class BoardDto implements Serializable {
      * 该板已扫箱子数量
      */
     private Integer boxHaveScanCount;
+
+
+    /**
+     * 板内货物重量
+     */
+    private String weight;
+    /**
+     * 板内货物体积
+     */
+    private String volume;
     /**
      * 该板拦截数量
      */
@@ -42,6 +53,33 @@ public class BoardDto implements Serializable {
     private String bizId;
 
     private String sendCode;
+
+    /**
+     * 组板入口类型
+     */
+    private String comboardSource;
+            
+    List<GoodsCategoryDto> goodsCategoryDtos;
+
+
+    /**
+     * 选中状态
+     */
+    private boolean selectedFlag;
+
+    /**
+     * 展开状态
+     */
+    private boolean extendFlag;
+    
+    public List<GoodsCategoryDto> getGoodsCategoryDtos() {
+        return goodsCategoryDtos;
+    }
+
+    public void setGoodsCategoryDtos(
+        List<GoodsCategoryDto> goodsCategoryDtos) {
+        this.goodsCategoryDtos = goodsCategoryDtos;
+    }
 
     /**
      * 板扫描上线
@@ -142,5 +180,45 @@ public class BoardDto implements Serializable {
 
     public void setBoardScanLimit(Integer boardScanLimit) {
         this.boardScanLimit = boardScanLimit;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getVolume() {
+        return volume;
+    }
+
+    public void setVolume(String volume) {
+        this.volume = volume;
+    }
+
+    public String getComboardSource() {
+        return comboardSource;
+    }
+
+    public void setComboardSource(String comboardSource) {
+        this.comboardSource = comboardSource;
+    }
+
+    public boolean getSelectedFlag() {
+        return selectedFlag;
+    }
+
+    public void setSelectedFlag(boolean selectedFlag) {
+        this.selectedFlag = selectedFlag;
+    }
+
+    public boolean isExtendFlag() {
+        return extendFlag;
+    }
+
+    public void setExtendFlag(boolean extendFlag) {
+        this.extendFlag = extendFlag;
     }
 }

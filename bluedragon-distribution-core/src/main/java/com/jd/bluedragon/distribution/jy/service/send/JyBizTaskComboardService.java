@@ -71,6 +71,14 @@ public interface JyBizTaskComboardService {
     List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
 
   JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
-
+  
+  /**
+   * 取消封车
+   * @param batchCodes
+   * @param operateUserCode
+   * @param operateUserName
+   * @return
+   */
+  boolean updateBoardStatusBySendCodeList(String batchCodes, String operateUserCode, String operateUserName);
 }
 

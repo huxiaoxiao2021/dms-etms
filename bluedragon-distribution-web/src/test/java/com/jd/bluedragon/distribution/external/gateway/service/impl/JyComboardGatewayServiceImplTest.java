@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -47,6 +48,9 @@ public class JyComboardGatewayServiceImplTest {
 
     @Autowired
     SortBoardJsfService sortBoardJsfService;
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
+    
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -596,6 +600,14 @@ public class JyComboardGatewayServiceImplTest {
         req.setExcepType(1);
         JdCResponse<BoardExcepStatisticsResp> s = jyComboardGatewayService.queryExcepScanStatisticsUnderBoard(req);
         System.out.println(JsonHelper.toJson(s));
+    }
+    
+    @Test
+    public void updateBoardStatusBySendCodeListTest() {
+        List<String> batchCodes = new ArrayList<>();
+        batchCodes.add("910-39-20221205212254643");
+        batchCodes.add("910-39-20221205212254654");
+        jyBizTaskComboardService.updateBoardStatusBySendCodeList("dehudheu","liwenji3","李文吉");
     }
     
     @Test

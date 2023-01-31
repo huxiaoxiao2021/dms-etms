@@ -7,7 +7,7 @@ public class GoodsCategoryDto implements Serializable {
     private String type;
     private String name;
     private Integer count;
-
+    
     public String getType() {
         return type;
     }
