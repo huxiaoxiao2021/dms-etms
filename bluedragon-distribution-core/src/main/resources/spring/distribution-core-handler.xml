@@ -636,6 +636,7 @@
                 <ref bean="initialPrintCompleteHandler" />
                 <ref bean="dealPopPrintHandler" />
                 <ref bean="pushPrintWaybillTrackHandler" />
+				<ref bean="printCancelInterceptHandler" />
 				<ref bean="popPrintFirstHandler" />
 				<ref bean="pushPrintRecordHandler" />
             </list>
@@ -648,6 +649,7 @@
                 <ref bean="dealReprintHandler" />
                 <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushModifyOrderMqHandler" />
+                <ref bean="printCancelInterceptHandler" />
                 <ref bean="reprintCompletePostHandler" />
                 <ref bean="pushPrintRecordHandler" />
             </list>
@@ -661,7 +663,8 @@
                 <ref bean="dealPopPrintHandler" />
                 <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushPrintWaybillTrackHandler" />
-                <ref bean="pushModifyOrderMqHandler" />
+				<ref bean="printCancelInterceptHandler" />
+				<ref bean="pushModifyOrderMqHandler" />
                 <ref bean="pushPrintRecordHandler" />
             </list>
         </property>

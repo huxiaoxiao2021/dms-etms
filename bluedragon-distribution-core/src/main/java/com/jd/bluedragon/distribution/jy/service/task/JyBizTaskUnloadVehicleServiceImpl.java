@@ -1,13 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoMain;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
@@ -15,7 +17,9 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -33,7 +37,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,12 +102,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private JimdbSequenceGen redisJyBizIdSequenceGen;
 
     @Autowired
-    JyUnloadAggsDao jyUnloadAggsDao;
-    @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private JyUnloadAggsService jyUnloadAggsService;
 
     /**
      * 根据bizId获取数据
@@ -310,6 +314,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         //截取车牌后4位逻辑
         if(!StringUtils.isEmpty(entity.getVehicleNumber())){
+            // 过滤车牌号中的特殊字符
+            String vehicleNumber = entity.getVehicleNumber().replaceAll(Constants.SPECIAL_CHAR_REGEX, "");
+            entity.setVehicleNumber(vehicleNumber);
             int vl = entity.getVehicleNumber().length();
             String fvn = entity.getVehicleNumber();
             if(vl > 4){
@@ -317,7 +324,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
-        entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        if (entity.getTaskType() == null) {
+            entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        }
 
         // 初始默认数据
         if(entity.getManualCreatedFlag() == null){
@@ -540,6 +549,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setEndSiteName(dto.getOperateSiteName());
         initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
         initParams.setManualCreatedFlag(1);
+        initParams.setRefGroupCode(dto.getGroupCode());
 
         initParams.setCreateUserErp(dto.getOperateUserErp());
         initParams.setCreateUserName(dto.getOperateUserName());
@@ -547,6 +557,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setUpdateUserName(dto.getOperateUserErp());
         initParams.setCreateTime(new Date());
         initParams.setUpdateTime(new Date());
+        initParams.setTaskType(dto.getTaskType());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
             return initParams;
@@ -585,6 +596,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.countByVehicleNumberAndStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
         if (condition == null) {
             return 0L;
@@ -593,6 +605,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.listUnloadVehicleTask",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
         List<JyBizTaskUnloadVehicleEntity> jyBizTaskUnloadVehicleEntityList = jyBizTaskUnloadVehicleDao.listUnloadVehicleTask(entity);
         if (ObjectHelper.isNotNull(jyBizTaskUnloadVehicleEntityList) && jyBizTaskUnloadVehicleEntityList.size() > 0) {
@@ -615,6 +628,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.entityConvertDto",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
         UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
         if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
@@ -637,12 +651,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryStatisticsByDiffDimension",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            entity = jyUnloadAggsDao.queryPackageStatistics(dto);
+            entity = jyUnloadAggsService.queryPackageStatistics(dto);
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            entity = jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+            entity = jyUnloadAggsService.queryWaybillStatisticsUnderTask(dto);
         }
         if (ObjectHelper.isNotNull(entity)) {
             ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
@@ -652,19 +667,21 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
         JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
         return entityConvertDto(entity);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryStatistics",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
-        JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
+        JyUnloadAggsEntity packageStatistics = jyUnloadAggsService.queryPackageStatistics(dto);
         if(packageStatistics == null) {
             return new InvokeResult<>(RESULT_SUCCESS_CODE, "未查到数据");
         }
         JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
-                jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+                jyUnloadAggsService.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsService.queryWaybillStatisticsUnderTask(dto);
 
         StatisticsDto statisticsDto = new StatisticsDto();
         Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
@@ -765,4 +782,24 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
     }
+
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryByFuzzyVehicleNumberAndStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
+        if (condition == null) {
+            return new ArrayList<>();
+        }
+        List<JyBizTaskUnloadVehicleEntity> entityList = jyBizTaskUnloadVehicleDao.queryByFuzzyVehicleNumberAndStatus(condition);
+        if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+            for (JyBizTaskUnloadVehicleEntity unloadTask : entityList) {
+                UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
+                unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
+            }
+            return unloadVehicleTaskDtoList;
+        }
+        return new ArrayList<>();
+    }
+
 }

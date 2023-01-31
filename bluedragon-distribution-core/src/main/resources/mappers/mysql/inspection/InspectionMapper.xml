@@ -34,6 +34,8 @@
         <result column="busi_id" property="busiId" jdbcType="INTEGER"/>
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
         <result column="biz_source" property="bizSource" jdbcType="INTEGER" />
+        <result column="operator_type_code" property="operatorTypeCode" />
+        <result column="operator_id" property="operatorId" />
     </resultMap>
 
     <resultMap id="WaybillNoCollectionInfo" type="com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo">
@@ -57,7 +59,8 @@
     receive_site_code, update_user, 
     update_user_code, update_time, yn, third_waybill_code, pop_flag,
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
-    pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name, biz_source
+    pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name, biz_source,
+    operator_type_code, operator_id
   </sql>
     <sql id="where_condition">
         <where>
@@ -396,7 +399,7 @@
         #{quantity,jdbcType=INTEGER}, #{crossCode,jdbcType=VARCHAR}, #{waybillType,jdbcType=INTEGER},
         #{popReceiveType, jdbcType=INTEGER}, #{queueNo,jdbcType=VARCHAR}, #{driverCode, jdbcType=VARCHAR},
         #{driverName,jdbcType=VARCHAR}, #{busiId, jdbcType=INTEGER}, #{busiName, jdbcType=VARCHAR},
-        #{bizSource, jdbcType=INTEGER}
+        #{bizSource, jdbcType=INTEGER},#{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR}
         )
     </insert>
 
@@ -436,6 +439,12 @@
             <if test="bizSource != null and bizSource != '' ">
                 biz_source = #{bizSource, jdbcType=INTEGER},
             </if>
+            <if test="operatorTypeCode != null">
+                operator_type_code = #{operatorTypeCode,jdbcType=INTEGER},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId,jdbcType=VARCHAR},
+            </if>            
         </set>
         WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
     </update>

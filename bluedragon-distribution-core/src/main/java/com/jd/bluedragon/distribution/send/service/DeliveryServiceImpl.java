@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -87,6 +88,8 @@ import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
@@ -110,6 +113,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -376,6 +380,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Autowired
     private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    private RouterService routerService;
 
     @Autowired
     private VosManager vosManager;
@@ -1918,6 +1925,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
+        sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
+        sortDomain.setOperatorId(domain.getOperatorId());        
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -3910,6 +3919,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
             List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
 
+            CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
                 tSendDetail.setStatus(1);
@@ -3955,13 +3965,24 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendDetailList.add(tSendDetail);
                 }
             }
+            if(log.isInfoEnabled() && sendDetails.size() > 10) {
+                log.info("DeliveryService.updateWaybillStatus更新运单回传之后状态, 參數sendDetails大小为", sendDetails.size());
+            }
+            Profiler.registerInfoEnd(info0);
 
+
+            // 加入UMP监控
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.1", false, true);
             // 批量发送发货明细MQ消息
             this.dmsWorkSendDetailMQ.batchSendOnFailPersistent(sendDetailMQList);
+            Profiler.registerInfoEnd(info1);
 
+            CallerInfo info2 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.2", false, true);
             // 批量添加回传全程跟踪状态任务
             this.addWaybillStatusTask(waybillStatusList, sendTypeList);
+            Profiler.registerInfoEnd(info2);
 
+            CallerInfo info3 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.3", false, true);
             if (!sendDetailList.isEmpty()) {
                 this.updateWaybillStatusByPackage(sendDetailList);
             }
@@ -3969,6 +3990,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (!cancelSendList.isEmpty()) {
                 this.updateSendStatusByPackage(cancelSendList);
             }
+            Profiler.registerInfoEnd(info3);
+
         }
         return true;
     }
@@ -3991,6 +4014,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tWaybillStatus.setWaybillCode(tSendDetail.getWaybillCode());
         tWaybillStatus.setSendCode(tSendDetail.getSendCode());
         tWaybillStatus.setBoxCode(tSendDetail.getBoxCode());
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorTypeCode(tSendDetail.getOperatorTypeCode());
+        operatorData.setOperatorId(tSendDetail.getOperatorId());
+        tWaybillStatus.setOperatorData(operatorData);
         return tWaybillStatus;
     }
 
@@ -4791,82 +4818,68 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         List<String> waybillCodes = getWaybillCodesByBoxCodeAndFetchNum(boxCode,3);
 
         //获取运单对应的路由
-        String routerStr = null;
+        BaseStaffSiteOrgDto routeNextDto = null;
         String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
                 //根据waybillCode查库获取路由信息
-                routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-
-                //如果路由为空，则取下一单
-                if(StringHelper.isNotEmpty(routerStr)){
+                routeNextDto = routerService.getRouterNextSite(createSiteCode, waybillCode);
+                if (null != routeNextDto) {
                     waybillCodeForVerify = waybillCode;
                     break;
                 }
             }
         }
 
-        if(routerStr == null || StringHelper.isEmpty(routerStr)){
+        if(routeNextDto == null){
             return response;
         }
+        log.warn("C网路由校验按箱发货,箱号为:{} 取到的运单号为：{}，运单正确路由为:{}" ,boxCode,waybillCodeForVerify,routeNextDto.getSiteCode());
 
-        log.warn("C网路由校验按箱发货,箱号为:{} 取到的运单号为：{}，运单正确路由为:{}" ,boxCode,waybillCodeForVerify,routerStr);
-
-        String  logInfo = "";
-
-        //路由校验逻辑
-        boolean getCurNodeFlag = false;  //路由中是否包含当前分拣中心标识
-
-        String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
-
-        //当前分拣中心可以到达的下一网点集合
-        List<Integer> routerShow = new ArrayList<Integer>();
-
-        for(int i=0 ;i< routerNodes.length-1; i++){
-            int curNode = Integer.parseInt(routerNodes[i]);
-            int nexNode = Integer.parseInt(routerNodes[i+1]);
-            if(curNode == createSiteCode){
-                getCurNodeFlag = true;
-                routerShow.add(nexNode);
-                if(nexNode == receiveSiteCode){
-                    //校验成功增加cassandra日志
-                    logInfo = "C网路由校验按箱发货校验通过.箱号:"+ boxCode  + ",取到的运单号："+
-                            waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
-                            ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
-                            ",批次号的目的地：" + receiveSiteCode;
-                    log.info(logInfo);
-                    long endTime = new Date().getTime();
-
-                    JSONObject request=new JSONObject();
-                    request.put("boxCode",boxCode);
-
-                    JSONObject operateResponse=new JSONObject();
-                    operateResponse.put("info", logInfo);
-
-                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
-                            .operateRequest(request)
-                            .operateResponse(response)
-                            .methodName("DeliveryServiceImpl#checkRouterForCBox")
-                            .build();
-
-                    logEngine.addLog(businessLogProfiler);
-
-                    addCassandraLog(boxCode,boxCode,logInfo);
-
-                    return response;
-                }
-            }
-        }
-
-        //运单的路由上不包含当前操作的分拣中心，则无法确定下一站，直接返回
-        if(!getCurNodeFlag){
-            logInfo="C网路由校验按箱发货，路由中不包含当前分拣中心.箱号:"+ boxCode  + ",取到的运单号："+
+        if (Objects.equals(routeNextDto.getSiteCode() , receiveSiteCode)) {
+            //校验成功增加cassandra日志
+            String logInfo = "C网路由校验按箱发货校验通过.箱号:"+ boxCode  + ",取到的运单号："+
                     waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
-                    ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
+                    ",运单正确路由:" + routeNextDto.getSiteCode() +  ",操作站点：" + createSiteCode +
                     ",批次号的目的地：" + receiveSiteCode;
-            long endTime = new Date().getTime();
+            log.info(logInfo);
 
+            JSONObject request=new JSONObject();
+            request.put("boxCode",boxCode);
+
+            JSONObject operateResponse=new JSONObject();
+            operateResponse.put("info", logInfo);
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .methodName("DeliveryServiceImpl#checkRouterForCBox")
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+
+            addCassandraLog(boxCode,boxCode,logInfo);
+
+            return response;
+        } else {
+
+            String nextSiteName = routeNextDto.getSiteName()
+                    .replace(Constants.SUFFIX_DMS_ONE,"")
+                    .replace(Constants.SUFFIX_DMS_TWO,"")
+                    .replace(Constants.SUFFIX_TRANSIT,"");
+
+            response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
+            response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
+                    "取到运单：" + waybillCodeForVerify + "，路由下一站:" + nextSiteName);
+
+
+            String logInfo = "C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
+                    waybillCodes + ",进行校验的运单号为：" + waybillCodeForVerify +
+                    ",运单正确路由为:" + routeNextDto.getSiteName() +  ",操作站点为：" + createSiteCode +
+                    ",批次号的目的地为：" + receiveSiteCode;
+
+            long endTime = new Date().getTime();
 
             JSONObject request=new JSONObject();
             request.put("boxCode",boxCode);
@@ -4885,60 +4898,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             businessLogProfiler.setUrl("");
 
             logEngine.addLog(businessLogProfiler);
-
             addCassandraLog(boxCode,boxCode,logInfo);
+
             return response;
+
         }
 
-        //将下一站由编码转换成名称，并进行截取，供pda提示
-        String routerShortNames="";
-        for(Integer dmsCode : routerShow){
-            if(StringHelper.isEmpty(baseService.getDmsShortNameByCode(dmsCode))){
-                continue;
-            }
-            routerShortNames +=  baseService.getDmsShortNameByCode(dmsCode) + Constants.SEPARATOR_COMMA;
-        }
-
-        if(StringHelper.isNotEmpty(routerShortNames)){
-            routerShortNames = routerShortNames.substring(0,routerShortNames.length()-1);
-        }
-
-        response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
-        response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
-                "取到运单：" + waybillCodeForVerify + "，路由下一站:" + routerShortNames);
-
-        logInfo = "C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
-                waybillCodes + ",进行校验的运单号为：" + waybillCodeForVerify +
-                ",运单正确路由为:" + routerStr +  ",操作站点为：" + createSiteCode +
-                ",批次号的目的地为：" + receiveSiteCode;
-
-//        addCassandraLog(boxCode,boxCode,logInfo);
-
-
-        long endTime = new Date().getTime();
-
-        JSONObject request=new JSONObject();
-        request.put("boxCode",boxCode);
-
-        JSONObject operateResponse=new JSONObject();
-        operateResponse.put("info", logInfo);
-
-        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
-                .operateRequest(request)
-                .operateResponse(response)
-                .methodName("DeliveryServiceImpl#checkRouterForCBox")
-                .processTime(endTime,startTime)
-                .build();
-        businessLogProfiler.setTimeStamp(endTime);
-        businessLogProfiler.setUrl("");
-
-        logEngine.addLog(businessLogProfiler);
-        addCassandraLog(boxCode,boxCode,logInfo);
-
-
-
-        return response;
     }
 
     /**
@@ -5677,7 +5642,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 补全包裹重量
      */
     @Override
-    public SendDetail measureRetrieve(SendDetail sendDetail) {
+    public SendDetail measureRetrieve(SendDetail sendDetail, DeliveryPackageD packageD) {
+        if (null != packageD && Objects.equals(packageD.getPackageBarcode(), sendDetail.getPackageBarcode())) {
+            sendDetail.setWeight(packageD.getGoodWeight());
+            return sendDetail;
+        }
 
         //一单多件调用接口获取包裹欣慰为空处理
         BaseEntity<List<DeliveryPackageD>> waybillWSRs = new BaseEntity<List<DeliveryPackageD>>();
@@ -5936,7 +5905,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
-
+        tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
+        tTask.setOperatorId(domain.getOperatorId());        
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -5996,7 +5966,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 tSendDetail.setExcuteTime(new Date());
                 tSendDetail.setExcuteCount(0);
                 tSendDetail.setOperateTime(task.getCreateTime());
-
+                tSendDetail.setOperatorTypeCode(task.getOperatorTypeCode());
+                tSendDetail.setOperatorId(task.getOperatorId());
+                if(sendM != null) {
+                    tSendDetail.setOperatorTypeCode(sendM.getOperatorTypeCode());
+                    tSendDetail.setOperatorId(sendM.getOperatorId());
+                }
                 if ((!tSendDetail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
                     tSendDetail.setSendCode(task.getBody());
                     tSendDetail.setYn(1);
@@ -6124,16 +6099,28 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
             return null;
         }
-        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
-        if(!economicNetService.isReady(box)){
-            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
-            try{
-                Thread.sleep(1000);
-            }catch (Exception e){}
-            if(!economicNetService.isReady(box)){
-                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
-            }
+//        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
+//        if(!economicNetService.isReady(box)){
+//            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
+//            try{
+//                Thread.sleep(1000);
+//            }catch (Exception e){}
+//
+//            if (economicNetService.isReady(box)) {
+//                log.info("处理中转发货时需要等待经济网箱包关系第二次请求初始化成功：{}", box.getCode());
+//            } else {
+//                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
+//            }
+//        } else {
+//            log.info("处理中转发货时需要等待经济网箱包关系第一次请求初始化成功：{}", box.getCode());
+//        }
+
+        if (economicNetService.isReady(box)) {
+            log.info("处理中转发货时需要等待经济网箱包关系请求初始化成功：{}", box.getCode());
+        } else {
+            throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
         }
+
         List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
         if(CollectionUtils.isEmpty(thirdBoxDetails)){
             return null;
@@ -6850,7 +6837,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }else{
             inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
         }
-
+        inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
+        inspection.setOperatorId(domain.getOperatorId());
+        
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));

@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.jy.manager;
 import com.jd.bluedragon.distribution.jy.dto.send.SendPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto;
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
+import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
 
 /**
  * @ClassName IJySendVehicleJsfManager
@@ -20,6 +22,9 @@ public interface IJySendVehicleJsfManager {
      * @return
      */
     Pager<SendBarCodeDetailVo> queryByCondition(Pager<SendVehicleTaskQuery> queryPager);
+
+    Pager<SendVehiclePackageDetailVo> querySendVehicleToScanPackageDetail(Pager<SendVehiclePackageDetailQuery> queryPager);
+
 
     /**
      * 分页查询运单agg数据

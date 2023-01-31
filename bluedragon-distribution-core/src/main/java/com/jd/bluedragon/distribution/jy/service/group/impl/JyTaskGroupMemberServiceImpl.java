@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
@@ -19,6 +23,8 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.jsf.gd.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service("jyTaskGroupMemberService")
 public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
-
+	private static final Logger logger = LoggerFactory.getLogger(JyTaskGroupMemberServiceImpl.class);
 	@Autowired
 	@Qualifier("jyTaskGroupMemberDao")
 	private JyTaskGroupMemberDao jyTaskGroupMemberDao;
@@ -61,11 +67,23 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 	public Result<Boolean> startTask(JyTaskGroupMemberEntity startData) {
 		Result<Boolean> result = new Result<Boolean>();
 		result.toSuccess();
+		if(startData == null 
+				|| StringUtils.isBlank(startData.getRefGroupCode())
+				|| StringUtils.isBlank(startData.getRefTaskId())) {
+			logger.warn("startTask-参数错误！groupCode和taskId不能为空！startData={}",JsonHelper.toJson(startData));
+			result.toFail("startTask-参数错误！groupCode和taskId不能为空！");
+			return  result;
+		}
 		//查询小组在岗人员
 		JyGroupMemberQuery membersQuery = new JyGroupMemberQuery();
 		membersQuery.setGroupCode(startData.getRefGroupCode());
 		membersQuery.setStatus(JyGroupMemberStatusEnum.IN.getCode());
 		List<JyGroupMemberEntity> members = jyGroupMemberService.queryMemberListByGroup(membersQuery);
+		if(CollectionUtils.isEmpty(members)) {
+			logger.info("startTask:taskId={}在岗人员列表为空，无需处理！",startData.getRefTaskId());
+		}else {
+			logger.info("startTask:taskId={}添加任务小组成员{}个！",startData.getRefTaskId(),members.size());
+		}
 		List<JyTaskGroupMemberEntity> taskMembers = new ArrayList<JyTaskGroupMemberEntity>();
 		GroupMemberQueryRequest memberCodeListQuery = new GroupMemberQueryRequest();
 		memberCodeListQuery.setTaskId(startData.getRefTaskId());
@@ -119,7 +137,28 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		}
 		taskGroupMember.setUpdateUser(endData.getUpdateUser());
 		taskGroupMember.setUpdateUserName(endData.getUpdateUserName());
-		jyTaskGroupMemberDao.endWorkByTaskId(taskGroupMember);
+		
+		GroupMemberQueryRequest memberCodeListQuery = new GroupMemberQueryRequest();
+		memberCodeListQuery.setTaskId(endData.getRefTaskId());
+		//查询任务下MemberCode
+		List<String> memberCodeList = jyTaskGroupMemberDao.queryMemberCodeListByTaskId(memberCodeListQuery);
+		
+		if(!CollectionUtils.isEmpty(memberCodeList)) {
+			List<List<String>> memberCodeGroupList = CollectionHelper.splitList(memberCodeList, Constants.DB_SQL_IN_MAX_GROUP_NUM, Constants.DB_SQL_IN_LIMIT_NUM);
+			for(List<String> memberCodes : memberCodeGroupList) {
+				//查询在岗人员MemberCode
+				List<String> unSignOutMemberCodeList = jyGroupMemberService.queryUnSignOutMemberCodeList(memberCodes);
+				if(CollectionUtils.isEmpty(unSignOutMemberCodeList)) {
+					logger.info("endTask:taskId={}在岗人员列表为空，无需处理！",endData.getRefTaskId());
+					continue;
+				}else {
+					logger.info("endTask:taskId={}设置enTime,memberCodes={}！",endData.getRefTaskId(),JsonHelper.toJson(unSignOutMemberCodeList));
+				}
+				jyTaskGroupMemberDao.endWorkByMemberCodeListForEndTask(taskGroupMember,unSignOutMemberCodeList);
+			}
+		}else {
+			logger.info("endTask:taskId={}人员列表为空，无需处理！",endData.getRefTaskId());
+		}
 		return result;
 	}
 
@@ -132,10 +171,10 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 	}
 
 	@Override
-	public Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+	public Result<Boolean> endWorkByMemberCodeListForAutoSignOut(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
 		Result<Boolean> result = new Result<Boolean>();
 		result.toSuccess();
-		jyTaskGroupMemberDao.endWorkByMemberCodeList(endData,memberCodes);
+		jyTaskGroupMemberDao.endWorkByMemberCodeListForAutoSignOut(endData,memberCodes);
 		return result;
 	}
 

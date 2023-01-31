@@ -80,8 +80,8 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
      */
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/getWaybillInfo")
-    public @ResponseBody
-    InvokeResult<Boolean> getWaybillInfo(@QueryParam("waybillCode") String waybillCode) {
+    @ResponseBody
+    public InvokeResult<Boolean> getWaybillInfo(@QueryParam("waybillCode") String waybillCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(!WaybillUtil.isWaybillCode(waybillCode) && !WaybillUtil.isPackageCode(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "单号不符合规则!");

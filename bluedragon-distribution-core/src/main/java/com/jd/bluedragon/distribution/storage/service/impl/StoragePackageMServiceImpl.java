@@ -1081,9 +1081,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         long vrsDiffTime = 0;
         try {
             List<WaybillRouteLinkCustDetailResp> firstList = vrsRouteManager.waybillRouteLinkQueryCondition(barCode,
-                    String.valueOf(siteCode),WaybillRouteEnum.RealTimeOperateType.SEAL_CAR_NEW_PACKAGE.getValue());
+                    String.valueOf(siteCode),WaybillRouteEnum.RealTimeOperateType.SEAL_CAR_NEW_PACKAGE);
             List<WaybillRouteLinkCustDetailResp> secondList = vrsRouteManager.waybillRouteLinkQueryCondition(barCode,
-                    String.valueOf(waybill.getOldSiteId()),WaybillRouteEnum.RealTimeOperateType.UNSEAL_CAR_NEW_PACKAGE.getValue());
+                    String.valueOf(waybill.getOldSiteId()),WaybillRouteEnum.RealTimeOperateType.UNSEAL_CAR_NEW_PACKAGE);
             vrsDiffTime = sortAndGetPlanOperateTime(firstList,siteCode) - sortAndGetPlanOperateTime(secondList,waybill.getOldSiteId());
         }catch (Exception e){
             log.error("获取路由在途时间异常,异常信息:【{}】",e.getMessage(),e);

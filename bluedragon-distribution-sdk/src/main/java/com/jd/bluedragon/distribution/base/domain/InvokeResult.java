@@ -157,6 +157,20 @@ public class InvokeResult<T> implements Serializable {
     public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
     public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
 
+    public static final int EASY_FROZEN_TIPS_CODE= 340;
+    public static final String EASY_FROZEN_TIPS_MESSAGE ="此运单为易冻品!";
+
+    public static final int EASY_FROZEN_TIPS_STORAGE_CODE= 341;
+    public static final String EASY_FROZEN_TIPS_STORAGE_MESSAGE ="此运单为易冻品，请放至保温储存区等待发货!";
+
+
+    public static final int LUXURY_SECURITY_TIPS_CODE= 342;
+
+    public static final String LUXURY_SECURITY_TIPS_MESSAGE ="此运单为特保单，请对包裹进行拍照!";
+
+    public static final int DP_SPECIAL_CODE = 32003;
+    public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
+
     public static final int GET_TRANSPORT_RESOURCE_CODE= 329;
     public static final String GET_TRANSPORT_RESOURCE_MESSAGE ="查询运力信息结果为空！";
 

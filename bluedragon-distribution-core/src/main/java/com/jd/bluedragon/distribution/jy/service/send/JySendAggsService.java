@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 
 import java.util.List;
 
@@ -22,9 +23,22 @@ public interface JySendAggsService {
      */
     List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 
+    //插入或修改主库
+    Boolean insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity);
+
+    //插入或修改备库
+    Boolean insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity);
+
+    List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query);
+
+    List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
+
+    List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query);
+
     /**
      * 查询一条发货任务的异常记录（不齐）
      */
     JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
 }
+
 

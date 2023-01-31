@@ -56,6 +56,15 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
     private Date lastSealCarTime;
 
 	/**
+	 * 到来时间 取明细中最早数据（对应当前始发场地）
+	 */
+	private Date comeTime;
+	/**
+	 * 即将到来时间 取明细中最早数据（对应当前始发场地相距一定范围内）
+	 */
+	private Date nearComeTime;
+
+	/**
 	 * 车牌号
 	 */
 	private String vehicleNumber;
@@ -299,7 +308,23 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
         this.lastSealCarTime = lastSealCarTime;
     }
 
-    public String getCreateUserErp() {
+	public Date getComeTime() {
+		return comeTime;
+	}
+
+	public void setComeTime(Date comeTime) {
+		this.comeTime = comeTime;
+	}
+
+	public Date getNearComeTime() {
+		return nearComeTime;
+	}
+
+	public void setNearComeTime(Date nearComeTime) {
+		this.nearComeTime = nearComeTime;
+	}
+
+	public String getCreateUserErp() {
 		return createUserErp;
 	}
 

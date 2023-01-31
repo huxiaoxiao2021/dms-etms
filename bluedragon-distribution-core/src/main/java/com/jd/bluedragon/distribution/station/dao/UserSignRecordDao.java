@@ -164,4 +164,13 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignRecordData> queryListByOperateUser(UserSignQueryRequest query);
+
+	/**
+	 * 根据网格业务主键查询签到记录
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(UserSignQueryRequest query);
+
+	Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey);
 }

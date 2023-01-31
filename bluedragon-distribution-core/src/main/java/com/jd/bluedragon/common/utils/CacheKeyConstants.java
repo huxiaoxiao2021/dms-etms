@@ -68,6 +68,14 @@ public class CacheKeyConstants {
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
 
+    public static final String REDIS_PREFIX_STAGE_TASK_CREATE = "jy.unload.stage.task.create-";
+    public static final int REDIS_PREFIX_STAGE_TASK_CREATE_TIMEOUT_SECONDS = 3;
+    public static final long REDIS_PREFIX_STAGE_TASK_CREATE_WAIT_SPIN_TIMESTAMP = 100;
+
+    public static final String REDIS_PREFIX_TASK_BOARD_CREATE = "jy.unload.task.board.relation.create-";
+    public static final int REDIS_PREFIX_TASK_BOARD_CREATE_TIMEOUT_SECONDS = 3;
+    public static final long REDIS_PREFIX_TASK_BOARD_CREATE_WAIT_SPIN_TIMESTAMP = 100;
+
     /***************************************** 抽检缓存start *******************************************/
 
     /**
@@ -264,5 +272,96 @@ public class CacheKeyConstants {
      * 网格计划操作-key
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
+
+    /**
+     * 滞留上报操作key，场地+箱号|批次|板号
+     */
+    public static final String CACHE_KEY_FORMAT_STRAND_REPORT = "dmsWeb:strandReport:%s:%s";
+
+    /***************************************** 设备校准缓存start *******************************************/
+    // 设备校准扫描-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_SCAN = "dwsCalibrate.scan:%s-%s";
+    // 设备校准超时推送咚咚-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_PUSH_DD = "dwsCalibrate.pushDD:%s";
+    // 设备校准抽检处理-key
+    public static final String CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL = "dwsCalibrate.spotDeal:%s";
+    /***************************************** 设备校准缓存end *******************************************/
+    /**
+     * 接货仓验货 任务缓存，按group_code唯一存在
+     */
+    public static final String JY_WAREHOUSE_INSPECTION_TASK_EXIST_KEY = JY_CACHE_PREFIX + "ware_inspec:group_code:%s";
+
+    /**
+     * 拣运卸车统计
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_KEY = JY_CACHE_PREFIX + "jyUnloadAgg:%s";
+
+
+    /**
+     * 拣运卸车统计
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jyUnloadAggLock:%s";
+
+    /**
+     * 拣运卸车统计(备库)
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_BAK_KEY = JY_CACHE_PREFIX + "jyUnloadAggBak:%s";
+
+    /**
+     * 拣运卸车统计(备库)
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jyUnloadAggBakLock:%s";
+
+    /**
+     * 拣运发货统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_AGG_KEY = JY_CACHE_PREFIX + "jySendAgg:%s";
+
+    /**
+     * 发货锁前缀
+     */
+    public static final String JY_SEND_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendAggLock:%s";
+
+    /**
+     * 拣运发货统计（备库）
+     * sealCarCode
+     */
+    public static final String JY_SEND_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendAggBak:%s";
+
+
+    /**
+     * 发货锁前缀
+     */
+    public static final String JY_SEND_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendAggBakLock:%s";
+
+    /**
+     * 拣运发货产品类型统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_KEY = JY_CACHE_PREFIX + "jySendProductAgg:%s";
+
+    /**
+     * 拣运发货产品类型统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggLock:%s";
+
+    /**
+     * 拣运发货统计（备库）
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendProductAggBak:%s";
+
+    /**
+     * 拣运发货统计（备库）
+     * sealCarCode
+     */
+    public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
+
 
 }

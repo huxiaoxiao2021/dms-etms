@@ -161,6 +161,22 @@ public interface IJySendVehicleService {
      */
     InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request);
 
+
+
+    /**
+     * 获取分拣发车岗待扫产品类型列表
+     * @param request
+     * @return
+     */
+    InvokeResult<List<SendVehicleProductTypeAgg>> sendVehicleToScanAggByProduct(SendVehicleCommonRequest request);
+
+    /**
+     * 按产品类型获取分拣发车岗待扫包裹列表
+     * @param request
+     * @return
+     */
+    InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
+
     /**
      * 获取车辆类型列表信息
      * @return

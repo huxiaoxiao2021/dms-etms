@@ -48,6 +48,7 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
+import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -67,6 +68,7 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -91,6 +93,7 @@ import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
+import static com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg.TYPE_CREATE_TRANS_ABNORMAL_AND_DE_SEAL_CODE;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
@@ -177,6 +180,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     JdiQueryWSManager jdiQueryWSManager;
+
+    @Autowired
+    @Qualifier("createTransAbnormalAndUnsealProducer")
+    private DefaultJMQProducer createTransAbnormalAndUnsealProducer;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -1959,9 +1966,51 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    if (response == null || !JdResponse.CODE_OK.equals(response.getCode())) {
 	        return response;
         }
+        try {
+            createTransAbnormalAndUnseal2jmq(request);
+        } catch (JMQException e) {
+            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+        }
+
 	    response = this.doDeSealCodes(request.getDeSealCodeRequest());
         return response;
     }
+
+    @JProfiler(jKey = "NewSealVehicleServiceImpl.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    private void createTransAbnormalAndUnseal2jmq(TransAbnormalAndDeSealRequest request) throws JMQException {
+        CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
+
+        TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
+        DeSealCodeRequest deSealCodeRequest = request.getDeSealCodeRequest();
+
+        msg.setDesealCarTime(null);
+        msg.setDesealCodes(deSealCodeRequest.getDesealCodes());
+        msg.setDesealSiteId(deSealCodeRequest.getDesealSiteId());
+        msg.setDesealSiteName(deSealCodeRequest.getDesealSiteName());
+        msg.setDesealUserCode(deSealCodeRequest.getDesealUserCode());
+        msg.setDesealUserName(deSealCodeRequest.getDesealUserName());
+        msg.setSealCarCode(null);
+        msg.setVehicleNumber(deSealCodeRequest.getVehicleNumber());
+        msg.setAbnormalDesc(transAbnormalDto.getAbnormalDesc());
+        msg.setAbnormalTypeCode(transAbnormalDto.getAbnormalTypeCode());
+        msg.setAbnormalTypeName(transAbnormalDto.getAbnormalTypeName());
+        msg.setPhotoUrlList(transAbnormalDto.getPhotoUrlList());
+        msg.setReferBillCode(transAbnormalDto.getReferBillCode());
+        msg.setReferBillType(transAbnormalDto.getReferBillType());
+
+        msg.setSource(TYPE_CREATE_TRANS_ABNORMAL_AND_DE_SEAL_CODE);
+        msg.setCreateTransAbnormalTime(new Date());
+
+        String msgkey = "";
+        if (StringUtils.isNotEmpty(deSealCodeRequest.getDesealUserCode())) {
+            msgkey = deSealCodeRequest.getDesealUserCode();
+        }
+        String body = JSONObject.toJSONString(msg);
+        createTransAbnormalAndUnsealProducer.send(msgkey, body);
+
+        log.info("提报异常并解封车消息发送成功，消息内容：{}", body);
+    }
+
     @Override
     public NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request) {
         NewSealVehicleResponse<String> response = new NewSealVehicleResponse<>();

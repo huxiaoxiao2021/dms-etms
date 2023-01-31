@@ -128,6 +128,16 @@ public class JySendAggsEntity implements Serializable {
      */
     private String sendVehicleBizId;
 
+    /**
+     * 版本号
+     */
+    private Long version;
+
+    /**
+     * 并发锁id
+     */
+    private String uid;
+
     private Integer totalScannedWaybillCount;
     private Integer totalInterceptWaybillCount;
     private Integer totalIncompleteWaybillCount;
@@ -357,6 +367,23 @@ public class JySendAggsEntity implements Serializable {
     public String getSendVehicleBizId() {
         return this.sendVehicleBizId;
     }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
 
     public Integer getTotalScannedWaybillCount() {
         return totalScannedWaybillCount;

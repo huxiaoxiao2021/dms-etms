@@ -71,6 +71,16 @@ public class SendDetailServiceImpl implements SendDetailService {
         }
         return null;
     }
+
+
+    @Override
+    public Integer queryWaybillCountBybatchCode(SendDetailDto params) {
+        if (params != null && params.getCreateSiteCode() != null && StringUtils.isNotEmpty(params.getSendCode())) {
+            return sendDatailDao.queryWaybillCountBybatchCode(params);
+        }
+        return 0;
+    }
+
     @Override
     public Integer querySendDCountBySendCode(String sendCode) {
         return sendDatailDao.querySendDCountBySendCode(sendCode);

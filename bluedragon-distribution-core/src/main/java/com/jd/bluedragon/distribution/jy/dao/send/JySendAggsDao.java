@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
+public class JySendAggsDao extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
 
     private final static String NAMESPACE = JySendAggsDao.class.getName();
 
@@ -33,6 +34,11 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".findBySendVehicleBiz", sendVehicleBizId);
     }
+
+    public List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
+    }
+
 
     public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
         return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);

@@ -518,6 +518,16 @@
                   ref="tMSCarTaskGateWayServiceImpl"
                   server="dmsjsf" />
 
+    <!-- 货量预测  -->
+    <bean id="pkgPredictGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.PkgPredictGateWayServiceImpl" />
+    <jsf:provider id="pkgPredictGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="pkgPredictGateWayServiceImpl"
+                  server="dmsjsf" />
+
+
+
     <!-- 作业app异常岗 -->
     <bean id="jyExceptionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyExceptionGatewayServiceImpl" />
     <jsf:provider id="jsfJyExceptionGatewayService"
@@ -526,4 +536,48 @@
                   ref="jyExceptionGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 设备位置上报接口 -->
+    <bean id="jsfDeviceLocationGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceLocationGatewayServiceImpl" />
+    <jsf:provider id="jsfDeviceLocationGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DeviceLocationGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jsfDeviceLocationGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+    <!--货物拍照图片信息服务-->
+    <bean id="goodsPhotoInfoGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.GoodsPhotoInfoGatewayServiceImpl" />
+    <jsf:provider id="jsfGoodsPhotoInfoGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.GoodsPhotoInfoGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="goodsPhotoInfoGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 拣运设备称重量方校准服务 -->
+    <bean id="jyWeightVolumeCalibrateGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWeightVolumeCalibrateGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWeightVolumeCalibrateGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWeightVolumeCalibrateGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWeightVolumeCalibrateGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 拣运接货仓验货服务 -->
+    <bean id="jyWarehouseInspectionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseInspectionGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWarehouseInspectionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWarehouseInspectionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWarehouseInspectionGatewayServiceImpl"
+                  server="dmsjsf" />
+    <!-- 拣运发货、卸车数据查询   -->
+    <bean id="jySendOrUnloadAggDataGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JySendOrUnloadAggDataGatewayServiceImpl" />
+    <jsf:provider id="jsfJySendOrUnloadAggDataGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JySendOrUnloadAggDataGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jySendOrUnloadAggDataGatewayServiceImpl"
+                  server="dmsjsf" />
+
 </beans>
