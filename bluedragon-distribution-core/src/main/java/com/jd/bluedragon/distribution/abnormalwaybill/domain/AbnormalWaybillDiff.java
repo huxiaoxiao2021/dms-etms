@@ -65,4 +65,12 @@ public class AbnormalWaybillDiff implements Serializable {
     public void setYn(Integer yn) {
         this.yn = yn;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }
