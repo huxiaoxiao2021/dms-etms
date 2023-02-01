@@ -43,7 +43,7 @@
         <jy-basic-api.version>1.4.3-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
-        <jy.realtime.sdk.version>1.0.6-SNAPSHOT</jy.realtime.sdk.version>
+        <jy.realtime.sdk.version>1.0.7-SNAPSHOT</jy.realtime.sdk.version>
         <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
         <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
         <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>

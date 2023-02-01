@@ -668,7 +668,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
-        if (StringUtils.isEmpty(request.getBarCode())) {
+        if (StringUtils.isEmpty(request.getBarCode()) || request.getEndSiteId() == null) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
         if (!BusinessHelper.isBoxcode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
@@ -691,11 +691,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         query.setBoardCode(boardBoxInfoDto.getCode());
         JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
-
+        
         if (comboardEntity == null) {
             log.error("未找到板的批次信息：{}", JsonHelper.toJson(request.getBarCode()));
             return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
         } else {
+            if ( !request.getEndSiteId().equals(comboardEntity.getEndSiteId().intValue())) {
+                log.error("当前包裹流向与封车流向不一致：{}", JsonHelper.toJson(request));
+                return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, "当前包裹流向与封车流向不一致!");
+            }
             boardDto.setSendCode(comboardEntity.getSendCode());
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(comboardEntity.getComboardSource()));
             boardDto.setStatus(comboardEntity.getBoardStatus());
