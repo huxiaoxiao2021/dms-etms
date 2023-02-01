@@ -55,6 +55,7 @@ public class AbnormalWaybillDiffController {
     }
 
     @RequestMapping(value = "/add/{waybillCodeC}/{waybillCodeE}/{type}")
+    @ResponseBody
     public String add(@PathVariable("waybillCodeC") String waybillCodeC,
                       @PathVariable("waybillCodeE") String waybillCodeE,
                       @PathVariable("type") String type) {
@@ -63,6 +64,7 @@ public class AbnormalWaybillDiffController {
     }
 
     @RequestMapping(value = "/delByWaybillCodeE/{waybillCodeEs}")
+    @ResponseBody
     public String delByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs) {
         if (StringUtils.isEmpty(waybillCodeEs)){
             return "缺少必要参数";
@@ -76,6 +78,7 @@ public class AbnormalWaybillDiffController {
 
 
     @RequestMapping(value = "/delByWaybillCodeC/{waybillCodeCs}")
+    @ResponseBody
     public String delByWaybillCodeC(@PathVariable("waybillCodeCs") String waybillCodeCs) {
         if (StringUtils.isEmpty(waybillCodeCs)){
             return "缺少必要参数";
