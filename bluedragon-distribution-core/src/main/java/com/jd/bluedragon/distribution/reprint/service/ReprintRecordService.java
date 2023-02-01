@@ -34,4 +34,6 @@ public interface ReprintRecordService {
      * @date 2020-11-03 14:30:34 周二
      */
     Response<PageDto<ReprintRecordVo>> queryPageList(ReprintRecordQuery query);
+
+    int selectCountByBarCode(String barcode);
 }

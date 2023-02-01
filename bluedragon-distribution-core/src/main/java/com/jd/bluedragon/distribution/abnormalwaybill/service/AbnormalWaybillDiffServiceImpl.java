@@ -10,9 +10,12 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,17 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
 
     @Override
     public List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff) {
-        return abnormalWaybillDiffDao.query(abnormalWaybillDiff);
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.AbnormalWaybillDiffServiceImpl.query", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            return abnormalWaybillDiffDao.query(abnormalWaybillDiff);
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+
+    @Override
+    @CacheMethod(key="AbnormalWaybillDiffServiceImpl.queryCache-{0.waybillCodeC}",cacheBean="redisCache", nullTimeout = 1000 * 60, timeout = 1000 * 60)
+    public List<AbnormalWaybillDiff> queryCache(AbnormalWaybillDiff abnormalWaybillDiff) {
+        return this.query(abnormalWaybillDiff);
     }
 }

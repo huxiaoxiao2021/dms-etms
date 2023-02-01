@@ -8,4 +8,6 @@ public interface AbnormalWaybillDiffService {
     void importExcel(List<AbnormalWaybillDiff> dataList);
 
     List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff);
+
+    List<AbnormalWaybillDiff> queryCache(AbnormalWaybillDiff abnormalWaybillDiff);
 }
