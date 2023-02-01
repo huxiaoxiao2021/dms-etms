@@ -42,4 +42,13 @@ public class AbnormalWaybillDiffDao extends BaseDao<AbnormalWaybillDiff> {
         return super.getSqlSession().selectList(namespace + ".query" , abnormalWaybillDiff);
     }
 
+    public void delByWaybillCodeE(String waybillCodeE) {
+
+        super.getSqlSession().update(namespace + ".delByWaybillCodeE" , waybillCodeE);
+    }
+
+    public void delByWaybillCodeC(String waybillCodeC) {
+
+        super.getSqlSession().update(namespace + ".delByWaybillCodeC" , waybillCodeC);
+    }
 }

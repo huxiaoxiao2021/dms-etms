@@ -55,6 +55,14 @@
         </foreach>
     </insert>
 
+	<update id="delByWaybillCodeE">
+		update  abnormal_waybill_diff set yn = 1 where waybill_code_e = #{waybillCodeE}
+	</update>
+
+	<update id="delByWaybillCodeC">
+		update  abnormal_waybill_diff set yn = 1 where waybill_code_c = #{waybillCodeC}
+	</update>
+
 	<select id="query" resultMap="abnormalWaybillDiff" parameterType="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWaybillDiff">
 		SELECT
 		<include refid="Base_Column_List"/>
