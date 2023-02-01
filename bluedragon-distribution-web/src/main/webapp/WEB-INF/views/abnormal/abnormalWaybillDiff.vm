@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>库房拒收外呼申请</title>
+    <title>运单异常差异导入</title>
     <meta http-equiv="pragma" content="no-cache"/>
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -18,16 +18,16 @@
     </ol>
 
     <div id="toolbar" class="btn-group">
-        <button id="btn_add" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        <button id="btn_import" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>导入
         </button>
     </div>
     <table id="dataTable"></table>
 </div>
 <div id="dataEditDiv" class="main" style="display: true">
     <ol class="breadcrumb">
-        <li><a href="#">库房拒收外呼申请</a></li>
-        <li class="active">新增</li>
+        <li><a href="#">运单异常差异导入</a></li>
+        <li class="active">导入</li>
     </ol>
     <hr/>
     <div class="modal fade" tabindex="-1" id="import_modal" role="dialog">

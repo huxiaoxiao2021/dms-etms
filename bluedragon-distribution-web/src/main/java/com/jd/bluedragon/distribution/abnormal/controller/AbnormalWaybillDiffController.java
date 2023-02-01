@@ -39,7 +39,7 @@ import java.util.List;
  * @date 2018年03月14日 16:31:20
  */
 @Controller
-@RequestMapping("abnormal/abnormalWaybillDiff")
+@RequestMapping("/abnormal/abnormalWaybillDiff")
 public class AbnormalWaybillDiffController {
 
     private static final Logger logger = LoggerFactory.getLogger(AbnormalWaybillDiffController.class);
