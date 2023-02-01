@@ -1849,6 +1849,7 @@ public class Constants {
     public static final Integer NODE_TYPE_RAILWAY = 9;
 
 
+
     /**
      * 租板岗-板锁前缀
      */

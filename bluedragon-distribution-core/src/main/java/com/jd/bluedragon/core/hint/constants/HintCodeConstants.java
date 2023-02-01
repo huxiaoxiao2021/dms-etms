@@ -504,6 +504,12 @@ public class HintCodeConstants {
      * 此单为[全量接单失败拦截],请退货。
      */
     public static String FULL_ORDER_FAIL_INTERCEPT = "20081";
+
+    /**
+     * 自定义个性拦截
+     */
+    public static String CUSTOM_INTERCEPT = "20093";
+
     /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
