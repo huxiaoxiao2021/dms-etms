@@ -373,7 +373,7 @@
     </bean>
 
     <!-- 运单重复bug，取消拦截后发送mq信息给终端-->
-    <bean id="repeatWaybillcodeCancelProducer" parent="dmsWorkerDefaultJMQProducer">
+    <bean id="repeatWaybillcodeCancelProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.repeat_waybillcode_cancel}"/>
     </bean>
 
