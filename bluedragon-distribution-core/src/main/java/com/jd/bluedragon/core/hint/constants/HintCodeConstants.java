@@ -511,6 +511,16 @@ public class HintCodeConstants {
     public static String CUSTOM_INTERCEPT = "20093";
 
     /**
+     * 运单异常差异操作指引提示
+     */
+    public static String WAYBILL_ERROR_OPE_GUIDE = "20095";
+
+    /**
+     * 运单异常差异禁止补打提示
+     */
+    public static String WAYBILL_ERROR_RE_PRINT = "20096";
+
+    /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";

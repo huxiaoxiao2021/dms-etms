@@ -483,6 +483,33 @@ public class UccPropertyConfiguration {
      */
     private String virtualBoardCanUseSite;
 
+    /**
+     * 补打后取消拦截
+     */
+    private boolean printCompeteUpdateCancel;
+
+
+    /**
+     * 是否是所有包裹补打后再取消拦截
+     */
+    private boolean printCompeteAllPackageUpdateCancel;
+
+    public boolean isPrintCompeteAllPackageUpdateCancel() {
+        return printCompeteAllPackageUpdateCancel;
+    }
+
+    public void setPrintCompeteAllPackageUpdateCancel(boolean printCompeteAllPackageUpdateCancel) {
+        this.printCompeteAllPackageUpdateCancel = printCompeteAllPackageUpdateCancel;
+    }
+
+    public boolean isPrintCompeteUpdateCancel() {
+        return printCompeteUpdateCancel;
+    }
+
+    public void setPrintCompeteUpdateCancel(boolean printCompeteUpdateCancel) {
+        this.printCompeteUpdateCancel = printCompeteUpdateCancel;
+    }
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }

@@ -42,4 +42,6 @@ public interface WaybillCancelService {
      */
     boolean isFullOrderFail(String waybillCode);
 
+    int updateByWaybillCodeInterceptType99(String waybillCode);
+
 }
