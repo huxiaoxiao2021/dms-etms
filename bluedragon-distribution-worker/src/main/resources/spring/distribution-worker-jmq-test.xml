@@ -43,6 +43,11 @@
                    user="${jmq4.dmsWorker.user}"
                    password="${jmq4.dmsWorker.password}"
                    app="${jmq4.dmsWorker.app}"/>
+
+    <!-- 重复运单bug处理 临时消费-->
+    <jmq:transport id="jmq.dmsWorkAgainJm2.transport" address="${jmq.dmsWorkAgainJm2.address}" user="${jmq.dmsWorkAgainJm2.user}"
+                   password="${jmq.dmsWorkAgainJm2.password}" app="${jmq.dmsWorkAgainJm2.producer.app}"/>
+
     <!--########################  JMQ4配置  #############################################-->
 
 	<!-- jmq 消费客户端配置区 -->
@@ -532,6 +537,11 @@
     <!--  发货产品备库统计消息处理  -->
     <jmq:consumer id="jmq.jySendProductAggsBakConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  重复运单取消拦截bug修复  -->
+    <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
+        <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
 </beans>
 
