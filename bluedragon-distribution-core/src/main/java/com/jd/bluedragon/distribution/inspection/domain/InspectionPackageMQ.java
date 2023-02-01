@@ -73,6 +73,10 @@ public class InspectionPackageMQ implements Serializable {
     private String machineCode;//设备编码
 
     private Integer bizSource;
+    /**
+     * 按单验货标识
+     */
+    private boolean waybillInspectionFlag;
 
     public String getPackageCode() {
         return packageCode;
@@ -184,5 +188,13 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public boolean isWaybillInspectionFlag() {
+        return waybillInspectionFlag;
+    }
+
+    public void setWaybillInspectionFlag(boolean waybillInspectionFlag) {
+        this.waybillInspectionFlag = waybillInspectionFlag;
     }
 }
