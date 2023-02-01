@@ -23,12 +23,6 @@ public interface JySendAggsService {
      */
     List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 
-
-    /**
-     * 查询一条发货任务的异常记录（不齐）
-     */
-    JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
-
     //插入或修改主库
     Boolean insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity);
 
@@ -40,5 +34,10 @@ public interface JySendAggsService {
     List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
 
     List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query);
+
+    /**
+     * 查询一条发货任务的异常记录（不齐）
+     */
+    JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
 }
 

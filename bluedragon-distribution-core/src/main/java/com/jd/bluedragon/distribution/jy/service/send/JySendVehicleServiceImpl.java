@@ -419,6 +419,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 按状态组装车辆数据
+     *
      * @param response
      * @param queryTaskSendDto
      */
@@ -448,6 +449,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 按车辆状态组装车辆列表
+     *
      * @param sendVehicleData
      * @param queryTaskSendDto
      */
@@ -515,6 +517,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 按重量计算车辆装载率
+     *
      * @param entity
      * @return
      */
@@ -540,6 +543,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 重量单位转为KG
+     *
      * @param weightOfTon
      * @return
      */
@@ -549,6 +553,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置发货流向数据
+     *
      * @param queryTaskSendDto
      * @param curQueryStatus
      * @param entity
@@ -578,6 +583,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置发货流向状态的描述
+     *
      * @param vehicleDetail
      * @return
      */
@@ -610,6 +616,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 组装发车任务基础数据
+     *
      * @param curQueryStatus
      * @param entity
      * @return
@@ -639,6 +646,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置发货任务通用属性
+     *
      * @param entity
      * @param baseSendVehicle
      */
@@ -772,6 +780,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     /**
      * 根据包裹号查询路由下一跳的发货任务
      * 取当前操作机构的下一跳作为发货目的地查询发货流向任务
+     *
      * @param result
      * @param queryTaskSendDto
      * @return
@@ -1354,6 +1363,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 根据发货目的地查发货任务
+     *
      * @param result
      * @param queryTaskSendDto
      * @param sendVehicleBizList
@@ -1381,6 +1391,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 根据包裹号查发货任务
+     *
      * @param vehicleTaskReq
      * @param result
      * @param queryDetail
@@ -1642,6 +1653,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 执行发货拦截链
+     *
      * @param request
      * @param result
      * @param sendType
@@ -1818,6 +1830,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 分配发货调度任务
+     *
      * @param request
      * @return
      */
@@ -1852,6 +1865,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 根据发货流向查询批次
+     *
      * @param request
      * @param detail
      * @return
@@ -1882,6 +1896,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      *     <li>箱号先根据目的地匹配，未匹配再出来再从箱里取三单根据路由匹配</li>
      *     <li>匹配出来的目的地不在发货流向里，需要用户确认</li>
      * </ul>
+     *
      * @param request
      * @param sendType
      * @param taskSend
@@ -2122,6 +2137,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 判断是否是发车任务流向的第一次扫描
+     *
      * @param request
      * @param sendDetailBizId
      * @return
@@ -2141,6 +2157,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 判断是否是发车任务的第一次扫描
+     *
      * @param request
      * @return
      */
@@ -2246,6 +2263,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 发货扫描基础校验，校验只返回fail类型
+     *
      * @param response
      * @param request
      * @return
@@ -2316,6 +2334,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      *     <li>无任务首次扫描确认目的地：{@link MsgBoxTypeEnum.CONFIRM}</li>
      *     <li>拦截链：{@link MsgBoxTypeEnum.INTERCEPT}</li>
      * </ul>
+     *
      * @param response
      * @param request
      * @param taskSend
@@ -2376,7 +2395,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 客户端确认流向后保存无任务的发货流向 fixme 等发货成功后才可记录已确认流向？
                     JyBizTaskSendVehicleDetailEntity noTaskDetail = makeNoTaskSendDetail(request, taskSend);
                     logInfo("初始化无任务发货明细. {}", JsonHelper.toJson(noTaskDetail));
-                    transactionManager.saveTaskSendAndDetail(null, noTaskDetail);
+                    transactionManager.saveTaskSendAndDetail(taskSend, noTaskDetail);
 
                     logInfo("启用无任务发货任务. {}", JsonHelper.toJson(taskSend));
                     this.enableNoTask(taskSend);
@@ -2436,6 +2455,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 启用无任务发货
+     *
      * @param taskSend
      */
     private void enableNoTask(JyBizTaskSendVehicleEntity taskSend) {
@@ -2635,6 +2655,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置车长描述
+     *
      * @param sendVehicleEntity
      * @return
      */
@@ -2771,6 +2792,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置发货进度
+     *
      * @param taskSend
      * @param progress
      */
@@ -2875,6 +2897,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      *     <li>单流向任务直接校验，多流向只在最后一个流向封车时校验</li>
      *     <li>拦截&强扫或装载率不足，两者都满足时异常优先</li>
      * </ul>
+     *
      * @param request
      * @param invokeResult
      * @param taskDetail
@@ -2983,6 +3006,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 处理包裹展示标签
+     *
      * @param entranceEnum
      * @param detailVo
      * @return
@@ -3214,6 +3238,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 设置发货流向数据
+     *
      * @param request
      * @param vehicleDetailList
      */

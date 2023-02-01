@@ -113,6 +113,9 @@ public class SortingResponse extends JdResponse {
 
     //全量接单失败拦截
     public static final Integer CODE_29321 = 29321;
+
+    //自定义拦截
+    public static final Integer CODE_29325 = 29325;
     /**************************************配送拦截新逻辑END******************************/
 
     public static final Integer CODE_29319 = 29319;

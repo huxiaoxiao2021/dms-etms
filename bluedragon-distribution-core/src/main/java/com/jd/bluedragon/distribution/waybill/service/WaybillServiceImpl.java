@@ -1048,6 +1048,11 @@ public class WaybillServiceImpl implements WaybillService {
             result.customMessage(SortingResponse.CODE_29321, HintService.getHint(HintCodeConstants.FULL_ORDER_FAIL_INTERCEPT));
             return result;
         }
+        if (WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29325, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+            return result;
+        }
+
         return result;
     }
 
