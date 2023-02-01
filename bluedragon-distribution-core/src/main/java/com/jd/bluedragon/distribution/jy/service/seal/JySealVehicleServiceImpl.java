@@ -460,9 +460,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCodeScan", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult checkTransCodeScan(CheckTransportReq reqcuest) {
-        InvokeResult invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq reqcuest) {
+        TransportResp transportResp = new TransportResp();
+        InvokeResult<TransportResp> invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
             com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
             if (commonDto == null) {
@@ -471,16 +472,21 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return invokeResult;
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
-                Integer endNodeId = commonDto.getData().getEndNodeId();
+                TransportResourceDto data = commonDto.getData();
+                Integer endNodeId = data.getEndNodeId();
+                transportResp.setTransWay(data.getTransWay());
+                transportResp.setTransTypeName(data.getTransTypeName());
                 if (reqcuest.getEndSiteId().equals(endNodeId)) {
                     invokeResult.setCode(JdResponse.CODE_OK);
                     invokeResult.setMessage(JdResponse.MESSAGE_OK);
+                    invokeResult.setData(transportResp);
                 } else {
                     //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                     BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
                     if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
                         invokeResult.setCode(RESULT_SUCCESS_CODE);
                         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                        invokeResult.setData(transportResp);
                     } else {
                         invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
