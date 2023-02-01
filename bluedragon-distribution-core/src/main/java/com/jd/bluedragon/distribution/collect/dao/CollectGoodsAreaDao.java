@@ -19,5 +19,5 @@ public interface CollectGoodsAreaDao extends Dao<CollectGoodsArea> {
 
     List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e);
 
-    int deleteByCode(List<String> codes);
+    int deleteByCode(Integer createSiteCode, List<String> codes);
 }

@@ -204,4 +204,22 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         return this.getSqlSession().selectList(NAMESPACE + ".needCleanSite",condition);
     }
 
+    /**
+     * 按条件查询当前场内卸车信息
+     * @param entity
+     * @return
+     */
+    public List<JyBizTaskUnloadVehicleEntity> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listUnloadVehicleTask",entity);
+    }
+
+
+    /**
+     * 根据车牌、状态、目的地查询任务信息
+     * @param condition
+     * @return
+     */
+    public List<JyBizTaskUnloadVehicleEntity> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByFuzzyVehicleNumberAndStatus",condition);
+    }
 }

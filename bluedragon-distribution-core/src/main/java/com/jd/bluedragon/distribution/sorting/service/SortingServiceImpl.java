@@ -46,9 +46,11 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -294,6 +296,10 @@ public class SortingServiceImpl implements SortingService {
 		waybillStatus.setOperateType(true == sorting.isForward() ? WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING
 				: WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING);
 		waybillStatus.setOperateTime(sorting.getOperateTime());
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
+		operatorData.setOperatorId(sorting.getOperatorId());
+		waybillStatus.setOperatorData(operatorData);
 		return waybillStatus;
 	}
 
@@ -402,6 +408,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Override
 	public boolean taskToSorting(List<Sorting> sortings) {
+		CallerInfo callerInfo = Profiler.registerInfo("DMSWORKER.SortingService.taskToSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
@@ -415,6 +422,7 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
+		Profiler.registerInfoEnd(callerInfo);
 		return true;
 	}
 
@@ -802,8 +810,28 @@ public class SortingServiceImpl implements SortingService {
 		// PropertiesHelper.newInstance().getValue("enablePackageRetrieve");
 		// if( StringUtils.isNotBlank(retrieveFlag) &&
 		// "sure".equals(retrieveFlag)){
-		sendDetail = this.deliveryService.measureRetrieve(sendDetail);
+		sendDetail = this.deliveryService.measureRetrieve(sendDetail, null);
 		// }
+		this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
+		Profiler.registerInfoEnd(info);
+		return sendDetail;
+	}
+
+	/**
+	 * 添加send_d明细数据
+	 *
+	 * @param sorting
+	 * @return
+	 */
+	public SendDetail addSendDetail(SortingVO sorting) {
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail.SortingVO", false, true);
+		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
+		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+		this.fillSendDetailIfPickup(sendDetail);
+
+		DeliveryPackageD packageD = CollectionUtils.isNotEmpty(sorting.getPackageList())? sorting.getPackageList().get(0) : null;
+		sendDetail = this.deliveryService.measureRetrieve(sendDetail, packageD);
+
 		this.deliveryService.saveOrUpdate(sendDetail); // 更新或者插入发货明细表
 		Profiler.registerInfoEnd(info);
 		return sendDetail;
@@ -868,6 +896,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
 		if (sendDs.size() > 0) {
+			CallerInfo callerInfo = Profiler.registerInfo("DMS.WORKER.SortingService.fixSendDAndSendTrack", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
 			// 获取直接发货和中转发货的SendM数据
@@ -901,6 +930,7 @@ public class SortingServiceImpl implements SortingService {
 			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
                 this.deliverGoodsNoticeMQ(sorting);
             }
+			Profiler.registerInfoEnd(callerInfo);
 		}
 	}
 

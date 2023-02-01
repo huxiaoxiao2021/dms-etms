@@ -142,6 +142,37 @@ public class SendVehicleTransactionManager {
     }
 
     /**
+     * 更新车辆到来时间 和 即将到来时间
+     * @param sendVehicleDetail
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.saveComeOrNearComeTime",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean saveComeOrNearComeTime(JyBizTaskSendVehicleEntity sendVehicleDetail){
+        //获取子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = taskSendVehicleDetailService.findByBizId(sendVehicleDetail.getBizId());
+        if(detailEntity == null || org.springframework.util.StringUtils.isEmpty(detailEntity.getSendVehicleBizId())){
+            log.warn("未获取到对应发货子任务,{}",JsonHelper.toJson(sendVehicleDetail));
+            return true;
+        }
+
+        //记录主任务数据 需要关心时间比原来的小才会更新
+        JyBizTaskSendVehicleEntity saveComeTimeParam = new JyBizTaskSendVehicleEntity();
+        saveComeTimeParam.setBizId(detailEntity.getSendVehicleBizId());
+        saveComeTimeParam.setComeTime(sendVehicleDetail.getComeTime());
+        saveComeTimeParam.setNearComeTime(sendVehicleDetail.getNearComeTime());
+        taskSendVehicleService.updateComeTimeOrNearComeTime(saveComeTimeParam);
+
+        //记录子任务数据
+        JyBizTaskSendVehicleDetailEntity saveComeTimeDetailParam = new JyBizTaskSendVehicleDetailEntity();
+        saveComeTimeDetailParam.setBizId(detailEntity.getBizId());
+        saveComeTimeDetailParam.setComeTime(sendVehicleDetail.getComeTime());
+        saveComeTimeDetailParam.setNearComeTime(sendVehicleDetail.getNearComeTime());
+        return taskSendVehicleDetailService.updateByBiz(saveComeTimeDetailParam) > 0;
+    }
+
+    /**
      * 生成发货批次
      * @param sendDetailDomain
      */
@@ -390,7 +421,7 @@ public class SendVehicleTransactionManager {
     		return false;
     	}
     	//数据分组
-    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Integer.MAX_VALUE,Constants.DB_SQL_IN_LIMIT_NUM);
+    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Constants.DB_SQL_IN_MAX_GROUP_NUM,Constants.DB_SQL_IN_LIMIT_NUM);
     	
     	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
     	checkQuery.setStartSiteId(startSiteId);

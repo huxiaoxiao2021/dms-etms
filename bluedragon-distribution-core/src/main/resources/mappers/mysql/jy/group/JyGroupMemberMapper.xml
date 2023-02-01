@@ -24,8 +24,47 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>
+        <result property="signInTime" column="sign_in_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result property="signOutTime" column="sign_out_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />        
     </resultMap>
 
+    <resultMap type="com.jd.bluedragon.common.dto.group.JyGroupMemberData" id="jyGroupMemberDataMap">
+        <result property="id" column="id"/>
+        <result property="memberCode" column="member_code"/>
+        <result property="refGroupCode" column="ref_group_code"/>
+        <result property="refSignRecordId" column="ref_sign_record_id"/>
+        <result property="userCode" column="user_code"/>
+        <result property="userName" column="user_name"/>
+        <result property="jobCode" column="job_code"/>
+        <result property="masterFlag" column="master_flag"/>
+        <result property="status" column="status"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>
+        <result property="signInTime" column="sign_in_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result property="signOutTime" column="sign_out_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />       
+    </resultMap>
+    
+    <resultMap type="com.jd.bluedragon.common.dto.group.JyGroupMemberCountData" id="jyGroupMemberCountData">
+	    <result property="memberType" column="member_type"/>
+	    <result property="count" column="count"/>
+    </resultMap>
+    
     <sql id="Base_Column_List">
         id,
         member_code,
@@ -45,7 +84,13 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        member_type,
+		device_type_code,
+		device_type_name,
+		machine_code,
+		sign_in_time,
+		sign_out_time
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity">
@@ -66,7 +111,13 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            member_type,
+							device_type_code,
+							device_type_name,
+							machine_code,
+							sign_in_time,
+							sign_out_time
                     ) VALUES (
                             #{id},
                             #{memberCode},
@@ -84,7 +135,13 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime}
+                            #{updateTime},
+						    #{memberType},
+						    #{deviceTypeCode},
+						    #{deviceTypeName},
+						    #{machineCode},
+						    #{signInTime},
+						    #{signOutTime}
                     )
     </insert>
     <insert id="batchInsert" parameterType="java.util.List">
@@ -105,7 +162,13 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            member_type,
+                            device_type_code,
+                            device_type_name,
+                            machine_code,
+                            sign_in_time,
+                            sign_out_time
                     ) VALUES 
                     <foreach collection="list" item="item" separator=",">
 			        (
@@ -125,7 +188,13 @@
                       #{item.updateUser},
                       #{item.updateUserName},
                       #{item.createTime},
-                      #{item.updateTime}
+                      #{item.updateTime},
+                      #{item.memberType},
+                      #{item.deviceTypeCode},
+                      #{item.deviceTypeName},
+                      #{item.machineCode},
+                      #{item.signInTime},
+                      #{item.signOutTime}
                     )
 			        </foreach>
     </insert> 
@@ -135,12 +204,41 @@
             update_time = #{updateTime, jdbcType=TIMESTAMP},
             update_user = #{updateUser, jdbcType=VARCHAR},
             update_user_name = #{updateUserName, jdbcType=VARCHAR},
-            status = #{status,jdbcType=INTEGER}
+            status = #{status,jdbcType=INTEGER},
+            sign_out_time = #{signOutTime, jdbcType=TIMESTAMP}
         WHERE
             yn = 1
         AND id = #{id}
+        AND status != #{status,jdbcType=INTEGER}
     </update>      
-     
+    <update id="removeMembers">
+        UPDATE jy_group_member
+        SET
+            update_time = #{data.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{data.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{data.updateUserName, jdbcType=VARCHAR},
+            status = #{data.status,jdbcType=INTEGER},
+            sign_out_time = #{data.signOutTime, jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_sign_record_id in
+        <foreach collection="signRecordIdList" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+        AND status != #{data.status,jdbcType=INTEGER}
+    </update>
+    <select id="queryMemberCodesBySignRecordIds" parameterType="java.util.List" resultType="String">
+        select
+            member_code
+        from
+            jy_group_member
+        WHERE
+            yn = 1
+            AND ref_sign_record_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+    </select>          
     <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
         select
             t.ref_sign_record_id
@@ -188,5 +286,100 @@
         where t.yn = 1
             and t.ref_group_code = #{refGroupCode}
             and t.status = 1
+    </select>
+    
+    <select id="queryMemberDataListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest"  resultMap="jyGroupMemberDataMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+        <include refid="queryMemberDataCondition"/>
+          order by id desc
+          limit #{offset}, #{limit}
+    </select>
+    
+    <select id="queryMemberDataCountByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultMap="jyGroupMemberCountData">
+        select
+            t.member_type as member_type,count(1) as count
+        from
+            jy_group_member t
+        <include refid="queryMemberDataCountCondition"/>
+        group by member_type
+    </select>
+    <sql id="queryMemberDataCountCondition">
+        where t.yn = 1
+            and t.ref_group_code = #{groupCode} 
+        <if test="status != null" >
+            and t.status = #{status,jdbcType=INTEGER}
+        </if>
+        and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+        and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}       
+    </sql>    
+    <sql id="queryMemberDataCondition">
+        where t.yn = 1
+            and t.ref_group_code = #{groupCode} 
+        <if test="memberType != null" >
+            and t.member_type = #{memberType,jdbcType=INTEGER}
+        </if>                       
+        <if test="status != null" >
+            and t.status = #{status,jdbcType=INTEGER}
+        </if>
+        and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+        and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}       
+    </sql>
+    <select id="queryByMemberCode" parameterType="java.lang.Long" resultMap="jyGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+        where t.yn = 1
+            and t.member_code = #{memberCode}
+        limit 1
     </select>    
+    <update id="deleteMember">
+        UPDATE jy_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            yn = 0
+        WHERE
+            yn = 1
+        AND id = #{id}
+    </update>  
+    <select id="queryInDataByMachineCode" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity" resultMap="jyGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+        where t.yn = 1
+            and t.machine_code = #{machineCode}
+            and t.status = 1
+        limit 1
+    </select> 
+    <select id="queryInDataBySignRecordId" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity" resultMap="jyGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+        where t.yn = 1
+            and t.ref_group_code = #{refGroupCode}
+            and t.ref_sign_record_id = #{refSignRecordId}
+            and t.status = 1
+        limit 1
+    </select>
+    <!-- 查询在岗人员列表 -->
+    <select id="queryUnSignOutMemberCodeList" parameterType="java.util.List" resultType="String">
+        select
+            member_code
+        from
+            jy_group_member
+        WHERE
+            yn = 1
+            AND status = 1
+            AND member_code in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+    </select>            
 </mapper>

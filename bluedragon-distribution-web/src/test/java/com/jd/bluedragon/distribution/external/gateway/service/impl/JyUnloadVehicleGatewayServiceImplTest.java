@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCommonRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.ProductTypeAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.ToScanDetailByProductType;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanAggByProductType;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadVehicleTaskResponse;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -12,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
 
 /**
  * @ClassName JyUnloadVehicleGatewayServiceImplTest
@@ -132,6 +137,54 @@ public class JyUnloadVehicleGatewayServiceImplTest {
             "}";
 
         unloadVehicleGatewayService.unloadPreviewDashboard(JsonHelper.fromJson(json, UnloadCommonRequest.class));
+
+    }
+
+
+    @Test
+    public void unloadGoodsDetailTest(){
+        UnloadGoodsRequest request = new UnloadGoodsRequest();
+        request.setBizId("SC00001");
+        JdCResponse<List<UnloadScanAggByProductType>> listJdCResponse = unloadVehicleGatewayService.unloadGoodsDetail(request);
+        System.out.println(JSON.toJSONString(listJdCResponse));
+    }
+
+    @Test
+    public void toScanAggByProductTest(){
+        UnloadCommonRequest request = new UnloadCommonRequest();
+        request.setBizId("SC00001");
+        JdCResponse<List<ProductTypeAgg>> listJdCResponse = unloadVehicleGatewayService.toScanAggByProduct(request);
+        System.out.println(JSON.toJSONString(listJdCResponse));
+    }
+
+    @Test
+    public void toScanBarCodeDetailTest(){
+
+
+//        if (StringUtils.isBlank(request.getBizId())
+//                || StringUtils.isBlank(request.getProductType())
+//                || !NumberHelper.gt0(request.getCurrentOperate().getSiteCode())
+//                || !NumberHelper.gt0(request.getPageNumber())
+//                || !NumberHelper.gt0(request.getPageSize())) {
+//            result.parameterError();
+//            return result;
+
+
+        //       {"pageNumber":1,"bizId":"SC22090700020957","productType":"FRESH","pageSize":10,"currentOperate":{"siteCode":10186}}
+//        }
+        UnloadProductTypeRequest request = new UnloadProductTypeRequest();
+        request.setBizId("SC22090700020957");
+        request.setProductType("FRESH");
+        request.setPageNumber(1);
+        request.setPageSize(20);
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(10186);
+        request.setCurrentOperate(currentOperate);
+        System.out.println(JSON.toJSONString(request));
+        JdCResponse<ToScanDetailByProductType> response = unloadVehicleGatewayService.toScanBarCodeDetail(request);
+
+        System.out.println(JSON.toJSONString(response));
 
     }
 }

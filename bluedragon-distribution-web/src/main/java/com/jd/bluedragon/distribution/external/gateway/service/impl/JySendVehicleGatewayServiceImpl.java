@@ -208,4 +208,14 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     public JdCResponse<SendBatchResp> querySendBatch(SendBatchReq request) {
         return retJdCResponse(jySendVehicleService.listSendBatchByTaskDetail(request));
     }
+
+    @Override
+    public JdCResponse<List<SendVehicleProductTypeAgg>> getSendVehicleToScanAggByProduct(SendVehicleCommonRequest request) {
+        return retJdCResponse(jySendVehicleService.sendVehicleToScanAggByProduct(request));
+    }
+
+    @Override
+    public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
+        return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
+    }
 }

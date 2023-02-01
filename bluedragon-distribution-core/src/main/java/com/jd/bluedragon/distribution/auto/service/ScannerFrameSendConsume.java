@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -52,6 +53,8 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        domain.setOperatorId(config.getMachineId());
         SendResult result = deliveryService.autoPackageSend(domain, uploadData);
         return result.getKey().equals(SendResult.CODE_OK) || result.getKey().equals(SendResult.CODE_SENDED);
     }

@@ -65,6 +65,18 @@ public class BusinessUtil {
         }
         return sites;
     }
+    public static String[] getSiteCodeBySendCodeNew(String sendCode) {
+        String[] sites = new String[]{"-1", "-1"};
+        if (StringUtils.isNotBlank(sendCode)) {
+            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
+            if (matcher.matches()) {
+                sites[0] = matcher.group(1);
+                sites[1] = matcher.group(2);
+            }
+        }
+        return sites;
+    }
+
   /**
    * 是否为新批次号
    * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（yyyyMMddHH 10位数字）+序号（6位数字）+模7余数
@@ -350,6 +362,20 @@ public class BusinessUtil {
         		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5')
         				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
         						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
+    }
+
+    /**
+     * 称重量方B网卡控逻辑
+     * B网卡控标准（waybillsign40=1/2/3，且80位不等于6/7/8（剔除冷链），且89位不等于1/2（剔除tc），且99位不等于1（剔除京小仓））：
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWeightVolumeB(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_1,WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6,WaybillSignConstants.CHAR_80_7,WaybillSignConstants.CHAR_80_8)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_99,WaybillSignConstants.CHAR_99_1);
     }
 
     /**
@@ -1141,6 +1167,13 @@ public class BusinessUtil {
         }
         return null;
     }
+    public static String getReceiveSiteCodeFromSendCodeNew(String sendCode) {
+        String[] sites = getSiteCodeBySendCodeNew(sendCode);
+        if (sites.length > 0) {
+            return sites[1];
+        }
+        return null;
+    }
 
     /**
      * 通过批次号获取始发站点
@@ -1151,6 +1184,14 @@ public class BusinessUtil {
     public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
     	Integer[] sites = getSiteCodeBySendCode(sendCode);
         if (sites[0]>0) {
+            return sites[0];
+        }
+        return null;
+    }
+
+    public static String getCreateSiteCodeFromSendCodeNew(String sendCode) {
+        String[] sites = getSiteCodeBySendCodeNew(sendCode);
+        if (sites.length > 0) {
             return sites[0];
         }
         return null;
@@ -2076,7 +2117,15 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
                 WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
     }
-
+    /**
+     * 判断运单维度是否有增值服务信息，waybillSign86位=1或者3
+     * @param waybillSign
+     * @return
+     */
+    public static boolean hasWaybillVas(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_1,WaybillSignConstants.CHAR_86_3);
+    }
     /**
      * 判断是否是返单
      */
@@ -2500,5 +2549,47 @@ public class BusinessUtil {
             return false;
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
+    }
+    /**
+     * 通过运单标识 判断是否需求称重
+     * <p>
+     * 66 位 是0  标识可以称重
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllowWeight(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
+    }
+    /**
+     *
+     * @param waybillCode
+     * @param sourceCode
+     * @param sendPay
+     * @return
+     */
+    public static boolean isDouyin(String waybillCode,String sourceCode,String sendPay){
+    	return DmsConstants.SOURCE_CODE_DOUYIN.equals(sourceCode)
+    			|| (waybillCode != null && waybillCode.startsWith(DmsConstants.WAYBILL_CODE_PRE_DOUYIN))
+    			|| BusinessUtil.isSignChar(sendPay, SendPayConstants.POSITION_327,SendPayConstants.CHAR_327_2)
+    	;
+
+    }
+
+    /**
+     * 根据waybillSign 判断此运单是否包含增值服务 是： true  不是：false
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isVasWaybill(String waybillSign){
+        return !isSignChar(waybillSign,WaybillSignConstants.POSITION_86,WaybillSignConstants.CHAR_86_0);
+    }
+    /**
+     * 是否特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKS(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
     }
 }

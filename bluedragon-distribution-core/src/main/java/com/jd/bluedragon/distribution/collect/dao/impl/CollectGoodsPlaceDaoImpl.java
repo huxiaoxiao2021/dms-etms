@@ -6,7 +6,9 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsPlaceDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -46,7 +48,10 @@ public class CollectGoodsPlaceDaoImpl extends BaseDao<CollectGoodsPlace> impleme
     }
 
     @Override
-    public int deleteByAreaCode(List<String> codes) {
-        return sqlSession.delete(this.nameSpace+".deleteByAreaCode", codes);
+    public int deleteByAreaCode(Integer createSiteCode, List<String> codes) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("createSiteCode", createSiteCode);
+        map.put("list", codes);
+        return sqlSession.delete(this.nameSpace+".deleteByAreaCode", map);
     }
 }

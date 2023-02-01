@@ -24,6 +24,9 @@ public class BindBoardRequest implements Serializable {
      * 是否需要补发货
      */
     private Boolean needReplenishDelivery;
+    
+    /**自动化设备编码*/
+    private String machineCode;    
 
     public String getBarcode() {
         return barcode;
@@ -64,4 +67,12 @@ public class BindBoardRequest implements Serializable {
     public void setNeedReplenishDelivery(Boolean needReplenishDelivery) {
         this.needReplenishDelivery = needReplenishDelivery;
     }
+
+	public String getMachineCode() {
+		return machineCode;
+	}
+
+	public void setMachineCode(String machineCode) {
+		this.machineCode = machineCode;
+	}
 }

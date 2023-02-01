@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -12,6 +16,10 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationUploadPo;
 import com.jd.bluedragon.distribution.api.response.AppUpgradeResponse;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
@@ -23,6 +31,7 @@ import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.device.service.DeviceLocationService;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -32,6 +41,7 @@ import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.mrd.srv.dto.RpcResultDto;
 import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
 import com.jd.mrd.srv.service.erp.dto.LoginDto;
@@ -48,6 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -72,9 +83,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
-	@Autowired
-	@Qualifier("baseService")
-	protected LoginService baseService;
+    @Autowired
+    private BaseService baseService;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -88,6 +98,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 	@Autowired
 	private JyDemotionService jyDemotionService;
+
+    @Resource
+    private DeviceLocationService deviceLocationService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -125,7 +138,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     		request.setCheckVersion(Boolean.FALSE);
     		request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
     	}
-		return baseService.clientLoginIn(request);
+		return clientLoginIn(request);
 	}
 
     /**
@@ -143,8 +156,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setCheckVersion(Boolean.FALSE);
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
-        LoginUserResponse loginUserResponse = baseService.clientLoginIn(request);
+        LoginUserResponse loginUserResponse = clientLoginIn(request);
         this.getAndSaveToken(request, loginUserResponse);
+        this.handleDeviceLocation(request, loginUserResponse);
         return loginUserResponse;
     }
 
@@ -210,6 +224,44 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             loginUserResponse.setWlGwTicket(loginResult.getData().getTicket());
         } catch (Exception e) {
             log.error("wlGwErpLogin exception ", e);
+        }
+    }
+
+    private void handleDeviceLocation(LoginRequest loginRequest, LoginUserResponse loginUserResponse) {
+        try {
+            log.info("UserServiceImpl.handleDeviceLocation param {}", JsonHelper.toJson(loginRequest));
+            if (loginUserResponse == null || !Objects.equals(loginUserResponse.getCode(), JdResponse.CODE_OK)) {
+                return;
+            }
+            final DeviceInfo deviceInfo = loginRequest.getDeviceInfo();
+            final DeviceLocationInfo deviceLocationInfo = loginRequest.getDeviceLocationInfo();
+            if (deviceInfo == null) {
+                log.warn("UserServiceImpl.handleDeviceLocation deviceInfo null {}", JsonHelper.toJson(loginRequest));
+                return;
+            }
+
+            DeviceLocationUploadPo deviceLocationUploadPo = new DeviceLocationUploadPo();
+            deviceLocationUploadPo.setDeviceLocationInfo(deviceLocationInfo);
+            deviceLocationUploadPo.setDeviceInfo(deviceInfo);
+
+            long operateTime = new Date().getTime();
+            final Date operateTimeDate = DateUtil.parse(loginRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME);
+            if (operateTimeDate != null) {
+                operateTime = operateTimeDate.getTime();
+            }
+            deviceLocationUploadPo.setOperateTime(operateTime);
+
+            final OperateUser operateUser = new OperateUser();
+            operateUser.setUserCode(loginUserResponse.getErpAccount());
+            operateUser.setUserName(loginUserResponse.getStaffName());
+            operateUser.setOrgId(loginUserResponse.getOrgId());
+            operateUser.setOrgName(loginUserResponse.getOrgName());
+            operateUser.setSiteCode(loginUserResponse.getSiteCode());
+            operateUser.setSiteName(loginUserResponse.getSiteName());
+            deviceLocationUploadPo.setOperateUser(operateUser);
+            deviceLocationService.sendUploadLocationMsg(deviceLocationUploadPo);
+        } catch (Exception e) {
+            log.error("UserServiceImpl.handleDeviceLocation exception {} {}", JsonHelper.toJson(loginRequest), JsonHelper.toJson(loginUserResponse), e);
         }
     }
 
@@ -475,6 +527,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 			checkResult.toFail("请求参数无效！缺少menuCode和siteType");
 			return checkResult;
 		}
+		CheckMenuAuthResponse respData = new CheckMenuAuthResponse();
+		checkResult.setData(respData);
 		// 菜单下线提示
 		if(checkMenuIsOffline(checkMenuAuthRequest.getMenuCode(), checkResult)){
 			return checkResult;
@@ -484,8 +538,29 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	        List<String> smsSiteMenuBlacklist = sysConfigService.getStringListConfig(Constants.SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST);
 	        if(smsSiteMenuBlacklist.contains(checkMenuAuthRequest.getMenuCode())) {
 	        	checkResult.toFail(HintService.getHint(HintCodeConstants.PRINT_CLINET_SMS_SITE_MENU_NOAUTH));
+	        	return checkResult;
 	        }
 		}
+		//菜单权限验证，按场地限制
+        MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+        menuUsageConfigRequestDto.setMenuCode(checkMenuAuthRequest.getMenuCode());
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(checkMenuAuthRequest.getSiteCode());
+        menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+        User user = new User();
+        user.setUserErp(checkMenuAuthRequest.getUserCode());
+        menuUsageConfigRequestDto.setUser(user);
+        MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+        if(clientMenuUsageConfig != null) {
+        	respData.setCanUse(clientMenuUsageConfig.getCanUse());
+        	respData.setMsg(clientMenuUsageConfig.getMsg());
+        	respData.setMsgType(clientMenuUsageConfig.getMsgType());
+        	//菜单不可用
+        	if(Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
+        		checkResult.toFail(clientMenuUsageConfig.getMsg());
+	        	return checkResult; 
+        	}
+        }
 		return checkResult;
 	}
 

@@ -300,7 +300,7 @@
                   alias="${dms.jsf.alias}"
                   ref="configStrandReasonJsfService"
                   server="dmsjsf">
-    </jsf:provider>
+    </jsf:provider>    
     <!-- 三定jsf服务 -->
     <jsf:provider id="workStationJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.station.api.WorkStationJsfService"
@@ -440,6 +440,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  任务组员JSF服务   -->
+    <jsf:provider id="jyTaskGroupMemberJsfServiceId"
+                  interface="com.jd.bluedragon.distribution.jy.api.group.JyTaskGroupMemberJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTaskGroupMemberJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!--  标签对外JSF服务   -->
     <jsf:provider id="dmsLabelPrintJsfService"
                   interface="com.jd.bluedragon.distribution.label.api.LabelPrintJsfService"
@@ -455,6 +462,39 @@
                   ref="jyBizTaskConstraintJsfService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--  转运卸车岗服务   -->
+    <jsf:provider id="jsfJyUnloadVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyUnloadVehicleTysService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  判断是否为合流车JSF服务   -->
+    <jsf:provider id="transportRelatedJSFService"
+                  interface="com.jd.bluedragon.distribution.transport.service.TransportRelatedJSFService"
+                  alias="${dms.jsf.alias}"
+                  ref="transportRelatedJSFServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jyJsfSendVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JySendVehicleTysJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jySendVehicleTysJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  拣运开放接口   -->
+    <jsf:provider id="jyCenterServiceJsf"
+                  interface="com.jd.bluedragon.distribution.open.JYCenterService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyCenterService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
 
     <!--  对外提供组板相关服务  -->
     <jsf:provider id="jsfDmsComboardService"

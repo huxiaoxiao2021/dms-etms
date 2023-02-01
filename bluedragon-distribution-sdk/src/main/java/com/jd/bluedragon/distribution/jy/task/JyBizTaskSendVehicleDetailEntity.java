@@ -85,6 +85,14 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date planDepartTime;
 	/**
+	 * 到来时间 （对应当前始发场地）
+	 */
+	private Date comeTime;
+	/**
+	 * 即将到来时间（对应当前始发场地相距一定范围内）
+	 */
+	private Date nearComeTime;
+	/**
 	 * 封车时间
 	 */
 	private Date sealCarTime;
@@ -131,6 +139,19 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
 	private transient List<String> transWorkCodeList;
+	/**
+	 * 迁入迁出标识
+	 * 1 source（出） 2 target （入）
+	 */
+	private transient Integer transferFlag;
+
+	public Integer getTransferFlag() {
+		return transferFlag;
+	}
+
+	public void setTransferFlag(Integer transferFlag) {
+		this.transferFlag = transferFlag;
+	}
 
 	private Integer lineType;
 	private String lineTypeName;
@@ -245,6 +266,22 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setPlanDepartTime(Date planDepartTime) {
 		this.planDepartTime = planDepartTime;
+	}
+
+	public Date getComeTime() {
+		return comeTime;
+	}
+
+	public void setComeTime(Date comeTime) {
+		this.comeTime = comeTime;
+	}
+
+	public Date getNearComeTime() {
+		return nearComeTime;
+	}
+
+	public void setNearComeTime(Date nearComeTime) {
+		this.nearComeTime = nearComeTime;
 	}
 
 	public Date getSealCarTime() {

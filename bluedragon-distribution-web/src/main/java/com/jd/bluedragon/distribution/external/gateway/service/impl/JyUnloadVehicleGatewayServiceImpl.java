@@ -61,6 +61,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Autowired
     private TransportRelatedService transportRelatedService;
 
+
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
         CallerInfo info = Profiler.registerInfo("JyUnloadVehicleGatewayService.createNoTaskUnloadTask",
@@ -73,6 +74,10 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             dto.setVehicleNumber(request.getVehicleNumber());
             dto.setOperateSiteId(request.getOperateSiteId());
             dto.setOperateSiteName(request.getOperateSiteName());
+            if (request.getUser() != null) {
+                dto.setOperateUserErp(request.getUser().getUserErp());
+                dto.setOperateUserName(request.getUser().getUserName());
+            }
             JyBizTaskUnloadDto noTaskUnloadDto = unloadVehicleService.createUnloadTask(dto);
             UnloadNoTaskResponse unloadNoTaskResponse = new UnloadNoTaskResponse();
             unloadNoTaskResponse.setOperateSiteId(noTaskUnloadDto.getOperateSiteId());
@@ -176,13 +181,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.toSuccess();
             response.setData(invokeResult.getData());
             return response;
-        }
-        else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+        } else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
             response.setCode(InvokeResult.CODE_HINT);
             response.addPromptBox(0, invokeResult.getMessage());
             return response;
-        }
-        else {
+        } else if (invokeResult.getCode() == InvokeResult.DP_SPECIAL_CODE) {
+            response.addPromptBox(101, invokeResult.getMessage());
+            return response;
+        } else {
             response.toFail(invokeResult.getMessage());
             return response;
         }

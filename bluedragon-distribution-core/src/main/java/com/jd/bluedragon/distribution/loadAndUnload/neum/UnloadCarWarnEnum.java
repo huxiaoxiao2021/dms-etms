@@ -8,11 +8,14 @@ package com.jd.bluedragon.distribution.loadAndUnload.neum;
  **/
 public enum UnloadCarWarnEnum {
 
+    DP_TRANSFER_SITE_MESSAGE("0", "DP_您扫描的%s订单是转德邦订单，请单独码放并放置德邦货区，谢谢。"),
     NO_WEIGHT_FORBID_SEND_MESSAGE("1", "无重量，请补称重量方"),//实际返回话术：包裹号 + desc
     PDA_STAGING_CONFIRM_MESSAGE("2","此单为预约暂存运单，请单独交接暂存管理人员操作暂存上架！"),
-    PRIVATE_NETWORK_PACKAGE("3","此单为专网保障运单，请单独交接专网操作人员！"),
-    PACK_NOTIN_SEAL_INTERCEPT_MESSAGE("4","此包裹不在卸车任务内,多货扫描！");
-//    SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE("5","此任务下无待卸包裹，请核实！");
+    PACKAGE_OVER_WEIGHT_MESSAGE("3","包裹重量%sKG，请注意重量是否异常并针对异常包裹复重抽检"),
+    PRIVATE_NETWORK_PACKAGE("4","此单为专网保障运单，请单独交接专网操作人员！"),
+    PACK_NOTIN_SEAL_INTERCEPT_MESSAGE("5","此包裹不在卸车任务内,多货扫描！"),
+    //    SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE("5","此任务下无待卸包裹，请核实！");
+    FLOW_DISACCORD("6", "该包裹流向与当前板号流向不一致！");
 
     private String level;
 

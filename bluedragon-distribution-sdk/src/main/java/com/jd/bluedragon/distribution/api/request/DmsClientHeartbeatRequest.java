@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -34,6 +36,11 @@ public class DmsClientHeartbeatRequest implements Serializable {
 	 * 客户端的网络地址
 	 */
 	private String gisAddress;
+
+    /**
+     * 设备信息
+     */
+    private DeviceInfo deviceInfo;
 
 	/**
 	 * @return the loginId
@@ -112,4 +119,12 @@ public class DmsClientHeartbeatRequest implements Serializable {
 	public void setGisAddress(String gisAddress) {
 		this.gisAddress = gisAddress;
 	}
+
+    public DeviceInfo getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(DeviceInfo deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
 }

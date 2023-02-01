@@ -26,20 +26,27 @@
         <result property="unloadFinishTime" column="unload_finish_time"/>
         <result property="lessCount" column="less_count"/>
         <result property="moreCount" column="more_count"/>
+        <result property="comboardCount" column="comboard_count"/>
+        <result property="interceptCount" column="intercept_count"/>
         <result property="abnormalFlag" column="abnormal_flag"/>
         <result property="totalCount" column="total_count"/>
         <result property="unloadProgress" column="unload_progress"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
         <result property="tagsSign" column="tags_sign"/>
+        <result property="refGroupCode" column="ref_group_code"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
         <result property="updateUserName" column="update_user_name"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="unloadStartTime" column="unload_start_time"/>
+        <result property="unloadType" column="unload_type"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="taskType" column="task_type"/>
+        <result property="railwayPfNo" column="railway_pf_no"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -75,6 +82,7 @@
         line_type,
         line_type_name,
         tags_sign,
+        ref_group_code,
         create_user_erp,
         create_user_name,
         update_user_erp,
@@ -82,7 +90,13 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        task_type,
+        unload_type,
+        railway_pf_no,
+        unload_start_time,
+        comboard_count,
+        intercept_count
     </sql>
 
 
@@ -145,6 +159,12 @@
         <if test="moreCount != null">
             more_count,
         </if>
+        <if test="comboardCount != null">
+            comboard_count,
+        </if>
+        <if test="interceptCount != null">
+            intercept_count,
+        </if>
         <if test="abnormalFlag != null">
             abnormal_flag,
         </if>
@@ -163,6 +183,9 @@
         <if test="tagsSign != null">
             tags_sign,
         </if>
+        <if test="refGroupCode != null">
+            ref_group_code,
+        </if>
         <if test="createUserErp != null">
             create_user_erp,
         </if>
@@ -171,6 +194,12 @@
         </if>
         <if test="createTime != null">
             create_time,
+        </if>
+        <if test="updateTime != null">
+            update_time,
+        </if>
+        <if test="taskType != null">
+            task_type,
         </if>
         yn
 
@@ -232,6 +261,12 @@
         <if test="moreCount != null">
             #{moreCount},
         </if>
+        <if test="comboardCount != null">
+            #{comboardCount},
+        </if>
+        <if test="interceptCount != null">
+            #{interceptCount},
+        </if>
         <if test="abnormalFlag != null">
             #{abnormalFlag},
         </if>
@@ -250,6 +285,9 @@
         <if test="tagsSign != null">
             #{tagsSign},
         </if>
+        <if test="refGroupCode != null">
+            #{refGroupCode},
+        </if>
         <if test="createUserErp != null">
             #{createUserErp},
         </if>
@@ -259,7 +297,12 @@
         <if test="createTime != null">
             #{createTime},
         </if>
-
+        <if test="updateTime != null">
+            #{updateTime},
+        </if>
+        <if test="taskType != null">
+            #{taskType},
+        </if>
         1
 
         )
@@ -335,32 +378,69 @@
     </select>
 
     <sql id="queryTaskCondition">
-            yn = 1
+        yn = 1
 
-            AND end_site_id = #{entity.endSiteId}
+        AND end_site_id = #{entity.endSiteId}
+        <if test="entity.actualArriveStartTime != null">
+            and update_time >= #{entity.actualArriveStartTime}
+        </if>
+        <if test="entity.sealCarCode">
+            and seal_car_code = #{entity.sealCarCode}
+        </if>
 
-            <if test="entity.sealCarCode">
-                and seal_car_code = #{entity.sealCarCode}
-            </if>
-
-            <if test="entity.sortTime != null">
-                AND sort_time >= #{entity.sortTime}
-            </if>
-
-            <choose>
-                <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
-                    AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
-                </when>
-                <otherwise>
-                    <if test="entity.fuzzyVehicleNumber">
-                        AND fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
-                    </if>
-                    <if test="entity.startSiteId != null">
-                        AND start_site_id = #{entity.startSiteId}
-                    </if>
-                </otherwise>
-            </choose>
+        <if test="entity.sortTime != null">
+            AND sort_time >= #{entity.sortTime}
+        </if>
+        <if test="entity.lineType!=null">
+           and line_type =#{entity.lineType}
+        </if>
+        <if test="entity.taskType!=null">
+            and task_type =#{entity.taskType}
+        </if>
+        <choose>
+            <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
+                AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
+            </when>
+            <otherwise>
+                <if test="entity.fuzzyVehicleNumber">
+                    AND fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+                </if>
+                <if test="entity.startSiteId != null">
+                    AND start_site_id = #{entity.startSiteId}
+                </if>
+            </otherwise>
+        </choose>
     </sql>
+
+    <select id="listUnloadVehicleTask" parameterType="JyBizTaskUnloadVehicleEntity" resultMap="jyBizTaskUnloadVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+        where end_site_id =#{endSiteId}
+          and yn=1
+        <if test="actualArriveStartTime != null">
+            and update_time >= #{actualArriveStartTime}
+        </if>
+        <if test="vehicleStatus != null">
+            and vehicle_status =#{vehicleStatus}
+        </if>
+        <if test="fuzzyVehicleNumber!=null">
+            and fuzzy_vehicle_number =#{fuzzyVehicleNumber}
+        </if>
+        <if test="lineType!=null" >
+            and line_type =#{lineType}
+        </if>
+        <if test="vehicleStatus !=null and vehicleStatus==3">
+            order by actual_arrive_time asc
+        </if>
+        <if test="vehicleStatus !=null and vehicleStatus==4">
+            order by unload_start_time asc
+        </if>
+        <if test="vehicleStatus !=null and vehicleStatus==5">
+            order by unload_finish_time desc
+        </if>
+
+    </select>
 
 
     <select id="findStatusCountByCondition4StatusAndLine" resultMap="JyBizTaskUnloadCountMap">
@@ -412,6 +492,10 @@
                 <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
+            </if>
+
+            <if test="entity.refGroupCode != null and entity.refGroupCode != ''">
+                and ref_group_code = #{entity.refGroupCode}
             </if>
 
         </where>
@@ -498,6 +582,12 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="taskType != null">
+                task_type = #{taskType},
+            </if>
+            <if test="unloadType != null">
+                unload_type =#{unloadType},
+            </if>
         </set>
         <where>
             id = #{id} and yn = 1
@@ -537,6 +627,12 @@
             <if test="moreCount != null">
                 more_count = #{moreCount},
             </if>
+            <if test="comboardCount!=null">
+                comboard_count =#{comboardCount},
+            </if>
+            <if test="interceptCount!=null">
+                intercept_count =#{interceptCount},
+            </if>
             <if test="abnormalFlag != null">
                 abnormal_flag = #{abnormalFlag},
             </if>
@@ -558,6 +654,19 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="vehicleStatus!=null">
+                vehicle_status =#{vehicleStatus},
+            </if>
+            <if test="unloadStartTime">
+                unload_start_time =#{unloadStartTime},
+            </if>
+            <if test="railwayPfNo">
+                railway_pf_no =#{railwayPfNo},
+            </if>
+            <if test="unloadType != null">
+                unload_type =#{unloadType},
+            </if>
+
         </set>
         <where>
             id = #{id}
@@ -607,4 +716,19 @@
 
 
     </update>
+
+
+    <select id="queryByFuzzyVehicleNumberAndStatus" parameterType="JyBizTaskUnloadVehicleEntity" resultMap="jyBizTaskUnloadVehicleMap">
+        select  <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+        where yn = 1
+        and end_site_id = #{endSiteId}
+        and fuzzy_vehicle_number =#{fuzzyVehicleNumber}
+        <if test="statusCodeList != null">
+            and vehicle_status in
+            <foreach collection="statusCodeList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 </mapper>

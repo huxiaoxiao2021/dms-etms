@@ -21,6 +21,8 @@ import org.springframework.stereotype.Controller;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.RESCHEDULE_PRINT;
+
 @Controller
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -34,6 +36,7 @@ public class ReassignWaybillResource {
 	@Path("/tagPrint/returnPack")
     @JProfiler(jKey = "DMS.WEB.ReassignWaybillResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(ReassignWaybillRequest request) {
+        request.setInterfaceType(RESCHEDULE_PRINT.getType());
 		JdResult<Boolean> jdResult = reassignWaybillService.backScheduleAfter(request);
 		if (jdResult.isSucceed()) {
 			return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);

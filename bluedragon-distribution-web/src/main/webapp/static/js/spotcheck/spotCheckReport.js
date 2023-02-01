@@ -208,6 +208,13 @@ $(function () {
             title: '设备编码',
             align: 'center'
         },{
+            field: 'machineStatus',
+            title: '设备状态',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value === 1 ? "合格" : value === 2 ? "不合格" : ""
+            }
+        },{
             field: 'isGatherTogether',
             title: '是否集齐',
             align: 'center',
