@@ -60,7 +60,7 @@
 		<include refid="Base_Column_List"/>
 		FROM abnormal_waybill_diff
 		<where>
-
+			yn = 0
 			<if test="waybillCodeC != null">
 				AND waybill_code_c = #{waybillCodeC}
 			</if>
@@ -75,9 +75,6 @@
 			</if>
 			<if test="orderIdE != null">
 				AND order_id_e = #{orderIdE}
-			</if>
-			<if test="yn != null">
-				AND yn = #{yn,jdbcType=INTEGER}
 			</if>
 		</where>
 

@@ -17,6 +17,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,13 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
     public List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff) {
         CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.AbnormalWaybillDiffServiceImpl.query", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
+            if(abnormalWaybillDiff == null ||
+                    StringUtils.isBlank(abnormalWaybillDiff.getWaybillCodeC()) ||
+                    StringUtils.isBlank(abnormalWaybillDiff.getWaybillCodeE())){
+                //缺少入参直接返回
+                logger.error("query 缺少参数 {},{}",abnormalWaybillDiff.getWaybillCodeC(),abnormalWaybillDiff.getWaybillCodeE());
+                return null;
+            }
             return abnormalWaybillDiffDao.query(abnormalWaybillDiff);
         } finally {
             Profiler.registerInfoEnd(callerInfo);
