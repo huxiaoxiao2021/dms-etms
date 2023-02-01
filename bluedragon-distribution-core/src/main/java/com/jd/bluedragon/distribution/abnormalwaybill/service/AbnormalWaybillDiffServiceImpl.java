@@ -47,4 +47,9 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
             logger.error("批量插入表格数据异常",e);
         }
     }
+
+    @Override
+    public List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff) {
+        return abnormalWaybillDiffDao.query(abnormalWaybillDiff);
+    }
 }

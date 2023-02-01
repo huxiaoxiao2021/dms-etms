@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface AbnormalWaybillDiffService {
     void importExcel(List<AbnormalWaybillDiff> dataList);
+
+    List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff);
 }
