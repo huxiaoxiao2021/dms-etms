@@ -34,7 +34,7 @@
 			#{waybillCodeE,jdbcType=BIGINT},
 			#{type,jdbcType=VARCHAR},
 			#{orderIdE,jdbcType=VARCHAR},
-			1
+			0
 		</trim>
 	</insert>
 
@@ -50,10 +50,25 @@
             #{abnormalWaybillDiff.waybillCodeE,jdbcType=VARCHAR},
             #{abnormalWaybillDiff.type,jdbcType=VARCHAR},
             #{abnormalWaybillDiff.orderIdE,jdbcType=VARCHAR},
-            1
+            0
             )
         </foreach>
     </insert>
+
+	<update id="delByWaybillCodeE">
+		update  abnormal_waybill_diff set yn = 1 where waybill_code_e = #{waybillCodeE}
+	</update>
+
+	<update id="delByWaybillCodeC">
+		update  abnormal_waybill_diff set yn = 1 where waybill_code_c = #{waybillCodeC}
+	</update>
+
+	<update id="updateByWaybillCodeC">
+		update  abnormal_waybill_diff set type = #{type} where waybill_code_c = #{waybillCodeC}
+	</update>
+	<update id="updateByWaybillCodeE">
+		update  abnormal_waybill_diff set type = #{type} where waybill_code_e = #{waybillCodeE}
+	</update>
 
 	<select id="query" resultMap="abnormalWaybillDiff" parameterType="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWaybillDiff">
 		SELECT

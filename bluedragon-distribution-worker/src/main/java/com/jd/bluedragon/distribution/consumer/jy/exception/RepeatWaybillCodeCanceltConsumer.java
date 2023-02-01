@@ -98,7 +98,8 @@ public class RepeatWaybillCodeCanceltConsumer extends MessageBaseConsumer {
             //新单号，只判断新单号是否存在，后续根据新单号所有包裹是否补打在取消拦截记录
             abnormalWaybillDiff.setWaybillCodeC(rePrintRecordMq.getWaybillCode());
             List<AbnormalWaybillDiff> abnormalWaybillDiffs = abnormalWaybillDiffService.query(abnormalWaybillDiff);
-            if(CollectionUtils.isEmpty(abnormalWaybillDiffs)){
+            if(CollectionUtils.isEmpty(abnormalWaybillDiffs) || StringUtils.isBlank(abnormalWaybillDiffs.get(0).getWaybillCodeE())){
+                logger.error("重复运单取消拦截查询运单异常表为空WaybillCode[{}]",rePrintRecordMq.getWaybillCode());
                 return;
             }
             if(uccPropertyConfiguration.isPrintCompeteAllPackageUpdateCancel()){
@@ -108,11 +109,11 @@ public class RepeatWaybillCodeCanceltConsumer extends MessageBaseConsumer {
                     throw new RuntimeException("重复运单取消拦截包裹未完全补打");
                 }
             }
-            logger.warn("重复运单取消拦截-运单号[{}]包裹号[{}]", rePrintRecordMq.getWaybillCode(),rePrintRecordMq.getPackageCode());
-            waybillCancelService.updateByWaybillCodeInterceptType99(rePrintRecordMq.getWaybillCode());
+            logger.warn("重复运单取消拦截-补打运单号[{}]，包裹号[{}],取消拦截运单号[{}]",rePrintRecordMq.getWaybillCode(),rePrintRecordMq.getPackageCode(),abnormalWaybillDiffs.get(0).getWaybillCodeE());
+            waybillCancelService.updateByWaybillCodeInterceptType99(abnormalWaybillDiffs.get(0).getWaybillCodeE());
             Map<String,Object> msgBody= Maps.newHashMap();
-            msgBody.put("waybillCode",rePrintRecordMq.getWaybillCode());
-            repeatWaybillcodeCancelProducer.sendOnFailPersistent(rePrintRecordMq.getWaybillCode(),JsonHelper.toJson(msgBody));
+            msgBody.put("waybillCode",abnormalWaybillDiffs.get(0).getWaybillCodeE());
+            repeatWaybillcodeCancelProducer.sendOnFailPersistent(abnormalWaybillDiffs.get(0).getWaybillCodeE(),JsonHelper.toJson(msgBody));
         }catch (Exception e){
             Profiler.functionError(callerInfo);
             logger.error("重复运单取消拦截报错[{}]",message.getText(),e);
