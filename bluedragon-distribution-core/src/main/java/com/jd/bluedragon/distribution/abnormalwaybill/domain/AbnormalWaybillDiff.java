@@ -13,6 +13,8 @@ public class AbnormalWaybillDiff implements Serializable {
     private String waybillCodeE;
     //错误订单号(重复生成的运单号对应的订单号)
     private String orderIdE;
+    //处理类型
+    private String type;
     //有效标识 yn
     private Integer yn;
 
