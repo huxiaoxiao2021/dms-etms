@@ -72,7 +72,7 @@ public class AbnormalWaybillDiffController {
         }
         for (String waybillCodeE:waybillCodeEs.split(",")){
 
-            abnormalWaybillDiffService.delByWaybillCodeE(waybillCodeE);
+            abnormalWaybillDiffService.updateByWaybillCodeE(waybillCodeE,type);
         }
         return "success";
     }
@@ -113,7 +113,7 @@ public class AbnormalWaybillDiffController {
         }
         for (String waybillCodeC:waybillCodeCs.split(",")){
 
-            abnormalWaybillDiffService.delByWaybillCodeC(waybillCodeC);
+            abnormalWaybillDiffService.updateByWaybillCodeC(waybillCodeC,type);
         }
         return "success";
     }
