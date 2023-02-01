@@ -27,7 +27,7 @@ public class JySendProductAggsDaoMain extends BaseDao<JySendProductAggsEntity>  
 
 
     public int updateByBizProduct(JySendProductAggsEntity entity){
-        return this.getSqlSession().insert(NAMESPACE + ".updateByBizProduct", entity);
+        return this.getSqlSession().update(NAMESPACE + ".updateByBizProduct", entity);
     }
 
     public int insert(JySendProductAggsEntity entity){
