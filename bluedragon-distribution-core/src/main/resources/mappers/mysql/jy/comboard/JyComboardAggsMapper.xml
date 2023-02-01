@@ -21,8 +21,8 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="package_scanned_count" jdbcType="INTEGER" property="packageScannedCount" />
     <result column="box_scanned_count" jdbcType="INTEGER" property="boxScannedCount" />
-    <result column="weight" jdbcType="DOUBLE" property="weight" />
-    <result column="volume" jdbcType="DOUBLE" property="volume" />
+    <result column="weight" jdbcType="DECIMAL" property="weight" />
+    <result column="volume" jdbcType="DECIMAL" property="volume" />
     <result column="package_total_scanned_count" jdbcType="INTEGER" property="packageTotalScannedCount" />
   </resultMap>
   <sql id="Base_Column_List">
