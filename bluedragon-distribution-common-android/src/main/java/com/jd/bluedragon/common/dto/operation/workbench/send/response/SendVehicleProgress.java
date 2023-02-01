@@ -78,6 +78,16 @@ public class SendVehicleProgress implements Serializable {
      */
     private Integer destTotal = 0;
 
+    /**
+     * 不齐运单数
+     */
+    private Long incompleteWaybillCount = 0L;
+
+    /**
+     * 已扫运单数
+     */
+    private Long scannedWaybillCount = 0L;
+
     public BigDecimal getLoadRate() {
         return loadRate;
     }
@@ -180,5 +190,21 @@ public class SendVehicleProgress implements Serializable {
 
     public void setLoadRateUpperLimit(Integer loadRateUpperLimit) {
         this.loadRateUpperLimit = loadRateUpperLimit;
+    }
+
+    public Long getIncompleteWaybillCount() {
+        return incompleteWaybillCount;
+    }
+
+    public void setIncompleteWaybillCount(Long incompleteWaybillCount) {
+        this.incompleteWaybillCount = incompleteWaybillCount;
+    }
+
+    public Long getScannedWaybillCount() {
+        return scannedWaybillCount;
+    }
+
+    public void setScannedWaybillCount(Long scannedWaybillCount) {
+        this.scannedWaybillCount = scannedWaybillCount;
     }
 }

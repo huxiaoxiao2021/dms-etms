@@ -49,13 +49,38 @@
 			operate_time_order,
 			yn,
 			ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 			waybill_code = #{waybillCode}
 			AND  (package_code is null OR LENGTH(package_code)=0)
 			AND feature_type = #{featureType}
 			AND yn = 1
 		order by operate_time_order desc limit 1
+	</select>
+
+	<select id="findWaybillCancelByCodeAndFeatureTypes" parameterType="java.util.Map" resultMap="cancelWaybill">
+		SELECT
+			waybill_code,
+			feature_type,
+			create_time,
+			update_time,
+			business_type,
+			intercept_type,
+			intercept_mode,
+			operate_time,
+			operate_time_order,
+			yn,
+			ts
+		FROM waybill_cancel
+		WHERE yn = 1
+		AND	waybill_code = #{waybillCode}
+		AND business_type = #{businessType,jdbcType=VARCHAR}
+	    AND (package_code is null OR LENGTH(package_code)=0)
+		AND feature_type IN
+		<foreach collection="featureTypes" index="index" item="featureType" separator="," open="(" close=")">
+			#{featureType, jdbcType=INTEGER}
+		</foreach>
+		order by operate_time_order
 	</select>
 
 	<select id="findPackageCodesByFeatureTypeAndWaybillCode" parameterType="java.util.Map"  resultMap="cancelWaybill">
@@ -72,7 +97,7 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code= #{waybillCode,jdbcType=VARCHAR}
 		AND  package_code is NOT null and LENGTH(package_code)>0
@@ -84,7 +109,7 @@
 	<select id="findPackageCodeCountByFeatureTypeAndWaybillCode" parameterType="java.util.Map"  resultType="Long">
 		SELECT
 		COUNT(*)
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code= #{waybillCode,jdbcType=VARCHAR}
 		and package_code is NOT null and LENGTH(package_code)>0
@@ -107,13 +132,39 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		package_code = #{packageCode,jdbcType=VARCHAR}
 		AND feature_type = #{featureType,jdbcType=INTEGER}
 		AND yn = 1
 		order by operate_time_order desc limit 1
 	</select>
+
+	<select id="findPackageBlockedByCodeAndFeatureTypes" parameterType="java.util.Map" resultMap="cancelWaybill">
+		SELECT
+			waybill_code,
+			package_code,
+			feature_type,
+			create_time,
+			update_time,
+			business_type,
+			intercept_type,
+			intercept_mode,
+			operate_time,
+			operate_time_order,
+			yn,
+			ts
+		FROM waybill_cancel
+		WHERE yn = 1
+		AND package_code = #{packageCode,jdbcType=VARCHAR}
+		AND business_type = #{businessType,jdbcType=VARCHAR}
+		AND feature_type IN
+		<foreach collection="featureTypes" index="index" item="featureType" separator="," open="(" close=")">
+			#{featureType, jdbcType=INTEGER}
+		</foreach>
+		order by operate_time_order
+	</select>
+
 	<select id="getByWaybillCodeAndInterceptType" parameterType="java.util.Map" resultMap="cancelWaybill">
 		SELECT
 		waybill_code,
@@ -128,7 +179,7 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		AND intercept_type = #{interceptType,jdbcType=INTEGER}

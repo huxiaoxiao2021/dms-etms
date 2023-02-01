@@ -8,12 +8,14 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum JySendVehicleProductTypeEnum {
 
     NONE("NONE", "其他", 99),
-    FRESH("FRESH", "生鲜", 2),
-    KA("KA", "KA", 4),
-    MEDICINE("MEDICINE", "医药", 3),
     FAST("FAST", "特快送", 1),
-    EASYFROZEN("EASYFROZEN", "易冻品", 5),
-    LUXURY("LUXURY", "奢侈品", 6),
+    FRESH("FRESH", "生鲜", 2),
+    TIKTOK("TIKTOK", "抖音", 3),
+    DEWU("DEWU", "得物", 4),
+    MEDICINE("MEDICINE", "医药", 5),
+    KA("KA", "KA", 6),
+    EASYFROZEN("EASYFROZEN", "易冻品", 7),
+    LUXURY("LUXURY", "奢侈品", 8),
             ;
 
     private String code;

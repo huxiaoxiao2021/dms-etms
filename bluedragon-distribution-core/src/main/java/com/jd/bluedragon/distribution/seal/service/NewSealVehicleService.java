@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -84,6 +85,7 @@ public interface NewSealVehicleService {
      */
     public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode);
 
+
     InvokeResult<Void> checkBatchCode(String batchCode);
 
     /**
@@ -94,6 +96,7 @@ public interface NewSealVehicleService {
      */
     public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
+    RouteTypeResponse checkTransportCode(TransportResourceDto data, Integer createSiteCode);
     /**
      * 校验批次的体积是否超标
      * @param sealCarDto

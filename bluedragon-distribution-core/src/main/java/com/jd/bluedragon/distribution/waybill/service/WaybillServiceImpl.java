@@ -62,6 +62,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -768,6 +769,72 @@ public class WaybillServiceImpl implements WaybillService {
         cancelResponse.setMessage("该包裹拦截已解除");
         cancelResponse.setCode(BlockResponse.UNBLOCK);
         log.info(MessageFormat.format("根据包裹号：{0}查询拦截状态，该包裹拦截已解除", packageCode));
+        return cancelResponse;
+    }
+
+    @Override
+    public BlockResponse checkPackageBlockByFeatureTypes(String packageCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isPackageCode(packageCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        // 根据包裹号查询拦截记录
+        List<CancelWaybill> lockPackRecordList
+                = cancelWaybillDao.findPackageBlockedByCodeAndFeatureTypes(packageCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        if (CollectionUtils.isEmpty(lockPackRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据包裹号：{0}未查到拦截记录", packageCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockPackRecord = lockPackRecordList.get(0);
+        cancelResponse.setMessage("该包裹拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        cancelResponse.setFeatureType(recentBlockPackRecord.getFeatureType());
+        cancelResponse.setBlockPackageCount(1L);
+        cancelResponse.setBlockPackages(Collections.singletonList(packageCode));
+        log.info("包裹号：{}当前是：{}的拦截状态!", packageCode, recentBlockPackRecord.getFeatureType());
+        return cancelResponse;
+    }
+
+    @Override
+    public BlockResponse checkWaybillBlockByFeatureTypes(String waybillCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isWaybillCode(waybillCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        List<CancelWaybill> lockWaybillRecordList
+                = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        // 无需拦截
+        if (CollectionUtils.isEmpty(lockWaybillRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据运单号：{0}未查到拦截记录", waybillCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockWaybillRecord = lockWaybillRecordList.get(0);
+        Integer currentInterceptFeatureType = recentBlockWaybillRecord.getFeatureType();
+        // 如果是包裹维度也需要拦截的业务类型
+        if (CancelWaybill.FEATURE_TYPES_NEED_PACKAGE_DEAL.contains(currentInterceptFeatureType)) {
+            log.info("运单：{}的拦截未完成，有包裹未处理。", waybillCode);
+            List<CancelWaybill> cancelWaybills = cancelWaybillDao.findPackageCodesByFeatureTypeAndWaybillCode(
+                    waybillCode, currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK, CancelWaybill.BLOCK_PACKAGE_QUERY_NUMBER);
+            List<String> packageCodes = getPackageCodes(cancelWaybills);
+            Long PackageCount = cancelWaybillDao.findPackageCodeCountByFeatureTypeAndWaybillCode(waybillCode,
+                    currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK);
+            cancelResponse.setBlockPackageCount(PackageCount);
+            cancelResponse.setBlockPackages(packageCodes);
+        }
+        cancelResponse.setFeatureType(currentInterceptFeatureType);
+        cancelResponse.setMessage("该运单拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        log.info(MessageFormat.format("根据运单号：{0}查询到该包裹未拦截状态", waybillCode));
         return cancelResponse;
     }
 
@@ -1521,6 +1588,13 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
 
+            // 在得物商家的名单范围内，禁止返调度
+            final boolean matchDewuReSortCondition = this.matchTerminalSiteReSortDewuCondition(waybill.getCustomerCode(), userInfo.getSiteCode());
+            if(matchDewuReSortCondition){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
+            }
+
             // 当前校验必须放在最后
             //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
             InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
@@ -1574,4 +1648,32 @@ public class WaybillServiceImpl implements WaybillService {
         }
 		return false;
 	}
+
+    /**
+     * 匹配是否为终端场地操作得物类型返调度操作条件
+     * @param customerCode 商家编号
+     * @param siteCode 用户信息
+     * @return
+     */
+    @Override
+    public boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode) {
+        log.info("matchTerminalSiteReSortDewuCondition param customerCode: {} siteCode: {}", customerCode, siteCode);
+        try {
+            if (customerCode == null || siteCode == null) {
+                return false;
+            }
+            final BaseSite siteInfo = baseMajorManager.getSiteBySiteCode(siteCode);
+            if (siteInfo == null) {
+                return false;
+            }
+            log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", uccPropertyConfiguration.matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
+            if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("matchTerminalSiteReSortDewuCondition exception ", e);
+        }
+        return false;
+    }
 }

@@ -473,7 +473,7 @@
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
     </jmq:consumer>
-    
+
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
@@ -502,6 +502,37 @@
     <!--  dws设备校准更新抽检消息  -->
     <jmq:consumer id="jmq.dwsCalibrateDealSpotCheckConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dws.calibrate.dealSpotCheck}" listener="dwsCalibrateDealSpotCheckConsumer"/>
+    </jmq:consumer>
+
+
+    <!--  发货统计消息处理  -->
+    <jmq:consumer id="jmq.jySendGoodsAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.goods.aggs}" listener="jySendGoodsAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货统计消息处理  -->
+    <jmq:consumer id="jmq.jySendGoodsAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.goods.aggs.bak}" listener="jySendGoodsAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  卸车统计消息处理  -->
+    <jmq:consumer id="jmq.jyUnloadCarAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.car.aggs}" listener="jyUnloadCarAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  卸车统计备库消息处理  -->
+    <jmq:consumer id="jmq.jyUnloadCarAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.car.aggs.bak}" listener="jyUnloadCarAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货产品统计消息处理  -->
+    <jmq:consumer id="jmq.jySendProductAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.product.aggs}" listener="jySendProductAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货产品备库统计消息处理  -->
+    <jmq:consumer id="jmq.jySendProductAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
     </jmq:consumer>
 
 </beans>

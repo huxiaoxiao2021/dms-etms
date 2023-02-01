@@ -19,6 +19,15 @@ public interface IJySendService {
     JySendEntity findSendRecordExistAbnormal(JySendEntity entity);
 
     /**
+     * 首先查询一条发货任务的异常记录（强发或拦截）
+     * 如果上面条件不满足，如果是转运任务，则再次判断是否存在不齐
+     * @param startSiteId
+     * @param sendVehicleBizId
+     * @return
+     */
+    boolean findSendRecordExistAbnormal(Long startSiteId, String sendVehicleBizId);
+
+    /**
      * 按barCode查询一条扫描记录
      * @param entity
      * @return

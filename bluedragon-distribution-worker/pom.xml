@@ -95,6 +95,12 @@
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
 			<version>2.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
         <dependency>
@@ -138,14 +144,9 @@
 				</exclusion>
 			</exclusions>
 	    </dependency>
-		
-	    <dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<version>1.6.9</version>
-		</dependency>
 
-		
+
+
 	    <dependency>
 			<groupId>commons-jexl</groupId>
 			<artifactId>commons-jexl</artifactId>
@@ -166,6 +167,30 @@
 				<exclusion>
 					<groupId>org.apache.cxf</groupId>
 					<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-api</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-common-schemas</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-common-utilities</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-bindings-http</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-frontend-jaxws</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-transports-http</artifactId>
+					<groupId>org.apache.cxf</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

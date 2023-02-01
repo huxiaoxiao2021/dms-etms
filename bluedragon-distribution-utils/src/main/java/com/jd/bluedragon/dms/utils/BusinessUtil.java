@@ -1134,6 +1134,26 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是终端 （siteType =4或8）或（siteType =16且subType =128或16或1605或99或1604）
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType, Integer subType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+
+        List<Integer> terminalSiteSubTypeList = new ArrayList<Integer>();
+        terminalSiteSubTypeList.add(128);
+        terminalSiteSubTypeList.add(16);
+        terminalSiteSubTypeList.add(1605);
+        terminalSiteSubTypeList.add(99);
+        terminalSiteSubTypeList.add(1604);
+
+        return terminalSiteTypeList.contains(siteType) || (siteType != null && siteType == 16 && terminalSiteSubTypeList.contains(subType));
+    }
+
+    /**
      * 判断是否是车队
      * @param siteType
      * @return
@@ -1684,6 +1704,8 @@ public class BusinessUtil {
             return BarCodeType.WAYBILL_CODE;
         } else if (BusinessUtil.isSendCode(barCode)) {
             return BarCodeType.SEND_CODE;
+        } else if (BusinessUtil.isBoardCode(barCode)) {
+            return BarCodeType.BOARD_CODE;
         } else {
             return null;
         }
@@ -2521,6 +2543,36 @@ public class BusinessUtil {
             return false;
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
+    }
+
+    /**
+     * 判断是否是快运运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,40,'2')
+                && BusinessUtil.isSignChar(waybillSign,54,'0')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
+
+    /**
+     * 判断是否是快运改址拦截的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyAddressModifyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return isKyWaybill(waybillSign)
+                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3');
     }
     /**
      * 通过运单标识 判断是否需求称重
