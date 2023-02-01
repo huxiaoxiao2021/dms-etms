@@ -63,7 +63,7 @@ public class AbnormalWaybillDiffController {
         return "success";
     }
 
-    @RequestMapping(value = "/delByWaybillCodeE/{waybillCodeEs}/{type}")
+    @RequestMapping(value = "/updateByWaybillCodeE/{waybillCodeEs}/{type}")
     @ResponseBody
     public String updateByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs,
                                        @PathVariable("type") String type) {
@@ -104,7 +104,7 @@ public class AbnormalWaybillDiffController {
         }
         return "success";
     }
-    @RequestMapping(value = "/delByWaybillCodeC/{waybillCodeCs}/{type}")
+    @RequestMapping(value = "/updateByWaybillCodeC/{waybillCodeCs}/{type}")
     @ResponseBody
     public String updateByWaybillCodeC(@PathVariable("waybillCodeCs") String waybillCodeCs,
                                        @PathVariable("type") String type) {

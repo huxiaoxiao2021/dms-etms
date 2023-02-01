@@ -34,7 +34,7 @@
 			#{waybillCodeE,jdbcType=BIGINT},
 			#{type,jdbcType=VARCHAR},
 			#{orderIdE,jdbcType=VARCHAR},
-			1
+			0
 		</trim>
 	</insert>
 
@@ -50,7 +50,7 @@
             #{abnormalWaybillDiff.waybillCodeE,jdbcType=VARCHAR},
             #{abnormalWaybillDiff.type,jdbcType=VARCHAR},
             #{abnormalWaybillDiff.orderIdE,jdbcType=VARCHAR},
-            1
+            0
             )
         </foreach>
     </insert>
