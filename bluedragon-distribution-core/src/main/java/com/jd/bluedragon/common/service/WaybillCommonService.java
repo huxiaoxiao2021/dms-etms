@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.service;
 
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -50,7 +51,15 @@ public interface WaybillCommonService {
      * @return
      */
     public Waybill findWaybillAndPack(String waybillCode);
-    
+
+	/**
+	 * 补全异常运单信息
+	 * @param waybillCodeC 正确运单号
+	 * @param WaybillCodeE 错误运单号(运单生成的重复运单号)
+	 * @return
+	 */
+	public List<WaybillErrorDomain> complementWaybillError(String waybillCodeC, String waybillCodeE);
+
     /**
      * 根据运单号查询运单信息
      * 	调用运单中间件
