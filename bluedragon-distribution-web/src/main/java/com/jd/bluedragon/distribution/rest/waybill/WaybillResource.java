@@ -61,10 +61,7 @@ import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.*;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.waybill.service.*;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
@@ -227,7 +224,10 @@ public class WaybillResource {
 	@Autowired
 	private AbnormalWaybillDiffService abnormalWaybillDiffService;
 
-    /**
+	@Autowired
+	private WaybillCancelService waybillCancelService;
+
+	/**
      * 根据运单号获取运单包裹信息接口
      *
      * @param waybillCode
@@ -323,6 +323,27 @@ public class WaybillResource {
 		}
 
 		try{
+			//不存在拦截直接返回
+			List<CancelWaybill> cancelWaybills = waybillCancelService.getByWaybillCode(param.getWaybillCode());
+			if(CollectionUtils.isEmpty(cancelWaybills)){
+				//不存在 直接返回
+				log.info("checkWaybillError not found CancelWaybill {}",param.getWaybillCode());
+				return result;
+			}
+			boolean existCustomInterceptFlag = false;
+			for(CancelWaybill cancelWaybill : cancelWaybills){
+				if(cancelWaybill.getInterceptType() != null){
+					if(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode() == cancelWaybill.getInterceptType()){
+						//存在新版自定义异常
+						existCustomInterceptFlag = true;
+					}
+				}
+			}
+			if(!existCustomInterceptFlag){
+				//不存在新版自定义异常 直接返回
+				log.info("checkWaybillError not found CancelWaybill 99 Intercept {}",param.getWaybillCode());
+				return result;
+			}
 			//获取运单异常差异数据
 			AbnormalWaybillDiff queryParam = new AbnormalWaybillDiff();
 			queryParam.setWaybillCodeE(param.getWaybillCode());
@@ -332,6 +353,7 @@ public class WaybillResource {
 			}
 			if(CollectionUtils.isEmpty(waybillDiffs)){
 				//不存在 直接返回
+				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
 				return result;
 			}
 			//存在则 不允许有多个 判断是否需要补打

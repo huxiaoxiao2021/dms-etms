@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
@@ -60,7 +61,10 @@ import java.util.concurrent.TimeUnit;
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    
+
+    @Value("${waybill.error.max.for.size:100}")
+    private Integer maxForSize;
+
     private static final int REST_CODE_SUC = 1;
     /**
      * 需要显示特快送标识的产品名称
@@ -270,7 +274,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     /**
      * 补全异常运单信息
      * @param waybillCodeC 正确运单号
-     * @param WaybillCodeE 错误运单号(运单生成的重复运单号)
+     * @param waybillCodeE 错误运单号(运单生成的重复运单号)
      * @return
      */
     @Override
@@ -307,7 +311,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
 
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null && !CollectionUtils.isEmpty(baseEntity.getData().getPackageList())) {
-
+            int i = 0;
             com.jd.etms.waybill.domain.Waybill waybill = baseEntity.getData().getWaybill();
             for(DeliveryPackageD packageD : baseEntity.getData().getPackageList()){
                 WaybillErrorDomain waybillErrorDomain = new WaybillErrorDomain();
@@ -317,9 +321,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 waybillErrorDomain.setReceiverName(waybill.getReceiverName());
                 waybillErrorDomain.setReceiverMobile(waybill.getReceiverMobile());
                 waybillErrorDomain.setReceiverAddress(waybill.getReceiverAddress());
-                //判断是否已补打
-                if(reprintRecordService.isBarCodeRePrinted(packageD.getPackageBarcode())){
-                    waybillErrorDomain.setRemark("已补打");
+                if(i++ < maxForSize ){
+                    //最大判断已打印数据量 判断是否已补打
+                    if(reprintRecordService.isBarCodeRePrinted(packageD.getPackageBarcode())){
+                        waybillErrorDomain.setRemark("已补打");
+                    }
                 }
                 waybillErrorDomains.add(waybillErrorDomain);
             }

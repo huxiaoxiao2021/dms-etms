@@ -56,8 +56,8 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
     public List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff) {
         CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.AbnormalWaybillDiffServiceImpl.query", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            if(abnormalWaybillDiff == null ||
-                    StringUtils.isBlank(abnormalWaybillDiff.getWaybillCodeC()) ||
+            if(abnormalWaybillDiff != null &&
+                    StringUtils.isBlank(abnormalWaybillDiff.getWaybillCodeC()) &&
                     StringUtils.isBlank(abnormalWaybillDiff.getWaybillCodeE())){
                 //缺少入参直接返回
                 logger.error("query 缺少参数 {},{}",abnormalWaybillDiff.getWaybillCodeC(),abnormalWaybillDiff.getWaybillCodeE());
