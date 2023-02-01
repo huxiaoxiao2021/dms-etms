@@ -10,4 +10,6 @@ public interface AbnormalWaybillDiffService {
     List<AbnormalWaybillDiff> query(AbnormalWaybillDiff abnormalWaybillDiff);
 
     List<AbnormalWaybillDiff> queryCache(AbnormalWaybillDiff abnormalWaybillDiff);
+
+    void save(String waybillCodeC,String waybillCodeE,String type);
 }

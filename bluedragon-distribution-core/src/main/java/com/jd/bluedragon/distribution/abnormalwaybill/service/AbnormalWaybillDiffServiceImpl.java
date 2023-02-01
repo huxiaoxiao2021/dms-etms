@@ -74,4 +74,19 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
     public List<AbnormalWaybillDiff> queryCache(AbnormalWaybillDiff abnormalWaybillDiff) {
         return this.query(abnormalWaybillDiff);
     }
+
+    @Override
+    public void save(String waybillCodeC, String waybillCodeE, String type) {
+        if(StringUtils.isBlank(waybillCodeC) && StringUtils.isBlank(waybillCodeE)){
+            //缺少入参直接返回
+            logger.error("query 缺少参数 {},{}",waybillCodeC,waybillCodeE);
+            return ;
+        }
+
+        AbnormalWaybillDiff diff = new AbnormalWaybillDiff();
+        diff.setWaybillCodeC(waybillCodeC);
+        diff.setWaybillCodeE(waybillCodeE);
+        diff.setType(type);
+        abnormalWaybillDiffDao.insert(diff);
+    }
 }

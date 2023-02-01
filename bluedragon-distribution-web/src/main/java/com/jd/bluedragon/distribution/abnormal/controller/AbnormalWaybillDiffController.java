@@ -54,6 +54,15 @@ public class AbnormalWaybillDiffController {
         return "/abnormal/abnormalWaybillDiff";
     }
 
+    @RequestMapping(value = "/add/{waybillCodeC}/{waybillCodeE}/{type}")
+    public String add(@PathVariable("waybillCodeC") String waybillCodeC,
+                      @PathVariable("waybillCodeE") String waybillCodeE,
+                      @PathVariable("type") String type) {
+        abnormalWaybillDiffService.save(waybillCodeC,waybillCodeE,type);
+        return "success";
+    }
+
+
 
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     @ResponseBody
