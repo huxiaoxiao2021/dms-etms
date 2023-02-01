@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -85,11 +86,56 @@ public class RouterServiceImpl implements RouterService {
         for (int i = arrayLastIndex; i >= 0; i--) {
             Integer item = NumberHelper.convertToInteger(routers[i]);
             if(Objects.equals(siteCode,item)){
-                return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList);
+                return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, null);
             }
             nextSiteIdList.add(0,item);
             firstNextSiteId = item;
         }
         return RouteNextDto.NONE;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.RouterServiceImpl.matchNextNodeAndLastNodeByRouter", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public RouteNextDto matchNextNodeAndLastNodeByRouter(Integer siteCode, String waybillCode, String routerStr){
+        if(siteCode == null || StringUtils.isEmpty(waybillCode)){
+            return RouteNextDto.NONE;
+        }
+        if(StringUtils.isEmpty(routerStr)) {
+            routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        }
+        if(StringUtils.isEmpty(routerStr)){
+            return RouteNextDto.NONE;
+        }
+        String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        List<Integer> nextSiteIdList = Lists.newArrayList();
+        Integer firstNextSiteId = null;
+        Integer firstLastSiteId = null;
+        int arrayLastIndex = routers.length - 1;
+
+        boolean currentSite = false;
+        for (int i = arrayLastIndex; i >= 0; i--) {
+            Integer item = NumberHelper.convertToInteger(routers[i]);
+            if(Objects.equals(siteCode,item)){
+                currentSite = true;
+                continue;
+            }
+
+            if(!currentSite) {
+                nextSiteIdList.add(0,item);
+                firstNextSiteId = item;
+            }else {
+                firstLastSiteId = item;
+                break;
+            }
+        }
+        if(!currentSite) {
+            return RouteNextDto.NONE;
+        }
+        if(log.isInfoEnabled()) {
+            log.info("RouterServiceImpl.matchNextNodeByRouter--routerStr={}，firstNextSiteId={}，firstLastSiteId={}，nextSiteIdList={}",
+                    routerStr,firstNextSiteId, firstLastSiteId, JsonHelper.toJson(nextSiteIdList));
+        }
+
+        return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, firstLastSiteId);
     }
 }

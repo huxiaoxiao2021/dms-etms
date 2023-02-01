@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.BatchSendSummary;
@@ -14,6 +15,8 @@ import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -28,11 +31,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wuzuxiang on 2018/11/7.
@@ -64,6 +63,20 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
 
         CallerInfo info = Profiler.registerInfo("DMS.WEB.DmsScannerFrameService.dealScannerFrameConsume", false, true);
         try {
+            /*
+                对单号barCode进行校验
+                上线时先进行日志观察，待确认该接口只有箱号、运单号、包裹号类型之后，再添加直接返回代码<code>return false</code>
+                如果需要支持其他单号类型，此处放开，再校验后续的流程
+             */
+            if (uploadData == null) {
+                return false;
+            }
+            if (!BusinessUtil.isBoxcode(uploadData.getBarCode()) && !WaybillUtil.isWaybillCode(uploadData.getBarCode())
+                    && !WaybillUtil.isPackageCode(uploadData.getBarCode()) && !BusinessUtil.isBoardCode(uploadData.getBarCode())) {
+                LOGGER.error("龙门架、分拣机分发消息错误，错误的单号类型：{}", JSONObject.toJSONString(uploadData));
+                return false;
+            }
+
             UploadData uploadData1 = convert2UploadData(uploadData);
             GantryDeviceConfig config1 = convert2GantryDeviceConfig(config);
 
@@ -71,7 +84,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             while (item.hasNext()) {
                 Map.Entry<Integer, ScannerFrameConsume> consume = item.next();
                 if (consume.getKey().intValue() == (config.getBusinessType().intValue() & consume.getKey().intValue())) {
-                    LOGGER.info("龙门架分发消息registerNo={},operateTime={},consume={},barcode={}",
+                    LOGGER.info("龙门架、分拣机分发消息registerNo={},operateTime={},consume={},barcode={}",
                             uploadData1.getRegisterNo(), uploadData1.getScannerTime(), consume.getKey(), uploadData1.getBarCode());
                     result = consume.getValue().onMessage(uploadData1, config1);
                 }
@@ -79,7 +92,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             Profiler.registerInfoEnd(info);
         } catch (Exception e) {
             Profiler.functionError(info);
-            LOGGER.error("DmsScannerFrameServiceImpl.dealScannerFrameConsume-->龙门架核心处理JSF接口异常",e);
+            LOGGER.error("龙门架、分拣机分发处理JSF接口异常",e);
         }
         return result;
     }

@@ -20,6 +20,13 @@ public interface JyBizTaskSendVehicleService {
     int updateSendVehicleTask(JyBizTaskSendVehicleEntity entity);
 
     /**
+     * 更新到来时间或者即将到来时间，取最小值为准更新
+     * @param entity
+     * @return
+     */
+    int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity);
+
+    /**
      * 根据派车单查发车任务
      * @param entity
      * @return

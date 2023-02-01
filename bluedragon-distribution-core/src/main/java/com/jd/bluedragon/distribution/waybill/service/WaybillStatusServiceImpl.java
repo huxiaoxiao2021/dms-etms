@@ -3,9 +3,11 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -198,6 +200,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setPackageBarCode(tWaybillStatus.getPackageCode());
 		bdTraceDto.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        setExtendParameter(tWaybillStatus,bdTraceDto);
 
 	}
 	
@@ -209,8 +212,41 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        setExtendParameter(tWaybillStatus,bdTraceDto);
 	}
-	
+	/**
+	 * 设置扩展属性
+	 * @param tWaybillStatus
+	 * @param bdTraceDto
+	 */
+	private void setExtendParameter(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
+        if(tWaybillStatus.getOperatorData() != null
+        		&& OperatorTypeEnum.AUTO_MACHINE.getCode().equals(tWaybillStatus.getOperatorData().getOperatorTypeCode())) {
+			tWaybillStatus.putExtendParamMap(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
+        }
+		if(tWaybillStatus.getExtendParamMap() != null && !tWaybillStatus.getExtendParamMap().isEmpty()){
+			bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
+		}
+	}
+	/**
+	 * tWaybillStatus转换成运单的对象WaybillSyncParameter
+	 * @param tWaybillStatus
+	 * @return
+	 */
+	private WaybillSyncParameter toWaybillSyncParameter(WaybillStatus tWaybillStatus) {
+		if(tWaybillStatus == null) {
+			return null;
+		}
+		WaybillSyncParameter parameter = new WaybillSyncParameter();
+		if(tWaybillStatus.getOperatorData() != null
+        		&& OperatorTypeEnum.AUTO_MACHINE.getCode().equals(tWaybillStatus.getOperatorData().getOperatorTypeCode())) {
+			tWaybillStatus.putExtendParamMap(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
+        }
+		if(tWaybillStatus.getExtendParamMap() != null && !tWaybillStatus.getExtendParamMap().isEmpty()){
+			parameter.setExtendSyncParam(tWaybillStatus.getExtendParamMap());
+		}
+		return parameter;
+	}
 	// 没有注入运单号和包裹号 (解封车)
 	private void toWaybillStatus3(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
 		bdTraceDto.setOperateType(tWaybillStatus.getOperateType());
@@ -219,6 +255,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        setExtendParameter(tWaybillStatus,bdTraceDto);
 	}
 
 	private Task findTask(List<Task> tasks, Long taskId, Integer taskType) {
@@ -283,7 +320,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 continue;
             }
 			WaybillStatus waybillStatus = JsonHelper.fromJson(task.getBody(), WaybillStatus.class);
-			WaybillSyncParameter param = new WaybillSyncParameter();
+			WaybillSyncParameter param = toWaybillSyncParameter(waybillStatus);
 
 			Integer operateType = waybillStatus.getOperateType();
 			if (WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING.equals(operateType)
@@ -523,7 +560,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                Map<String,Object> map=new HashMap<String, Object>();
+                Map<String,Object> map = bdTraceDto.getExtendParameter() == null ? Maps.<String, Object>newHashMap() : bdTraceDto.getExtendParameter();
                 /**
                  * create by: yangwenshu
                  * description:把新运单号加入ExtendParameter  Map里，用于换单打印场景

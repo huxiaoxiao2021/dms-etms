@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.transport.service;
 
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
@@ -23,4 +24,14 @@ public interface TransportRelatedService {
      */
     ImmutablePair<Integer, String> checkTransportTask(Integer siteCode, String transWorkCode, String sealCarCode,
                                                       String simpleCode, String vehicleNumber);
+    /*
+        判断是否是合流车
+        Integer siteCode,
+        String transWorkCode,
+        String sealCarCode,
+        String simpleCode,
+        String vehicleNumber
+     */
+    public String isMergeCar(Integer siteCode, String transWorkCode, String sealCarCode,
+                                           String simpleCode, String vehicleNumber);
 }

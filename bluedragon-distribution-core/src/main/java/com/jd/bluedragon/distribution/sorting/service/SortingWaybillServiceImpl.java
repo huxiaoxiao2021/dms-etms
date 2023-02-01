@@ -89,7 +89,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
         task.setBoxCode(sorting.getBoxCode());
         task.setCreateSiteCode(sorting.getCreateSiteCode());
         task.setKeyword1(String.valueOf(sorting.getCreateSiteCode()));
-        task.setKeyword2(sorting.getPackageCode());
+        task.setKeyword2(sorting.getWaybillCode());
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setBody(JsonHelper.toJson(sorting));
 

@@ -30,6 +30,10 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSendQueryCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -89,6 +93,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      * @time 2020-09-23 21:26:39 周三
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CollectionBagExceptionReport4PdaServiceImpl.queryBagCollectionHasException",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<QueryBoxCollectionReportResponse> queryBagCollectionHasException(QueryBoxCollectionReportRequest query) {
         if(log.isInfoEnabled()){
             log.info("CollectionBagExceptionReportServiceImpl.queryBagCollectionHasException param {}", JSON.toJSONString(query));
@@ -145,16 +150,20 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.setData(reportResponse);
                 return result;
             }
+            CallerInfo infotmp1 = Profiler.registerInfo("DMS.BASE.CollectionBagExceptionReport4PdaServiceImpl.getPreSendSiteIdtmp1", Constants.UMP_APP_NAME_DMSWEB, false, true);
             // 查询包裹起始、目的地信息及上游箱号。
             Integer preSendSiteId = this.getPreSendSiteId(packageCode, siteCode);
             if(preSendSiteId != null) {
+                CallerInfo infotmp2 = Profiler.registerInfo("DMS.BASE.CollectionBagExceptionReport4PdaServiceImpl.getPreSendSiteIdtmp2", Constants.UMP_APP_NAME_DMSWEB, false, true);
                 // 查询分拣数据得到上游箱号
                 String lastUpstreamBoxCode = this.getLastUpstreamBoxCode(query.getPackageCode(), preSendSiteId, siteCode);
                 boolean isBoxCode = BusinessUtil.isBoxcode(lastUpstreamBoxCode);
                 if(isBoxCode){
                     reportResponse.setUpstreamBoxCode(lastUpstreamBoxCode);
                 }
+                Profiler.registerInfoEnd(infotmp2);
             }
+            Profiler.registerInfoEnd(infotmp1);
 
             // 查询分拣数据
             if(preSendSiteId == null){
@@ -200,20 +209,25 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      * @time 2020-10-16 15:11:22 周五
      */
     private Integer getPreSendSiteId(String packageCode, Integer currentSiteCode) {
-        // 查询包裹起始、目的地信息及上游箱号。
-        Integer createSiteCode = null;
-        DmsDisSendQueryCondition dmsDisSendQueryCondition = new DmsDisSendQueryCondition();
-        dmsDisSendQueryCondition.setPackageCode(packageCode);
-        dmsDisSendQueryCondition.setDesSendSiteId(currentSiteCode);
-        dmsDisSendQueryCondition.setIsCancel(0);
-        com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> disSendResult =
-                dmsDisSendJsfService.queryByConditionFromEs(dmsDisSendQueryCondition, 100);
-        if(disSendResult != null && disSendResult.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
-                && CollectionUtils.isNotEmpty(disSendResult.getData())){
-            DmsDisSend dmsDisSend = disSendResult.getData().get(0);
-            createSiteCode = dmsDisSend.getDmsSiteId();
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.CollectionBagExceptionReport4PdaServiceImpl.getPreSendSiteId", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            // 查询包裹起始、目的地信息及上游箱号。
+            Integer createSiteCode = null;
+            DmsDisSendQueryCondition dmsDisSendQueryCondition = new DmsDisSendQueryCondition();
+            dmsDisSendQueryCondition.setPackageCode(packageCode);
+            dmsDisSendQueryCondition.setDesSendSiteId(currentSiteCode);
+            dmsDisSendQueryCondition.setIsCancel(0);
+            com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> disSendResult =
+                    dmsDisSendJsfService.queryByConditionFromEs(dmsDisSendQueryCondition, 100);
+            if(disSendResult != null && disSendResult.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
+                    && CollectionUtils.isNotEmpty(disSendResult.getData())){
+                DmsDisSend dmsDisSend = disSendResult.getData().get(0);
+                createSiteCode = dmsDisSend.getDmsSiteId();
+            }
+            return createSiteCode;
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        return createSiteCode;
     }
 
     private SiteWaybillTraceInfoDto getPreSendSiteTrackData(String packageCode, Integer currentSiteCode) {
@@ -506,6 +520,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      * @time 2020-09-23 21:26:39 周三
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CollectionBagExceptionReport4PdaServiceImpl.reportBagCollectionException",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> reportBagCollectionException(BoxCollectionReportRequest reportRequest) {
         if(log.isInfoEnabled()){
             log.info("CollectionBagExceptionReportServiceImpl.reportBagCollectionException param {}", JSON.toJSONString(reportRequest));
@@ -549,16 +564,21 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.init(JdCResponse.CODE_FAIL, "不能举报，原因：未查询到此包裹的称重明细数据");
                 return result;
             }
+
+            CallerInfo infotmp3 = Profiler.registerInfo("DMS.BASE.CollectionBagExceptionReport4PdaServiceImpl.getPreSendSiteIdtmp3", Constants.UMP_APP_NAME_DMSWEB, false, true);
             // 查询包裹起始、目的地信息及上游箱号
             Integer preSendSiteId = this.getPreSendSiteId(reportRequest.getPackageCode(), siteCode);
             if(preSendSiteId != null){
+                CallerInfo infotmp4 = Profiler.registerInfo("DMS.BASE.CollectionBagExceptionReport4PdaServiceImpl.getPreSendSiteIdtmp4", Constants.UMP_APP_NAME_DMSWEB, false, true);
                 // 查询分拣数据得到上游箱号
                 String lastUpstreamBoxCode = this.getLastUpstreamBoxCode(reportRequest.getPackageCode(), preSendSiteId, siteCode);
                 boolean isBoxCode = BusinessUtil.isBoxcode(lastUpstreamBoxCode);
                 if(isBoxCode){
                     exceptionReport.setUpstreamBoxCode(lastUpstreamBoxCode);
                 }
+                Profiler.registerInfoEnd(infotmp4);
             }
+            Profiler.registerInfoEnd(infotmp3);
             if(preSendSiteId == null){
                 SiteWaybillTraceInfoDto preSendSiteTrackData = this.getPreSendSiteTrackData(reportRequest.getPackageCode(), siteCode);
                 PackageState sendData = preSendSiteTrackData.getSendData();

@@ -65,6 +65,18 @@ public class BusinessUtil {
         }
         return sites;
     }
+    public static String[] getSiteCodeBySendCodeNew(String sendCode) {
+        String[] sites = new String[]{"-1", "-1"};
+        if (StringUtils.isNotBlank(sendCode)) {
+            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
+            if (matcher.matches()) {
+                sites[0] = matcher.group(1);
+                sites[1] = matcher.group(2);
+            }
+        }
+        return sites;
+    }
+
   /**
    * 是否为新批次号
    * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（yyyyMMddHH 10位数字）+序号（6位数字）+模7余数
@@ -1133,6 +1145,26 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是终端 （siteType =4或8）或（siteType =16且subType =128或16或1605或99或1604）
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType, Integer subType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+
+        List<Integer> terminalSiteSubTypeList = new ArrayList<Integer>();
+        terminalSiteSubTypeList.add(128);
+        terminalSiteSubTypeList.add(16);
+        terminalSiteSubTypeList.add(1605);
+        terminalSiteSubTypeList.add(99);
+        terminalSiteSubTypeList.add(1604);
+
+        return terminalSiteTypeList.contains(siteType) || (siteType != null && siteType == 16 && terminalSiteSubTypeList.contains(subType));
+    }
+
+    /**
      * 判断是否是车队
      * @param siteType
      * @return
@@ -1155,6 +1187,13 @@ public class BusinessUtil {
         }
         return null;
     }
+    public static String getReceiveSiteCodeFromSendCodeNew(String sendCode) {
+        String[] sites = getSiteCodeBySendCodeNew(sendCode);
+        if (sites.length > 0) {
+            return sites[1];
+        }
+        return null;
+    }
 
     /**
      * 通过批次号获取始发站点
@@ -1165,6 +1204,14 @@ public class BusinessUtil {
     public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
     	Integer[] sites = getSiteCodeBySendCode(sendCode);
         if (sites[0]>0) {
+            return sites[0];
+        }
+        return null;
+    }
+
+    public static String getCreateSiteCodeFromSendCodeNew(String sendCode) {
+        String[] sites = getSiteCodeBySendCodeNew(sendCode);
+        if (sites.length > 0) {
             return sites[0];
         }
         return null;
@@ -2088,7 +2135,15 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
                 WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
     }
-
+    /**
+     * 判断运单维度是否有增值服务信息，waybillSign86位=1或者3
+     * @param waybillSign
+     * @return
+     */
+    public static boolean hasWaybillVas(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_1,WaybillSignConstants.CHAR_86_3);
+    }
     /**
      * 判断是否是返单
      */
@@ -2513,6 +2568,36 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+
+    /**
+     * 判断是否是快运运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,40,'2')
+                && BusinessUtil.isSignChar(waybillSign,54,'0')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
+
+    /**
+     * 判断是否是快运改址拦截的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyAddressModifyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return isKyWaybill(waybillSign)
+                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3');
+    }
     /**
      * 通过运单标识 判断是否需求称重
      * <p>
@@ -2524,5 +2609,35 @@ public class BusinessUtil {
     public static boolean isAllowWeight(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
     }
+    /**
+     *
+     * @param waybillCode
+     * @param sourceCode
+     * @param sendPay
+     * @return
+     */
+    public static boolean isDouyin(String waybillCode,String sourceCode,String sendPay){
+    	return DmsConstants.SOURCE_CODE_DOUYIN.equals(sourceCode)
+    			|| (waybillCode != null && waybillCode.startsWith(DmsConstants.WAYBILL_CODE_PRE_DOUYIN))
+    			|| BusinessUtil.isSignChar(sendPay, SendPayConstants.POSITION_327,SendPayConstants.CHAR_327_2)
+    	;
 
+    }
+
+    /**
+     * 根据waybillSign 判断此运单是否包含增值服务 是： true  不是：false
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isVasWaybill(String waybillSign){
+        return !isSignChar(waybillSign,WaybillSignConstants.POSITION_86,WaybillSignConstants.CHAR_86_0);
+    }
+    /**
+     * 是否特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKS(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
+    }
 }

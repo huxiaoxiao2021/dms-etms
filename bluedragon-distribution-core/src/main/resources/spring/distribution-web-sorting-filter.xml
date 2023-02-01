@@ -160,8 +160,8 @@
 
 
     <util:list id="boardCombinationFilterList">
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillParamFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
