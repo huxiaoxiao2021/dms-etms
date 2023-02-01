@@ -6,22 +6,22 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.domain;
 
 public enum TypeEnum {
-    SYS_AUTO(1, "需要补打"),
-    MANAL(2, "人工处理"),;
+    SYS_AUTO("1", "需要补打"),
+    MANAL("2", "人工处理"),;
 
-    private int code;
+    private String code;
     private String desc;
 
-    private TypeEnum(int code, String desc) {
+    private TypeEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }
 
-    public int getCode() {
+    public String getCode() {
         return this.code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
