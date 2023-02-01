@@ -1,0 +1,6138 @@
+{
+  "code": 200,
+  "status": 200,
+  "pagination": {
+    "size": 1000,
+    "start": 0,
+    "page": 1,
+    "totalRecord": 175,
+    "pages": 1
+  },
+  "data": [
+    {
+      "id": 4923851,
+      "createBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "createTime": 1672902781000,
+      "updateBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "updateTime": 1673855111000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "duccPropertyConfig.useDucc",
+      "value": "false",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 21,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672902781000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4895313,
+      "createBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "createTime": 1672283365000,
+      "updateBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672898308000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "logger.level",
+      "value": "ROOT=DEBUG",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 14,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672283365000,
+      "compress": 0,
+      "size": 10,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896079,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295280000,
+      "updateBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672384740000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.aiDistinguishSwitch",
+      "value": "true",
+      "description": "人工抽检是否开启AI图片识别",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 11,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295280000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896261,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295363000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295363000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.allBCBoxFilterWebSite",
+      "value": "",
+      "description": "BC箱号强制绑定循环集包袋拦截黑名单  1代表不拦截  参数是站点代表站点拦截",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295363000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896196,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295334000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295334000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.allPureValidateWeightWebSite",
+      "value": "364609,497,1087,3084,131512,131516,561999,562297,600108,683492,715328,736834,738848,738850,748770,754450,754452,755382,843988,858990,868472,1331740,1331746,1331754,1331762,1331768,1331776,1366748,151678,662006,691538,1609,755380,1989,662014,755380,848674,1366370,1086,1612,2005,71529,143483,419358,573599,582575,601999,605036,670784,683514,691538,821602,823100,872760,1268396,1323742,1332782,1332784,1332786,1345120,1345124,1345128,1345140,1345162,1354762,1354782,1358206,1388778,1388780,1397066,1397630,1397768,1428362,1459884,1459890,1459892,1459894,1459896,1459898,835424,1289586,2226,121669,125230,121674,58175,58176,418866,422853,647980,700840,733208,733220,733228,850714,858330,878094,878106,1202138,1241108,1241114,1289572,1334324,1356250,1364944,1394630,1394634,1394636,1418376,1609,1792,2049,67492,67492,69321,177314,190132,428396,428396,572138,572139,572847,606765,606766,668356,673578,696382,713734,843680,852798,860394,864698,865546,1273968,1288854,1323444,1327050,1327488,1337238,1357314,1357562,1357928,1367494,1367506,1367510,1367516,1386336,1394374,1397082,1454978,2505,3011,3072,58174,71503,121669,121671,121673,121674,125230,139523,151678,191650,191651,191656,191657,391925,597261,598440,608950,608952,613327,639106,686886,699686,706658,755378,761804,822956,839286,861094,1236828,1252508,1252512,1263366,1265378,1324056,1358224,1358226,1358228,1358230,1358234,1358236,1358238,1358240,1358244,1358246,1361458,1369476,1370368,632,1534,2860,2868,3036,3088,3103,3104,3105,3106,120191,150232,155891,265286,265318,364605,364609,422835,492544,492554,597044,607319,625130,667132,694498,695114,696270,697578,703078,704686,729034,730194,739366,756406,761798,831908,861098,864700,866044,866046,866048,869184,876718,1257762,1292906,1292908,1326740,1355022,1391468,1391470,1391472,1397474,1397476,908,2002,2226,3074,3077,56506,56542,56880,62347,74123,74124,146054,231305,238519,245668,267460,436859,554230,605267,639110,662006,682204,706634,708808,737376,820864,833134,835424,844100,868402,1224704,1289586,1289588,1325064,1357936,1360072,1363120,1363122,1363130,1386070,1386408",
+      "description": "纯配外单0重量拦截黑名单： 1 是全部不拦截，如果是 站点，站点  代表站点是拦截黑名单",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295334000,
+      "compress": 0,
+      "size": 2082,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896080,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295280000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295280000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.androidIsExecuteNewSpotCheck",
+      "value": "false",
+      "description": "转运抽检是否执行新抽检模式",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295280000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896143,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295304000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295304000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.asynBufferDynamicProducerProducerType",
+      "value": "FAILOVER",
+      "description": "JMQ 直接存入JMQ,TBSCHEDULE 直接存入DB或者Redis,FAILOVER 在JMQ、TBSCHEDULE按顺序failover",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295304000,
+      "compress": 0,
+      "size": 8,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4891793,
+      "createBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "createTime": 1672223491000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295292000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.asynbufferEnabledTaskType",
+      "value": "3300;0;1;30;40;60;80;4300;6667;1210;1220;1110;1120;1130;1140;1600;1601;1400;6666;1160;1320;1180;1200;1300;1260;1280;1800;1170;1136;1350;3000",
+      "description": "开启的多级异步缓冲组件的任务类型列表，任务类型为整形值，多个类型以分号隔开，如1;2",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672223491000,
+      "compress": 0,
+      "size": 140,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896229,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295345000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295345000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled",
+      "value": "false",
+      "description": "是否存储消费成功的任务信息",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295345000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896227,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295343000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295343000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1",
+      "value": "1300-4;1300-6",
+      "description": "不开启jmq模式的task类型,配置规则：taskType-keyword1；taskType-keyword1",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295343000,
+      "compress": 0,
+      "size": 13,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896252,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295358000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295358000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode",
+      "value": "1289588,848674,696382,139523,2505,125230,866048,267460,1534,364609,2002,146054,364605,706634,625130,866044,861098,121674,682076,630696,686886,695114,662006,755380,71529,428396,1289586,820864,682184,177314,1367510,69321,754242,2049,1366370,1334324,1370368,1252512,1252508,1358226,674314,674308,131512,1358228,674432,843680,682182,682180,1370368,1357928,647888,1386336,554230,1367494,1454978,265318,245668,713734,3072,62347,1357936,652208,632008,674874,654932,682272,1436014,682134,667864,624457,436859,1391468,238519,606765,1358240,1358244,2005,1345162,573599,1358246,265286,3105,821602,150232,597261,1397476,1397474,1345162,674888,866046,755378",
+      "description": "龙门架上传称重任务接口切换，开放的场地",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295358000,
+      "compress": 0,
+      "size": 644,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896175,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295322000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295322000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch",
+      "value": "true",
+      "description": "龙门架上传称重任务接口切换",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295322000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896280,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295374000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295374000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.backDispatchCheck",
+      "value": "true",
+      "description": "反调度校验",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295374000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896133,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295298000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295298000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.BCContainWJNumberLimit",
+      "value": "10",
+      "description": "BC箱号绑定WJ箱号个数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295298000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896197,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295334000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295334000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.bigWaybillWaringSize",
+      "value": "29996",
+      "description": "大运单报警",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295334000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896159,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295313000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295313000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.boardCombinationSwitchVerToWebSites",
+      "value": "1",
+      "description": "组板校验切换开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295313000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896086,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295284000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295284000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.boxLimitSites",
+      "value": "all",
+      "description": "PDA建箱包裹数量限制 试用站点",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295284000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896137,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295300000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295300000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.bTemplateRouterExecuteNew",
+      "value": "true",
+      "description": "B网面单路由是否开启新模式",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295300000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896238,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295350000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295350000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.bulkScanPackageMinCount",
+      "value": "100",
+      "description": "大宗包裹最小数量",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295350000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896230,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295345000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295345000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.businessLogQueryPageSwitch",
+      "value": "0",
+      "description": "日志查询开关 0：关闭 1：开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295345000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896185,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295327000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295327000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.cancelJimaoxinSwitchToOMS",
+      "value": "true",
+      "description": "取消鸡毛信切换OMS接口开关，true：切换；false：不切换",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295327000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4895701,
+      "createBy": {
+        "id": 3704,
+        "code": "wuyoude"
+      },
+      "createTime": 1672288355000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295277000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.cassandraGlobalSwitch",
+      "value": "false",
+      "description": "cassandra服务的全局开关，若资源不可用则可以关闭写入。",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672288355000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896186,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295328000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295328000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.checkBoxSendedSwitchOn",
+      "value": "true",
+      "description": "箱号是否发货开关（true:老逻辑，false:新逻辑）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295328000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896081,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295281000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295281000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.checkSignAndReturn",
+      "value": "true",
+      "description": "是否调度终端 判断签单返还审批",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295281000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896162,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295315000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295315000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.checkSiteSubType",
+      "value": "true",
+      "description": "校验站点子类型是否三方:16",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295315000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896124,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295293000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295293000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch",
+      "value": "true",
+      "description": "出管国际化写入接口开关 true调用新接口，false 调用旧接口",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295293000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896242,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295352000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295352000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch",
+      "value": "true",
+      "description": "出管国际化查询接口开关 true查新接口，false 查旧接口",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295352000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896169,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295318000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295318000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.chuguanNewPageQuerySwitch",
+      "value": "true",
+      "description": "出管国际化页面查询接口开关 true查新接口，false 查旧接口",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295318000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896078,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295279000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295279000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch",
+      "value": "true",
+      "description": "写出管是否开启供应链中台二期逻辑true开启，false不开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295279000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896174,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295321000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295321000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.clickIntervalSecond",
+      "value": "5",
+      "description": "限制按钮点击间隔时间（秒），配置-1关闭提示",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295321000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896255,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295359000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295359000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.clientOfflineMenuConfig",
+      "value": "{\n    \"ordinary\": {\n        \"0607005,0607006,0607007,0607008\":\"此功能已下线!\"\n    },\n    \"special\": {\n        \"0000000\":\"此功能已下线，请用**功能代替!\"\n    }\n}",
+      "description": "客户端下线菜单配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295359000,
+      "compress": 0,
+      "size": 140,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896209,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295341000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295341000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.clientPrintQueryGapTime",
+      "value": "0",
+      "description": "打印客户端大查询限制查询间隔时间",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295341000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896128,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295295000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295295000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.closeAsynBufferSaveTaskToDb",
+      "value": "0",
+      "description": "异步缓冲框架，JMQ消费失败不再降级为TB任务  1：关闭DB模式",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295295000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896089,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295285000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295285000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.coldChainStorageSmsSwitch",
+      "value": "true",
+      "description": "冷链卡班暂存触发短信开关；true，开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295285000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896276,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295372000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295372000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.collectGoodsDeleteSites",
+      "value": "652208,630696,1833229,674882",
+      "description": "集货区是否删除站点配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295372000,
+      "compress": 0,
+      "size": 28,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896117,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295289000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295289000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.collectionAddressSiteCodes",
+      "value": "",
+      "description": "集包地配置开启开关（站点以\",\"分开）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295289000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896129,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295296000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295296000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.controlCheckPackage",
+      "value": "true",
+      "description": "开关控制是否校验包裹号  true 校验  false 不校验",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295296000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896202,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295337000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295337000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.controlCheckRoute",
+      "value": "true",
+      "description": "开关控制是否校验路由异常提醒  true 提醒  false不提醒",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295337000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896091,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295286000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295286000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.createSendTaskExecuteCount",
+      "value": "2147483647",
+      "description": "老发货改造兜底task可以执行任务的次数阈值",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295286000,
+      "compress": 0,
+      "size": 10,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896217,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295342000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295342000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.createSendTasktimeOut",
+      "value": "60",
+      "description": "老发货改造-兜底task超时时间阈值",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295342000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896125,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295294000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295294000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.dazongPackageOperateMax",
+      "value": "20",
+      "description": "快运大宗订单包裹数定义",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295294000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896270,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295368000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295368000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.deliverHideSites",
+      "value": "632008;652208;674308;1433848;1436072;682274;630692;630696;674432;682220;754242;682218;1394608;654932;624457;674886;674874;1464460;682134;1345146;667864;1436012;682132;682206;1357280;1387978;682272;1459794;631204;682180;1418508;754218;668402;754222;659048;674884;682076;659052;682194;725394;682200;668396;682074;682196;849742;1365868;705582;682198;682262;864100;843106;682190;1396470;845290;1365782;674314;654778;630694;674322;1368484;1433274;1487266;674430;654472;1387944;1398250;682068;654438;682186;674882;1436014;878088;596827;869052;682240;754210;1488782;881488;674888",
+      "description": "安卓快运发货隐藏站点编号",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295368000,
+      "compress": 0,
+      "size": 572,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896178,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295323000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295323000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.deliverySendAsyncSite",
+      "value": "ALL",
+      "description": "老发货异步处理开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295323000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896120,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295290000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295290000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.deliverySendTaskSleepMills",
+      "value": "5000",
+      "description": "老发货异步任务延时消费毫秒数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295290000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896239,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295350000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295350000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.dellCancelDeliveryCheckSealCar",
+      "value": "1",
+      "description": "取消发货校验封车业务开关。0：关闭  非0：开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295350000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896251,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295357000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295357000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.deviceAIDistinguishPackNum",
+      "value": "100",
+      "description": "dws抽检AI识别大包裹限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295357000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896134,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295299000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295299000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.deviceAIDistinguishSwitch",
+      "value": "true",
+      "description": "dws抽检AI识别开关，多个场地以,分隔",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295299000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896171,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295319000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295319000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.disablePdaOldLogin",
+      "value": "true",
+      "description": "禁用登陆老接口",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295319000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896271,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295369000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295369000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.dpSiteCodes",
+      "value": "1999257",
+      "description": "DP上海虚拟分拣中心",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295369000,
+      "compress": 0,
+      "size": 7,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896103,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295288000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295288000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch",
+      "value": "true",
+      "description": "批量一车一单发货，德邦单匹配德邦批次号开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295288000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896281,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295374000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295374000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.economicNetPushZTDRetry",
+      "value": "false",
+      "description": "经济网推送智腾达失败重试",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295374000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896152,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295309000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295309000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.economicNetValidateWeightSwitch",
+      "value": "true",
+      "description": "众邮重量拦截 true 拦截，false 不拦截",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295309000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896210,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295342000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295342000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.eNetSyncWaybillCodeAndBoxCode",
+      "value": "false",
+      "description": "接受经济网推送箱包关系  false-不接收永远返回成功",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295342000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896092,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295287000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295287000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.executeBCFuse",
+      "value": "true",
+      "description": "是否执行抽检BC融合",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295287000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896145,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295305000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295305000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.exportConcurrencyLimitNum",
+      "value": "50",
+      "description": "单个导出页面限制最大并行导出执行数   -1 作为系统降级不支持导出",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295305000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896237,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295349000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295349000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.exportSpotCheckMaxSize",
+      "value": "300000",
+      "description": "抽检导出最大限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295349000,
+      "compress": 0,
+      "size": 6,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896250,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295357000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295357000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.faceAbnormalReportConfig",
+      "value": "[\n    {\n        \"abnormalCode\" : 1,\n        \"abnormalName\" : \"操作问题\",\n        \"list\" : [\n            {\n                \"abnormalCode\" : 101,\n                \"abnormalName\" : \"快递面单未贴箱体最大面\"\n            },\n            {\n                \"abnormalCode\" : 107,\n                \"abnormalName\" : \"快运面单未贴箱体最小面\"\n            },\n            {\n                \"abnormalCode\" : 102,\n                \"abnormalName\" : \"面单骑缝粘贴\"\n            },\n            {\n                \"abnormalCode\" : 104,\n                \"abnormalName\" : \"面单褶皱不平\"\n            },\n            {\n                \"abnormalCode\" : 103,\n                \"abnormalName\" : \"双面单\"\n            },\n            {\n                \"abnormalCode\" : 105,\n                \"abnormalName\" : \"多包裹共用一个面单\"\n            },\n            {\n                \"abnormalCode\" : 106,\n                \"abnormalName\" : \"未粘贴冬季/防水面单\"\n            },\n            {\n                \"abnormalCode\" : 108,\n                \"abnormalName\" : \"转网未换单\"\n            }\n        ]\n    },\n    {\n        \"abnormalCode\" : 2,\n        \"abnormalName\" : \"设备问题\",\n        \"list\" : [\n            {\n                \"abnormalCode\" : 201,\n                \"abnormalName\" : \"打印拉丝断桢\"\n            },\n            {\n                \"abnormalCode\" : 202,\n                \"abnormalName\" : \"面单部分无墨/墨印重\"\n            }\n        ]\n    },\n    {\n        \"abnormalCode\" : 3,\n        \"abnormalName\" : \"模板问题\",\n        \"list\" : [\n            {\n                \"abnormalCode\" : 305,\n                \"abnormalName\" : \"滑道信息缺失\"\n            },\n            {\n                \"abnormalCode\" : 301,\n                \"abnormalName\" : \"滑道号字体过小不易识别\"\n            },\n            {\n                \"abnormalCode\" : 303,\n                \"abnormalName\" : \"最上条码无包裹号(-1-1-)\"\n            },\n            {\n                \"abnormalCode\" : 302,\n                \"abnormalName\" : \"面单信息字符串位\"\n            },\n            {\n                \"abnormalCode\" : 304,\n                \"abnormalName\" : \"非京东标准面单模板\"\n            }\n        ]\n    },\n    {\n        \"abnormalCode\" : 4,\n        \"abnormalName\" : \"系统问题\",\n        \"list\" : [\n            {\n                \"abnormalCode\" : 401,\n                \"abnormalName\" : \"滑道信息错误\"\n            },\n            {\n                \"abnormalCode\" : 402,\n                \"abnormalName\" : \"分拣信息错误\"\n            }\n        ]\n    }\n]",
+      "description": "面单举报一二级类型配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295357000,
+      "compress": 0,
+      "size": 2299,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896266,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295366000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295366000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.goodsResidenceTime",
+      "value": "3",
+      "description": "易冻损货物暂存时间最小限制时间",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295366000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896119,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295290000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295290000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol",
+      "value": "",
+      "description": "隐藏特殊始发场地替换字符",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295290000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896207,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295340000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295340000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.hideSpecialStartSitePrintSwitch",
+      "value": "1",
+      "description": "隐藏特殊始发场地名称开关，0-关，1-开",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295340000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896074,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295277000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295277000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList",
+      "value": "58175,733208,700840,878094,1241114,858330,1241108,1334324,1489704,674430,699378,772690,853474",
+      "description": "隐藏特殊始发场地目的场地名单",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295277000,
+      "compress": 0,
+      "size": 93,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896264,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295365000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295365000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.identityRecogniseSiteSwitch",
+      "value": "ALL",
+      "description": "身份证识别功能，站点开关。\",\"为分隔符",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295365000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896136,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295300000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295300000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.insertDbRowsOneTime",
+      "value": "100",
+      "description": "单次插入数据库的条数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295300000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896260,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295362000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295362000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.inspectionAggEffectiveSites",
+      "value": "ALL",
+      "description": "提供标准包裹验货消息",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295362000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896122,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295292000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295292000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.inspectionAssertDemotion",
+      "value": "true",
+      "description": "验货依赖物料开关 true：不依赖",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295292000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896144,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295304000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295304000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.inspectionBigWaybillEffectiveSites",
+      "value": "ALL",
+      "description": "大运单拆分包裹验货的分拣中心，配置-1则关闭，配置ALL全部开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295304000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896258,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295361000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295361000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.itmsBizEnableSwitch",
+      "value": "",
+      "description": "西藏模式开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295361000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896263,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295364000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295364000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal",
+      "value": "0",
+      "description": "判断包裹是否打印的逻辑，包含终端首次打印的数据。默认不包含 0：不包含；1：包含",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295364000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896084,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295283000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295283000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyBasicServerSwitch",
+      "value": "true",
+      "description": "拣运基础服务开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295283000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896204,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295338000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295338000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyComboardCountLimit",
+      "value": "100",
+      "description": "组板限制包裹数量",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295338000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896232,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295346000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295346000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyComboardScanUserBeginDay",
+      "value": "1",
+      "description": "组板岗网格内扫描人数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295346000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896076,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295278000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295278000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyComboardSiteCTTPageSize",
+      "value": "5000",
+      "description": "组板岗场地笼车查询分页参数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295278000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896190,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295330000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295330000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay",
+      "value": "7",
+      "description": "查询未封车板的时间限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295330000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896208,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295340000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295340000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyDemotionConfig",
+      "value": "[\n    {\n        \"demotionFuncKey\":\"jyFlinkSendIsDemotion\",\n        \"demotionSwitch\":false,\n        \"demotionHintMsg\":\"拣运发货服务(flink)降级，进度数据可能不准确，但不影响操作。工程师们正在紧张排查中，系统恢复后将会收到通知。\"\n    },\n    {\n        \"demotionFuncKey\":\"jyFlinkUnloadIsDemotion\",\n        \"demotionSwitch\":false,\n        \"demotionHintMsg\":\"拣运卸车服务(flink)降级，进度数据可能不准确，但不影响操作。工程师们正在紧张排查中，系统恢复后将会收到通知。\"\n    },\n    {\n        \"demotionFuncKey\":\"jySealCarMonitorIsDemotion\",\n        \"demotionSwitch\":false,\n        \"demotionHintMsg\":\"拣运封车降级，进度数据可能不准确，但不影响操作。工程师们正在紧张排查中，系统恢复后将会收到通知。\"\n    },\n    {\n        \"demotionFuncKey\":\"jyVehicleTaskUnloadDetailIsDemotion\",\n        \"demotionSwitch\":false,\n        \"demotionHintMsg\":\"拣运卸车降级，进度数据可能不准确，但不影响操作。工程师们正在紧张排查中，系统恢复后将会收到通知。\"\n    },\n    {\n        \"demotionFuncKey\":\"jyVehicleSendDetailIsDemotion\",\n        \"demotionSwitch\":false,\n        \"demotionHintMsg\":\"拣运发车降级，进度数据可能不准确，但不影响操作。工程师们正在紧张排查中，系统恢复后将会收到通知。\"\n    }\n]",
+      "description": "拣运功能降级开关配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295340000,
+      "compress": 0,
+      "size": 914,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896201,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295336000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295336000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jySendTaskCreateTimeBeginDay",
+      "value": "7",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295336000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896191,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295331000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295331000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jySendTaskLoadRateLimit",
+      "value": "80,150",
+      "description": "拣运发货任务装载率上下限配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295331000,
+      "compress": 0,
+      "size": 6,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896241,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295351000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295351000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jySendTaskPlanTimeBeginDay",
+      "value": "3",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295351000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896195,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295333000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295333000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jySendTaskPlanTimeEndDay",
+      "value": "4",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295333000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896164,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295316000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295316000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyUnloadCarListQueryDayFilter",
+      "value": "3",
+      "description": "转运卸车岗查询列表时间过滤",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295316000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896200,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295336000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295336000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyUnloadSingleWaybillThreshold",
+      "value": "1500",
+      "description": "拣运卸车逐单卸阈值",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295336000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896090,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295286000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295286000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.jyUnSealTaskOrderByIntegral",
+      "value": "1",
+      "description": "到车任务按积分排序开关 1：开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295286000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896244,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295353000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295353000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.limitSiteUsePackReprint",
+      "value": "0",
+      "description": "是否限制终端人员使用包裹补打 1：限制 0：不限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295353000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896177,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295323000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295323000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.loadScanTaskPackageMaxSize",
+      "value": "30001",
+      "description": "装车任务-最大包裹数限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295323000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896228,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295344000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295344000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.loadScanTaskPackageSize",
+      "value": "110",
+      "description": "装车-版号转包裹号最大包裹数限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295344000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896187,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295328000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295328000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.loadScanTaskWaybillSize",
+      "value": "2000",
+      "description": "装车扫描每个任务下的运单数量上线",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295328000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896273,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295370000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295370000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.logToBusinessLogByKafka",
+      "value": "false",
+      "description": "决定是否使用kafka写入日志",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295370000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896182,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295326000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295326000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.menuCodeFuncConfig",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":8,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":16,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":32,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":96,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":100,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":101,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":109,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    }\n]",
+      "description": "打印客户端菜单功能配置，根据菜单编码和站点类型和站点子类型获取功能权限",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295326000,
+      "compress": 0,
+      "size": 707,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896172,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295320000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295320000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.menuCodeFuncConfigNew",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":8,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":16,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":32,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":96,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":100,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":101,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":109,\n        \"menuCode\":0601009,\n        \"isCanWeight\":false\n    }\n]",
+      "description": "打印客户端菜单功能配置，根据菜单编码和站点类型和站点子类型获取功能权限（新）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295320000,
+      "compress": 0,
+      "size": 739,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896203,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295338000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295338000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.menuCodeFuncConfigUat",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":8,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":16,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":32,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":96,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":100,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":101,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    },\n    {\n        \"siteType\":109,\n        \"menuCode\":109,\n        \"isCanWeight\":false\n    }\n]",
+      "description": "打印客户端菜单功能配置，根据菜单编码和站点类型和站点子类型获取功能权限",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295338000,
+      "compress": 0,
+      "size": 707,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896205,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295339000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295339000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.migrationDbBackupReplicateEnable",
+      "value": "true",
+      "description": "bool值，表示数据库写复制到备份数据库（mysql）的开关，true表示开",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295339000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896253,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295358000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295358000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp",
+      "value": "true",
+      "description": "bool值，数据库复制中是否忽略异常，true表示忽略异常，false表示不忽",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295358000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896272,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295369000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295369000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.multiplePackageSpotCheckSites",
+      "value": "ALL",
+      "description": "一单多件抽检场地配置",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295369000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896160,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295314000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295314000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.multiplePackageSpotCheckSwitch",
+      "value": "1",
+      "description": "一单多件抽检开关，0-关，1-开",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295314000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896245,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295354000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295354000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.needInterceptUrls",
+      "value": "/services/tasks/,/services/tasks,/services/command/execute,/services/sendprint,/services/order,waybill/waybillPack,/services/reverse/exchange/getNewWaybillCode,/services/waybill/exchange/weightAndVolume/limit,/services/waybill/getPrintWaybill",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295354000,
+      "compress": 0,
+      "size": 242,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896248,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295355000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295355000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.needUseNewReverseApi",
+      "value": "false",
+      "description": "百川接口-开关 true  false",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295355000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896163,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295315000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295315000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.needValidateMainLineBizSourceList",
+      "value": "[25,2]",
+      "description": "传摆发货-干支限制业务列表[25,2]",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295315000,
+      "compress": 0,
+      "size": 6,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896259,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295362000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295362000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.needValidateMainLineBizSources",
+      "value": "-1",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295362000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896157,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295312000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295312000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.newLogPageTips",
+      "value": "</span><a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/report/sortingLog\"target=\"_Blank\">集包数据查询请点我（分拣数据查询）;</a> ? \n<a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog\"target=\"_Blank\">离线日志查询请点我;</a>\n<a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dmsw.jd.com/#/operation/absoluteUrl/businessInterceptReport\"target=\"_Blank\">异常拦截数据查询请点我;</a>\n<a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/print/reprintRecord\"target=\"_Blank\">补打记录;</a>\n<span style=\"color: #EB7347;font-size: 16px\">请看左边的文字，此功能已经停用！有疑问请联系<a style=\"text-decoration:underline;color: #EB7347;font-weight:bold;font-size: 18px;\" >分拣小秘</a></span>；",
+      "description": "日志页面提示",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295312000,
+      "compress": 0,
+      "size": 829,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896269,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295368000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295368000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.newPrintHandoverListSwitch",
+      "value": "true",
+      "description": "是否开启新发货交接",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295368000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896170,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295319000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295319000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.newSpotCheckSiteCodes",
+      "value": "true",
+      "description": "是否开启新抽检，true表示全国开启，空表示不开启，多个站点以,隔开",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295319000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896265,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295365000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295365000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.noAuthMenuConfig",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"noAuthMenuCodes\":[301,302,303,401]\n    },\n    {\n        \"siteType\":8,\n        \"noAuthMenuCodes\":[301,302,303,401]\n    }\n]",
+      "description": "打印客户端无权限菜单编码配置，根据站点类型和站点子类型配置不同菜单编码",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295365000,
+      "compress": 0,
+      "size": 160,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896262,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295364000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295364000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.noAuthMenuConfigNew",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"noAuthMenuCodes\":[0603007,0603001,0603002,0604001]\n    },\n    {\n        \"siteType\":8,\n        \"noAuthMenuCodes\":[0603007,0603001,0603002,0604001]\n    }\n]",
+      "description": "打印客户端无权限菜单编码配置，根据站点类型和站点子类型配置不同菜单编码（新）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295364000,
+      "compress": 0,
+      "size": 192,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896193,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295332000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295332000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.noAuthMenuConfigUat",
+      "value": "[\n    {\n        \"siteType\":4,\n        \"noAuthMenuCodes\":[301,302,303,401]\n    },\n    {\n        \"siteType\":8,\n        \"noAuthMenuCodes\":[301,302,303,401]\n    }\n]",
+      "description": "打印客户端无权限菜单编码配置，根据站点类型和站点子类型配置不同菜单编码",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295332000,
+      "compress": 0,
+      "size": 160,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896278,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295373000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295373000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.notSignedOutRecordMoreThanHours",
+      "value": "18",
+      "description": "自动签退超过多少小时未签退的数据",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295373000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896165,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295316000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295316000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlineLogGlobalSwitch",
+      "value": "false",
+      "description": "true：保存日志 false：不再保存",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295316000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896148,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295307000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295307000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlinePdaMenuCode",
+      "value": "0101015",
+      "description": "pda下线菜单编码",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295307000,
+      "compress": 0,
+      "size": 7,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896192,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295331000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295331000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlineQuickSeal",
+      "value": "true",
+      "description": "下线一键封车",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295331000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896149,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295307000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295307000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlineTaskOperateTimeBeforeNowLimitHours",
+      "value": "96",
+      "description": "离线任务操作时间限制：默认在系统时间之前96h丢弃，之内则记录上传的操作时间",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295307000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896135,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295299000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295299000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours",
+      "value": "24",
+      "description": "离线任务矫正操作时间得时间范围，超过该值则会被纠正为当前时间（单位：h）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295299000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896275,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295371000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295371000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.offlineTaskReportInterceptSites",
+      "value": "0",
+      "description": "离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，类似1243,3534表示具体场地",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295371000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896254,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295359000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295359000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.oldLogPageTips",
+      "value": "</span><a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/report/sortingLog\"target=\"_Blank\">集包数据查询请点我（分拣数据查询）;</a> ? \n<a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog\"target=\"_Blank\">离线日志查询请点我;</a>\n<a style=\"color: #D24D57;font-size: 24px;text-decoration:underline;\" href=\"http://dms-w.jd.com/#/page/print/reprintRecord\"target=\"_Blank\">补打记录;</a>\n<span style=\"color: #EB7347;font-size: 16px\">此功能已下线，其他场景请使用新功能</span><a style=\"color: #D24D57;font-size: 18px;text-decoration:underline;margin-left: 4px;font-weight:bold;\"href=\"http://dms.etms.jd.com/businesslog/goListPage\" target=\"_Blank\">点击此处</a><span style=\"color: #EB7347;font-size: 16px\">。有疑问请联系<a style=\"text-decoration:underline;color: #EB7347;font-weight:bold;font-size: 18px;\" >分拣小秘</a></span>",
+      "description": "老日志页面提示",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295359000,
+      "compress": 0,
+      "size": 886,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896130,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295296000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295296000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.oneQuerySize",
+      "value": "1000",
+      "description": "导出分页单次查询数据量",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295296000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896126,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295294000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295294000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.onUseGetDmsSiteAll",
+      "value": "true",
+      "description": "对于获得所有站点的接口增加开关，进行关闭测试",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295294000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896249,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295356000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295356000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.packageWeightLimit",
+      "value": "2000",
+      "description": "转运单个包裹重量阈值（单位kg）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295356000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896198,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295335000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295335000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.packConsumableSwitch",
+      "value": "2",
+      "description": "0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295335000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896243,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295353000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295353000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.packRePrintInterceptStatus",
+      "value": "-790",
+      "description": "包裹补打强制拦截状态码",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295353000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896256,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295360000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295360000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.paralleGetPackageSwitch",
+      "value": "true",
+      "description": "并发获取包裹明细 false 关闭",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295360000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896121,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295291000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295291000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.pdaNoticePullIntervalTime",
+      "value": "21600",
+      "description": "PDA通知自动拉取间隔时间(单位秒)",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295291000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896247,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295355000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295355000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.preOutZoneSwitch",
+      "value": "false",
+      "description": "现场预分拣 超区运单拦截开关;true 开启拦截",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295355000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896138,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295301000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295301000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode",
+      "value": "1",
+      "description": "一键封车空批次剔除开关 1：开启剔除 0：关闭",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295301000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896153,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295310000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295310000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.preSortOnSiteSwitchOn",
+      "value": "true",
+      "description": "现场预分拣校验开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295310000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896240,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295351000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295351000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum",
+      "value": "500",
+      "description": "按运单大打印回调异步处理的包裹数限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295351000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896194,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295332000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295332000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.printHandoverListSites",
+      "value": "true",
+      "description": "打印交接清单新查询开通场地,1)、字符串false代表不开启, 2)、多个场地以,分隔,3)、字符串true代表全国",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295332000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896161,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295314000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295314000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.printHandoverPackQueryEliminateWaybillCodes",
+      "value": "",
+      "description": "发货交接清单-包裹查询剔除运单号集合",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295314000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896146,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295306000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295306000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.querySensitiveFlag",
+      "value": "false",
+      "description": "查询敏感数据开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295306000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896142,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295303000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295303000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.quickSealTips",
+      "value": "<div><span style=\"font-size: 16px;background-color: #f6f8fa;color: orange;float: left;font-weight: 500;\">此功能2022年12月26日09点下线，请使用PDA进行封车操作！</span></div>",
+      "description": "一键封车友情提示",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295303000,
+      "compress": 0,
+      "size": 151,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896132,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295298000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295298000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.readUnloadFromTys",
+      "value": "true",
+      "description": "读转运卸车表开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295298000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896179,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295324000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295324000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.redisSwitchOn",
+      "value": "0",
+      "description": "#任务redis开关0-关闭 1-开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295324000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896188,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295329000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295329000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.removeEmptyBatchCode",
+      "value": "1",
+      "description": "封车是否剔除空批次  1：开启剔除 0：关闭",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295329000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896085,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295283000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295283000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.restApiOuthSwitch",
+      "value": "false",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295283000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896206,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295339000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295339000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.scheduleSiteCheckSameCity",
+      "value": "0",
+      "description": "预分拣返调度校验同城 1:开启；0：关闭",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295339000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896150,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295308000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295308000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.scrollQuerySize",
+      "value": "2000",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295308000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896155,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295311000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295311000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sealStatusBatchSizeLimit",
+      "value": "20",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295311000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896226,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295343000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295343000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sealTaskForceFallback",
+      "value": "0",
+      "description": "作业工作台待解封车强制降级 1：强制 0：不强制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295343000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896246,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295354000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295354000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sealTaskHystrixProps",
+      "value": "{\n    \"defaultProperties\": {\n        \"hystrix.command.default.execution.isolation.strategy\": \"THREAD\",\n        \"hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds\": \"5000\",\n        \"hystrix.command.default.execution.timeout.enabled\": \"false\",\n        \"hystrix.command.default.fallback.enabled\": \"false\",\n        \"hystrix.command.default.circuitBreaker.enabled\": \"false\",\n        \"hystrix.threadpool.default.coreSize\": \"10\",\n        \"hystrix.threadpool.default.maximumSize\": \"10\"\n    },\n    \"commandProperties\": {\n        \"hystrix.command.fetchSealTask.execution.isolation.thread.timeoutInMilliseconds\": \"10000\",\n        \"hystrix.command.fetchSealTask.fallback.enabled\": \"true\",\n        \"hystrix.command.fetchSealTask.fallback.isolation.semaphore.maxConcurrentRequests\": \"20\",\n        \"hystrix.command.fetchSealTask.circuitBreaker.enabled\": \"true\",\n        \"hystrix.command.fetchSealTask.circuitBreaker.requestVolumeThreshold\": \"100\",\n        \"hystrix.command.fetchSealTask.circuitBreaker.errorThresholdPercentage\": \"50\",\n        \"hystrix.command.fetchSealTask.metrics.rollingStats.timeInMilliseconds\": \"10000\"  \n    },\n    \"threadPoolProperties\": {\n        \"hystrix.threadpool.fetchSealTaskThread.coreSize\": \"200\",\n        \"hystrix.threadpool.fetchSealTaskThread.maximumSize\": \"200\",\n        \"hystrix.threadpool.fetchSealTaskThread.maxQueueSize\": \"5\",\n        \"hystrix.threadpool.fetchSealTaskThread.allowMaximumSizeToDivergeFromCoreSize\": \"true\"      \n    }\n}",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295354000,
+      "compress": 0,
+      "size": 1482,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896082,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295281000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295281000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sealVolumeCheckSites",
+      "value": "1330100",
+      "description": "封车体积校验开关（站点以\",\"分开）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295281000,
+      "compress": 0,
+      "size": 7,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896077,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295278000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295278000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sealVolumeCheckSwitch",
+      "value": "false",
+      "description": "封车批次体积校验开关，默认值false",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295278000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896140,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295302000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295302000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.securitySwitch",
+      "value": "true",
+      "description": "安全次数开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295302000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896118,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295289000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295289000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sendCodeEffectiveValidation",
+      "value": "ALL",
+      "description": "批次有效性校验的场地",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295289000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896283,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295376000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295376000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sendCodeGenSwitchOn",
+      "value": "true",
+      "description": "切换新的批次号生成器的开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295376000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896154,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295310000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295310000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sensitiveInfoHideSwitch",
+      "value": "true",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295310000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896277,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295372000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295372000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.singleSendSwitchVerToWebSites",
+      "value": "1",
+      "description": "一车一单发货分拣验证开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295372000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896167,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295318000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295318000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation",
+      "value": "",
+      "description": "启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295318000,
+      "compress": 0,
+      "size": 0,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896189,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295330000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295330000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sitePlateIsCheckFunc",
+      "value": "true",
+      "description": "站点平台打印菜单是否校验功能",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295330000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896231,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295346000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295346000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.siteQueryLimit",
+      "value": "500",
+      "description": "站点查询最大限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295346000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896267,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295367000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295367000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sortingQueryMode",
+      "value": "FAILOVER",
+      "description": "分拣查询使用的模式，可配置DMS、MIDDLEEND、FAILOVER三个值",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295367000,
+      "compress": 0,
+      "size": 8,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896233,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295347000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295347000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.sortingServiceMode",
+      "value": "FAILOVER",
+      "description": "分拣实操模式，可设置DMS、MIDDLEEND、FAILOVER三个值",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295347000,
+      "compress": 0,
+      "size": 8,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896184,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295327000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295327000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.spotCheckIssueControl",
+      "value": "true",
+      "description": "抽检是否控制下发",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295327000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896176,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295322000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295322000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.spotCheckIssueControlPre",
+      "value": "false",
+      "description": "抽检是否按以前逻辑下发mq",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295322000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896083,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295282000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295282000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.spotCheckReformSiteCodes",
+      "value": "true",
+      "description": "执行抽检改造的站点集合（以英文逗号分隔，true表示全国，false表示全部不开启）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295282000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896141,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295303000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295303000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.stationPrintFeatherLetterCheck",
+      "value": "true",
+      "description": "驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295303000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896158,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295312000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295312000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.stopWriteUnloadFromDms",
+      "value": "true",
+      "description": "停止写分拣卸车表开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295312000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896236,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295349000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295349000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.switchVerToWebSites",
+      "value": "1",
+      "description": "uccPropertyConfiguration.switchVerToWebSites",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295349000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896173,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295320000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295320000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.syncJySealStatusSwitch",
+      "value": "false",
+      "description": "",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295321000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896279,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295373000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295373000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.systemLogGlobalSwitch",
+      "value": "false",
+      "description": "true：保存日志 false：不保存",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295373000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896234,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295347000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295347000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize",
+      "value": "3",
+      "description": "转运卸车岗交班次数最大数量",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295347000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896088,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295285000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295285000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours",
+      "value": "72",
+      "description": "转运卸车完成后补扫时间限制（小时），过后禁止补扫",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295285000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896147,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295306000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295306000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.unloadBoardBindingsMaxCount",
+      "value": "100",
+      "description": "转运组板最大包裹数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295306000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896123,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295293000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295293000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.unloadCacheDurationHours",
+      "value": "24",
+      "description": "转运卸车缓存时长（单位小时）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295293000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896235,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295348000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295348000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.useNewInventorySiteCodes",
+      "value": "true",
+      "description": "装车扫描采用新ES库存查询方式的站点",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295348000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896151,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295308000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295308000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.usePdaSorterApi",
+      "value": "0",
+      "description": "1-开启 0-关闭 是否启用新运输接口",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295308000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896183,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295326000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295326000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.virtualBoardAutoCloseDays",
+      "value": "1",
+      "description": "虚拟组板自动完结时间，单位：天",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295326000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896093,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295288000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295288000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.virtualBoardCanUseSite",
+      "value": "ALL",
+      "description": "分拣组板功能开通场地",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295288000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896166,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295317000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295317000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.virtualBoardMaxDestinationCount",
+      "value": "10",
+      "description": "虚拟组板最多流向个数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295317000,
+      "compress": 0,
+      "size": 2,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896257,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295361000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295361000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.virtualBoardMaxItemCount",
+      "value": "200",
+      "description": "虚拟组板最多放置包裹个数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295361000,
+      "compress": 0,
+      "size": 3,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896087,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295284000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295284000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.waybillMaxPackNum",
+      "value": "1000",
+      "description": "运单最大包裹数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295284000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896156,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295311000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295311000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.waybillSplitPageSize",
+      "value": "1000",
+      "description": "分拣拆分任务分页包裹数",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295311000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896268,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295367000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295367000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch",
+      "value": "false",
+      "description": "转运验货拦截包裹号是否在运单系统存在（true:拦截， false不拦截）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295367000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896274,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295371000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295371000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.waybillWeightLimit",
+      "value": "100000",
+      "description": "转运单个运单重量阈值（单位kg）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295371000,
+      "compress": 0,
+      "size": 6,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896180,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295324000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295324000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag",
+      "value": "false",
+      "description": "称重量方拦截开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295325000,
+      "compress": 0,
+      "size": 5,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896139,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295302000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295302000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.weightVolumeRuleStandard",
+      "value": "{\n    \"sideMaxLengthC\":300,\n    \"sideMaxLengthB\":300,\n    \"volumeMaxLimitC\":400000,\n    \"volumeMaxLimitB\":5000000,\n    \"volumeMaxLimitConfirmB\":1000000,\n    \"volumeMaxLimitRecord\":4000000,\n    \"weightMaxLimitCF\":50,\n    \"weightMaxLimitCS\":1000,\n    \"weightMaxLimitB\":5000,\n    \"weightMaxLimitConfirmB\":200,\n    \"foamWeightRatioC\":8000,\n    \"foamWeightRatioB\":7800,\n    \"foamWeightRatioConfirmFloorB\":0,\n    \"foamWeightRatioConfirmCeilingB\":7800,\n    \"foamWeightRatioMultiple\":5\n}",
+      "description": "称重量方规则标准值（kg、cm单位）",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295302000,
+      "compress": 0,
+      "size": 479,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896131,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295297000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295297000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.weightVolumeSwitchVersion",
+      "value": "1",
+      "description": "称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295297000,
+      "compress": 0,
+      "size": 1,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896199,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295335000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295335000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.WJPackageNumberLimit",
+      "value": "1000",
+      "description": "WJ箱号包裹数量限制",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295335000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896282,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295375000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295375000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.workerFetchWithoutFailedTable",
+      "value": "task_inspection;task_pop",
+      "description": "配置哪些任务失败后不再重复抓取的",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 10,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295375000,
+      "compress": 0,
+      "size": 24,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    },
+    {
+      "id": 4896181,
+      "createBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "createTime": 1672295325000,
+      "updateBy": {
+        "id": -1,
+        "code": "wuyoude"
+      },
+      "updateTime": 1672295325000,
+      "status": 1,
+      "profile": {
+        "id": 245231,
+        "code": "test"
+      },
+      "key": "uccPropertyConfiguration.writeUnloadFromTys",
+      "value": "true",
+      "description": "写转运卸车表开关",
+      "parentPath": "",
+      "parentId": 0,
+      "dataType": 0,
+      "cVersion": 0,
+      "dataVersion": 9,
+      "isReleased": 0,
+      "format": 0,
+      "releaseTime": 1672295325000,
+      "compress": 0,
+      "size": 4,
+      "finalStatus": false,
+      "compressed": false,
+      "newAddNode": false,
+      "deleteNode": false
+    }
+  ]
+}
