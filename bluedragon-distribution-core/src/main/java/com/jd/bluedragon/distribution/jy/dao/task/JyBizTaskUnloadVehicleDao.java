@@ -50,6 +50,16 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
+     * 根据bizId获取数据
+     * @return
+     */
+    public JyBizTaskUnloadVehicleEntity findByBizIdIgnoreYn(String bizId){
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizId",bizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizIdIgnoreYn", params);
+    }
+
+    /**
      * 根据派车明细编码获取数据
      * @param transWorkItemCode
      * @return
