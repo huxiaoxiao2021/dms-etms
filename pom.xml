@@ -40,10 +40,13 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.3-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.4.1-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.4.2-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
-        <jy.realtime.sdk.version>1.0.6-SNAPSHOT</jy.realtime.sdk.version>
+        <jy.realtime.sdk.version>1.0.7-SNAPSHOT</jy.realtime.sdk.version>
+        <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
+        <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
+        <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -62,7 +65,16 @@
         <trans-fence-api.version>1.0-jdk1.7-SNAPSHOT</trans-fence-api.version>
         <vividsolutions.jts.version>1.13</vividsolutions.jts.version>
     </properties>
-	
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.16</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 		<dependency>
@@ -313,6 +325,23 @@
                 <artifactId>realtime-service-sdk</artifactId>
                 <version>${jy.realtime.sdk.version}</version>
             </dependency>
+			<!-- jy_msp -->
+			<dependency>
+				<groupId>com.jdl.jy</groupId>
+				<artifactId>jy-msp-api</artifactId>
+				<version>${jy_msp_api_version}</version>
+			</dependency>
+			<!-- 京东短链 -->
+			<dependency>
+				<groupId>com.jd.shorturl</groupId>
+				<artifactId>shorturl-rpc-client</artifactId>
+				<version>${shorturl.rpc.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jd-omdm-client</groupId>
+				<artifactId>jd-omdm-client</artifactId>
+				<version>${jd.omdm.client.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.jd.eclp</groupId>
 				<artifactId>eclp-so-api</artifactId>
@@ -445,8 +474,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
                 <dependencies>

@@ -520,6 +520,18 @@ public class HintCodeConstants {
      * 不允许按直发医药箱号进行发货，请拆箱后再进行发货
      */
     public static String CODE_COLD_CHAIN_SEND_BOX_ERROR = "20086";
+    /**
+     * 此单为改址拦截单，请到'分拣打印-包裹补打'中补打包裹面单后再发货
+     */
+    public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
+    /**
+     * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
+    /**
+     * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
 
     /*##############################################拦截相关END#########################################################*/
 
@@ -954,4 +966,19 @@ public class HintCodeConstants {
     // 发货拦截：大促降级导致未查询到发货拦截包裹明细，请稍后查看!
     public static String JY_DEMOTION_MSG_SEND_INTERCEPT = "70011";
     /*** 拣运降级提示语 start **/
+
+    //您扫描的{}订单是转德邦订单，与当前流向不符，请确认是否强发。
+    public static String JY_DP_TRANSFER_MESSAGE = "39101";
+
+    //您扫描的您扫描的{}订单不在本场地转德邦，请确认是否强发
+    public static String JY_DP_TRANSFER_MESSAGE_1 = "39102";
+
+    //禁止发往德邦虚拟场地
+    public static String JY_DP_TRANSFER_MESSAGE_2 = "28103";
+
+    // 设备抽检任务已关闭并且未超过2小时，是否强制创建？
+    public static String JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT = "80001";
+
+    // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
+    public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
 }

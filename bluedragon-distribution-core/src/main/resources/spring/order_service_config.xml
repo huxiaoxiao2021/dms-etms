@@ -24,7 +24,7 @@
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 	<!-- 注意：cxf3.0及以上版本，没有cxf-extension-soap.xml -->
-	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<!-- <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />-->
 
 	<!-- ioms -->
 	<bean id="oomServiceSoap" class="jd.oom.client.clientbean.ServiceSoap"

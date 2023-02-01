@@ -5,6 +5,7 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -742,6 +743,16 @@ public class UccPropertyConfiguration {
 
     private int sealStatusBatchSizeLimit;
 
+    private boolean syncScheduleTaskSwitch;
+
+    public boolean getSyncScheduleTaskSwitch() {
+        return syncScheduleTaskSwitch;
+    }
+
+    public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
+        this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -749,7 +760,6 @@ public class UccPropertyConfiguration {
     public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
         this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
     }
-
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }
@@ -920,6 +930,11 @@ public class UccPropertyConfiguration {
     private Integer unloadBoardBindingsMaxCount;
 
     /**
+     * 任务上最多组板数
+     */
+    private Integer unloadTaskBoardMaxCount;
+
+    /**
      * 包裹重量上限值，单位kg
      */
     private String packageWeightLimit;
@@ -980,6 +995,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnloadCarListQueryDayFilter;
 
+    /**
+     * 卸车岗列表页已完成状态任务过滤最近N天数据
+     */
+    private Integer jyUnloadCarListDoneQueryDayFilter;
+
 
     /**
      * 定时上传设备位置间隔 秒级时间戳 -1 - 表示不上传
@@ -1009,6 +1029,49 @@ public class UccPropertyConfiguration {
 
 
 
+
+    /**
+     * 设备校准任务时长
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskDuration;
+
+    /**
+     * 设备校准任务查询范围
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskQueryRange;
+
+    /**
+     * 设备任务强制创建的间隔时间
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskForceCreateIntervalTime;
+
+    /**
+     * 设备两次合格间隔时间（用于抽检下发校验）
+     *  单位：毫秒
+     */
+    private Long machineCalibrateIntervalTimeOfSpotCheck;
+
+    /**
+     * 设备下发是否依据设备状态标识
+     */
+    private boolean spotCheckIssueRelyOMachineStatus;
+
+    /**
+     * 抽检下发依据设备状态场地维度开关
+     *  多个场地以,分隔
+     *  ALL表示全国
+     *  空表示未开启
+     */
+    private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
+
+    /**
+     * 得物产品类型的商家名单
+     *  多个场地以,分隔
+     */
+    private String dewuCustomerCodes;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2330,6 +2393,14 @@ public class UccPropertyConfiguration {
         this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
     }
 
+    public Integer getUnloadTaskBoardMaxCount() {
+        return unloadTaskBoardMaxCount;
+    }
+
+    public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
+        this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
+    }
+
     public String getPackageWeightLimit() {
         return packageWeightLimit;
     }
@@ -2361,6 +2432,14 @@ public class UccPropertyConfiguration {
 
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public Integer getJyUnloadCarListDoneQueryDayFilter() {
+        return jyUnloadCarListDoneQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListDoneQueryDayFilter(Integer jyUnloadCarListDoneQueryDayFilter) {
+        this.jyUnloadCarListDoneQueryDayFilter = jyUnloadCarListDoneQueryDayFilter;
     }
 
     public int getGoodsResidenceTime() {
@@ -2414,5 +2493,84 @@ public class UccPropertyConfiguration {
 
     public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public Long getMachineCalibrateTaskDuration() {
+        return machineCalibrateTaskDuration;
+    }
+
+    public void setMachineCalibrateTaskDuration(Long machineCalibrateTaskDuration) {
+        this.machineCalibrateTaskDuration = machineCalibrateTaskDuration;
+    }
+
+    public Long getMachineCalibrateTaskQueryRange() {
+        return machineCalibrateTaskQueryRange;
+    }
+
+    public void setMachineCalibrateTaskQueryRange(Long machineCalibrateTaskQueryRange) {
+        this.machineCalibrateTaskQueryRange = machineCalibrateTaskQueryRange;
+    }
+
+    public Long getMachineCalibrateTaskForceCreateIntervalTime() {
+        return machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public void setMachineCalibrateTaskForceCreateIntervalTime(Long machineCalibrateTaskForceCreateIntervalTime) {
+        this.machineCalibrateTaskForceCreateIntervalTime = machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public Long getMachineCalibrateIntervalTimeOfSpotCheck() {
+        return machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
+        this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getSpotCheckIssueRelyOMachineStatus() {
+        return spotCheckIssueRelyOMachineStatus;
+    }
+
+    public void setSpotCheckIssueRelyOMachineStatus(boolean spotCheckIssueRelyOMachineStatus) {
+        this.spotCheckIssueRelyOMachineStatus = spotCheckIssueRelyOMachineStatus;
+    }
+
+    public String getSpotCheckIssueRelyOnMachineStatusSiteSwitch() {
+        return spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
+        this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public String getDewuCustomerCodes() {
+        return dewuCustomerCodes;
+    }
+
+    public void setDewuCustomerCodes(String dewuCustomerCodes) {
+        this.dewuCustomerCodes = dewuCustomerCodes;
+        this.dewuCustomerCodeList = this.getDewuCustomerCodeList();
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> dewuCustomerCodeList = new ArrayList<>();
+
+    public List<String> getDewuCustomerCodeList() {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(customerCode)){
+            return true;
+        }
+        return false;
     }
 }

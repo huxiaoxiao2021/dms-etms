@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 import java.util.List;
@@ -149,6 +150,7 @@ public interface SortingService {
     boolean processTaskData(Task task);
 
     SendDetail addSendDetail(Sorting sorting);
+    SendDetail addSendDetail(SortingVO sorting);
 
     void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs);
 

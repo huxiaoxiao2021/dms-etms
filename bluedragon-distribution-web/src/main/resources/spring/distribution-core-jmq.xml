@@ -249,7 +249,7 @@
         <property name="topic" value="${jmq.topic.bd.dms.ems.mq}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    
+
     <!-- 智配中心分拣给终端系统发送mq -->
     <bean id="zhipeiSortingMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhipei.sorting.client}"/>
@@ -698,6 +698,28 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!-- 设备校准推送咚咚消息 -->
+    <bean id="dwsCalibratePushDDProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.calibrate.pushDD}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 设备校准推送更新抽检消息 -->
+    <bean id="dwsCalibrateDealSpotCheckProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.calibrate.dealSpotCheck}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--  打印触发取消快运改址拦截  -->
+    <bean id="printCancelKyAddressModifyInterceptProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.print.cancel.kyAddressModify.intercept}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  分拣转运派车任务明细  -->
+    <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
+        <property name="timeout" value="1000" />
+    </bean>
     <!-- 撤销封签异常提报消息 -->
     <bean id="cancelTransAbnormalProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.cancelTransAbnormal}" />

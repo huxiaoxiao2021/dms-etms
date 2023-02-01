@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.common.util.StringUtils;
@@ -76,7 +77,6 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     @Resource
     private TransferService transferService;
 
-
     @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.interceptValidateUnloadCar", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
     public InvokeResult<Boolean> interceptValidateUnloadCar(TransportServiceRequest transportServiceRequest) {
@@ -92,6 +92,11 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             result.setMessage("运单号不能为空");
             return result;
         }
+        if(StringUtils.isNotBlank(transportServiceRequest.getPackageCode()) && !WaybillUtil.isPackageCode(transportServiceRequest.getPackageCode())) {
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("包裹号不符合规则!");
+            return result;
+        }
         if(StringUtils.isBlank(transportServiceRequest.getWaybillSign())) {
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("运单waybillSign不能为空");
@@ -100,7 +105,7 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
         try {
             log.info(methodDesc + "请求参数=【{}】", JsonHelper.toJson(transportServiceRequest));
-            return boardCommonManager.loadUnloadInterceptValidate(transportServiceRequest.getWaybillCode(), transportServiceRequest.getWaybillSign());
+            return boardCommonManager.loadUnloadInterceptValidate(transportServiceRequest);
         } catch (Exception e) {
             log.info(methodDesc + "系统异常，，请求参数=【{}】", JsonHelper.toJson(transportServiceRequest), e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);

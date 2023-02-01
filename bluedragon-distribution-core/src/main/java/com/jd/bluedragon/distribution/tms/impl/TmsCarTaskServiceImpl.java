@@ -8,16 +8,16 @@ import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.tms.TmsCarTaskManager;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.tms.TmsCarTaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.BasicSelectWS;
-
 import com.jd.tms.tpc.dto.RouteLineCargoDto;
 import com.jd.tms.tpc.dto.RouteLineCargoQueryDto;
 import com.jd.tms.tpc.dto.RouteLineCargoUpdateDto;
@@ -44,6 +44,9 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
 
     @Autowired
     private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    private RouterService routerService;
 
     @Override
     public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode) {
@@ -104,8 +107,8 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
             if(isPack){
                 waybillCode = WaybillUtil.getWaybillCode(barCode);
             }
-            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            endSiteId = getRouteNextSite(opeSiteCode,routerStr);
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(opeSiteCode, waybillCode);
+            endSiteId = routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
 
         }else if(isSiteCode){
             endSiteId = Integer.parseInt(barCode);
@@ -123,26 +126,4 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
         return StringUtils.EMPTY;
     }
 
-
-    private static final String WAYBILL_ROUTER_SPLIT = "\\|";
-
-    /**
-     * 解析路由内容 返回下一站
-     * @param startSiteId
-     * @param routerStr
-     * @return
-     */
-    private Integer getRouteNextSite(Integer startSiteId, String routerStr) {
-        if (StringUtils.isNotBlank(routerStr)) {
-            String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLIT);
-            for (int i = 0; i < routerNodes.length - 1; i++) {
-                Integer curNode = Integer.parseInt(routerNodes[i]);
-                Integer nextNode = Integer.parseInt(routerNodes[i + 1]);
-                if (curNode == startSiteId) {
-                    return nextNode;
-                }
-            }
-        }
-        return null;
-    }
 }

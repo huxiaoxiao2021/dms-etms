@@ -1,12 +1,18 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckAroundRecord;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckPackageRequest;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -60,5 +67,42 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return isAccurate;
+    }
+
+    public DwsCheckResponse getLastDwsCheckByTime(DWSCheckRequest checkRequest){
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DWSCheckManager.getLastDwsCheckByTime",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            BaseDmsAutoJsfResponse<DwsCheckResponse> response = dmsCheckJsfService.getLastDwsCheckByTime(checkRequest);
+
+            if (response != null && response.getData() != null) {
+                return response.getData();
+            }
+        }catch (Exception e){
+            logger.error("查询校验细节异常，入参{}", checkRequest, e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
+    }
+
+    @Override
+    public List<DwsCheckAroundRecord> batchSelectMachineStatus(List<DwsCheckPackageRequest> list) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DWSCheckManager.batchSelectMachineStatus",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        List<DwsCheckAroundRecord> resultList = Lists.newArrayList();
+        try {
+            BaseDmsAutoJsfResponse<List<DwsCheckAroundRecord>> response = dmsCheckJsfService.batchSelectMachineStatus(list);
+            if(response != null && CollectionUtils.isNotEmpty(response.getData())){
+                return response.getData();
+            }
+        }catch (Exception e){
+            logger.error("批量查询设备状态异常，入参{}", JsonHelper.toJson(list), e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return resultList;
     }
 }

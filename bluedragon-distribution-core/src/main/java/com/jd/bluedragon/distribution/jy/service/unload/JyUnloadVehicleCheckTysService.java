@@ -198,7 +198,7 @@ public class JyUnloadVehicleCheckTysService {
         String packageWeightLimit = uccPropertyConfiguration.getPackageWeightLimit();
         BigDecimal packageWeight = getPackageWeight(packageD, waybill);
         if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
-            log.info("包裹超重:packageCode={},weight={},limit={}", packageD.getPackageBarcode(), packageWeight.toPlainString(), packageWeightLimit);
+            log.info("包裹超重:packageCode={},weight={},limit={}", response.getBarCode(), packageWeight.toPlainString(), packageWeightLimit);
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
         }
@@ -553,6 +553,21 @@ public class JyUnloadVehicleCheckTysService {
     public void packageCountCheck(ScanPackageDto scanPackageDto) {
         Integer unloadBoardBindingsMaxCount = uccPropertyConfiguration.getUnloadBoardBindingsMaxCount();
         boardCommonManager.packageCountCheck(scanPackageDto.getBoardCode(), unloadBoardBindingsMaxCount);
+    }
+
+    /**
+     * 单个任务组板数量校验
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.boardCountCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void boardCountCheck(ScanPackageDto request, String stageBizId) {
+        // 只有开新板才校验
+        if (request.isCreateNewBoard()) {
+            Integer unloadTaskBoardMaxCount = uccPropertyConfiguration.getUnloadTaskBoardMaxCount();
+            int count = jyUnloadVehicleBoardDao.countByBizIdAndStageBizId(request.getBizId(), stageBizId);
+            if (count >= unloadTaskBoardMaxCount) {
+                throw new LoadIllegalException("该任务绑定的组板数量已达上限" + count);
+            }
+        }
     }
 
     /**

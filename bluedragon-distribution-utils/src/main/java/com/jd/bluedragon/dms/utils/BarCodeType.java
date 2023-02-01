@@ -34,7 +34,11 @@ public enum BarCodeType {
     /**
      * 商家单号
      */
-    BUSINESS_ORDER_CODE(6, "商家单号");
+    BUSINESS_ORDER_CODE(6, "商家单号"),
+    /**
+     * 板号
+     */
+    BOARD_CODE(7, "板号");
 
     private int code;
 

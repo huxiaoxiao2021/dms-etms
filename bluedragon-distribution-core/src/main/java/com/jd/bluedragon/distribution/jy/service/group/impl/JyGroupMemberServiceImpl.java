@@ -453,7 +453,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			taskGroupMember.setUpdateUser(removeMemberRequest.getOperateUserCode());
 			taskGroupMember.setUpdateUserName(removeMemberRequest.getOperateUserName());
 			//小组任务成员，设置结束时间
-			jyTaskGroupMemberService.endWorkByMemberCodeList(taskGroupMember,memberCodes);
+			jyTaskGroupMemberService.endWorkByMemberCodeListForAutoSignOut(taskGroupMember,memberCodes);
 		}
 		return result;
 	}
@@ -514,5 +514,12 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			result.toFail("岗位码没有对应的小组信息");
 		}
 		return result;
+	}
+	@Override
+	public List<String> queryUnSignOutMemberCodeList(List<String> memberCodeList) {
+		if(CollectionUtils.isEmpty(memberCodeList)) {
+			return new ArrayList<String>();
+		}
+		return jyGroupMemberDao.queryUnSignOutMemberCodeList(memberCodeList);
 	}
 }

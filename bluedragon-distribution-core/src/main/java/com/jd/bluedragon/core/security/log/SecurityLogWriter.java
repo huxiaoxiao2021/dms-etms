@@ -13,7 +13,7 @@ import com.jd.bluedragon.core.security.log.executor.SecurityLogRecord;
 import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillQuery;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
@@ -157,9 +157,17 @@ public class SecurityLogWriter {
 
             Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = new SecurityLogUniqueIdentifierKeyMappingBuilder()
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode")
+
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"jsonData.printAddress")
+
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiverName")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveName,"jsonData.customerName")
+
+
                     .addKey(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverMobile")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverTel")
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"jsonData.customerContacts")
                     .builder();
 
             SecurityLogRecord.log(
@@ -167,7 +175,7 @@ public class SecurityLogWriter {
                             .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource#getWaybillPack")
                             .accountName("")
                             .accountType(SecurityAccountEnums.account_type_1)
-                            .op(SecurityLogOpEnums.op_3)
+                            .op(SecurityLogOpEnums.op_5)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(params)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
@@ -187,21 +195,41 @@ public class SecurityLogWriter {
      * @param request
      * @param responseDTO
      */
-    public static void waybillResourceGetOldOrderMessageNewWrite(ExchangeWaybillDto request, DmsWaybillReverseResponseDTO responseDTO) {
+    public static void waybillResourceGetOldOrderMessageNewWrite(ExchangeWaybillQuery request, DmsWaybillReverseResponseDTO responseDTO) {
         try{
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
 
-            Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = new SecurityLogUniqueIdentifierKeyMappingBuilder()
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode")
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiveAddress")
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiveName")
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiveMobile")
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"senderMobile")
-                    .addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderAddress")
-                    .builder();
+            SecurityLogUniqueIdentifierKeyMappingBuilder builder = new SecurityLogUniqueIdentifierKeyMappingBuilder()
+                    .addKey(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
+
+            //	{"senderName","senderAddress","senderTel","senderMobile", "receiveName","receiveAddress","receiveTel","receiveMobile"};
+            if (request.getHideInfo().contains("senderAddress")) {
+                    builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderAddress");
+            }
+            if (request.getHideInfo().contains("senderMobile")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderMobile");
+            }
+            if (request.getHideInfo().contains("senderTel")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderTel");
+            }
+            if (request.getHideInfo().contains("receiveName")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"receiveName");
+            }
+            if (request.getHideInfo().contains("receiveAddress")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"receiveAddress");
+            }
+            if (request.getHideInfo().contains("receiveMobile")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"receiveMobile");
+            }
+            if (request.getHideInfo().contains("receiveTel")) {
+                builder.addKey(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"receiveTel");
+            }
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, List<String>> uniqueIdentifierKeyEnumsStringHashMap = builder.builder();
+
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()

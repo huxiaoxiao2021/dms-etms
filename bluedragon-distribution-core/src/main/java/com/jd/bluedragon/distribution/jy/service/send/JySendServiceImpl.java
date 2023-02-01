@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendDao;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +28,34 @@ public class JySendServiceImpl implements IJySendService{
 
     @Autowired
     private JySendDao sendDao;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+    @Autowired
+    private JySendAggsService sendAggService;
 
     @Override
     public JySendEntity findSendRecordExistAbnormal(JySendEntity entity) {
         return sendDao.findSendRecordExistAbnormal(entity);
+    }
+
+    @Override
+    public boolean findSendRecordExistAbnormal(Long startSiteId, String sendVehicleBizId) {
+        // 是否存在强发或拦截
+        JySendEntity existAbnormal = findSendRecordExistAbnormal(new JySendEntity(startSiteId, sendVehicleBizId));
+        if (existAbnormal != null) {
+            return true;
+        }
+        // 如果不存在强发或拦截，并且是转运任务，再次判断是否有不齐
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(startSiteId.intValue());
+        if (baseStaffSiteOrgDto != null) {
+            if (baseStaffSiteOrgDto.getSubType() != null && baseStaffSiteOrgDto.getSubType().equals(Constants.B2B_SITE_TYPE)) {
+                JySendAggsEntity sendAggs = sendAggService.findSendAggExistAbnormal(sendVehicleBizId);
+                if (sendAggs != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

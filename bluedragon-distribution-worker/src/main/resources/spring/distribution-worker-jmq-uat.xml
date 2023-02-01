@@ -392,10 +392,58 @@
     <jmq:consumer id="jmq.dmsUploadDeviceLocationExceptionOpConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" listener="dmsUploadDeviceLocationExceptionOpConsumer"/>
     </jmq:consumer>
-    
+
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+
+    <!--  dws称重量方校准消息处理  -->
+    <jmq:consumer id="jmq.dwsWeightVolumeCalibrateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dws.calibrate}" listener="dwsWeightVolumeCalibrateConsumer"/>
+    </jmq:consumer>
+    <!--  dws校准超时任务发送咚咚消息处理  -->
+    <jmq:consumer id="jmq.dwsCalibratePushDDConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dws.calibrate.pushDD}" listener="dwsCalibratePushDDConsumer"/>
+    </jmq:consumer>
+    <!--  dws设备校准更新抽检消息  -->
+    <jmq:consumer id="jmq.dwsCalibrateDealSpotCheckConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dws.calibrate.dealSpotCheck}" listener="dwsCalibrateDealSpotCheckConsumer"/>
+    </jmq:consumer>
+    <!--auto下发图片信息-->
+    <jmq:consumer id="jmq.syncPictureInfoConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.auto.syncPictureInfo}" listener="syncPictureInfoConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货统计消息处理  -->
+    <jmq:consumer id="jmq.jySendGoodsAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.goods.aggs}" listener="jySendGoodsAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货备库统计消息处理  -->
+    <jmq:consumer id="jmq.jySendGoodsAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.goods.aggs.bak}" listener="jySendGoodsAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  卸车统计消息处理  -->
+    <jmq:consumer id="jmq.jyUnloadCarAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.car.aggs}" listener="jyUnloadCarAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  卸车统计备库消息处理  -->
+    <jmq:consumer id="jmq.jyUnloadCarAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.car.aggs.bak}" listener="jyUnloadCarAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货产品统计消息处理  -->
+    <jmq:consumer id="jmq.jySendProductAggsMainConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.product.aggs}" listener="jySendProductAggsMainConsumer"/>
+    </jmq:consumer>
+
+    <!--  发货产品备库统计消息处理  -->
+    <jmq:consumer id="jmq.jySendProductAggsBakConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

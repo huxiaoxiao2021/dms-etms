@@ -120,10 +120,16 @@ public class CollectGoodsDetailController {
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
+		String userCode = "";
 		try {
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			if (erpUser!=null) {
+				userCode = erpUser.getUserCode();
+			}
 			rest.setData(collectGoodsDetailService.deleteByIds(ids));
+			log.info("deleteByIds|删除集货明细结束:userCode={},ids={}", userCode, ids);
 		} catch (Exception e) {
-			log.error("fail to delete！",e);
+			log.error("deleteByIds|删除集货明细异常:userCode={},ids={}", userCode, ids, e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
