@@ -109,4 +109,24 @@ public class AbnormalWaybillDiffServiceImpl implements AbnormalWaybillDiffServic
         }
         abnormalWaybillDiffDao.delByWaybillCodeC(waybillCodeC);
     }
+
+    @Override
+    public void updateByWaybillCodeE(String waybillCodeE, String type) {
+        if(StringUtils.isBlank(waybillCodeE)){
+            //缺少入参直接返回
+            logger.error("query 缺少参数 {}",waybillCodeE);
+            return ;
+        }
+        abnormalWaybillDiffDao.updateByWaybillCodeE(waybillCodeE,type);
+    }
+
+    @Override
+    public void updateByWaybillCodeC(String waybillCodeC, String type) {
+        if(StringUtils.isBlank(waybillCodeC)){
+            //缺少入参直接返回
+            logger.error("query 缺少参数 {}",waybillCodeC);
+            return ;
+        }
+        abnormalWaybillDiffDao.updateByWaybillCodeC(waybillCodeC,type);
+    }
 }

@@ -63,6 +63,21 @@ public class AbnormalWaybillDiffController {
         return "success";
     }
 
+    @RequestMapping(value = "/delByWaybillCodeE/{waybillCodeEs}/{type}")
+    @ResponseBody
+    public String updateByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs,
+                                       @PathVariable("type") String type) {
+        if (StringUtils.isEmpty(waybillCodeEs)){
+            return "缺少必要参数";
+        }
+        for (String waybillCodeE:waybillCodeEs.split(",")){
+
+            abnormalWaybillDiffService.delByWaybillCodeE(waybillCodeE);
+        }
+        return "success";
+    }
+
+
     @RequestMapping(value = "/delByWaybillCodeE/{waybillCodeEs}")
     @ResponseBody
     public String delByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs) {
@@ -89,7 +104,19 @@ public class AbnormalWaybillDiffController {
         }
         return "success";
     }
+    @RequestMapping(value = "/delByWaybillCodeC/{waybillCodeCs}/{type}")
+    @ResponseBody
+    public String updateByWaybillCodeC(@PathVariable("waybillCodeCs") String waybillCodeCs,
+                                       @PathVariable("type") String type) {
+        if (StringUtils.isEmpty(waybillCodeCs)){
+            return "缺少必要参数";
+        }
+        for (String waybillCodeC:waybillCodeCs.split(",")){
 
+            abnormalWaybillDiffService.delByWaybillCodeC(waybillCodeC);
+        }
+        return "success";
+    }
 
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     @ResponseBody
