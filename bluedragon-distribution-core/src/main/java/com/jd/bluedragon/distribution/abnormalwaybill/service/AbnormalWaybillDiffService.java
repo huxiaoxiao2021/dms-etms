@@ -15,4 +15,7 @@ public interface AbnormalWaybillDiffService {
 
     void delByWaybillCodeE(String waybillCodeE);
     void delByWaybillCodeC(String waybillCodeC);
+
+    void updateByWaybillCodeE(String waybillCodeE,String type);
+    void updateByWaybillCodeC(String waybillCodeC,String type);
 }

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.dao;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWaybillDiff;
@@ -50,5 +51,18 @@ public class AbnormalWaybillDiffDao extends BaseDao<AbnormalWaybillDiff> {
     public void delByWaybillCodeC(String waybillCodeC) {
 
         super.getSqlSession().update(namespace + ".delByWaybillCodeC" , waybillCodeC);
+    }
+
+    public void updateByWaybillCodeC(String waybillCodeC, String type) {
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("waybillCodeC", waybillCodeC);
+        param.put("type", type);
+        super.getSqlSession().update(namespace + ".updateByWaybillCodeC" , param);
+    }
+    public void updateByWaybillCodeE(String waybillCodeE, String type) {
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("waybillCodeE", waybillCodeE);
+        param.put("type", type);
+        super.getSqlSession().update(namespace + ".updateByWaybillCodeE" , param);
     }
 }

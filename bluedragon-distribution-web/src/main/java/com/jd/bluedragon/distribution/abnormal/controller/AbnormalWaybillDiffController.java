@@ -55,6 +55,7 @@ public class AbnormalWaybillDiffController {
     }
 
     @RequestMapping(value = "/add/{waybillCodeC}/{waybillCodeE}/{type}")
+    @ResponseBody
     public String add(@PathVariable("waybillCodeC") String waybillCodeC,
                       @PathVariable("waybillCodeE") String waybillCodeE,
                       @PathVariable("type") String type) {
@@ -62,7 +63,23 @@ public class AbnormalWaybillDiffController {
         return "success";
     }
 
+    @RequestMapping(value = "/updateByWaybillCodeE/{waybillCodeEs}/{type}")
+    @ResponseBody
+    public String updateByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs,
+                                       @PathVariable("type") String type) {
+        if (StringUtils.isEmpty(waybillCodeEs)){
+            return "缺少必要参数";
+        }
+        for (String waybillCodeE:waybillCodeEs.split(",")){
+
+            abnormalWaybillDiffService.delByWaybillCodeE(waybillCodeE);
+        }
+        return "success";
+    }
+
+
     @RequestMapping(value = "/delByWaybillCodeE/{waybillCodeEs}")
+    @ResponseBody
     public String delByWaybillCodeE(@PathVariable("waybillCodeEs") String waybillCodeEs) {
         if (StringUtils.isEmpty(waybillCodeEs)){
             return "缺少必要参数";
@@ -76,6 +93,7 @@ public class AbnormalWaybillDiffController {
 
 
     @RequestMapping(value = "/delByWaybillCodeC/{waybillCodeCs}")
+    @ResponseBody
     public String delByWaybillCodeC(@PathVariable("waybillCodeCs") String waybillCodeCs) {
         if (StringUtils.isEmpty(waybillCodeCs)){
             return "缺少必要参数";
@@ -86,7 +104,19 @@ public class AbnormalWaybillDiffController {
         }
         return "success";
     }
+    @RequestMapping(value = "/updateByWaybillCodeC/{waybillCodeCs}/{type}")
+    @ResponseBody
+    public String updateByWaybillCodeC(@PathVariable("waybillCodeCs") String waybillCodeCs,
+                                       @PathVariable("type") String type) {
+        if (StringUtils.isEmpty(waybillCodeCs)){
+            return "缺少必要参数";
+        }
+        for (String waybillCodeC:waybillCodeCs.split(",")){
 
+            abnormalWaybillDiffService.delByWaybillCodeC(waybillCodeC);
+        }
+        return "success";
+    }
 
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     @ResponseBody
