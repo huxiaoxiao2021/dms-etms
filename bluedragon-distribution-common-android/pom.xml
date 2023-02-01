@@ -62,7 +62,7 @@
         <snapshotRepository>
             <id>snapshots</id>
             <name>JD maven2 repository-snapshots</name>
-            <url>http://artifactory.jd.com/libs-snapshots-local</url>
+            <url>https://artifactory.jd.com/libs-snapshots-local</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

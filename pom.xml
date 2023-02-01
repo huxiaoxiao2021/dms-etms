@@ -64,6 +64,10 @@
         <geocode-api.version>1.1.6-SNAPSHOT</geocode-api.version>
         <trans-fence-api.version>1.0-jdk1.7-SNAPSHOT</trans-fence-api.version>
         <vividsolutions.jts.version>1.13</vividsolutions.jts.version>
+
+		<!--		kafka版本-->
+		<jdq4-sdk-version>1.0.0-SNAPSHOT</jdq4-sdk-version>
+
     </properties>
 
 	<dependencies>
@@ -186,9 +190,9 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.jd.bdp</groupId>
-				<artifactId>jdq</artifactId>
-				<version>3.3-SNAPSHOT</version>
+				<groupId>com.jd.jdq</groupId>
+				<artifactId>jdq4-clients</artifactId>
+				<version>${jdq4-sdk-version}</version>
 			</dependency>
 
 			<!--oplog-->
