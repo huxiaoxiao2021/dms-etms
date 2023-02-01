@@ -12,4 +12,10 @@ public interface AbnormalWaybillDiffService {
     List<AbnormalWaybillDiff> queryCache(AbnormalWaybillDiff abnormalWaybillDiff);
 
     void save(String waybillCodeC,String waybillCodeE,String type);
+
+    void delByWaybillCodeE(String waybillCodeE);
+    void delByWaybillCodeC(String waybillCodeC);
+
+    void updateByWaybillCodeE(String waybillCodeE,String type);
+    void updateByWaybillCodeC(String waybillCodeC,String type);
 }
