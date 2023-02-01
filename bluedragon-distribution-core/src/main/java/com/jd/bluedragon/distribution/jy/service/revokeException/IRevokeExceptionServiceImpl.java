@@ -56,7 +56,7 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
     
     public static final Integer SOURCE = 1;
     
-    public static final Integer REVOKE_EXCEPTION_HOUR = 100;
+    public static final Integer REVOKE_EXCEPTION_HOUR = 10;
     
     // 提报状态 初始 10 ;已提交 20 ;待解释 30; 已解释 40; 已关闭 100;
     public static final Byte SUBMIT_STATUS = 20;
