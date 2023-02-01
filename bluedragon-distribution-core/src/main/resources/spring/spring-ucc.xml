@@ -229,7 +229,8 @@
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
 		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
-
+		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
+		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
 
 
 
@@ -420,6 +421,14 @@
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.syncJyCZSealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
+				<value>uccPropertyConfiguration.printCompeteUpdateCancel</value>
+				<value>uccPropertyConfiguration.printCompeteAllPackageUpdateCancel</value>
+
+				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
+				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.unloadTaskBoardMaxCount</value>
+				<value>uccPropertyConfiguration.packageWeightLimit</value>
+				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
 				<value>uccPropertyConfiguration.jyComboardCountLimit</value>

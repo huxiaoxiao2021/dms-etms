@@ -28,6 +28,11 @@
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
+    <!-- 重复运单bug处理 临时消费-->
+    <jmq:transport id="jmq.dmsWorkAgainJm2.transport" address="${jmq.dmsWorkAgainJm2.address}" user="${jmq.dmsWorkAgainJm2.user}"
+                   password="${jmq.dmsWorkAgainJm2.password}" app="${jmq.dmsWor2kAgainJm2.producer.app}"/>
+
+
     <jmq:transport id="jmq.dmsWorkerForTibet.transport" address="${jmq.dmsWorkerForTibet.address}" user="${jmq.dmsWorkerForTibet.user}"
                    password="${jmq.dmsWorkerForTibet.password}" app="${jmq.dmsWorkerForTibet.app}"/>
 
@@ -467,6 +472,10 @@
     <!--  三无包裹补打成功消息  -->
     <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
+    </jmq:consumer>
+    <!--  重复运单取消拦截bug修复  -->
+    <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
+        <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
 
     <!--  车辆到达消息处理  -->

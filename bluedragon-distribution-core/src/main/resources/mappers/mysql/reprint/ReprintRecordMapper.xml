@@ -139,4 +139,14 @@
         order by ts desc
         limit #{offset}, #{limit}
     </select>
+
+    <select id="selectCountByBarCode" resultType="Integer" parameterType="com.jd.bluedragon.distribution.reprintRecord.dto.ReprintRecordQuery" >
+        select count(*)  from (
+            select
+            bar_code
+            from reprint_record
+            where bar_code like CONCAT(#{barCode,jdbcType=VARCHAR},'%')
+            group by bar_code
+        ) t
+    </select>
 </mapper>

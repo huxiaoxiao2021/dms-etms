@@ -11,7 +11,9 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptModeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
@@ -146,4 +148,10 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
 		CancelWaybill cancelWaybill = this.cancelWaybillDao.getByWaybillCodeAndInterceptType(waybillCode, WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode());
 		return cancelWaybill!=null;
 	}
+
+	@Override
+    @JProfiler(jKey = "DMSWEB.WaybillCancelServiceImpl.updateByWaybillCodeInterceptType99", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
+    public int updateByWaybillCodeInterceptType99(String waybillCode){
+        return cancelWaybillDao.updateByWaybillCodeInterceptType99(waybillCode);
+    }
 }
