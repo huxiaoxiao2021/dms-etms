@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.comboard;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 @Data
 public class JyComboardAggsDto extends JyAggsDto{
@@ -66,11 +67,11 @@ public class JyComboardAggsDto extends JyAggsDto{
     /**
      * 重量
      */
-    private Double weight;
+    private BigDecimal weight;
     /**
      * 体积
      */
-    private Double volume;
+    private BigDecimal volume;
     /**
      * 包含箱内包裹统计
      */
