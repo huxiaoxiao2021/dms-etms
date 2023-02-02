@@ -175,4 +175,11 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request);
+
+  /**
+   * 查询流向版列表
+   * @param request
+   * @return
+   */
+  InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
 }
