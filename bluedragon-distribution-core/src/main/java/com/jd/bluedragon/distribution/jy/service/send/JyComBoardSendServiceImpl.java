@@ -2595,6 +2595,111 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+  @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
+  public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
+    InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>();
+    if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
+      invokeResult.setCode(NO_SEND_FLOW_CODE);
+      invokeResult.setMessage(NO_SEND_FLOW_MESSAGE);
+      return invokeResult;
+    }
+    BoardQueryResp boardQueryResp = new BoardQueryResp();
+    List<BoardDto> boardDtos = new ArrayList<>();
+    boardQueryResp.setBoardDtoList(boardDtos);
+    invokeResult.setData(boardQueryResp);
+
+    // 获取当前场地未封车的板号
+    SendFlowDto sendFlow = new SendFlowDto();
+    sendFlow.setEndSiteId(request.getEndSiteId());
+    sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    sendFlow.setQueryTimeBegin(time);
+    List<Integer> comboardSourceList = new ArrayList<>();
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
+    sendFlow.setComboardSourceList(comboardSourceList);
+    PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
+
+    if (com.jd.dbs.util.CollectionUtils.isEmpty(boardList)) {
+      invokeResult.setCode(RESULT_SUCCESS_CODE);
+      invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+      return invokeResult;
+    }
+
+    //查询流向下7天内未封车的板总数
+    BoardCountReq boardCountReq = new BoardCountReq();
+    boardCountReq.setCreateTime(time);
+    List<Integer> endSiteIdList = new ArrayList<>();
+    endSiteIdList.add(request.getEndSiteId());
+    boardCountReq.setEndSiteIdList(endSiteIdList);
+    boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+    List<Integer> sourceList = new ArrayList<>();
+    sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+    sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
+    boardCountReq.setComboardSourceList(sourceList);
+    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
+
+    if (!com.jd.dbs.util.CollectionUtils.isEmpty(entityList)) {
+      boardQueryResp.setBoardTotal(entityList.get(0).getBoardCount().longValue());
+    }
+
+    // 获取板号扫描数量统计数据
+    List<String> boardCodeList = getboardCodeList(boardList);
+    List<JyComboardAggsEntity> boardScanCountList = new ArrayList<>();
+    try {
+      boardScanCountList = jyComboardAggsService.queryComboardAggs(boardCodeList);
+    } catch (Exception e) {
+      log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList), e);
+    }
+    HashMap<String, JyComboardAggsEntity> boardScanCountMap = getBoardScanCountMap(boardScanCountList);
+
+
+    for (JyBizTaskComboardEntity board : boardList) {
+      BoardDto boardDto = new BoardDto();
+      boardDto.setSendCode(board.getSendCode());
+      boardDto.setBoardCode(board.getBoardCode());
+      boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
+      boardDto.setStatus(board.getBoardStatus());
+      boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(board.getBoardStatus()));
+
+      if (boardScanCountMap.containsKey(board.getBoardCode())) {
+        JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
+        boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
+        boardDto.setPackageHaveScanCount(aggsEntity.getPackageScannedCount());
+        if (aggsEntity.getWeight() != null) {
+          boardDto.setWeight(aggsEntity.getWeight().toString());
+        }
+        if (aggsEntity.getVolume() != null) {
+          boardDto.setVolume(aggsEntity.getVolume().toString());
+        }
+      }
+
+      boardDtos.add(boardDto);
+    }
+    invokeResult.setCode(RESULT_SUCCESS_CODE);
+    invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+    return invokeResult;
+  }
+
+  private HashMap<String, JyComboardAggsEntity> getBoardScanCountMap(List<JyComboardAggsEntity> boardScanCountList) {
+    HashMap<String, JyComboardAggsEntity> boardScanCountMap = new HashMap<>();
+    for (JyComboardAggsEntity aggsEntity : boardScanCountList) {
+      boardScanCountMap.put(aggsEntity.getBoardCode(),aggsEntity);
+    }
+    return boardScanCountMap;
+  }
+
+
+  private List<String> getboardCodeList(List<JyBizTaskComboardEntity> boardList) {
+    List<String> boardCodeList = new ArrayList<>();
+    for (JyBizTaskComboardEntity boardInfo : boardList) {
+      boardCodeList.add(boardInfo.getBoardCode());
+    }
+    return boardCodeList;
+  }
+  
   private void getComboardDetailDtoList(List<String> barCodeList, Integer boxCount,
       List<ComboardDetailDto> comboardDetailDtoList) {
     int index = 0;
