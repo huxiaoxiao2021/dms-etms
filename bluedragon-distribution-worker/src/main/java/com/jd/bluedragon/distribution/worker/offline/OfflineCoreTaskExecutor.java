@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
@@ -110,6 +111,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
                 return false;
             }
+
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
             }else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE
@@ -187,6 +189,20 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             int resultCode = 0;
             try {
                 log.info("OfflineCoreTaskExecutor.offlineCore offlineLogRequest {}", JSON.toJSONString(offlineLogRequest));
+                // 校验encrypt字段
+                String encrypt = offlineLogRequest.getEncrypt();
+                //BusinessDataType PackageCode WaybillCode BoxCode BatchNo UserNo
+                String encryptStr = offlineLogRequest.getUserCode() +
+                        offlineLogRequest.getPackageCode() +
+                        offlineLogRequest.getWaybillCode() +
+                        offlineLogRequest.getBoxCode() +
+                        offlineLogRequest.getBatchCode() +
+                        offlineLogRequest.getOperateTime();
+
+                if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
+                    log.warn("OfflineCoreTaskExecutor.offlineCore-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(offlineLogRequest));
+                }
+
                 if (Task.TASK_TYPE_RECEIVE.equals(offlineLogRequest.getTaskType())) {
                     // 分拣中心收货
                     resultCode = this.offlineReceiveService.parseToTask(offlineLogRequest);
@@ -327,6 +343,19 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             scDto.setVehicleNumber(obj.getString("carCode"));
             scDto.setVolume(obj.getDouble("volume"));
             scDto.setWeight(obj.getDouble("weight"));
+            // 校验encrypt字段
+            String encrypt = obj.getString("encrypt");
+            //BusinessDataType PackageCode WaybillCode BoxCode BatchNo UserNo
+            String encryptStr = obj.getString("userCode") +
+                    obj.getString("packageCode") +
+                    obj.getString("waybillCode") +
+                    obj.getString("boxCode") +
+                    obj.getString("batchCode") +
+                    obj.getString("operateTime");
+
+            if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
+                log.warn("OfflineCoreTaskExecutor.convertSearCar-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(obj));
+            }
             sealCarDtos.add(scDto);
         }
 
