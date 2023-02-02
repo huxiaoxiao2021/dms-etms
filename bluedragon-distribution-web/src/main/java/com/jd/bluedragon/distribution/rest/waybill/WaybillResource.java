@@ -361,14 +361,32 @@ public class WaybillResource {
 				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
 				return result;
 			}
-			if(!TypeEnum.SYS_AUTO.getCode().equals(waybillDiffs.get(0).getType())){
+
+			List<AbnormalWaybillDiff> waybillDiffListNew = new ArrayList<>();
+			if (waybillDiffs.size() > 1) {
+				for (AbnormalWaybillDiff waybillDiff : waybillDiffs) {
+					if (!Objects.equals(waybillDiff.getType(),"3")) {
+						waybillDiffListNew.add(waybillDiff);
+					}
+				}
+			} else {
+				waybillDiffListNew = waybillDiffs;
+			}
+
+			if(CollectionUtils.isEmpty(waybillDiffListNew)){
+				//不存在 直接返回
+				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
+				return result;
+			}
+
+			if(!TypeEnum.SYS_AUTO.getCode().equals(waybillDiffListNew.get(0).getType())){
 				//不需要补打 提示错误提示语
 				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
 				return result;
 			}
 			//存在则 不允许有多个 判断是否需要补打
 			List<WaybillErrorDomain> waybillErrorDomains = Lists.newArrayList();
-			for (AbnormalWaybillDiff waybillDiff : waybillDiffs) {
+			for (AbnormalWaybillDiff waybillDiff : waybillDiffListNew) {
 				waybillErrorDomains.addAll(waybillCommonService.complementWaybillError(waybillDiff.getWaybillCodeC()));
 			}
 			result.setData(waybillErrorDomains);
