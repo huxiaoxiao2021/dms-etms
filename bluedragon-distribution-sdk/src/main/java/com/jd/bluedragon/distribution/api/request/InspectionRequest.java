@@ -68,7 +68,7 @@ public class InspectionRequest extends JdRequest{
 	/**
 	 * 按单验货标识
 	 */
-	private boolean waybillInspectionFlag;
+	private Boolean waybillInspectionFlag;
 
     public int getPageNo() {
         return pageNo;
@@ -253,11 +253,11 @@ public class InspectionRequest extends JdRequest{
 		this.operatorId = operatorId;
 	}
 
-	public boolean isWaybillInspectionFlag() {
+	public Boolean isWaybillInspectionFlag() {
 		return waybillInspectionFlag;
 	}
 
-	public void setWaybillInspectionFlag(boolean waybillInspectionFlag) {
+	public void setWaybillInspectionFlag(Boolean waybillInspectionFlag) {
 		this.waybillInspectionFlag = waybillInspectionFlag;
 	}
 }
