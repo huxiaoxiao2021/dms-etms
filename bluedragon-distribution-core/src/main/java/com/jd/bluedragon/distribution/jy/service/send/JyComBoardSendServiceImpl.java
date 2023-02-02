@@ -1017,6 +1017,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       execSend(request);
     } catch (JyBizException e) {
       log.error("传站组板即发货扫描异常",e);
+      if (ObjectHelper.isNotNull(e.getCode())){
+        return new InvokeResult(e.getCode(), e.getMessage());
+      }
       return new InvokeResult(CODE_ERROR, e.getMessage());
     }
 
