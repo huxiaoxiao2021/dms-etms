@@ -923,6 +923,32 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         }
     }
 
+    @Override
+    public InvokeResult<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request) {
+        InvokeResult<SealTaskInfo> result = new InvokeResult<>();
+        if(request == null && StringUtils.isBlank(request.getSealCarCode())){
+            result.error("入参不能为空!");
+        }
+        try{
+            SealCarMonitor sealCarMonitor = jySealVehicleManager.querySealCarData(request.getSealCarCode());
+            if(sealCarMonitor == null){
+                result.error("获取待解封车信息为空");
+            }
+            SealTaskInfo taskInfo = new SealTaskInfo();
+            taskInfo.setStartSiteName(sealCarMonitor.getStartSiteName());
+            taskInfo.setLocalCount(sealCarMonitor.getLocalCount());
+            taskInfo.setExternalCount(sealCarMonitor.getExternalCount());
+            result.setData(taskInfo);
+            result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        }catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEAL_DETAIL, false));
+        } catch (Exception e){
+            log.error("获取待解封车信息异常-{}",e.getMessage(),e);
+            result.error("获取待解封车信息异常!");
+        }
+        return result;
+    }
+
     /**
      * 创建卸车专用调度任务
      * @param dto
