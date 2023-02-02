@@ -253,7 +253,7 @@ public class InspectionRequest extends JdRequest{
 		this.operatorId = operatorId;
 	}
 
-	public Boolean isWaybillInspectionFlag() {
+	public Boolean getWaybillInspectionFlag() {
 		return waybillInspectionFlag;
 	}
 

@@ -70,7 +70,7 @@ public class PackageInspectionHook extends AbstractTaskHook {
             if (null != inspectionRequest){
                 mq.setMachineCode(inspectionRequest.getMachineCode());
                 mq.setBizSource(inspectionRequest.getBizSource());
-                mq.setWaybillInspectionFlag(inspectionRequest.isWaybillInspectionFlag());
+                mq.setWaybillInspectionFlag(inspectionRequest.getWaybillInspectionFlag());
             }
 
             Message message = new Message();

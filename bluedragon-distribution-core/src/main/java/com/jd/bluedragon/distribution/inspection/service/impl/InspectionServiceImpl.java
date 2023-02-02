@@ -1028,6 +1028,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         String code = request.getPackageBarOrWaybillCode();
         boolean isByWayBillCode = WaybillUtil.isWaybillCode(code);
 		if(isByWayBillCode) {
+			if(log.isInfoEnabled()) {
+				log.info("按单验货标识：单号={}", code);
+			}
 			request.setWaybillInspectionFlag(true);
 		}
 

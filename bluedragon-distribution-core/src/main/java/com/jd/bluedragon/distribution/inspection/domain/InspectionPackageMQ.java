@@ -190,7 +190,7 @@ public class InspectionPackageMQ implements Serializable {
         this.bizSource = bizSource;
     }
 
-    public Boolean isWaybillInspectionFlag() {
+    public Boolean getWaybillInspectionFlag() {
         return waybillInspectionFlag;
     }
 
