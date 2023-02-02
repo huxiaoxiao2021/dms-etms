@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.waybill;
 
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -360,20 +361,18 @@ public class WaybillResource {
 				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
 				return result;
 			}
-			//存在则 不允许有多个 判断是否需要补打
-			if(TypeEnum.SYS_AUTO.getCode().equals(waybillDiffs.get(0).getType())){
-				//需要补打调用运单补全数据
-				//正确运单号
-				String waybillCodeC = waybillDiffs.get(0).getWaybillCodeC();
-				//错误运单号(指运单生成的重复的运单号)
-				String waybillCodeE = waybillDiffs.get(0).getWaybillCodeE();
-				List<WaybillErrorDomain> waybillErrorDomains = waybillCommonService.complementWaybillError(waybillCodeC,waybillCodeE);
-				result.setData(waybillErrorDomains);
-				result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
+			if(!TypeEnum.SYS_AUTO.getCode().equals(waybillDiffs.get(0).getType())){
+				//不需要补打 提示错误提示语
+				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
 				return result;
 			}
-			//不需要补打 提示错误提示语
-			result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+			//存在则 不允许有多个 判断是否需要补打
+			List<WaybillErrorDomain> waybillErrorDomains = Lists.newArrayList();
+			for (AbnormalWaybillDiff waybillDiff : waybillDiffs) {
+				waybillErrorDomains.addAll(waybillCommonService.complementWaybillError(waybillDiff.getWaybillCodeC()));
+			}
+			result.setData(waybillErrorDomains);
+			result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
 			return result;
 
 		}catch (Exception e) {
