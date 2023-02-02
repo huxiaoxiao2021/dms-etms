@@ -928,11 +928,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         InvokeResult<SealTaskInfo> result = new InvokeResult<>();
         if(request == null && StringUtils.isBlank(request.getSealCarCode())){
             result.error("入参不能为空!");
+            return result;
         }
         try{
             SealCarMonitor sealCarMonitor = jySealVehicleManager.querySealCarData(request.getSealCarCode());
             if(sealCarMonitor == null){
-                result.error("获取待解封车信息为空");
+                result.error("获取待解封车信息为空!");
+                return result;
             }
             SealTaskInfo taskInfo = new SealTaskInfo();
             taskInfo.setStartSiteName(sealCarMonitor.getStartSiteName());
