@@ -182,7 +182,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   IDeliveryOperationService deliveryOperationService;
   @Autowired
   IJyComboardJsfManager comboardJsfManager;
-  
+
   @Autowired
   @Qualifier("waybillCancelComboardProducer")
   private DefaultJMQProducer waybillCancelComboardProducer;
@@ -196,7 +196,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("cancelComboardSendProducer")
   private DefaultJMQProducer cancelComboardSendProducer;
-  
+
   @Autowired
   private IGenerateObjectId genObjectId;
 
@@ -213,7 +213,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private static final Integer WAYBILL_TYPE = 3;
 
   final static int COMBOARD_SPLIT_NUM = 1024;
-  
+
   private static final String GROUP_NAME_PREFIX= "混扫%s";
 
   @Override
@@ -317,7 +317,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return result;
   }
-  
+
   private List<TableTrolleyDto> getTableTrolleyDto(
       List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
     List<TableTrolleyDto> tableTrolleyDtoList = new ArrayList<>();
@@ -347,7 +347,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
-  
+
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.getDefaultGroupCTTName", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
@@ -714,7 +714,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         int scanCount = 0;
         if (boardFlow.getPackageScannedCount()!=null) {
           scanCount += boardFlow.getPackageScannedCount();
-        } 
+        }
         if ( boardFlow.getBoxScannedCount()!=null ) {
           scanCount += boardFlow.getBoxScannedCount();
         }
@@ -724,7 +724,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       sendFlowDtoList.add(sendFlowDto);
     }
   }
-  
+
   private HashMap<Long, JyComboardAggsEntity> getSendFlowMap(
       List<JyComboardAggsEntity> jyComboardAggsEntities) {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = new HashMap<>();
@@ -796,7 +796,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (aggsEntity != null) {
       sendFlowDto.setWaitScanCount(aggsEntity.getWaitScanCount());
     }
-    
+
     //查询流向下7天内未封车的板
     SendFlowDto sendFlow = new SendFlowDto();
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
@@ -1413,6 +1413,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void baseCheck(ComboardScanReq request) {
+    if (!ObjectHelper.isNotNull(request.getBarCode())){
+      throw new JyBizException("参数错误：缺少包裹号、箱号、运单号！");
+    }
+    request.setBarCode(request.getBarCode().trim());
     /**
      * 参数校验
      */
@@ -2522,7 +2526,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
-    
+
     // 获取混扫任务下的流向信息
     JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
     condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
@@ -2552,7 +2556,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     List<GoodsCategoryDto> goodsCategoryList = new ArrayList<>();
-    
+
     // 获取当前板号的产品类型扫描信息
     List<JyComboardAggsEntity> productTypeList = null;
     try {
@@ -2561,7 +2565,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } catch (Exception e) {
       log.info("获取板的详情信息失败：{}", JsonHelper.toJson(boardReq), e);
     }
-    getGoodsCategoryList(goodsCategoryList, productTypeList);  
+    getGoodsCategoryList(goodsCategoryList, productTypeList);
     return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,goodsCategoryList);
   }
 
@@ -2699,7 +2703,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return boardCodeList;
   }
-  
+
   private void getComboardDetailDtoList(List<String> barCodeList, Integer boxCount,
       List<ComboardDetailDto> comboardDetailDtoList) {
     int index = 0;
