@@ -68,11 +68,6 @@ public interface JySealVehicleService {
     InvokeResult<TransportResp> checkTransCode(CheckTransportReq reqcuest);
 
     /**
-     * 根据流向查询组板列表
-     */
-    InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
-
-    /**
      * 取消封车 更新批次任务和封签列表
      */
     InvokeResult<Boolean> updateBoardStatusAndSealCode(SealCarDto sealCarCodeOfTms, String batchCode, String operateUserCode, String operateUserName);
