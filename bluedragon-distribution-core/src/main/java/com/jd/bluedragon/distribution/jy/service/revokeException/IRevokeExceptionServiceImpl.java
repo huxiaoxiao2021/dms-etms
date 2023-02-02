@@ -113,7 +113,8 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
                     reportResp.setLineType(dto.getTransType().intValue());
                     reportResp.setLineTypeName(TmsLineTypeEnum.getLineType(dto.getTransType().intValue()).getName());
                     reportResp.setAbnormalTypeName(dto.getAbnormalTypeName());
-                    reportResp.setRevokeSurplusTime(new Date().getTime() - dto.getCreateTime().getTime());
+                    Date time = DateHelper.add(new Date(), Calendar.HOUR, REVOKE_EXCEPTION_HOUR);
+                    reportResp.setRevokeSurplusTime(time.getTime() + REVOKE_EXCEPTION_HOUR -new Date().getTime());
                     exceptionReportRespList.add(reportResp);
                 }
             }
