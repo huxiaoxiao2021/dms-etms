@@ -102,7 +102,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             JSONArray taskList = JSONObject.parseArray(body);
             Integer taskType = taskList.getJSONObject(0).getInteger("taskType");
             Integer createSiteCode = taskContext.getTask().getCreateSiteCode();
-            if (!uccPropertyConfiguration.isOffLineAllowedSite(createSiteCode)) {
+            // 除了空铁以外的离线操作不被允许，
+            if (!Objects.equals(taskType,Task.TASK_TYPE_AR_RECEIVE)
+                    && !Objects.equals(taskType, Task.TASK_TYPE_AR_SEND_REGISTER)
+                    && !Objects.equals(taskType, Task.TASK_TYPE_AR_RECEIVE_AND_SEND)
+                    && !uccPropertyConfiguration.isOffLineAllowedSite(createSiteCode)) {
                 log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
                 return false;
             }

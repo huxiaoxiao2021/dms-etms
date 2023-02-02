@@ -2588,6 +2588,6 @@ public class UccPropertyConfiguration {
     }
 
     public boolean isOffLineAllowedSite(Integer siteCode) {
-        return Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 }
