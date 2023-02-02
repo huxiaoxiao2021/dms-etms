@@ -81,7 +81,7 @@ public class ErpUserClient {
         parameterMap.put("erp", loginContext.getPin());
         parameterMap.put("tenantCode", loginContext.getTenantCode());
         // 这里签名生成方法中的md5算法，可以使用自己系统的MD5标准工具类
-        String signature = Md5Helper.encode(ssoToken + JsonHelper.toJson(parameterMap) + timestamp);
+        String signature = Md5Helper.getMd5(ssoToken + JsonHelper.toJson(parameterMap) + timestamp);
         Map<String, String> params = Maps.newHashMap();
         params.put("erp", loginContext.getPin());
         params.put("tenantCode", loginContext.getTenantCode());
