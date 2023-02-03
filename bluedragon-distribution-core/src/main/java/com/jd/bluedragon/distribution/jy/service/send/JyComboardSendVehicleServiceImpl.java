@@ -19,6 +19,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDest
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
@@ -82,6 +83,8 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
   @Autowired
   private BasicQueryWSManager basicQueryWSManager;
+  @Autowired
+  UccPropertyConfiguration ucc;
 
   @Override
   public InvokeResult<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
@@ -182,7 +185,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       JyBizTaskSendSortTypeEnum orderTypeEnum) {
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
-    if (queryCondition.getRand()%2!=0){
+    if (!ucc.getCzQuerySwitch()){
       log.info("=============3.走兼容模式================"+queryCondition.getRand());
       queryCondition.setLineType(null);
     }
@@ -273,7 +276,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
   @Override
   public <T> List<String> resolveSearchKeyword(InvokeResult<T> result, QueryTaskSendDto queryTaskSendDto) {
-    if (queryTaskSendDto.getRand()%2==0){
+    if (ucc.getCzQuerySwitch()){
       log.info("=============1.走原有模式================"+queryTaskSendDto.getRand());
       return super.resolveSearchKeyword(result,queryTaskSendDto);
     }
@@ -349,7 +352,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   @Override
   List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
       List<String> sendVehicleBizList) {
-    if (condition.getRand()%2!=0){
+    if (!ucc.getCzQuerySwitch()){
       log.info("=============2.走兼容模式================"+condition.getRand());
       condition.setLineType(null);
     }
@@ -363,7 +366,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   public List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto,
       JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
     JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), entity.getBizId());
-    detailQ.setLineType(queryTaskSendDto.getLineType());
+    //detailQ.setLineType(queryTaskSendDto.getLineType());
     List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
     if (CollectionUtils.isEmpty(vehicleDetailList)) {
       return Lists.newArrayList();
@@ -495,7 +498,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     progress.setDestTotal(getDestTotal(taskSend.getBizId()));
     progress.setSealedTotal(getSealedDestTotal(taskSend.getBizId()));
   }
-  
+
   @Override
   public void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult,
       SendAbnormalPackRequest request, SendBarCodeQueryEntranceEnum entranceEnum,
