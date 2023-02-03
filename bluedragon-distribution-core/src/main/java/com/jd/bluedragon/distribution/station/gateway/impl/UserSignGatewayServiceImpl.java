@@ -187,4 +187,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
 		return userSignRecordService.deleteUserSignRecord(userSignRequest);
 	}
+	@Override
+	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
+		return userSignRecordService.queryLastUnSignOutRecordData(query);
+	}	
 }

@@ -15,8 +15,11 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
@@ -92,12 +95,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private PositionManager positionManager;
 
 	@Autowired
-	private PositionRecordService positionRecordService;
-
-
-	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
+	
+	@Autowired
+	@Qualifier("jyGroupService")
+	private JyGroupService jyGroupService;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -1392,6 +1395,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			PageDto.setTotalRow(0);
 		}
 		result.setData(PageDto);
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
+		lastSignRecordQuery.setUserCode(query.getUserCode());
+		UserSignRecordData signData = this.toUserSignRecordData(userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery));
+		if(signData != null) {
+			//查询组员信息
+			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getId());
+			if(memberData != null) {
+				GroupMemberData groupData = new GroupMemberData();
+				groupData.setGroupCode(memberData.getRefGroupCode());
+				signData.setGroupData(groupData);
+				//查询分组信息
+				JyGroupEntity group = this.jyGroupService.queryGroupByGroupCode(memberData.getRefGroupCode());
+				if(group != null) {
+					signData.setPositionCode(group.getPositionCode());
+				}
+			}
+		}
+		result.setData(signData);
 		return result;
 	}
 }
