@@ -9,6 +9,7 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.common.hrm.UimHelper;
 import com.jd.common.web.LoginContext;
+import com.jd.jim.cli.driver.util.Assert;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -78,12 +80,14 @@ public class ErpUserClient {
     public static Integer getLoginUserId(LoginContext loginContext) {
         Long timestamp = System.currentTimeMillis();
         Map<String,String> parameterMap = Maps.newHashMap();
-        parameterMap.put("erp", loginContext.getPin());
+//        parameterMap.put("erp", loginContext.getPin());
+        parameterMap.put("erp", "bjych");
         parameterMap.put("tenantCode", loginContext.getTenantCode());
         // 这里签名生成方法中的md5算法，可以使用自己系统的MD5标准工具类
         String signature = Md5Helper.getMd5(ssoToken + JsonHelper.toJson(parameterMap) + timestamp);
         Map<String, String> params = Maps.newHashMap();
-        params.put("erp", loginContext.getPin());
+//        params.put("erp", loginContext.getPin());
+        params.put("erp", "bjych");
         params.put("tenantCode", loginContext.getTenantCode());
         params.put("appkey", ssoAppKey);
         params.put("signature", signature);
@@ -91,6 +95,9 @@ public class ErpUserClient {
         params.put("nonce", UUID.randomUUID().toString());
         String content = UimHelper.doPost(ssoTarget, params);
         // 返回内容:{"code":200,"data":1906928,"message":"ok","success":true}
+
+        should_return_userId_when_erp_exists(loginContext);
+
         JSONObject jsonObject = JSON.parseObject(content);
         if(jsonObject == null){
             log.warn("根据erp:{}获取用户id失败!", loginContext.getPin());
@@ -101,6 +108,42 @@ public class ErpUserClient {
         }
         log.warn("获取登录人userId失败:{}", jsonObject.getString("message"));
         return null;
+    }
+
+
+    public static void should_return_userId_when_erp_exists(LoginContext loginContext) {
+
+        String appKey = ssoAppKey;
+        String token = ssoToken;
+        String target = ssoTarget;
+
+        Long timestamp = System.currentTimeMillis();
+        String nonce = UUID.randomUUID().toString();
+//        String erp = "bjych";
+        String erp = loginContext.getPin();
+//        String tenantCode = "CN.JD.GROUP";
+        String tenantCode = loginContext.getTenantCode();
+        Map<String,String> parameterMap = new HashMap<String,String>();
+        parameterMap.put("erp", erp);
+        parameterMap.put("tenantCode", tenantCode);
+        String bizParams= JSON.toJSONString(parameterMap);
+        //这里签名生成方法中的md5算法，可以使用自己系统的MD5标准工具类
+        String signature = Md5Helper.getMd5(token + bizParams + timestamp);
+        System.out.println("str1=====>"+signature);
+        Map<String, String> params = new HashMap<>();
+        params.put("erp", erp);
+        params.put("tenantCode", tenantCode);
+        params.put("appkey", appKey);
+        params.put("signature", signature);
+        params.put("timestamp", String.valueOf(timestamp));
+        params.put("nonce", nonce);
+        String content = UimHelper.doPost(target, params);
+        System.out.println(content);
+        //返回内容:{"code":200,"data":1906928,"message":"ok","success":true}
+        JSONObject jsonObject = JSON.parseObject(content);
+        Assert.isTrue(jsonObject.getInteger("code")==200);
+        Assert.isTrue(jsonObject.getBoolean("success"));
+        Assert.isTrue(jsonObject.getLong("data")==1569163);
     }
 
     /**
