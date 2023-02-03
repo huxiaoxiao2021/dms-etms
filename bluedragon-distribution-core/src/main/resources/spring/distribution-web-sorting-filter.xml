@@ -66,6 +66,7 @@
     <util:list id="reverseFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillInterceptType99Filter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseInStockCheckFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseOperationAllowedFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RWaybillFilter"/>
