@@ -464,9 +464,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCodeScan", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult checkTransCodeScan(CheckTransportReq reqcuest) {
-        InvokeResult invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq reqcuest) {
+        TransportResp transportResp = new TransportResp();
+        InvokeResult<TransportResp> invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
             com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
             if (commonDto == null) {
@@ -475,16 +476,21 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return invokeResult;
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
-                Integer endNodeId = commonDto.getData().getEndNodeId();
+                TransportResourceDto data = commonDto.getData();
+                Integer endNodeId = data.getEndNodeId();
+                transportResp.setTransWay(data.getTransWay());
+                transportResp.setTransTypeName(data.getTransTypeName());
                 if (reqcuest.getEndSiteId().equals(endNodeId)) {
                     invokeResult.setCode(JdResponse.CODE_OK);
                     invokeResult.setMessage(JdResponse.MESSAGE_OK);
+                    invokeResult.setData(transportResp);
                 } else {
                     //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                     BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
                     if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
                         invokeResult.setCode(RESULT_SUCCESS_CODE);
                         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                        invokeResult.setData(transportResp);
                     } else {
                         invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
@@ -504,94 +510,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         } catch (Exception e) {
             log.error("JySealVehicleServiceImpl.checkTransCode e ", e);
         }
-        return invokeResult;
-    }
-
-    @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request) {
-        InvokeResult<BoardQueryResp> invokeResult = new InvokeResult<>();
-        if (request == null || request.getEndSiteId() < 0 || request.getCurrentOperate() == null) {
-            invokeResult.setCode(NO_SEND_FLOW_CODE);
-            invokeResult.setMessage(NO_SEND_FLOW_MESSAGE);
-            return invokeResult;
-        }
-        BoardQueryResp boardQueryResp = new BoardQueryResp();
-        List<BoardDto> boardDtos = new ArrayList<>();
-        boardQueryResp.setBoardDtoList(boardDtos);
-        invokeResult.setData(boardQueryResp);
-
-        // 获取当前场地未封车的板号
-        SendFlowDto sendFlow = new SendFlowDto();
-        sendFlow.setEndSiteId(request.getEndSiteId());
-        sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
-        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
-        sendFlow.setQueryTimeBegin(time);
-        List<Integer> comboardSourceList = new ArrayList<>();
-        comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-        comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
-        sendFlow.setComboardSourceList(comboardSourceList);
-        PageHelper.startPage(request.getPageNo(),request.getPageSize());
-        List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
-
-        if (CollectionUtils.isEmpty(boardList)) {
-            invokeResult.setCode(RESULT_SUCCESS_CODE);
-            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
-            return invokeResult;
-        }
-        
-        //查询流向下7天内未封车的板总数
-        BoardCountReq boardCountReq = new BoardCountReq();
-        boardCountReq.setCreateTime(time);
-        List<Integer> endSiteIdList = new ArrayList<>();
-        endSiteIdList.add(request.getEndSiteId());
-        boardCountReq.setEndSiteIdList(endSiteIdList);
-        boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        List<Integer> sourceList = new ArrayList<>();
-        sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-        sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());        
-        boardCountReq.setComboardSourceList(sourceList);
-        List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
-        
-        if (!CollectionUtils.isEmpty(entityList)) {
-            boardQueryResp.setBoardTotal(entityList.get(0).getBoardCount().longValue());
-        }
-
-        // 获取板号扫描数量统计数据
-        List<String> boardCodeList = getboardCodeList(boardList);
-        List<JyComboardAggsEntity> boardScanCountList = new ArrayList<>();
-        try {
-            boardScanCountList = jyComboardAggsService.queryComboardAggs(boardCodeList);
-        } catch (Exception e) {
-            log.error("获取板号统计信息失败：{}", JsonHelper.toJson(boardCodeList), e);
-        }
-        HashMap<String, JyComboardAggsEntity> boardScanCountMap = getBoardScanCountMap(boardScanCountList);
-
-
-        for (JyBizTaskComboardEntity board : boardList) {
-            BoardDto boardDto = new BoardDto();
-            boardDto.setSendCode(board.getSendCode());
-            boardDto.setBoardCode(board.getBoardCode());
-            boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(board.getComboardSource()));
-            boardDto.setStatus(board.getBoardStatus());
-            boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(board.getBoardStatus()));
-
-            if (boardScanCountMap.containsKey(board.getBoardCode())) {
-                JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
-                boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
-                boardDto.setPackageHaveScanCount(aggsEntity.getPackageScannedCount());
-                if (aggsEntity.getWeight() != null) {
-                    boardDto.setWeight(aggsEntity.getWeight().toString());
-                }
-                if (aggsEntity.getVolume() != null) {
-                    boardDto.setVolume(aggsEntity.getVolume().toString());
-                }
-            }
-
-            boardDtos.add(boardDto);
-        }
-        invokeResult.setCode(RESULT_SUCCESS_CODE);
-        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         return invokeResult;
     }
 
@@ -662,7 +580,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
-        if (StringUtils.isEmpty(request.getBarCode())) {
+        if (StringUtils.isEmpty(request.getBarCode()) || request.getEndSiteId() == null) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
         if (!BusinessHelper.isBoxcode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
@@ -685,11 +603,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         query.setBoardCode(boardBoxInfoDto.getCode());
         JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
-
+        
         if (comboardEntity == null) {
             log.error("未找到板的批次信息：{}", JsonHelper.toJson(request.getBarCode()));
             return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
         } else {
+            if ( !request.getEndSiteId().equals(comboardEntity.getEndSiteId().intValue())) {
+                log.error("当前包裹流向与封车流向不一致：{}", JsonHelper.toJson(request));
+                return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, "当前包裹流向与封车流向不一致!");
+            }
             boardDto.setSendCode(comboardEntity.getSendCode());
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(comboardEntity.getComboardSource()));
             boardDto.setStatus(comboardEntity.getBoardStatus());

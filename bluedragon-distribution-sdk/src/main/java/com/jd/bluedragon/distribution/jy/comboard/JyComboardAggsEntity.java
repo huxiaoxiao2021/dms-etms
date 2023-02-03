@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class JyComboardAggsEntity {
@@ -41,9 +42,9 @@ public class JyComboardAggsEntity {
 
     private Integer boxScannedCount;
 
-    private Double weight;
+    private BigDecimal weight;
 
-    private Double volume;
+    private BigDecimal volume;
 
     private Integer packageTotalScannedCount;
 
@@ -207,19 +208,19 @@ public class JyComboardAggsEntity {
         this.boxScannedCount = boxScannedCount;
     }
 
-    public Double getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
 
-    public Double getVolume() {
+    public BigDecimal getVolume() {
         return volume;
     }
 
-    public void setVolume(Double volume) {
+    public void setVolume(BigDecimal volume) {
         this.volume = volume;
     }
 }

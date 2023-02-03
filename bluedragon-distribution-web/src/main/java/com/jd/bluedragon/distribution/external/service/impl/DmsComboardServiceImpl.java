@@ -120,7 +120,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.queryBelongBoardByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<QueryBelongBoardResponse> queryBelongBoardByBarCode(
       QueryBelongBoardRequest request) {
-    if (StringUtils.isEmpty(request.getBarCode())) {
+    if (StringUtils.isEmpty(request.getBarCode()) || request.getStartSiteId() == null) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     QueryBelongBoardResponse belongBoardResp = new QueryBelongBoardResponse();
