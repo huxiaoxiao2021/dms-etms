@@ -676,7 +676,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             // 校验异常运单号
                             final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(boxCode));
                             if(hasIntercept){
-                                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+                                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, HintService.getHint(HintCodeConstants.WAYBILL_EXCEPTION_REVERSE_INTERCEPT));
                             }
 
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
