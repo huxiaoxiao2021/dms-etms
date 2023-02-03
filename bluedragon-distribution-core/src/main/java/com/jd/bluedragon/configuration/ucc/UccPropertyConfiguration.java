@@ -1099,6 +1099,16 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardCountLimit;
 
+    private boolean czQuerySwitch;
+
+    public boolean getCzQuerySwitch() {
+        return czQuerySwitch;
+    }
+
+    public void setCzQuerySwitch(boolean czQuerySwitch) {
+        this.czQuerySwitch = czQuerySwitch;
+    }
+
     public Integer getJyComboardCountLimit() {
         return jyComboardCountLimit;
     }
@@ -2605,7 +2615,7 @@ public class UccPropertyConfiguration {
         return jyComboardSiteCTTPageSize;
     }
 
-    
+
     public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
         this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
     }
