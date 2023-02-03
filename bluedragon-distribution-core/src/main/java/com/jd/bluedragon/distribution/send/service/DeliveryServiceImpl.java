@@ -674,6 +674,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if (WaybillUtil.isPackageCode(boxCode)) {
                         CallerInfo reverseCheckInfo = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo.reverseCheckInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
                         try {
+                            // 校验异常运单号
+                            final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(boxCode));
+                            if(hasIntercept){
+                                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+                            }
+
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
                             if (baseStaffSiteOrgDto != null) {
                                 Integer siteType = baseStaffSiteOrgDto.getSiteType();
@@ -707,11 +713,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             Profiler.registerInfoEnd(reverseCheckInfo);
                         }
 
-                        // 校验异常运单号
-                        final boolean hasIntercept = this.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(boxCode));
-                        if(hasIntercept){
-                            return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
-                        }
                     }
 
                     return tDeliveryResponse;
@@ -729,27 +730,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }finally {
             Profiler.registerInfoEnd(info);
         }
-    }
-
-    private boolean checkWaybillCancelInterceptType99(String waybillCode) {
-        try {
-            List<CancelWaybill> cancelWaybills = waybillCancelService.getByWaybillCode(waybillCode);
-            if (cancelWaybills == null || cancelWaybills.isEmpty()) {
-                return false;
-            }
-            boolean hasIntercept = false;
-            for (CancelWaybill cancelWaybill : cancelWaybills) {
-                if(java.util.Objects.equals(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode(), cancelWaybill.getInterceptType())){
-                    hasIntercept = true;
-                    break;
-                }
-            }
-            log.info("checkWaybillCancelInterceptType99 waybillCode: {} hasIntercept: {} ", waybillCode, hasIntercept);
-            return hasIntercept;
-        } catch (Exception e) {
-            log.error("checkWaybillCancelInterceptType99 exception waybillCode: {}", waybillCode, e);
-        }
-        return false;
     }
 
     @Override

@@ -154,4 +154,31 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
     public int updateByWaybillCodeInterceptType99(String waybillCode){
         return cancelWaybillDao.updateByWaybillCodeInterceptType99(waybillCode);
     }
+
+    /**
+     * 按运单号校验是否存在异常运单拦截
+     * @param waybillCode 运单号
+     * @return 校验结果 true-有拦截 false-无
+     */
+    @Override
+    public boolean checkWaybillCancelInterceptType99(String waybillCode) {
+        try {
+            List<CancelWaybill> cancelWaybills = cancelWaybillDao.getByWaybillCode(waybillCode);
+            if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+                return false;
+            }
+            boolean hasIntercept = false;
+            for (CancelWaybill cancelWaybill : cancelWaybills) {
+                if(java.util.Objects.equals(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode(), cancelWaybill.getInterceptType())){
+                    hasIntercept = true;
+                    break;
+                }
+            }
+            log.info("checkWaybillCancelInterceptType99 waybillCode: {} hasIntercept: {} ", waybillCode, hasIntercept);
+            return hasIntercept;
+        } catch (Exception e) {
+            log.error("checkWaybillCancelInterceptType99 exception waybillCode: {}", waybillCode, e);
+        }
+        return false;
+    }
 }
