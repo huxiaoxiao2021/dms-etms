@@ -549,6 +549,11 @@ public class HintCodeConstants {
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
 
+    /**
+     * 异常运单逆向分拣、发货拦截
+     */
+    public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
+
     /*##############################################拦截相关END#########################################################*/
 
 
