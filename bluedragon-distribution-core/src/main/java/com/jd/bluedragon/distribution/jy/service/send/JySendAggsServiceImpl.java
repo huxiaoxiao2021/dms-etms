@@ -103,4 +103,9 @@ public class JySendAggsServiceImpl implements JySendAggsService {
         log.info("getJySendAggsDao-JySendAggOldOrNewDataReadSwitch 关闭");
         return jySendAggsDao;
     }
+
+    @Override
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId) {
+        return jySendAggsDao.findSendAggExistAbnormal(sendVehicleBizId);
+    }
 }

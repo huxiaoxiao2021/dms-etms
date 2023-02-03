@@ -46,4 +46,8 @@ public class ReprintRecordDao extends BaseDao<ReprintRecord> {
         return this.getSqlSession().selectList(namespace + ".queryList", query);
     }
 
+    public int selectCountByBarCode(ReprintRecordQuery query) {
+        return this.getSqlSession().selectOne(namespace + ".selectCountByBarCode", query);
+    }
+
 }

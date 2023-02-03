@@ -6,12 +6,15 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -57,6 +60,9 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
 
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -104,6 +110,13 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                     result.toError(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
                     return result;
                 }
+            }
+
+            // 站点类型不能操作得物类型货物返调度
+            final boolean matchTerminalSiteReSortDewuCondition = waybillService.matchTerminalSiteReSortDewuCondition(context.getBigWaybillDto().getWaybill().getCustomerCode(), context.getRequest().getSiteCode());
+            if(matchTerminalSiteReSortDewuCondition){
+                result.toError(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
             }
 
             // 特殊品类自营逆向单不能返调度到仓

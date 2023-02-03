@@ -65,7 +65,16 @@
         <trans-fence-api.version>1.0-jdk1.7-SNAPSHOT</trans-fence-api.version>
         <vividsolutions.jts.version>1.13</vividsolutions.jts.version>
     </properties>
-	
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.16</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 		<dependency>
@@ -465,8 +474,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
                 <dependencies>

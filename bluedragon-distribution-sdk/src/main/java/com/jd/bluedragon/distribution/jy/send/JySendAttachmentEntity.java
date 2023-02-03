@@ -42,6 +42,10 @@ public class JySendAttachmentEntity implements Serializable {
 	 */
 	private String imgUrl;
 	/**
+	 * 封车前拍照图片，多个逗号分隔
+	 */
+	private String sealImgUrl;
+	/**
 	 * 无任务发货备注信息
 	 */
 	private String remark;
@@ -120,6 +124,14 @@ public class JySendAttachmentEntity implements Serializable {
 
 	public void setImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;
+	}
+
+	public String getSealImgUrl() {
+		return sealImgUrl;
+	}
+
+	public void setSealImgUrl(String sealImgUrl) {
+		this.sealImgUrl = sealImgUrl;
 	}
 
 	public String getRemark() {

@@ -27,6 +27,13 @@ public interface IJySendAttachmentService {
     Boolean sendVehicleHasSelectStatus(JySendAttachmentEntity entity);
 
     /**
+     * 根据bizId查找拍照记录
+     * @param entity
+     * @return
+     */
+    JySendAttachmentEntity selectBySendVehicleBizId(JySendAttachmentEntity entity);
+
+    /**
      * 记录拍照
      * @param entity
      * @return

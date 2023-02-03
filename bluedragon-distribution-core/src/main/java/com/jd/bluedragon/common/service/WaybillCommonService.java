@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.service;
 
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 
 /**
- * @author zhaohc 
+ * @author zhaohc
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-9-27 上午11:21:27
  *
@@ -26,7 +27,7 @@ import java.util.Map;
 public interface WaybillCommonService {
 	/**
      * 根据运单号查询运单明细（不包括包裹信息）
-     * 
+     *
      * @param waybillCode
      * @return
      */
@@ -45,25 +46,36 @@ public interface WaybillCommonService {
     /**
      * 根据运单号查询运单明细
      * 	直接调用运单接口查询运单数据及包裹信息（验证必要字段）
-     * 
+     *
      * @param waybillCode
      * @return
      */
     public Waybill findWaybillAndPack(String waybillCode);
-    
+
+	/**
+	 * 补全异常运单信息
+	 * @param waybillCodeC 正确运单号
+	 * @param WaybillCodeE 错误运单号(运单生成的重复运单号)
+	 * @return
+	 */
+	public List<WaybillErrorDomain> complementWaybillError(String waybillCodeC, String waybillCodeE);
+
+
+	public List<WaybillErrorDomain> complementWaybillError(String waybillCodeC);
+
     /**
      * 根据运单号查询运单信息
      * 	调用运单中间件
-     * 
+     *
      * @param waybillCode
      * @return
      */
     public Waybill getWaybillFromOrderService(String waybillCode);
-    
+
     /**
      * 根据运单号查询历史运单信息
      * 	调用运单中间件
-     * 
+     *
      * @param waybillCode
      * @return
      */
@@ -73,7 +85,7 @@ public interface WaybillCommonService {
     /**
      * 根据运单号查询运单明细
      * 	直接调用运单接口查询运单数据及包裹信息（验证必要字段）
-     * 
+     *
 	 * @param waybillCode 运单号
 	 * @param isQueryWaybillC
 	 * @param QueryWaybillE
@@ -101,7 +113,7 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	public Waybill findWaybillAndGoods(String waybillCode);
-	
+
 	/**
 	 * 根据运单号和操作类型，获取运单称重流水,运单号为空/opeType为空直接返回空Map
 	 * @param waybillCode
@@ -129,7 +141,7 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack);
-	
+
 	/**
 	 * 将运单数据包装成自己的waybill数据
 	 * @param bigWaybillDto

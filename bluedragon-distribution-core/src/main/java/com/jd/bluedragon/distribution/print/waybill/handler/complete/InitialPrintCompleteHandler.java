@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -10,7 +11,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class InitialPrintCompleteHandler implements Handler<WaybillPrintComplete
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     /**
      * 执行处理，返回处理结果
      *
@@ -43,6 +49,17 @@ public class InitialPrintCompleteHandler implements Handler<WaybillPrintComplete
         InterceptResult<Boolean> result = context.getResult();
 
         PrintCompleteRequest request = context.getRequest();
+
+        // 设置运单数据
+        if(StringUtils.isEmpty(request.getWaybillSign())){ // 当前未设置运单信息
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(request.getWaybillCode());
+            if (waybill == null) {
+                logger.warn("根据运单号{}未获取到运单信息!", request.getWaybillCode());
+                result.toError(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+                return result;
+            }
+            request.setWaybillSign(waybill.getWaybillSign());
+        }
 
         boolean printByWaybill = WaybillUtil.isWaybillCode(request.getPackageBarcode());
 

@@ -31,6 +31,10 @@ public class TransportServiceRequest implements Serializable {
      * 运单标位
      */
     private String waybillSign;
+    /**
+     * 包裹号
+     */
+    private String packageCode;
 
 
 
@@ -72,5 +76,13 @@ public class TransportServiceRequest implements Serializable {
 
     public void setWaybillSign(String waybillSign) {
         this.waybillSign = waybillSign;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 }

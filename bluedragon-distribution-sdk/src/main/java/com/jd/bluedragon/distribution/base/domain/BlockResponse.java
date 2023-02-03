@@ -30,6 +30,8 @@ public class BlockResponse extends JdResponse implements Serializable{
     private List<String> blockPackages;
     /** 按运单拦截时 还未打印（或其他操作处理）的包裹数量 */
     private Long blockPackageCount;
+    /** 当前拦截类型 */
+    private Integer featureType;
 
     public BlockResponse(){}
 
@@ -59,4 +61,11 @@ public class BlockResponse extends JdResponse implements Serializable{
         return Boolean.TRUE;
     }
 
+    public Integer getFeatureType() {
+        return featureType;
+    }
+
+    public void setFeatureType(Integer featureType) {
+        this.featureType = featureType;
+    }
 }

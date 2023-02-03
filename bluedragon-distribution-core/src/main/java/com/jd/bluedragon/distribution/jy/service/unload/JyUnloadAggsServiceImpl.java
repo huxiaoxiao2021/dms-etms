@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoStrategy;
@@ -135,8 +136,11 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
 
     @Override
     public Boolean insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity) {
+        log.info("insertOrUpdateJyUnloadCarAggsBak-entity-{}", JSON.toJSONString(entity));
         Boolean result = jyUnloadAggsDaoBak.updateByBizProductBoard(entity)>0;
+        log.info("insertOrUpdateJyUnloadCarAggsBak-更新结果-{}",result);
         if(!result){
+            log.info("insertOrUpdateJyUnloadCarAggsBak-执行插入-{}",JSON.toJSONString(entity));
             return jyUnloadAggsDaoBak.insertSelective(entity) > 0;
         }
         return result;

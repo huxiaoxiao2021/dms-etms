@@ -504,6 +504,22 @@ public class HintCodeConstants {
      * 此单为[全量接单失败拦截],请退货。
      */
     public static String FULL_ORDER_FAIL_INTERCEPT = "20081";
+
+    /**
+     * 自定义个性拦截
+     */
+    public static String CUSTOM_INTERCEPT = "20093";
+
+    /**
+     * 运单异常差异操作指引提示
+     */
+    public static String WAYBILL_ERROR_OPE_GUIDE = "20095";
+
+    /**
+     * 运单异常差异禁止补打提示
+     */
+    public static String WAYBILL_ERROR_RE_PRINT = "20096";
+
     /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
@@ -520,6 +536,18 @@ public class HintCodeConstants {
      * 不允许按直发医药箱号进行发货，请拆箱后再进行发货
      */
     public static String CODE_COLD_CHAIN_SEND_BOX_ERROR = "20086";
+    /**
+     * 此单为改址拦截单，请到'分拣打印-包裹补打'中补打包裹面单后再发货
+     */
+    public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
+    /**
+     * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
+    /**
+     * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
 
     /*##############################################拦截相关END#########################################################*/
 
@@ -966,4 +994,7 @@ public class HintCodeConstants {
 
     // 设备抽检任务已关闭并且未超过2小时，是否强制创建？
     public static String JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT = "80001";
+
+    // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
+    public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
 }
