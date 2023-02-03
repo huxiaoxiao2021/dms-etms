@@ -1151,22 +1151,10 @@ public class UccPropertyConfiguration {
     private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
 
     /**
-     * 租板-板可组件数上限
-     */
-    private Integer jyComboardCountLimit;
-
-    /**
      * 得物产品类型的商家名单
      *  多个场地以,分隔
      */
     private String dewuCustomerCodes;
-    public Integer getJyComboardCountLimit() {
-        return jyComboardCountLimit;
-    }
-
-    public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
-        this.jyComboardCountLimit = jyComboardCountLimit;
-    }
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
