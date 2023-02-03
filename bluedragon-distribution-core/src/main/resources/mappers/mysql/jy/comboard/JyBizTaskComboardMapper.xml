@@ -293,7 +293,14 @@
     <if test="boardCode!=null">
       AND board_code = #{boardCode}
     </if>
-      AND yn = 1
+    <if test="comboardSourceList!=null and comboardSourceList.size() >0">
+      AND comboard_source in
+      <foreach item="item" index="index" collection="comboardSourceList"
+        open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    AND yn = 1
   </select>
   <select id="queryInProcessBoardListBySendFlowList"
           parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq"
@@ -422,7 +429,7 @@
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
     </if>
     update_time = now(),
-    unseal_time = now()                                
+    unseal_time = now()
     where id in
     <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
       #{item}
@@ -461,14 +468,14 @@
     </foreach>
     AND yn = 1
     )
-    order by id desc 
+    order by id desc
   </select>
   <select id="listSealOrUnSealedBoardTaskBySendFlowUnionAll" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List"/>
     FROM
     jy_biz_task_comboard
-    WHERE 
+    WHERE
     start_site_id =#{startSiteId}
     AND end_site_id =#{endSiteId}
     AND board_status IN

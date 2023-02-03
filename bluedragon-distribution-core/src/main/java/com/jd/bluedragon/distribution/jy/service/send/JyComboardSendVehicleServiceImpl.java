@@ -40,6 +40,8 @@ import java.math.BigDecimal;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
 import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
+
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -433,7 +435,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
           sendDestDetail.setToScanPackCount(itemAgg.getWaitScanCount().longValue());
         }
         if (itemAgg.getPackageScannedCount() != null) {
-          sendDestDetail.setScannedPackCount(itemAgg.getPackageScannedCount().longValue());
+          sendDestDetail.setScannedPackCount(itemAgg.getPackageTotalScannedCount().longValue());
         }
       }
 
@@ -468,23 +470,23 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     }
 
     if (!CollectionUtils.isEmpty(comboardAggs) && basicVehicleType != null) {
-      double loadVolume = DOUBLE_ZERO;
-      double loadWeight = DOUBLE_ZERO;
+      BigDecimal loadVolume = BigDecimal.ZERO;
+      BigDecimal loadWeight = BigDecimal.ZERO;
       long waitScanCount = LONG_ZERO;
       long scannedPackCount = LONG_ZERO;
       long scannedBoxCount = LONG_ZERO;
       long interceptedPackCount = LONG_ZERO;
       for (JyComboardAggsEntity comboardAgg : comboardAggs) {
-        loadVolume += comboardAgg.getVolume() == null ? DOUBLE_ZERO : comboardAgg.getVolume();
-        loadWeight += comboardAgg.getWeight() == null ? DOUBLE_ZERO : comboardAgg.getWeight();
+        loadVolume = loadVolume.add(comboardAgg.getVolume() == null ? BigDecimal.ZERO : comboardAgg.getVolume()).setScale(6, RoundingMode.HALF_UP) ;
+        loadWeight = loadWeight.add(comboardAgg.getWeight() == null ? BigDecimal.ZERO : comboardAgg.getWeight()).setScale(6, RoundingMode.HALF_UP);
         waitScanCount += comboardAgg.getWaitScanCount() == null ? LONG_ZERO : comboardAgg.getWaitScanCount();
         scannedPackCount += comboardAgg.getPackageScannedCount() == null ? LONG_ZERO : comboardAgg.getPackageScannedCount();
         scannedBoxCount += comboardAgg.getBoxScannedCount() == null ? LONG_ZERO : comboardAgg.getBoxScannedCount();
         interceptedPackCount += comboardAgg.getInterceptCount() == null ? LONG_ZERO : comboardAgg.getInterceptCount();
       }
-      progress.setLoadRate(dealLoadRate(BigDecimal.valueOf(loadVolume), convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
-      progress.setLoadVolume(BigDecimal.valueOf(loadVolume));
-      progress.setLoadWeight(BigDecimal.valueOf(loadWeight));
+      progress.setLoadRate(dealLoadRate(loadVolume, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
+      progress.setLoadVolume(loadVolume);
+      progress.setLoadWeight(loadWeight);
       progress.setToScanCount(waitScanCount);
       progress.setScannedPackCount(scannedPackCount);
       progress.setScannedBoxCount(scannedBoxCount);
@@ -493,7 +495,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     progress.setDestTotal(getDestTotal(taskSend.getBizId()));
     progress.setSealedTotal(getSealedDestTotal(taskSend.getBizId()));
   }
-
+  
   @Override
   public void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult,
       SendAbnormalPackRequest request, SendBarCodeQueryEntranceEnum entranceEnum,
