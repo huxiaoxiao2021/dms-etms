@@ -1156,6 +1156,16 @@ public class UccPropertyConfiguration {
      */
     private String dewuCustomerCodes;
 
+    private boolean czQuerySwitch;
+
+    public boolean getCzQuerySwitch() {
+        return czQuerySwitch;
+    }
+
+    public void setCzQuerySwitch(boolean czQuerySwitch) {
+        this.czQuerySwitch = czQuerySwitch;
+    }
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
