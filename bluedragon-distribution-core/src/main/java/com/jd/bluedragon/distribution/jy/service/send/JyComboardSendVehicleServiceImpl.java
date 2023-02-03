@@ -437,7 +437,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
         if (itemAgg.getWaitScanCount() != null) {
           sendDestDetail.setToScanPackCount(itemAgg.getWaitScanCount().longValue());
         }
-        if (itemAgg.getPackageScannedCount() != null) {
+        if (itemAgg.getPackageTotalScannedCount() != null) {
           sendDestDetail.setScannedPackCount(itemAgg.getPackageTotalScannedCount().longValue());
         }
       }
