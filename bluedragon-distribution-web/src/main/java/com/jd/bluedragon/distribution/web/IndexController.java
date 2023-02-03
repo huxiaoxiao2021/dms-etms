@@ -97,11 +97,10 @@ public class IndexController {
     public String top(Model model) {
         this.log.debug("IndexController --> top");
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        Integer userId = erpUser.getUserId();
         String roleName = null;
         try {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
-                    .getBaseStaffByStaffId(userId);
+                    .getBaseStaffByStaffId(erpUser.getStaffNo());
             if (baseStaffSiteOrgDto != null) {
                 List<BaseDataDict> roleList = this.baseMajorManager.getBaseDataDictList(100, 2, 100);
                 for (BaseDataDict dict : roleList) {
