@@ -738,8 +738,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             boolean hasIntercept = false;
             for (CancelWaybill cancelWaybill : cancelWaybills) {
-                if(java.util.Objects.equals(Constants.YN_YES, cancelWaybill.getYn())
-                        && java.util.Objects.equals(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode(), cancelWaybill.getInterceptType())){
+                if(java.util.Objects.equals(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode(), cancelWaybill.getInterceptType())){
                     hasIntercept = true;
                     break;
                 }
