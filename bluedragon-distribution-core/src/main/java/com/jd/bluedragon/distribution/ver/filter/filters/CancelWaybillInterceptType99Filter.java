@@ -29,9 +29,11 @@ public class CancelWaybillInterceptType99Filter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         try {
-            final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(request.getPackageCode()));
-            if(hasIntercept){
-                throw new SortingCheckException(SortingResponse.CODE_29325, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+            if (WaybillUtil.isPackageCode(request.getPackageCode())) {
+                final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(request.getPackageCode()));
+                if(hasIntercept){
+                    throw new SortingCheckException(SortingResponse.CODE_29325, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+                }
             }
         } catch (SortingCheckException e) {
             throw e;
