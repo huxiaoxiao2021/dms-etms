@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
+import IceInternal.Ex;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
@@ -8,6 +9,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.CheckWaybillErrorReq;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
@@ -34,6 +36,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
@@ -73,6 +76,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.sdk.util.DateUtil;
+import com.jd.etms.waybill.api.WaybillRepaireApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -81,6 +86,7 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONObject;
+import com.jd.etms.waybill.dto.WaybillRegionDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -180,6 +186,14 @@ public class WaybillResource {
 
 	@Autowired
 	private SiteService siteService;
+
+	@Autowired
+	private SysConfigService sysConfigService;
+
+	@Autowired
+	@Qualifier("waybillRepaireManager")
+	private WaybillRepaireManager waybillRepaireManager;
+
 	/**
 	 * 运单路由字段使用的分隔符
 	 */
@@ -310,6 +324,81 @@ public class WaybillResource {
         }
     }
 
+	/**
+	 * 校验2023年2月1日异常运单接口 V2版本 2023年02月04日15:12:41
+	 * @param param
+	 * @return 获取运单新单号 ，根据入参接口中的大区按大区获取，重复单号重复调用时返回新单号
+	 */
+	@POST
+	@Path("/v2/checkWaybillError")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.v2.checkWaybillError", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<List<WaybillErrorDomain>> checkWaybillErrorV2(CheckWaybillErrorReq param){
+		InvokeResult<List<WaybillErrorDomain>> result = new InvokeResult<>();
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		List<WaybillErrorDomain> waybillErrorDomains = new ArrayList<>();
+
+		//校验入参
+		String opeCode = param.getOpeCode();
+		if(StringUtils.isBlank(opeCode) ||
+				(!WaybillUtil.isWaybillCode(opeCode) && !WaybillUtil.isPackageCode(opeCode))){
+			//为空 或者  不是运单号且不是包裹号 直接失败
+			result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,InvokeResult.PARAM_ERROR);
+			return result;
+		}
+
+		try {
+
+			//截取运单号
+			String waybillCode = WaybillUtil.getWaybillCode(opeCode);
+
+			//检查是否在本次校验池中
+			final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(waybillCode);
+			if(!hasIntercept){
+				//不在校验拦截范围内 直接返回成功
+				log.info("checkWaybillErrorV2 不在拦截范围内 拦截表类型99 不处理 {}",JsonHelper.toJson(param));
+				return result;
+			}
+			//仍继续拦截开关
+			if(sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_CHECK_REPRINT_230201)){
+				//不需要补打 提示错误提示语
+				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+				return result;
+			}
+			//检查是否是自营
+			if(!WaybillUtil.isJDWaybillCode(waybillCode)){
+				//非自营直接返回成功
+				log.info("checkWaybillErrorV2 非自营 不处理 {}",JsonHelper.toJson(param));
+				return result;
+			}
+			//调用运单获取新单
+			WaybillRegionDto waybillRegionDtoReq = new WaybillRegionDto();
+			waybillRegionDtoReq.setErp(param.getErp());
+			waybillRegionDtoReq.setOpeCode(param.getOpeCode());
+			waybillRegionDtoReq.setOrgId(param.getOrgId());
+			waybillRegionDtoReq.setOpeTime(new Date());
+			BaseEntity<WaybillRegionDto> baseEntity = waybillRepaireManager.getPackageCodeByOrgId(waybillRegionDtoReq);
+			if(baseEntity!=null && baseEntity.getData()!=null && StringUtils.isNotBlank(baseEntity.getData().getPackageCode())){
+				WaybillErrorDomain waybillErrorDomain = new WaybillErrorDomain();
+				waybillErrorDomain.setPackageCode(baseEntity.getData().getPackageCode());
+				waybillErrorDomain.setWaybillCode(WaybillUtil.getWaybillCode(baseEntity.getData().getPackageCode()));
+				waybillErrorDomains.add(waybillErrorDomain);
+				result.setData(waybillErrorDomains);
+				//获取到运单的数据并给出用户明确操作指引
+				result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
+				//不在校验拦截范围内 直接返回成功
+				log.info("checkWaybillErrorV2 处理成功并从运单获取到新单 {},新单号{}",JsonHelper.toJson(param),baseEntity.getData().getPackageCode());
+				return result;
+			}else{
+				log.error("checkWaybillErrorV2 getPackageCodeByOrgId 未获取到数据 {},运单系统返回值{}",JsonHelper.toJson(param),JsonHelper.toJson(baseEntity));
+			}
+
+		}catch (Exception e){
+			log.error("checkWaybillErrorV2 error {}",JsonHelper.toJson(param),e);
+			//仍返回成功 不要拦截用户操作
+		}
+		return result;
+
+	}
 
 	/**
 	 * 获取运单异常数据
