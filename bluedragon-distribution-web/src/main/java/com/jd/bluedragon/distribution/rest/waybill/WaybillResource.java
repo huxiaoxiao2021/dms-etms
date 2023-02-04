@@ -346,18 +346,19 @@ public class WaybillResource {
 			return result;
 		}
 
+		//截取运单号
+		String waybillCode = WaybillUtil.getWaybillCode(opeCode);
+
+		//检查是否在本次校验池中
+		final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(waybillCode);
+		if(!hasIntercept){
+			//不在校验拦截范围内 直接返回成功
+			log.info("checkWaybillErrorV2 不在拦截范围内 拦截表类型99 不处理 {}",JsonHelper.toJson(param));
+			return result;
+		}
+
 		try {
 
-			//截取运单号
-			String waybillCode = WaybillUtil.getWaybillCode(opeCode);
-
-			//检查是否在本次校验池中
-			final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(waybillCode);
-			if(!hasIntercept){
-				//不在校验拦截范围内 直接返回成功
-				log.info("checkWaybillErrorV2 不在拦截范围内 拦截表类型99 不处理 {}",JsonHelper.toJson(param));
-				return result;
-			}
 			//仍继续拦截开关
 			if(sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_CHECK_REPRINT_230201)){
 				//不需要补打 提示错误提示语
@@ -366,8 +367,9 @@ public class WaybillResource {
 			}
 			//检查是否是自营
 			if(!WaybillUtil.isJDWaybillCode(waybillCode)){
-				//非自营直接返回成功
+				//非自营直接返回拦截
 				log.info("checkWaybillErrorV2 非自营 不处理 {}",JsonHelper.toJson(param));
+				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
 				return result;
 			}
 			//调用运单获取新单
@@ -385,18 +387,22 @@ public class WaybillResource {
 				result.setData(waybillErrorDomains);
 				//获取到运单的数据并给出用户明确操作指引
 				result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
-				//不在校验拦截范围内 直接返回成功
+				//返回成功的新单
 				log.info("checkWaybillErrorV2 处理成功并从运单获取到新单 {},新单号{}",JsonHelper.toJson(param),baseEntity.getData().getPackageCode());
 				return result;
 			}else{
+				//存在拦截范围内但是运单没返回数据必须拦截
 				log.error("checkWaybillErrorV2 getPackageCodeByOrgId 未获取到数据 {},运单系统返回值{}",JsonHelper.toJson(param),JsonHelper.toJson(baseEntity));
+				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+				return result;
 			}
 
 		}catch (Exception e){
 			log.error("checkWaybillErrorV2 error {}",JsonHelper.toJson(param),e);
-			//仍返回成功 不要拦截用户操作
+			//已经在拦截池内的异常拦截用户操作
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
+			return result;
 		}
-		return result;
 
 	}
 
