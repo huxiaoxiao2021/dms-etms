@@ -156,16 +156,6 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	private transient Date createTimeBegin;
 
-	private transient int rand;
-
-	public int getRand() {
-		return rand;
-	}
-
-	public void setRand(int rand) {
-		this.rand = rand;
-	}
-
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
