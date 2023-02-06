@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ExchangePrintRequest;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
@@ -21,6 +23,7 @@ import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordSe
 import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -72,6 +75,9 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private WaybillCancelService waybillCancelService;
     
     /**
      * 外单逆向换单打印提交数据
@@ -116,7 +122,12 @@ public class ReversePrintResource {
     public InvokeResult<String> getNewWaybillCode(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<String> result=new InvokeResult<String>();
         try {
-           result= reversePrintService.getNewWaybillCode(oldWaybillCode, true);
+            boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(oldWaybillCode);
+            if (bool) {
+                result.customMessage(-1, HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+                return result;
+            }
+            result= reversePrintService.getNewWaybillCode(oldWaybillCode, true);
         }catch (Throwable e){
             log.error("[逆向换单获取新单号]",e);
             result.error(e);
@@ -136,6 +147,11 @@ public class ReversePrintResource {
     public InvokeResult<RepeatPrint> getNewWaybillCode1(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<RepeatPrint> result=new InvokeResult<RepeatPrint>();
         try {
+            boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(oldWaybillCode);
+            if (bool) {
+                result.customMessage(-1, HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+                return result;
+            }
            result= reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
         }catch (Throwable e){
             log.error("[逆向换单获取新单号]",e);
@@ -164,6 +180,11 @@ public class ReversePrintResource {
         try {
             if (waybillTraceManager.isWaybillWaste(oldWaybillCode)){
                 result.toFail("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+                return result;
+            }
+            boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(oldWaybillCode);
+            if (bool) {
+                result.toFail(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
                 return result;
             }
 

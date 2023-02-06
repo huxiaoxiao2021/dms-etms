@@ -521,6 +521,11 @@ public class HintCodeConstants {
     public static String WAYBILL_ERROR_RE_PRINT = "20096";
 
     /**
+     * 运单异常差异禁止换单提示
+     */
+    public static String WAYBILL_ERROR_EXCHANGE_PRINT = "20097";
+
+    /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";
