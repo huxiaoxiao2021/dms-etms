@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -44,6 +45,7 @@ import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -186,11 +188,11 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
     if (!ucc.getCzQuerySwitch()){
-      log.info("=============3.走兼容模式================"+queryCondition.getRand());
+      log.info("=============3.走兼容模式================");
       queryCondition.setLineType(null);
     }
     else {
-      log.info("=============3.走原有模式================"+queryCondition.getRand());
+      log.info("=============3.走原有模式================");
     }
     return taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
         queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryStatus);
@@ -277,10 +279,10 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   @Override
   public <T> List<String> resolveSearchKeyword(InvokeResult<T> result, QueryTaskSendDto queryTaskSendDto) {
     if (ucc.getCzQuerySwitch()){
-      log.info("=============1.走原有模式================"+queryTaskSendDto.getRand());
+      log.info("=============1.走原有模式================");
       return super.resolveSearchKeyword(result,queryTaskSendDto);
     }
-    log.info("=============1.走兼容模式================"+queryTaskSendDto.getRand());
+    log.info("=============1.走兼容模式================");
     long startSiteId = queryTaskSendDto.getStartSiteId();
     if (StringUtils.isBlank(queryTaskSendDto.getKeyword())) {
       //按照时间检索明细数据 获取bizId
@@ -353,13 +355,35 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
       List<String> sendVehicleBizList) {
     if (!ucc.getCzQuerySwitch()){
-      log.info("=============2.走兼容模式================"+condition.getRand());
+      log.info("=============2.走兼容模式================");
       condition.setLineType(null);
     }
     else {
-      log.info("=============2.走原有模式================"+condition.getRand());
+      log.info("=============2.走原有模式================");
     }
     return taskSendVehicleService.sumTaskByVehicleStatusForTransfer(condition, sendVehicleBizList);
+  }
+
+  @Override
+  public QueryTaskSendDto setQueryTaskSendDto(SendVehicleTaskRequest request) {
+    QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
+    queryTaskSendDto.setPageNumber(request.getPageNumber());
+    queryTaskSendDto.setPageSize(request.getPageSize());
+    queryTaskSendDto.setVehicleStatuses(Collections.singletonList(request.getVehicleStatus()));
+    queryTaskSendDto.setLineType(request.getLineType());
+    queryTaskSendDto.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+    queryTaskSendDto.setEndSiteId(request.getEndSiteId());
+    queryTaskSendDto.setKeyword(request.getKeyword());
+    //设置默认预计发货时间查询范围
+    try {
+      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyCzSendTaskPlanTimeBeginDay()));
+      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), ucc.getJyCzSendTaskPlanTimeEndDay()));
+      queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJySendTaskCreateTimeBeginDay()));
+
+    } catch (Exception e) {
+      log.error("查询传站运输任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e);
+    }
+    return queryTaskSendDto;
   }
 
   @Override
