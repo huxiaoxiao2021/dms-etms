@@ -940,6 +940,8 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             taskInfo.setStartSiteName(sealCarMonitor.getStartSiteName());
             taskInfo.setLocalCount(sealCarMonitor.getLocalCount());
             taskInfo.setExternalCount(sealCarMonitor.getExternalCount());
+            taskInfo.setVehicleNumber(sealCarMonitor.getVehicleNumber());
+            taskInfo.setTransportCode(sealCarMonitor.getTransportCode());
             result.setData(taskInfo);
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         }catch (JyDemotionException e){
