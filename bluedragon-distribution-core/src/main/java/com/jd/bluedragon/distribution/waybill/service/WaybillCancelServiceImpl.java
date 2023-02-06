@@ -155,6 +155,12 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
         return cancelWaybillDao.updateByWaybillCodeInterceptType99(waybillCode);
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.WaybillCancelServiceImpl.delByWaybillCodeListInterceptType99", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
+    public int delByWaybillCodeListInterceptType99(List<String> waybillCodeList){
+        return cancelWaybillDao.delByWaybillCodeListInterceptType99(waybillCodeList);
+    }
+
     /**
      * 按运单号校验是否存在异常运单拦截
      * @param waybillCode 运单号

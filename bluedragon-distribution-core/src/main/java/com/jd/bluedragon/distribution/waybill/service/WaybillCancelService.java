@@ -44,6 +44,8 @@ public interface WaybillCancelService {
 
     int updateByWaybillCodeInterceptType99(String waybillCode);
 
+    int delByWaybillCodeListInterceptType99(List<String> waybillCode);
+
     /**
      * 按运单号校验是否存在异常运单拦截
      * @param waybillCode 运单号

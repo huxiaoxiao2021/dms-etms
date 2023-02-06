@@ -195,4 +195,16 @@
 		</set>
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR} and intercept_type = 99
 	</update>
+
+    <update id="delByWaybillCodeListInterceptType99" parameterType="java.util.Map">
+        update waybill_cancel
+        <set>
+            yn = 0
+        </set>
+        where waybill_code IN
+            <foreach collection="waybillCodeList" index="index" item="waybillCode" separator="," open="(" close=")">
+                #{waybillCode, jdbcType=VARCHAR}
+            </foreach>
+            and intercept_type = 99
+    </update>
 </mapper>

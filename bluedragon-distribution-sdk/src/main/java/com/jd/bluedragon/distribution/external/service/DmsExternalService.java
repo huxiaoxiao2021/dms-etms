@@ -78,4 +78,11 @@ public interface DmsExternalService {
      */
     BaseEntity<List<AllianceBusiFailDetailDto>> allianceBusiDelivery(AllianceBusiDeliveryDto dto);
 
+    /**
+     * 删除运单拦截
+     * @param waybillCodeList 运单单号列表
+     * @return 处理结果
+     */
+    BaseEntity<Integer> delInterceptType99WaybillCancel(List<String> waybillCodeList);
+
 }

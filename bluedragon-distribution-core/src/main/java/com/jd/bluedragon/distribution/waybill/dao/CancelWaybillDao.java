@@ -118,4 +118,10 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("waybillCode", waybillCode);
         return super.getSqlSession().update(NAMESPACE + ".updateByWaybillCodeInterceptType99", paramMap);
     }
+
+    public int delByWaybillCodeListInterceptType99(List<String> waybillCodeList) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCodeList", waybillCodeList);
+        return super.getSqlSession().update(NAMESPACE + ".delByWaybillCodeListInterceptType99", paramMap);
+    }
 }
