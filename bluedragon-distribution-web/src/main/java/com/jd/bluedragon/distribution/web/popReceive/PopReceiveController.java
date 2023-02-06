@@ -31,7 +31,7 @@ import java.util.*;
  * @author zhaohc
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-8-21 下午06:39:49
- * 
+ *
  *             POP收货处理
  */
 @Controller
@@ -41,7 +41,7 @@ public class PopReceiveController {
 
 	@Autowired
 	private BaseService baseService;
-	
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
@@ -77,7 +77,7 @@ public class PopReceiveController {
 			pager= new Pager(pager.getPageNo(), pager.getPageSize());
 		}
 		Map<String,Object> queryMap = new HashMap<String,Object>();
-		
+
 		if(StringUtils.isNotEmpty(popReceiveDTO.getWaybillCode())){
 			queryMap.put("waybillCode", popReceiveDTO.getWaybillCode());
 		}
@@ -105,14 +105,13 @@ public class PopReceiveController {
 		model.addAttribute("query", popReceiveDTO);
 		return "popReceive/getPopRecieveList";
 	}
-	
+
 	private void select(Model model, PopReceiveDto query) {
-		Integer userId = ErpUserClient.getCurrUser().getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId);
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(ErpUserClient.getCurrUser().getStaffNo());
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();
