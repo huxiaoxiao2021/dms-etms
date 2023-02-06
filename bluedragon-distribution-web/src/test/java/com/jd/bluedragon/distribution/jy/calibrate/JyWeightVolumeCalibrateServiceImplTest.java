@@ -96,13 +96,13 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             mq1.setMachineCode("WZ-HJ-JZBL-007");
             mq1.setCalibrateTime(new Date().getTime());
             mq1.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode());
-            mq1.setCalibrateStatus(1);
+            mq1.setWeightCalibrateStatus(1);
 
             DwsMachineCalibrateMQ mq2 = new DwsMachineCalibrateMQ();
             mq2.setMachineCode("WZ-HJ-JZBL-007");
             mq2.setCalibrateTime(new Date().getTime());
             mq2.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode());
-            mq2.setCalibrateStatus(1);
+            mq2.setVolumeCalibrateStatus(1);
             mq2.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
 
             InvokeResult<Boolean> result1 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq1);

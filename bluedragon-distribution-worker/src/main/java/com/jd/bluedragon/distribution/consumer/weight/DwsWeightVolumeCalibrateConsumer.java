@@ -46,9 +46,11 @@ public class DwsWeightVolumeCalibrateConsumer extends MessageBaseConsumer {
                 return;
             }
             if(StringUtils.isEmpty(dwsMachineCalibrateMQ.getMachineCode())
-                    || dwsMachineCalibrateMQ.getCalibrateStatus() == null
+                    || dwsMachineCalibrateMQ.getWeightCalibrateStatus() == null
                     || dwsMachineCalibrateMQ.getMachineStatus() == null
-                    || dwsMachineCalibrateMQ.getCalibrateTime() == null){
+                    || dwsMachineCalibrateMQ.getCalibrateTime() == null
+                    || dwsMachineCalibrateMQ.getWeightCalibrateStatus() == null
+                    && dwsMachineCalibrateMQ.getVolumeCalibrateStatus() == null){
                 logger.warn("dws称重量方校准消息体缺少必要参数，内容为【{}】", message.getText());
                 return;
             }

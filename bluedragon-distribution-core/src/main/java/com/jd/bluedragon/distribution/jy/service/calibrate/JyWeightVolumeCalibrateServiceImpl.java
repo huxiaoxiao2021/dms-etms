@@ -539,11 +539,17 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         JyBizTaskMachineCalibrateDetailEntity taskDetail = detailList.get(0);
         if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
-            taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
+            taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getWeightCalibrateStatus());
             taskDetail.setWeightCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
         if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode(), dwsMachineCalibrateMQ.getCalibrateType())){
-            taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
+            taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getVolumeCalibrateStatus());
+            taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+        }
+        if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W_V.getCode(), dwsMachineCalibrateMQ.getCalibrateType())) {
+            taskDetail.setWeightCalibrateStatus(dwsMachineCalibrateMQ.getWeightCalibrateStatus());
+            taskDetail.setWeightCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+            taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getVolumeCalibrateStatus());
             taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
         // 重量、体积都操作校准了，校准任务结束

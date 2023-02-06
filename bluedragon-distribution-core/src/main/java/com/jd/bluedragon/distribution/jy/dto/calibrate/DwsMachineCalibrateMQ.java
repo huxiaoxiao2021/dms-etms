@@ -37,8 +37,10 @@ public class DwsMachineCalibrateMQ implements Serializable {
     private BigDecimal actualWidth;
     // 实际高
     private BigDecimal actualHigh;
-    // 校准状态
-    private Integer calibrateStatus;
+    // 重量校准状态
+    private Integer weightCalibrateStatus;
+    // 体积校准状态
+    private Integer volumeCalibrateStatus;
     // 校准时间
     private Long calibrateTime;
     // 设备状态
@@ -144,12 +146,20 @@ public class DwsMachineCalibrateMQ implements Serializable {
         this.actualHigh = actualHigh;
     }
 
-    public Integer getCalibrateStatus() {
-        return calibrateStatus;
+    public Integer getWeightCalibrateStatus() {
+        return weightCalibrateStatus;
     }
 
-    public void setCalibrateStatus(Integer calibrateStatus) {
-        this.calibrateStatus = calibrateStatus;
+    public Integer getVolumeCalibrateStatus() {
+        return volumeCalibrateStatus;
+    }
+
+    public void setVolumeCalibrateStatus(Integer volumeCalibrateStatus) {
+        this.volumeCalibrateStatus = volumeCalibrateStatus;
+    }
+
+    public void setWeightCalibrateStatus(Integer weightCalibrateStatus) {
+        this.weightCalibrateStatus = weightCalibrateStatus;
     }
 
     public Long getCalibrateTime() {

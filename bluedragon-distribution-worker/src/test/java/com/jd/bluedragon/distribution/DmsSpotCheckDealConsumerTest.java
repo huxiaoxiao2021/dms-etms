@@ -73,7 +73,7 @@ public class DmsSpotCheckDealConsumerTest {
         try {
             DwsMachineCalibrateMQ dwsMachineCalibrateMQ = new DwsMachineCalibrateMQ();
             dwsMachineCalibrateMQ.setBusinessId(UUID.randomUUID().toString());
-            dwsMachineCalibrateMQ.setCalibrateStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
+            dwsMachineCalibrateMQ.setWeightCalibrateStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
             dwsMachineCalibrateMQ.setMachineCode("ylq06261-DWS001");
             dwsMachineCalibrateMQ.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
             dwsMachineCalibrateMQ.setCalibrateTime(1664444491388L);
