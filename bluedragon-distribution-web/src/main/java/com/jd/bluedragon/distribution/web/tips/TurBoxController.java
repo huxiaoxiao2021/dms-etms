@@ -62,22 +62,21 @@ public class TurBoxController {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			
+
+
 		model.addAttribute("dataList", dataList);
 		pager.setTotalSize(count);
 		model.addAttribute("pager", pager);
 		model.addAttribute("query", turnoverBox);
 		return "tips/turbox";
 	}
-	
+
 	private void select(Model model, TurnoverBox turnoverBox) {
-		Integer userId = ErpUserClient.getCurrUser().getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId);
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(ErpUserClient.getCurrUser().getStaffNo());
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();
