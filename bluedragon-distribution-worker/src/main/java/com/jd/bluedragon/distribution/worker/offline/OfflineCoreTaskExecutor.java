@@ -196,8 +196,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                         offlineLogRequest.getPackageCode() +
                         offlineLogRequest.getWaybillCode() +
                         offlineLogRequest.getBoxCode() +
-                        offlineLogRequest.getBatchCode() +
-                        offlineLogRequest.getOperateTime();
+                        offlineLogRequest.getBatchCode();
 
                 if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
                     log.warn("OfflineCoreTaskExecutor.offlineCore-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(offlineLogRequest));
