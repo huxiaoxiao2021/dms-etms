@@ -28,6 +28,8 @@ import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -743,6 +745,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if (waybillTraceManager.isWaybillWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+            return result;
+        }
+
+        boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(wayBillCode);
+        if (bool) {
+            result.setData(false);
+            result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
             return result;
         }
 
