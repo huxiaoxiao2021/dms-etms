@@ -350,8 +350,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                     obj.getString("packageCode") +
                     obj.getString("waybillCode") +
                     obj.getString("boxCode") +
-                    obj.getString("batchCode") +
-                    obj.getString("operateTime");
+                    obj.getString("batchCode");
 
             if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
                 log.warn("OfflineCoreTaskExecutor.convertSearCar-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(obj));
@@ -360,6 +359,10 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
         }
 
         return sealCarDtos;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Md5Helper.encode("17331JDX000227451346-1-2-JDX000227451346-1-2-910-39-202302031022336340001-01-01 00:00:00"));
     }
 	/**
 	 * @return the delaySeconds
