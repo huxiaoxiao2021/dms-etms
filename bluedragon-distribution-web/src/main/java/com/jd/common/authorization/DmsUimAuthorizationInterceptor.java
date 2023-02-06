@@ -53,7 +53,7 @@ public class DmsUimAuthorizationInterceptor extends SpringAuthorizationIntercept
                             LOG.debug("检查" + username + "是否有" + e + "权限");
                         }
 
-                        if(this.hrmPrivilegeHelper.hasHrmPrivilege(username, e)) {
+                        if(this.hrmPrivilegeHelper.hasHrmPrivilege(LoginContext.getLoginContext().getTenantCode(), username, e)) {
                             return true;
                         }
 
