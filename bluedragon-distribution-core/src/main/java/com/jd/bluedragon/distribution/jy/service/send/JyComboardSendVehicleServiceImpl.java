@@ -188,11 +188,11 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
     if (!ucc.getCzQuerySwitch()){
-      log.info("=============3.走兼容模式================"+queryCondition.getRand());
+      log.info("=============3.走兼容模式================");
       queryCondition.setLineType(null);
     }
     else {
-      log.info("=============3.走原有模式================"+queryCondition.getRand());
+      log.info("=============3.走原有模式================");
     }
     return taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
         queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryStatus);
@@ -355,11 +355,11 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
       List<String> sendVehicleBizList) {
     if (!ucc.getCzQuerySwitch()){
-      log.info("=============2.走兼容模式================"+condition.getRand());
+      log.info("=============2.走兼容模式================");
       condition.setLineType(null);
     }
     else {
-      log.info("=============2.走原有模式================"+condition.getRand());
+      log.info("=============2.走原有模式================");
     }
     return taskSendVehicleService.sumTaskByVehicleStatusForTransfer(condition, sendVehicleBizList);
   }
