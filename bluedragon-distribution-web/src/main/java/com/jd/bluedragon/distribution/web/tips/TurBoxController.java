@@ -1,9 +1,15 @@
 package com.jd.bluedragon.distribution.web.tips;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.receive.domain.TurnoverBox;
+import com.jd.bluedragon.distribution.receive.service.TurnoverBoxService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.receive.domain.TurnoverBox;
-import com.jd.bluedragon.distribution.receive.service.TurnoverBoxService;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.common.web.LoginContext;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Controller
 @RequestMapping("/turBoxManager")
@@ -73,13 +72,12 @@ public class TurBoxController {
 	}
 	
 	private void select(Model model, TurnoverBox turnoverBox) {
-		LoginContext loginContext = LoginContext.getLoginContext();
-		Long userId = loginContext.getUserId();
+		Integer userId = ErpUserClient.getCurrUser().getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId.intValue());
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId);
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();

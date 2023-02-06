@@ -6,7 +6,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ssa.utils.SSOHelper;
+import com.jd.ssa.oidc.client.interceptor.ErpSsoInterceptor;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +53,9 @@ public class IndexController {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @Autowired
+    private ErpSsoInterceptor springSSOInterceptor;
+
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
@@ -94,11 +97,10 @@ public class IndexController {
     public String top(Model model) {
         this.log.debug("IndexController --> top");
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        Integer userId = erpUser.getUserId();
         String roleName = null;
         try {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager
-                    .getBaseStaffByStaffId(userId);
+                    .getBaseStaffByStaffId(erpUser.getStaffNo());
             if (baseStaffSiteOrgDto != null) {
                 List<BaseDataDict> roleList = this.baseMajorManager.getBaseDataDictList(100, 2, 100);
                 for (BaseDataDict dict : roleList) {
@@ -148,26 +150,25 @@ public class IndexController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/quit")
     public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
-//        this.cookieUtils.invalidate(request, response);
         InputStream in = getClass().getResourceAsStream("/authen.properties");
         Properties pps = new Properties();
         try {
             pps.load(in);
-            String logoutKey = "logout.address";
-            String logoutValue = pps.getProperty(logoutKey);
+            String logoutKey = "sso.logout.address";
+            String logoutUrl = pps.getProperty(logoutKey);
             String domainName = "webapp.domain.name";
-            String domainValue = pps.getProperty(domainName);
-            String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
+            String returnUrl = pps.getProperty(domainName);
 
-            if (!domainValue.contains(".jd.com")) {
+            response.sendRedirect(logoutUrl + "?ReturnUrl=" + returnUrl);
+
+            if (!returnUrl.contains(".jd.com")) {
                 Pattern p = Pattern.compile(RE_DOMAIN);
-                Matcher m = p.matcher(domainValue);
+                Matcher m = p.matcher(returnUrl);
                 //获取一级域名
                 while(m.find()){
-                    SSOHelper.logout(response, m.group(1));
+                    springSSOInterceptor.toLogout(request, response);
                 }
             }
-            response.sendRedirect(newUrl);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

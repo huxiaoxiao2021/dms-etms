@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.base.controller;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
@@ -42,13 +43,12 @@ public class DmsBaseController {
 			}else{
 				//非线上系统，获取不到当前登录用户则返回bjxings
 				loginContext = new LoginContext();
-				loginContext.setUserId(10053);
 				loginContext.setPin("bjxings");
 				loginContext.setNick("邢松");
 			}
 		}
 		LoginUser loginUser = new LoginUser();
-		loginUser.setUserId((int)loginContext.getUserId());
+		loginUser.setUserId(isOnline ? ErpUserClient.getLoginUserId(loginContext) : 10053);
 		loginUser.setUserErp(loginContext.getPin());
 		loginUser.setUserName(loginContext.getNick());
 		BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
