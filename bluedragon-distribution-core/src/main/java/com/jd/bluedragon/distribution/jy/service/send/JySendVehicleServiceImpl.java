@@ -315,7 +315,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return taskSendVehicleService.sumTaskByVehicleStatus(condition, sendVehicleBizList);
     }
 
-    private QueryTaskSendDto setQueryTaskSendDto(SendVehicleTaskRequest request) {
+    public QueryTaskSendDto setQueryTaskSendDto(SendVehicleTaskRequest request) {
         QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
         queryTaskSendDto.setPageNumber(request.getPageNumber());
         queryTaskSendDto.setPageSize(request.getPageSize());
@@ -341,7 +341,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
         }
-        queryTaskSendDto.setRand(request.getRand());
         return queryTaskSendDto;
     }
 
@@ -870,7 +869,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (ObjectHelper.isNotNull(queryTaskSendDto.getCreateTimeBegin())) {
             condition.setCreateTimeBegin(queryTaskSendDto.getCreateTimeBegin());
         }
-        condition.setRand(queryTaskSendDto.getRand());
         return condition;
     }
 

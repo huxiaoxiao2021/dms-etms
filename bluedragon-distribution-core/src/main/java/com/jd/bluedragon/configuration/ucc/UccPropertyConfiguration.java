@@ -708,10 +708,12 @@ public class UccPropertyConfiguration {
      * 发货岗计划发车时间查询条件前X天
      */
     private Integer jySendTaskPlanTimeBeginDay;
+    private Integer jyCzSendTaskPlanTimeBeginDay;
     /**
      * 发货岗计划发车时间查询条件后X天
      */
     private Integer jySendTaskPlanTimeEndDay;
+    private Integer jyCzSendTaskPlanTimeEndDay;
 
     private Integer jySendTaskCreateTimeBeginDay;
 
@@ -2331,6 +2333,22 @@ public class UccPropertyConfiguration {
 
     public void setJySendTaskPlanTimeEndDay(Integer jySendTaskPlanTimeEndDay) {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
+    }
+
+    public Integer getJyCzSendTaskPlanTimeBeginDay() {
+        return jyCzSendTaskPlanTimeBeginDay;
+    }
+
+    public void setJyCzSendTaskPlanTimeBeginDay(Integer jyCzSendTaskPlanTimeBeginDay) {
+        this.jyCzSendTaskPlanTimeBeginDay = jyCzSendTaskPlanTimeBeginDay;
+    }
+
+    public Integer getJyCzSendTaskPlanTimeEndDay() {
+        return jyCzSendTaskPlanTimeEndDay;
+    }
+
+    public void setJyCzSendTaskPlanTimeEndDay(Integer jyCzSendTaskPlanTimeEndDay) {
+        this.jyCzSendTaskPlanTimeEndDay = jyCzSendTaskPlanTimeEndDay;
     }
 
     public String getNeedValidateMainLineBizSourceList() {
