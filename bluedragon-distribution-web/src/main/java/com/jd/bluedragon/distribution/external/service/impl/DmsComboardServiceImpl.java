@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.external.service.DmsComboardService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -72,6 +73,10 @@ public class DmsComboardServiceImpl implements DmsComboardService {
     comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     sendFlow.setComboardSourceList(comboardSourceList);
     PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    sendFlow.setStatusList(statusList);
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
     if (CollectionUtils.isEmpty(boardList)) {
@@ -91,6 +96,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
     sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     boardCountReq.setComboardSourceList(sourceList);
+    boardCountReq.setStatusList(statusList);
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
 
     if (!CollectionUtils.isEmpty(entityList) && entityList.get(0) != null && entityList.get(0).getBoardCount() != null) {
