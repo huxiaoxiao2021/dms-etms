@@ -2625,12 +2625,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<BoardDto> boardDtos = new ArrayList<>();
     boardQueryResp.setBoardDtoList(boardDtos);
     invokeResult.setData(boardQueryResp);
-
+    boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListSelectLimit());
+    
     // 获取当前场地未封车的板号
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardSealQueryBoardListTime());
     sendFlow.setQueryTimeBegin(time);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());

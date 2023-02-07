@@ -754,6 +754,16 @@ public class UccPropertyConfiguration {
 
     private boolean syncScheduleTaskSwitch;
 
+    /**
+     * 组板封车查询版列表时间
+     */
+    private Integer jyComboardSealQueryBoardListTime;
+
+    /**
+     * 组板封车全选板列表上线
+     */
+    private Integer jyComboardSealBoardListSelectLimit;
+    
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -2652,5 +2662,21 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
+    }
+
+    public Integer getJyComboardSealQueryBoardListTime() {
+        return jyComboardSealQueryBoardListTime;
+    }
+
+    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+        this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
+    }
+
+    public Integer getJyComboardSealBoardListSelectLimit() {
+        return jyComboardSealBoardListSelectLimit;
+    }
+
+    public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
+        this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
     }
 }
