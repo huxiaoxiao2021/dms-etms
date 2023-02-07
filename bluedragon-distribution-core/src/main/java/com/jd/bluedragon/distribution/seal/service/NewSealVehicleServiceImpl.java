@@ -960,6 +960,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
     @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealedExcludeAirFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode) {
+        CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealedExcludeAirFerry(batchCode);
+        return isSealed;
+    }
+
+    @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.NewSealVehicleServiceImpl.checkBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Void> checkBatchCode(String batchCode) {
         InvokeResult<Void> result = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
@@ -2061,5 +2068,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         return response;
+    }
+
+    @Override
+    public boolean isAirTransport(TransportResourceDto resource) {
+        if (null == resource) {
+            return false;
+        }
+        //始发、目的站点是机场或火车站
+        boolean nodeTypeFlag = Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getStartNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getStartNodeType())
+                || Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getEndNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getEndNodeType());
+
+        return nodeTypeFlag;
     }
 }
