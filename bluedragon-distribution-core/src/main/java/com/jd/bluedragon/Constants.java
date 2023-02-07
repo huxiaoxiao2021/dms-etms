@@ -1806,4 +1806,9 @@ public class Constants {
     public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
 
 
+    /** 运力编码：飞机场网点类型 */
+    public static final Integer NODE_TYPE_AIRPORT = 7;
+    /** 运力编码：火车站网点类型 */
+    public static final Integer NODE_TYPE_RAILWAY = 9;
+
 }
