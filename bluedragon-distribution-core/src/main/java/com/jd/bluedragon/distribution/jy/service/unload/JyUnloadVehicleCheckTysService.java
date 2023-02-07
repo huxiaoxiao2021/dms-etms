@@ -1024,7 +1024,7 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     private void createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {
-        Date now = new Date();
+        Date now = new Date(unloadScanDto.getCreateTime().getTime() - 1000L);
         entity.setUnloadVehicleBizId(unloadScanDto.getBizId());
         // 用于判断当前子任务的序号
         List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
