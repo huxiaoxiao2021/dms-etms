@@ -1906,8 +1906,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.jd.bdp</groupId>
-			<artifactId>jdq</artifactId>
+			<groupId>com.jd.jdq</groupId>
+			<artifactId>jdq4-clients</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackson-mapper-asl</artifactId>
@@ -2117,6 +2117,10 @@
 			<artifactId>workbench-report-api</artifactId>
 			<version>1.0.0-UAT-SNAPSHOT</version>
 			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
@@ -2685,13 +2689,13 @@
             </snapshots>
             <id>jd-central</id>
             <name>libs-releases</name>
-            <url>http://artifactory.jd.com/libs-releases</url>
+            <url>https://artifactory.jd.com/libs-releases</url>
         </repository>
         <repository>
             <snapshots />
             <id>jd-snapshots</id>
             <name>libs-snapshots</name>
-            <url>http://artifactory.jd.com/libs-snapshots</url>
+            <url>https://artifactory.jd.com/libs-snapshots</url>
         </repository>
     </repositories>
 
@@ -2702,13 +2706,13 @@
             </snapshots>
             <id>jd-central</id>
             <name>plugins-releases</name>
-            <url>http://artifactory.jd.com/plugins-releases</url>
+            <url>https://artifactory.jd.com/plugins-releases</url>
         </pluginRepository>
         <pluginRepository>
             <snapshots />
             <id>jd-snapshots</id>
             <name>plugins-snapshots</name>
-            <url>http://artifactory.jd.com/plugins-snapshots</url>
+            <url>https://artifactory.jd.com/plugins-snapshots</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
