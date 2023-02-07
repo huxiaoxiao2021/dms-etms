@@ -168,7 +168,7 @@ public class LogController {
         return businessLogList;
     }
 
-    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
+//    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/addLog")
     @ResponseBody
     @JProfiler(jKey = "DMSWEB.LogController.addLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
