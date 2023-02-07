@@ -411,9 +411,9 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
     private Result<Boolean> checkNetworkInFence(String ip, List<TransFenceInfoVo> transFenceInfoVoList) {
         Result<Boolean> result = Result.success();
         boolean netWorkInFence = false;
-        boolean isInternalNetwork = true;
+        boolean isInternalNetwork = false;
         if (IpUtils.isInternalFormatV4Ip(ip)) {
-            isInternalNetwork = false;
+            isInternalNetwork = true;
         }
         //  3.1 根据IP地址查询场地地址，内网调IT基础接口，外网调gis接口
         if (!isInternalNetwork) {
