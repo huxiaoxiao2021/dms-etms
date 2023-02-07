@@ -365,13 +365,13 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         result.success();
         DwsWeightVolumeCalibrateDetailResult detailResult = new DwsWeightVolumeCalibrateDetailResult();
         if (request.getMachineCode() == null || request.getMachineTaskId() == null) {
-            logger.error("查询设备校验细节出错，入参{}", request);
+            logger.error("查询设备校验细节出错，入参{}", JsonHelper.toJson(request));
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
             return result;
         }
         JyBizTaskMachineCalibrateDetailEntity taskDetail = jyBizTaskMachineCalibrateDetailService.selectById(request.getMachineTaskId());
         if (taskDetail == null) {
-            logger.error("查询设备校验细节为空，入参{}", request);
+            logger.error("查询设备校验细节为空，入参{}", JsonHelper.toJson(request));
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
             return result;
         }
@@ -392,7 +392,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         DwsCheckResponse response = dwsCheckManager.getLastDwsCheckByTime(checkRequest);
         if (response == null){
             result.error("查询设备校验细节出错，请联系分拣小秘进行处理！");
-            logger.error("自动化接口调用response为空，入参{}", checkRequest);
+            logger.error("自动化接口调用response为空，入参{}", JsonHelper.toJson(checkRequest));
             return result;
         }
         List<DwsWeightVolumeCalibrateDetail> detailList = new ArrayList<>();
@@ -499,7 +499,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         }
         JyBizTaskMachineCalibrateDetailEntity closeDetailTask = jyBizTaskMachineCalibrateDetailService.selectById(request.getMachineTaskId());
         if (closeDetailTask == null || closeDetailTask.getRefMachineKey() == null) {
-            logger.error("dws承重量方查询任务明细出错！入参：{}", request);
+            logger.error("dws承重量方查询任务明细出错！入参：{}", JsonHelper.toJson(request));
             result.error(String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_NOT_FIND_HINT, request.getMachineCode()));
             return result;
         }
@@ -516,7 +516,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             jyBizTaskMachineCalibrateDetailService.closeCalibrateDetailById(closeDetailTask);
             result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, "任务关闭成功！");
         }else {
-            logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", request);
+            logger.error("closeMachineCalibrateTask关闭任务失败，入参:{}", JsonHelper.toJson(request));
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, "任务关闭失败！");
         }
 
