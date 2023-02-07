@@ -521,6 +521,11 @@ public class HintCodeConstants {
     public static String WAYBILL_ERROR_RE_PRINT = "20096";
 
     /**
+     * 运单异常差异禁止换单提示
+     */
+    public static String WAYBILL_ERROR_EXCHANGE_PRINT = "20097";
+
+    /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";
@@ -548,6 +553,11 @@ public class HintCodeConstants {
      * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
+
+    /**
+     * 异常运单逆向分拣、发货拦截
+     */
+    public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
 
     /*##############################################拦截相关END#########################################################*/
 
