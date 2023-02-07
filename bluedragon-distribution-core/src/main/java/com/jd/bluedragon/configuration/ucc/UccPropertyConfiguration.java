@@ -1168,6 +1168,11 @@ public class UccPropertyConfiguration {
         this.czQuerySwitch = czQuerySwitch;
     }
 
+    /**
+     * 允许操作离线上传的场地编码。以,分隔
+     */
+    private String offLineAllowedSites;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2793,5 +2798,17 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
+    }
+
+    public String getOffLineAllowedSites() {
+        return offLineAllowedSites;
+    }
+
+    public void setOffLineAllowedSites(String offLineAllowedSites) {
+        this.offLineAllowedSites = offLineAllowedSites;
+    }
+
+    public boolean isOffLineAllowedSite(Integer siteCode) {
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 }
