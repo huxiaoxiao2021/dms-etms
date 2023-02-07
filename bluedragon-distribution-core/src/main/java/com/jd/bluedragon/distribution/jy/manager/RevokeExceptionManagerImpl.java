@@ -40,7 +40,7 @@ public class RevokeExceptionManagerImpl implements RevokeExceptionManager {
         }
 
         try {
-            CommonDto<PageDto<TransAbnormalBillDetailDto>> commonDto = transAbnormalSelectApi.queryAbnormalPage(accountDto, transAbnormalBillQueryDto, pageDto);
+            CommonDto<PageDto<TransAbnormalBillDetailDto>> commonDto = transAbnormalSelectApi.querySealCodeAbnormalPage(accountDto, transAbnormalBillQueryDto, pageDto);
 
             if (commonDto == null) {
                 if (log.isErrorEnabled()) {
