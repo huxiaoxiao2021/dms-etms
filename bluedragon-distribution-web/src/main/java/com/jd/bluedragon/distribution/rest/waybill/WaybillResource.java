@@ -365,8 +365,8 @@ public class WaybillResource {
 				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
 				return result;
 			}
-			//检查是否是自营
-			if(!WaybillUtil.isJDWaybillCode(waybillCode)){
+			//检查是否是自营（包含正向和逆向）
+			if(!(WaybillUtil.isJDWaybillCode(waybillCode) || WaybillUtil.isSwitchCode(waybillCode))){
 				//非自营直接返回拦截
 				log.info("checkWaybillErrorV2 非自营 不处理 {}",JsonHelper.toJson(param));
 				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
