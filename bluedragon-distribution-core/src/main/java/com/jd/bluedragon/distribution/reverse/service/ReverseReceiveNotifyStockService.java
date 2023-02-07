@@ -47,7 +47,6 @@ import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.avro.data.Json;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
