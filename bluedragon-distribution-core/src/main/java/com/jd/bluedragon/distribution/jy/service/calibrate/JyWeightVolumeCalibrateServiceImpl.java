@@ -440,6 +440,10 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode())) {
                     volumeStatus = record.getCalibrateStatus();
                 }
+                if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W_V.getCode())) {
+                    weightStatus = record.getCalibrateStatus();
+                    volumeStatus = record.getCalibrateStatus();
+                }
                 detail.setCalibrateStatus(record.getCalibrateStatus() == null
                         ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
                 detail.setCalibrateTime(record.getCalibrateTime());

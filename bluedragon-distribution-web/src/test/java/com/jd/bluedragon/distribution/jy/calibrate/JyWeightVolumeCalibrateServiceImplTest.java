@@ -79,7 +79,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             user.setUserErp("bjxings");
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
             request.setMachineCode("WZ-HJ-JZBL-008");
-            request.setCalibrateTaskStartTime(sdf.parse("2022-12-26 11:06:15").getTime());
+            request.setCalibrateTaskStartTime(sdf.parse("2023-02-07 23:59:59").getTime());
             request.setUser(user);
             request.setMachineTaskId(17L);
             jyWeightVolumeCalibrateService.closeMachineCalibrateTask(request);
