@@ -315,46 +315,50 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         startPoint.setLat(deviceLocationInfo.getLatitude());
         startPoint.setLng(deviceLocationInfo.getLongitude());
 
-        for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
-            // 可能存在"主围栏"、"临时围栏"，只要满足一个条件即可
-            final Geometry geometry = transFenceInfoVo.getGeometry();
-            if (geometry == null) {
-                continue;
-            }
+        try {
+            for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
+                // 可能存在"主围栏"、"临时围栏"，只要满足一个条件即可
+                final Geometry geometry = transFenceInfoVo.getGeometry();
+                if (geometry == null) {
+                    continue;
+                }
 
-            // 取重心点，得到距离计算位置点
-            final List<List<List<Double>>> coordinates = geometry.getCoordinates();
-            if (CollectionUtils.isEmpty(coordinates)) {
-                continue;
-            }
-            List<LatLng> polygonShape = new ArrayList<>();
-            final List<List<Double>> pointList = coordinates.get(0);
-            if (CollectionUtils.isEmpty(pointList)) {
-                continue;
-            }
-            for (List<Double> doubles : pointList) {
-                final LatLng latLng = new LatLng();
-                latLng.setLng(doubles.get(0));
-                latLng.setLat(doubles.get(1));
-                polygonShape.add(latLng);
-            }
-            final LatLng centerOfGravityPoint = GeometryUtil.getCenterOfGravityPoint(polygonShape);
+                // 取重心点，得到距离计算位置点
+                final List<List<List<Double>>> coordinates = geometry.getCoordinates();
+                if (CollectionUtils.isEmpty(coordinates)) {
+                    continue;
+                }
+                List<LatLng> polygonShape = new ArrayList<>();
+                final List<List<Double>> pointList = coordinates.get(0);
+                if (CollectionUtils.isEmpty(pointList)) {
+                    continue;
+                }
+                for (List<Double> doubles : pointList) {
+                    final LatLng latLng = new LatLng();
+                    latLng.setLng(doubles.get(0));
+                    latLng.setLat(doubles.get(1));
+                    polygonShape.add(latLng);
+                }
+                final LatLng centerOfGravityPoint = GeometryUtil.getCenterOfGravityPoint(polygonShape);
 
-            PointDto endPoint = new PointDto();
-            endPoint.setLat(BigDecimal.valueOf(centerOfGravityPoint.getLat()));
-            endPoint.setLng(BigDecimal.valueOf(centerOfGravityPoint.getLng()));
+                PointDto endPoint = new PointDto();
+                endPoint.setLat(BigDecimal.valueOf(centerOfGravityPoint.getLat()));
+                endPoint.setLng(BigDecimal.valueOf(centerOfGravityPoint.getLng()));
 
-            final Result<BigDecimal> lengthResult = wlLbsApiWrapResultManager.getLength(null, startPoint, endPoint);
-            if (lengthResult.isSuccess() && lengthResult.getData() != null) {
-                final BigDecimal distance = lengthResult.getData();
-                if(deviceLocationInfo.getDistanceToSite() == null){
-                    deviceLocationInfo.setDistanceToSite(distance);
-                } else {
-                    if(deviceLocationInfo.getDistanceToSite().compareTo(distance) > 0){
+                final Result<BigDecimal> lengthResult = wlLbsApiWrapResultManager.getLength(null, startPoint, endPoint);
+                if (lengthResult.isSuccess() && lengthResult.getData() != null) {
+                    final BigDecimal distance = lengthResult.getData();
+                    if(deviceLocationInfo.getDistanceToSite() == null){
                         deviceLocationInfo.setDistanceToSite(distance);
+                    } else {
+                        if(deviceLocationInfo.getDistanceToSite().compareTo(distance) > 0){
+                            deviceLocationInfo.setDistanceToSite(distance);
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            log.error("DeviceLocationServiceImpl.calculateSiteDistance deviceLocationUploadPo: {}", JsonHelper.toJson(deviceLocationUploadPo), e);
         }
         // log.info("DeviceLocationServiceImpl.calculateSiteDistance deviceLocationUploadPo: {}", JsonHelper.toJson(deviceLocationUploadPo));
         return result;
