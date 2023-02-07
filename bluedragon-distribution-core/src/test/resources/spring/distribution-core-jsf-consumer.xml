@@ -943,4 +943,13 @@
                   retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 
+    <!--  运单工具接口，异常运单修复使用  -->
+    <jsf:consumer id="waybillRepaireApi"
+                  interface="com.jd.etms.waybill.api.WaybillRepaireApi"
+                  protocol="jsf"
+                  alias="${jsf.waybill.repaire.group}"
+                  timeout="${jsf.waybill.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 </beans>

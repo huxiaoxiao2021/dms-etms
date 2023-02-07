@@ -58,6 +58,10 @@ public class UserSignRequest implements Serializable {
 	 * 签到模式
 	 */
 	private Integer modeType;
+	/**
+	 * 开发者模式-标识
+	 */
+	private Boolean developerFlag;
 	
 	public Long getRecordId() {
 		return recordId;
@@ -129,5 +133,11 @@ public class UserSignRequest implements Serializable {
 
 	public void setModeType(Integer modeType) {
 		this.modeType = modeType;
+	}
+	public Boolean getDeveloperFlag() {
+		return developerFlag;
+	}
+	public void setDeveloperFlag(Boolean developerFlag) {
+		this.developerFlag = developerFlag;
 	}
 }
