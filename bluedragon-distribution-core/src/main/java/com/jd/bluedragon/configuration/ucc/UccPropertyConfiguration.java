@@ -764,6 +764,8 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardSealBoardListSelectLimit;
     
+    private Integer jyComboardSealBoardListLimit;
+    
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -2678,5 +2680,13 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
         this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
+    }
+
+    public Integer getJyComboardSealBoardListLimit() {
+        return jyComboardSealBoardListLimit;
+    }
+
+    public void setJyComboardSealBoardListLimit(Integer jyComboardSealBoardListLimit) {
+        this.jyComboardSealBoardListLimit = jyComboardSealBoardListLimit;
     }
 }
