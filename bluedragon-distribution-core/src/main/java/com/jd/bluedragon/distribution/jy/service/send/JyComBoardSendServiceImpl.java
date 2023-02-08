@@ -2059,8 +2059,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private List<ExcepScanDto> assembleExcepScanDtoList(JyComboardAggsEntity jyComboardAggsEntity) {
     List<ExcepScanDto> excepScanDtoList =new ArrayList<>();
     ExcepScanDto excepScanDto =new ExcepScanDto();
-    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
-    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTE.getName());
+    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTED.getCode());
+    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTED.getName());
     excepScanDto.setCount(jyComboardAggsEntity.getInterceptCount());
     excepScanDtoList.add(excepScanDto);
     return excepScanDtoList;
@@ -2071,9 +2071,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("参数错误：缺失板号信息！");
     }
     if (ObjectHelper.isEmpty(request.getExcepType())){
-      request.setExcepType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+      request.setExcepType(ExcepScanTypeEnum.INTERCEPTED.getCode());
     }
-    if (ObjectHelper.isNotNull(request.getExcepType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getExcepType())){
+    if (ObjectHelper.isNotNull(request.getExcepType()) && !ExcepScanTypeEnum.INTERCEPTED.getCode().equals(request.getExcepType())){
       throw  new JyBizException("暂不支持该异常类型的查询！");
     }
 
@@ -2132,8 +2132,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private List<ExcepScanDto> assembleExcepScanUnderCTTList(List<JyComboardAggsEntity> aggsEntityList) {
     List<ExcepScanDto> excepScanDtoList =new ArrayList<>();
     ExcepScanDto excepScanDto =new ExcepScanDto();
-    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
-    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTE.getName());
+    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTED.getCode());
+    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTED.getName());
     int count =0;
     for (JyComboardAggsEntity entity:aggsEntityList){
       count =count+entity.getInterceptCount();
@@ -2156,9 +2156,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("参数错误：缺失混扫任务编号！");
     }
     if (ObjectHelper.isEmpty(request.getType())){
-      request.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+      request.setType(ExcepScanTypeEnum.INTERCEPTED.getCode());
     }
-    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getType())){
+    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTED.getCode().equals(request.getType())){
       throw  new JyBizException("暂不支持该异常类型的查询！");
     }
 
@@ -2605,9 +2605,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("参数错误:缺失分页大小");
     }
     if (ObjectHelper.isEmpty(request.getType())){
-      request.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+      request.setType(ExcepScanTypeEnum.INTERCEPTED.getCode());
     }
-    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getType())){
+    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTED.getCode().equals(request.getType())){
       throw  new JyBizException("暂不支持该异常类型的查询！");
     }
   }
@@ -2626,7 +2626,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     boardQueryResp.setBoardDtoList(boardDtos);
     invokeResult.setData(boardQueryResp);
     boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListSelectLimit());
-    
+
     // 获取当前场地未封车的板号
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
