@@ -435,17 +435,17 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                     detail.setActualHigh(formatter.format(record.getActualHigh()));
                 }
                 if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode())) {
-                    weightStatus = record.getCalibrateStatus();
+                    weightStatus = record.getWeightCalibrateStatus();
                 }
                 if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode())) {
-                    volumeStatus = record.getCalibrateStatus();
+                    volumeStatus = record.getVolumeCalibrateStatus();
                 }
                 if (Objects.equals(record.getCalibrateType(), JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W_V.getCode())) {
-                    weightStatus = record.getCalibrateStatus();
-                    volumeStatus = record.getCalibrateStatus();
+                    weightStatus = record.getWeightCalibrateStatus();
+                    volumeStatus = record.getVolumeCalibrateStatus();
                 }
-                detail.setCalibrateStatus(record.getCalibrateStatus() == null
-                        ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
+//                detail.setCalibrateStatus(record.getCalibrateStatus() == null
+//                        ? JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode() : record.getCalibrateStatus());
                 detail.setCalibrateTime(record.getCalibrateTime());
                 detail.setErrorRange(record.getErrorRange());
                 detailList.add(detail);

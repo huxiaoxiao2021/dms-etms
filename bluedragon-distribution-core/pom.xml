@@ -1439,7 +1439,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.9-SNAPSHOT</version>
+			<version>1.0.0-test-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
