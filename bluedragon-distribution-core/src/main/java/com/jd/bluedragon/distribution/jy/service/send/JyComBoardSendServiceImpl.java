@@ -602,6 +602,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     boardCountReq.setComboardSourceList(comboardSourceList);
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    boardCountReq.setStatusList(statusList);
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
     HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
     // 获取当前流向执行中的板号
@@ -806,6 +811,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     sendFlow.setComboardSourceList(comboardSourceList);
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    sendFlow.setStatusList(statusList);
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
     sendFlowDto.setBoardCount(entities.size());
     BoardDto boardDto = new BoardDto();
@@ -2615,18 +2625,23 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<BoardDto> boardDtos = new ArrayList<>();
     boardQueryResp.setBoardDtoList(boardDtos);
     invokeResult.setData(boardQueryResp);
-
+    boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListSelectLimit());
+    
     // 获取当前场地未封车的板号
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardSealQueryBoardListTime());
     sendFlow.setQueryTimeBegin(time);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     sendFlow.setComboardSourceList(comboardSourceList);
     PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    sendFlow.setStatusList(statusList);
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
     if (com.jd.dbs.util.CollectionUtils.isEmpty(boardList)) {
@@ -2646,6 +2661,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     boardCountReq.setComboardSourceList(sourceList);
+    boardCountReq.setStatusList(statusList);
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
 
     if (!com.jd.dbs.util.CollectionUtils.isEmpty(entityList)) {

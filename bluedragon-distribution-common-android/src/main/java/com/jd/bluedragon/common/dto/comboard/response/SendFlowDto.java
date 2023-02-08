@@ -54,6 +54,12 @@ public class SendFlowDto implements Serializable {
     
     private List<Integer> comboardSourceList;
 
+    /**
+     * 未封车状态
+     */
+    private transient List<Integer> statusList;
+
+
     public Integer getEndSiteId() {
         return endSiteId;
     }
@@ -164,5 +170,13 @@ public class SendFlowDto implements Serializable {
 
     public void setQuerySealTimeBegin(Date querySealTimeBegin) {
         this.querySealTimeBegin = querySealTimeBegin;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 }

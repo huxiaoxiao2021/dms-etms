@@ -112,11 +112,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     if (sendFlowDto.getQueryTimeBegin() != null ) {
       condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
     }
-    List<Integer> statusList = new ArrayList<>();
-    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
-    statusList.add(ComboardStatusEnum.FINISHED.getCode());
-    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
-    condition.setStatusList(statusList);
+    condition.setStatusList(sendFlowDto.getStatusList());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
   }
@@ -152,11 +148,6 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq){
-    List<Integer> statusList = new ArrayList<>();
-    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
-    statusList.add(ComboardStatusEnum.FINISHED.getCode());
-    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
-    boardCountReq.setStatusList(statusList);
     return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
   }
 

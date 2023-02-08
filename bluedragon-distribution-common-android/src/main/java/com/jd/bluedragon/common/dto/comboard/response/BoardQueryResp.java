@@ -10,6 +10,11 @@ public class BoardQueryResp implements Serializable {
   List<BoardDto> boardDtoList;
   
   private Long boardTotal;
+
+  /**
+   * 一次性提交封车的上限
+   */
+  private Integer boardLimit;
   
   public List<BoardDto> getBoardDtoList() {
     return boardDtoList;
@@ -25,5 +30,13 @@ public class BoardQueryResp implements Serializable {
 
   public void setBoardTotal(Long boardTotal) {
     this.boardTotal = boardTotal;
+  }
+
+  public Integer getBoardLimit() {
+    return boardLimit;
+  }
+
+  public void setBoardLimit(Integer boardLimit) {
+    this.boardLimit = boardLimit;
   }
 }
