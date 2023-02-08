@@ -21,6 +21,7 @@
                 <entry key="jy_unload" value-ref="jy_unload_bean" />
                 <entry key="jy_exception" value-ref="jy_exception_bean" />
                 <entry key="jy_send" value-ref="jy_send_bean" />
+                <entry key="jy_comboard" value-ref="jy_comboard_bean" />
             </map>
         </property>
     </bean>
@@ -239,6 +240,24 @@
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_id, 1, 1024#).longValue());
+            </value>
+        </property>
+        <property name="allowFullTableScan" value="true"/>
+    </bean>
+
+
+    <bean id="jy_comboard_bean" class="com.jd.jddl.interact.rule.TableRule">
+        <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbInstanceIndex((#start_site_id, 1, 1024#).longValue());
+            </value>
+        </property>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_send"/>
+        <property name="tbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbPartitionIndex((#start_site_id, 1, 1024#).longValue());
             </value>
         </property>
         <property name="allowFullTableScan" value="true"/>
