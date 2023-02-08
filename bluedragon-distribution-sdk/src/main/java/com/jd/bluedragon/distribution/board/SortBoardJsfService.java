@@ -23,4 +23,16 @@ public interface SortBoardJsfService {
 
     List<BoardSendDto> checkAndReplenishDelivery(CheckBoardStatusDto request);
     Response<List<String>> calcBoard(AutoBoardCompleteRequest domain);
+
+    /**
+     * 自动化扫描(组板+发货)
+     */
+    Response<BoardSendDto> sortMachineComboard(BindBoardRequest request);
+
+    /**
+     * 分拣机取消组板发货
+     * @param request
+     * @return
+     */
+    Response<Void> cancelSortMachineComboard(BindBoardRequest request);
 }

@@ -32,7 +32,7 @@ public class Board implements Serializable {
     /** 目的地编号 **/
     private Integer destinationId;
 
-
+    private String sendCode;
 
     public Long getId() {
         return id;
@@ -77,6 +77,14 @@ public class Board implements Serializable {
 
     public Integer getDestinationId() {
         return destinationId;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 
     public void setDestinationId(Integer destinationId) {

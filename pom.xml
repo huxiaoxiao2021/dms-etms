@@ -40,7 +40,7 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.3-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.4.2-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.4.3-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.7-SNAPSHOT</jy.realtime.sdk.version>

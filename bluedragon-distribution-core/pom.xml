@@ -2225,7 +2225,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.3-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -2425,6 +2425,12 @@
 					<artifactId>validation-api</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<version>2.7.0</version>
 		</dependency>
         <dependency>
             <groupId>com.jdl.basic</groupId>
