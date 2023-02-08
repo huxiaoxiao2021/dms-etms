@@ -16,6 +16,8 @@ public class BoardQueryResp implements Serializable {
    */
   private Integer boardLimit;
   
+  private Integer boardSelectLimit;
+  
   public List<BoardDto> getBoardDtoList() {
     return boardDtoList;
   }
@@ -38,5 +40,13 @@ public class BoardQueryResp implements Serializable {
 
   public void setBoardLimit(Integer boardLimit) {
     this.boardLimit = boardLimit;
+  }
+
+  public Integer getBoardSelectLimit() {
+    return boardSelectLimit;
+  }
+
+  public void setBoardSelectLimit(Integer boardSelectLimit) {
+    this.boardSelectLimit = boardSelectLimit;
   }
 }
