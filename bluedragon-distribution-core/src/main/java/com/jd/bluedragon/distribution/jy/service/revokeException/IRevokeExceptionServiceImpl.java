@@ -21,6 +21,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.sleepycat.je.tree.IN;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.record.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,8 +111,10 @@ public class IRevokeExceptionServiceImpl implements IRevokeExceptionService {
                     reportResp.setVehicleNumber(dto.getVehicleNumber());
                     reportResp.setReportTime(dto.getCreateTime());
                     reportResp.setSysTime(new Date().getTime());
-                    reportResp.setLineType(dto.getTransType().intValue());
-                    reportResp.setLineTypeName(TmsLineTypeEnum.getLineType(dto.getTransType().intValue()).getName());
+                    if (dto.getTransType()!=null) {
+                        reportResp.setLineType(dto.getTransType().intValue());
+                        reportResp.setLineTypeName(TmsLineTypeEnum.getLineType(dto.getTransType().intValue()).getName());
+                    }
                     reportResp.setAbnormalTypeName(dto.getAbnormalTypeName());
                     Date time = DateHelper.add(reportResp.getReportTime(), Calendar.HOUR, REVOKE_EXCEPTION_HOUR);
                     reportResp.setRevokeSurplusTime(time.getTime()-new Date().getTime());
