@@ -1290,4 +1290,12 @@
                   serialization="hessian"/>
 
 
+
+    <!-- 异常提报查询 -->
+    <jsf:consumer id="transAbnormalSelectApiJsf" interface="com.jd.tms.dtp.api.DtpTransAbnormalSelectApi"
+                  protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}" 
+                  timeout="${jsf.transAbnormalSelectApi.timeout}" 
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

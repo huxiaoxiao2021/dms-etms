@@ -246,6 +246,13 @@ public class InvokeResult<T> implements Serializable {
     
     public static final int DP_SPECIAL_CODE = 32003;
     public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
+    
+    public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
+    public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
+    
+    public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
+    public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
