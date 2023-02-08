@@ -548,5 +548,20 @@
         <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
     </jmq:consumer>
 
+    <!--  拣运组板岗-运单异步取消组板  -->
+    <jmq:consumer id="jmq.waybillCancelComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.cancel.comboard}" listener="waybillCancelComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步组板发货  -->
+    <jmq:consumer id="jmq.waybillComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.comboard}" listener="waybillComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板发货  -->
+    <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
