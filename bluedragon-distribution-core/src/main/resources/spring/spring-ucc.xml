@@ -238,6 +238,8 @@
 
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
+		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
+		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -471,6 +473,8 @@
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
+				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
+				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
 
 			</list>
 		</property>

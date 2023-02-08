@@ -808,6 +808,16 @@ public class UccPropertyConfiguration {
     private boolean syncJyCZSealStatusSwitch;
 
     private int sealStatusBatchSizeLimit;
+    
+    /**
+     * 组板封车查询版列表时间
+     */
+    private Integer jyComboardSealQueryBoardListTime;
+
+    /**
+     * 组板封车全选板列表上线
+     */
+    private Integer jyComboardSealBoardListSelectLimit;
 
     public boolean getSyncJyCZSealStatusSwitch() {
         return syncJyCZSealStatusSwitch;
@@ -2810,5 +2820,21 @@ public class UccPropertyConfiguration {
 
     public boolean isOffLineAllowedSite(Integer siteCode) {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
+    }
+
+    public Integer getJyComboardSealQueryBoardListTime() {
+        return jyComboardSealQueryBoardListTime;
+    }
+
+    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+        this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
+    }
+
+    public Integer getJyComboardSealBoardListSelectLimit() {
+        return jyComboardSealBoardListSelectLimit;
+    }
+
+    public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
+        this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
     }
 }
