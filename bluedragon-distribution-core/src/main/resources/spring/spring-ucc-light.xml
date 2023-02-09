@@ -25,6 +25,7 @@
         <property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
         <property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
         <property name="logToBusinessLogByKafka" value="${logtobusinesslog.global.on}"/>
+        <property name="logToBusinessLogByKafkaUat" value="${logtobusinesslog.global.on}"/>
         <property name="newLogPageTips" value="${newLogPageTips:''}"/>
         <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>

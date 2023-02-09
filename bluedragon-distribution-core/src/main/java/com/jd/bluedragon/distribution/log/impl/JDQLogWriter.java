@@ -33,10 +33,10 @@ public class JDQLogWriter implements LogWriter {
 
 
     @Override
-    @JProfiler(jKey = "DMSWEB.JDQLogWriter.addLog", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.JDQLogWriter.addLog.uat", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void addLog(BusinessLogProfiler businessLogProfiler) {
         //ucc开关，是否启用
-        if (uccPropertyConfiguration.isLogToBusinessLogByKafka() == false) {
+        if (uccPropertyConfiguration.isLogToBusinessLogByKafkaUat() == false) {
             return;
         }
 
