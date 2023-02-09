@@ -795,6 +795,12 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+
+    /**
+     * Long值-0
+     */
+    public static final Long LONG_ZERO = 0L;
+
     /**
      * 配置信息-北京的分拣中心
      */
@@ -1504,7 +1510,7 @@ public class Constants {
     /**
      * 操作标识|关闭-0
      */
-    public static final Integer FLAG_OPRATE_OFF = 0;    
+    public static final Integer FLAG_OPRATE_OFF = 0;
     /**
      * PDA无封车号任务前缀
      */
@@ -1765,6 +1771,9 @@ public class Constants {
      * sql拆分-最大分组数 10000
      */
     public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
+
+    public static  final  int COMBOARD_LIMIT =100;
+
     /**
      * 传摆发货功能编码：0203004-gz
      */
@@ -1806,4 +1815,29 @@ public class Constants {
     public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
 
 
+    /** 运力编码：飞机场网点类型 */
+    public static final Integer NODE_TYPE_AIRPORT = 7;
+    /** 运力编码：火车站网点类型 */
+    public static final Integer NODE_TYPE_RAILWAY = 9;
+
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_COMBOARD_BOARD_LOCK_PREFIX  = "jy_comboard_board_lock_%s";
+    /**
+     * 租板岗-混扫任务锁前缀
+     */
+    public static final String JY_COMBOARD_CTT_LOCK_PREFIX  = "jy_comboard_ctt_lock_%s";
+
+    public static final int  LOCK_EXPIRE  = 3;
+
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
 }

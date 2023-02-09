@@ -65,17 +65,6 @@ public class BusinessUtil {
         }
         return sites;
     }
-    public static String[] getSiteCodeBySendCodeNew(String sendCode) {
-        String[] sites = new String[]{"-1", "-1"};
-        if (StringUtils.isNotBlank(sendCode)) {
-            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
-            if (matcher.matches()) {
-                sites[0] = matcher.group(1);
-                sites[1] = matcher.group(2);
-            }
-        }
-        return sites;
-    }
 
   /**
    * 是否为新批次号
@@ -1187,13 +1176,6 @@ public class BusinessUtil {
         }
         return null;
     }
-    public static String getReceiveSiteCodeFromSendCodeNew(String sendCode) {
-        String[] sites = getSiteCodeBySendCodeNew(sendCode);
-        if (sites.length > 0) {
-            return sites[1];
-        }
-        return null;
-    }
 
     /**
      * 通过批次号获取始发站点
@@ -1204,14 +1186,6 @@ public class BusinessUtil {
     public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
     	Integer[] sites = getSiteCodeBySendCode(sendCode);
         if (sites[0]>0) {
-            return sites[0];
-        }
-        return null;
-    }
-
-    public static String getCreateSiteCodeFromSendCodeNew(String sendCode) {
-        String[] sites = getSiteCodeBySendCodeNew(sendCode);
-        if (sites.length > 0) {
             return sites[0];
         }
         return null;
@@ -1736,6 +1710,8 @@ public class BusinessUtil {
             return null;
         }
     }
+
+
     /**
      * 根据sendPay判断是否预售,第297位等于1或2
      * @param sendPay
@@ -2382,7 +2358,7 @@ public class BusinessUtil {
         message.append("</OrderTaskInfo>");
 
         return message.toString();
-    }	
+    }
     /**
      * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
      * @param waybillSign
