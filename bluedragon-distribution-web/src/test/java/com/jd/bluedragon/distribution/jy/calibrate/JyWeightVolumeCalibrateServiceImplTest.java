@@ -39,7 +39,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
     public void machineCalibrateScan() {
         try {
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
-            request.setMachineCode("test007");
+            request.setMachineCode("BJL-FF-SORT-002");
             User user = new User();
             user.setUserErp("bjxings");
             request.setUser(user);
@@ -78,10 +78,10 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             User user = new User();
             user.setUserErp("bjxings");
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
-            request.setMachineCode("test007");
-            request.setCalibrateTaskStartTime(sdf.parse("2023-02-07 11:33:35").getTime());
+            request.setMachineCode("WZ-HJ-JZBL-008");
+            request.setCalibrateTaskStartTime(sdf.parse("2022-12-26 11:06:15").getTime());
             request.setUser(user);
-            request.setMachineTaskId(91L);
+            request.setMachineTaskId(17L);
             jyWeightVolumeCalibrateService.closeMachineCalibrateTask(request);
         }catch (Exception e){
             log.error("服务异常!", e);
@@ -92,33 +92,23 @@ public class JyWeightVolumeCalibrateServiceImplTest {
     @Test
     public void dealCalibrateTask() {
         try {
-//            DwsMachineCalibrateMQ mq1 = new DwsMachineCalibrateMQ();
-//            mq1.setMachineCode("WZ-HJ-JZBL-007");
-//            mq1.setCalibrateTime(new Date().getTime());
-//            mq1.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode());
-//            mq1.setWeightCalibrateStatus(1);
-//
-//            DwsMachineCalibrateMQ mq2 = new DwsMachineCalibrateMQ();
-//            mq2.setMachineCode("WZ-HJ-JZBL-007");
-//            mq2.setCalibrateTime(new Date().getTime());
-//            mq2.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode());
-//            mq2.setVolumeCalibrateStatus(1);
-//            mq2.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
+            DwsMachineCalibrateMQ mq1 = new DwsMachineCalibrateMQ();
+            mq1.setMachineCode("WZ-HJ-JZBL-007");
+            mq1.setCalibrateTime(new Date().getTime());
+            mq1.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W.getCode());
+            mq1.setCalibrateStatus(1);
 
-            DwsMachineCalibrateMQ mq3 = new DwsMachineCalibrateMQ();
-            mq3.setMachineCode("test007");
-            mq3.setCalibrateTime(new Date().getTime());
-            mq3.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W_V.getCode());
-            mq3.setVolumeCalibrateStatus(1);
-            mq3.setWeightCalibrateStatus(1);
-            mq3.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
+            DwsMachineCalibrateMQ mq2 = new DwsMachineCalibrateMQ();
+            mq2.setMachineCode("WZ-HJ-JZBL-007");
+            mq2.setCalibrateTime(new Date().getTime());
+            mq2.setCalibrateType(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_V.getCode());
+            mq2.setCalibrateStatus(1);
+            mq2.setMachineStatus(JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode());
 
-//            InvokeResult<Boolean> result1 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq1);
-//            log.info("result1:{}", JsonHelper.toJson(result1));
-//            InvokeResult<Boolean> result2 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq2);
-//            log.info("result2:{}", JsonHelper.toJson(result2));
-            InvokeResult<Boolean> result3 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq3);
-            log.info("result3:{}", JsonHelper.toJson(result3));
+            InvokeResult<Boolean> result1 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq1);
+            log.info("result1:{}", JsonHelper.toJson(result1));
+            InvokeResult<Boolean> result2 = jyWeightVolumeCalibrateService.dealCalibrateTask(mq2);
+            log.info("result2:{}", JsonHelper.toJson(result2));
             Assert.assertTrue(true);
         }catch (Exception e){
             log.error("服务异常!", e);
