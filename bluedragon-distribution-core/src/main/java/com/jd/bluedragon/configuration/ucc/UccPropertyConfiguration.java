@@ -32,6 +32,8 @@ public class UccPropertyConfiguration {
     /** 将日志通过kafka写入businesslog开关 **/
     private boolean logToBusinessLogByKafka;
 
+    private boolean logToBusinessLogByKafkaUat;
+
 
     /** 使用异步缓冲组件时生产者的类型,
      * 多级缓冲的动态生产者的生产者类型配置项，支持'JMQ‘，’TBSCHEDULE‘和’FAILOVER‘三个可选值。
@@ -2846,5 +2848,13 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardSealBoardListLimit(Integer jyComboardSealBoardListLimit) {
         this.jyComboardSealBoardListLimit = jyComboardSealBoardListLimit;
+    }
+
+    public boolean isLogToBusinessLogByKafkaUat() {
+        return logToBusinessLogByKafkaUat;
+    }
+
+    public void setLogToBusinessLogByKafkaUat(boolean logToBusinessLogByKafkaUat) {
+        this.logToBusinessLogByKafkaUat = logToBusinessLogByKafkaUat;
     }
 }
