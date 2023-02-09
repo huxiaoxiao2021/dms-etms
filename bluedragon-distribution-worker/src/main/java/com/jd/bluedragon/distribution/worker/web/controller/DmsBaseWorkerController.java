@@ -42,13 +42,12 @@ public class DmsBaseWorkerController {
 			}else{
 				//非线上系统，获取不到当前登录用户则返回bjxings
 				loginContext = new LoginContext();
-				loginContext.setUserId(10053);
 				loginContext.setPin("bjxings");
 				loginContext.setNick("邢松");
 			}
 		}
 		LoginUser loginUser = new LoginUser();
-		loginUser.setUserId((int)loginContext.getUserId());
+//		loginUser.setUserId((int)loginContext.getUserId()); // 此方法未设置userId
 		loginUser.setUserErp(loginContext.getPin());
 		loginUser.setUserName(loginContext.getNick());
 		BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());

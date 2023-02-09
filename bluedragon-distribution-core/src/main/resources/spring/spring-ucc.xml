@@ -164,7 +164,7 @@
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
 		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
-		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
+		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps:}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>

@@ -1176,27 +1176,6 @@
 			</exclusions>
         </dependency>
 
-
-        <dependency>
-			<groupId>com.jd.common</groupId>
-			<artifactId>sso-uim-spring</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
-                </exclusion>
-                <exclusion>
-                	<groupId>com.jd.jim.cli</groupId>
-                	<artifactId>jim-cli-jedis</artifactId>
-                </exclusion>
-                <exclusion>
-                	<groupId>com.jd.jim.cli</groupId>
-                	<artifactId>jim-cli-api</artifactId>
-                </exclusion>
-            </exclusions>
-		</dependency>
-
         <!--ioT 校验鸡毛信设备-->
         <dependency>
             <groupId>com.jd.tms.iot</groupId>
@@ -1886,7 +1865,29 @@
 					<artifactId>hibernate-validator</artifactId>
 					<groupId>org.hibernate</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>sso-uim-spring</artifactId>
+					<groupId>com.jd.common</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<!-- 单点登录    start-->
+		<dependency>
+			<groupId>com.jd.ssa</groupId>
+			<artifactId>oidc-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>uim1-client-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>sso-ssa-jsf-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>sso-ssa-legacy</artifactId>
 		</dependency>
 
 		<dependency>
