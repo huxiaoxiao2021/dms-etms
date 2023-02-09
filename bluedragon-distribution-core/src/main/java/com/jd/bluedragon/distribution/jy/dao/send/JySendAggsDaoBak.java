@@ -35,7 +35,7 @@ public class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySen
     }
 
     public int updateByBizId(JySendAggsEntity entity){
-        return this.getSqlSession().insert(NAMESPACE + ".updateByBizId", entity);
+        return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 
     public int insertBySendAggEntity(JySendAggsEntity entity){

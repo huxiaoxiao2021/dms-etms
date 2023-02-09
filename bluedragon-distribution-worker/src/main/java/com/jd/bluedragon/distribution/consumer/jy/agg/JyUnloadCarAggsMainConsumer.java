@@ -73,6 +73,9 @@ public class JyUnloadCarAggsMainConsumer extends MessageBaseConsumer {
                         return;
                     }
                 }
+                if(StringUtils.isBlank(entity.getBoardCode())){
+                    entity.setBoardCode("");
+                }
                 Boolean result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsMain(entity);
                 if(result){
                     // 消费成功，记录数据版本号

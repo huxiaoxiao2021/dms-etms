@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -69,14 +70,25 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        List<Integer> lineType = new ArrayList<>();
-        lineType.add(JyLineTypeEnum.OTHER.getCode());
-        lineType.add(entity.getLineType());
-        params.put("lineTypeList", lineType);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
         return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
+    }
+
+    public List<JyBizTaskSendLineTypeCountDto> sumTaskByLineType(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
+            params.put("sendVehicleBizList", sendVehicleBizList);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByLineType", params);
     }
 
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,

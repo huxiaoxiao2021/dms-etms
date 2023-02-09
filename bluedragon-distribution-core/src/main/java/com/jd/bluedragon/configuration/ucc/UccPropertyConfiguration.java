@@ -465,6 +465,33 @@ public class UccPropertyConfiguration {
      */
     private String virtualBoardCanUseSite;
 
+    /**
+     * 补打后取消拦截
+     */
+    private boolean printCompeteUpdateCancel;
+
+
+    /**
+     * 是否是所有包裹补打后再取消拦截
+     */
+    private boolean printCompeteAllPackageUpdateCancel;
+
+    public boolean isPrintCompeteAllPackageUpdateCancel() {
+        return printCompeteAllPackageUpdateCancel;
+    }
+
+    public void setPrintCompeteAllPackageUpdateCancel(boolean printCompeteAllPackageUpdateCancel) {
+        this.printCompeteAllPackageUpdateCancel = printCompeteAllPackageUpdateCancel;
+    }
+
+    public boolean isPrintCompeteUpdateCancel() {
+        return printCompeteUpdateCancel;
+    }
+
+    public void setPrintCompeteUpdateCancel(boolean printCompeteUpdateCancel) {
+        this.printCompeteUpdateCancel = printCompeteUpdateCancel;
+    }
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1072,6 +1099,11 @@ public class UccPropertyConfiguration {
      *  多个场地以,分隔
      */
     private String dewuCustomerCodes;
+
+    /**
+     * 允许操作离线上传的场地编码。以,分隔
+     */
+    private String offLineAllowedSites;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2572,5 +2604,17 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public String getOffLineAllowedSites() {
+        return offLineAllowedSites;
+    }
+
+    public void setOffLineAllowedSites(String offLineAllowedSites) {
+        this.offLineAllowedSites = offLineAllowedSites;
+    }
+
+    public boolean isOffLineAllowedSite(Integer siteCode) {
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 }

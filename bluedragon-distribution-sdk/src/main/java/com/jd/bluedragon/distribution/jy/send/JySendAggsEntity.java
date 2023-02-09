@@ -138,6 +138,12 @@ public class JySendAggsEntity implements Serializable {
      */
     private String uid;
 
+    private Integer totalScannedWaybillCount;
+    private Integer totalInterceptWaybillCount;
+    private Integer totalIncompleteWaybillCount;
+    private Integer totalNotScannedWaybillCount;
+    private Integer totalForceWaybillCount;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -379,4 +385,43 @@ public class JySendAggsEntity implements Serializable {
     }
 
 
+    public Integer getTotalScannedWaybillCount() {
+        return totalScannedWaybillCount;
+    }
+
+    public void setTotalScannedWaybillCount(Integer totalScannedWaybillCount) {
+        this.totalScannedWaybillCount = totalScannedWaybillCount;
+    }
+
+    public Integer getTotalInterceptWaybillCount() {
+        return totalInterceptWaybillCount;
+    }
+
+    public void setTotalInterceptWaybillCount(Integer totalInterceptWaybillCount) {
+        this.totalInterceptWaybillCount = totalInterceptWaybillCount;
+    }
+
+    public Integer getTotalIncompleteWaybillCount() {
+        return totalIncompleteWaybillCount;
+    }
+
+    public void setTotalIncompleteWaybillCount(Integer totalIncompleteWaybillCount) {
+        this.totalIncompleteWaybillCount = totalIncompleteWaybillCount;
+    }
+
+    public Integer getTotalNotScannedWaybillCount() {
+        return totalNotScannedWaybillCount;
+    }
+
+    public void setTotalNotScannedWaybillCount(Integer totalNotScannedWaybillCount) {
+        this.totalNotScannedWaybillCount = totalNotScannedWaybillCount;
+    }
+
+    public Integer getTotalForceWaybillCount() {
+        return totalForceWaybillCount;
+    }
+
+    public void setTotalForceWaybillCount(Integer totalForceWaybillCount) {
+        this.totalForceWaybillCount = totalForceWaybillCount;
+    }
 }

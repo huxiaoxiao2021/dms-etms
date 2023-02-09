@@ -66,6 +66,7 @@
     <util:list id="reverseFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillInterceptType99Filter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseInStockCheckFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseOperationAllowedFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RWaybillFilter"/>
@@ -149,12 +150,20 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
     </util:list>
 
+    <util:list id="deliveryByBoardFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BoardSendRouterFilter"/>
+    </util:list>
+
     <bean id="deliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">
         <property name="filterList" ref="deliveryFilterList">
         </property>
     </bean>
     <bean id="deliveryByWaybillFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">
         <property name="filterList" ref="deliveryByWaybillFilterList">
+        </property>
+    </bean>
+    <bean id="deliveryByBoardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="deliveryByBoardFilterList">
         </property>
     </bean>
 

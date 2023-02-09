@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -86,6 +88,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
@@ -185,6 +188,20 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
     private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
+
+    private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
+    /**
+     *  运力网点逆向退货组
+     *      类型2、子类型215
+     * */
+    private static final Integer RETURNGROUP_NODE_TYPE = 2;
+    private static final Integer RETURNGROUP_NODE_SUBTYPE = 215;
+    /** 飞机场网点类型 */
+    private static final Integer AIRPORT_NODE_TYPE = 7;
+    /** 火车站网点类型 */
+    private static final Integer TRAINSTATION_NODE_TYPE = 9;
+    /** 仓库网点类型 */
+    private static final Integer WMS_NODE_TYPE = 3;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -943,6 +960,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
     @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealedExcludeAirFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode) {
+        CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealedExcludeAirFerry(batchCode);
+        return isSealed;
+    }
+
+    @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.NewSealVehicleServiceImpl.checkBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Void> checkBatchCode(String batchCode) {
         InvokeResult<Void> result = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
@@ -1005,6 +1029,64 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
+
+    @Override
+    public RouteTypeResponse checkTransportCode(TransportResourceDto data, Integer createSiteCode) {
+        RouteTypeResponse response = new RouteTypeResponse();
+
+        //设置运力基本信息
+        response.setSiteCode(data.getEndNodeId());
+        response.setSendUserType(data.getTransType());
+        response.setRouteType(data.getTransType());
+        response.setDriver(data.getCarrierName());
+        response.setTransWay(data.getTransWay());
+        response.setTransWayName(data.getTransWayName());
+        response.setCarrierType(data.getCarrierType());
+
+        //仅限于传摆封车
+        if(data.getStartNodeId() != null
+                && data.getStartNodeId().equals(data.getEndNodeId())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.PARK_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.PARK_SEAL_CAR.getName());
+        }
+        if(AIRPORT_NODE_TYPE.equals(data.getStartNodeType())
+                || TRAINSTATION_NODE_TYPE.equals(data.getStartNodeType())
+                || AIRPORT_NODE_TYPE.equals(data.getEndNodeType())
+                || TRAINSTATION_NODE_TYPE.equals(data.getEndNodeType())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.AIRLINE_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.AIRLINE_SEAL_CAR.getName());
+        }
+        if(WMS_NODE_TYPE.equals(data.getEndNodeType())
+                && RETURNGROUP_NODE_TYPE.equals(data.getStartNodeType())
+                && RETURNGROUP_NODE_SUBTYPE.equals(data.getStartNodeSubType())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.WMS_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.WMS_SEAL_CAR.getName());
+        }
+
+        //运力校验
+        if (createSiteCode.equals(data.getStartNodeId())) {
+            int hour = data.getSendCarHour();
+            int min = data.getSendCarMin();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, min);
+            calendar.set(Calendar.SECOND, 0);
+            if (DateHelper.currentTimeIsRangeHours(calendar.getTime(), RANGE_HOUR)) {
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage(JdResponse.MESSAGE_OK);
+            } else {
+                String hourStr = hour < 10 ? "0" + String.valueOf(hour) : String.valueOf(hour);
+                String minStr = min < 10 ? "0" + String.valueOf(min) : String.valueOf(min);
+                response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK);
+                response.setMessage(MessageFormat.format(NewSealVehicleResponse.MESSAGE_TRANSPORT_RANGE_OUT_CHECK, hourStr, minStr));
+            }
+        } else {
+            response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_TRANSPORT_RANGE_ERROR);
+        }
+
+        return response;
+    }
 
     /**
      * 校验批次的体积是否超标
@@ -1986,5 +2068,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         return response;
+    }
+
+    @Override
+    public boolean isAirTransport(TransportResourceDto resource) {
+        if (null == resource) {
+            return false;
+        }
+        //始发、目的站点是机场或火车站
+        boolean nodeTypeFlag = Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getStartNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getStartNodeType())
+                || Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getEndNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getEndNodeType());
+
+        return nodeTypeFlag;
     }
 }

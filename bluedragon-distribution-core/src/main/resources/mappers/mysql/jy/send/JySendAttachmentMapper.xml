@@ -10,6 +10,7 @@
         <result property="operateSiteId" column="operate_site_id"/>
         <result property="vehicleArrived" column="vehicle_arrived"/>
         <result property="imgUrl" column="img_url"/>
+        <result property="sealImgUrl" column="seal_img_url"/>
         <result property="remark" column="remark"/>
         <result property="operateTime" column="operate_time"/>
         <result property="createUserErp" column="create_user_erp"/>
@@ -24,7 +25,7 @@
 
     <sql id="Base_Column_List">
         id
-        ,        send_vehicle_biz_id,        operate_site_id,        vehicle_arrived,        img_url,        remark,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+        ,        send_vehicle_biz_id,        operate_site_id,        vehicle_arrived,        img_url,    seal_img_url,    remark,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
 
     <insert id="insert" parameterType="JySendAttachmentEntity">
         INSERT INTO jy_send_attachment (
@@ -39,6 +40,9 @@
         </if>
         <if test="imgUrl != null">
             img_url,
+        </if>
+        <if test="sealImgUrl != null">
+            seal_img_url,
         </if>
         <if test="remark != null">
             remark,
@@ -76,6 +80,9 @@
         </if>
         <if test="imgUrl != null">
             #{imgUrl},
+        </if>
+        <if test="sealImgUrl != null">
+            #{sealImgUrl},
         </if>
         <if test="remark != null">
             #{remark},
@@ -115,6 +122,9 @@
             </if>
             <if test="imgUrl != null">
                 img_url = #{imgUrl},
+            </if>
+            <if test="sealImgUrl != null">
+                seal_img_url = #{sealImgUrl},
             </if>
             <if test="remark != null">
                 remark = #{remark},

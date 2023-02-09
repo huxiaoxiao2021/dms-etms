@@ -216,6 +216,9 @@
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
+		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
+		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
+		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -390,6 +393,8 @@
 				<value>uccPropertyConfiguration.jyDemotionConfig</value>
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
+				<value>uccPropertyConfiguration.printCompeteUpdateCancel</value>
+				<value>uccPropertyConfiguration.printCompeteAllPackageUpdateCancel</value>
 
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
@@ -408,6 +413,7 @@
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOMachineStatus</value>
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOnMachineStatusSiteSwitch</value>
                 <value>uccPropertyConfiguration.dewuCustomerCodes</value>
+                <value>uccPropertyConfiguration.offLineAllowedSites</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

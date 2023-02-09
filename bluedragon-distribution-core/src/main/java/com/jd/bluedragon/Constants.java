@@ -1576,6 +1576,11 @@ public class Constants {
     public static final Integer NUMBER_ZERO = 0;
 
     /**
+     * 数字：1
+     */
+    public static final Integer NUMBER_ONE = 1;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
@@ -1759,7 +1764,7 @@ public class Constants {
     /**
      * sql拆分-最大分组数 10000
      */
-    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;    
+    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
     /**
      * 传摆发货功能编码：0203004-gz
      */
@@ -1795,5 +1800,15 @@ public class Constants {
      * 特殊字符正则
      */
     public static final String SPECIAL_CHAR_REGEX = "[\n\r\t`~!@#$%^&*()+=|{}':;,\\[\\].<>/?！￥…（）—【】‘；：”“’。， 、？]";
+
+    public static final Integer DEFAULT_PAGE_NO  = 1;
+    public static final Integer DEFAULT_PAGE_SIZE  = 10;
+    public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
+
+
+    /** 运力编码：飞机场网点类型 */
+    public static final Integer NODE_TYPE_AIRPORT = 7;
+    /** 运力编码：火车站网点类型 */
+    public static final Integer NODE_TYPE_RAILWAY = 9;
 
 }

@@ -378,6 +378,11 @@
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
     </bean>
 
+    <!-- 运单重复bug，取消拦截后发送mq信息给终端-->
+    <bean id="repeatWaybillcodeCancelProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.repeat_waybillcode_cancel}"/>
+    </bean>
+
     <!--空铁转陆运 提报异常 -->
     <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.arAbnormal}"/>
@@ -735,4 +740,9 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  分拣转运派车任务明细  -->
+    <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

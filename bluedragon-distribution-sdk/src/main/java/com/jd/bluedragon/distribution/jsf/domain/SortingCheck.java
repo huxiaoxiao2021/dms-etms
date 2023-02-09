@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jsf.domain;
 
+import com.jd.bluedragon.distribution.board.domain.Board;
+
 /**
  * 分拣验证对象
  * Created by wangtingwei on 2015/3/16.
@@ -66,6 +68,14 @@ public class SortingCheck {
      * 忽略验证的条件
      */
     private ValidateIgnore validateIgnore;
+
+    /**
+     * 板对象
+     */
+    private Board board;
+
+
+
 
     public Integer getOperateType() {
         return operateType;
@@ -185,5 +195,13 @@ public class SortingCheck {
 
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }

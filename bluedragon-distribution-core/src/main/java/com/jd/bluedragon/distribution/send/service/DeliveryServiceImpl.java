@@ -23,7 +23,6 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -60,13 +59,12 @@ import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
-import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -89,7 +87,6 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
@@ -111,11 +108,13 @@ import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
@@ -130,7 +129,6 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
-import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -164,7 +162,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
@@ -432,6 +429,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     private TibetBizService tibetBizService;
 
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+
     /**
      * 自动过期时间 30分钟
      */
@@ -673,6 +673,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if (WaybillUtil.isPackageCode(boxCode)) {
                         CallerInfo reverseCheckInfo = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo.reverseCheckInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
                         try {
+                            // 校验异常运单号
+                            final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(WaybillUtil.getWaybillCode(boxCode));
+                            if(hasIntercept){
+                                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, HintService.getHint(HintCodeConstants.WAYBILL_EXCEPTION_REVERSE_INTERCEPT));
+                            }
+
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
                             if (baseStaffSiteOrgDto != null) {
                                 Integer siteType = baseStaffSiteOrgDto.getSiteType();
@@ -705,6 +711,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         }finally {
                             Profiler.registerInfoEnd(reverseCheckInfo);
                         }
+
                     }
 
                     return tDeliveryResponse;
@@ -1577,7 +1584,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
-            sortingCheck.setOperateType(1);
+            // 判断当前操作场地站点类型，是6420的走新逻辑
+            BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getCreateSiteCode() + "");
+            if (siteInfo != null && Integer.valueOf(Constants.B2B_SITE_TYPE).equals(siteInfo.getSubType())) {
+                sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
+            } else {
+                sortingCheck.setOperateType(1);
+            }
         }
         return sortingCheck;
     }
