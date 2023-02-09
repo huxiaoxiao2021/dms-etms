@@ -924,6 +924,8 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.getSealTaskInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request) {
         InvokeResult<SealTaskInfo> result = new InvokeResult<>();
         if(request == null && StringUtils.isBlank(request.getSealCarCode())){
