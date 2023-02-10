@@ -15,6 +15,7 @@
 </frameset>
 <noframes>
     <body>
+        #parse("ssoCross.vm")
     </body>
     <script src="//o-gia.jd.com/js/beetle.min.js" type="text/javascript"></script>
     <script type="application/javascript">

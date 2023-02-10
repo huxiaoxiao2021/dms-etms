@@ -1,0 +1,5 @@
+<script type="text/javascript" src="https://ssa.jd.com/static/js/sso/iframe.js"></script>
+<script type="text/javascript">
+    let ssoInOpenWin = new SsoInIframe('mainFrame');
+    window.addEventListener('message', ssoInOpenWin.doLogin.bind(ssoInOpenWin), false);
+</script>
