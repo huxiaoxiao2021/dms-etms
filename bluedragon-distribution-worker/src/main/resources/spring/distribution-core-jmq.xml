@@ -766,7 +766,7 @@
         <property name="topic" value="${jmq.topic.dws.calibrate.dealSpotCheck}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    
+
     <!-- 撤销封签异常提报消息 -->
     <bean id="cancelTransAbnormalProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.cancelTransAbnormal}" />

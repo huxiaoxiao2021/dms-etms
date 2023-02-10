@@ -72,4 +72,11 @@ public interface IJyUnSealVehicleService {
      * @return
      */
     void saveRealUnSealRanking(String bizId, Date unSealTime);
+
+    /**
+     * 获取待解封车数据详情
+     * @param request
+     * @return
+     */
+    InvokeResult<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request);
 }
