@@ -2397,7 +2397,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 客户端确认流向后保存无任务的发货流向 fixme 等发货成功后才可记录已确认流向？
                     JyBizTaskSendVehicleDetailEntity noTaskDetail = makeNoTaskSendDetail(request, taskSend);
                     logInfo("初始化无任务发货明细. {}", JsonHelper.toJson(noTaskDetail));
-                    transactionManager.saveTaskSendAndDetail(taskSend, noTaskDetail);
+                    transactionManager.saveTaskSendAndDetail(null, noTaskDetail);
 
                     logInfo("启用无任务发货任务. {}", JsonHelper.toJson(taskSend));
                     this.enableNoTask(taskSend);
