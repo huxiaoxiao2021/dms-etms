@@ -79,7 +79,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse<Void> finishBoard(BoardReq request) {
+  public JdCResponse<String> finishBoard(BoardReq request) {
     return retJdCResponse(jyComBoardSendService.finishBoard(request));
   }
 
