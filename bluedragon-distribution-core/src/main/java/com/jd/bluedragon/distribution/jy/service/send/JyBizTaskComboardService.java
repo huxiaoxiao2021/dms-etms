@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import java.util.Date;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public interface JyBizTaskComboardService {
    * @return
    */
   List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlow(SendFlowDto sendFlowDto);
-  
+
   List<JyBizTaskComboardEntity> listBoardTaskBySendCode(JyBizTaskComboardEntity entity);
 
   /**
@@ -71,14 +72,17 @@ public interface JyBizTaskComboardService {
     List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
 
   JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
-  
+
   /**
    * 取消封车
-   * @param batchCodes
+   * @param batchCode
    * @param operateUserCode
    * @param operateUserName
    * @return
    */
-  boolean updateBoardStatusBySendCodeList(String batchCodes, String operateUserCode, String operateUserName);
+  boolean updateBoardStatusBySendCode(String batchCode, String operateUserCode, String operateUserName);
+
+
+  boolean updateBoardStatusBySendCodeList(List<String> batchCodeList, String operateUserCode, String operateUserName, ComboardStatusEnum comboardStatusEnum);
 }
 

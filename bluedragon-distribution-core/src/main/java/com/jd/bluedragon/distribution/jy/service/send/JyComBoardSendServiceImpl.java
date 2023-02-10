@@ -936,7 +936,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.finishBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
-  public InvokeResult finishBoard(BoardReq request) {
+  public InvokeResult<String> finishBoard(BoardReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBoardCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -953,7 +953,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (log.isInfoEnabled()) {
           log.warn("该板已完结: {}", boardCode);
         }
-        return new InvokeResult(FINISH_BOARD_AGAIN_CODE, FINISH_BOARD_AGAIN_MESSAGE);
+        return new InvokeResult(FINISH_BOARD_AGAIN_CODE, FINISH_BOARD_AGAIN_MESSAGE,request.getBoardCode());
       }
       JyBizTaskComboardReq jyBizTaskComboardReq = new JyBizTaskComboardReq();
       jyBizTaskComboardReq.setBoardCode(boardCode);
@@ -967,7 +967,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.info("完结板异常：{}", boardCode);
       return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
     }
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,request.getBoardCode());
   }
 
   @Override
