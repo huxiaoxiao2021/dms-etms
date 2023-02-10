@@ -479,7 +479,7 @@
 				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListLimit</value>
-				
+
 			</list>
 		</property>
 	</bean>
