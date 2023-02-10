@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd ">
+
+
+
+
+
+	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
+		<property name="virtualSiteCode" value="${virtualSiteCode}" />
+		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
+		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
+		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
+		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
+		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
+		<property name="redisSwitchOn" value="${sys.config.task.redisSwitchOn:0}"/>
+		<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>
+		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
+		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
+		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
+		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
+		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
+        <property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
+        <property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
+        <property name="logToBusinessLogByKafka" value="${logtobusinesslog.global.on}"/>
+        <property name="newLogPageTips" value="${newLogPageTips:''}"/>
+        <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
+		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
+		<property name="offlineTaskOperateTimeBeforeNowLimitHours" value="${offlineTaskOperateTimeBeforeNowLimitHours:96}"/>
+		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
+		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
+        <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
+        <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
+		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+        <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
+		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="clientPrintQueryGapTime" value="${client.print.query.gap.time:10}"/>
+		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
+        <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites}" />
+        <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
+        <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
+		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
+		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
+		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
+		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
+		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
+		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
+		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
+		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
+		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
+		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
+		<property name="economicNetPushZTDRetry" value="${economicNetPushZTDRetry:true}"/>
+		<property name="eNetSyncWaybillCodeAndBoxCode" value="${eNetSyncWaybillCodeAndBoxCode:true}"/>
+		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
+        <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
+        <property name="quickSealTips" value="${quickSealTips:''}" />
+		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
+		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite:-1}"/>
+		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
+		<property name="deliverHideSites" value="${deliverHideSites:''}" />
+        <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
+        <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
+		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
+		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
+		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
+		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
+		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
+		<property name="needUseNewReverseApi" value="${needUseNewReverseApi:true}" />
+		<property name="offlineTaskReportInterceptSites" value="${offlineTaskReportInterceptSites:-1}"/> <!-- 离线任务处理上报拦截数据开关 -->
+		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
+		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
+		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
+		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
+		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
+		<property name="approvalSwitch" value="${approvalSwitch:false}"/>
+		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
+		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
+		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
+		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
+		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
+		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"/>
+        <property name="backDispatchCheck" value="${backDispatchCheck:true}"/>
+        <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
+		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
+        <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
+        <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"/>
+        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:''}" />
+        <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"/> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
+        <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"/> <!-- 隐藏特殊始发场地目的场地名单 -->
+		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"/> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
+        <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
+        <property name="insertDbRowsOneTime" value="${insertDbRowsOneTime:100}" />
+        <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
+        <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
+        <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
+        <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
+        <property name="deliverySendTaskSleepMills" value="${deliverySendTaskSleepMills:1000}" />
+        <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
+        <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
+		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"/> <!-- 一单多件抽检开关配置 -->
+		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"/> <!-- 一单多件抽检场地配置 -->
+		<property name="readUnloadFromTys" value="${readUnloadFromTys:false}" />
+		<property name="stopWriteUnloadFromDms" value="${stopWriteUnloadFromDms:false}" />
+		<property name="writeUnloadFromTys" value="${writeUnloadFromTys:false}" />
+        <property name="virtualBoardMaxDestinationCount" value="${virtualBoardMaxDestinationCount:5}" />
+        <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
+        <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
+        <property name="virtualBoardCanUseSite" value="${virtualBoardCanUseSite:-1}" />
+		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"/>
+		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"/>
+		<property name="noAuthMenuConfigNew" value="${noAuthMenuConfigNew:}"/>
+		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"/>
+		<property name="menuCodeFuncConfigNew" value="${menuCodeFuncConfigNew:}"/>
+		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
+		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
+		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
+		<property name="sensitiveInfoHideSwitch" value="${sensitiveInfoHideSwitch: false}"/>
+		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
+		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
+		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
+		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
+		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
+		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
+		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
+		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: {}}"/>
+		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
+		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
+		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
+        <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
+        <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
+        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
+		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
+		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
+		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
+		<property name="dpSiteCodes" value="${dpSiteCodes:}"/>
+		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
+		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
+		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
+		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
+		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
+		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
+		<property name="needValidateMainLineBizSourceList" value="${needValidateMainLineBizSourceList:[25]}"/>
+		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
+		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
+		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
+		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
+		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
+		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+		<property name="querySensitiveFlag" value="${querySensitiveFlag:false}"/>
+		<property name="securitySwitch" value="${securitySwitch:true}"/>
+		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
+		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
+		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
+		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
+		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:0}"/>
+	</bean>
+	<!-- hystrix 动态配置 -->
+	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
+		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
+		<property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
+		<property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
+		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:10}"/>
+		<property name="circuitBreakerForceOpen" value="${route.circuitBreakerForceOpen:false}"/>
+		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:5000}"/>
+		<property name="maximumSize" value="${route.maximumSize:4}"/>
+		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:2}"/>
+	</bean>
+
+
+</beans>

@@ -226,4 +226,17 @@
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBiz}
     </select>
+
+    <update id="deleteBySendVehicleBizId" parameterType="JySendSealCodeEntity">
+        update jy_send_seal_code 
+        set yn = 0,
+        <if test="updateUserErp != null">
+            update_user_erp = #{updateUserErp},
+        </if>
+        <if test="updateUserName != null">
+            update_user_name = #{updateUserName},
+        </if>
+        update_time = now()
+        where send_vehicle_biz_id = #{sendVehicleBizId}
+    </update>
 </mapper>

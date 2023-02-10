@@ -72,6 +72,9 @@ public class JyUnloadCarAggsBakConsumer extends MessageBaseConsumer {
                         return;
                     }
                 }
+                if(StringUtils.isBlank(entity.getBoardCode())){
+                    entity.setBoardCode("");
+                }
                 Boolean result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsBak(entity);
                 logger.info("JyUnloadCarAggsBakConsumer-执行结果-{}",result);
                 if(result){
