@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="cache-control" content="no-cache"/>
     <title>青龙分拣系统</title>
-    <script type="text/javascript" src="https://ssa.jd.com/static/js/sso/iframe.js?iframe_id=mainFrame"></script>
+    <script type="text/javascript" src="//ssa.jd.com/static/js/sso/iframe.js?iframe_id=mainFrame"></script>
 </head>
 <frameset rows="93,*" cols="*" frameborder="no" border="0" framespacing="0">
     <frame src="#springUrl('/top')" name="topFrame" noresize="noresize" id="topFrame" title="topFrame" scrolling="no">
