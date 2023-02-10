@@ -174,9 +174,13 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             if (dto.getPackingVolume() != null){
                 relation.setVolume(BigDecimal.valueOf(dto.getPackingVolume() * 100*100*100));
             }
-            relation.setVolumeCoefficient(BigDecimal.valueOf(dto.getVolumeCoefficient()));
+            if (dto.getVolumeCoefficient() != null) {
+                relation.setVolumeCoefficient(BigDecimal.valueOf(dto.getVolumeCoefficient()));
+            }
 //            relation.setWeight(dto.get);
-            relation.setPackingCharge(BigDecimal.valueOf(dto.getPackingCharge()));
+            if (dto.getPackingCharge() != null) {
+                relation.setPackingCharge(BigDecimal.valueOf(dto.getPackingCharge()));
+            }
 
             relation.setReceiveQuantity(dto.getPackingNumber());
             relation.setConfirmQuantity(dto.getPackingNumber());
