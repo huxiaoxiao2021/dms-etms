@@ -17,7 +17,7 @@
     <body>
 ##        #parse("ssoCross.vm")
     </body>
-    <script type="text/javascript" src="https://ssa.jd.com/static/js/sso/iframe.js?iframe_id=leftFrame"></script>
+    <script type="text/javascript" src="https://ssa.jd.com/static/js/sso/iframe.js?iframe_id=mainFrame"></script>
     <script src="//o-gia.jd.com/js/beetle.min.js" type="text/javascript"></script>
     <script type="application/javascript">
         setTimeout(function () {
