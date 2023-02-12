@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
+import com.jd.bluedragon.distribution.jy.send.*;
 
 import java.util.List;
 
@@ -14,27 +12,9 @@ import java.util.List;
  * @email
  * @date 2022-11-02 15:26:08
  */
-public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity> {
+public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
 
     private final static String NAMESPACE = JySendProductAggsDao.class.getName();
-
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-    public int insert(JySendProductAggsEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
-    }
-
-    public JySendProductAggsEntity getVehicleSendStatistics(String sendVehicleBizId){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getVehicleSendStatistics", sendVehicleBizId);
-    }
-
-    public List<JySendProductAggsEntity> findBySendVehicleBizId(String sendVehicleBizId) {
-        return this.getSqlSession().selectList(NAMESPACE + ".findBySendVehicleBizId", sendVehicleBizId);
-    }
 
     public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
@@ -43,4 +23,11 @@ public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity> {
     public Long getToScanCountSum(String sendVehicleBizId){
         return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
     }
+
+
+    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
+    }
+
+
 }

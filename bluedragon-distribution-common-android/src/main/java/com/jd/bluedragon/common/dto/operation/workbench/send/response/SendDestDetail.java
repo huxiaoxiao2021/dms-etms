@@ -42,7 +42,7 @@ public class SendDestDetail implements Serializable {
      * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车，4-已作废
      */
     private Integer vehicleStatus;
-    
+
     public Integer getEndSiteId() {
         return endSiteId;
     }

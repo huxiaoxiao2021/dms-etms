@@ -5,6 +5,7 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -468,6 +469,33 @@ public class UccPropertyConfiguration {
      */
     private String virtualBoardCanUseSite;
 
+    /**
+     * 补打后取消拦截
+     */
+    private boolean printCompeteUpdateCancel;
+
+
+    /**
+     * 是否是所有包裹补打后再取消拦截
+     */
+    private boolean printCompeteAllPackageUpdateCancel;
+
+    public boolean isPrintCompeteAllPackageUpdateCancel() {
+        return printCompeteAllPackageUpdateCancel;
+    }
+
+    public void setPrintCompeteAllPackageUpdateCancel(boolean printCompeteAllPackageUpdateCancel) {
+        this.printCompeteAllPackageUpdateCancel = printCompeteAllPackageUpdateCancel;
+    }
+
+    public boolean isPrintCompeteUpdateCancel() {
+        return printCompeteUpdateCancel;
+    }
+
+    public void setPrintCompeteUpdateCancel(boolean printCompeteUpdateCancel) {
+        this.printCompeteUpdateCancel = printCompeteUpdateCancel;
+    }
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -763,9 +791,9 @@ public class UccPropertyConfiguration {
      * 组板封车全选板列表上线
      */
     private Integer jyComboardSealBoardListSelectLimit;
-    
+
     private Integer jyComboardSealBoardListLimit;
-    
+
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -800,7 +828,6 @@ public class UccPropertyConfiguration {
     public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
         this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
     }
-
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }
@@ -1107,6 +1134,17 @@ public class UccPropertyConfiguration {
      *  空表示未开启
      */
     private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
+
+    /**
+     * 得物产品类型的商家名单
+     *  多个场地以,分隔
+     */
+    private String dewuCustomerCodes;
+
+    /**
+     * 允许操作离线上传的场地编码。以,分隔
+     */
+    private String offLineAllowedSites;
 
     /**
      * 租板-板可组件数上限
@@ -2615,6 +2653,49 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
         this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
+    }
+
+    public String getDewuCustomerCodes() {
+        return dewuCustomerCodes;
+    }
+
+    public void setDewuCustomerCodes(String dewuCustomerCodes) {
+        this.dewuCustomerCodes = dewuCustomerCodes;
+        this.dewuCustomerCodeList = this.getDewuCustomerCodeList();
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> dewuCustomerCodeList = new ArrayList<>();
+
+    public List<String> getDewuCustomerCodeList() {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(customerCode)){
+            return true;
+        }
+        return false;
+    }
+
+    public String getOffLineAllowedSites() {
+        return offLineAllowedSites;
+    }
+
+    public void setOffLineAllowedSites(String offLineAllowedSites) {
+        this.offLineAllowedSites = offLineAllowedSites;
+    }
+
+    public boolean isOffLineAllowedSite(Integer siteCode) {
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
     public Integer getBulkScanPackageMinCount() {

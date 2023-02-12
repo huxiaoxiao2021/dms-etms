@@ -164,7 +164,7 @@
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
 		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
-		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
+		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps:}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
@@ -228,6 +228,10 @@
 		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
+		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
+		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
+		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
+		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
@@ -235,14 +239,14 @@
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
-		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
+		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:2000}"/>
 		<property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
 		<property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
-		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:10}"/>
+		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:100}"/>
 		<property name="circuitBreakerForceOpen" value="${route.circuitBreakerForceOpen:false}"/>
-		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:5000}"/>
+		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:120000}"/>
 		<property name="maximumSize" value="${route.maximumSize:4}"/>
-		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:2}"/>
+		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:6}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -414,6 +418,8 @@
 				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardSiteCTTPageSize</value>
 				<value>uccPropertyConfiguration.jyComboardScanUserBeginDay</value>
+				<value>uccPropertyConfiguration.printCompeteUpdateCancel</value>
+				<value>uccPropertyConfiguration.printCompeteAllPackageUpdateCancel</value>
 
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
@@ -431,6 +437,8 @@
 				<value>uccPropertyConfiguration.machineCalibrateIntervalTimeOfSpotCheck</value>
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOMachineStatus</value>
 				<value>uccPropertyConfiguration.spotCheckIssueRelyOnMachineStatusSiteSwitch</value>
+                <value>uccPropertyConfiguration.dewuCustomerCodes</value>
+                <value>uccPropertyConfiguration.offLineAllowedSites</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

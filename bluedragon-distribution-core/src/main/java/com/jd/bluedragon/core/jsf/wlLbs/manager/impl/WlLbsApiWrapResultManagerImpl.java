@@ -145,7 +145,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
         try {
             logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {}", appKey, JsonHelper.toJson(queryFenceReq));
             final com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> rpcResult = wlLbsApiManager.queryTransFenceByCode(appKey, queryFenceReq);
-            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
+            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("jsfGeocodingService.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result.toFail("调用接口结果为空");
@@ -185,7 +185,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
             final QueryFenceReq queryFenceReq = new QueryFenceReq();
             queryFenceReq.setNodeCode(siteInfo.getDmsCode());
             final com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> rpcResult = wlLbsApiManager.queryTransFenceByCode(null, queryFenceReq);
-            logInfo("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode param: {} result {}", JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
+            logInfo("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode param: {} result {}", JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("jsfGeocodingService.queryTransFenceByCode result null: {}", siteCode);
                 return result.toFail("调用接口结果为空");
@@ -218,7 +218,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
         try {
             logInfo("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode param: {} , {}", appKey, JsonHelper.toJson(queryFenceReq));
             final com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> rpcResult = wlLbsApiManager.queryTransFenceByCode(appKey, queryFenceReq);
-            logInfo("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
+            logInfo("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("queryTransFenceByCodeForWeb wlLbsApiManager.queryTransFenceByCode result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
                 return result.toFail("调用接口结果为空");
@@ -275,7 +275,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
             final QueryFenceReq queryFenceReq = new QueryFenceReq();
             queryFenceReq.setNodeCode(siteInfo.getDmsCode());
             final com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> rpcResult = wlLbsApiManager.queryTransFenceByCode(null, queryFenceReq);
-            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} result {}", JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
+            logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} result {}", JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("jsfGeocodingService.queryTransFenceByCode result null: {}", JsonHelper.toJson(queryTransFenceBySiteIdQo));
                 return result.toFail("调用接口结果为空");
@@ -325,7 +325,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
         try {
             logInfo("jsfLocationService.getLocationByIp param: {} , {}", appKey, JsonHelper.toJson(locationRequestDto));
             final com.jd.lbs.jdlbsapi.dto.BaseResponse<LocationResultDto> rpcResult = wlLbsApiManager.getLocationByIp(appKey, locationRequestDto);
-            logInfo("jsfLocationService.getLocationByIp result: {} , {} , {}", appKey, locationRequestDto.getIp(), JsonHelper.toJson(result));
+            logInfo("jsfLocationService.getLocationByIp result: {} , {} , {}", appKey, locationRequestDto.getIp(), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("jsfGeocodingService.getLocationByIp result null: {} , {}", appKey, JsonHelper.toJson(locationRequestDto));
                 return result.toFail("调用接口结果为空");
@@ -359,7 +359,7 @@ public class WlLbsApiWrapResultManagerImpl implements WlLbsApiWrapResultManager 
         try {
             logInfo("jsfGeoToolService.getLength param: {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
             final com.jd.lbs.jdlbsapi.dto.BaseResponse<BigDecimal> rpcResult = wlLbsApiManager.getLength(appKey, startPoint, endPoint);
-            logInfo("jsfGeoToolService.getLength result: {} , {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint), JsonHelper.toJson(result));
+            logInfo("jsfGeoToolService.getLength result: {} , {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint), JsonHelper.toJson(rpcResult));
             if (rpcResult == null) {
                 log.warn("jsfGeoToolService.getLength result null: {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
                 return result.toFail("调用接口结果为空");

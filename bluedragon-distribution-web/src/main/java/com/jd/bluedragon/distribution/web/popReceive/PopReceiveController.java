@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceiveDto;
 import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
@@ -31,7 +31,7 @@ import java.util.*;
  * @author zhaohc
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-8-21 下午06:39:49
- * 
+ *
  *             POP收货处理
  */
 @Controller
@@ -41,7 +41,7 @@ public class PopReceiveController {
 
 	@Autowired
 	private BaseService baseService;
-	
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
@@ -77,7 +77,7 @@ public class PopReceiveController {
 			pager= new Pager(pager.getPageNo(), pager.getPageSize());
 		}
 		Map<String,Object> queryMap = new HashMap<String,Object>();
-		
+
 		if(StringUtils.isNotEmpty(popReceiveDTO.getWaybillCode())){
 			queryMap.put("waybillCode", popReceiveDTO.getWaybillCode());
 		}
@@ -105,15 +105,13 @@ public class PopReceiveController {
 		model.addAttribute("query", popReceiveDTO);
 		return "popReceive/getPopRecieveList";
 	}
-	
+
 	private void select(Model model, PopReceiveDto query) {
-		LoginContext loginContext = LoginContext.getLoginContext();
-		Long userId = loginContext.getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId.intValue());
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(ErpUserClient.getCurrUser().getStaffNo());
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();

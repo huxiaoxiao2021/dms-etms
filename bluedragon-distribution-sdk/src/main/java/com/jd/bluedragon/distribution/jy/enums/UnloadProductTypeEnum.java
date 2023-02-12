@@ -12,10 +12,11 @@ public enum UnloadProductTypeEnum {
     FAST("FAST", "特快送", 1),
     FRESH("FRESH", "生鲜", 2),
     TIKTOK("TIKTOK", "抖音", 3),
-    LUXURY("LUXURY", "特保单", 4),
-    EASYFROZEN("EASYFROZEN", "易冻损", 5),
-    KA("KA", "KA", 6),
-    MEDICINE("MEDICINE", "医药", 7)
+    DEWU("DEWU", "得物", 4),
+    LUXURY("LUXURY", "特保单", 5),
+    EASYFROZEN("EASYFROZEN", "易冻损", 6),
+    KA("KA", "KA", 7),
+    MEDICINE("MEDICINE", "医药", 8)
     ;
 
     private String code;

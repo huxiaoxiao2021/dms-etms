@@ -42,6 +42,7 @@ import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,19 +93,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private PositionManager positionManager;
 
 	@Autowired
-	private PositionRecordService positionRecordService;
-
-
-	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+	/**
+	 * 签到作废-小时数限制
+	 */
+	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
+	private double deleteCheckHours;
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
+	private static final String MSG_FORMAT_HAS_NO_PERMISSION_1 = "您不可以操作，请联系签到操作人%s操作!";
+	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
@@ -593,7 +598,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if(!result.isSucceed()) {
         	return result;
         }
-
+        //开发者模式-不做签到、添加组员等
+        if(Boolean.TRUE.equals(signInRequest.getDeveloperFlag())) {
+        	this.doSignInForDeveloper(signInData);
+        	result.setData(this.toUserSignRecordData(signInData));
+        	result.toSucceed("开发者模式-不做签到、添加组员！");
+        	return result;
+        }
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
@@ -653,11 +664,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(!result.isSucceed()) {
 			return result;
 		}
-
+		UserSignRecordData lastSignRecord = null;
 		UserSignRecord signOutData = new UserSignRecord();
 		if(signOutRequest.getRecordId() != null) {
 			signOutData.setId(signOutRequest.getRecordId());
-			UserSignRecordData lastSignRecord = queryUserSignRecordDataById(signOutRequest.getRecordId());
+			lastSignRecord = queryUserSignRecordDataById(signOutRequest.getRecordId());
 			if(lastSignRecord == null || lastSignRecord.getSignOutTime() != null) {
 				result.toFail("签到数据无效|已签退！");
 				return result;
@@ -665,13 +676,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}else {
 			UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 			lastSignRecordQuery.setUserCode(signOutRequest.getUserCode());
-			
-            UserSignRecord lastSignRecord = queryLastUnSignOutRecord(lastSignRecordQuery);
+            lastSignRecord = this.toUserSignRecordData(queryLastUnSignOutRecord(lastSignRecordQuery));
             if(lastSignRecord == null) {
             	result.toFail("该用户未签到，无法签退！");
 				return result;
 			}
 			signOutData.setId(lastSignRecord.getId());
+		}
+		//权限校验
+		JdCResponse<Boolean> permissionCheckResult = checkHavePermission(lastSignRecord,signOutRequest.getOperateUserCode());
+		if(!permissionCheckResult.isSucceed()) {
+			result.toFail(permissionCheckResult.getMessage());
+			return result;
 		}
         signOutData.setUpdateUser(signOutRequest.getOperateUserCode());
         signOutData.setUpdateUserName(signOutRequest.getOperateUserName());
@@ -707,10 +723,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
 		//查询签到记录，自动签退
-        UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
+        UserSignRecordData lastSignRecord = this.toUserSignRecordData(this.queryLastUnSignOutRecord(lastSignRecordQuery));
         
         boolean needSignIn = true;
         boolean needSignOut = false;
+        boolean changeGrid = false;
         
         if(lastSignRecord != null) {
         	needSignOut = true;
@@ -718,6 +735,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             if(gridInfo.getBusinessKey() != null
             		&& gridInfo.getBusinessKey().equals(lastSignRecord.getRefGridKey())) {
             	needSignIn = false;
+            }else {
+            	changeGrid = true;
             }
 		}
 
@@ -730,6 +749,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             }
         }
         if(needSignOut) {
+        	//不切换岗位，签退需要校验权限
+    		if(!changeGrid) {
+            	//权限校验
+        		JdCResponse<Boolean> permissionCheckResult = checkHavePermission(lastSignRecord,userSignRequest.getOperateUserCode());
+        		if(!permissionCheckResult.isSucceed()) {
+        			result.toFail(permissionCheckResult.getMessage());
+        			return result;
+        		}
+    		}
         	UserSignRecord signOutData = new UserSignRecord();
         	signOutData.setId(lastSignRecord.getId());
         	signOutData.setUpdateUser(userSignRequest.getOperateUserCode());
@@ -742,7 +770,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                 context.signOutData = result.getData();
         		return result;
             }else {
-            	context.signOutData = this.toUserSignRecordData(lastSignRecord);
+            	context.signOutData = lastSignRecord;
             	context.signOutData.setSignOutTime(signOutData.getSignOutTime());
             }
         }
@@ -966,6 +994,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setSignDate(date);
 		return userSignRecordDao.insert(userSignRecord) == 1;
 	}
+	/**
+	 * 设置相关的字段信息
+	 * @param userSignRecord
+	 * @return
+	 */
+	private boolean doSignInForDeveloper(UserSignRecord userSignRecord) {
+		Date date = new Date();
+		userSignRecord.setCreateTime(date);
+		userSignRecord.setSignInTime(date);
+		userSignRecord.setSignDate(date);
+		userSignRecord.setYn(Constants.YN_YES);
+		userSignRecord.setTs(date);
+		return true;
+	}	
 	private boolean doSignOut(UserSignRecord userSignRecord) {
 		userSignRecord.setUpdateTime(new Date());
 		userSignRecord.setSignOutTime(new Date());
@@ -1248,15 +1290,68 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("签到数据无效|已作废！");
 			return result;
 		}
+		Date currentDate = new Date();
+		//作废时间限制
+		double workHoursDouble = DateHelper.betweenHours(data.getSignInTime(), currentDate);
+		if(workHoursDouble > this.deleteCheckHours) {
+			result.toFail("签到时间已超过"+deleteCheckHours+"小时，无法操作作废！");
+			return result;
+		}
+		//删除权限校验
+		JdCResponse<Boolean> permissionCheckResult = checkHavePermission(data,userSignRequest.getOperateUserCode());
+		if(!permissionCheckResult.isSucceed()) {
+			result.toFail(permissionCheckResult.getMessage());
+			return result;
+		}
 		UserSignRecord deleteData = new UserSignRecord();
 		deleteData.setId(data.getId());
-		deleteData.setUpdateTime(new Date());
+		deleteData.setUpdateTime(currentDate);
 		deleteData.setUpdateUser(userSignRequest.getOperateUserCode());
 		deleteData.setUpdateUserName(userSignRequest.getOperateUserName());
 		this.deleteById(deleteData);
 		context.deleteData = data;
 		data.setYn(Constants.YN_NO);
 		result.setData(data);
+		return result;
+	}
+	/**
+	 * 校验是否有作废权限
+	 * @param data
+	 * @param operateUserCode
+	 * @return
+	 */
+	private JdCResponse<Boolean> checkHavePermission(UserSignRecordData data,String operateUserCode){
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed("校验成功");
+		//本人|签到操作人，允许签退、作废
+		if(ObjectUtils.equals(operateUserCode, data.getUserCode())
+				|| ObjectUtils.equals(operateUserCode, data.getCreateUser())) {
+			return result;
+		}
+		String createUser = data.getCreateUser();
+		String ownerUserErp = null;
+		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
+		workStationGridCheckQuery.setBusinessKey(data.getRefGridKey());
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+		if(workStationGridData != null
+				&& workStationGridData.getData() != null) {
+			ownerUserErp = workStationGridData.getData().getOwnerUserErp();
+		}
+		//网格负责人，允许签退、作废
+		if(ObjectUtils.equals(operateUserCode, ownerUserErp)) {
+			return result;
+		}
+		//同时为空，不校验
+		if(StringUtils.isBlank(ownerUserErp) && StringUtils.isBlank(createUser)) {
+			return result;
+		}
+		//权限验证失败-网格负责人为空
+		//1、、创建人和负责人是同一个人
+		if(StringUtils.isBlank(ownerUserErp) || ObjectUtils.equals(createUser, ownerUserErp)) {
+			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_1, createUser));
+		}else {
+			result.toFail(String.format(MSG_FORMAT_HAS_NO_PERMISSION_2, createUser,ownerUserErp));
+		}
 		return result;
 	}
 	/**

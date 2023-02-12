@@ -171,6 +171,15 @@ public class InvokeResult<T> implements Serializable {
     public static final int DP_SPECIAL_CODE = 32003;
     public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
 
+    public static final int GET_TRANSPORT_RESOURCE_CODE= 329;
+    public static final String GET_TRANSPORT_RESOURCE_MESSAGE ="查询运力信息结果为空！";
+
+    public static final int NO_FOUND_INCOMPELETE_DATA_CODE= 330;
+    public static final String NO_FOUND_INCOMPELETE_DATA_MESSAGE ="未找到符合要求的数据！";
+
+    public static final int SENDCODE_TRANSPOST_NOT_UNIFIED_CODE = 331;
+    public static final String SENDCODE_TRANSPOST_NOT_UNIFIED_MESSAGE ="批次号与运力编码目的地不一致，请核准后重新操作!";
+
     public static final int UPDATE_CTT_GROUP_LIST_CODE = 3039;
     public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常！";
 
@@ -182,7 +191,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int SEND_FLOE_CTT_CODE = 3042;
     public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常！";
-    
+
     public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
     public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "未获取到相应的混扫任务信息！";
 
@@ -218,14 +227,14 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int SEND_FLOW_UNDER_GROUP_CODE = 3055;
     public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
-    
+
     public static final int CHECK_BARCODE_CODE = 3056;
     public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
 
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
     public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
-    
+
     public static final int  CREATE_GROUP_CTT_DATA_CODE = 3058;
     public static final String CREATE_GROUP_CTT_DATA_MESSAGE = "保存本场地常用的笼车集合失败！";
 
@@ -234,7 +243,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
     public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
-    
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

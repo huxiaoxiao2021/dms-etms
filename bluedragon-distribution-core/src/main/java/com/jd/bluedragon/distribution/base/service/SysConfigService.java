@@ -18,7 +18,11 @@ public interface SysConfigService {
      * 是否开启PDA重复登录校验
      */
     public static final String SYS_CONFIG_PDA_CHECK_MULTIPLE_LOGIN = "sys.config.pda.check.multiple.login";
-    
+    /*
+	 * 是否开启补打2023年2月1日运单异常数据 不运行补打
+     */
+	String SYS_CONFIG_CHECK_REPRINT_230201 = "sys.config.check.reprint.230201";
+
 	public List<SysConfig> getSwitchList();
 	public List<SysConfig> getList(SysConfig sysConfig);
 	public int del(Long pk);

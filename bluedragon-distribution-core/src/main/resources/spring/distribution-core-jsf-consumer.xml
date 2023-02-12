@@ -1180,7 +1180,7 @@
     <!-- 获取两点间的直线距离 -->
     <jsf:consumer id="jsfGeoToolService"
                   interface="com.jd.lbs.jdlbsapi.geotool.GeoToolService"
-                  alias="${jsf.wlLbs.geoCoding.alias}"
+                  alias="${jsf.wlLbs.geoTool.alias}"
                   timeout="${jsf.wlLbs.geoTool.timeout}"
                   retries="${jsf.wlLbs.geoTool.retries}"
                   serialization="hessian"
@@ -1210,6 +1210,25 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
+
+    <!--  拣运jy-realtime-service DUCC服务获取接口  -->
+    <jsf:consumer id="jySendOrUnloadDataReadDuccConfigJsfService"
+                  interface="com.jdl.jy.realtime.api.ducc.SendOrUnloadDataReadDuccConfigJsfService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+    <!--  运单工具接口，异常运单修复使用  -->
+    <jsf:consumer id="waybillRepaireApi"
+                  interface="com.jd.etms.waybill.api.WaybillRepaireApi"
+                  protocol="jsf"
+                  alias="${jsf.waybill.repaire.group}"
+                  timeout="${jsf.waybill.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 
 
     <!-- 滑道笼车配置 -->
