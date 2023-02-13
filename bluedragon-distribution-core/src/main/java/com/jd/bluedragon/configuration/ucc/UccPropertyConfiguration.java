@@ -794,6 +794,16 @@ public class UccPropertyConfiguration {
 
     private Integer jyComboardSealBoardListLimit;
 
+    private Long reComboardTimeLimit;
+
+    public Long getReComboardTimeLimit() {
+        return reComboardTimeLimit;
+    }
+
+    public void setReComboardTimeLimit(Long reComboardTimeLimit) {
+        this.reComboardTimeLimit = reComboardTimeLimit;
+    }
+
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
