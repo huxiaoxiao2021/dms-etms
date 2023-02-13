@@ -1529,8 +1529,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setBarCode(barCode);
     JyComboardEntity entity = jyComboardService.queryIfScaned(condition);
     if (ObjectHelper.isNotNull(entity)) {
-      log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
-      throw new JyBizException("该单号已组过板");
+      Date comboardTime = entity.getCreateTime();
+      if (comboardTime != null && System.currentTimeMillis() - comboardTime.getTime() <=  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+        log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
+        throw new JyBizException("该单号已组过板");
+      }
     }
     BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(request.getDestinationId());
     if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper
