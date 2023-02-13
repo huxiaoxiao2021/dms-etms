@@ -2627,7 +2627,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     invokeResult.setData(boardQueryResp);
     boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListLimit());
     boardQueryResp.setBoardSelectLimit(ucc.getJyComboardSealBoardListSelectLimit());
-    
+
+
     // 获取当前场地未封车的板号
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
