@@ -6755,8 +6755,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         /* 如果是分拣机原包发货的话，需要补上验货任务 */
         if (uploadData.getSource() != null && uploadData.getSource() == 2) {
-            if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
-                pushInspection(domain,null);
+            long count = Arrays.stream(uccPropertyConfiguration.getAutoPackageSendInspectionDelSiteCodes()
+                    .split(";"))
+                    .filter(siteCode -> Objects.equals(domain.getCreateSiteCode()+"", siteCode))
+                    .count();
+            if(uccPropertyConfiguration.isAutoPackageSendInspectionSwitch()||count>0L){
+                if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+                    pushInspection(domain,null);
+                }
             }
             // 分拣机发货
             this.packageSend(SendBizSourceEnum.SORT_MACHINE_SEND, domain);

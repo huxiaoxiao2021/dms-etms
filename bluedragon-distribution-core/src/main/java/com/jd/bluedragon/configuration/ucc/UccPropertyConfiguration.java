@@ -792,6 +792,26 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardSealBoardListSelectLimit;
 
+    private boolean autoPackageSendInspectionSwitch;
+
+    private String autoPackageSendInspectionDelSiteCodes;
+
+    public boolean isAutoPackageSendInspectionSwitch() {
+        return autoPackageSendInspectionSwitch;
+    }
+
+    public void setAutoPackageSendInspectionSwitch(boolean autoPackageSendInspectionSwitch) {
+        this.autoPackageSendInspectionSwitch = autoPackageSendInspectionSwitch;
+    }
+
+    public String getAutoPackageSendInspectionDelSiteCodes() {
+        return autoPackageSendInspectionDelSiteCodes;
+    }
+
+    public void setAutoPackageSendInspectionDelSiteCodes(String autoPackageSendInspectionDelSiteCodes) {
+        this.autoPackageSendInspectionDelSiteCodes = autoPackageSendInspectionDelSiteCodes;
+    }
+
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
