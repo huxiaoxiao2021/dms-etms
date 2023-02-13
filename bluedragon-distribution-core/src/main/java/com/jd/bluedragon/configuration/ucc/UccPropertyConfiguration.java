@@ -833,13 +833,6 @@ public class UccPropertyConfiguration {
         this.reComboardTimeLimit = reComboardTimeLimit;
     }
 
-    public boolean getSyncScheduleTaskSwitch() {
-        return syncScheduleTaskSwitch;
-    }
-
-    public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
-        this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
-    }
 
     public boolean getSyncJyCZSealStatusSwitch() {
         return syncJyCZSealStatusSwitch;
