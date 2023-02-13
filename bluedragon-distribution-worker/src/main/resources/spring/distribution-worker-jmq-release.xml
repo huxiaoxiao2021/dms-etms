@@ -61,7 +61,7 @@
     <jmq:consumer id="jmq.cancelSendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.vos.cancel.send}" listener="cancelSendCarConsumer"/>
     </jmq:consumer>
-    	
+
     <!-- 逆向备件库收货消息消费回传库存中间件 -->
     <jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseStockConsumer"/>
@@ -71,7 +71,7 @@
     <jmq:consumer id="jmq.reversePopConsumer" transport="jmq.BlueDragonDistributionPop.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reversePopConsumer"/>
     </jmq:consumer>
-    
+
     <!-- 逆向大库收货消息内部系统消费 -->
     <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseReceiveConsumer"/>
@@ -107,7 +107,7 @@
     <jmq:consumer id="jmq.popPickupConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.pop.pickup}" listener="popPickupConsumer"/>
     </jmq:consumer>
-	
+
 	<!-- 逆向拒收货消息 -->
     <jmq:consumer id="jmq.reverseRejectConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.reject}" listener="reverseRejectConsumer"/>
@@ -263,7 +263,7 @@
     <!--调度信息数据-->
     <jmq:consumer id="jmq.bdWaybillScheduleMqConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bdWaybillScheduleMqListener}" listener="bdWaybillScheduleMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
@@ -477,6 +477,10 @@
     <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
+    <!--  组板发货岗统计消息  -->
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
@@ -550,6 +554,21 @@
     <!--  发货产品备库统计消息处理  -->
     <jmq:consumer id="jmq.jySendProductAggsBakConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板  -->
+    <jmq:consumer id="jmq.waybillCancelComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.cancel.comboard}" listener="waybillCancelComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步组板发货  -->
+    <jmq:consumer id="jmq.waybillComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.comboard}" listener="waybillComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板发货  -->
+    <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
     </jmq:consumer>
 
 </beans>

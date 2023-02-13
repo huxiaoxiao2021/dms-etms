@@ -810,7 +810,7 @@ public class UccPropertyConfiguration {
     private boolean syncJyCZSealStatusSwitch;
 
     private int sealStatusBatchSizeLimit;
-    
+
     /**
      * 组板封车查询版列表时间
      */
@@ -820,8 +820,19 @@ public class UccPropertyConfiguration {
      * 组板封车全选板列表上线
      */
     private Integer jyComboardSealBoardListSelectLimit;
-    
+
     private Integer jyComboardSealBoardListLimit;
+
+    private Long reComboardTimeLimit;
+
+    public Long getReComboardTimeLimit() {
+        return reComboardTimeLimit;
+    }
+
+    public void setReComboardTimeLimit(Long reComboardTimeLimit) {
+        this.reComboardTimeLimit = reComboardTimeLimit;
+    }
+
 
     public boolean getSyncJyCZSealStatusSwitch() {
         return syncJyCZSealStatusSwitch;
