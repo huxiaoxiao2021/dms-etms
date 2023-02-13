@@ -22,7 +22,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import java.util.Date;
 
 import jd.oom.client.orderfile.Business;
-import org.apache.avro.data.Json;
+//import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
