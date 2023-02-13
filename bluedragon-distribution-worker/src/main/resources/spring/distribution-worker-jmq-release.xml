@@ -478,7 +478,7 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
     <!--  组板发货岗统计消息  -->
-    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
     </jmq:consumer>
 
