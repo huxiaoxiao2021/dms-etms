@@ -164,7 +164,7 @@
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
 		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
-		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
+		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps:}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
@@ -181,6 +181,8 @@
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
 		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
 		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
+		<property name="jyCzSendTaskPlanTimeBeginDay" value="${jyCzSendTaskPlanTimeBeginDay:0}"/>
+		<property name="jyCzSendTaskPlanTimeEndDay" value="${jyCzSendTaskPlanTimeEndDay:1}"/>
 		<property name="needValidateMainLineBizSourceList" value="${needValidateMainLineBizSourceList:[25]}"/>
 		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
 		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
@@ -192,7 +194,18 @@
 		<property name="securitySwitch" value="${securitySwitch:true}"/>
 		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
-		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
+		<property name="syncJyCZSealStatusSwitch" value="${syncJyCZSealStatusSwitch:false}"/>
+		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:50}"/>
+		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
+		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
+		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
+		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
+		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
+		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
+		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
+
+
+
 
 		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
 		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
@@ -219,6 +232,9 @@
 		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
 		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
+		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
+		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
+		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -381,6 +397,8 @@
 				<value>uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.jyCzSendTaskPlanTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyCzSendTaskPlanTimeEndDay</value>
 				<value>uccPropertyConfiguration.needValidateMainLineBizSourceList</value>
 				<value>uccPropertyConfiguration.jySendTaskCreateTimeBeginDay</value>
 				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
@@ -392,7 +410,13 @@
 				<value>uccPropertyConfiguration.securitySwitch</value>
 				<value>uccPropertyConfiguration.jyDemotionConfig</value>
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
+				<value>uccPropertyConfiguration.syncJyCZSealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
+				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
+				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
+				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyComboardSiteCTTPageSize</value>
+				<value>uccPropertyConfiguration.jyComboardScanUserBeginDay</value>
 				<value>uccPropertyConfiguration.printCompeteUpdateCancel</value>
 				<value>uccPropertyConfiguration.printCompeteAllPackageUpdateCancel</value>
 
@@ -429,6 +453,12 @@
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
+
+				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
+				<value>uccPropertyConfiguration.czQuerySwitch</value>
+				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
+				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
 
 			</list>
 		</property>

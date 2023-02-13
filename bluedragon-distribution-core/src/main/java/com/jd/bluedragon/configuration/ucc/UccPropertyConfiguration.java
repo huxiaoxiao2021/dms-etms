@@ -374,6 +374,10 @@ public class UccPropertyConfiguration {
      * @return
      */
     private Integer dazongPackageOperateMax;
+    /**
+     * 分拣租板大宗可扫描件数最少数量
+     */
+    private Integer bulkScanPackageMinCount;
 
     /**
      * 是否校验签单返还
@@ -732,12 +736,16 @@ public class UccPropertyConfiguration {
      * 发货岗计划发车时间查询条件前X天
      */
     private Integer jySendTaskPlanTimeBeginDay;
+    private Integer jyCzSendTaskPlanTimeBeginDay;
     /**
      * 发货岗计划发车时间查询条件后X天
      */
     private Integer jySendTaskPlanTimeEndDay;
+    private Integer jyCzSendTaskPlanTimeEndDay;
 
     private Integer jySendTaskCreateTimeBeginDay;
+
+    private Integer jyComboardTaskCreateTimeBeginDay;
 
     /**
      * 切换转运基础服务开关
@@ -768,9 +776,21 @@ public class UccPropertyConfiguration {
 
     private boolean syncJySealStatusSwitch;
 
+    private boolean syncJyCZSealStatusSwitch;
+
     private int sealStatusBatchSizeLimit;
 
     private boolean syncScheduleTaskSwitch;
+
+    /**
+     * 组板封车查询版列表时间
+     */
+    private Integer jyComboardSealQueryBoardListTime;
+
+    /**
+     * 组板封车全选板列表上线
+     */
+    private Integer jyComboardSealBoardListSelectLimit;
 
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
@@ -779,6 +799,25 @@ public class UccPropertyConfiguration {
     public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
         this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
     }
+
+    public boolean getSyncJyCZSealStatusSwitch() {
+        return syncJyCZSealStatusSwitch;
+    }
+
+    public void setSyncJyCZSealStatusSwitch(boolean syncJyCZSealStatusSwitch) {
+        this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
+    }
+
+    private Integer jyComboardScanUserBeginDay;
+
+    private Integer jyComboardSiteCTTPageSize;
+
+    private Integer jyComboardTaskSealTimeBeginDay;
+
+    /**
+     * 组板岗板列表sql开关
+     */
+    private Boolean jyComboardListBoardSqlSwitch;
 
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
@@ -1104,6 +1143,29 @@ public class UccPropertyConfiguration {
      * 允许操作离线上传的场地编码。以,分隔
      */
     private String offLineAllowedSites;
+
+    /**
+     * 租板-板可组件数上限
+     */
+    private Integer jyComboardCountLimit;
+
+    private boolean czQuerySwitch;
+
+    public boolean getCzQuerySwitch() {
+        return czQuerySwitch;
+    }
+
+    public void setCzQuerySwitch(boolean czQuerySwitch) {
+        this.czQuerySwitch = czQuerySwitch;
+    }
+
+    public Integer getJyComboardCountLimit() {
+        return jyComboardCountLimit;
+    }
+
+    public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
+        this.jyComboardCountLimit = jyComboardCountLimit;
+    }
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2321,6 +2383,22 @@ public class UccPropertyConfiguration {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
     }
 
+    public Integer getJyCzSendTaskPlanTimeBeginDay() {
+        return jyCzSendTaskPlanTimeBeginDay;
+    }
+
+    public void setJyCzSendTaskPlanTimeBeginDay(Integer jyCzSendTaskPlanTimeBeginDay) {
+        this.jyCzSendTaskPlanTimeBeginDay = jyCzSendTaskPlanTimeBeginDay;
+    }
+
+    public Integer getJyCzSendTaskPlanTimeEndDay() {
+        return jyCzSendTaskPlanTimeEndDay;
+    }
+
+    public void setJyCzSendTaskPlanTimeEndDay(Integer jyCzSendTaskPlanTimeEndDay) {
+        this.jyCzSendTaskPlanTimeEndDay = jyCzSendTaskPlanTimeEndDay;
+    }
+
     public String getNeedValidateMainLineBizSourceList() {
         return needValidateMainLineBizSourceList;
     }
@@ -2616,5 +2694,70 @@ public class UccPropertyConfiguration {
 
     public boolean isOffLineAllowedSite(Integer siteCode) {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
+    }
+
+    public Integer getBulkScanPackageMinCount() {
+        return bulkScanPackageMinCount;
+    }
+
+    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
+    }
+
+    public Integer getJyComboardTaskCreateTimeBeginDay() {
+        return jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public Integer getJyComboardScanUserBeginDay() {
+        return jyComboardScanUserBeginDay;
+    }
+
+    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
+        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
+    }
+
+    public Integer getJyComboardSiteCTTPageSize() {
+        return jyComboardSiteCTTPageSize;
+    }
+
+
+    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
+        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+    }
+
+    public Integer getJyComboardTaskSealTimeBeginDay() {
+        return jyComboardTaskSealTimeBeginDay;
+    }
+
+    public void setJyComboardTaskSealTimeBeginDay(Integer jyComboardTaskSealTimeBeginDay) {
+        this.jyComboardTaskSealTimeBeginDay = jyComboardTaskSealTimeBeginDay;
+    }
+
+    public Boolean getJyComboardListBoardSqlSwitch() {
+        return jyComboardListBoardSqlSwitch;
+    }
+
+    public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
+        this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
+    }
+
+    public Integer getJyComboardSealQueryBoardListTime() {
+        return jyComboardSealQueryBoardListTime;
+    }
+
+    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+        this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
+    }
+
+    public Integer getJyComboardSealBoardListSelectLimit() {
+        return jyComboardSealBoardListSelectLimit;
+    }
+
+    public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
+        this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
     }
 }

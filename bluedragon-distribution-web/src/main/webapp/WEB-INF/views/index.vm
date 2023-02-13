@@ -16,5 +16,19 @@
 <noframes>
     <body>
     </body>
+    <script src="//o-gia.jd.com/js/beetle.min.js" type="text/javascript"></script>
+    <script type="application/javascript">
+        setTimeout(function () {
+            //设备指纹开始
+            try {
+                getJdEid(function (eid, fp) {
+                    //document.getElementById("fp").value=eid;
+                });
+            } catch (e) {
+                console.log(e);
+            }
+            //设备指纹结束
+        }, 1000);
+    </script>
 </noframes>
 </html>

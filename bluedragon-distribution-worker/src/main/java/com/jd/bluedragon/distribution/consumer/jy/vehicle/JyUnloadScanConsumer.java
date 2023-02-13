@@ -125,15 +125,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
-        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
-        if(taskEntity.getId() != null  && Objects.isNull(taskEntity.getUnloadStartTime())) {
-            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
-            entity.setId(taskEntity.getId());
-            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
-            entity.setUpdateTime(new Date());
-            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
-        }
-
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
@@ -219,8 +210,23 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             startJyScheduleTask(unloadScanDto);
 
             recordTaskMembers(unloadScanDto);
+
+            updateTaskBusinessInfo(unloadScanDto);
         }
     }
+
+    private void updateTaskBusinessInfo(UnloadScanDto unloadScanDto) {
+        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
+        if (taskEntity != null) {
+            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+            entity.setId(taskEntity.getId());
+            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
+            entity.setRefGroupCode(unloadScanDto.getGroupCode());
+            entity.setUpdateTime(new Date());
+            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+    }
+
 
     /**
      * 判断是否触发开始调度任务

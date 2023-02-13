@@ -1230,4 +1230,25 @@
                   serialization="hessian"/>
 
 
+
+    <!-- 滑道笼车配置 -->
+    <jsf:consumer id="sortCrossJsfService"
+                  interface="com.jdl.basic.api.service.cross.SortCrossJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--  拣运实时组板服务  -->
+    <jsf:consumer id="jyComboardJsfService"
+      interface="com.jdl.jy.realtime.api.comboard.IComboardJsfService"
+      protocol="jsf"
+      alias="${jsf.jy.realtime.alias}"
+      timeout="10000"
+      retries="${jsf.retries}"
+      serialization="hessian"/>
 </beans>

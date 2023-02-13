@@ -57,15 +57,15 @@
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-new-authen.xml" />
 	<import resource="classpath:spring/distribution-web-wss-service.xml" />
-	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
-    <import resource="classpath:spring/distribution-web-foreign-jsf-server.xml" />
+	<!--<import resource="classpath:spring/distribution-web-jsf-server.xml" />-->
+    <!--<import resource="classpath:spring/distribution-web-foreign-jsf-server.xml" />-->
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 	<import resource="classpath:spring/distribution-core-jmq.xml"/>
 	<import resource="classpath:ql-dms-print-engine.xml"/>
-    <import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
+  <!--  <import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>-->
     <import resource="classpath:spring/distribution-web-context-special.xml"/>
 
 	<!-- ump monitor begin -->

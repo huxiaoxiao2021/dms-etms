@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,15 +83,13 @@ public class PopQueueController {
 		model.addAttribute("query", popQueueQuery);
 		return "popReceive/pop_queue_manage";
 	}
-	
+
 	private void select(Model model, PopQueueQuery query) {
-		LoginContext loginContext = LoginContext.getLoginContext();
-		Long userId = loginContext.getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId.intValue());
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(ErpUserClient.getCurrUser().getStaffNo());
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();
