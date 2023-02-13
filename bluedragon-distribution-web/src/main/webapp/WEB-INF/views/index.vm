@@ -13,8 +13,10 @@
         <frame src="#springUrl('/notice/list')" name="mainFrame" id="mainFrame" title="mainFrame" scrolling="auto">
     </frameset>
 </frameset>
+<script type="text/javascript" src="//ssa.jd.com/static/js/sso/iframe.js?iframe_id=mainFrame" ></script>
 <noframes>
     <body>
+##        #parse("ssoCross.vm")
     </body>
     <script src="//o-gia.jd.com/js/beetle.min.js" type="text/javascript"></script>
     <script type="application/javascript">

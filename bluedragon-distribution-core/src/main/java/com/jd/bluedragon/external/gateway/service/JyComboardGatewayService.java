@@ -68,7 +68,7 @@ public interface JyComboardGatewayService {
    * 完结板
    * @return
    */
-  JdCResponse<Void> finishBoard(BoardReq request);
+  JdCResponse<String> finishBoard(BoardReq request);
 
   /**
    * 结束混扫任务的所有流向的板
