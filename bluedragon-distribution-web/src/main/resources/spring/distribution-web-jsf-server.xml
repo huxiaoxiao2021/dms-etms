@@ -512,4 +512,11 @@
       server="dmsjsf">
     </jsf:provider>
 
+    <!-- 运单拦截数据接口 -->
+    <jsf:provider id="jsfDmsWaybillCancelJsfService"
+                  interface="com.jd.bluedragon.distribution.intercept.WaybillCancelService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsWaybillCancelJsfService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
