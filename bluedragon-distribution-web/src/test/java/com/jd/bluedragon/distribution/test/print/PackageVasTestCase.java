@@ -10,7 +10,6 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.*;
 import com.jd.jsf.gd.util.JsonUtils;
 import junit.framework.Assert;
-import org.apache.avro.generic.GenericData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
