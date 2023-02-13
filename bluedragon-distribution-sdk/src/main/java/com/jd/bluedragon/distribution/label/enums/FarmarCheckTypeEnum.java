@@ -13,7 +13,8 @@ import java.util.List;
 public enum FarmarCheckTypeEnum {
 
     FARMAR_CHECK_TYPE_WEIGHT(0, "重量标准"),
-    FARMAR_CHECK_TYPE_SIZE(1, "尺寸标准")
+    FARMAR_CHECK_TYPE_SIZE(1, "尺寸标准"),
+    FARMAR_CHECK_TYPE_BOTH(2, "重量尺寸标准")
     ;
 
     FarmarCheckTypeEnum(int code, String name){

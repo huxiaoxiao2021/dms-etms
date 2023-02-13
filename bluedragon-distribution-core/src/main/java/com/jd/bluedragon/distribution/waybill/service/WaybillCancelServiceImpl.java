@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -157,8 +158,23 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillCancelServiceImpl.delByWaybillCodeListInterceptType99", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
-    public int delByWaybillCodeListInterceptType99(List<String> waybillCodeList){
-        return cancelWaybillDao.delByWaybillCodeListInterceptType99(waybillCodeList);
+    public Result<Integer> delByWaybillCodeListInterceptType99(List<String> waybillCodeList){
+        log.info("WaybillCancelServiceImpl.delByWaybillCodeListInterceptType99 param {}", JSON.toJSONString(waybillCodeList));
+        Result<Integer> result = Result.success();
+        try {
+            if (waybillCodeList == null) {
+                return result.toFail("入参为空");
+            }
+            if (waybillCodeList.size() > 500) {
+                return result.toFail("一次最多更新500条");
+            }
+            final int updateCount = cancelWaybillDao.delByWaybillCodeListInterceptType99(waybillCodeList);
+            result.setData(updateCount);
+        } catch (Exception e) {
+            log.error("WaybillCancelServiceImpl.delByWaybillCodeListInterceptType99 exception {}", JSON.toJSONString(waybillCodeList), e);
+            result.toFail("系统异常");
+        }
+        return result;
     }
 
     /**
