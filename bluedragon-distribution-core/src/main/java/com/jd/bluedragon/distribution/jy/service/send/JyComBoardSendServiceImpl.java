@@ -2638,7 +2638,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     sendFlow.setComboardSourceList(comboardSourceList);
-    Page<Object> page = PageHelper.startPage(request.getPageNo(), request.getPageSize());
+    Page page = PageHelper.startPage(request.getPageNo(), request.getPageSize());
     List<Integer> statusList = new ArrayList<>();
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
@@ -2650,20 +2650,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
       return invokeResult;
     }
-
-    //查询流向下7天内未封车的板总数
-//    BoardCountReq boardCountReq = new BoardCountReq();
-//    boardCountReq.setCreateTime(time);
-//    List<Integer> endSiteIdList = new ArrayList<>();
-//    endSiteIdList.add(request.getEndSiteId());
-//    boardCountReq.setEndSiteIdList(endSiteIdList);
-//    boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-//    List<Integer> sourceList = new ArrayList<>();
-//    sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-//    sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
-//    boardCountReq.setComboardSourceList(sourceList);
-//    boardCountReq.setStatusList(statusList);
-//    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
 
     if (ObjectHelper.isNotNull(page)) {
       boardQueryResp.setBoardTotal(page.getTotal());
