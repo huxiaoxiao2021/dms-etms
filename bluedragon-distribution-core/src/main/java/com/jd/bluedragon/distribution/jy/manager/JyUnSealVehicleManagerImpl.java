@@ -115,4 +115,38 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
 
         return null;
     }
+
+    @Override
+    public SealCarMonitor querySealCarData(String sealCarCode) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_SEAL_CAR_MONITOR_IS_DEMOTION)){
+            throw new JyDemotionException("封车：查询封车任务详情已降级!");
+        }
+
+        SealCarMonitor search = new SealCarMonitor();
+        search.setSealCarCode(sealCarCode);
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.jySealVehicleManager.querySealCarData");
+        try {
+            ServiceResult<List<SealCarMonitor>> result = sealVehicleService.querySealCarData(search);
+            if (result.retFail()) {
+                log.error("获取解封车任务详情失败. {}-{}", sealCarCode, JsonHelper.toJson(result));
+                return null;
+            }
+            if (CollectionUtils.isEmpty(result.getData())) {
+                log.error("根据封车编码未查询到封车数据. {}-{}", sealCarCode, JsonHelper.toJson(result));
+                return null;
+            }
+
+            return result.getData().get(0);
+        }
+        catch (Exception e) {
+            log.error("获取解封车任务详情异常. {}", sealCarCode, e);
+            Profiler.functionError(ump);
+        }
+        finally {
+            Profiler.registerInfoEnd(ump);
+        }
+
+        return null;
+    }
 }

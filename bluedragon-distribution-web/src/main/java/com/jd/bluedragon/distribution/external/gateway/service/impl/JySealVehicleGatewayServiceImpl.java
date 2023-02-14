@@ -204,6 +204,12 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         return null;
     }
 
+    @Override
+    public JdCResponse<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request) {
+        InvokeResult<SealTaskInfo> invokeResult = jyUnSealVehicleService.getSealTaskInfo(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
