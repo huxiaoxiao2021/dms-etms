@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.utils.AsynBufferDemotionUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -235,8 +235,12 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                 detailDto.setPackingName(dto.getName());
                 detailDto.setPackingType(dto.getType());
                 detailDto.setPackingTypeName(dto.getTypeName());
-                detailDto.setPackingVolume(dto.getVolume().doubleValue());
-                detailDto.setVolumeCoefficient(dto.getVolumeCoefficient().doubleValue());
+                if (dto.getVolume() != null) {
+                    detailDto.setPackingVolume(dto.getVolume().doubleValue());
+                }
+                if (dto.getVolumeCoefficient() != null) {
+                    detailDto.setVolumeCoefficient(dto.getVolumeCoefficient().doubleValue());
+                }
                 detailDto.setPackingSpecification(dto.getSpecification());
                 detailDto.setPackingUnit(dto.getUnit());
                 detailDto.setPackingNumber(dto.getConfirmQuantity());
@@ -250,100 +254,6 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                 }catch (Exception e){
                     log.error("B网包装耗材确认明细发送运单失败：{}" , JSON.toJSONString(dto), e);
                 }
-            }
-        }
-    }
-
-    /**
-     * 发送确认消息同步到报表
-     * @param confirmedRecords
-     */
-    private void sendConfirmWaybillConsumableMqToReport(List<WaybillConsumableRecord> confirmedRecords){
-        if (CollectionUtils.isEmpty(confirmedRecords)) {
-            return;
-        }
-        Map<String, PackingConsumableReportDto> consumableDtoMap = new HashMap<>();
-        for (WaybillConsumableRecord record : confirmedRecords){
-            PackingConsumableReportDto dto = new PackingConsumableReportDto();
-            dto.setWaybillCode(record.getWaybillCode());
-            dto.setCollectionErp(record.getReceiveUserErp());
-            if (NumberUtils.isParsable(record.getReceiveUserCode())) {
-                dto.setCollectionUserId(Integer.valueOf(record.getReceiveUserCode()));
-            }
-            dto.setConfirmErp(record.getConfirmUserErp());
-            dto.setConfirmSiteCode(record.getDmsId());
-            dto.setConfirmSiteName(record.getDmsName());
-            dto.setConfirmTime(record.getConfirmTime());
-            dto.setPackingChargeDes("耗材价格明细：");
-            consumableDtoMap.put(record.getWaybillCode(), dto);
-        }
-        //构建消息体价格明细
-        List<WaybillConsumableDetailInfo> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<>(consumableDtoMap.keySet()));
-        for(WaybillConsumableDetailInfo dto : exportDtos) {
-            PackingConsumableReportDto item = consumableDtoMap.get(dto.getWaybillCode());
-            String packingChargeStr = item.getPackingChargeDes();
-            if (null == dto.getPackingCharge()) {
-                continue;
-            }
-
-            item.setPackingChargeDes(
-                    packingChargeStr
-                            .concat(
-                                    StringUtils.isEmpty(dto.getName())?
-                                            (StringUtils.isEmpty(dto.getTypeName())?"null":dto.getTypeName())
-                                            :dto.getName()
-                            )
-                            .concat(Constants.SEPARATOR_COLON)
-                            .concat(String.valueOf(dto.getPackingCharge().setScale(2, RoundingMode.HALF_UP)))
-                            .concat("元")
-                            .concat(Constants.SEPARATOR_SEMICOLON)
-            );
-        }
-        //逐个运单发送MQ
-        for (PackingConsumableReportDto dto : consumableDtoMap.values()){
-            try {
-                waybillConsumableReportProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
-            }catch (Exception e){
-                log.error("包装耗材确认消息同步至报表发送失败：{}" , JSON.toJSONString(dto), e);
-            }
-        }
-    }
-
-    /**
-     * 发送包装后的消息，同步到财务
-     * @param confirmedRecords
-     */
-    private void sendConfirmWaybillConsumableMqToFinance(List<WaybillConsumableRecord> confirmedRecords) {
-        if (CollectionUtils.isEmpty(confirmedRecords)) {
-            return;
-        }
-        Map<String, PackingConsumableFinanceMessageDto> consumableDtoMap = new HashMap<>();
-        for (WaybillConsumableRecord record : confirmedRecords){
-            PackingConsumableFinanceMessageDto dto = new PackingConsumableFinanceMessageDto();
-            dto.setWaybillCode(record.getWaybillCode());
-            dto.setSupplierCode("");
-            dto.setSiteCode(record.getDmsId());
-            dto.setPackingTime(DateHelper.formatDateTime(record.getConfirmTime()));
-            dto.setPackingVolume(new BigDecimal("0.000"));
-            consumableDtoMap.put(record.getWaybillCode(), dto);
-        }
-        //构建消息体价格明细
-        List<WaybillConsumableDetailInfo> consumableDetailInfos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<>(consumableDtoMap.keySet()));
-        for(WaybillConsumableDetailInfo detailInfo : consumableDetailInfos) {
-            PackingConsumableFinanceMessageDto item = consumableDtoMap.get(detailInfo.getWaybillCode());
-            if (ConsumableCodeEnums.isWoodenConsumable(detailInfo.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(detailInfo.getType())) {
-                BigDecimal itemVolume = detailInfo.getConfirmVolume() == null? new BigDecimal("0.000") : BigDecimal.valueOf(detailInfo.getConfirmVolume());
-                item.setPackingVolume(
-                        item.getPackingVolume().add(itemVolume)
-                );
-            }
-        }
-        //逐个运单发送MQ
-        for (PackingConsumableFinanceMessageDto dto : consumableDtoMap.values()){
-            try {
-                waybillConsumableFinanceProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
-            }catch (Exception e){
-                log.error("包装耗材确认消息同步至财务发送失败：{}" , JSON.toJSONString(dto), e);
             }
         }
     }
@@ -409,29 +319,6 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         //逐个运单发送MQ
         for (WaybillConsumableMessageDto dto : consumableDtoMap.values()){
             try {
-                //推送给财务的小道消息，后续待财务消费了下述的消息之后，可以删除下面的消息发送：
-//                PackingConsumableFinanceMessageDto financeMessageDto = new PackingConsumableFinanceMessageDto();
-//                financeMessageDto.setWaybillCode(dto.getWaybillCode());
-//                financeMessageDto.setPackingTime(DateHelper.formatDateTime(dto.getConfirmTime()));
-//                financeMessageDto.setSupplierCode(dto.getSupplierCode());
-//                financeMessageDto.setSiteCode(dto.getConfirmSiteCode());
-//                if (CollectionUtils.isNotEmpty(dto.getDetails())) {
-//                    for (WaybillConsumableDetailMessageDto detailMessageDto : dto.getDetails()) {
-//                        if (ConsumableCodeEnums.isWoodenConsumable(detailMessageDto.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(detailMessageDto.getConsumableType())) {
-//                            if (financeMessageDto.getPackingVolume() == null) {
-//                                financeMessageDto.setPackingVolume(new BigDecimal(0));
-//                            }
-//                            financeMessageDto.setPackingVolume(
-//                                    financeMessageDto.getPackingVolume().add(
-//                                            BigDecimal.valueOf(detailMessageDto.getPackingVolume())
-//                                    )
-//                            );
-//                        }
-//                    }
-//                }
-//                waybillConsumableFinanceProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(financeMessageDto));
-                //推送给财务的小道消息，后续待财务消费了下述的消息之后，可以删除上面的消息发送：
-
                 waybillConsumableConfirmProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
 
             }catch (Exception e){
