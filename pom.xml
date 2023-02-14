@@ -40,7 +40,7 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.3-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.4.2-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.4.3-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.7-SNAPSHOT</jy.realtime.sdk.version>
@@ -64,6 +64,10 @@
         <geocode-api.version>1.1.6-SNAPSHOT</geocode-api.version>
         <trans-fence-api.version>1.0-jdk1.7-SNAPSHOT</trans-fence-api.version>
         <vividsolutions.jts.version>1.13</vividsolutions.jts.version>
+
+		<!--		kafka版本-->
+		<jdq4-sdk-version>1.0.0-SNAPSHOT</jdq4-sdk-version>
+
     </properties>
 
 	<dependencies>
@@ -186,9 +190,31 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.jd.bdp</groupId>
-				<artifactId>jdq</artifactId>
-				<version>3.3-SNAPSHOT</version>
+				<groupId>com.jd.jdq</groupId>
+				<artifactId>jdq4-clients</artifactId>
+				<version>${jdq4-sdk-version}</version>
+			</dependency>
+
+			<!-- 单点登录    start-->
+			<dependency>
+				<groupId>com.jd.ssa</groupId>
+				<artifactId>oidc-client</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.ea</groupId>
+				<artifactId>uim1-client-core</artifactId>
+				<version>1.0-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.ea</groupId>
+				<artifactId>sso-ssa-jsf-client</artifactId>
+				<version>1.0-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.ea</groupId>
+				<artifactId>sso-ssa-legacy</artifactId>
+				<version>1.0-SNAPSHOT</version>
 			</dependency>
 
 			<!--oplog-->

@@ -28,6 +28,10 @@
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
+    <!-- 重复运单bug处理 临时消费-->
+    <jmq:transport id="jmq.dmsWorkAgainJm2.transport" address="${jmq.dmsWorkAgainJm2.address}" user="${jmq.dmsWorkAgainJm2.user}"
+                   password="${jmq.dmsWorkAgainJm2.password}" app="${jmq.dmsWorkAgainJm2.producer.app}"/>
+
     <!--UAT特殊配置  uatDmsWeb mq应用-->
     <jmq:transport id="jmq.uatDmsWeb.transport"
                    address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
@@ -120,14 +124,8 @@
         <jmq:listener topic="${jmq.topic.waybill.order.flag}" listener="performanceRemoveConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.sendDetailGoodsPrintConsumer" transport="jmq.uatDmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="sendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
-    <!-- 消费取消发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.uatDmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
+
+
     <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
     <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>
@@ -373,10 +371,28 @@
     <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
+    <!--  组板发货岗统计消息  -->
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
+    </jmq:consumer>
+    <!--  拣运组板岗-运单异步取消组板  -->
+    <jmq:consumer id="jmq.waybillCancelComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.cancel.comboard}" listener="waybillCancelComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步组板发货  -->
+    <jmq:consumer id="jmq.waybillComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.comboard}" listener="waybillComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板发货  -->
+    <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
     </jmq:consumer>
 
     <!--  jy转运卸车任务板关系创建消费 -->
@@ -443,6 +459,11 @@
     <!--  发货产品备库统计消息处理  -->
     <jmq:consumer id="jmq.jySendProductAggsBakConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.send.product.aggs.bak}" listener="jySendProductAggsBakConsumer"/>
+    </jmq:consumer>
+
+    <!--  重复运单取消拦截bug修复  -->
+    <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
+        <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
 
 </beans>

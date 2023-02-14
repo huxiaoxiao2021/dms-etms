@@ -58,6 +58,9 @@
 		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateMapper.xml" />
 		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateDetailMapper.xml" />
 
+		<mapper resource="mappers/mysql/jy/comboard/JyBizTaskComboardMapper.xml" />
+		<mapper resource="mappers/mysql/jy/comboard/JyComboardAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/comboard/JyGroupSortCrossDetailMapper.xml" />
 
 	</mappers>
 </configuration>

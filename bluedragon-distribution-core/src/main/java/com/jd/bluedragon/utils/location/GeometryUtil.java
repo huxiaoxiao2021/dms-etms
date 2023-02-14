@@ -1,13 +1,14 @@
 package com.jd.bluedragon.utils.location;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.utils.location.dto.LatLng;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -174,6 +175,15 @@ public class GeometryUtil {
             System.out.println(GeoUtils.getDistance(new LatLng(geometryByWKT.getCoordinates()[0].y, geometryByWKT.getCoordinates()[0].x), new LatLng(41.761453,123.562782)));
             System.out.println(geometryByWKT.getLength() / 2 / Math.PI);
         }
+
+        geometryByWKT = createPolygonByWKT("POLYGON ((116.36185 39.675062, 116.361598 39.675286, 116.356684 39.674588, 116.356663 39.674019, 116.356385 39.673987, 116.356543 39.672884, 116.356873 39.672905, 116.356914 39.672592, 116.356599 39.672562, 116.356793 39.671507, 116.357081 39.671543, 116.357113 39.67141, 116.361732 39.671952, 116.362054 39.673676, 116.36193 39.674961, 116.36185 39.675062))");
+        final Coordinate[] coordinates = geometryByWKT.getCoordinates();
+        List<LatLng> mPoints = new ArrayList<>();
+        for (Coordinate coordinate : coordinates) {
+            mPoints.add(new LatLng(coordinate.y, coordinate.x));
+        }
+        final LatLng centerOfGravityPoint = getCenterOfGravityPoint(mPoints);
+        System.out.println(JSON.toJSONString(centerOfGravityPoint));
     }
     
     

@@ -504,6 +504,27 @@ public class HintCodeConstants {
      * 此单为[全量接单失败拦截],请退货。
      */
     public static String FULL_ORDER_FAIL_INTERCEPT = "20081";
+
+    /**
+     * 自定义个性拦截
+     */
+    public static String CUSTOM_INTERCEPT = "20093";
+
+    /**
+     * 运单异常差异操作指引提示
+     */
+    public static String WAYBILL_ERROR_OPE_GUIDE = "20095";
+
+    /**
+     * 运单异常差异禁止补打提示
+     */
+    public static String WAYBILL_ERROR_RE_PRINT = "20096";
+
+    /**
+     * 运单异常差异禁止换单提示
+     */
+    public static String WAYBILL_ERROR_EXCHANGE_PRINT = "20097";
+
     /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
@@ -532,6 +553,11 @@ public class HintCodeConstants {
      * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
+
+    /**
+     * 异常运单逆向分拣、发货拦截
+     */
+    public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
 
     /*##############################################拦截相关END#########################################################*/
 

@@ -186,4 +186,13 @@
 		AND yn = 1
 		order by operate_time_order desc limit 1
 	</select>
+
+	<update id="updateByWaybillCodeInterceptType99" parameterType="java.util.Map">
+		update waybill_cancel
+		<set>
+			yn = 0,
+			ts = now()
+		</set>
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR} and intercept_type = 99
+	</update>
 </mapper>

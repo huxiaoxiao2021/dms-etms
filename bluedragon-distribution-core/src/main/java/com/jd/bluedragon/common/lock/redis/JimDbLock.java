@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.lock.redis;
 import com.jd.common.util.StringUtils;
 import com.jd.jim.cli.Cluster;
 import com.jd.tp.common.utils.Objects;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

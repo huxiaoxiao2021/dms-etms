@@ -2,7 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -27,7 +29,7 @@ public interface BaseMajorManager {
 			Integer paramInteger1, Integer paramInteger2, Integer paramInteger3);
 
 	public abstract BaseStaffSiteOrgDto getBaseStaffByStaffId(Integer paramInteger);
-	
+
 	public abstract List<BaseStaffSiteOrgDto> getDmsSiteAll();
 
 	public abstract BaseOrg getBaseOrgByOrgId(Integer orgId);
@@ -42,13 +44,13 @@ public interface BaseMajorManager {
 
 	/**
 	 * 根据分拣中心id与目的地id获取任务区和电子标签信息
-	 * @param 
+	 * @param
 	 * @return
 	 */
 	public Integer getBaseGoodsPositionDmsCodeSiteCode(String createCode,String receiveCode);
-	
+
 	public List<BaseStaffSiteOrgDto> getBaseSiteAll();
-	
+
 	List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType);
 
 	public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType);
@@ -75,14 +77,14 @@ public interface BaseMajorManager {
 	 * @param storeID 库房ID
 	 */
 	public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID);
-	
+
 	/**
 	 * 根据机构ID,获取对应的分拣中心
-	 * @param orgId 
+	 * @param orgId
 	 * @return
 	 */
 	public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId);
-	
+
 	/**
 	 * 根据站点编号或DMSCODE获得站点信息调用dmsver
 	 *
@@ -231,4 +233,12 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	boolean validateDirectlySentLine(Integer createSiteCode,Integer endSiteCode);
+
+	/**
+	 * 安全校验
+	 *
+	 * @param request
+	 * @return
+	 */
+	InvokeResult<Boolean> securityCheck(WaybillPrintRequest request);
 }

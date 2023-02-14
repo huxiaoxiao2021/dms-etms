@@ -7,8 +7,6 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
-import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -71,7 +69,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private AirTransportService airTransportService;
-    
+
     @Autowired
     private PreSortingSecondService preSortingSecondService;
 
@@ -82,9 +80,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private BaseMinorManager baseMinorManager;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 奢侈品订单打标位起始值
@@ -170,8 +165,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         try {
             // 信息安全校验
-            InvokeResult<Boolean> securityCheckResult
-                    = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, context.getRequest().getUserERP(), waybillCode);
+            InvokeResult<Boolean> securityCheckResult = baseMajorManager.securityCheck(context.getRequest());
             if(!securityCheckResult.codeSuccess()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, securityCheckResult.getMessage());
                 return interceptResult;
@@ -212,6 +206,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
         return interceptResult;
 	}
+
     /**
      * 加载运单基础数据
      * @param context
@@ -532,7 +527,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private void setCrossInfoByCrossDetail(WaybillPrintContext context,PrintWaybill waybill) {
     	SortCrossDetail crossDetail = null;
     	Integer endDmsId = null;
-    	if(context.getBigWaybillDto() != null 
+    	if(context.getBigWaybillDto() != null
     			&& context.getBigWaybillDto().getWaybill()!= null
     			&& context.getBigWaybillDto().getWaybill().getWaybillExt()!= null) {
     		endDmsId = context.getBigWaybillDto().getWaybill().getWaybillExt().getEndDmsId();
@@ -587,7 +582,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     tag=jdResult.getData();
                 }else{
                     log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
-        }    	
+        }
             if(null!=tag){
                 if(tag.getIsAirTransport()!=null
                         && tag.getIsAirTransport()== ComposeService.AIR_TRANSPORT
@@ -639,7 +634,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");
                     waybill.setOriginalTabletrolley("");
-            waybill.setOriginalTabletrolleyCode(""); 
+            waybill.setOriginalTabletrolleyCode("");
                     waybill.setPurposefulTableTrolley("");
                     waybill.setDestinationTabletrolleyCode("");
                     waybill.setOriginalCrossCode("");

@@ -23,21 +23,17 @@
         <property name="uimUrl" value="${uim.url}"/>
         <property name="redisClient" ref="redisClientHrm"/>
     </bean>
-    
+
+	<!-- 单点登录springmvc 拦截器bean -->
+	<bean id="springSSOInterceptor" class="com.jd.ssa.oidc.client.interceptor.ErpSsoInterceptor">
+		<property name="configFileName" value="/authen.properties"/>
+	</bean>
+
 	<!-- 单点登录拦截器配置 -->
 	<mvc:interceptors>
 	  <mvc:interceptor>
 	    <mvc:mapping path="/**"/>
-	    <!-- 单点登录springmvc 拦截器bean -->
-		<bean id="springSSOInterceptor" class="com.jd.common.springmvc.interceptor.SpringSSOInterceptor"
-		      init-method="initialize">
-		    <property name="appDomainName" value="${webapp.domain.name}"/>
-		    <property name="appHomeUrl" value="http://${webapp.domain.name}/"/>
-		    <property name="loginUrl" value="${login.address}"/>
-		    <property name="ssoDomainName" value="${sso.auth.cookie.domain}"/>
-		    <property name="excludePath" value="${sso.exclude.path}"/>
-		<property name="ssoService" ref="ssoService"/>
-		</bean>
+	    <ref bean="springSSOInterceptor"/>
 	  </mvc:interceptor>
 	   <mvc:interceptor>
             <mvc:mapping path="/**"/>

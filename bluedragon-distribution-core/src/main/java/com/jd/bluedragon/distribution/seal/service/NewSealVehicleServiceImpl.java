@@ -28,9 +28,14 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsCondition;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -177,9 +182,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
+    @Qualifier(value = "jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     JdiQueryWSManager jdiQueryWSManager;
+    @Autowired
+    JyBizTaskComboardService jyBizTaskComboardService;
 
     @Autowired
     @Qualifier("createTransAbnormalAndUnsealProducer")
@@ -354,6 +362,40 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         } catch (Exception e) {
             log.error("syncJySealStatus error",e);
         }
+    }
+
+    private void syncJyCZSealStatus(List<SealCarDto> sealCarDtos) {
+        try {
+            if (uccPropertyConfiguration.getSyncJyCZSealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+                List<String> sendCodes =new ArrayList();
+                for (SealCarDto sealCarDto:sealCarDtos){
+                    sendCodes.addAll(sealCarDto.getBatchCodes());
+                }
+                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                    return;
+                }
+                JyBizTaskComboardEntity condition =new JyBizTaskComboardEntity();
+                condition.setSendCodeList(sendCodes);
+                List<JyBizTaskComboardEntity> bizTaskComboardEntities =jyBizTaskComboardService.listBoardTaskBySendCode(condition);
+                if (ObjectHelper.isNotNull(bizTaskComboardEntities)){
+                    for (JyBizTaskComboardEntity entity:bizTaskComboardEntities){
+                        checkAndUpdateComboardTaskStatus(entity);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("syncJyCZSealStatus error",e);
+        }
+    }
+
+    private void checkAndUpdateComboardTaskStatus(JyBizTaskComboardEntity entity) {
+	    if (ObjectHelper.isNotNull(entity) &&ComboardStatusEnum.SEALED.getCode()!=entity.getBoardStatus()){
+          JyBizTaskComboardEntity jyBizTaskComboardEntity =new JyBizTaskComboardEntity();
+          jyBizTaskComboardEntity.setId(entity.getId());
+          jyBizTaskComboardEntity.setBoardStatus(ComboardStatusEnum.SEALED.getCode());
+          jyBizTaskComboardEntity.setSealTime(new Date());
+          jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity);
+      }
     }
 
 
@@ -571,7 +613,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     continue;
                 }
             }
-
+            log.info("提交运输传站封车入参，{}",JSON.toJSONString(param));
             CommonDto<String> sealCarInfo = vosManager.doSealCarWithVehicleJob(param);
             if (sealCarInfo == null) {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
@@ -598,6 +640,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
             syncJySealStatus(successSealCarList);
+            syncJyCZSealStatus(successSealCarList);
         }
 
         //记录封车操作数据
@@ -958,6 +1001,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealed(batchCode);
 		return isSealed;
 	}
+
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealedExcludeAirFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode) {
+        CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealedExcludeAirFerry(batchCode);
+        return isSealed;
+    }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.NewSealVehicleServiceImpl.checkBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -2061,5 +2111,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         return response;
+    }
+
+    @Override
+    public boolean isAirTransport(TransportResourceDto resource) {
+        if (null == resource) {
+            return false;
+        }
+        //始发、目的站点是机场或火车站
+        boolean nodeTypeFlag = Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getStartNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getStartNodeType())
+                || Objects.equals(Constants.NODE_TYPE_AIRPORT, resource.getEndNodeType()) || Objects.equals(Constants.NODE_TYPE_RAILWAY, resource.getEndNodeType());
+
+        return nodeTypeFlag;
     }
 }

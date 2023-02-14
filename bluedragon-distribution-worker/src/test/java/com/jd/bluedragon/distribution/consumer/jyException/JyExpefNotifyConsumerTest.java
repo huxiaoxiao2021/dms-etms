@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jyException;
 
 import com.jd.bluedragon.distribution.consumer.jy.exception.PackageCodePrintConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.exception.RepeatWaybillCodeCanceltConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,8 @@ public class JyExpefNotifyConsumerTest {
     @Autowired
     PackageCodePrintConsumer packageCodePrintConsumer;
 
+    @Autowired
+    RepeatWaybillCodeCanceltConsumer repeatWaybillCodeCanceltConsumer ;
 
     @Test
     public void onMessagesTest() throws Exception{
@@ -39,5 +42,28 @@ public class JyExpefNotifyConsumerTest {
                 "}");
         messages.add(message);
         packageCodePrintConsumer.onMessages(messages);
+    }
+
+    @Test
+    public void onMessagesTest2() throws Exception{
+        List<Message> messages = new ArrayList<Message>();
+        Message message = new Message();
+        message.setTopic("package_replenish_print_compete");
+        message.setText("{\n" +
+                "\"operateType\" : 100103,\n" +
+                "\"waybillCode\" : \"JDV007937389840\",\n" +
+                "\"packageCode\" : \"JDV007937389840-1-1-\",\n" +
+                "\"templateGroupCode\" : \"C\",\n" +
+                "\"templateName\" : \"dms-unite1010-m\",\n" +
+                "\"templateVersion\" : 0,\n" +
+                "\"userCode\" : 17331,\n" +
+                "\"userName\" : \"吴有德\",\n" +
+                "\"userErp\" : \"wuyoude\",\n" +
+                "\"operateTime\" : 1585264183038,\n" +
+                "\"siteCode\" : 910,\n" +
+                "\"siteName\" : \"大连玉浓营业部\"\n" +
+                "}");
+        messages.add(message);
+        repeatWaybillCodeCanceltConsumer.onMessages(messages);
     }
 }

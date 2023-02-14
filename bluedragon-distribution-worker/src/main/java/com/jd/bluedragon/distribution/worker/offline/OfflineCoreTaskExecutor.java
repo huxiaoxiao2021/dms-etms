@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.worker.offline;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
@@ -82,6 +84,9 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     @Autowired
     private DefaultJMQProducer dmsBusinessOperateOfflineTaskSendProducer;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@Override
 	public Task parse(Task task, String ownSign) {
 		return task;
@@ -89,7 +94,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 	@Override
 	public boolean execute(TaskContext<Task> taskContext, String ownSign){
         boolean result = false;
-		String body = taskContext.getTask().getBody();
+        String body = taskContext.getTask().getBody();
 		if (StringUtils.isBlank(body)) {
 			return result;
 		}
@@ -97,6 +102,16 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             log.info("OfflineCoreTaskExecutor.execute taskContext: {}", JSON.toJSONString(taskContext));
             JSONArray taskList = JSONObject.parseArray(body);
             Integer taskType = taskList.getJSONObject(0).getInteger("taskType");
+            Integer createSiteCode = taskContext.getTask().getCreateSiteCode();
+            // 除了空铁以外的离线操作不被允许，
+            if (!Objects.equals(taskType,Task.TASK_TYPE_AR_RECEIVE)
+                    && !Objects.equals(taskType, Task.TASK_TYPE_AR_SEND_REGISTER)
+                    && !Objects.equals(taskType, Task.TASK_TYPE_AR_RECEIVE_AND_SEND)
+                    && !uccPropertyConfiguration.isOffLineAllowedSite(createSiteCode)) {
+                log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
+                return false;
+            }
+
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
             }else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE
@@ -174,6 +189,19 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             int resultCode = 0;
             try {
                 log.info("OfflineCoreTaskExecutor.offlineCore offlineLogRequest {}", JSON.toJSONString(offlineLogRequest));
+                // 校验encrypt字段
+                String encrypt = offlineLogRequest.getEncrypt();
+                //BusinessDataType PackageCode WaybillCode BoxCode BatchNo UserNo
+                String encryptStr = offlineLogRequest.getUserCode() +
+                        offlineLogRequest.getPackageCode() +
+                        offlineLogRequest.getWaybillCode() +
+                        offlineLogRequest.getBoxCode() +
+                        offlineLogRequest.getBatchCode();
+
+                if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
+                    log.warn("OfflineCoreTaskExecutor.offlineCore-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(offlineLogRequest));
+                }
+
                 if (Task.TASK_TYPE_RECEIVE.equals(offlineLogRequest.getTaskType())) {
                     // 分拣中心收货
                     resultCode = this.offlineReceiveService.parseToTask(offlineLogRequest);
@@ -314,10 +342,26 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             scDto.setVehicleNumber(obj.getString("carCode"));
             scDto.setVolume(obj.getDouble("volume"));
             scDto.setWeight(obj.getDouble("weight"));
+            // 校验encrypt字段
+            String encrypt = obj.getString("encrypt");
+            //BusinessDataType PackageCode WaybillCode BoxCode BatchNo UserNo
+            String encryptStr = obj.getString("userCode") +
+                    obj.getString("packageCode") +
+                    obj.getString("waybillCode") +
+                    obj.getString("boxCode") +
+                    obj.getString("batchCode");
+
+            if (!Objects.equals(Md5Helper.encode(encryptStr), encrypt)) {
+                log.warn("OfflineCoreTaskExecutor.convertSearCar-->校验encrypt字段失败，请排查数据来源,{}", JSON.toJSONString(obj));
+            }
             sealCarDtos.add(scDto);
         }
 
         return sealCarDtos;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Md5Helper.encode("17331JDX000227451346-1-2-JDX000227451346-1-2-910-39-202302031022336340001-01-01 00:00:00"));
     }
 	/**
 	 * @return the delaySeconds

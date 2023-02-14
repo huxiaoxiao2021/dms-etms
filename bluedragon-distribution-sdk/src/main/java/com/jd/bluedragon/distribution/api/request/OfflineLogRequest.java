@@ -49,6 +49,11 @@ public class OfflineLogRequest extends JdRequest {
 	 */
 	private Integer bizSource;
 
+	/**
+	 * 用于验证离线数据的加密字段
+	 */
+	private String encrypt;
+
 	public Integer getOperateType() {
 		return operateType;
 	}
@@ -278,5 +283,13 @@ public class OfflineLogRequest extends JdRequest {
 
 	public void setBizSource(Integer bizSource) {
 		this.bizSource = bizSource;
+	}
+
+	public String getEncrypt() {
+		return encrypt;
+	}
+
+	public void setEncrypt(String encrypt) {
+		this.encrypt = encrypt;
 	}
 }

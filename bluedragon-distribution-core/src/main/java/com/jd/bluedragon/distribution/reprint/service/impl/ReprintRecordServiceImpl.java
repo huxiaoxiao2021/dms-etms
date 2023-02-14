@@ -221,4 +221,16 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
         reprintRecordVo.setOperateTimeFormative(DateUtil.format(reprintRecord.getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         return reprintRecordVo;
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.ReprintRecordServiceImpl.selectCountByBarCode", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
+    public int selectCountByBarCode(String barcode){
+        if(StringUtils.isEmpty(barcode)){
+            log.error("重复运单取消拦截-补打包裹查询参数为空: {}", barcode);
+            return 0;
+        }
+        ReprintRecordQuery query = new ReprintRecordQuery();
+        query.setBarCode(barcode);
+        return rePrintRecordDao.selectCountByBarCode(query);
+    }
 }
