@@ -47,7 +47,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
 
         String barCode = request.getBarCode();
         if (log.isInfoEnabled()) {
-            log.info("barCode{} 称重量方 request={}", barCode, JSON.toJSONString(request));
+            log.info("barCode{}, 称重量方request：{}", barCode, JSON.toJSONString(request));
         }
         InvokeResult<Boolean> result = new InvokeResult<>();
 
@@ -85,7 +85,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
             result.error("称重量方功能异常，请联系分拣小秘！");
         } finally {
             if (log.isInfoEnabled()) {
-                log.info("barCode{} 称重量方 response={}", barCode, JSON.toJSONString(result));
+                log.info("barCode{}, 称重量方response：{}", barCode, JSON.toJSONString(result));
             }
         }
         return result;
