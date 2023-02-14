@@ -647,6 +647,10 @@
 					<artifactId>aspectjweaver</artifactId>
 					<groupId>org.aspectj</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- JIM Redis -->
@@ -1922,9 +1926,18 @@
 					<artifactId>jackson-mapper-asl</artifactId>
 					<groupId>org.codehaus.jackson</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+		</dependency>
+	
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
