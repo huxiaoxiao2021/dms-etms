@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.weight;
 
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.weight.request.WeightVolumeRequest;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.external.gateway.service.JyWeightVolumeGatewayService;
@@ -48,7 +48,7 @@ public class JyWeightVolumeGatewayServiceTest {
         request.setWidth(100D);
         request.setHeight(100D);
 
-        InvokeResult<Boolean> invokeResult = jyWeightVolumeGatewayService.weightVolumeCheckAndDeal(request);
+        JdCResponse<Boolean> invokeResult = jyWeightVolumeGatewayService.weightVolumeCheckAndDeal(request);
         System.out.println("invokeResult=" + JSON.toJSONString(invokeResult));
 
     }

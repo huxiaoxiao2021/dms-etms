@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.weight.request.WeightVolumeRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
@@ -43,13 +44,13 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeGatewayService.weightVolumeCheckAndDeal",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
-    public InvokeResult<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request) {
+    public JdCResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request) {
 
         String barCode = request.getBarCode();
         if (log.isInfoEnabled()) {
             log.info("barCode{}, 称重量方request：{}", barCode, JSON.toJSONString(request));
         }
-        InvokeResult<Boolean> result = new InvokeResult<>();
+        JdCResponse<Boolean> result = new JdCResponse<>();
 
         try {
             //称重量方前置校验
@@ -60,7 +61,9 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
             InvokeResult<Boolean> ruleCheck = dmsWeightVolumeService.weightVolumeRuleCheck(weightVolumeRuleCheckDto);
 
             if (!ruleCheck.codeSuccess()) {
-                result.error(ruleCheck.getMessage());
+                result.setCode(ruleCheck.getCode());
+                result.setMessage(ruleCheck.getMessage());
+                result.setData(ruleCheck.getData());
                 return result;
             }
 
@@ -79,10 +82,13 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
                     .machineCode(condition.getMachineCode()).remark(remark);
 
             //称重上传
-            result = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+            InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+            result.setCode(invokeResult.getCode());
+            result.setMessage(invokeResult.getMessage());
+            result.setData(invokeResult.getData());
         } catch (Exception e) {
             log.error("barCode{}, error:", barCode, e);
-            result.error("称重量方功能异常，请联系分拣小秘！");
+            result.toError("称重量方功能异常，请联系分拣小秘！");
         } finally {
             if (log.isInfoEnabled()) {
                 log.info("barCode{}, 称重量方response：{}", barCode, JSON.toJSONString(result));
