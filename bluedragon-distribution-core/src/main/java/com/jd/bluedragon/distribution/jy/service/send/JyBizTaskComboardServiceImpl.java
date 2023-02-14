@@ -9,12 +9,12 @@ import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
-import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.jd.common.annotation.CacheMethod;
@@ -162,29 +162,54 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
-  public boolean updateBoardStatusBySendCodeList(String batchCode, String operateUserCode, String operateUserName) {
-    
+  public boolean updateBoardStatusBySendCode(String batchCode, String operateUserCode, String operateUserName) {
+
     if (StringUtils.isEmpty(batchCode)) {
       return false;
     }
-    
+
     // 查询任务id
     List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.queryTaskBySendCode(batchCode);
-    
+
     if (CollectionUtils.isEmpty(taskList)) {
       return true;
     }
-    
+
     List<Long> taskIds = new ArrayList<>();
     for (JyBizTaskComboardEntity entity : taskList) {
       taskIds.add(entity.getId());
     }
-    UpdateBoardStatusReq boardStatusReq = new UpdateBoardStatusReq();
-    boardStatusReq.setIds(taskIds);
-    boardStatusReq.setUpdateUserErp(operateUserCode);
-    boardStatusReq.setUpdateUserName(operateUserName);
-    boardStatusReq.setBoardStatus(ComboardStatusEnum.CANCEL_SEAL.getCode());
-    return jyBizTaskComboardDao.updateBoardStatus(boardStatusReq) > 0;
+    UpdateBoardStatusDto boardStatusDto = new UpdateBoardStatusDto();
+    boardStatusDto.setIds(taskIds);
+    boardStatusDto.setUpdateUserErp(operateUserCode);
+    boardStatusDto.setUpdateUserName(operateUserName);
+    boardStatusDto.setBoardStatus(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    boardStatusDto.setUnsealTime(new Date());
+    return jyBizTaskComboardDao.updateBoardStatus(boardStatusDto) > 0;
   }
-  
+
+  @Override
+  public boolean updateBoardStatusBySendCodeList(List<String> batchCodeList, String operateUserCode,
+      String operateUserName, ComboardStatusEnum comboardStatusEnum) {
+
+    JyBizTaskComboardEntity condition =new JyBizTaskComboardEntity();
+    condition.setSendCodeList(batchCodeList);
+    List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardDao.listBoardTaskBySendCode(condition);
+
+    if (CollectionUtils.isEmpty(taskList)) {
+      return true;
+    }
+
+    List<Long> taskIds = new ArrayList<>();
+    for (JyBizTaskComboardEntity entity : taskList) {
+      taskIds.add(entity.getId());
+    }
+    UpdateBoardStatusDto boardStatusDto = new UpdateBoardStatusDto();
+    boardStatusDto.setIds(taskIds);
+    boardStatusDto.setUpdateUserErp(operateUserCode);
+    boardStatusDto.setUpdateUserName(operateUserName);
+    boardStatusDto.setBoardStatus(comboardStatusEnum.getCode());
+    boardStatusDto.setSealTime(new Date());
+    return jyBizTaskComboardDao.updateBoardStatus(boardStatusDto) > 0;
+  }
 }

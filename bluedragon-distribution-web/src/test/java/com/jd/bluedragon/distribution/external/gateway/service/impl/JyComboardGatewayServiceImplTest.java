@@ -50,7 +50,7 @@ public class JyComboardGatewayServiceImplTest {
     SortBoardJsfService sortBoardJsfService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
-    
+
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -562,7 +562,7 @@ public class JyComboardGatewayServiceImplTest {
 
         System.out.println(JsonHelper.toJson(boardStatisticsRespJdCResponse));
     }
-    
+
     @Test
     public void listPackageDetailUnderBoxTest() {
         BoxQueryReq resp = new BoxQueryReq();
@@ -601,15 +601,15 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<BoardExcepStatisticsResp> s = jyComboardGatewayService.queryExcepScanStatisticsUnderBoard(req);
         System.out.println(JsonHelper.toJson(s));
     }
-    
+
     @Test
     public void updateBoardStatusBySendCodeListTest() {
         List<String> batchCodes = new ArrayList<>();
         batchCodes.add("910-39-20221205212254643");
         batchCodes.add("910-39-20221205212254654");
-        jyBizTaskComboardService.updateBoardStatusBySendCodeList("dehudheu","liwenji3","李文吉");
+        jyBizTaskComboardService.updateBoardStatusBySendCode("dehudheu","liwenji3","李文吉");
     }
-    
+
     @Test
     public void deleteCTTGroupTest() {
         DeleteCTTGroupReq deleteCTTGroupReq = new DeleteCTTGroupReq();
