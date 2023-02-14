@@ -82,6 +82,9 @@ $(function () {
                 if(value != null && value === 2){
                     return "医药";
                 }
+                if(value != null && value === 3){
+                    return "冷链";
+                }
                 return "C网";
             }
         },{
