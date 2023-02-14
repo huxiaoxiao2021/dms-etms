@@ -39,7 +39,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
     public void machineCalibrateScan() {
         try {
             DwsWeightVolumeCalibrateRequest request = new DwsWeightVolumeCalibrateRequest();
-            request.setMachineCode("WZ-HJ-JZBL-009");
+            request.setMachineCode("BJL-FF-SORT-002");
             User user = new User();
             user.setUserErp("bjxings");
             request.setUser(user);
