@@ -434,6 +434,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode());
         }else if(BusinessUtil.isMedicalFreshProductType(waybillSign) || BusinessUtil.isMedicine(waybillSign)){
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_MEDICAL.getCode());
+        }else if(BusinessUtil.isColdDelivery(waybillSign) || (BusinessUtil.isColdCityDistribute(waybillSign)
+                && BusinessUtil.isColdKB(waybillSign) && BusinessUtil.isColdReceipt(waybillSign))){
+            spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_COLD.getCode());
         }else {
             logger.warn(SpotCheckConstants.SPOT_CHECK_FORBID);
             throw new SpotCheckBusinessException(SpotCheckConstants.SPOT_CHECK_FORBID);
