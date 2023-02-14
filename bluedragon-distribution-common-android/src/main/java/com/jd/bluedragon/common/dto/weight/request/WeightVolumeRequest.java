@@ -66,11 +66,6 @@ public class WeightVolumeRequest implements Serializable {
      */
     private Double volume;
 
-    /**
-     * 操作时间 13位时间戳
-     */
-    private Long operateTime;
-
 
     public String getBarCode() {
         return barCode;
@@ -166,13 +161,5 @@ public class WeightVolumeRequest implements Serializable {
 
     public void setVolume(Double volume) {
         this.volume = volume;
-    }
-
-    public Long getOperateTime() {
-        return operateTime;
-    }
-
-    public void setOperateTime(Long operateTime) {
-        this.operateTime = operateTime;
     }
 }
