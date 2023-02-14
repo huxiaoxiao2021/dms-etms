@@ -47,6 +47,11 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
     }
 
     @Override
+    public void extracted(SendVehicleTaskResponse response, List<String> sendVehicleBizList) {
+        response.setSendVehicleBizList(sendVehicleBizList);
+    }
+
+    @Override
     public ExcepWaybillDto queryExcepScanWaybill(QueryExcepWaybillDto queryExcepWaybillDto) {
         Pager<SendVehicleTaskQuery> queryPager =assembleQueryWaybillDto(queryExcepWaybillDto);
         Pager<SendWaybillDto> sendWaybillDtoPager =sendVehicleJsfManager.querySendTaskWaybill(queryPager);

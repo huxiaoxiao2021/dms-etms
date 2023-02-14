@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
-import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
-import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto;
 
 import java.util.List;
 
@@ -82,8 +80,8 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendCode", entity);
   }
 
-    public int updateBoardStatus(UpdateBoardStatusReq boardStatusReq) {
-        return this.getSqlSession().update(NAMESPACE + ".updateBoardStatus", boardStatusReq);
+    public int updateBoardStatus(UpdateBoardStatusDto boardStatusDto) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBoardStatus", boardStatusDto);
     }
 
     public List<JyBizTaskComboardEntity> queryTaskBySendCode(String sendCode) {

@@ -420,16 +420,22 @@
     and board_status = 3
     and send_code = #{sendCode}
   </select>
-  <update id="updateBoardStatus" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusReq">
-    update jy_biz_task_comboard set board_status = #{boardStatus,jdbcType=TINYINT},
+  <update id="updateBoardStatus" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto">
+    update jy_biz_task_comboard
+    set board_status = #{boardStatus,jdbcType=TINYINT},
     <if test="updateUserErp != null and updateUserErp != ''">
       update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
     </if>
     <if test="updateUserName != null and updateUserName != ''">
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
     </if>
-    update_time = now(),
-    unseal_time = now()
+    <if test="unsealTime != null and unsealTime != ''">
+      unseal_time = #{unsealTime},
+    </if>
+    <if test="sealTime != null and sealTime != ''">
+      seal_time = #{sealTime},
+    </if>
+    update_time = now()
     where id in
     <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
       #{item}
