@@ -1233,6 +1233,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
         // 图片
         dto.setImageUrls(cacheDto.getImageUrls());
+        dto.setLength(cacheDto.getLength());
+        dto.setWidth(cacheDto.getWidth());
+        dto.setHeight(cacheDto.getHeight());
         return dto;
     }
 
