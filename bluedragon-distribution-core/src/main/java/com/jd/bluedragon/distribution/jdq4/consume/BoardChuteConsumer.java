@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.laf.binding.annotation.Value;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -22,22 +23,24 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
-@Component
 public class BoardChuteConsumer extends JDQConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
 
-    @Value("${jdq.producer.boardchute.username}")
-    private String userName;
-    @Value("${jdq.dmsautomatic.boardchute.domain}")
+
+    @Setter
+    private String username;
+    @Setter
     private String domain;
-    @Value("${jdq.operatelog.boardchute.password}")
+    @Setter
     private String password;
-    @Value("${jdq.operatelog.boardchute.groupId}")
-    private String groupId;
-    @Value("${jdq.operatelog.boardchute.topic}")
-    private String topic;
+    @Setter
+    String topic;
+    @Setter
+    String groupId;
+
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
