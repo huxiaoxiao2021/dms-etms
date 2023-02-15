@@ -107,7 +107,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    logger.error(e.getMessage());
+                    logger.error(e.getMessage(),e);
                 }
             }
             consumer.commitSync();
