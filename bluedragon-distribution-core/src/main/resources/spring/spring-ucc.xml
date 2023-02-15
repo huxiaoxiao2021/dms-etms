@@ -235,6 +235,10 @@
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
+		<property name="autoPackageSendInspectionSwitch" value="${autoPackageSendInspectionSwitch:true}"/>
+		<property name="autoPackageSendInspectionDelSiteCodes" value="${autoPackageSendInspectionDelSiteCodes:3}"/>
+		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
+		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -459,6 +463,8 @@
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
 				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
+				<value>uccPropertyConfiguration.jyComboardSealBoardListLimit</value>
+				<value>uccPropertyConfiguration.reComboardTimeLimit</value>
 
 			</list>
 		</property>

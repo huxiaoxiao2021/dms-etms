@@ -28,4 +28,11 @@ public interface IJyUnSealVehicleManager {
      * @return
      */
     SealCarMonitor querySealTaskInfo(SealTaskInfoRequest request);
+
+    /**
+     * 获取封车数据信息
+     * @param sealCarCode
+     * @return
+     */
+    SealCarMonitor querySealCarData(String sealCarCode);
 }

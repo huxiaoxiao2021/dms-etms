@@ -936,7 +936,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.finishBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
-  public InvokeResult finishBoard(BoardReq request) {
+  public InvokeResult<String> finishBoard(BoardReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBoardCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -953,7 +953,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (log.isInfoEnabled()) {
           log.warn("该板已完结: {}", boardCode);
         }
-        return new InvokeResult(FINISH_BOARD_AGAIN_CODE, FINISH_BOARD_AGAIN_MESSAGE);
+        return new InvokeResult(FINISH_BOARD_AGAIN_CODE, FINISH_BOARD_AGAIN_MESSAGE,request.getBoardCode());
       }
       JyBizTaskComboardReq jyBizTaskComboardReq = new JyBizTaskComboardReq();
       jyBizTaskComboardReq.setBoardCode(boardCode);
@@ -967,7 +967,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.info("完结板异常：{}", boardCode);
       return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
     }
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,request.getBoardCode());
   }
 
   @Override
@@ -1529,8 +1529,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setBarCode(barCode);
     JyComboardEntity entity = jyComboardService.queryIfScaned(condition);
     if (ObjectHelper.isNotNull(entity)) {
-      log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
-      throw new JyBizException("该单号已组过板");
+      Date comboardTime = entity.getCreateTime();
+      if (comboardTime != null && System.currentTimeMillis() - comboardTime.getTime() <=  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+        log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
+        throw new JyBizException("该单号已组过板");
+      }
     }
     BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(request.getDestinationId());
     if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper
@@ -2625,7 +2628,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<BoardDto> boardDtos = new ArrayList<>();
     boardQueryResp.setBoardDtoList(boardDtos);
     invokeResult.setData(boardQueryResp);
-    boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListSelectLimit());
+    boardQueryResp.setBoardLimit(ucc.getJyComboardSealBoardListLimit());
+    boardQueryResp.setBoardSelectLimit(ucc.getJyComboardSealBoardListSelectLimit());
 
     // 获取当前场地未封车的板号
     SendFlowDto sendFlow = new SendFlowDto();
@@ -2637,7 +2641,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
     sendFlow.setComboardSourceList(comboardSourceList);
-    PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    Page page = PageHelper.startPage(request.getPageNo(), request.getPageSize());
     List<Integer> statusList = new ArrayList<>();
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
@@ -2650,22 +2654,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return invokeResult;
     }
 
-    //查询流向下7天内未封车的板总数
-    BoardCountReq boardCountReq = new BoardCountReq();
-    boardCountReq.setCreateTime(time);
-    List<Integer> endSiteIdList = new ArrayList<>();
-    endSiteIdList.add(request.getEndSiteId());
-    boardCountReq.setEndSiteIdList(endSiteIdList);
-    boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-    List<Integer> sourceList = new ArrayList<>();
-    sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-    sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
-    boardCountReq.setComboardSourceList(sourceList);
-    boardCountReq.setStatusList(statusList);
-    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
-
-    if (!com.jd.dbs.util.CollectionUtils.isEmpty(entityList)) {
-      boardQueryResp.setBoardTotal(entityList.get(0).getBoardCount().longValue());
+    if (ObjectHelper.isNotNull(page)) {
+      boardQueryResp.setBoardTotal(page.getTotal());
     }
 
     // 获取板号扫描数量统计数据

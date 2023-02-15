@@ -73,18 +73,28 @@ public class LabelPrintResource {
             result.parameterError();
             return result;
         }
-        if(Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_WEIGHT)
+        if(Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_WEIGHT.getCode())
                 && request.getWeight() == null){
             result.parameterError("重量标准，重量必须合法！");
             return result;
         }
-        if(Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_SIZE)
+        if(Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_SIZE.getCode())
                 && (
                 request.getLength() == null
                 || request.getWidth() == null
                 || request.getHigh() == null
         )){
             result.parameterError("尺寸标准，长宽高必须合法！");
+            return result;
+        }
+        if (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_BOTH.getCode())
+                && (
+                request.getWeight() == null
+                || request.getLength() == null
+                || request.getWidth()== null
+                || request.getHigh() == null
+        )) {
+            result.parameterError("重量尺寸标准，重量和长宽高必须合法！");
             return result;
         }
         return result;

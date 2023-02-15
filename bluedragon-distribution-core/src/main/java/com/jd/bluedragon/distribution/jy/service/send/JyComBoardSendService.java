@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -75,8 +74,9 @@ public interface JyComBoardSendService {
 
   /**
    * 完结板
+   * @return
    */
-  InvokeResult finishBoard(BoardReq request);
+  InvokeResult<String> finishBoard(BoardReq request);
 
   /**
    * 结束混扫任务的所有流向的板

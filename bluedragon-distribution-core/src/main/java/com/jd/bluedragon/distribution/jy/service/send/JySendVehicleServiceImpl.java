@@ -329,7 +329,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            response.setSendVehicleBizList(sendVehicleBizList);
+            extracted(response, sendVehicleBizList);
 
             List<JyBizTaskSendCountDto> vehicleStatusAggList =sumTaskByVehicleStatus(condition, sendVehicleBizList);
 
@@ -354,7 +354,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
+    public void extracted(SendVehicleTaskResponse response, List<String> sendVehicleBizList) {
+        //response.setSendVehicleBizList(sendVehicleBizList);
+    }
 
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.findSendVehicleLineTypeAgg",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<JyLineTypeDto> findSendVehicleLineTypeAgg(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
@@ -796,7 +801,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         // 取当前操作网点的路由下一节点
         if (WaybillUtil.isPackageCode(queryTaskSendDto.getKeyword())) {
             endSiteId = getWaybillNextRouter(WaybillUtil.getWaybillCode(queryTaskSendDto.getKeyword()), startSiteId);
-        } else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
+        }
+        else if (BusinessUtil.isBoxcode(queryTaskSendDto.getKeyword())
+            && JyComboardLineTypeEnum.TRANSFER.getCode().equals(queryTaskSendDto.getLineType())){
+            endSiteId = getBoxEndSiteId(queryTaskSendDto.getKeyword());
+        }
+        else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
             endSiteId = Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(queryTaskSendDto.getKeyword()));
         } else if (BusinessUtil.isTaskSimpleCode(queryTaskSendDto.getKeyword())) {
             List<String> sendVehicleBizList = querySendVehicleBizIdByTaskSimpleCode(queryTaskSendDto);
@@ -838,6 +848,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         return new ArrayList<>(sendVehicleBizSet);
+    }
+
+    private Long getBoxEndSiteId(String keyword) {
+        if (BusinessUtil.isBoxcode(keyword)){
+            final Box box = boxService.findBoxByCode(keyword);
+            if (box != null && box.getReceiveSiteCode()!=null) {
+                return Long.valueOf(box.getReceiveSiteCode());
+            }
+        }
+        return null;
     }
 
     public List<String> querySendVehicleBizIdByTaskSimpleCode(QueryTaskSendDto queryTaskSendDto) {

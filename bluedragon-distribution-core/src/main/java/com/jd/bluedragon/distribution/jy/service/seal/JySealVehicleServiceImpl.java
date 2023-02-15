@@ -44,6 +44,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
@@ -122,7 +123,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private JyComboardAggsService jyComboardAggsService;
-    
+
     @Autowired
     UccPropertyConfiguration ucc;
 
@@ -256,11 +257,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            for (String sendCode:sealVehicleReq.getBatchCodes()){
+            /*for (String sendCode:sealVehicleReq.getBatchCodes()){
                 if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
                     throw new JyBizException("该批次:"+sendCode+"已经封车");
                 }
-            }
+            }*/
 
             SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
             //车上已经封了的封签号
@@ -282,6 +283,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jySendSealCodeService.addBatch(entityList);
                 }
                 updateTaskStatus(sealVehicleReq, sealCarDto);
+                jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealVehicleReq.getBatchCodes(),
+                    sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }
             return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
@@ -370,12 +373,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     public static void main(String[] args) {
-        SealCarDto sealCarDto =new SealCarDto();
-        List<String> sealCodes =new ArrayList<>();
-        sealCodes.add("1");
-        sealCodes.add("2");
-        sealCarDto.setSealCodes(null);
-
+            Integer a =668402;
+            System.out.println(DmsJddlUtils.getDbInstanceIndex(a.longValue()));
+            System.out.println(DmsJddlUtils.getDbPartitionIndex(a.longValue()));
 
 
         //System.out.println(sealCarDto.getSealCodes());
@@ -519,7 +519,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(batchCode, operateUserCode, operateUserName)) {
+        if (!jyBizTaskComboardService.updateBoardStatusBySendCode(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("更新板状态失败！");
             return invokeResult;
@@ -536,7 +536,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName) {
-        
+
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
 
         // 根据派车单号查询发车任务
@@ -603,7 +603,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         query.setBoardCode(boardBoxInfoDto.getCode());
         JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
-        
+
         if (comboardEntity == null) {
             log.error("未找到板的批次信息：{}", JsonHelper.toJson(request.getBarCode()));
             return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
