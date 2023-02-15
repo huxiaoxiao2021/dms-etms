@@ -118,6 +118,6 @@ public class BoardChuteConsumer extends JDQConsumer {
 
     @Override
     public JDQConfig createJDQConfig() {
-        return new JDQConfig(userName,domain,password,groupId,topic);
+        return new JDQConfig(username,domain,password,groupId,topic);
     }
 }
