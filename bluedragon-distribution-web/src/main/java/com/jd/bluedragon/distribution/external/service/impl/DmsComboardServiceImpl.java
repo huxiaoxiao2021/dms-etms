@@ -172,7 +172,10 @@ public class DmsComboardServiceImpl implements DmsComboardService {
             SendM sendM = new SendM();
             sendM.setBoardCode(boardBoxInfoDto.getCode());
             sendM.setCreateSiteCode(request.getStartSiteId());
-            sendMDao.findSendMByBoardCode(sendM);
+            SendM sendCodeInfo = sendMDao.findSendMByBoardCode(sendM);
+            if (sendCodeInfo!=null) {
+                boardDto.setSendCode(sendCodeInfo.getSendCode());
+            }
         } else {
             // 根据板号查询任务信息
             JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
