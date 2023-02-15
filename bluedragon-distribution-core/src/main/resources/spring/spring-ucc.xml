@@ -239,7 +239,7 @@
 		<property name="autoPackageSendInspectionDelSiteCodes" value="${autoPackageSendInspectionDelSiteCodes:3}"/>
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
-		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}}"/>
+		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
