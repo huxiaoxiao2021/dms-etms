@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.laf.binding.annotation.Value;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,10 @@ public class BoardChuteConsumer extends JDQConsumer {
         }
         if (boardChute.getStatus()!=0){
             logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+            return;
+        }
+        if (StringUtils.isNotEmpty(boardChute.getSendCode())){
+            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
             return;
         }
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
