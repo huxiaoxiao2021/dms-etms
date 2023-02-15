@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+
+
+    <bean id="jy_core_agg_bak" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+        <property name="url" value="${dms.write.mysql.db.jy.core.agg.bak.url}"/>
+        <property name="username" value="${db.mysql.jy.core.agg.bak.username}"/>
+        <property name="password" value="${db.mysql.jy.core.agg.bak.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.write.mysql.db.jy.core.agg.bak.initialSize}"/>
+        <property name="maxIdle" value="${dms.write.mysql.db.jy.core.agg.bak.maxIdle}"/>
+        <property name="minIdle" value="${dms.write.mysql.db.jy.core.agg.bak.minIdle}"/>
+        <property name="maxActive" value="${dms.write.mysql.db.jy.core.agg.bak.maxActive}"/>
+        <property name="maxWait" value="${dms.write.mysql.db.jy.core.agg.bak.maxWait}"/>
+        <property name="logAbandoned" value="${dms.write.mysql.db.jy.core.agg.bak.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.write.mysql.db.jy.core.agg.bak.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.write.mysql.db.jy.core.agg.bak.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.write.mysql.db.jy.core.agg.bak.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.write.mysql.db.jy.core.agg.bak.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.write.mysql.db.jy.core.agg.bak.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.jy.core.agg.bak.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.jy.core.agg.bak.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
+    </bean>
+
+    <bean id="transactionManager_jyCoreAgg_bak"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="jy_core_agg_bak"/>
+        <qualifier value="tm_jy_core_agg_bak"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager_jyCoreAgg_bak" proxy-target-class="true"/>
+
+    <bean id="jyCoreAggSqlSessionFactoryBak" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="jy_core_agg_bak"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-jy-core-agg-bak.xml"/>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">false</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="jyCoreAggSqlSessionTemplateBak" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="jyCoreAggSqlSessionFactoryBak"/>
+    </bean>
+    <!-- dms单库写库 数据源 end -->
+
+
+
+
+</beans>

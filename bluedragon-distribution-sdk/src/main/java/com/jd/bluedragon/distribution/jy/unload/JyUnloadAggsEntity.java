@@ -110,6 +110,8 @@ public class JyUnloadAggsEntity implements Serializable {
     private Integer totalMoreScanLocalWaybillCount;
     private Integer totalMoreScanOutWaybillCount;
 
+
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -181,6 +183,16 @@ public class JyUnloadAggsEntity implements Serializable {
     public void setTotalScannedInterceptCount(Integer totalScannedInterceptCount) {
         this.totalScannedInterceptCount = totalScannedInterceptCount;
     }
+
+    /**
+     * 版本号
+     */
+    private Long version;
+
+    /**
+     * 并发锁id
+     */
+    private String uid;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -326,6 +338,13 @@ public class JyUnloadAggsEntity implements Serializable {
         return this.ts;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
     public Integer getTotalSealWaybillCount() {
         return totalSealWaybillCount;
     }
@@ -372,5 +391,13 @@ public class JyUnloadAggsEntity implements Serializable {
 
     public void setTotalMoreScanOutWaybillCount(Integer totalMoreScanOutWaybillCount) {
         this.totalMoreScanOutWaybillCount = totalMoreScanOutWaybillCount;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

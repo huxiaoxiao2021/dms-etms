@@ -34,4 +34,17 @@ public class DeviceLocationGatewayServiceImpl implements DeviceLocationGatewaySe
     public JdCResponse<Boolean> uploadLocationInfo(DeviceLocationUploadPo deviceLocationUploadPO) {
         return ResultConverter.convertResultToJdcResponse(deviceLocationService.sendUploadLocationMsg(deviceLocationUploadPO));
     }
+
+    /**
+     * 检查用户位置是否与其所属站点匹配
+     *
+     * @param deviceLocationUploadPo 上传信息
+     * @return 匹配结果
+     * @author fanggang7
+     * @time 2022-11-23 18:21:59 周三
+     */
+    @Override
+    public JdCResponse<Boolean> checkLocationMatchUserSite(DeviceLocationUploadPo deviceLocationUploadPo) {
+        return ResultConverter.convertResultToJdcResponse(deviceLocationService.checkLocationMatchUserSite(deviceLocationUploadPo));
+    }
 }

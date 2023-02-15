@@ -171,6 +171,85 @@ public class InvokeResult<T> implements Serializable {
     public static final int DP_SPECIAL_CODE = 32003;
     public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
 
+    public static final int GET_TRANSPORT_RESOURCE_CODE= 329;
+    public static final String GET_TRANSPORT_RESOURCE_MESSAGE ="查询运力信息结果为空！";
+
+    public static final int NO_FOUND_INCOMPELETE_DATA_CODE= 330;
+    public static final String NO_FOUND_INCOMPELETE_DATA_MESSAGE ="未找到符合要求的数据！";
+
+    public static final int SENDCODE_TRANSPOST_NOT_UNIFIED_CODE = 331;
+    public static final String SENDCODE_TRANSPOST_NOT_UNIFIED_MESSAGE ="批次号与运力编码目的地不一致，请核准后重新操作!";
+
+    public static final int UPDATE_CTT_GROUP_LIST_CODE = 3039;
+    public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常！";
+
+    public static final int NO_SEND_FLOW_CODE = 3040;
+    public static final String NO_SEND_FLOW_MESSAGE= "未获取到流向信息!";
+
+    public static final int BOARD_INFO_CODE = 3041;
+    public static final String BOARD_INFO_MESSAGE= "获取板的详细信息异常！";
+
+    public static final int SEND_FLOE_CTT_CODE = 3042;
+    public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常！";
+
+    public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
+    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "未获取到相应的混扫任务信息！";
+
+    public static final int PACKAGE_OR_BOX_UNDER_BOARD_CODE = 3044;
+    public static final String PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE = "获取组板下的包裹号|运单号|箱号异常！";
+
+    public static final int CANCEL_COM_BOARD_CODE = 3045;
+    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板失败！";
+
+    public static final int FINISH_BOARD_AGAIN_CODE = 3046;
+    public static final String FINISH_BOARD_AGAIN_MESSAGE = "该板已完结，请刷新页面！";
+
+    public static final int FINISH_BOARD_CODE = 3047;
+    public static final String FINISH_BOARD_MESSAGE = "完结组板失败！";
+
+    public static final int HAVE_IN_HAND_BOARD_CODE = 3049;
+    public static final String HAVE_IN_HAND_BOARD_MESSAGE = "当前存在扫描中的板，请勿移除！";
+
+    public static final int NOT_BELONG_THIS_HUNSAO_TASK_CODE = 3050;
+    public static final String NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE = "非本混扫任务流向货物！";
+
+    public static final int NOT_BELONG_THIS_SENDFLOW_CODE = 3051;
+    public static final String NOT_BELONG_THIS_SENDFLOW_MESSAGE = "非本流向货物！";
+
+    public static final int NOT_CONSISTENT_WHIT_LAST_SENDFLOW_CODE = 3052;
+    public static final String NOT_CONSISTENT_WHIT_LAST_SENDFLOW_MESSAGE = "与上单流向不一致！";
+
+    public static final int BOARD_HAS_BEEN_FULL_CODE = 3053;
+    public static final String BOARD_HAS_BEEN_FULL_MESSAGE = "已达上限，需要换新板！";
+
+    public static final int HAVE_SEND_FLOW_UNDER_GROUP_CODE = 3054;
+    public static final String HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE = "当前混扫任务以包含该流向，请勿重复添加！";
+
+    public static final int SEND_FLOW_UNDER_GROUP_CODE = 3055;
+    public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
+
+    public static final int CHECK_BARCODE_CODE = 3056;
+    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
+
+
+    public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
+    public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
+
+    public static final int  CREATE_GROUP_CTT_DATA_CODE = 3058;
+    public static final String CREATE_GROUP_CTT_DATA_MESSAGE = "保存本场地常用的笼车集合失败！";
+
+    public static final int NOT_FIND_CTT_CODE = 3059;
+    public static final String NOT_FIND_CTT_MESSAGE= "未获取到滑道笼车信息！";
+
+    public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
+    public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
+
+    public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
+    public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
+    
+    public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
+    public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

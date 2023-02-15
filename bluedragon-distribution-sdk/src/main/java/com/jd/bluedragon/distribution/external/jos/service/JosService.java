@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Created by yangbo7 on 2015/9/1.
+ * 该接口在宙斯平台提供给卓志调用
  */
 public interface JosService {
 

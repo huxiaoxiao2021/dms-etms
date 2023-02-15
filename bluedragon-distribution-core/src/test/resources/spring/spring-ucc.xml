@@ -130,6 +130,8 @@
 		<property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
 		<property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:true}" />
+		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
+		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -237,6 +239,8 @@
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
 				<value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
 				<value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+				<value>uccPropertyConfiguration.printCompeteUpdateCancel</value>
+				<value>uccPropertyConfiguration.printCompeteAllPackageUpdateCancel</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
 				<value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

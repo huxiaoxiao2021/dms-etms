@@ -42,4 +42,13 @@ public interface WaybillCancelService {
      */
     boolean isFullOrderFail(String waybillCode);
 
+    int updateByWaybillCodeInterceptType99(String waybillCode);
+
+    /**
+     * 按运单号校验是否存在异常运单拦截
+     * @param waybillCode 运单号
+     * @return 校验结果 true-有拦截 false-无
+     */
+    boolean checkWaybillCancelInterceptType99(String waybillCode);
+
 }

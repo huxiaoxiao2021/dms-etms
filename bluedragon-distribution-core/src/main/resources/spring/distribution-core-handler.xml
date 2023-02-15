@@ -129,6 +129,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -404,6 +405,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
@@ -429,6 +431,7 @@
 				<ref bean="reverseChangeReprintHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -636,6 +639,7 @@
                 <ref bean="initialPrintCompleteHandler" />
                 <ref bean="dealPopPrintHandler" />
                 <ref bean="pushPrintWaybillTrackHandler" />
+				<ref bean="printCancelInterceptHandler" />
 				<ref bean="popPrintFirstHandler" />
 				<ref bean="pushPrintRecordHandler" />
             </list>
@@ -648,6 +652,7 @@
                 <ref bean="dealReprintHandler" />
                 <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushModifyOrderMqHandler" />
+                <ref bean="printCancelInterceptHandler" />
                 <ref bean="reprintCompletePostHandler" />
                 <ref bean="pushPrintRecordHandler" />
             </list>
@@ -661,7 +666,8 @@
                 <ref bean="dealPopPrintHandler" />
                 <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushPrintWaybillTrackHandler" />
-                <ref bean="pushModifyOrderMqHandler" />
+				<ref bean="printCancelInterceptHandler" />
+				<ref bean="pushModifyOrderMqHandler" />
                 <ref bean="pushPrintRecordHandler" />
             </list>
         </property>

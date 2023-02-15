@@ -21,6 +21,7 @@ import com.jd.bluedragon.sdk.modules.device.domain.DeviceLocationExceptionOpLog;
 import com.jd.bluedragon.sdk.modules.device.domain.DeviceLocationLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.location.GeoUtils;
+import com.jd.bluedragon.utils.location.GeometryUtil;
 import com.jd.bluedragon.utils.location.dto.LatLng;
 import com.jd.dms.java.utils.core.common.IpUtils;
 import com.jd.dms.java.utils.core.gis.Coordinate;
@@ -28,6 +29,7 @@ import com.jd.dms.java.utils.core.gis.CoordinateTransformUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
 import com.jd.lbs.jdlbsapi.dto.LocationResultDto;
+import com.jd.lbs.jdlbsapi.dto.drawtool.PointDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.dto.itBasic.dto.MatchIpRegionDto;
@@ -40,6 +42,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -124,7 +127,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         if (operateUser.getOrgId() == null) {
             return result.toFail("参数错误，orgId不能为空");
         }
-        final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
+        /*final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
         if (deviceLocationInfo == null) {
             return result.toFail("参数错误，deviceLocationInfo不能为空");
         }
@@ -133,7 +136,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         }
         if (deviceLocationInfo.getLatitude() == null) {
             return result.toFail("参数错误，latitude不能为空");
-        }
+        }*/
         return result;
     }
 
@@ -159,6 +162,17 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             }
             // 1. insert location data
             final DeviceLocationLog deviceLocationLog = this.genDeviceLocationLog(deviceLocationUploadPo);
+
+            // 2. check location
+            final Result<Boolean> checkLocationResult = this.checkLocationMatchUserSite(deviceLocationUploadPo);
+
+            if(!checkLocationResult.isSuccess()){
+                log.warn("DeviceLocationServiceImpl.uploadLocationInfo checkLocationMatchUserSite fail {}", JsonHelper.toJson(checkLocationResult));
+                // return result;
+            } else {
+                deviceLocationLog.setInSiteFence(checkLocationResult.getData() ? Constants.YN_YES : Constants.YN_NO);
+                deviceLocationLog.setDistanceToSite(deviceLocationUploadPo.getDeviceLocationInfo().getDistanceToSite());
+            }
             final Result<Long> remoteResult = iDeviceLocationLogManager.add(deviceLocationLog);
             if (remoteResult == null || remoteResult.isFail()) {
                 return result.toFail(String.format("插入失败, %s", remoteResult != null ? remoteResult.getMessage() : "未知异常"));
@@ -166,12 +180,6 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
                 deviceLocationLog.setId(remoteResult.getData());
                 deviceLocationUploadPo.setRefLogId(remoteResult.getData());
                 result.setData(true);
-            }
-            // 2. check location
-            final Result<Boolean> checkLocationResult = this.checkLocationMatchUserSite(deviceLocationUploadPo);
-            if(!checkLocationResult.isSuccess()){
-                log.warn("DeviceLocationServiceImpl.uploadLocationInfo checkLocationMatchUserSite fail {}", JsonHelper.toJson(checkLocationResult));
-                return result;
             }
             // 2.1 if location is wrong, do some process logic
             if(!checkLocationResult.getData()){
@@ -205,12 +213,14 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         deviceLocationLog.setOperateUserName(operateUser.getUserName());
         // 位置信息
         final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
-        deviceLocationLog.setIpv4(deviceLocationInfo.getIpv4());
-        deviceLocationLog.setIpv6(deviceLocationInfo.getIpv6());
-        deviceLocationLog.setMacAddressSelf(deviceLocationInfo.getMacAddressSelf());
-        deviceLocationLog.setMacAddressNetwork(deviceLocationInfo.getMacAddressNetwork());
-        deviceLocationLog.setLongitude(deviceLocationInfo.getLongitude());
-        deviceLocationLog.setLatitude(deviceLocationInfo.getLatitude());
+        if (deviceLocationInfo != null) {
+            deviceLocationLog.setIpv4(deviceLocationInfo.getIpv4());
+            deviceLocationLog.setIpv6(deviceLocationInfo.getIpv6());
+            deviceLocationLog.setMacAddressSelf(deviceLocationInfo.getMacAddressSelf());
+            deviceLocationLog.setMacAddressNetwork(deviceLocationInfo.getMacAddressNetwork());
+            deviceLocationLog.setLongitude(deviceLocationInfo.getLongitude());
+            deviceLocationLog.setLatitude(deviceLocationInfo.getLatitude());
+        }
 
         deviceLocationLog.setOperateTime(new Date(deviceLocationUploadPo.getOperateTime()));
         deviceLocationLog.setCreateTime(new Date());
@@ -233,7 +243,6 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         try {
             // 1. 查询场地围栏
             final OperateUser operateUser = deviceLocationUploadPo.getOperateUser();
-            final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
             QueryTransFenceBySiteIdQo queryTransFenceBySiteIdQo = new QueryTransFenceBySiteIdQo();
             queryTransFenceBySiteIdQo.setSiteId(operateUser.getSiteCode());
             final Result<FenceData> queryFenceRespResult = wlLbsApiWrapResultManager.queryTransFenceBySiteIdForWeb(queryTransFenceBySiteIdQo);
@@ -248,13 +257,16 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             }
             // 2. 若有经纬度
             boolean hasLocation = false;
-            if(deviceLocationInfo.getLatitude() != null && deviceLocationInfo.getLongitude() != null){
+            final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
+            if(deviceLocationInfo != null && deviceLocationInfo.getLatitude() != null && deviceLocationInfo.getLongitude() != null){
                 hasLocation = true;
             }
 
             final List<TransFenceInfoVo> transFenceInfoVoList = fenceData.getTransFenceInfoVoList();
             //  2.1 判断设备经纬度是否在场地围栏内
             if (hasLocation) {
+                // 有经纬度计算坐标点到围栏中心点的直线距离
+                this.calculateSiteDistance(deviceLocationUploadPo, transFenceInfoVoList);
                 final Coordinate coordinate = CoordinateTransformUtil.transformWGS84ToGCJ02(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
                 LatLng point = new LatLng(coordinate.getLatitude(), coordinate.getLongitude());
                 final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
@@ -292,6 +304,63 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             log.error("DeviceLocationServiceImpl.checkLocationMatchUserSite exception {}", JsonHelper.toJson(deviceLocationUploadPo), e);
             result.toFail("系统异常");
         }
+        return result;
+    }
+
+    private Result<Boolean> calculateSiteDistance(DeviceLocationUploadPo deviceLocationUploadPo, List<TransFenceInfoVo> transFenceInfoVoList) {
+        Result<Boolean> result = Result.success();
+        PointDto startPoint = new PointDto();
+
+        DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
+        startPoint.setLat(deviceLocationInfo.getLatitude());
+        startPoint.setLng(deviceLocationInfo.getLongitude());
+
+        try {
+            for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
+                // 可能存在"主围栏"、"临时围栏"，只要满足一个条件即可
+                final Geometry geometry = transFenceInfoVo.getGeometry();
+                if (geometry == null) {
+                    continue;
+                }
+
+                // 取重心点，得到距离计算位置点
+                final List<List<List<Double>>> coordinates = geometry.getCoordinates();
+                if (CollectionUtils.isEmpty(coordinates)) {
+                    continue;
+                }
+                List<LatLng> polygonShape = new ArrayList<>();
+                final List<List<Double>> pointList = coordinates.get(0);
+                if (CollectionUtils.isEmpty(pointList)) {
+                    continue;
+                }
+                for (List<Double> doubles : pointList) {
+                    final LatLng latLng = new LatLng();
+                    latLng.setLng(doubles.get(0));
+                    latLng.setLat(doubles.get(1));
+                    polygonShape.add(latLng);
+                }
+                final LatLng centerOfGravityPoint = GeometryUtil.getCenterOfGravityPoint(polygonShape);
+
+                PointDto endPoint = new PointDto();
+                endPoint.setLat(BigDecimal.valueOf(centerOfGravityPoint.getLat()));
+                endPoint.setLng(BigDecimal.valueOf(centerOfGravityPoint.getLng()));
+
+                final Result<BigDecimal> lengthResult = wlLbsApiWrapResultManager.getLength(null, startPoint, endPoint);
+                if (lengthResult.isSuccess() && lengthResult.getData() != null) {
+                    final BigDecimal distance = lengthResult.getData();
+                    if(deviceLocationInfo.getDistanceToSite() == null){
+                        deviceLocationInfo.setDistanceToSite(distance);
+                    } else {
+                        if(deviceLocationInfo.getDistanceToSite().compareTo(distance) > 0){
+                            deviceLocationInfo.setDistanceToSite(distance);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("DeviceLocationServiceImpl.calculateSiteDistance deviceLocationUploadPo: {}", JsonHelper.toJson(deviceLocationUploadPo), e);
+        }
+        // log.info("DeviceLocationServiceImpl.calculateSiteDistance deviceLocationUploadPo: {}", JsonHelper.toJson(deviceLocationUploadPo));
         return result;
     }
 
@@ -342,9 +411,9 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
     private Result<Boolean> checkNetworkInFence(String ip, List<TransFenceInfoVo> transFenceInfoVoList) {
         Result<Boolean> result = Result.success();
         boolean netWorkInFence = false;
-        boolean isInternalNetwork = true;
+        boolean isInternalNetwork = false;
         if (IpUtils.isInternalFormatV4Ip(ip)) {
-            isInternalNetwork = false;
+            isInternalNetwork = true;
         }
         //  3.1 根据IP地址查询场地地址，内网调IT基础接口，外网调gis接口
         if (!isInternalNetwork) {
@@ -493,7 +562,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         try {
             final Result<Boolean> handleResult = this.uploadLocationInfo(deviceLocationUploadPo);
             if (!handleResult.isSuccess()) {
-                log.warn("DeviceLocationServiceImpl.handleDmsUploadDeviceLocationConsume uploadLocationInfo fail {}", JsonHelper.toJson(deviceLocationUploadPo));
+                log.warn("DeviceLocationServiceImpl.handleDmsUploadDeviceLocationConsume uploadLocationInfo fail {} {}", JsonHelper.toJson(deviceLocationUploadPo), JsonHelper.toJson(handleResult));
                 return result.toFail(handleResult.getMessage());
             }
         } catch (Exception e) {

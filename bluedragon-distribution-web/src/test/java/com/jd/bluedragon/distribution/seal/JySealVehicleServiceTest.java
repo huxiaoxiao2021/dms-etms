@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.seal;
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
@@ -7,20 +8,28 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendPhotoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendAttachmentService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JySendProductAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -48,9 +57,17 @@ public class JySealVehicleServiceTest {
     @Autowired
     private IJyUnSealVehicleService jySealVehicleService;
 
+    @Autowired
+    private JySendProductAggsService jySendProductAggsService;
+
     private static User user;
 
     private static CurrentOperate currentOperate;
+
+    @Autowired
+    private JyUnloadAggsService jyUnloadAggsService;
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
     static {
         user = new User();
@@ -170,7 +187,7 @@ public class JySealVehicleServiceTest {
                 "        \"siteCode\": 40240,\n" +
                 "        \"siteName\": \"北京通州分拣中心\"\n" +
                 "    },\n" +
-                "    \"sendVehicleBizId\": \"SST22061600000106\",\n" +
+                "    \"sendVehicleBizId\": \"SST22070100000012\",\n" +
                 "    \"user\": {\n" +
                 "        \"userCode\": 16698,\n" +
                 "        \"userErp\": \"liuaihui3\",\n" +
@@ -179,9 +196,33 @@ public class JySealVehicleServiceTest {
                 "    \"vehicleNumber\": \"\"\n" +
                 "}";
 
-        SendVehicleProgressRequest request = JsonHelper.fromJson(json, SendVehicleProgressRequest.class);
-        jySendVehicleService.loadProgress(request);
+//        SendVehicleProgressRequest request = JsonHelper.fromJson(json, SendVehicleProgressRequest.class);
+//        InvokeResult<SendVehicleProgress> sendVehicleProgressInvokeResult = jySendVehicleService.loadProgress(request);
+//        System.out.println(JSON.toJSONString(sendVehicleProgressInvokeResult));
+
+//        List<JySendVehicleProductType> result = jySendProductAggsService.getSendVehicleProductTypeList("TEST002");
+//        System.out.println(JSON.toJSONString(result));
+
+        //List<JyUnloadAggsEntity> result = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity("TEST003"));
+//        JyUnloadAggsEntity entity = new JyUnloadAggsEntity();
+//        entity.setBizId("TEST003");
+//        entity.setBoardCode("TEST003");
+//        List<GoodsCategoryDto> result = jyUnloadAggsService.queryGoodsCategoryStatistics(entity);
+//        DimensionQueryDto dto = new DimensionQueryDto();
+//        dto.setType(3);
+//        dto.setBizId("TEST003");
+//        dto.setBoardCode("TEST003");
+//        ScanStatisticsDto result = jyBizTaskUnloadVehicleService.queryStatisticsByDiffDimension(dto);
+        TaskFlowDto dto = new TaskFlowDto();
+        dto.setBizId("T001");
+        dto.setEndSiteId(910L);
+        InvokeResult<TaskFlowComBoardDto> result = jyUnloadVehicleTysService.queryComBoarUnderTaskFlow(dto);
+        System.out.println(JSON.toJSONString(result));
+
     }
+
+    @Autowired
+    private JyUnloadVehicleTysService jyUnloadVehicleTysService;
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
@@ -243,7 +284,11 @@ public class JySealVehicleServiceTest {
     	sealCarData.setStartSiteId(910);
     	sealCarData.setTransWorkItemCode("TW22091400813808-001");
         sendVehicleTransactionManager.resetSendStatusToseal(sealCarData,"test1","name1",new Date().getTime());
+    }
 
-
+    @Test
+    public void getSendVehicleProductTypeListTest(){
+        List<JySendVehicleProductType> result = jySendProductAggsService.getSendVehicleProductTypeList("TEST002");
+        System.out.println(result);
     }
 }

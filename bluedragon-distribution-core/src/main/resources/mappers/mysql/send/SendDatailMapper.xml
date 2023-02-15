@@ -1099,6 +1099,7 @@
 		ORDER BY operate_time DESC limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+
 	<select id="queryWaybillCountBySendCode" parameterType="SendDetail" resultType="com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO">
 
 		select WAYBILL_CODE as waybillCode,count(1) as packageNum from send_d where is_cancel = 0
@@ -1176,6 +1177,20 @@
         ) t
     </select>
 
+	<select id="queryWaybillCountBybatchCode" resultType="java.lang.Integer">
+		select
+		count(1)
+		from (
+		select waybill_code
+			from send_d
+			where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+			and yn = 1
+			and is_cancel = 0
+			AND sendd_status = 1
+			group by waybill_code
+		) t
+	</select>
 	<select id="queryPackageNumByWaybillCode" parameterType="java.util.Map" resultMap="WaybillPackageNumInfo">
 		select
 		waybill_code, package_barcode as packageCode, count(package_barcode) as forceAmount

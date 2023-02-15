@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
@@ -23,6 +24,8 @@ import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
@@ -58,7 +61,10 @@ import java.util.concurrent.TimeUnit;
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    
+
+    @Value("${waybill.error.max.for.size:100}")
+    private Integer maxForSize;
+
     private static final int REST_CODE_SUC = 1;
     /**
      * 需要显示特快送标识的产品名称
@@ -72,7 +78,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	}
     @Autowired
     private ProductService productService;
-
+    @Autowired
+    private ReprintRecordService reprintRecordService;
     /**
      * 运单包裹查询
      */
@@ -262,6 +269,83 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         return waybill;
+    }
+
+    /**
+     * 补全异常运单信息
+     * @param waybillCodeC 正确运单号
+     * @param waybillCodeE 错误运单号(运单生成的重复运单号)
+     * @return
+     */
+    @Override
+    public List<WaybillErrorDomain> complementWaybillError(String waybillCodeC, String waybillCodeE) {
+
+        List<WaybillErrorDomain> waybillErrorDomains = new ArrayList<>();
+        if(StringUtils.isBlank(waybillCodeC) || StringUtils.isBlank(waybillCodeE)){
+            //缺少入参直接返回
+            log.error("complementWaybillError 缺少参数 {},{}",waybillCodeC,waybillCodeE);
+            return waybillErrorDomains;
+        }
+
+        //调用运单补全数据
+        waybillErrorDomains.addAll(complementWaybillErrorOfWaybill(waybillCodeC));
+        waybillErrorDomains.addAll(complementWaybillErrorOfWaybill(waybillCodeE));
+        return waybillErrorDomains;
+    }
+
+    @Override
+    public List<WaybillErrorDomain> complementWaybillError(String waybillCodeC) {
+
+        List<WaybillErrorDomain> waybillErrorDomains = new ArrayList<>();
+        if(StringUtils.isBlank(waybillCodeC)){
+            //缺少入参直接返回
+            log.error("complementWaybillError 缺少参数 {}", waybillCodeC);
+            return waybillErrorDomains;
+        }
+
+        //调用运单补全数据
+        waybillErrorDomains.addAll(complementWaybillErrorOfWaybill(waybillCodeC));
+        return waybillErrorDomains;
+    }
+
+    /**
+     * 补全异常运单信息
+     * @param waybillCode
+     * @return
+     */
+    private List<WaybillErrorDomain> complementWaybillErrorOfWaybill(String waybillCode){
+
+        List<WaybillErrorDomain> waybillErrorDomains = new ArrayList<>();
+        //调用运单补全数据
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryGoodList(true);
+        wChoice.setQueryPackList(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+
+        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null && !CollectionUtils.isEmpty(baseEntity.getData().getPackageList())) {
+            int i = 0;
+            com.jd.etms.waybill.domain.Waybill waybill = baseEntity.getData().getWaybill();
+            for(DeliveryPackageD packageD : baseEntity.getData().getPackageList()){
+                WaybillErrorDomain waybillErrorDomain = new WaybillErrorDomain();
+                waybillErrorDomain.setPackageCode(packageD.getPackageBarcode());
+                waybillErrorDomain.setWaybillCode(packageD.getWaybillCode());
+                waybillErrorDomain.setOrderId(waybill.getVendorId());
+                waybillErrorDomain.setReceiverName(waybill.getReceiverName());
+                waybillErrorDomain.setReceiverMobile(waybill.getReceiverMobile());
+                waybillErrorDomain.setReceiverAddress(waybill.getReceiverAddress());
+                if(i++ < maxForSize ){
+                    //最大判断已打印数据量 判断是否已补打
+                    if(reprintRecordService.isBarCodeRePrinted(packageD.getPackageBarcode())){
+                        waybillErrorDomain.setRemark("已补打");
+                    }
+                }
+                waybillErrorDomains.add(waybillErrorDomain);
+            }
+        }
+        return waybillErrorDomains;
     }
 
     @Override
@@ -736,7 +820,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (BusinessUtil.hasWaybillVas(waybill.getWaybillSign())){
 	            //增值服务，打印京喜送达服务url
 	            BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),DmsConstants.WAYBILL_VAS_JXD);
-	            if (waybillVasJXD != null 
+	            if (waybillVasJXD != null
 	            		&& waybillVasJXD.getData() != null){
 	                Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
 	            	String attachmentUrl = BusinessHelper.getAttachmentUrlForJxd(extendMap);
@@ -968,7 +1052,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_TKZH);
             }
         }
-        
+
         //sendpay167位不等于0时，面单模板打印【京准达快递到车】
 	    if(StringHelper.isNotEmpty(waybill.getSendPay())
 	    		&& waybill.getSendPay().length() >= 167
@@ -1052,7 +1136,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_YHD);
         	target.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
         }else if(BusinessUtil.isCMBC(waybill.getWaybillSign())){
-        	//招商银行业务：运费字段、货款字段显示 “无”,商家标识设置为 CMBC 
+        	//招商银行业务：运费字段、货款字段显示 “无”,商家标识设置为 CMBC
         	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_CMBC);
         	target.setFreightText(TextConstants.COMMON_TEXT_NOTHING);
         	target.setGoodsPaymentText(TextConstants.COMMON_TEXT_NOTHING);
@@ -1199,7 +1283,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
             //c2c运费：waybillSign 25位为0或1或3或4时【寄付】
             if(BusinessUtil.isC2C(waybill.getWaybillSign())
-            		&& BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, 
+            		&& BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25,
             				WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_1,WaybillSignConstants.CHAR_25_3,WaybillSignConstants.CHAR_25_4)){
             	freightText = TextConstants.FREIGHT_SEND;
             }
@@ -1329,7 +1413,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	public boolean hasTotalWeight(String waybillCode) {
 		if(StringHelper.isNotEmpty(waybillCode)){
 			 BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-			 if(baseEntity != null 
+			 if(baseEntity != null
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
 				 //先校验运单是否已录入总重量
@@ -1337,7 +1421,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 					 return true;
 				 }else{
 					 //查询该运单是否已录入总重量
-					 
+
 				 }
 			 }
 		}

@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 public class Md5Helper {
 
 	private static final Logger log = LoggerFactory.getLogger(Md5Helper.class);
-    
+
     public static String encode(String str) {
         return DigestUtils.md5Hex(str).toUpperCase();
     }
-    
+
     public static String encode3PL(String str) {
         try {
 			return URLEncoder.encode(Base64.encode(MessageDigest.getInstance("md5").digest
@@ -43,4 +43,49 @@ public class Md5Helper {
     		return new byte[]{};
 		}
  	}
+
+	/**
+	 * 获取字符串的MD5密文
+	 *
+	 * @param s
+	 * @return
+	 */
+	public static String getMd5(String s) {
+		return getMd5(s, "UTF-8");
+	}
+
+
+	/**
+	 * 获取字符串的MD5密文
+	 *
+	 * @param s
+	 * @return
+	 */
+	public static String getMd5(String s,String  charset) {
+		String md5 = "";
+		final char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		try {
+			byte[] btInput = s.getBytes(charset);
+			// 获得MD5摘要算法的 MessageDigest 对象
+			MessageDigest mdInst = MessageDigest.getInstance("MD5");
+			// 使用指定的字节更新摘要
+			mdInst.update(btInput);
+			// 获得密文
+			byte[] md = mdInst.digest();
+			// 把密文转换成十六进制的字符串形式
+			int j = md.length;
+			char str[] = new char[j * 2];
+			int k = 0;
+			for (int i = 0; i < j; i++) {
+				byte per_byte = md[i]; // 转换成16进制（2位数字）
+				str[k++] = hexDigits[per_byte >>> 4 & 0xf];
+				str[k++] = hexDigits[per_byte & 0xf];
+			}
+			// 截取中间16位
+			md5 = new String(str);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return md5;
+	}
 }
