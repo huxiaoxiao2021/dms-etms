@@ -46,11 +46,12 @@ public class BoardChuteConsumer extends JDQConsumer {
     @Autowired
     private BaseMajorManager baseMajorManager;
     @Override
-    public void onMessage(ConsumerRecord<String, String> message) {
-
+    public void onMessage(ConsumerRecord<String, JdwData> message) {
+        if (null == message.value()){
+            return;
+        }
         logger.info("BoardChuteConsumer:"+ JsonHelper.toJson(message));
-        JdwData jdwData = JsonHelper.fromJson(message.value(), JdwData.class);
-        BoardChute boardChute = (BoardChute)toPojo(jdwData, BoardChute.class);
+        BoardChute boardChute = (BoardChute)toPojo(message.value(), BoardChute.class);
         if (boardChute == null) {
             logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", message.value());
             return;

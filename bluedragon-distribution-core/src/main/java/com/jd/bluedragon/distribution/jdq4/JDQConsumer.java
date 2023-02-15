@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jdq4;
 
 import com.jd.bdp.jdq.JDQConfigUtil;
 import com.jd.bdp.jdq.JDQ_CLIENT_INFO_ENV;
+import com.jd.bdp.jdw.avro.JdwData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -27,7 +28,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
     @Value("${JDQ_TEST_ENV:true}")
     private boolean testEnv;
-    KafkaConsumer<String, String> consumer;
+    KafkaConsumer<String, JdwData> consumer;
 
     @Override
     public void destroy() throws Exception {
@@ -60,7 +61,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
          * kafka配置列表，可参考（版本2.5.0）https://kafka.apache.org/25/documentation.html#producerconfigs
          */
         authProp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());//byte序列化方式
-        authProp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        authProp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, AvroDataDeserializer.class.getName());
         authProp.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");//不设置默认值是latest（第一次消费或者越界从最新开始消费）；earliest：第一次消费或者越界从最小位点开始消费数据
         authProp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");//是否自动提交位点,默认是true.默认的自动提交位点的时间间隔是5000ms，false的情况下是需要用户自己调用commit方法自己手动提交位点信息的
         return authProp;
@@ -90,14 +91,16 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 //        props.put("sasl.mechanism", "SCRAM-SHA-256");
 //        props.put("security.protocol", "SASL_PLAINTEXT");
 
-        consumer = new KafkaConsumer<String, String>(getProperties(properties),new StringDeserializer(), new StringDeserializer());
+        consumer = new KafkaConsumer<String, JdwData>(getProperties(properties),new StringDeserializer(), new AvroDataDeserializer());
         consumer.subscribe(Arrays.asList(jdqConfig.getTopic()));
         try{
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-                    for (ConsumerRecord<String, String> record : records) {
-
+                    ConsumerRecords<String, JdwData> records = consumer.poll(Duration.ofMillis(100));
+                    for (ConsumerRecord<String, JdwData> record : records) {
+                        if (record == null){
+                            break;
+                        }
                         /**
                          * your business code...
                          */
@@ -116,7 +119,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
         }
     }
 
-    public abstract void onMessage(ConsumerRecord<String, String> message);
+    public abstract void onMessage(ConsumerRecord<String, JdwData> message);
 
     public abstract JDQConfig createJDQConfig();
 }
