@@ -59,8 +59,8 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
         /**
          * kafka配置列表，可参考（版本2.5.0）https://kafka.apache.org/25/documentation.html#producerconfigs
          */
-        authProp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");//byte序列化方式
-        authProp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        authProp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());//byte序列化方式
+        authProp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         authProp.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");//不设置默认值是latest（第一次消费或者越界从最新开始消费）；earliest：第一次消费或者越界从最小位点开始消费数据
         authProp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");//是否自动提交位点,默认是true.默认的自动提交位点的时间间隔是5000ms，false的情况下是需要用户自己调用commit方法自己手动提交位点信息的
         return authProp;
