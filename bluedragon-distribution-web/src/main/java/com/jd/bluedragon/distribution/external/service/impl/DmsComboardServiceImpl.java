@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
@@ -17,7 +18,10 @@ import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
+import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
+import com.jd.transboard.api.dto.BoardListRequest;
+import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -37,130 +41,146 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
 public class DmsComboardServiceImpl implements DmsComboardService {
 
 
-  @Autowired
-  private JyBizTaskComboardService jyBizTaskComboardService;
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
 
-  @Autowired
-  UccPropertyConfiguration ucc;
+    @Autowired
+    UccPropertyConfiguration ucc;
 
-  @Autowired
-  GroupBoardManager groupBoardManager;
-  
-  @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
-  public InvokeResult<BoardQueryResponse> listComboardBySendFlow(BoardQueryRequest request) {
-    InvokeResult<BoardQueryResponse> invokeResult = new InvokeResult<>();
-    if (request == null || request.getEndSiteId() == null 
-            || request.getStartSiteId() == null || request.getPageNo() == null 
-            || request.getPageSize() == null) {
-      invokeResult.setCode(RESULT_THIRD_ERROR_CODE);
-      invokeResult.setMessage(PARAM_ERROR);
-      return invokeResult;
-    }
-    BoardQueryResponse boardQueryResp = new BoardQueryResponse();
-    List<BoardDto> boardDtos = new ArrayList<>();
-    boardQueryResp.setBoardDtoList(boardDtos);
-    invokeResult.setData(boardQueryResp);
+    @Autowired
+    GroupBoardManager groupBoardManager;
 
-    // 获取当前场地未封车的板号
-    SendFlowDto sendFlow = new SendFlowDto();
-    sendFlow.setEndSiteId(request.getEndSiteId());
-    sendFlow.setStartSiteId(request.getStartSiteId());
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
-    sendFlow.setQueryTimeBegin(time);
-    List<Integer> comboardSourceList = new ArrayList<>();
-    comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-    comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
-    sendFlow.setComboardSourceList(comboardSourceList);
-    PageHelper.startPage(request.getPageNo(),request.getPageSize());
-    List<Integer> statusList = new ArrayList<>();
-    statusList.add(ComboardStatusEnum.FINISHED.getCode());
-    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
-    sendFlow.setStatusList(statusList);
-    List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<BoardQueryResponse> listComboardBySendFlow(BoardQueryRequest request) {
+        InvokeResult<BoardQueryResponse> invokeResult = new InvokeResult<>();
+        if (request == null || request.getEndSiteId() == null || request.getStartSiteId() == null || request.getPageNo() == null || request.getPageSize() == null) {
+            invokeResult.setCode(RESULT_THIRD_ERROR_CODE);
+            invokeResult.setMessage(PARAM_ERROR);
+            return invokeResult;
+        }
+        BoardQueryResponse boardQueryResp = new BoardQueryResponse();
+        List<BoardDto> boardDtos = new ArrayList<>();
+        boardQueryResp.setBoardDtoList(boardDtos);
+        invokeResult.setData(boardQueryResp);
+        
+        // 兼容组板新老版本，组板岗推全国后，关闭开关
+        if (ucc.getBoardListQuerySwitch()) {
+            BoardListRequest boardListRequest = new BoardListRequest();
+            List<Board> boardList = groupBoardManager.getBoardListBySendFlow(boardListRequest);
+            if (!CollectionUtils.isEmpty(boardList)) {
+                for (Board board : boardList) {
+                    BoardDto boardDto = new BoardDto();
+                    boardDto.setBoardCode(board.getCode());
+                    boardDto.setComboardSource(board.getBizSource());
+                    boardDto.setCreateTime(board.getCreateTime());
+                    boardDto.setStartSiteId(request.getStartSiteId());
+                    boardDto.setEndSiteId(board.getDestinationId());
+                    boardDto.setCreateUserErp(board.getCreateUser());
+                    boardDto.setComboardSiteId(request.getStartSiteId());
+                    boardDtos.add(boardDto);
+                }
+            }
+        } else {
+            // 获取当前场地未封车的板号
+            SendFlowDto sendFlow = new SendFlowDto();
+            sendFlow.setEndSiteId(request.getEndSiteId());
+            sendFlow.setStartSiteId(request.getStartSiteId());
+            Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+            sendFlow.setQueryTimeBegin(time);
+            List<Integer> comboardSourceList = new ArrayList<>();
+            comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
+            comboardSourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
+            sendFlow.setComboardSourceList(comboardSourceList);
+            Page page = PageHelper.startPage(request.getPageNo(), request.getPageSize());
+            List<Integer> statusList = new ArrayList<>();
+            statusList.add(ComboardStatusEnum.FINISHED.getCode());
+            statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+            sendFlow.setStatusList(statusList);
+            List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
-    if (CollectionUtils.isEmpty(boardList)) {
-      invokeResult.setCode(RESULT_SUCCESS_CODE);
-      invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
-      return invokeResult;
-    }
+            if (CollectionUtils.isEmpty(boardList)) {
+                invokeResult.setCode(RESULT_SUCCESS_CODE);
+                invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                return invokeResult;
+            }
+            boardQueryResp.setTotal(page.getTotal());
 
-    //查询流向下7天内未封车的板总数
-    BoardCountReq boardCountReq = new BoardCountReq();
-    boardCountReq.setCreateTime(time);
-    List<Integer> endSiteIdList = new ArrayList<>();
-    endSiteIdList.add(request.getEndSiteId());
-    boardCountReq.setEndSiteIdList(endSiteIdList);
-    boardCountReq.setStartSiteId((long) request.getStartSiteId());
-    List<Integer> sourceList = new ArrayList<>();
-    sourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
-    sourceList.add(JyBizTaskComboardSourceEnum.AUTOMATION.getCode());
-    boardCountReq.setComboardSourceList(sourceList);
-    boardCountReq.setStatusList(statusList);
-    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
-
-    if (!CollectionUtils.isEmpty(entityList) && entityList.get(0) != null && entityList.get(0).getBoardCount() != null) {
-      boardQueryResp.setTotal(entityList.get(0).getBoardCount().longValue());
-    }
-
-    for (JyBizTaskComboardEntity board : boardList) {
-      BoardDto boardDto = new BoardDto();
-      boardDto.setSendCode(board.getSendCode());
-      boardDto.setBoardCode(board.getBoardCode());
-      boardDto.setComboardSource(board.getComboardSource());
-      boardDto.setScanCount(board.getHaveScanCount());
-      boardDto.setCreateTime(board.getCreateTime());
-      boardDto.setStartSiteId(board.getStartSiteId().intValue());
-      boardDto.setEndSiteId(board.getEndSiteId().intValue());
-      boardDto.setCreateUserErp(board.getCreateUserErp());
-      boardDto.setCreateUserName(board.getCreateUserName());
-      boardDto.setComboardSiteId(board.getStartSiteId().intValue());
-      boardDtos.add(boardDto);
-    }
-    invokeResult.setCode(RESULT_SUCCESS_CODE);
-    invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
-    return invokeResult;  
-  }
-  
-  @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.queryBelongBoardByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-  public InvokeResult<QueryBelongBoardResponse> queryBelongBoardByBarCode(
-      QueryBelongBoardRequest request) {
-    if (StringUtils.isEmpty(request.getBarCode()) || request.getStartSiteId() == null) {
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
-    }
-    QueryBelongBoardResponse belongBoardResp = new QueryBelongBoardResponse();
-    BoardDto boardDto = new BoardDto();
-    belongBoardResp.setBoardDto(boardDto);
-    // 查询板号信息
-    BoardBoxInfoDto boardBoxInfoDto = groupBoardManager.getBoardBoxInfo(request.getBarCode(), request.getStartSiteId());
-    if (boardBoxInfoDto != null && boardBoxInfoDto.getCode() != null) {
-      boardDto.setBoardCode(boardBoxInfoDto.getCode());
-    } else {
-      log.error("未找到对应的板信息：{}", JsonHelper.toJson(request.getBarCode()));
-      return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
+            for (JyBizTaskComboardEntity board : boardList) {
+                BoardDto boardDto = new BoardDto();
+                boardDto.setSendCode(board.getSendCode());
+                boardDto.setBoardCode(board.getBoardCode());
+                boardDto.setComboardSource(board.getComboardSource());
+                boardDto.setScanCount(board.getHaveScanCount());
+                boardDto.setCreateTime(board.getCreateTime());
+                boardDto.setStartSiteId(board.getStartSiteId().intValue());
+                boardDto.setEndSiteId(board.getEndSiteId().intValue());
+                boardDto.setCreateUserErp(board.getCreateUserErp());
+                boardDto.setCreateUserName(board.getCreateUserName());
+                boardDto.setComboardSiteId(board.getStartSiteId().intValue());
+                boardDtos.add(boardDto);
+            }
+        }
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+        return invokeResult;
     }
 
-    // 根据板号查询任务信息
-    JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
-    query.setStartSiteId((long) request.getStartSiteId());
-    query.setBoardCode(boardBoxInfoDto.getCode());
-    JyBizTaskComboardEntity board = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.queryBelongBoardByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<QueryBelongBoardResponse> queryBelongBoardByBarCode(QueryBelongBoardRequest request) {
+        if (StringUtils.isEmpty(request.getBarCode()) || request.getStartSiteId() == null) {
+            return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+        }
+        QueryBelongBoardResponse belongBoardResp = new QueryBelongBoardResponse();
+        BoardDto boardDto = new BoardDto();
+        belongBoardResp.setBoardDto(boardDto);
+        // 查询板号信息
+        BoardBoxInfoDto boardBoxInfoDto = groupBoardManager.getBoardBoxInfo(request.getBarCode(), request.getStartSiteId());
+        if (boardBoxInfoDto != null && boardBoxInfoDto.getCode() != null) {
+            boardDto.setBoardCode(boardBoxInfoDto.getCode());
+        } else {
+            log.error("未找到对应的板信息：{}", JsonHelper.toJson(request.getBarCode()));
+            return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
+        }
 
-    if (board == null) {
-      log.error("未找到板的批次信息：{}", JsonHelper.toJson(boardBoxInfoDto.getCode()));
-      return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
-    } else {
-      boardDto.setSendCode(board.getSendCode());
-      boardDto.setBoardCode(board.getBoardCode());
-      boardDto.setComboardSource(board.getComboardSource());
-      boardDto.setScanCount(board.getHaveScanCount());
-      boardDto.setCreateTime(board.getCreateTime());
-      boardDto.setStartSiteId(board.getStartSiteId().intValue());
-      boardDto.setEndSiteId(board.getEndSiteId().intValue());
-      boardDto.setCreateUserErp(board.getCreateUserErp());
-      boardDto.setCreateUserName(board.getCreateUserName());
+        // 兼容组板新老版本，组板岗推全国后，关闭开关
+        if (ucc.getBoardListQuerySwitch()) {
+            boardDto.setComboardSiteId(request.getStartSiteId());
+            boardDto.setStartSiteId(request.getStartSiteId());
+            boardDto.setEndSiteId(boardBoxInfoDto.getDestinationId());
+            boardDto.setCreateUserName(boardBoxInfoDto.getOperatorName());
+            boardDto.setCreateUserErp(boardBoxInfoDto.getOperatorErp());
+            boardDto.setComboardSource(boardBoxInfoDto.getBizSource());
+            boardDto.setCreateTime(boardBoxInfoDto.getCreateTime());
+
+            Integer count = groupBoardManager.getBoardBoxCount(boardBoxInfoDto.getCode(), request.getStartSiteId());
+            if (count != null) {
+                boardDto.setScanCount(count);
+            }
+        } else {
+            // 根据板号查询任务信息
+            JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
+            query.setStartSiteId((long) request.getStartSiteId());
+            query.setBoardCode(boardBoxInfoDto.getCode());
+            JyBizTaskComboardEntity board = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+
+            if (board == null) {
+                log.error("未找到板的批次信息：{}", JsonHelper.toJson(boardBoxInfoDto.getCode()));
+                return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
+            } else {
+                boardDto.setSendCode(board.getSendCode());
+                boardDto.setBoardCode(board.getBoardCode());
+                boardDto.setComboardSource(board.getComboardSource());
+                boardDto.setScanCount(board.getHaveScanCount());
+                boardDto.setCreateTime(board.getCreateTime());
+                boardDto.setStartSiteId(board.getStartSiteId().intValue());
+                boardDto.setEndSiteId(board.getEndSiteId().intValue());
+                boardDto.setCreateUserErp(board.getCreateUserErp());
+                boardDto.setCreateUserName(board.getCreateUserName());
+            }
+        }
+        
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, belongBoardResp);
     }
-    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, belongBoardResp); 
-  }
 }
