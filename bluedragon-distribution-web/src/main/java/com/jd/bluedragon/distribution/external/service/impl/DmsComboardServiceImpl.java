@@ -63,10 +63,16 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
         invokeResult.setData(boardQueryResp);
-        
+        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+
         // 兼容组板新老版本，组板岗推全国后，关闭开关
         if (ucc.getBoardListQuerySwitch()) {
             BoardListRequest boardListRequest = new BoardListRequest();
+            boardListRequest.setPageSize(request.getPageSize());
+            boardListRequest.setCreateTime(time);
+            boardListRequest.setSiteCode(request.getStartSiteId());
+            boardListRequest.setDestinationId(request.getEndSiteId());
+            boardListRequest.setPageNo(request.getPageNo());
             List<Board> boardList = groupBoardManager.getBoardListBySendFlow(boardListRequest);
             if (!CollectionUtils.isEmpty(boardList)) {
                 for (Board board : boardList) {
@@ -86,7 +92,6 @@ public class DmsComboardServiceImpl implements DmsComboardService {
             SendFlowDto sendFlow = new SendFlowDto();
             sendFlow.setEndSiteId(request.getEndSiteId());
             sendFlow.setStartSiteId(request.getStartSiteId());
-            Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
             sendFlow.setQueryTimeBegin(time);
             List<Integer> comboardSourceList = new ArrayList<>();
             comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
