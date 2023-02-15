@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
-@Data
+
 public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
     private static final Logger logger = LoggerFactory.getLogger(JDQConsumer.class);
