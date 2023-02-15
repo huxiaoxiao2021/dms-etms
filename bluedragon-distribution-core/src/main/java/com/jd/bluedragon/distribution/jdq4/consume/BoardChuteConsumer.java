@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jdq4.consume;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jd.bdp.jdw.avro.JdwData;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class BoardChuteConsumer extends JDQConsumer {
@@ -40,7 +44,8 @@ public class BoardChuteConsumer extends JDQConsumer {
     @Override
     public void onMessage(ConsumerRecord<String, String> message) {
         System.out.println(JsonHelper.toJson(message));
-        BoardChute boardChute = JsonHelper.fromJson(message.value(), BoardChute.class);
+        JdwData jdwData = JsonHelper.fromJson(message.value(), JdwData.class);
+        BoardChute boardChute = (BoardChute)toPojo(jdwData, BoardChute.class);
         if (boardChute == null) {
             logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", message.value());
             return;
@@ -54,6 +59,26 @@ public class BoardChuteConsumer extends JDQConsumer {
         BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
         logger.info("jdq消费"+JsonHelper.toJson(req));
 //        jyComBoardSendService.finishBoard(req);
+    }
+    public static Object toPojo(JdwData jdwData, Class clazz) {
+        Map<CharSequence, CharSequence> srcMap = jdwData.getSrc();
+        Map<CharSequence, CharSequence> curMap = jdwData.getCur();
+
+        srcMap.putAll(curMap);
+        HashMap<String, Object> map = new HashMap<>();
+
+        srcMap.keySet().forEach(charSequence -> {
+            map.put(charSequence.toString(), srcMap.get(charSequence) == null ? "" : srcMap.get(charSequence).toString());
+        });
+        Object o = null;
+        JSONObject jsonObject = new JSONObject(map);
+        try {
+            o = jsonObject.toJavaObject(clazz);
+        } catch (Exception e) {
+            logger.error("反序列化失败.map:{}", jsonObject.toJSONString());
+            throw e;
+        }
+        return o;
     }
     private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(String userErp, Integer siteCode){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
