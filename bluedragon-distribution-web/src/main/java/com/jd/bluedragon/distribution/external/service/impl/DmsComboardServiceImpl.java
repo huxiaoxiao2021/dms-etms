@@ -15,6 +15,8 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
@@ -49,6 +51,9 @@ public class DmsComboardServiceImpl implements DmsComboardService {
 
     @Autowired
     GroupBoardManager groupBoardManager;
+    
+    @Autowired
+    private SendMDao sendMDao;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -163,6 +168,11 @@ public class DmsComboardServiceImpl implements DmsComboardService {
             if (count != null) {
                 boardDto.setScanCount(count);
             }
+
+            SendM sendM = new SendM();
+            sendM.setBoardCode(boardBoxInfoDto.getCode());
+            sendM.setCreateSiteCode(request.getStartSiteId());
+            sendMDao.findSendMByBoardCode(sendM);
         } else {
             // 根据板号查询任务信息
             JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
