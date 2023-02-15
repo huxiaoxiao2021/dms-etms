@@ -402,8 +402,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
                         initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
                 for (String code : boardCodes){
-                    BoardReq req = createFinishBoardReq(operatorInfo, code);
-                    jyComBoardSendService.finishBoard(req);
+//                    BoardReq req = createFinishBoardReq(operatorInfo, code);
+//                    jyComBoardSendService.finishBoard(req);
                     //调板服务关闭板状态
                     CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
                     JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
