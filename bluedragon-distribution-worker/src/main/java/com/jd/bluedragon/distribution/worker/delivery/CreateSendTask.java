@@ -59,7 +59,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
             Date now = new Date();
             int passedTime = DateHelper.getMiniDiff(createTime, now);
             if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
-                log.info("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",uiqueId);
+                log.error("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",uiqueId);
                 deliveryService.addTaskSend(sendM);
                 deleteRedisCountKey(initialCountKey,compeletedCountKey);
                 return true;
