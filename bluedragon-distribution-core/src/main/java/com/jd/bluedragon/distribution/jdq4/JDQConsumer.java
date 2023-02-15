@@ -90,12 +90,12 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 //        props.put("sasl.mechanism", "SCRAM-SHA-256");
 //        props.put("security.protocol", "SASL_PLAINTEXT");
 
-        consumer = new KafkaConsumer<String, String>(getProperties(properties));
+        consumer = new KafkaConsumer<String, String>(getProperties(properties),new StringDeserializer(), new StringDeserializer());
         consumer.subscribe(Arrays.asList(jdqConfig.getTopic()));
         try{
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
                     for (ConsumerRecord<String, String> record : records) {
 
                         /**
