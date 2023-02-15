@@ -48,7 +48,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
 
         String barCode = request.getBarCode();
         if (log.isInfoEnabled()) {
-            log.info("barCode{}, 称重量方request：{}", barCode, JSON.toJSONString(request));
+            log.info("barCode{}, 企配仓称重量方request：{}", barCode, JSON.toJSONString(request));
         }
         JdCResponse<Boolean> result = new JdCResponse<>();
 
@@ -78,7 +78,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
                     .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
                     .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
                     .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
-                    .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
+                    .operateTime(new Date()).longPackage(condition.getLongPackage())
                     .machineCode(condition.getMachineCode()).remark(remark);
 
             //称重上传
@@ -88,10 +88,10 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
             result.setData(invokeResult.getData());
         } catch (Exception e) {
             log.error("barCode{}, error:", barCode, e);
-            result.toError("称重量方功能异常，请联系分拣小秘！");
+            result.toError("企配仓称重量方功能异常，请联系分拣小秘！");
         } finally {
             if (log.isInfoEnabled()) {
-                log.info("barCode{}, 称重量方response：{}", barCode, JSON.toJSONString(result));
+                log.info("barCode{}, 企配仓称重量方response：{}", barCode, JSON.toJSONString(result));
             }
         }
         return result;
