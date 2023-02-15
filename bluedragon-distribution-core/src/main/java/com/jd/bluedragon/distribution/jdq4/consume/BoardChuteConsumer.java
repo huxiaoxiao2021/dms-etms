@@ -47,7 +47,7 @@ public class BoardChuteConsumer extends JDQConsumer {
     private BaseMajorManager baseMajorManager;
     @Override
     public void onMessage(ConsumerRecord<String, String> message) {
-        logger.error("BoardChuteConsumer:"+JsonHelper.toJson(message));
+        logger.info("BoardChuteConsumer:"+ JsonHelper.toJson(message));
         JdwData jdwData = JsonHelper.fromJson(message.value(), JdwData.class);
         BoardChute boardChute = (BoardChute)toPojo(jdwData, BoardChute.class);
         if (boardChute == null) {
