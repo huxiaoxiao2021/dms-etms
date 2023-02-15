@@ -1928,7 +1928,7 @@
 			<artifactId>jackson-databind</artifactId>
 			<groupId>com.fasterxml.jackson.core</groupId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
@@ -2102,6 +2102,12 @@
 			<groupId>com.zhongyouex.order</groupId>
 			<artifactId>zhongyouex-order-api</artifactId>
 			<version>1.0.35-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bdp.jdq</groupId>
+			<artifactId>jdwdata</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
