@@ -126,4 +126,19 @@ public interface GroupBoardManager {
      * @return
      */
     BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode);
+
+    /**
+     * 获取当前板号的包裹总数
+     * @param boardCode
+     * @param siteCode
+     * @return
+     */
+    Integer getBoardBoxCount(String boardCode, Integer siteCode);
+
+    /**
+     * 根据流向获取板列表
+     * @param request
+     * @return
+     */
+    List<Board> getBoardListBySendFlow(BoardListRequest request);
 }
