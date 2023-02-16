@@ -5051,6 +5051,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if(StringUtils.isNotBlank(waybillCode)){
                         routeNextDto = getRouterNextNode(originalSiteCode, Arrays.asList(waybillCode));
                     }
+                }else{
+                    log.error("checkRouterForKY->单号不是箱号也不是包裹号,数据不合法,发货数据:{}",JsonHelper.toJson(sendM));
                 }
                 if(log.isDebugEnabled()){
                     log.debug("checkRouterForKY->路由下一节点查询结果：{}",JsonHelper.toJson(routeNextDto));
