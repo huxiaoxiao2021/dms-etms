@@ -43,6 +43,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -1403,7 +1405,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(query.getUserCode());
-		UserSignRecordData signData = this.toUserSignRecordData(userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery));
+		UserSignRecord lastUnSignOutData = userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery);
+		//加载网格相关数据
+		loadGridData(lastUnSignOutData);
+		UserSignRecordData signData = this.toUserSignRecordData(lastUnSignOutData);
 		if(signData != null) {
 			//查询组员信息
 			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getId());
@@ -1420,5 +1425,25 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		result.setData(signData);
 		return result;
+	}
+	/**
+	 * 签到记录-加载网格相关数据
+	 * @param signData
+	 */
+	private void loadGridData(UserSignRecord signData) {
+		if(signData != null) {
+			com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
+			workStationGridCheckQuery.setBusinessKey(signData.getRefGridKey());
+			com.jdl.basic.common.utils.Result<WorkStationGrid> gridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+			if(gridData != null && gridData.getData() != null) {
+				signData.setGridCode(gridData.getData().getGridCode());
+				signData.setGridName(gridData.getData().getGridName());
+				signData.setGridNo(gridData.getData().getGridNo());
+				signData.setAreaCode(gridData.getData().getAreaCode());
+				signData.setAreaName(gridData.getData().getAreaName());
+				signData.setWorkCode(gridData.getData().getWorkCode());
+				signData.setWorkName(gridData.getData().getWorkName());
+			}
+		}
 	}
 }
