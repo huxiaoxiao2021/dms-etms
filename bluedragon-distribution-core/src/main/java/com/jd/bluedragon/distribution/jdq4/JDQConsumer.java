@@ -66,7 +66,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
         authProp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());//byte序列化方式
         authProp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, AvroDataDeserializer.class.getName());
         authProp.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");//不设置默认值是latest（第一次消费或者越界从最新开始消费）；earliest：第一次消费或者越界从最小位点开始消费数据
-        authProp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");//是否自动提交位点,默认是true.默认的自动提交位点的时间间隔是5000ms，false的情况下是需要用户自己调用commit方法自己手动提交位点信息的
+        authProp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");//是否自动提交位点,默认是true.默认的自动提交位点的时间间隔是5000ms，false的情况下是需要用户自己调用commit方法自己手动提交位点信息的
         return authProp;
     }
     @Override
@@ -92,7 +92,7 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
                 try{
                     while (!Thread.currentThread().isInterrupted()) {
                         try {
-                            ConsumerRecords<String, JdwData> records = consumer.poll(Duration.ofMillis(100));
+                            ConsumerRecords<String, JdwData> records = consumer.poll(Duration.ofMillis(1000));
                             for (ConsumerRecord<String, JdwData> record : records) {
                                 if (record == null){
                                     break;
@@ -109,7 +109,6 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
                             logger.error(e.getMessage(),e);
                         }
                     }
-                    consumer.commitSync();
                 }finally {
                     consumer.close();
                 }
