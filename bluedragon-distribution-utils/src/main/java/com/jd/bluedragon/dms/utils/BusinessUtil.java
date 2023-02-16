@@ -2618,4 +2618,13 @@ public class BusinessUtil {
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
     }
+
+    /**
+     * 判断是否是易碎运单
+     * Sendpay 第746位等于1时，表示为易碎运单
+     * @param sendPay
+     */
+    public static boolean isFragile(String sendPay){
+        return isSignChar(sendPay,SendPayConstants.POSITION_746,SendPayConstants.CHAR_746_1);
+    }
 }

@@ -1113,6 +1113,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
         	//提出-尊标识
         	target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR);
+            //易碎
+            if(BusinessUtil.isFragile(waybill.getSendPay())){
+                target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR + TextConstants.SPECIAL_MARK_FRAGILE);
+            }
         	target.appendSpecialMark(target.getRespectTypeText(),false);
         }
 
