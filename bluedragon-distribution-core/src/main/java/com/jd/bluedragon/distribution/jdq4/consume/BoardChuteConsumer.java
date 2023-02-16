@@ -52,18 +52,18 @@ public class BoardChuteConsumer extends JDQConsumer {
             return;
         }
         if (boardChute.getStatus()!=0){
-            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
             return;
         }
         if (StringUtils.isNotEmpty(boardChute.getSendCode())){
-            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
             return;
         }
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
                 initOperatorInfo(boardChute.getEndErp(), boardChute.getCreateSiteCode());
         BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
         logger.info("jdq消费"+JsonHelper.toJson(req));
-//        jyComBoardSendService.finishBoard(req);
+        jyComBoardSendService.finishBoard(req);
     }
     public static Object toPojo(JdwData jdwData, Class clazz) {
         Map<CharSequence, CharSequence> srcMap = jdwData.getSrc();

@@ -2111,6 +2111,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.bdp.jdq</groupId>
+			<artifactId>jdwdata</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
 			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
