@@ -850,7 +850,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return new ArrayList<>(sendVehicleBizSet);
     }
 
-    private Long getBoxEndSiteId(String keyword) {
+    public Long getBoxEndSiteId(String keyword) {
         if (BusinessUtil.isBoxcode(keyword)){
             final Box box = boxService.findBoxByCode(keyword);
             if (box != null && box.getReceiveSiteCode()!=null) {
