@@ -134,7 +134,7 @@
       </if>
       <if test="groupCode != null">
         group_code,
-      </if>  
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -347,5 +347,6 @@
     <if test="cancelFlag!=null">
       and cancel_flag =#{cancelFlag}
     </if>
+    limit 1
   </select>
 </mapper>
