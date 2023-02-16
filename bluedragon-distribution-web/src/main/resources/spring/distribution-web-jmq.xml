@@ -26,6 +26,10 @@
 	<jmq:transport id="jmq.uatDmsWeb.transport"
 				   address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
 				   password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
+	<!--UAT特殊配置  uatDmsWork mq应用-->
+	<jmq:transport id="jmq.uatDmsWork.transport"
+				   address="${jmq.uatDmsWork.address}" user="${jmq.uatDmsWork.user}"
+				   password="${jmq.uatDmsWork.password}" app="${jmq.uatDmsWork.app}" />
 
 	<!-- jmq 消费客户端配置区 -->
 
