@@ -7,10 +7,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jdq4.JDQConfig;
 import com.jd.bluedragon.distribution.jdq4.JDQConsumer;
-import com.jd.bluedragon.distribution.jy.dto.comboard.JyAggsDto;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.laf.binding.annotation.Value;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -18,12 +16,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class BoardChuteConsumer extends JDQConsumer {
 
@@ -50,7 +46,6 @@ public class BoardChuteConsumer extends JDQConsumer {
         if (null == message.value()){
             return;
         }
-        logger.info("BoardChuteConsumer:"+ JsonHelper.toJson(message));
         BoardChute boardChute = (BoardChute)toPojo(message.value(), BoardChute.class);
         if (boardChute == null) {
             logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", message.value());
