@@ -62,4 +62,8 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".queryExceptionTaskList", entity);
     }
 
+    public int updateJyBizTaskExceptionOutOfDate(int outOfDate) {
+        return this.getSqlSession().update(NAMESPACE + ".updateJyBizTaskExceptionOutOfDate", outOfDate);
+    }
+
 }

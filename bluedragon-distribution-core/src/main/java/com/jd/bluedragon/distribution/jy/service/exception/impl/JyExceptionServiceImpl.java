@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -109,7 +110,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 通用异常上报入口-扫描
      *
@@ -828,29 +830,56 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Override
     public void printSuccess(RePrintRecordMq rePrintRecordMq) {
-        if (!Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
-            return;
-        }
-        if (rePrintRecordMq.getSiteCode() == null){
-            return;
-        }
-        if (StringUtils.isEmpty(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        if (!WaybillUtil.isPackageCode(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        JyExceptionEntity conditon = new JyExceptionEntity();
-        conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
-        conditon.setPackageCode(rePrintRecordMq.getPackageCode());
-        List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
-        if (CollectionUtils.isEmpty(jyExceptionEntities)){
-            return;
-        }
-        for (JyExceptionEntity entity:jyExceptionEntities){
-            printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
+        //包裹补打
+        if (Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+            if (rePrintRecordMq.getSiteCode() == null){
+                return;
+            }
+            if (StringUtils.isEmpty(rePrintRecordMq.getPackageCode())){
+                return;
+            }
+            if (!WaybillUtil.isPackageCode(rePrintRecordMq.getPackageCode())){
+                return;
+            }
+            JyExceptionEntity conditon = new JyExceptionEntity();
+            conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
+            conditon.setPackageCode(rePrintRecordMq.getPackageCode());
+            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+            if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                return;
+            }
+            for (JyExceptionEntity entity:jyExceptionEntities){
+                printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
+            }
+        }else if(Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())
+            || Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+            //换单打印 OR 运单补打
+            //todo
+            if (rePrintRecordMq.getSiteCode() == null){
+                return;
+            }
+            if (StringUtils.isEmpty(rePrintRecordMq.getWaybillCode())){
+                return;
+            }
+            JyExceptionEntity conditon = new JyExceptionEntity();
+            conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
+            conditon.setWaybillCode(rePrintRecordMq.getWaybillCode());
+            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+            if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                return;
+            }
+            for (JyExceptionEntity entity:jyExceptionEntities){
+                printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
+            }
         }
 
+    }
+
+    @Override
+    public void updateJyBizTaskExceptionOutOfDate() {
+        int sanwuOutOfDate = uccPropertyConfiguration.getSanwuOutOfDate();
+        int result = jyBizTaskExceptionDao.updateJyBizTaskExceptionOutOfDate(sanwuOutOfDate);
+        logger.info("执行结果-{}",result);
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
@@ -1006,6 +1035,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         //业务表记录匹配成功单号
         entity.setPackageCode(mqDto.getPackageCode());
+        if(StringUtils.isNotBlank(mqDto.getPackageCode())){
+            entity.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getPackageCode()));
+        }
         entity.setUpdateTime(mqDto.getNotifyTime());
         entity.setUpdateUserErp(mqDto.getNotifyErp());
         entity.setUpdateUserName(baseStaffByErp.getStaffName());
