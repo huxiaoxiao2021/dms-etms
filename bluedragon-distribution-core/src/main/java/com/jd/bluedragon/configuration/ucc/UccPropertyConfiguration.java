@@ -1204,6 +1204,8 @@ public class UccPropertyConfiguration {
     private String dewuCustomerCodes;
 
     private boolean czQuerySwitch;
+    
+    private Boolean boardListQuerySwitch;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2887,5 +2889,13 @@ public class UccPropertyConfiguration {
 
     public void setLogToBusinessLogByKafkaUat(boolean logToBusinessLogByKafkaUat) {
         this.logToBusinessLogByKafkaUat = logToBusinessLogByKafkaUat;
+    }
+
+    public Boolean getBoardListQuerySwitch() {
+        return boardListQuerySwitch;
+    }
+
+    public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
+        this.boardListQuerySwitch = boardListQuerySwitch;
     }
 }

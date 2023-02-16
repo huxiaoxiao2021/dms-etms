@@ -173,4 +173,26 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return null;
     }
 
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardBoxCount",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Integer getBoardBoxCount(String boardCode, Integer siteCode) {
+        Response<Integer> response = groupBoardService.getBoardBoxCount(boardCode, siteCode);
+        if (response != null && response.getData()!= null ) {
+            return response.getData();
+        }
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardListBySendFlow",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<Board> getBoardListBySendFlow(BoardListRequest request) {
+        Response<List<Board>> response = groupBoardService.getBoardListBySendFlow(request);
+        if (response != null && response.getData()!= null ) {
+            return response.getData();
+        }
+        return null;
+    }
+
 }
