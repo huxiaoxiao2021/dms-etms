@@ -4,6 +4,7 @@ import com.jd.bdp.jdq.JDQConfigUtil;
 import com.jd.bdp.jdq.JDQ_CLIENT_INFO_ENV;
 import com.jd.bdp.jdw.avro.JdwData;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ThreadUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -19,6 +20,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
@@ -80,43 +83,38 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
         Properties properties = new Properties();
         Map<String, String> clientConfigs = JDQConfigUtil.getClientConfigs(jdqConfig.getUsername(), jdqConfig.getDomain(), jdqConfig.getPassword());
         properties.putAll(clientConfigs);
-//        props.put("bootstrap.servers", jdqConfig.getDomain());
-//        props.put("group.id", jdqConfig.getGroupId());
-//        props.put("enable.auto.commit", "true");
-//        props.put("key.deserializer", StringDeserializer.class.getName());
-//        props.put("value.deserializer", StringDeserializer.class.getName());
-//
-//        //下面三个参数是关于认证的核心参数
-//        props.put("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"" + jdqConfig.getUsername() + "\" password=\"" + jdqConfig.getPassword() + "\";");
-//        props.put("sasl.mechanism", "SCRAM-SHA-256");
-//        props.put("security.protocol", "SASL_PLAINTEXT");
 
         consumer = new KafkaConsumer<String, JdwData>(getProperties(properties),new StringDeserializer(), new AvroDataDeserializer());
         consumer.subscribe(Arrays.asList(jdqConfig.getTopic()));
-        try{
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    ConsumerRecords<String, JdwData> records = consumer.poll(Duration.ofMillis(100));
-                    for (ConsumerRecord<String, JdwData> record : records) {
-                        if (record == null){
-                            break;
-                        }
-                        /**
-                         * your business code...
-                         */
-                        onMessage(record);
-                        logger.info("value = {}, offset = {}", record.value(), record.offset());
-                    }
+        Executors.newSingleThreadExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    while (!Thread.currentThread().isInterrupted()) {
+                        try {
+                            ConsumerRecords<String, JdwData> records = consumer.poll(Duration.ofMillis(100));
+                            for (ConsumerRecord<String, JdwData> record : records) {
+                                if (record == null){
+                                    break;
+                                }
+                                /**
+                                 * your business code...
+                                 */
+                                onMessage(record);
+                                logger.info("value = {}, offset = {}", record.value(), record.offset());
+                            }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.error(e.getMessage(),e);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            logger.error(e.getMessage(),e);
+                        }
+                    }
+                    consumer.commitSync();
+                }finally {
+                    consumer.close();
                 }
             }
-            consumer.commitSync();
-        }finally {
-            consumer.close();
-        }
+        });
     }
 
     public abstract void onMessage(ConsumerRecord<String, JdwData> message);
