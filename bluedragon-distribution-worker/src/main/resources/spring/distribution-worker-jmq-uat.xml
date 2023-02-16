@@ -36,6 +36,10 @@
     <jmq:transport id="jmq.uatDmsWeb.transport"
                    address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
                    password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
+    <!--UAT特殊配置  uatDmsWork mq应用-->
+    <jmq:transport id="jmq.uatDmsWork.transport"
+                   address="${jmq.uatDmsWork.address}" user="${jmq.uatDmsWork.user}"
+                   password="${jmq.uatDmsWork.password}" app="${jmq.uatDmsWork.app}" />
 
     <jmq:transport id="jmq.dmsWorkerForTibet.transport" address="${jmq.dmsWorkerForTibet.address}" user="${jmq.dmsWorkerForTibet.user}"
                    password="${jmq.dmsWorkerForTibet.password}" app="${jmq.dmsWorkerForTibet.app}"/>
@@ -127,7 +131,7 @@
 
 
     <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
-    <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWork.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>
     </jmq:consumer>
 
@@ -240,7 +244,7 @@
     </jmq:consumer>
 
     <!-- 消费发货消息处理打印交接清单数据 -->
-    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.uatDmsWork.transport">
         <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="dmsWorkSendDetailConsumer"/>
     </jmq:consumer>
     <!--冷链验货消费-->
