@@ -131,7 +131,7 @@
 
 
     <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
-    <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWork.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>
     </jmq:consumer>
 
