@@ -296,7 +296,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
         return sendVehicleBizList;
       }
-      result.hintMessage("未检索到相应的发货任务数据！");
+      result.hintMessage("未检索到相应的派车任务！");
       return null;
     } else {
       //车牌号后四位检索
@@ -305,9 +305,9 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
         if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
           return sendVehicleBizList;
         }
-        result.hintMessage("未检索到相应的发货任务数据！");
+        result.hintMessage("未检索到相应的派车任务！");
       } else {
-        result.hintMessage("输入位数错误，未检索到发货任务数据！");
+        result.hintMessage("输入位数错误，未检索到派车任务！");
       }
       return null;
     }
@@ -323,8 +323,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService
         .findBySiteAndStatus(detailQ, null);
     if (CollectionUtils.isEmpty(vehicleDetailList)) {
-      String msg = String.format("没有找到对应流向[%s]的运输任务！", endSiteId);
-      result.hintMessage(msg);
+      result.hintMessage("未检索到相应的派车任务！");
       return null;
     }
     Set<String> sendVehicleBizSet = new HashSet<>();
@@ -340,8 +339,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService
           .findBySiteAndStatus(detailQ, null);
       if (CollectionUtils.isEmpty(vehicleDetailList)) {
-        String msg = String.format("没有找到对应流向[%s]的运输任务！", queryTaskSendDto.getEndSiteId());
-        result.hintMessage(msg);
+        result.hintMessage("未检索到该流向的派车任务，请联系运输调度下发派车任务！");
         return null;
       }
       Set<String> sendVehicleBizSet = new HashSet<>();
@@ -374,7 +372,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
         if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
           return sendVehicleBizList;
         }
-        result.hintMessage("未检索到相应的发货任务数据！");
+        result.hintMessage("未检索到相应的派车任务！");
         return null;
       } else {
         //车牌号后四位检索
@@ -383,9 +381,9 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
           if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
             return sendVehicleBizList;
           }
-          result.hintMessage("未检索到相应的发货任务数据！");
+          result.hintMessage("未检索到相应的派车任务！");
         } else {
-          result.hintMessage("输入位数错误，未检索到发货任务数据！");
+          result.hintMessage("输入位数错误，未检索到相应的派车任务！");
         }
         return null;
       }
@@ -401,8 +399,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService
           .findBySiteAndStatus(detailQ, null);
       if (CollectionUtils.isEmpty(vehicleDetailList)) {
-        String msg = String.format("没有找到对应流向[%s]的运输任务！", endSiteId);
-        result.hintMessage(msg);
+        result.hintMessage("未检索到相应的派车任务！");
         return null;
       }
       Set<String> sendVehicleBizSet = new HashSet<>();
