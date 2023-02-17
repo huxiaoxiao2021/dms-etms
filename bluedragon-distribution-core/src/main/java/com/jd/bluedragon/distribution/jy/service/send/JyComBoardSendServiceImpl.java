@@ -25,6 +25,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -1520,8 +1521,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       request.setDestinationId(box.getReceiveSiteCode());
       //匹配流向
       matchDestinationCheck(request);
+      if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
+        BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
+        InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
+        if (!bindMaterialRet.codeSuccess()) {
+          throw new JyBizException("绑定集包袋失败：" + bindMaterialRet.getMessage());
+        }
+      }
       if (!cycleBagBindCheck(barCode, request.getCurrentOperate().getSiteCode(), box)) {
-        throw new JyBizException(BoxResponse.MESSAGE_BC_NO_BINDING);
+        throw new JyBizException(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
       }
     }
     JyComboardEntity condition = new JyComboardEntity();
@@ -1551,6 +1559,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("该包裹已发货");
       }
     }
+  }
+
+  private BoxMaterialRelationRequest getBoxMaterialRelationRequest(ComboardScanReq request, String barCode) {
+    BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
+    req.setUserCode(request.getUser().getUserCode());
+    req.setUserName(request.getUser().getUserName());
+    req.setOperatorERP(request.getUser().getUserErp());
+    req.setSiteCode(request.getCurrentOperate().getSiteCode());
+    req.setSiteName(request.getCurrentOperate().getSiteName());
+    req.setBoxCode(barCode);
+    req.setMaterialCode(request.getMaterialCode());
+    req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // 绑定
+    return req;
   }
 
   /**
