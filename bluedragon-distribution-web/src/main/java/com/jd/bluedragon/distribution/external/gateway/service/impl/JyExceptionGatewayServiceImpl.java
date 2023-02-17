@@ -171,10 +171,4 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         return result;
     }
 
-    @Override
-    public JdCResponse updateJyBizTaskExceptionOutOfDate() {
-        jyExceptionService.updateJyBizTaskExceptionOutOfDate();
-        return new JdCResponse(200,"success");
-    }
-
 }

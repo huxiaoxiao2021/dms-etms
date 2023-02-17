@@ -392,6 +392,6 @@
         update jy_biz_task_exception set status=4
         where  status =1
         and yn =1
-        and DATE_SUB(CURDATE(), INTERVAL #{outOfDate} DAY) >date(ts) limit 1
+        and DATE_SUB(CURDATE(), INTERVAL #{outOfDate} DAY) >date(ts) limit 500
     </update>
 </mapper>
