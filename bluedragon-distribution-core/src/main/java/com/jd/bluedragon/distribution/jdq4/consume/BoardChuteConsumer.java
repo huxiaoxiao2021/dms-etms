@@ -60,7 +60,7 @@ public class BoardChuteConsumer extends JDQConsumer {
             return;
         }
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                initOperatorInfo(boardChute.getEndErp(), boardChute.getCreateSiteCode());
+                initOperatorInfo(boardChute);
         BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
         logger.info("jdq消费"+JsonHelper.toJson(req));
         jyComBoardSendService.finishBoard(req);
@@ -85,15 +85,23 @@ public class BoardChuteConsumer extends JDQConsumer {
         }
         return o;
     }
-    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(String userErp, Integer siteCode){
+    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(BoardChute boardChute){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
-        if(baseStaffSiteOrgDto != null){
-            operatorInfo.setUserName(baseStaffSiteOrgDto.getStaffName());
-            operatorInfo.setSiteName(baseStaffSiteOrgDto.getSiteName());
+        if (StringUtils.isNotEmpty(boardChute.getEndErp())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(boardChute.getEndErp());
+            if(baseStaffSiteOrgDto != null){
+                operatorInfo.setUserName(baseStaffSiteOrgDto.getStaffName());
+            }else{
+                operatorInfo.setUserName(boardChute.getMachineCode());
+            }
+            operatorInfo.setUserErp(boardChute.getEndErp());
+
+        }else{
+            operatorInfo.setUserErp(boardChute.getEndErp());
+            operatorInfo.setUserName(boardChute.getMachineCode());
         }
-        operatorInfo.setUserErp(userErp);
-        operatorInfo.setSiteCode(siteCode);
+        operatorInfo.setSiteName(boardChute.getCreateSiteName());
+        operatorInfo.setSiteCode(boardChute.getCreateSiteCode());
         return operatorInfo;
     }
     private BoardReq createFinishBoardReq(com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo, String code) {
