@@ -55,7 +55,7 @@ public class BoardChuteConsumer extends JDQConsumer {
 //            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
             return;
         }
-        if (StringUtils.isNotEmpty(boardChute.getSendCode())){
+        if (StringUtils.isEmpty(boardChute.getSendCode())){
 //            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
             return;
         }
