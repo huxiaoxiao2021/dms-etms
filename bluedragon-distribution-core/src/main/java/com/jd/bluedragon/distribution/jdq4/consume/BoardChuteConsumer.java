@@ -97,7 +97,7 @@ public class BoardChuteConsumer extends JDQConsumer {
             operatorInfo.setUserErp(boardChute.getEndErp());
 
         }else{
-            operatorInfo.setUserErp(boardChute.getEndErp());
+            operatorInfo.setUserErp(boardChute.getMachineCode());
             operatorInfo.setUserName(boardChute.getMachineCode());
         }
         operatorInfo.setSiteName(boardChute.getCreateSiteName());
@@ -114,7 +114,7 @@ public class BoardChuteConsumer extends JDQConsumer {
         req.setCurrentOperate(currentOperate);
 
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
-        user.setUserErp(operatorInfo.getUserName());
+        user.setUserErp(operatorInfo.getUserErp());
         user.setUserName(operatorInfo.getUserName());
         req.setUser(user);
         return req;
