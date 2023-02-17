@@ -114,7 +114,7 @@ public class BoardChuteConsumer extends JDQConsumer {
         req.setCurrentOperate(currentOperate);
 
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
-        user.setUserErp(operatorInfo.getUserErp());
+        user.setUserErp(operatorInfo.getUserName());
         user.setUserName(operatorInfo.getUserName());
         req.setUser(user);
         return req;
