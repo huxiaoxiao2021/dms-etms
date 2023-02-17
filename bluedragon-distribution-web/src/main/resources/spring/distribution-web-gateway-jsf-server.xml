@@ -607,7 +607,7 @@
 
     <!-- 企配仓pda称重量方服务 -->
     <bean id="jyWeightVolumeGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWeightVolumeGatewayServiceImpl" />
-    <jsf:provider id="jyWeightVolumeGatewayService"
+    <jsf:provider id="jsfJyWeightVolumeGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyWeightVolumeGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyWeightVolumeGatewayService"
