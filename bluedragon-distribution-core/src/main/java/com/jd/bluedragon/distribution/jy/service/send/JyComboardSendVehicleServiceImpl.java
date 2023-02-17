@@ -298,17 +298,33 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       }
       result.hintMessage("未检索到相应的派车任务！");
       return null;
-    } else {
-      //车牌号后四位检索
-      if (queryTaskSendDto.getKeyword().length() == VEHICLE_NUMBER_FOUR) {
+    }
+    else if (!NumberHelper.gt0(queryTaskSendDto.getKeyword()) && VEHICLE_NUMBER_FOUR ==queryTaskSendDto.getKeyword().length()){
+      List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+      if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
+        return sendVehicleBizList;
+      }
+      result.hintMessage("未检索到相应的派车任务！");
+      return null;
+    }
+    else if (NumberHelper.gt0(queryTaskSendDto.getKeyword())){
+      //四位 优先按车牌号
+      if (VEHICLE_NUMBER_FOUR ==queryTaskSendDto.getKeyword().length()){
+        //没查到再按目的站点匹配
         List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
         if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
           return sendVehicleBizList;
         }
-        result.hintMessage("未检索到相应的派车任务！");
-      } else {
-        result.hintMessage("输入位数错误，未检索到派车任务！");
+        endSiteId =Long.valueOf(queryTaskSendDto.getKeyword());
       }
+      //按站点匹配
+      else {
+        endSiteId = Long.valueOf(queryTaskSendDto.getKeyword());
+      }
+    }
+    else {
+      //不支持该类型
+      result.hintMessage("暂不支持该类型条码！");
       return null;
     }
 
