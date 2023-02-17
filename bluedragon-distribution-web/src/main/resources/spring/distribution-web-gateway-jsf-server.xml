@@ -597,6 +597,14 @@
                   ref="jyComboardSealGatewayServiceImpl"
                   server="dmsjsf" />
 
+    <!--  异常提报撤销  -->
+    <bean id="revokeExceptionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.RevokeExceptionGatewayServiceImpl" />
+    <jsf:provider id="jsfRevokeExceptionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.RevokeExceptionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="revokeExceptionGatewayServiceImpl"
+                  server="dmsjsf" />
+
     <!-- 企配仓pda称重量方服务 -->
     <bean id="jyWeightVolumeGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWeightVolumeGatewayServiceImpl" />
     <jsf:provider id="jyWeightVolumeGatewayService"

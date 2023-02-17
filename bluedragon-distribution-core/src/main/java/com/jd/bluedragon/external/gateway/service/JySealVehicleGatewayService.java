@@ -110,5 +110,12 @@ public interface JySealVehicleGatewayService {
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
 
 
+    /**
+     * 获取待解封车数据详情
+     * @param request
+     * @return
+     */
+    JdCResponse<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request);
+
 
 }

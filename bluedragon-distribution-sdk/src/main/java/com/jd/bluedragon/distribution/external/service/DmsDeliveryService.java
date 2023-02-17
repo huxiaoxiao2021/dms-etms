@@ -4,9 +4,12 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.AbstractMap;
+import java.util.List;
 
 /**
  * 发往物流网关的接口不要在此类中加方法
@@ -55,5 +58,14 @@ public interface DmsDeliveryService {
      * @return
      */
     InvokeResult cancelDeliveryInfo(DeliveryRequest request);
+
+    /**
+     * 查询箱内发货明细列表
+     * @param boxCode 箱号
+     * @return 列表明细
+     * @author fanggang7
+     * @time 2023-01-12 21:40:26 周四
+     */
+    Result<List<SendDetail>> getCancelSendByBox(String boxCode);
 
 }

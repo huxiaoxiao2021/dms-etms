@@ -1182,6 +1182,8 @@ public class UccPropertyConfiguration {
     private Integer jyComboardCountLimit;
 
     private boolean czQuerySwitch;
+    
+    private Boolean boardListQuerySwitch;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2799,5 +2801,13 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardSealBoardListLimit(Integer jyComboardSealBoardListLimit) {
         this.jyComboardSealBoardListLimit = jyComboardSealBoardListLimit;
+    }
+
+    public Boolean getBoardListQuerySwitch() {
+        return boardListQuerySwitch;
+    }
+
+    public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
+        this.boardListQuerySwitch = boardListQuerySwitch;
     }
 }
