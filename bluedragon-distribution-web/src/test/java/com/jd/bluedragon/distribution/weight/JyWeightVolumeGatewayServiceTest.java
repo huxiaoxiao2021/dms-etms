@@ -37,8 +37,6 @@ public class JyWeightVolumeGatewayServiceTest {
         request.setOperatorCode("zhangshuo147");
         request.setOperatorName("张硕");
 
-        request.setOperateTime(System.currentTimeMillis());
-
         //运单
         request.setWeight(100D);
         request.setVolume(12D);
