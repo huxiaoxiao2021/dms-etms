@@ -16,6 +16,7 @@ import com.jd.bluedragon.external.gateway.service.JyWeightVolumeGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,18 +47,21 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
     @Override
     public JdCResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request) {
 
-        String barCode = request.getBarCode();
+        String barCode = request != null ? request.getBarCode() : null;
         if (log.isInfoEnabled()) {
             log.info("barCode{}, 企配仓称重量方request：{}", barCode, JSON.toJSONString(request));
         }
+
         JdCResponse<Boolean> result = new JdCResponse<>();
+        if (StringUtils.isBlank(barCode)) {
+            result.toError("运单号/包裹号为空, 请重新输入");
+            return result;
+        }
 
         try {
             //称重量方前置校验
             WeightVolumeRuleCheckDto weightVolumeRuleCheckDto = new WeightVolumeRuleCheckDto();
             BeanUtils.copyProperties(request, weightVolumeRuleCheckDto);
-            weightVolumeRuleCheckDto.setSourceCode(request.getSourceCode());
-            weightVolumeRuleCheckDto.setBusinessType(request.getBusinessType());
             InvokeResult<Boolean> ruleCheck = dmsWeightVolumeService.weightVolumeRuleCheck(weightVolumeRuleCheckDto);
 
             if (!ruleCheck.codeSuccess()) {
@@ -82,7 +86,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
                     .machineCode(condition.getMachineCode()).remark(remark);
 
             //称重上传
-            InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+            InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.TRUE);
             result.setCode(invokeResult.getCode());
             result.setMessage(invokeResult.getMessage());
             result.setData(invokeResult.getData());
