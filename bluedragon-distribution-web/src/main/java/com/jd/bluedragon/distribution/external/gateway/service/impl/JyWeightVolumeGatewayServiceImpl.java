@@ -29,7 +29,6 @@ import java.util.Date;
  * @description 企配仓称重量方接口
  */
 @Slf4j
-@Service
 public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewayService {
 
     @Autowired
