@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
@@ -86,7 +88,10 @@ public abstract class JDQConsumer implements InitializingBean, DisposableBean {
 
         consumer = new KafkaConsumer<String, JdwData>(getProperties(properties),new StringDeserializer(), new AvroDataDeserializer());
         consumer.subscribe(Arrays.asList(jdqConfig.getTopic()));
-        Executors.newSingleThreadExecutor().submit(new Runnable() {
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        threadPoolExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 try{
