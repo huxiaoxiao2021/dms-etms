@@ -87,6 +87,7 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
@@ -5012,7 +5013,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             response.setMessage("无法获取目的站点："+receiveSiteCode);
             log.warn("快运发货无法获取目的站点：{}",receiveSiteCode);
             return response;
-        }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
+        }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至非分拣中心才校验
             log.warn("快运发货目的站点非分拣中心，不校验B2B路由：{}",receiveSiteCode);
             if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
@@ -5024,43 +5025,87 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         //6.判断路由
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
-        log.debug("根据包裹号或箱号获取目的分拣中心：{}",destinationSiteCode);
+        log.debug("checkRouterForKY->根据包裹号或箱号获取目的分拣中心/站点：{}",destinationSiteCode);
         if(destinationSiteCode == null){
             response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
             response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
             return response;
         }
         try {
+            //判断是否直发 或者 发货目的地与末级分拣|站点是否一致
+            boolean isDestinationSiteCode = isDestinationSiteCode(sendM,destinationSiteCode);
             if(log.isDebugEnabled()){
-                log.debug("B网路由查询条件：",JsonHelper.toJson(sendM));
+                log.debug("checkRouterForKY->判断是否直发：{}",isDestinationSiteCode);
             }
-            List<B2BRouter> routers = b2bRouterService.getB2BRouters(originalSiteCode, destinationSiteCode);
-            if(log.isDebugEnabled()){
-                log.debug("B网路由查询结果：",JsonHelper.toJson(routers));
-            }
-            if(routers == null || routers.isEmpty()){
-                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
-            }else{
-                List<B2BRouterNode> nodes = b2bRouterService.getNextCodes(originalSiteCode, destinationSiteCode, receiveSiteCode);
-                if(log.isDebugEnabled()){
-                    log.debug("B网路由下一节点查询结果：{}",JsonHelper.toJson(nodes));
+            if(!isDestinationSiteCode) {
+                String boxCode = sendM.getBoxCode();
+                RouteNextDto routeNextDto = null;
+                if(BusinessHelper.isBoxcode(boxCode)) {
+                    //从箱子中取出三单
+                    List<String> waybillCodeList = getWaybillCodesByBoxCodeAndFetchNum(boxCode,3);
+                    if(waybillCodeList != null && waybillCodeList.size() > 0){
+                        routeNextDto = getRouterNextNode(originalSiteCode,waybillCodeList);
+                    }
+                }else if(WaybillUtil.isPackageCode(boxCode)){
+                    String waybillCode = WaybillUtil.getWaybillCode(boxCode);
+                    if(StringUtils.isNotBlank(waybillCode)){
+                        routeNextDto = getRouterNextNode(originalSiteCode, Arrays.asList(waybillCode));
+                    }
+                }else{
+                    log.error("checkRouterForKY->单号不是箱号也不是包裹号,数据不合法,发货数据:{}",JsonHelper.toJson(sendM));
                 }
-                if(nodes == null || nodes.isEmpty()){
+                if(log.isDebugEnabled()){
+                    log.debug("checkRouterForKY->路由下一节点查询结果：{}",JsonHelper.toJson(routeNextDto));
+                }
+                if(routeNextDto == null){
+                    response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                    response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
+                }else if(!Objects.equals(receiveSiteCode,routeNextDto.getFirstNextSiteId())){
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(HintService.getHint(HintCodeConstants.NEXT_ROUTER_AND_DESTINATION_DIFFERENCE));
                 }
             }
         }catch (Exception e){
-            log.error("B网路由查询异常：{}",JsonHelper.toJson(sendM), e);
+            log.error("checkRouterForKY->网路由查询异常：{}",JsonHelper.toJson(sendM), e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         if(!JdResponse.CODE_OK.equals(response.getCode())){
-            log.warn("B网路由拦截：{}->{}->{},{}",originalSiteCode,receiveSiteCode,destinationSiteCode,response.getMessage());
+            log.warn("路由拦截：{}->{},{}",originalSiteCode,receiveSiteCode,response.getMessage());
         }
 
         return response;
+    }
+
+    /**
+     * 根据当前网点 匹配下一网点
+     * @param originalSiteCode
+     * @param waybillCodeList
+     * @return
+     */
+    private RouteNextDto getRouterNextNode(Integer originalSiteCode, List<String> waybillCodeList) {
+        for(String waybillCode : waybillCodeList) {
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(originalSiteCode,waybillCode);
+            if(Objects.nonNull(routeNextDto) && Objects.nonNull(routeNextDto.getFirstNextSiteId())){
+                return routeNextDto;
+            }
+        }
+        return RouteNextDto.NONE;
+    }
+
+    /**
+     *
+     * @param sendM 发货数据
+     * @param destinationSiteCode 末端分拣中心|预分拣站点
+     * @return
+     */
+    private boolean isDestinationSiteCode(SendM sendM, Integer destinationSiteCode) {
+        Integer receiveSiteCode = sendM.getReceiveSiteCode();
+        if(Objects.equals(destinationSiteCode,receiveSiteCode)) {
+            return Boolean.TRUE;
+        }
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(destinationSiteCode);
+        return Objects.nonNull(siteOrgDto) && Objects.equals(siteOrgDto.getDmsId(),receiveSiteCode);
     }
 
     /**
@@ -5153,7 +5198,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     }
 
     /**
-     *  获取包裹或者箱子的末级分拣中心
+     * 获得箱子的某端分拣中心或站点
+     * 或者运单号|包裹号的站点
      * @param sendM
      * @return
      */
@@ -5161,31 +5207,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         Integer destinationSiteCode = null;
         if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
             Box box = boxService.findBoxByCode(sendM.getBoxCode());
-            if(box == null){
-                log.warn("快运发货箱号不存在，无法获取最终目的地：{}",JsonHelper.toJson(sendM));
-                return destinationSiteCode;
-            }
-            BaseStaffSiteOrgDto boxReceiveSiteCode = baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
-            if(boxReceiveSiteCode != null){
-                destinationSiteCode = Integer.valueOf(Constants.DMS_SITE_TYPE).equals(boxReceiveSiteCode.getSiteType()) ? box.getReceiveSiteCode():boxReceiveSiteCode.getDmsId();
+            if(box != null && box.getReceiveSiteCode() != null){
+                destinationSiteCode = box.getReceiveSiteCode();
             }else{
                 log.warn("快运发货箱号目的地不存在，无法获取最终目的地：{}",JsonHelper.toJson(sendM));
             }
         } else if (WaybillUtil.isPackageCode(sendM.getBoxCode())) {
-            Integer preSiteCode = null;
             String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
-            if(StringUtils.isBlank(waybillCode)){
-                log.warn("快运发货包裹号非法，无法获取最终目的地：{}",JsonHelper.toJson(sendM));
-            }else{
-                preSiteCode = getPreSiteCodeByWayBillCode(waybillCode);
-            }
-            if(preSiteCode != null){
-                BaseStaffSiteOrgDto preSiteCodeDto = baseMajorManager.getBaseSiteBySiteId(preSiteCode);
-                if(preSiteCodeDto != null){
-                    destinationSiteCode = preSiteCodeDto.getDmsId();
-                }else{
-                    log.warn("快运发货包裹预分拣站点不存在，无法获取最终目的地：{}",JsonHelper.toJson(sendM));
-                }
+            if(StringUtils.isNotBlank(waybillCode)) {
+                destinationSiteCode = getPreSiteCodeByWayBillCode(waybillCode);
             }
         }
         return destinationSiteCode;
