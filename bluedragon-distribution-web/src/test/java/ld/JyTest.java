@@ -7,6 +7,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadNoT
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadNoTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanDetail;
+import com.jd.bluedragon.distribution.external.domain.SpWmsCreateInProduct;
+import com.jd.bluedragon.distribution.external.domain.SpWmsCreateInRequest;
+import com.jd.bluedragon.distribution.external.service.SpWmsToolService;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
@@ -23,6 +26,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -37,6 +43,33 @@ public class JyTest {
 
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private SpWmsToolService spWmsToolService;
+
+    @Test
+    public void testSpWms(){
+        SpWmsCreateInRequest request = new SpWmsCreateInRequest();
+        request.setSpWmsCode(910);
+        request.setOpeTime(new Date());
+        request.setWaybillCode("JDT000000086925");
+        List<SpWmsCreateInProduct> list = new ArrayList<>();
+        SpWmsCreateInProduct spWmsCreateInProduct = new SpWmsCreateInProduct();
+        spWmsCreateInProduct.setProductCode("111");
+        spWmsCreateInProduct.setSpareCode("222");
+        list.add(spWmsCreateInProduct);
+        SpWmsCreateInProduct spWmsCreateInProduct2 = new SpWmsCreateInProduct();
+        spWmsCreateInProduct2.setProductCode("11122");
+        spWmsCreateInProduct2.setSpareCode("22233");
+        list.add(spWmsCreateInProduct2);
+        request.setSpareCodes(list);
+        for (int i = 0; i < 10; i++) {
+            spWmsToolService.virtualSpWmsCreateIn(request);
+        }
+
+    }
+
+
 
     @Test
     public void testFindByConditionOfPage(){

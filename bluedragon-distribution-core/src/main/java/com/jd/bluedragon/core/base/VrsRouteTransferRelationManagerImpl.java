@@ -87,7 +87,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
 
     @Override
-    public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
+    public String  queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,hystrixRouteUccPropertyConfiguration).execute();
