@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.exception;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -21,6 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -78,7 +80,9 @@ public class PackageCodePrintConsumer extends MessageBaseConsumer {
         }
 
         RePrintRecordMq rePrintRecordMq = JsonHelper.fromJson(message.getText(), RePrintRecordMq.class);
-        jyExceptionService.printSuccess(rePrintRecordMq);
+        JyExceptionPrintDto dto = new JyExceptionPrintDto();
+        BeanUtils.copyProperties(rePrintRecordMq,dto);
+        jyExceptionService.printSuccess(dto);
     }
 
 }

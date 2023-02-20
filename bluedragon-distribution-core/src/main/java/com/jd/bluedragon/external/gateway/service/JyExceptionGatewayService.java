@@ -67,4 +67,9 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<List<DmsBarCode>> queryProductName(String barCode);
+
+    /**
+     * 更新历史任务为 status 超时删除
+     */
+    JdCResponse updateJyBizTaskExceptionOutOfDate();
 }

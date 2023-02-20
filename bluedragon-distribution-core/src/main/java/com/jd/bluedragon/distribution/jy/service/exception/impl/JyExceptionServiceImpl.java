@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
@@ -829,37 +830,38 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     @Override
-    public void printSuccess(RePrintRecordMq rePrintRecordMq) {
-        if (!Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
-            return;
+    public void printSuccess(JyExceptionPrintDto printDto) {
+        if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())
+            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
+            if (printDto.getSiteCode() == null){
+                return;
+            }
+            if (StringUtils.isEmpty(printDto.getPackageCode())){
+                return;
+            }
+            if (!WaybillUtil.isPackageCode(printDto.getPackageCode())){
+                return;
+            }
+            JyExceptionEntity conditon = new JyExceptionEntity();
+            conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
+            conditon.setPackageCode(printDto.getPackageCode());
+            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+            if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                return;
+            }
+            for (JyExceptionEntity entity:jyExceptionEntities){
+                printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+            }
         }
-        if (rePrintRecordMq.getSiteCode() == null){
-            return;
-        }
-        if (StringUtils.isEmpty(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        if (!WaybillUtil.isPackageCode(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        JyExceptionEntity conditon = new JyExceptionEntity();
-        conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
-        conditon.setPackageCode(rePrintRecordMq.getPackageCode());
-        List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
-        if (CollectionUtils.isEmpty(jyExceptionEntities)){
-            return;
-        }
-        for (JyExceptionEntity entity:jyExceptionEntities){
-            printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
-        }
-
     }
 
     @Override
-    public void updateJyBizTaskExceptionOutOfDate() {
+    public boolean clean() {
+        logger.info("执行三无任务更新状态---");
         int sanwuOutOfDate = uccPropertyConfiguration.getSanwuOutOfDate();
         int result = jyBizTaskExceptionDao.updateJyBizTaskExceptionOutOfDate(sanwuOutOfDate);
         logger.info("执行结果-{}",result);
+        return result > 0;
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
@@ -1015,9 +1017,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         //业务表记录匹配成功单号
         entity.setPackageCode(mqDto.getPackageCode());
-        if(StringUtils.isNotBlank(mqDto.getPackageCode())){
-            entity.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getPackageCode()));
-        }
         entity.setUpdateTime(mqDto.getNotifyTime());
         entity.setUpdateUserErp(mqDto.getNotifyErp());
         entity.setUpdateUserName(baseStaffByErp.getStaffName());

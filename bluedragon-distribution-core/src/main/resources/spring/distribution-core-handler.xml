@@ -144,6 +144,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="changeWaybillPrintSendMsgHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -421,6 +422,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="changeWaybillPrintSendMsgHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -629,6 +631,7 @@
                 <ref bean="dealPopPrintHandler" />
 				<ref bean="popPrintFirstHandler" />
 				<ref bean="pushPrintRecordHandler" />
+				<ref bean="changeWaybillPrintSendMsgHandler"/>
             </list>
         </property>
     </bean>

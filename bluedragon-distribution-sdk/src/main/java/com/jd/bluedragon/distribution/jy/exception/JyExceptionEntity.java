@@ -103,11 +103,6 @@ public class JyExceptionEntity implements Serializable {
      */
     private String imageUrls;
 
-    /**
-     * 运单号
-     */
-    private String waybillCode;
-
     public Long getId() {
         return id;
     }
@@ -250,13 +245,5 @@ public class JyExceptionEntity implements Serializable {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
-    }
-
-    public String getWaybillCode() {
-        return waybillCode;
-    }
-
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
     }
 }

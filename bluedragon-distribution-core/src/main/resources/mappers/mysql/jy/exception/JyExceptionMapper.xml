@@ -22,7 +22,6 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
-        <result property="waybillCode" column="waybill_code"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -42,8 +41,7 @@
         create_time,
         update_time,
         yn,
-        ts,
-        waybill_code
+        ts
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity">
@@ -210,9 +208,6 @@
         <if test="packageCode != null">
             AND package_code = #{packageCode, jdbcType=VARCHAR}
         </if>
-        <if test="waybillCode != null">
-            AND waybill_code = #{waybillCode, jdbcType=VARCHAR}
-        </if>
     </select>
     <update id="update" parameterType="JyExceptionEntity" >
         UPDATE jy_exception
@@ -228,9 +223,6 @@
             </if>
             <if test="imageUrls != null">
                 image_urls=#{imageUrls},
-            </if>
-            <if test="waybillCode != null">
-                waybill_code=#{waybillCode},
             </if>
         </set>
         WHERE id = #{id} AND site_code = #{siteCode, jdbcType=BIGINT}
