@@ -300,7 +300,7 @@
                   alias="${dms.jsf.alias}"
                   ref="configStrandReasonJsfService"
                   server="dmsjsf">
-    </jsf:provider>    
+    </jsf:provider>
     <!-- 三定jsf服务 -->
     <jsf:provider id="workStationJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.station.api.WorkStationJsfService"
@@ -447,7 +447,6 @@
                   ref="jyTaskGroupMemberJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
     <!--  标签对外JSF服务   -->
     <jsf:provider id="dmsLabelPrintJsfService"
                   interface="com.jd.bluedragon.distribution.label.api.LabelPrintJsfService"
@@ -455,7 +454,6 @@
                   ref="labelPrintJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
 
     <!--  biz任务服务  -->
     <jsf:provider id="jsfJyBizTaskConstraintJsfService"
@@ -519,6 +517,15 @@
                   interface="com.jd.bluedragon.distribution.intercept.WaybillCancelService"
                   alias="${dms.jsf.alias}"
                   ref="dmsWaybillCancelJsfService" server="dmsjsf">
+    </jsf:provider>
+
+
+    <!--  备件库小工具  -->
+    <jsf:provider id="jsfSpWmsToolService"
+                  interface="com.jd.bluedragon.distribution.external.service.SpWmsToolService"
+                  alias="${dms.jsf.alias}"
+                  ref="spWmsToolService"
+                  server="dmsjsf">
     </jsf:provider>
 
 </beans>
