@@ -5023,15 +5023,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         //6.判断路由
+        Integer destinationSiteCode = getDestinationSiteCode(sendM);
+        log.debug("checkRouterForKY->根据包裹号或箱号获取目的分拣中心/站点：{}",destinationSiteCode);
+        if(destinationSiteCode == null){
+            response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+            response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
+            return response;
+        }
         try {
-            // 获得箱子的某端分拣中心或站点   或者    运单的预分拣站点
-            Integer destinationSiteCode = getDestinationSiteCode(sendM);
-            log.debug("checkRouterForKY->根据包裹号或箱号获取目的分拣中心/站点：{}",destinationSiteCode);
-            if(destinationSiteCode == null){
-                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
-                return response;
-            }
             //判断是否直发 或者 发货目的地与末级分拣|站点是否一致
             boolean isDestinationSiteCode = isDestinationSiteCode(sendM,destinationSiteCode);
             if(log.isDebugEnabled()){
