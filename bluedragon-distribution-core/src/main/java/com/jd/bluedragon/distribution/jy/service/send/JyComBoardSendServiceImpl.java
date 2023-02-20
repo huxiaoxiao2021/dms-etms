@@ -1768,7 +1768,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void matchDestinationCheck(ComboardScanReq request) {
     if (!request.getSupportMutilSendFlow()){
       if (!request.getEndSiteId().equals(request.getDestinationId())){
-        throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
+        final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
+        if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
+        }
       }
       return;
     }
