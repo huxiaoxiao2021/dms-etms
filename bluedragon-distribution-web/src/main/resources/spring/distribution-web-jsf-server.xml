@@ -512,4 +512,13 @@
       server="dmsjsf">
     </jsf:provider>
 
+
+    <!--  备件库小工具  -->
+    <jsf:provider id="jsfSpWmsToolService"
+                  interface="com.jd.bluedragon.distribution.external.service.SpWmsToolService"
+                  alias="${dms.jsf.alias}"
+                  ref="spWmsToolService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
