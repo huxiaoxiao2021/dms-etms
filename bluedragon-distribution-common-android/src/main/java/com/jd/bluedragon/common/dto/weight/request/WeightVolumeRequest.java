@@ -37,6 +37,11 @@ public class WeightVolumeRequest implements Serializable {
     private String operatorCode;
 
     /**
+     * 操作者id
+     */
+    private String operatorId;
+
+    /**
      * 操作人姓名
      */
     private String operatorName;
@@ -161,5 +166,13 @@ public class WeightVolumeRequest implements Serializable {
 
     public void setVolume(Double volume) {
         this.volume = volume;
+    }
+
+    public String getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(String operatorId) {
+        this.operatorId = operatorId;
     }
 }
