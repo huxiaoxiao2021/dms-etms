@@ -29,6 +29,11 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
 
     private static final Logger logger = LoggerFactory.getLogger(JYBizUnloadTaskCleanServiceImpl.class);
 
+    /**
+     * 卸车岗任务类型： 1 分拣 2转运
+     */
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 1;
+
     @Autowired
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
@@ -115,6 +120,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
             JyBizTaskUnloadVehicleEntity param = new JyBizTaskUnloadVehicleEntity();
             BeanUtils.copyProperties(cleanRule,param);
             param.setEndSiteId(Long.valueOf(siteCode));
+            param.setTaskType(UNLOAD_TASK_CATEGORY_DMS);
             cleanDataSize = jyBizTaskUnloadVehicleDao.cleanByParam(param);
         }catch (Exception e){
             logger.error("清理作业APP卸车+到车任务,清理站点:{}规则:{}时异常！",
@@ -169,7 +175,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         //卸车
         JyBizTaskUnloadVehicleEntity unLoadingRule = new JyBizTaskUnloadVehicleEntity();
         unLoadingRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
-        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-10));
+        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-5));
         cleanRules.add(unLoadingRule);
         //完成
         JyBizTaskUnloadVehicleEntity doneRule = new JyBizTaskUnloadVehicleEntity();
