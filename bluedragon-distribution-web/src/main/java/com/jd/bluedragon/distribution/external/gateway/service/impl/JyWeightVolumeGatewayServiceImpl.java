@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author zs
@@ -80,7 +80,8 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
                     .sourceCode(FromSourceEnum.valueOf(condition.getSourceCode()))
                     .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
                     .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
-                    .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
+                    .operatorId(Objects.nonNull(request.getOperatorId()) ? Integer.parseInt(request.getOperatorId()) : null)
+                    .operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                     .operateTime(new Date()).longPackage(condition.getLongPackage())
                     .machineCode(condition.getMachineCode()).remark(remark);
 
