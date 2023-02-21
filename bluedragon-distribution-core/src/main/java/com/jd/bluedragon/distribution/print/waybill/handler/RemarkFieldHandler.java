@@ -129,6 +129,31 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 				remark += context.getBigWaybillDto().getWaybill().getRelWaybillCode();
 			}
 		}
+        /**
+         * 产品类型为md-m-0005时:医药专送
+         */
+        if(context.getBigWaybillDto() != null
+                && context.getBigWaybillDto().getWaybill() != null
+                && context.getBigWaybillDto().getWaybill().getWaybillExt() != null
+                && StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType())){
+            String productType = context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType();
+            if(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(productType)){
+				if (remark.length() > 0) {
+					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				}
+				//企业名称 todo
+                remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
+				//联系人 todo
+				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
+                //存储条件
+				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+                remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_STORAGE_CONDITION);
+				//优先配送
+				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+                remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_DELIVERY);
+            }
+        }
 		log.info("RemarkFieldHandler waybillCode:{},remark:{}", waybillCode, remark);
 		basePrintWaybill.setRemark(remark);
 		return context.getResult();

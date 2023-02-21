@@ -307,5 +307,24 @@ public class TextConstants {
     public static final String COMMON_TEXT_MEDICINE_DP = "医药大票";
 
     public static final String COMMON_TEXT_MEDICINE_COLD = "医冷零担";
-
+    /**
+     * 药
+     */
+    public static final String COMMON_TEXT_MEDICINE = "药";
+    /**
+     * 企业名称
+     */
+    public static final String COMMON_TEXT_COMPANY = "企业名称：";
+    /**
+     * 联系人
+     */
+    public static final String COMMON_TEXT_CONTACT = "联系人：";
+    /**
+     * 存储条件
+     */
+    public static final String COMMON_TEXT_STORAGE_CONDITION  = "储存温度要求：详见产品说明书";
+    /**
+     * 优先配送
+     */
+    public static final String COMMON_TEXT_DELIVERY  = "【优先配送】";
 }

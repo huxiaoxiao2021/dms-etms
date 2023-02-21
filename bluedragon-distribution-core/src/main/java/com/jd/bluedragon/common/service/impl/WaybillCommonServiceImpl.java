@@ -1006,6 +1006,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setTransportModeFlag(TextConstants.PRODUCT_NAME_TKS_FLAG);
             }
         }
+        /*** 产品类型为md-m-0005时:医药专送 */
+        if(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(productType)){
+            target.setRespectTypeText(TextConstants.COMMON_TEXT_MEDICINE);
+            target.setTransportMode(transportMode);
+        }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
             if(StringHelper.isNotEmpty(transportMode)){
