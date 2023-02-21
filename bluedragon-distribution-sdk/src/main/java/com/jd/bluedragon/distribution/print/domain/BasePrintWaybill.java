@@ -488,6 +488,11 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Integer outputType = 0;
 	
+    /**
+     * aoi编码
+     */
+	private String aoiCode = "AZ";
+	
 	public String getServiceCode() {
 		return serviceCode;
 	}
@@ -1738,5 +1743,11 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setOutputType(Integer outputType) {
 		this.outputType = outputType;
+	}
+	public String getAoiCode() {
+		return aoiCode;
+	}
+	public void setAoiCode(String aoiCode) {
+		this.aoiCode = aoiCode;
 	}
 }
