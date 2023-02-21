@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoMain;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoStrategy;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak;
+import com.jd.bluedragon.distribution.jy.dao.send.*;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery;
@@ -24,21 +21,11 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
-
-    @Autowired
-    JySendAggsDao jySendAggsDao;
-
-    @Autowired
-    JySendAggsDaoMain jySendAggsDaoMain;
-
-    @Autowired
-    JySendAggsDaoBak jySendAggsDaoBak;
-
+    private JySendAggsSpecialDao jySendAggsSpecialDao;
 
     @Override
     public JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId) {
-        JySendAggsDaoStrategy jySendAggsDao = getJySendAggsDao();
+        JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
         String keyword = jySendAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".getVehicleSendStatistics");
         JySendAggsEntity entity = jySendAggsDao.getVehicleSendStatistics(sendVehicleBizId);
@@ -48,7 +35,7 @@ public class JySendAggsServiceImpl implements JySendAggsService {
 
     @Override
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
-        JySendAggsDaoStrategy jySendAggsDao = getJySendAggsDao();
+        JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
         String keyword = jySendAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".findBySendVehicleBiz");
         List<JySendAggsEntity> list = jySendAggsDao.findBySendVehicleBiz(sendVehicleBizId);
@@ -58,54 +45,21 @@ public class JySendAggsServiceImpl implements JySendAggsService {
 
     @Override
     public Boolean insertOrUpdateJySendGoodsAggsMain(JySendAggsEntity entity) {
-        Boolean result = jySendAggsDaoMain.updateByBizId(entity) > 0;
-        if(!result){
-            return jySendAggsDaoMain.insertBySendAggEntity(entity) > 0;
-        }
-        return result;
+        return jySendAggsSpecialDao.insertOrUpdateJySendGoodsAggsMain(entity);
     }
 
     @Override
     public Boolean insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity) {
-        Boolean result = jySendAggsDaoBak.updateByBizId(entity) > 0;
-        if(!result){
-           return jySendAggsDaoBak.insertBySendAggEntity(entity) >0;
-        }
-        return result;
-    }
-
-    @Override
-    public List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query) {
-        return jySendAggsDaoMain.getSendAggMainData(query);
-    }
-
-    @Override
-    public List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query) {
-        return jySendAggsDaoBak.getSendAggBakData(query);
-    }
-
-    @Override
-    public List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query) {
-        return jySendAggsDao.getSendAggsListByCondition(query);
-    }
-
-    private JySendAggsDaoStrategy getJySendAggsDao(){
-        if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
-            log.info("getJySendAggsDao-JySendAggOldOrNewDataReadSwitch 读新库开启");
-            if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
-                log.info("getJySendAggsDao--JySendAggsDataReadSwitch 读备库开启");
-                return jySendAggsDaoBak;
-            }else {
-                log.info("getJySendAggsDao-JySendAggsDataReadSwitch 读主库开启");
-                return jySendAggsDaoMain;
-            }
-        }
-        log.info("getJySendAggsDao-JySendAggOldOrNewDataReadSwitch 关闭");
-        return jySendAggsDao;
+        return jySendAggsSpecialDao.insertOrUpdateJySendGoodsAggsBak(entity);
     }
 
     @Override
     public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId) {
-        return jySendAggsDao.findSendAggExistAbnormal(sendVehicleBizId);
+        JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
+        String keyword = jySendAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".findSendAggExistAbnormal");
+        JySendAggsEntity sendAggExistAbnormal = jySendAggsDao.findSendAggExistAbnormal(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return sendAggExistAbnormal;
     }
 }
