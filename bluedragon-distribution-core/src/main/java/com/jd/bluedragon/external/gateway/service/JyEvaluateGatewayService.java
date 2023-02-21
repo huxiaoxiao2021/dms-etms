@@ -28,9 +28,14 @@ public interface JyEvaluateGatewayService {
     JdCResponse<List<EvaluateDimensionDto>> findTargetEvaluateInfo(EvaluateTargetReq request);
 
     /**
-     * 评价提交或修改
+     * 评价提交
      */
     JdCResponse<Void> saveTargetEvaluate(EvaluateTargetReq request);
+
+    /**
+     * 评价修改
+     */
+    JdCResponse<Void> updateTargetEvaluate(EvaluateTargetReq request);
 
 
 }

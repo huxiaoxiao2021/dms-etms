@@ -26,11 +26,6 @@ public class EvaluateTargetReq implements Serializable {
     private List<EvaluateDimensionReq> dimensionList;
 
     /**
-     * 操作类型: 1-新增，2-修改
-     */
-    private Integer operateType;
-
-    /**
      * 用户信息
      */
     private User user;
@@ -62,14 +57,6 @@ public class EvaluateTargetReq implements Serializable {
 
     public void setDimensionList(List<EvaluateDimensionReq> dimensionList) {
         this.dimensionList = dimensionList;
-    }
-
-    public Integer getOperateType() {
-        return operateType;
-    }
-
-    public void setOperateType(Integer operateType) {
-        this.operateType = operateType;
     }
 
     public User getUser() {
