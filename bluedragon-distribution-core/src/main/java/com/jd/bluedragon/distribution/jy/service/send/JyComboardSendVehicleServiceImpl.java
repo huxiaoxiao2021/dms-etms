@@ -316,10 +316,12 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
           return sendVehicleBizList;
         }
         endSiteId =Long.valueOf(queryTaskSendDto.getKeyword());
+        queryTaskSendDto.setEndSiteId(endSiteId);
       }
       //按站点匹配
       else {
         endSiteId = Long.valueOf(queryTaskSendDto.getKeyword());
+        queryTaskSendDto.setEndSiteId(endSiteId);
       }
     }
     else {
