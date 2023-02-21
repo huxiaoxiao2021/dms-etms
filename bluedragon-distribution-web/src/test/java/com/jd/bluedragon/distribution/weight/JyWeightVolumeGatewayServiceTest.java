@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.weight;
 
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.weight.request.WeightVolumeRequest;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:spring/distribution-web-context.xml")
+@ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyWeightVolumeGatewayServiceTest {
 
     @Autowired
@@ -46,7 +46,7 @@ public class JyWeightVolumeGatewayServiceTest {
         request.setWidth(100D);
         request.setHeight(100D);
 
-        JdCResponse<Boolean> invokeResult = jyWeightVolumeGatewayService.weightVolumeCheckAndDeal(request);
+        JdVerifyResponse<Boolean> invokeResult = jyWeightVolumeGatewayService.weightVolumeCheckAndDeal(request);
         System.out.println("invokeResult=" + JSON.toJSONString(invokeResult));
 
     }

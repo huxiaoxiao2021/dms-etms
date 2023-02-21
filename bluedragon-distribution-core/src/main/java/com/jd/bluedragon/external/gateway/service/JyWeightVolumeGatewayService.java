@@ -1,6 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.weight.request.WeightVolumeRequest;
 
 /**
@@ -16,5 +16,5 @@ public interface JyWeightVolumeGatewayService {
      * @author zs
      * @date 2023/2/14 15:11
      **/
-    JdCResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request);
+    JdVerifyResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request);
 }

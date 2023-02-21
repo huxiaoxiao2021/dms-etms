@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.weight.request.WeightVolumeRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
@@ -21,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * @author zs
@@ -44,14 +45,14 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWeightVolumeGatewayService.weightVolumeCheckAndDeal",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
-    public JdCResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request) {
+    public JdVerifyResponse<Boolean> weightVolumeCheckAndDeal(WeightVolumeRequest request) {
 
         String barCode = request != null ? request.getBarCode() : null;
         if (log.isInfoEnabled()) {
             log.info("barCode{}, 企配仓称重量方request：{}", barCode, JSON.toJSONString(request));
         }
 
-        JdCResponse<Boolean> result = new JdCResponse<>();
+        JdVerifyResponse<Boolean> result = new JdVerifyResponse<>();
         if (StringUtils.isBlank(barCode)) {
             result.toError("运单号/包裹号为空, 请重新输入");
             return result;
@@ -59,15 +60,20 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
 
         try {
             //称重量方前置校验
-            WeightVolumeRuleCheckDto weightVolumeRuleCheckDto = new WeightVolumeRuleCheckDto();
-            BeanUtils.copyProperties(request, weightVolumeRuleCheckDto);
-            InvokeResult<Boolean> ruleCheck = dmsWeightVolumeService.weightVolumeRuleCheck(weightVolumeRuleCheckDto);
+            if (!request.isForceSubmit()) {
+                WeightVolumeRuleCheckDto weightVolumeRuleCheckDto = new WeightVolumeRuleCheckDto();
+                BeanUtils.copyProperties(request, weightVolumeRuleCheckDto);
+                InvokeResult<Boolean> ruleCheck = dmsWeightVolumeService.weightVolumeRuleCheck(weightVolumeRuleCheckDto);
 
-            if (!ruleCheck.codeSuccess()) {
-                result.setCode(ruleCheck.getCode());
-                result.setMessage(ruleCheck.getMessage());
-                result.setData(ruleCheck.getData());
-                return result;
+                if (!ruleCheck.codeSuccess()) {
+                    result.setCode(ruleCheck.getCode());
+                    result.setMessage(ruleCheck.getMessage());
+                    result.setData(ruleCheck.getData());
+                    if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
+                        result.setMsgBoxes(Lists.newArrayList(new JdVerifyResponse.MsgBox(MsgBoxTypeEnum.CONFIRM, ruleCheck.getCode(), ruleCheck.getMessage())));
+                    }
+                    return result;
+                }
             }
 
             //称重数据超限处理
@@ -80,7 +86,7 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
                     .sourceCode(FromSourceEnum.valueOf(condition.getSourceCode()))
                     .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
                     .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
-                    .operatorId(Objects.nonNull(request.getOperatorId()) ? Integer.parseInt(request.getOperatorId()) : null)
+                    .operatorId(condition.getOperatorId())
                     .operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                     .operateTime(new Date()).longPackage(condition.getLongPackage())
                     .machineCode(condition.getMachineCode()).remark(remark);

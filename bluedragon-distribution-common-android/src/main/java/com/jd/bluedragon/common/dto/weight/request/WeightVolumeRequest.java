@@ -39,7 +39,7 @@ public class WeightVolumeRequest implements Serializable {
     /**
      * 操作者id
      */
-    private String operatorId;
+    private Integer operatorId;
 
     /**
      * 操作人姓名
@@ -70,6 +70,11 @@ public class WeightVolumeRequest implements Serializable {
      * 体积 单位cm³
      */
     private Double volume;
+
+    /**
+     * 是否强制提交
+     */
+    private boolean forceSubmit;
 
 
     public String getBarCode() {
@@ -168,11 +173,19 @@ public class WeightVolumeRequest implements Serializable {
         this.volume = volume;
     }
 
-    public String getOperatorId() {
+    public Integer getOperatorId() {
         return operatorId;
     }
 
-    public void setOperatorId(String operatorId) {
+    public void setOperatorId(Integer operatorId) {
         this.operatorId = operatorId;
+    }
+
+    public boolean isForceSubmit() {
+        return forceSubmit;
+    }
+
+    public void setForceSubmit(boolean forceSubmit) {
+        this.forceSubmit = forceSubmit;
     }
 }
