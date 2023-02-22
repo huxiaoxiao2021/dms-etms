@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
@@ -832,7 +833,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public void printSuccess(JyExceptionPrintDto printDto) {
         if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())
-            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
+            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())
+            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType())
+            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT.getType())){
+
             if (printDto.getSiteCode() == null){
                 return;
             }
@@ -859,9 +863,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     public boolean clean() {
         logger.info("执行三无任务更新状态---");
         int sanwuOutOfDate = uccPropertyConfiguration.getSanwuOutOfDate();
-        int result = jyBizTaskExceptionDao.updateJyBizTaskExceptionOutOfDate(sanwuOutOfDate);
-        logger.info("执行结果-{}",result);
-        return result > 0;
+        List<String> ids = jyBizTaskExceptionDao.queryExceptionTaskBizIds(sanwuOutOfDate);
+        List<List<String>> idLists = Lists.partition(ids, 100);
+        if(CollectionUtils.isNotEmpty(idLists)){
+            for (int i = 0; i < idLists.size(); i++) {
+                int result = jyBizTaskExceptionDao.updateJyBizTaskExceptionOutOfDate(idLists.get(i));
+                logger.info("执行结果-{}",result);
+            }
+        }
+        return true;
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {

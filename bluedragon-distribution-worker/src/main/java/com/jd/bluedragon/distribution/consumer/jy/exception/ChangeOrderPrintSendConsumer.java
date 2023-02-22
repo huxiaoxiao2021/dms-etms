@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.jy.exception;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -39,14 +40,9 @@ public class ChangeOrderPrintSendConsumer extends MessageBaseConsumer {
             logger.warn("ChangeOrderPrintSendConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        ChangeOrderPrintMq changeOrderPrintMq = JsonHelper.fromJson(message.getText(), ChangeOrderPrintMq.class);
-        //按包裹维度处理
-        if(CollectionUtils.isNotEmpty(changeOrderPrintMq.getReprintPackages())){
-            for (String packageCode: changeOrderPrintMq.getReprintPackages()) {
-                JyExceptionPrintDto jyExceptionPrintDto = getJyExceptionPrintDto(changeOrderPrintMq, packageCode);
-                jyExceptionService.printSuccess(jyExceptionPrintDto);
-            }
-        }
+        PushPrintRecordDto printRecordDto = JsonHelper.fromJson(message.getText(), PushPrintRecordDto.class);
+        JyExceptionPrintDto dto = getJyExceptionPrintDto(printRecordDto);
+        jyExceptionService.printSuccess(dto);
     }
 
     /**
@@ -54,11 +50,11 @@ public class ChangeOrderPrintSendConsumer extends MessageBaseConsumer {
      *
      * @return
      */
-    private JyExceptionPrintDto getJyExceptionPrintDto(ChangeOrderPrintMq mq, String packageCode) {
+    private JyExceptionPrintDto getJyExceptionPrintDto(PushPrintRecordDto printRecordDto) {
         JyExceptionPrintDto dto = new JyExceptionPrintDto();
-        dto.setOperateType(mq.getOperateType());
-        dto.setSiteCode(mq.getSiteCode());
-        dto.setPackageCode(packageCode);
+        dto.setOperateType(printRecordDto.getOperateType());
+        dto.setSiteCode(printRecordDto.getSiteCode());
+        dto.setPackageCode(printRecordDto.getPackageCode());
         return dto;
     }
 }

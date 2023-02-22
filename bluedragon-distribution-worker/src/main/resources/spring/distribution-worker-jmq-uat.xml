@@ -472,7 +472,7 @@
 
     <!--  换单打印消费  -->
     <jmq:consumer id="jmq.changeOrderPrintSendConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintSendConsumer"/>
+        <jmq:listener topic="${jmq.topic.packagePrintRecord}" listener="changeOrderPrintSendConsumer"/>
     </jmq:consumer>
 
 </beans>
