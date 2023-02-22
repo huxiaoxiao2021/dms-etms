@@ -316,9 +316,9 @@ public class TextConstants {
      */
     public static final String COMMON_TEXT_COMPANY = "企业名称：";
     /**
-     * 联系人
+     * 联系电话
      */
-    public static final String COMMON_TEXT_CONTACT = "联系人：";
+    public static final String COMMON_TEXT_CONTACT = "联系电话：";
     /**
      * 存储条件
      */

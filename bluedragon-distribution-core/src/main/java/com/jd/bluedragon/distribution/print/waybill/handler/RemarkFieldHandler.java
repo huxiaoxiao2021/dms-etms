@@ -141,11 +141,21 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 				if (remark.length() > 0) {
 					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 				}
-				//企业名称 todo
-                remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
-				//联系人 todo
-				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
-				remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
+				//企业名称
+				if(StringHelper.isNotEmpty(basePrintWaybill.getSenderCompany())) {
+					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
+					remark = StringHelper.append(remark, basePrintWaybill.getSenderCompany());
+				}
+				//联系人
+				if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerTel())){
+					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
+					remark = StringHelper.append(remark, basePrintWaybill.getConsignerTel());
+				}else if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerMobile())){
+					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
+					remark = StringHelper.append(remark, basePrintWaybill.getConsignerMobile());
+				}
                 //存储条件
 				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
                 remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_STORAGE_CONDITION);
