@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+    <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
+    <result column="send_code" jdbcType="VARCHAR" property="sendCode" />
+    <result column="board_status" jdbcType="TINYINT" property="boardStatus" />
+    <result column="start_site_id" jdbcType="BIGINT" property="startSiteId" />
+    <result column="start_site_name" jdbcType="VARCHAR" property="startSiteName" />
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="end_site_name" jdbcType="VARCHAR" property="endSiteName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="bulk_flag" jdbcType="BIT" property="bulkFlag" />
+    <result column="have_scan_count" jdbcType="INTEGER" property="haveScanCount" />
+    <result column="comboard_source" jdbcType="INTEGER" property="comboardSource" />
+  </resultMap>
+  <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="board_count" jdbcType="INTEGER" property="boardCount" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, biz_id, board_code, send_code, board_status, start_site_id, start_site_name, end_site_id,
+    end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
+    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_comboard
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_biz_task_comboard
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
+    insert into jy_biz_task_comboard (id, biz_id, board_code,
+      send_code, board_status, start_site_id,
+      start_site_name, end_site_id, end_site_name,
+      create_user_erp, create_user_name, update_user_erp,
+      update_user_name, create_time, update_time,
+      yn, ts, bulk_flag, have_scan_count,comboard_source
+      )
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR},
+      #{sendCode,jdbcType=VARCHAR}, #{boardStatus,jdbcType=TINYINT}, #{startSiteId,jdbcType=BIGINT},
+      #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, #{endSiteName,jdbcType=VARCHAR},
+      #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR},
+      #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+      #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}, #{bulkFlag,jdbcType=BIT}, #{haveScanCount,jdbcType=INTEGER}, #{comboardSource,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
+    insert into jy_biz_task_comboard
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="boardCode != null">
+        board_code,
+      </if>
+      <if test="sendCode != null">
+        send_code,
+      </if>
+      <if test="boardStatus != null">
+        board_status,
+      </if>
+      <if test="startSiteId != null">
+        start_site_id,
+      </if>
+      <if test="startSiteName != null">
+        start_site_name,
+      </if>
+      <if test="endSiteId != null">
+        end_site_id,
+      </if>
+      <if test="endSiteName != null">
+        end_site_name,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+      <if test="bulkFlag != null">
+        bulk_flag,
+      </if>
+      <if test="haveScanCount != null">
+        have_scan_count,
+      </if>
+      <if test="comboardSource != null">
+        comboard_source,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCode != null">
+        #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="boardStatus != null">
+        #{boardStatus,jdbcType=TINYINT},
+      </if>
+      <if test="startSiteId != null">
+        #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bulkFlag != null">
+        #{bulkFlag,jdbcType=BIT},
+      </if>
+      <if test="haveScanCount != null">
+        #{haveScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="comboardSource != null">
+        #{comboardSource,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
+    update jy_biz_task_comboard
+    <set>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        board_code = #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCode != null">
+        send_code = #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="boardStatus != null">
+        board_status = #{boardStatus,jdbcType=TINYINT},
+      </if>
+      <if test="startSiteId != null">
+        start_site_id = #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        end_site_id = #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bulkFlag != null">
+        bulk_flag = #{bulkFlag,jdbcType=BIT},
+      </if>
+      <if test="haveScanCount != null">
+        have_scan_count = #{haveScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="sealTime != null">
+        seal_time = #{sealTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="unsealTime != null">
+        unseal_time = #{unsealTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="comboardSource != null">
+        comboard_source = #{comboardSource,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
+    update jy_biz_task_comboard
+    set biz_id = #{bizId,jdbcType=VARCHAR},
+      board_code = #{boardCode,jdbcType=VARCHAR},
+      send_code = #{sendCode,jdbcType=VARCHAR},
+      board_status = #{boardStatus,jdbcType=TINYINT},
+      start_site_id = #{startSiteId,jdbcType=BIGINT},
+      start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      end_site_id = #{endSiteId,jdbcType=BIGINT},
+      end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP},
+      bulk_flag = #{bulkFlag,jdbcType=BIT},
+        have_scan_count = #{haveScanCount,jdbcType=INTEGER},
+      comboard_source = #{comboardSource,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="queryBoardTask" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_biz_task_comboard
+    WHERE
+      start_site_id =#{startSiteId}
+      <if test="endSiteId!=null">
+        AND end_site_id =#{endSiteId}
+      </if>
+    <if test="boardStatus!=null">
+      AND board_status = #{boardStatus}
+    </if>
+    <if test="boardCode!=null">
+      AND board_code = #{boardCode}
+    </if>
+    <if test="comboardSourceList!=null and comboardSourceList.size() >0">
+      AND comboard_source in
+      <foreach item="item" index="index" collection="comboardSourceList"
+        open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    AND yn = 1
+  </select>
+  <select id="queryInProcessBoardListBySendFlowList"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq"
+          resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_comboard where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and end_site_id in
+    <foreach item="item" index="index" collection="endSiteCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and board_status = 1
+    and yn = 1
+  </select>
+  <update id="finishBoard" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq">
+    update jy_biz_task_comboard
+    set board_status = 2,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+  </update>
+  <update id="batchFinishBoardBySendFLowList"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq">
+    update jy_biz_task_comboard
+    set board_status = 2,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
+    where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and end_site_id in
+    <foreach item="item" index="index" collection="endSiteCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and yn = 1
+    and board_status = 1
+  </update>
+  <select id="listBoardTaskBySendFlow" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    ORDER BY ID DESC
+  </select>
+
+  <select id="listBoardTaskBySendCode" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_biz_task_comboard
+    WHERE send_code IN
+    <foreach item="item" index="index" collection="sendCodeList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+  </select>
+  <select id="boardCountTaskBySendFlowList" resultMap="boardCountDto">
+    select end_site_id, count(*) board_count
+    from jy_biz_task_comboard
+    where start_site_id = #{startSiteId}
+      and end_site_id in
+    <foreach item="item" index="index" collection="endSiteIdList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+      and board_status in
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and yn = 1
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    group by end_site_id;
+  </select>
+  <select id="queryTaskBySendCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_comboard
+    where yn = 1
+    and board_status = 3
+    and send_code = #{sendCode}
+  </select>
+  <update id="updateBoardStatus" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto">
+    update jy_biz_task_comboard
+    set board_status = #{boardStatus,jdbcType=TINYINT},
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    <if test="unsealTime != null and unsealTime != ''">
+      unseal_time = #{unsealTime},
+    </if>
+    <if test="sealTime != null and sealTime != ''">
+      seal_time = #{sealTime},
+    </if>
+    update_time = now()
+    where id in
+    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </update>
+  <select id="listSealOrUnSealedBoardTaskBySendFlow" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE (
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1) OR (
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="sealStatusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND seal_time > #{sealTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    )
+    order by id desc
+  </select>
+  <select id="listSealOrUnSealedBoardTaskBySendFlowUnionAll" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND create_time > #{createTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1 union all
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    jy_biz_task_comboard
+    WHERE
+    start_site_id =#{startSiteId}
+    AND end_site_id =#{endSiteId}
+    AND board_status IN
+    <foreach item="item" index="index" collection="sealStatusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND seal_time > #{sealTime}
+    and comboard_source in
+    <foreach item="item" index="index" collection="comboardSourceList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND yn = 1
+    order by id desc
+  </select>
+</mapper>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+    <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
+    <result column="bar_code_type" jdbcType="TINYINT" property="barCodeType" />
+    <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
+    <result column="send_code" jdbcType="VARCHAR" property="sendCode" />
+    <result column="start_site_id" jdbcType="BIGINT" property="startSiteId" />
+    <result column="start_site_name" jdbcType="VARCHAR" property="startSiteName" />
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="end_site_name" jdbcType="VARCHAR" property="endSiteName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="intercept_flag" jdbcType="BIT" property="interceptFlag" />
+    <result column="force_send_flag" jdbcType="BIT" property="forceSendFlag" />
+    <result column="cancel_flag" jdbcType="BIT" property="cancelFlag" />
+    <result column="cancel_time" jdbcType="TIMESTAMP" property="cancelTime" />
+    <result column="intercept_time" jdbcType="TIMESTAMP" property="interceptTime" />
+
+  </resultMap>
+  <resultMap id="userInfo" type="com.jd.bluedragon.common.dto.base.request.User">
+    <result column="create_user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="userErp" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, biz_id, bar_code, bar_code_type, board_code, send_code, start_site_id, start_site_name,
+    end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
+    create_time, update_time, yn, ts,intercept_flag,force_send_flag,cancel_flag,intercept_time,cancel_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_comboard
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_comboard
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
+    insert into jy_comboard (id, biz_id, bar_code,
+      bar_code_type, board_code, send_code,
+      start_site_id, start_site_name, end_site_id,
+      end_site_name, create_user_erp, create_user_name,
+      update_user_erp, update_user_name, create_time,
+      update_time, yn, ts)
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{barCode,jdbcType=VARCHAR},
+      #{barCodeType,jdbcType=TINYINT}, #{boardCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
+      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT},
+      #{endSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
+    insert into jy_comboard
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="barCode != null">
+        bar_code,
+      </if>
+      <if test="barCodeType != null">
+        bar_code_type,
+      </if>
+      <if test="boardCode != null">
+        board_code,
+      </if>
+      <if test="sendCode != null">
+        send_code,
+      </if>
+      <if test="startSiteId != null">
+        start_site_id,
+      </if>
+      <if test="startSiteName != null">
+        start_site_name,
+      </if>
+      <if test="endSiteId != null">
+        end_site_id,
+      </if>
+      <if test="endSiteName != null">
+        end_site_name,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+      <if test="interceptFlag != null">
+        intercept_flag,
+      </if>
+      <if test="forceSendFlag != null">
+        force_send_flag,
+      </if>
+      <if test="cancelFlag != null">
+        cancel_flag,
+      </if>
+      <if test="cancelTime != null">
+        cancel_time,
+      </if>
+      <if test="interceptTime != null">
+        intercept_time,
+      </if>
+      <if test="groupCode != null">
+        group_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null">
+        #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="barCodeType != null">
+        #{barCodeType,jdbcType=TINYINT},
+      </if>
+      <if test="boardCode != null">
+        #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCode != null">
+        #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptFlag != null">
+        #{interceptFlag,jdbcType=BIT},
+      </if>
+      <if test="forceSendFlag != null">
+        #{forceSendFlag,jdbcType=BIT},
+      </if>
+      <if test="cancelFlag != null">
+        #{cancelFlag,jdbcType=BIT},
+      </if>
+      <if test="cancelTime != null">
+        #{cancelTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptTime != null">
+        #{interceptTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="groupCode != null">
+        #{groupCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
+    update jy_comboard
+    <set>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null">
+        bar_code = #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="barCodeType != null">
+        bar_code_type = #{barCodeType,jdbcType=TINYINT},
+      </if>
+      <if test="boardCode != null">
+        board_code = #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCode != null">
+        send_code = #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        start_site_id = #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        end_site_id = #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
+    update jy_comboard
+    set biz_id = #{bizId,jdbcType=VARCHAR},
+      bar_code = #{barCode,jdbcType=VARCHAR},
+      bar_code_type = #{barCodeType,jdbcType=TINYINT},
+      board_code = #{boardCode,jdbcType=VARCHAR},
+      send_code = #{sendCode,jdbcType=VARCHAR},
+      start_site_id = #{startSiteId,jdbcType=BIGINT},
+      start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      end_site_id = #{endSiteId,jdbcType=BIGINT},
+      end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="queryUserByStartSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity" resultMap="userInfo">
+    select distinct create_user_erp, create_user_name
+    from jy_comboard
+    where start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and create_time > #{createTime,jdbcType=TIMESTAMP}
+      <if test="groupCode != null">
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+      </if>
+      and yn = 1
+  </select>
+  <select id="queryWayBillCodeByBoardCode"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity"
+          resultType="java.lang.String">
+    select bar_code
+    from jy_comboard
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and yn = 1
+      limit 1
+  </select>
+  <update id="batchUpdateCancelFlag"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq">
+    update jy_comboard
+    set cancel_flag = #{cancelFlag,jdbcType=BIT},
+    cancel_time = now(),
+    yn = 0,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and bar_code in
+    <foreach item="item" index="index" collection="barCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and yn = 1
+  </update>
+  <select id="queryByBarCode" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from jy_comboard
+    where start_site_id =#{startSiteId} and yn=1
+    <if test="barCode!=null">
+      and bar_code =#{barCode}
+    </if>
+    <if test="interceptFlag!=null">
+      and intercept_flag =#{interceptFlag}
+    </if>
+    <if test="forceSendFlag!=null">
+      and force_send_flag=#{forceSendFlag}
+    </if>
+    <if test="cancelFlag!=null">
+      and cancel_flag =#{cancelFlag}
+    </if>
+    limit 1
+  </select>
+</mapper>

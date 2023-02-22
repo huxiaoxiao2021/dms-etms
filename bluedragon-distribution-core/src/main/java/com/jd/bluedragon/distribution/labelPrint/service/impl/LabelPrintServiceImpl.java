@@ -35,6 +35,7 @@ public class LabelPrintServiceImpl implements LabelPrintService {
     private static final String FM_CONSTITUTE_MIDDLE = "-1-1-";
     private static final String FM_CONSTITUTE_LAST_W = "W";
     private static final String FM_CONSTITUTE_LAST_V = "V";
+    private static final String FM_CONSTITUTE_LAST_B = "B";
 
     @Autowired
     private FarmarPrintRecordDao farmarPrintRecordDao;
@@ -83,15 +84,24 @@ public class LabelPrintServiceImpl implements LabelPrintService {
      *  组成部分：前缀 + checkCode + 后缀
      *      前缀：JDFM + 10位数字
      *      checkCode：前缀的计算结果
-     *      后缀：'-1-1-' + 'W'（或者'V'）
+     *      后缀：'-1-1-' + 'W'（或者'V'或者'B'）
+     *      W代表重量、V代表体积、B代表重量体积（both）
      * @param request
      * @return
      */
     private String generateFarmarCode(FarmarPrintRequest request) {
         String fmPrefix = DmsConstants.CODE_PREFIX_FM.concat(StringHelper.padZero(this.genObjectId.getObjectId(FarmarEntity.class.getName()), 10));
         long checkCode = WaybillCodeRuleToolsUtil.getCheckCode(fmPrefix);
-        String fmSuffix = FM_CONSTITUTE_MIDDLE + (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_WEIGHT.getCode())
-                ? FM_CONSTITUTE_LAST_W : FM_CONSTITUTE_LAST_V);
+        String fmSuffix = FM_CONSTITUTE_MIDDLE;
+        if (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_WEIGHT.getCode())) {
+            fmSuffix += FM_CONSTITUTE_LAST_W;
+        }
+        if (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_SIZE.getCode())) {
+            fmSuffix += FM_CONSTITUTE_LAST_V;
+        }
+        if (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_BOTH.getCode())) {
+            fmSuffix += FM_CONSTITUTE_LAST_B;
+        }
         return fmPrefix.concat(String.valueOf(checkCode)).concat(fmSuffix);
     }
 

@@ -33,10 +33,14 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo;
+import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -58,6 +62,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -139,6 +144,12 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private EasyFreezeSiteManager easyFreezeSiteManager;
+
+    @Autowired
+    private GoodsPhoteService goodsPhoteService;
+
+    @Autowired
+    private RouterService routerService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -762,27 +773,76 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
+    public BlockResponse checkPackageBlockByFeatureTypes(String packageCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isPackageCode(packageCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        // 根据包裹号查询拦截记录
+        List<CancelWaybill> lockPackRecordList
+                = cancelWaybillDao.findPackageBlockedByCodeAndFeatureTypes(packageCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        if (CollectionUtils.isEmpty(lockPackRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据包裹号：{0}未查到拦截记录", packageCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockPackRecord = lockPackRecordList.get(0);
+        cancelResponse.setMessage("该包裹拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        cancelResponse.setFeatureType(recentBlockPackRecord.getFeatureType());
+        cancelResponse.setBlockPackageCount(1L);
+        cancelResponse.setBlockPackages(Collections.singletonList(packageCode));
+        log.info("包裹号：{}当前是：{}的拦截状态!", packageCode, recentBlockPackRecord.getFeatureType());
+        return cancelResponse;
+    }
+
+    @Override
+    public BlockResponse checkWaybillBlockByFeatureTypes(String waybillCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isWaybillCode(waybillCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        List<CancelWaybill> lockWaybillRecordList
+                = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        // 无需拦截
+        if (CollectionUtils.isEmpty(lockWaybillRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据运单号：{0}未查到拦截记录", waybillCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockWaybillRecord = lockWaybillRecordList.get(0);
+        Integer currentInterceptFeatureType = recentBlockWaybillRecord.getFeatureType();
+        // 如果是包裹维度也需要拦截的业务类型
+        if (CancelWaybill.FEATURE_TYPES_NEED_PACKAGE_DEAL.contains(currentInterceptFeatureType)) {
+            log.info("运单：{}的拦截未完成，有包裹未处理。", waybillCode);
+            List<CancelWaybill> cancelWaybills = cancelWaybillDao.findPackageCodesByFeatureTypeAndWaybillCode(
+                    waybillCode, currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK, CancelWaybill.BLOCK_PACKAGE_QUERY_NUMBER);
+            List<String> packageCodes = getPackageCodes(cancelWaybills);
+            Long PackageCount = cancelWaybillDao.findPackageCodeCountByFeatureTypeAndWaybillCode(waybillCode,
+                    currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK);
+            cancelResponse.setBlockPackageCount(PackageCount);
+            cancelResponse.setBlockPackages(packageCodes);
+        }
+        cancelResponse.setFeatureType(currentInterceptFeatureType);
+        cancelResponse.setMessage("该运单拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        log.info(MessageFormat.format("根据运单号：{0}查询到该包裹未拦截状态", waybillCode));
+        return cancelResponse;
+    }
+
+    @Override
     public Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode) {
         // 根据waybillCode查库获取路由信息
-        String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
-        if (StringUtils.isBlank(router)) {
-            log.error("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},createSiteCode={}", waybillCode, createSiteCode);
-            return null;
-        }
-        Integer nextSiteCode = null;
-        String[] routerNodes = router.split("\\|");
-        for (int i = 0; i < routerNodes.length - 1; i ++) {
-            int curNode = Integer.parseInt(routerNodes[i]);
-            // 如果当前网点等于始发站点
-            if (curNode == createSiteCode) {
-                // 如果当前路由节点不是最后一个
-                if (i != (routerNodes.length - 1)) {
-                    // 获取下一个
-                    nextSiteCode = Integer.parseInt(routerNodes[i + 1]);
-                }
-            }
-        }
-        return nextSiteCode;
+        RouteNextDto routeNextDto = routerService.matchRouterNextNode(createSiteCode,waybillCode);
+        return routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
     }
 
     @Override
@@ -981,6 +1041,11 @@ public class WaybillServiceImpl implements WaybillService {
             result.customMessage(SortingResponse.CODE_29321, HintService.getHint(HintCodeConstants.FULL_ORDER_FAIL_INTERCEPT));
             return result;
         }
+        if (WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29325, HintService.getHint(HintCodeConstants.CUSTOM_INTERCEPT));
+            return result;
+        }
+
         return result;
     }
 
@@ -1151,8 +1216,8 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-            //通过waybillsign判断此运单是否包含增值服务
-            if(!BusinessUtil.isVasWaybill(waybillSign)){
+            //通过waybillsign判断此外单运单是否包含增值服务
+            if(!BusinessUtil.isSelf(waybillSign) && !BusinessUtil.isVasWaybill(waybillSign)){
                 log.warn("易冻损此运单不包含增值服务!");
                 return result;
             }
@@ -1245,6 +1310,89 @@ public class WaybillServiceImpl implements WaybillService {
 
     }
 
+
+    @Override
+    public boolean isLuxurySecurityVosWaybill(String waybillCode) {
+        try {
+            //获取增值服务信息
+            log.info("获取特保单增值服务入参-{}",waybillCode);
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.LUXURY_SECURITY_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取特保单增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
+    }
+
+
+
+    @Override
+    @JProfiler(jKey= "DMSWEB.InspectionService.checkLuxurySecurity", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String barCode, String waybillSign) {
+        log.info("特保单 checkLuxurySecurity 站点-{} 单号-{}",siteCode,barCode);
+        InvokeResult<Boolean> result = new InvokeResult();
+        result.success();
+        result.setData(Boolean.FALSE);
+        log.info("特保单校验 入参-{}",barCode);
+        //箱号暂时不做处理
+        Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+        if(isBoxCode){
+            log.warn("箱号暂时不做处理！");
+            return result;
+        }
+
+        //如果是包裹号解析成运单号
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        try{
+            if(StringUtils.isBlank(waybillSign)){
+                //根据运单获取waybillSign
+                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                        = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+                log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+                if(dataByChoice == null
+                        || dataByChoice.getData() == null
+                        || dataByChoice.getData().getWaybill() == null
+                        || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+                    log.warn("特保单查询运单waybillSign失败!");
+                    return result;
+                }
+                waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+            }
+
+            //通过waybillsign判断此运单是否包含增值服务
+            if(!BusinessUtil.isVasWaybill(waybillSign)){
+                log.warn("此运单不包含特保单增值服务!");
+                return result;
+            }
+            //判断增值服务是否包含特保单增值服务
+            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
+            log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
+            if(isLuxurySecurity){
+                //判断此特保单是否已经有拍照记录 有的话直接返回不提示
+                GoodsPhotoInfo info = goodsPhoteService.selectOne(siteCode, barCode);
+                if(info != null){
+                    log.warn("此单照片已经拍过");
+                    return result;
+                }
+                result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
+                result.setData(Boolean.TRUE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("特保单校验异常-{}",e.getMessage(),e);
+        }
+        return result;
+    }
 
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
@@ -1445,6 +1593,13 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
 
+            // 在得物商家的名单范围内，禁止返调度
+            final boolean matchDewuReSortCondition = this.matchTerminalSiteReSortDewuCondition(waybill.getCustomerCode(), userInfo.getSiteCode());
+            if(matchDewuReSortCondition){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
+            }
+
             // 当前校验必须放在最后
             //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
             InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
@@ -1498,4 +1653,32 @@ public class WaybillServiceImpl implements WaybillService {
         }
 		return false;
 	}
+
+    /**
+     * 匹配是否为终端场地操作得物类型返调度操作条件
+     * @param customerCode 商家编号
+     * @param siteCode 用户信息
+     * @return
+     */
+    @Override
+    public boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode) {
+        log.info("matchTerminalSiteReSortDewuCondition param customerCode: {} siteCode: {}", customerCode, siteCode);
+        try {
+            if (customerCode == null || siteCode == null) {
+                return false;
+            }
+            final BaseSite siteInfo = baseMajorManager.getSiteBySiteCode(siteCode);
+            if (siteInfo == null) {
+                return false;
+            }
+            log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", uccPropertyConfiguration.matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
+            if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("matchTerminalSiteReSortDewuCondition exception ", e);
+        }
+        return false;
+    }
 }

@@ -629,6 +629,12 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  分拣发邮政消息mq  -->
+    <bean id="dmsSendToEmsWaybillInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsSendToEmsWaybillInfo}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
     <bean id="miniStoreSealBoxProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
         <property name="timeout" value="1000"/>
@@ -650,4 +656,9 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  分拣转运派车任务明细  -->
+    <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

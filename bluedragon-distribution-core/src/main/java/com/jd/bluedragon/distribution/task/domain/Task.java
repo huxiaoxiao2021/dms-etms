@@ -95,14 +95,16 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**
      * 130004-包裹发货
      */
-    public static final Integer TASK_SUB_TYPE_PACKAGE_SEND = 130004;    
-    
+    public static final Integer TASK_SUB_TYPE_PACKAGE_SEND = 130004;
+
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
     public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
     public static final Integer TASK_TYPE_DELIVERY_ASYNC = 1350;
     public static final Integer TASK_TYPE_DELIVERY_ASYNC_V2 = 1360;
     public static final Integer TASK_TYPE_DELIVERY_TRANSFER = 1370;
+    public static final Integer TASK_TYPE_COMBOARD_SEND = 1380;
+    public static final Integer TASK_TYPE_COMBOARD_CANCEL = 1390;
 
     /**
      * 整板发货任务
@@ -193,6 +195,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL = 3000; // 打印回调大运单处理任务
 
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_INSPECTION = 1001;
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SORTING = 1002;
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SEND = 1003;
+
+
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
     public static final String TABLE_NAME_REVERSE = "task_reverse";
@@ -243,6 +250,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public static final String TABLE_NAME_POP_PRINT = "task_pop_print";
 
+    public static final String TABLE_NAME_JY_OPEN_CARGO_OPERATE = "task_jy_open_cargo_operate";
+
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -270,6 +279,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_CORSS_BOX_SEQ ="TABLE_NAME_CROSSBOX_SEQ";
     //平台打印，补发货数据tangcq
     public static final String TABLE_NAME_POP_PRINT_INSPECTION_SEQ ="TABLE_NAME_POP_PRINT_INSPECTION_SEQ";
+
+    public static final String TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ = "SEQ_JY_OPEN_CARGO_OPERATE";
 
 
     /** 任务数据通过redis,还是通过数据库 **/
@@ -347,6 +358,16 @@ public class Task implements java.io.Serializable, TaskModeAware{
     private List<Integer> statusesList;
     /** 子类型 */
     private Integer subType;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;    
+    
     
     public Task() {
     }
@@ -566,7 +587,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 || Task.TASK_TYPE_WATBILL_NOTIFY.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)
-                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
+                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_SEND.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_CANCEL.equals(type)) {
             return Task.TABLE_NAME_SEND;
         } else if (Task.TASK_TYPE_POP.equals(type)||Task.TASK_TYPE_WAYBILL_TRACK.equals(type)) {
             return Task.TABLE_NAME_POP;
@@ -629,6 +652,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if (Task.TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL.equals(type)) {
             return Task.TABLE_NAME_POP_PRINT;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_INSPECTION.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SORTING.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -679,6 +708,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
         	return Task.TABLE_NAME_CORSS_BOX_SEQ;
         }else if (Task.TABLE_NAME_POP_PRINT_INSPECTION.equals(tableName)){
             return Task.TABLE_NAME_POP_PRINT_INSPECTION_SEQ;
+        } else if (Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE.equals(tableName)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ;
         }
         
         return Task.TABLE_NAME_SORTING_SEQ;
@@ -912,7 +943,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
         else if (TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
             return "DeliverySendTransferTask";
         }
-        else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
+        else if (TASK_TYPE_COMBOARD_SEND.equals(type)) {
+            return "JyComboardAndSendTask";
+        }else if (TASK_TYPE_COMBOARD_CANCEL.equals(type)){
+            return "JyCancelComboardTask";
+        } else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
 
 
@@ -979,6 +1014,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "BoardDeliveryCancelTask";
         }else if(TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return "CycleBoxStatusTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_INSPECTION.equals(type)) {
+            return "JYOpenInspectionTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SORTING.equals(type)) {
+            return "JYOpenSortingTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
+            return "JYOpenSendTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
@@ -1051,5 +1092,21 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
 	public void setSubType(Integer subType) {
 		this.subType = subType;
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 }

@@ -33,11 +33,22 @@
         <result property="actualScanPackageCodeCount" column="actual_scan_package_code_count"/>
         <result property="actualScanBoxCodeCount" column="actual_scan_box_code_count"/>
         <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+
+        <result property="totalScannedWaybillCount" column="total_scanned_waybill_count"/>
+        <result property="totalInterceptWaybillCount" column="total_intercept_waybill_count"/>
+        <result property="totalIncompleteWaybillCount" column="total_incomplete_waybill_count"/>
+        <result property="totalNotScannedWaybillCount" column="total_not_scanned_waybill_count"/>
+        <result property="totalForceWaybillCount" column="total_force_waybill_count"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,        biz_id,        trans_work_item_code,        vehicle_number,        operate_site_id,        receive_site_id,        should_scan_count,        actual_scan_count,        actual_scan_weight,        actual_scan_volume,        intercept_scan_count,        force_send_count,        total_should_scan_count,        total_scanned_count,        total_intercept_count,        total_force_send_count,        total_scanned_weight,        total_scanned_volume,        total_scanned_package_code_count,        total_scanned_box_code_count,        vehicle_weight,        vehicle_volume,        create_time,        yn,        ts,        actual_scan_package_code_count,        actual_scan_box_code_count,        send_vehicle_biz_id    </sql>
+        id,biz_id,        trans_work_item_code,        vehicle_number,        operate_site_id,        receive_site_id,
+        should_scan_count,        actual_scan_count,        actual_scan_weight,        actual_scan_volume,        intercept_scan_count,
+        force_send_count,        total_should_scan_count,        total_scanned_count,        total_intercept_count,        total_force_send_count,
+        total_scanned_weight,        total_scanned_volume,        total_scanned_package_code_count,        total_scanned_box_code_count,        vehicle_weight,
+        vehicle_volume,        create_time,        yn,        ts,        actual_scan_package_code_count,        actual_scan_box_code_count,
+        send_vehicle_biz_id,total_scanned_waybill_count,total_intercept_waybill_count,total_incomplete_waybill_count,
+        total_not_scanned_waybill_count,total_force_waybill_count</sql>
 
     <insert id="insert" parameterType="JySendAggsEntity">
         INSERT INTO jy_send_aggs (
@@ -402,5 +413,21 @@
         WHERE
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+
+    <select id="getSendAggsListByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntityQuery" resultMap="jySendAggsMap">
+        select * from jy_send_aggs
+        where yn =1
+        and operate_site_id = #{operateSiteId}
+        and create_time between #{startTime} and #{endTime}
+
+    </select>
+
+    <select id="findSendAggExistAbnormal" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE send_vehicle_biz_id = #{sendVehicleBizId} and total_incomplete_waybill_count > 0
+        and yn = 1 limit 1
     </select>
 </mapper>

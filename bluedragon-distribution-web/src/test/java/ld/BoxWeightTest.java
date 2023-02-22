@@ -11,12 +11,12 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.utils.AsynBufferDemotionUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +55,9 @@ public class BoxWeightTest {
     private AsynBufferDemotionUtil asynBufferDemotionUtil;
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
 
     @Test
     public void testOffline(){
@@ -126,9 +129,25 @@ public class BoxWeightTest {
 
     @Test
     public void test3(){
-        WeightVolumeEntity weightVolumeEntity = JsonHelper.fromJson(boxW,WeightVolumeEntity.class);
 
-        economicNetService.boxWeightVolumeListener(weightVolumeEntity);
+        String json = "{\n" +
+                "    \"barCode\":\"JDVF00003052300-1-1-\",\n" +
+                "    \"weight\":1,\n" +
+                "    \"length\":10000,\n" +
+                "    \"width\":1,\n" +
+                "    \"height\":0,\n" +
+                "    \"volume\":10000,\n" +
+                "    \"businessType\":\"BY_PACKAGE\",\n" +
+                "    \"sourceCode\":\"DPRH\",\n" +
+                "    \"operatorCode\":\"-1\",\n" +
+                "    \"operatorId\":-1,\n" +
+                "    \"operateSiteCode\":-1,\n" +
+                "    \"operatorName\":\"任斌\",\n" +
+                "    \"operateTime\":\"2022-12-21 13:40:38\"\n" +
+                "}";
+        WeightVolumeEntity weightVolumeEntity = JsonHelper.fromJson(json,WeightVolumeEntity.class);
+
+        weightVolumeHandlerStrategy.doHandler(weightVolumeEntity);
     }
 
     @Test

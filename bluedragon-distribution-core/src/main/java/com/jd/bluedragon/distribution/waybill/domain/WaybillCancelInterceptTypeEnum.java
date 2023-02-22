@@ -73,7 +73,11 @@ public enum WaybillCancelInterceptTypeEnum {
     /**
      * 全量接单失败拦截
      */
-    FULL_ORDER_FAIL(14, "全量接单失败拦截");
+    FULL_ORDER_FAIL(14, "全量接单失败拦截"),
+    /**
+     * 自定义个性拦截
+     */
+    CUSTOM_INTERCEPT(99, "自定义个性拦截");
 
     private final int code;
 

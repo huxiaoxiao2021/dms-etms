@@ -33,6 +33,7 @@ public class ExportSpotCheckDto {
     private String reviewSource;
     private String contrastSource;
     private String machineCode;
+    private String machineStatus;
     private String isGatherTogether;
     private String isExcess;
     private String isIssueDownstream;
@@ -246,6 +247,14 @@ public class ExportSpotCheckDto {
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public String getMachineStatus() {
+        return machineStatus;
+    }
+
+    public void setMachineStatus(String machineStatus) {
+        this.machineStatus = machineStatus;
     }
 
     public String getIsGatherTogether() {

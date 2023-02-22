@@ -8,7 +8,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 /**
  * @ClassName IJyUnSealVehicleService
@@ -62,4 +61,11 @@ public interface IJyUnSealVehicleService {
      * @return
      */
     boolean cancelUnSealTask(JyBizTaskUnSealDto dto);
+
+    /**
+     * 获取待解封车数据详情
+     * @param request
+     * @return
+     */
+    InvokeResult<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request);
 }

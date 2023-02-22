@@ -46,14 +46,6 @@ public class JyTaskGroupMemberDao extends BaseDao<JyTaskGroupMemberEntity> {
 	public int endWorkByMemberCode(JyTaskGroupMemberEntity entity) {
 		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCode", entity);
 	}
-	/**
-	 * 任务结束-按任务id
-	 * @param taskGroupMember
-	 * @return
-	 */
-	public int endWorkByTaskId(JyTaskGroupMemberEntity taskGroupMember) {
-		return this.getSqlSession().update(NAMESPACE + ".endWorkByTaskId", taskGroupMember);
-	}
     /**
      * 根据taskId查询已存在的memberCode列表
      * @param query
@@ -70,12 +62,30 @@ public class JyTaskGroupMemberDao extends BaseDao<JyTaskGroupMemberEntity> {
 	public List<JyTaskGroupMemberEntity> queryMemberListByTaskId(JyTaskGroupMemberQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberListByTaskId", query);
 	}
-	public int endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+	/**
+	 * 自动签退-设置结束时间
+	 * @param endData
+	 * @param memberCodes
+	 * @return
+	 */
+	public int endWorkByMemberCodeListForAutoSignOut(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("endData", endData);
 		params.put("memberCodes", memberCodes);
-		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCodeList", params);
+		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCodeListForAutoSignOut", params);
 	}
+	/**
+	 * 结束任务-设置结束时间
+	 * @param endData
+	 * @param memberCodes
+	 * @return
+	 */
+	public int endWorkByMemberCodeListForEndTask(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("endData", endData);
+		params.put("memberCodes", memberCodes);
+		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCodeListForEndTask", params);
+	}	
 	/**
 	 * 删除小组对应的任务成员信息
 	 * @param taskGroupMember

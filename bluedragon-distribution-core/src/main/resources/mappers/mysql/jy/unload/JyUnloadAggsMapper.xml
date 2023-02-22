@@ -36,8 +36,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,
+        id,
         biz_id,
         seal_car_code,
         operate_site_id,
@@ -208,4 +207,5 @@
         FROM  jy_unload_aggs
         WHERE yn = 1 and biz_id = #{bizId} and board_code =#{boardCode}
     </select>
+
 </mapper>

@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
+import java.util.List;
 import java.util.Date;
 
 public interface WaybillService {
@@ -138,6 +139,16 @@ public interface WaybillService {
 
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
 
+    /**
+     * 根据featureType查询拦截
+     *
+     * @param packageCode
+     * @param featureTypes
+     * @return
+     */
+    BlockResponse checkPackageBlockByFeatureTypes(String packageCode, List<Integer> featureTypes);
+    BlockResponse checkWaybillBlockByFeatureTypes(String waybillCode, List<Integer> featureTypes);
+
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
 
     String getRouterByWaybillCode(String waybillCode);
@@ -211,5 +222,27 @@ public interface WaybillService {
      * @return
      */
     InvokeResult<Boolean> checkEasyFreeze(String waybillCode, Date operateTime, Integer siteCode);
-    
+
+    /**
+     * 判断运单是否包含特保单增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isLuxurySecurityVosWaybill(String waybillCode);
+
+    /**
+     * 根据运单号检查是否属于 特保单
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String waybillCode, String waybilSign);
+
+    /**
+     * 匹配是否为终端场地操作得物类型返调度操作条件
+     * @param customerCode 商家编号
+     * @param siteCode 场地编码
+     * @return
+     */
+    boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode);
+
 }

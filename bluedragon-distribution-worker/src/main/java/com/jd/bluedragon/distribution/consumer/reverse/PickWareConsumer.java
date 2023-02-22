@@ -39,7 +39,9 @@ public class PickWareConsumer extends MessageBaseConsumer {
 			return;
 		}
 		String messageContent = message.getText();
-        this.log.debug("[备件库售后取件单-交接/拆包]messageContent：{}" , messageContent);
+		if(log.isInfoEnabled()){
+			log.info("[备件库售后取件单-交接/拆包]messageContent：{}" , messageContent);
+		}
         PickWare pickWare = JsonHelper.fromJson(messageContent, PickWare.class);
         pickWare.setPickwareTime(DateHelper.parseDateTime(pickWare.getOperateTime()));
         if(StringUtils.isNotBlank(pickWare.getPickwareCode())){

@@ -40,6 +40,11 @@ public class SendVehicleTaskResponse implements Serializable {
      */
     private SendVehicleData<SealedVehicle> sealedVehicleData;
 
+    /**
+     * 根据包裹号查到发货流向的任务bizId列表
+     */
+    private List<String> sendVehicleBizList;
+
     public List<VehicleStatusStatis> getStatusAgg() {
         return statusAgg;
     }
@@ -78,5 +83,13 @@ public class SendVehicleTaskResponse implements Serializable {
 
     public void setSealedVehicleData(SendVehicleData<SealedVehicle> sealedVehicleData) {
         this.sealedVehicleData = sealedVehicleData;
+    }
+
+    public List<String> getSendVehicleBizList() {
+        return sendVehicleBizList;
+    }
+
+    public void setSendVehicleBizList(List<String> sendVehicleBizList) {
+        this.sendVehicleBizList = sendVehicleBizList;
     }
 }

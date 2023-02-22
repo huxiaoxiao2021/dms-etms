@@ -48,6 +48,8 @@ public class UnloadVehicleTaskRequest implements Serializable {
      */
     private String fetchType;
 
+    private Integer taskType;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -118,5 +120,13 @@ public class UnloadVehicleTaskRequest implements Serializable {
 
     public void setFetchType(String fetchType) {
         this.fetchType = fetchType;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }

@@ -135,6 +135,19 @@ public class NumberHelper {
         }
         return false;
     }
+
+    /**
+     * 返回结果a是否大于b,返回 a>b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean gt(Long a,Long b) {
+        if (a != null && b != null) {
+            return a.longValue() > b.longValue();
+        }
+        return false;
+    }
     /**
      * 返回结果a是否大于等于b,返回 a>=b 的值
      * @param a
@@ -147,6 +160,7 @@ public class NumberHelper {
         }
         return false;
     }
+
     /**
      * 返回结果a是否大于0
      * @param a 数字类型的对象，支持 Byte,Double,Float,Integer,Long,Short
@@ -155,6 +169,18 @@ public class NumberHelper {
     public static boolean gt0(Number a) {
         if (a != null) {
             return a.doubleValue() > 0;
+        }
+        return false;
+    }
+
+    /**
+     * 返回结果a是否大于0
+     * @param a 数字类型的对象，支持 Byte,Double,Float,Integer,Long,Short
+     * @return
+     */
+    public static boolean gt0(Long a) {
+        if (a != null) {
+            return a.longValue() > 0;
         }
         return false;
     }

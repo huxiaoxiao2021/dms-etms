@@ -125,15 +125,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
-        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
-        if(taskEntity.getId() != null  && Objects.isNull(taskEntity.getUnloadStartTime())) {
-            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
-            entity.setId(taskEntity.getId());
-            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
-            entity.setUpdateTime(new Date());
-            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
-        }
-
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
@@ -141,19 +132,25 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             throw new RuntimeException("保存卸车扫描记录异常");
         }
 
+       /* 说明： 补扫任务一生成就是完成状态，后续不能再修改完成时间。
+        原因： 计提在任务完成时开始计算，
+            第一次任务完成时间在21号0点，为上一计提数据，21号7点前补扫包裹100件
+            25号0点再次补扫变更完成时间，任务为第二计提周期，补扫了200个包裹  此时本计提周期会推送 100 + 200 个包裹，计提重复
+        结果：任务完成时间只记录第一次
+        */
         // 转运补扫子任务完结
-        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
-            if (unloadScanDto.getSupplementary()) {
-                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
-                condition.setBizId(unloadScanDto.getStageBizId());
-                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
-                condition.setEndTime(new Date());
-                condition.setUpdateTime(new Date());
-                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
-                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
-                jyBizTaskUnloadVehicleStageService.updateStatusByBizId(condition);
-            }
-        }
+//        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
+//            if (unloadScanDto.getSupplementary()) {
+//                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+//                condition.setBizId(unloadScanDto.getStageBizId());
+//                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+//                condition.setEndTime(new Date());
+//                condition.setUpdateTime(new Date());
+//                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
+//                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
+//                jyBizTaskUnloadVehicleStageService.updateStatusByBizId(condition);
+//            }
+//        }
 
         // 插入验货或收货任务，发全程跟踪
         addTaskPersistent(unloadScanDto);
@@ -213,8 +210,23 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             startJyScheduleTask(unloadScanDto);
 
             recordTaskMembers(unloadScanDto);
+
+            updateTaskBusinessInfo(unloadScanDto);
         }
     }
+
+    private void updateTaskBusinessInfo(UnloadScanDto unloadScanDto) {
+        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
+        if (taskEntity != null) {
+            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+            entity.setId(taskEntity.getId());
+            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
+            entity.setRefGroupCode(unloadScanDto.getGroupCode());
+            entity.setUpdateTime(new Date());
+            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+    }
+
 
     /**
      * 判断是否触发开始调度任务

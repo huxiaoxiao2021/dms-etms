@@ -43,10 +43,13 @@
     <import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
     <import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
     <import resource="classpath:spring/distribution-core-datasource-jy-core.xml" />
-
+    <import resource="classpath:spring/distribution-core-datasource-jy-core-agg-bak.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-jy-core-agg-main.xml" />
     <import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
     <import resource="classpath:spring/distribution-core-datasource-task.xml" />
     <import resource="classpath:spring/distribution-core-dao.xml" />
+    <import resource="classpath:spring/distribution-core-agg-dao-bak.xml" />
+    <import resource="classpath:spring/distribution-core-agg-dao-main.xml" />
     <import resource="classpath:spring/distribution-core-ws.xml" />
     <import resource="classpath:spring/distribution-core-business.xml" />
 
@@ -66,7 +69,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-waybill.xml" />
     <import resource="classpath:spring/distribution-core-aces.xml" />
 
-    <import resource="classpath:spring/spring-ucc.xml" />
+    <import resource="classpath:spring/spring-ucc-light.xml" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper"/>
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />

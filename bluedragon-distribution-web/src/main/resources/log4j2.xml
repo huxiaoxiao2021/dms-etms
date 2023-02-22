@@ -3,12 +3,12 @@
     <properties>
         <!-- 日志路径 -->
         <property name="LOG_HOME">d:/logs/dms.web</property>
-        <Property name="LOG.PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n</Property>
+        <Property name="LOG.PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%X{traceId}] [%t] %c %M:%L - %m%n</Property>
     </properties>
     <Appenders>
         <!-- 输出控制台的配置 -->
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%X{traceId}] [%t] %c %M:%L - %m%n"/>
         </Console>
         <!-- info -->
         <RollingFile name="bluedragon" fileName="${LOG_HOME}/bluedragon-distribution-web.log"
@@ -92,7 +92,7 @@
             <appender-ref ref="business.log"/>
         </AsyncLogger>
         <!-- 建立一个默认的root的Logger -->
-        <AsyncRoot level="DEBUG" name="rootAsyncLogger">
+        <AsyncRoot level="INFO" name="rootAsyncLogger">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>

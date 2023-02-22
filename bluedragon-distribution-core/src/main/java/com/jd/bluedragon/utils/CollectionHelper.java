@@ -125,7 +125,7 @@ public class CollectionHelper<E> {
     			|| source.size() == 0) {
     		return result;
     	}
-    	int size = source.size();
+    	long size = source.size();
     	//不需要拆分,add原列表
     	if(size <= perMinElementNum) {
     		result.add(source);
@@ -133,8 +133,8 @@ public class CollectionHelper<E> {
     	}
     	int perNum = perMinElementNum;
 		int groupNum = maxGroupNum;
-		if(size > (perNum * groupNum)) {
-			perNum = size/groupNum;
+		if(size > ((long)perNum * (long)groupNum)) {
+			perNum = (int)(size/groupNum);
 			if(size%groupNum > 0) {
 				perNum +=1;
 			}
@@ -152,6 +152,15 @@ public class CollectionHelper<E> {
         list.add(sendM2);
         list.add(sendM3);
         System.out.println(joinToList(list,"getBoxCode"));
+        
+        List<String> s = new ArrayList<String>();
+        for(int i=1;i<=201;i++) {
+        	s.add(""+i);
+        }
+        System.out.println(splitList(s,2,100));
+        System.out.println(splitList(s,10000000,100));
+        System.out.println(splitList(s,Integer.MAX_VALUE,100));
+        System.out.println(splitList(s,2,Integer.MAX_VALUE));
     }
 
 }

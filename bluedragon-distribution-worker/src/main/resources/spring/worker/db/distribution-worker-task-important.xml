@@ -284,6 +284,16 @@
         <property name="desc" value="jy发货任务迁移逻辑"/>
     </bean>
 
+    <!--<bean id="jyComboardAndSendTask" class="com.jd.bluedragon.distribution.worker.delivery.JyComboardAndSendTask"
+      init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JyComboardAndSendTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1380"/>
+        <property name="desc" value="jy异步组板发货任务"/>
+    </bean>-->
+
 
     <bean id="createSendTask" class="com.jd.bluedragon.distribution.worker.delivery.CreateSendTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
@@ -295,4 +305,44 @@
         <property name="keyType" value="20"/>
         <property name="desc" value="创建发货任务"/>
     </bean>
+
+    <bean id="jyOpenInspectionTask" class="com.jd.bluedragon.distribution.worker.jy.open.JYOpenInspectionTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JYOpenInspectionTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1001"/>
+        <property name="desc" value="拣运开放验货任务"/>
+    </bean>
+
+    <bean id="jyOpenSortingTask" class="com.jd.bluedragon.distribution.worker.jy.open.JYOpenSortingTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JYOpenSortingTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1002"/>
+        <property name="desc" value="拣运开放分拣任务"/>
+    </bean>
+
+    <bean id="jyOpenSendTask" class="com.jd.bluedragon.distribution.worker.jy.open.JYOpenSendTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JYOpenSendTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1003"/>
+        <property name="desc" value="拣运开放发货任务"/>
+    </bean>
+
+    <!--<bean id="jyCancelComboardTask" class="com.jd.bluedragon.distribution.worker.delivery.JyCancelComboardTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JyCancelComboardTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1390"/>
+        <property name="desc" value="大宗异步取消组板"/>
+    </bean>-->
 </beans>
