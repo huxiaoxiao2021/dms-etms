@@ -53,6 +53,11 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    public Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox) {
+        return groupBoardService.addBoxToBoardV2(addBoardBox);
+    }
+
+    @Override
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox) {
@@ -141,7 +146,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return groupBoardService.getBoardStatisticsByBoardCode(boardCode);
 
     }
-    
+
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
