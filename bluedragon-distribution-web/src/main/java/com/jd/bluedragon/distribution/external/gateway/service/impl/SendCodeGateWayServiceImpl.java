@@ -17,6 +17,7 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
+import com.jd.bluedragon.core.base.PrintHandoverListManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -47,6 +48,8 @@ import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.dms.wb.report.api.dto.base.BaseEntity;
+import com.jd.dms.wb.report.api.dto.printhandover.SendCodeCountDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -108,6 +111,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+    
+    @Autowired
+    private PrintHandoverListManager printHandoverListManager;
     
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -374,13 +380,15 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         	data.setReceiveSiteName(receiveSiteDto.getSiteName());
         }
         data.setSendCode(sendCode);
-        Set<String> pacakgeCodes = new HashSet<String>();
-        Set<String> boxCodes = new HashSet<String>();
-        Set<String> boardCodes = new HashSet<String>();
 
-        data.setScanPackageNum(pacakgeCodes.size());
-        data.setScanBoxNum(boxCodes.size());
-        data.setScanBoardNum(boardCodes.size());
+        SendCodeCountDto sendCodeCountDto = printHandoverListManager.queryCountInfoBySendCode(sendCode);
+
+        if (sendCodeCountDto != null ) {
+            data.setScanPackageNum(sendCodeCountDto.getScanPackageNum());
+            data.setScanBoxNum(sendCodeCountDto.getScanBoxNum());
+            data.setScanBoardNum(sendCodeCountDto.getScanBoardNum());
+        }
+        
         //查询封车状态信息
         if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
             data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());

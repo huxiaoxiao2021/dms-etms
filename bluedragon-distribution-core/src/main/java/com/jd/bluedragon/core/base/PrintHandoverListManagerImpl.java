@@ -6,9 +6,11 @@ import com.jd.dms.wb.report.api.IPrintHandoverListJsfService;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
+import com.jd.dms.wb.report.api.dto.printhandover.SendCodeCountDto;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.List;
  * @date 2021/4/13 1:47 下午
  */
 @Service("printHandoverListManager")
+@Slf4j
 public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
 
     @Autowired
@@ -103,5 +106,21 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
     @Override
     public BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs) {
         return printHandoverListJsfService.doBatchExportAsyncToTripartite(query,content, tos, ccs);
+    }
+
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.queryCountInfoBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public SendCodeCountDto queryCountInfoBySendCode(String sendCode) {
+        try{
+            BaseEntity<SendCodeCountDto> baseEntity = printHandoverListJsfService.queryCountInfoBySendCode(sendCode);
+            if (baseEntity != null && baseEntity.isSuccess()) {
+                return baseEntity.getData();
+            }
+            return null;
+        }catch (Exception e) {
+            log.error("获取批次号统计信息失败：{}",sendCode,e);
+        }
+        return null;
     }
 }
