@@ -144,7 +144,6 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
-				<ref bean="changeWaybillPrintSendMsgHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -422,7 +421,6 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
-				<ref bean="changeWaybillPrintSendMsgHandler"/>
 			</list>
 		</property>
 	</bean>
