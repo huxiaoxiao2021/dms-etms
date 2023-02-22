@@ -29,11 +29,13 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 /**
+ * @deprecated (2023-01-26托寄物打印已经不依赖es，无需写入)
  * @author tangchunqing
  * @Description: 发货明细消费 托寄物品名打印用
  * @date 2018年11月21日 17时:47分
  */
-@Service("sendDetailGoodsPrintConsumer")
+
+@Deprecated
 public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
     private static final Logger log = LoggerFactory.getLogger(SendDetailGoodsPrintConsumer.class);
     @Autowired

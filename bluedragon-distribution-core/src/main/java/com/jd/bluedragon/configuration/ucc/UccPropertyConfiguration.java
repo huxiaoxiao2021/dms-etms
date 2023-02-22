@@ -792,6 +792,38 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardSealBoardListSelectLimit;
 
+    private boolean autoPackageSendInspectionSwitch;
+
+    private String autoPackageSendInspectionDelSiteCodes;
+
+    public boolean isAutoPackageSendInspectionSwitch() {
+        return autoPackageSendInspectionSwitch;
+    }
+
+    public void setAutoPackageSendInspectionSwitch(boolean autoPackageSendInspectionSwitch) {
+        this.autoPackageSendInspectionSwitch = autoPackageSendInspectionSwitch;
+    }
+
+    public String getAutoPackageSendInspectionDelSiteCodes() {
+        return autoPackageSendInspectionDelSiteCodes;
+    }
+
+    public void setAutoPackageSendInspectionDelSiteCodes(String autoPackageSendInspectionDelSiteCodes) {
+        this.autoPackageSendInspectionDelSiteCodes = autoPackageSendInspectionDelSiteCodes;
+    }
+
+    private Integer jyComboardSealBoardListLimit;
+
+    private Long reComboardTimeLimit;
+
+    public Long getReComboardTimeLimit() {
+        return reComboardTimeLimit;
+    }
+
+    public void setReComboardTimeLimit(Long reComboardTimeLimit) {
+        this.reComboardTimeLimit = reComboardTimeLimit;
+    }
+
     public boolean getSyncScheduleTaskSwitch() {
         return syncScheduleTaskSwitch;
     }
@@ -1150,6 +1182,8 @@ public class UccPropertyConfiguration {
     private Integer jyComboardCountLimit;
 
     private boolean czQuerySwitch;
+
+    private Boolean boardListQuerySwitch;
 
     /**
      * 三无任务 距离当前日期的历史天数
@@ -2764,6 +2798,22 @@ public class UccPropertyConfiguration {
 
     public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
         this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
+    }
+
+    public Integer getJyComboardSealBoardListLimit() {
+        return jyComboardSealBoardListLimit;
+    }
+
+    public void setJyComboardSealBoardListLimit(Integer jyComboardSealBoardListLimit) {
+        this.jyComboardSealBoardListLimit = jyComboardSealBoardListLimit;
+    }
+
+    public Boolean getBoardListQuerySwitch() {
+        return boardListQuerySwitch;
+    }
+
+    public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
+        this.boardListQuerySwitch = boardListQuerySwitch;
     }
 
     public int getSanwuOutOfDate() {

@@ -279,7 +279,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
         tWaybillStatus.setOperatorId(request.getOperateUserCode());
         tWaybillStatus.setOperator(request.getOperateUserName());
-        tWaybillStatus.setOperateTime(new Date());
+        Date operateTime = request.getOperateTime() == null ? new Date() : new Date(request.getOperateTime());
+        tWaybillStatus.setOperateTime(operateTime);
         tWaybillStatus.setOperateType(operateType);
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());

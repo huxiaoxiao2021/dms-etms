@@ -203,14 +203,8 @@
         <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
     </jmq:consumer>
     -->
-    <!-- 消费发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.sendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="sendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
-    <!-- 消费取消发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
+
+
     <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
     <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>

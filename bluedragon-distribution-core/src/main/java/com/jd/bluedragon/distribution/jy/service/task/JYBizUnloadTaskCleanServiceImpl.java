@@ -169,7 +169,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         //卸车
         JyBizTaskUnloadVehicleEntity unLoadingRule = new JyBizTaskUnloadVehicleEntity();
         unLoadingRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
-        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-5));
+        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-10));
         cleanRules.add(unLoadingRule);
         //完成
         JyBizTaskUnloadVehicleEntity doneRule = new JyBizTaskUnloadVehicleEntity();
