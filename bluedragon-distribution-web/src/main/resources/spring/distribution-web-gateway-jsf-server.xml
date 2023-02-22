@@ -572,13 +572,6 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyWarehouseInspectionGatewayServiceImpl"
                   server="dmsjsf" />
-    <!-- 拣运发货、卸车数据查询   -->
-    <bean id="jySendOrUnloadAggDataGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JySendOrUnloadAggDataGatewayServiceImpl" />
-    <jsf:provider id="jsfJySendOrUnloadAggDataGatewayService"
-                  interface="com.jd.bluedragon.external.gateway.service.JySendOrUnloadAggDataGatewayService"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="jySendOrUnloadAggDataGatewayServiceImpl"
-                  server="dmsjsf" />
 
 
     <!--  组板发货 -->
