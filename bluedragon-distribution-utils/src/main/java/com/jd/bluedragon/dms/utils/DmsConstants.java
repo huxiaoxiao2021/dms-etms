@@ -371,6 +371,19 @@ public class DmsConstants {
      */
     public static final String WAYBILL_VAS_JXD_ATTCHMENTURL  = "attachmentUrl";
     /**
+     * 围栏-类型-WAYBILLAOI
+     */
+    public static final String WAYBILL_FENCE_TYPE_AOI  = "WAYBILLAOI";
+    /**
+     * 围栏-配送阶段（目前包括 1-揽收和2-派送）
+     */
+    public static final Integer WAYBILL_FENCE_DELIVERY_STAGE_1  = 1;
+    /**
+     * 围栏-配送阶段（目前包括 1-揽收和2-派送）
+     */
+    public static final Integer WAYBILL_FENCE_DELIVERY_STAGE_2  = 2;
+    
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {

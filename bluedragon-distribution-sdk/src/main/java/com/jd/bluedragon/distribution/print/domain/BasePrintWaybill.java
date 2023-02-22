@@ -491,7 +491,7 @@ public class BasePrintWaybill implements Serializable {
     /**
      * aoi编码
      */
-	private String aoiCode = "AZ";
+	private String aoiCode;
 	
 	public String getServiceCode() {
 		return serviceCode;

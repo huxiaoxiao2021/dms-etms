@@ -9,9 +9,13 @@ import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
+import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -25,10 +29,12 @@ import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.WaybillFenceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.bluedragon.dms.utils.SendPayConstants;
@@ -41,14 +47,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * 
@@ -108,6 +118,9 @@ public class WaybillCommonServiceImplTestCase {
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
     @Mock
     private CacheService jimdbCacheService;
+    
+    @Mock
+    private AoiServiceManager aoiServiceManager;
 	
 	public static void main(String[] args) throws Exception{
 
@@ -422,5 +435,35 @@ public class WaybillCommonServiceImplTestCase {
 			Assert.assertEquals(hasFlag,checkResult);
 		}
 	}
-
+	/**
+	 * 设置aoiCode逻辑测试
+	 * @throws Exception
+	 */
+	@Test
+	public void testSetAoiCode() throws Exception{
+		WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		context.getBasePrintWaybill().setWaybillCode("JDX000222916956");
+		JdResult<List<WaybillFenceDto>> fenceResult = new JdResult<List<WaybillFenceDto>>();
+		fenceResult.toSuccess();
+		fenceResult.setData(new ArrayList<>());
+		WaybillFenceDto fenceData = new WaybillFenceDto();
+		fenceResult.getData().add(fenceData);
+		fenceData.setDeliveryStage(DmsConstants.WAYBILL_FENCE_DELIVERY_STAGE_2);
+		fenceData.setFenceType(DmsConstants.WAYBILL_FENCE_TYPE_AOI);
+		fenceData.setFenceId("aoiId001");
+		when(waybillQueryManager.getWaybillFenceInfoByWaybillCode(context.getBasePrintWaybill().getWaybillCode())).thenReturn(fenceResult);
+		String aoiCode = UUID.randomUUID().toString().toUpperCase().substring(0, 2);
+		JdResult<List<AoiBindRoadMappingData>> aoiResult = new JdResult<List<AoiBindRoadMappingData>>();
+		aoiResult.toSuccess();
+		aoiResult.setData(new ArrayList<>());
+		AoiBindRoadMappingData aoiData = new AoiBindRoadMappingData();
+		aoiResult.getData().add(aoiData);
+		aoiData.setAoiCode(aoiCode);
+		when(aoiServiceManager.aoiBindRoadMappingExactSearch(any(AoiBindRoadMappingQuery.class))).thenReturn(aoiResult);
+		
+		waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+		//检查aoiCode值
+		boolean hasFlag = (aoiCode.equals(context.getBasePrintWaybill().getAoiCode()));
+		Assert.assertTrue(hasFlag);
+	}
 }

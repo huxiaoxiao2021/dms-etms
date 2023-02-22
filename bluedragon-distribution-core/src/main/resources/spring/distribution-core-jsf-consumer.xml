@@ -1259,4 +1259,13 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!--  Gis服务-Aoi查询  -->
+    <jsf:consumer id="aoiBindSearchService"
+                  interface="com.jdl.basic.api.service.workStation.WorkStationJsfService"
+                  alias="${jsf.aoiBindSearchService.alias}"
+                  timeout="${jsf.aoiBindSearchService.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>    
 </beans>
