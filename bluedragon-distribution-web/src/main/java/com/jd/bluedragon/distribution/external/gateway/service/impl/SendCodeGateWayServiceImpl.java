@@ -319,7 +319,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
 	@Override
-	public JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query) {
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.querySendCodeSealInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query) {
 		JdCResponse<SendCodeSealInfoDto> result = new JdCResponse<SendCodeSealInfoDto>();
 		result.toSucceed();
 		SendCodeSealInfoDto data = new SendCodeSealInfoDto();
