@@ -177,6 +177,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				for(ReassignWaybill item: packList) {
 					add(item);
 				}
+				jdResult.toSuccess();
+				jdResult.setData(Boolean.TRUE);
 			}
 		}else {
 			log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
