@@ -181,10 +181,11 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             return result;
         }
         String transWorkItemCode = sealCarDto.getTransWorkItemCode();
-        Integer startSiteCode = sealCarDto.getEndSiteId();
-        JyBizTaskSendVehicleEntity sendVehicleEntity = jyBizTaskSendVehicleService.findByTransWorkAndStartSite(new JyBizTaskSendVehicleEntity(transWorkItemCode, Long.valueOf(startSiteCode)));
+        Integer targetSiteCode = sealCarDto.getEndSiteId();
+        Integer sourceSiteCode = sealCarDto.getDesealSiteId();
+        JyBizTaskSendVehicleEntity sendVehicleEntity = jyBizTaskSendVehicleService.findByTransWorkAndStartSite(new JyBizTaskSendVehicleEntity(transWorkItemCode, Long.valueOf(targetSiteCode)));
         if (sendVehicleEntity == null) {
-            LOGGER.warn("saveTargetEvaluate|查询发货任务返回空,request={},transWorkItemCode={},startSiteCode={}", JsonHelper.toJson(request), transWorkItemCode, startSiteCode);
+            LOGGER.warn("saveTargetEvaluate|查询发货任务返回空,request={},transWorkItemCode={},targetSiteCode={}", JsonHelper.toJson(request), transWorkItemCode, targetSiteCode);
             result.toError("查询发货任务返回空");
             return result;
         }
@@ -212,21 +213,21 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             return result;
         }
         JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
-        BaseStaffSiteOrgDto targetSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(startSiteCode);
+        BaseStaffSiteOrgDto targetSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
         if (targetSiteOrgDto == null) {
-            LOGGER.warn("saveTargetEvaluate|查询发货任务所属区域返回空,request={},startSiteCode={}", JsonHelper.toJson(request), startSiteCode);
+            LOGGER.warn("saveTargetEvaluate|查询发货任务所属区域返回空,request={},targetSiteCode={}", JsonHelper.toJson(request), targetSiteCode);
             result.toError("查询发货任务所属区域返回空");
             return result;
         }
-        BaseStaffSiteOrgDto sourceSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sealCarDto.getDesealSiteId());
+        BaseStaffSiteOrgDto sourceSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sourceSiteCode);
         if (sourceSiteOrgDto == null) {
-            LOGGER.warn("saveTargetEvaluate|查询卸车任务所属区域返回空,request={},startSiteCode={}", JsonHelper.toJson(request), startSiteCode);
+            LOGGER.warn("saveTargetEvaluate|查询卸车任务所属区域返回空,request={},sourceSiteCode={}", JsonHelper.toJson(request), sourceSiteCode);
             result.toError("查询卸车任务所属区域返回空");
             return result;
         }
         targetInfo.setTargetAreaCode((int)targetSiteOrgDto.getAreaId());
         targetInfo.setTargetAreaName(targetSiteOrgDto.getAreaName());
-        targetInfo.setTargetSiteCode(startSiteCode);
+        targetInfo.setTargetSiteCode(targetSiteCode);
         targetInfo.setTargetSiteName(sealCarDto.getEndSiteName());
         targetInfo.setTargetTaskId(targetTaskId);
         targetInfo.setTargetBizId(sendVehicleEntity.getBizId());
@@ -239,7 +240,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
         targetInfo.setSourceAreaCode((int)sourceSiteOrgDto.getAreaId());
         targetInfo.setSourceAreaName(sourceSiteOrgDto.getAreaName());
-        targetInfo.setSourceSiteCode(sealCarDto.getDesealSiteId());
+        targetInfo.setSourceSiteCode(sourceSiteCode);
         targetInfo.setSourceSiteName(sealCarDto.getDesealSiteName());
         targetInfo.setSourceTaskId(sourceTaskId);
         targetInfo.setSourceBizId(request.getSourceBizId());
