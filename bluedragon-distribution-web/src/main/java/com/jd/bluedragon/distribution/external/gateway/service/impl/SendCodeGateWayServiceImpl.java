@@ -390,7 +390,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             for (SendM scanData : scanDataList) {
                 if(StringUtils.isNotBlank(scanData.getBoardCode())) {
                     boardCodes.add(scanData.getBoardCode());
-                } else if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
+                } 
+                if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
                     boxCodes.add(scanData.getBoxCode());
                 }else {
                     pacakgeCodes.add(scanData.getBoxCode());
