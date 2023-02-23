@@ -218,7 +218,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             result.toError("查询发货任务所属区域返回空");
             return result;
         }
-        BaseStaffSiteOrgDto sourceSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(startSiteCode);
+        BaseStaffSiteOrgDto sourceSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sealCarDto.getDesealSiteId());
         if (sourceSiteOrgDto == null) {
             LOGGER.warn("saveTargetEvaluate|查询卸车任务所属区域返回空,request={},startSiteCode={}", JsonHelper.toJson(request), startSiteCode);
             result.toError("查询卸车任务所属区域返回空");
