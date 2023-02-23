@@ -1555,7 +1555,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       //三小时内禁止再次发货，返调度再次发货问题处理
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
-          && System.currentTimeMillis() - sendTime.getTime() <= 3L * 3600L * 1000L) {
+          && System.currentTimeMillis() - sendTime.getTime() <= ucc.getReComboardTimeLimit() * 3600L * 1000L) {
         throw new JyBizException("该包裹已发货");
       }
     }
