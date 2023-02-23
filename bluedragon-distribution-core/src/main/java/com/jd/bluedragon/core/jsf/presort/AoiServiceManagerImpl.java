@@ -45,6 +45,9 @@ public class AoiServiceManagerImpl implements AoiServiceManager{
     @Value("${beans.aoiServiceManager.isMock:false}")
     private boolean isMock;
     
+    @Value("${beans.aoiServiceManager.appKey}")
+    private String appKey;
+    
     private Random random = new Random();
     
     private static Integer SUC_CODE = 2000;
@@ -101,7 +104,7 @@ public class AoiServiceManagerImpl implements AoiServiceManager{
 		if(returnType>90) {
 			//异常
 			throw new RuntimeException("mock异常aoi结果");
-		}else if(returnType>60){
+		}else if(returnType>80){
 			//失败
 			mockResult.setCode(40003);
 			mockResult.setMsg("mock失败aoi结果");
