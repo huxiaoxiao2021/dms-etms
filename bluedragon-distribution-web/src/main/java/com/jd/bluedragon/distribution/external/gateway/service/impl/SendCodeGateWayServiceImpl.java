@@ -381,14 +381,24 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         }
         data.setSendCode(sendCode);
 
-        SendCodeCountDto sendCodeCountDto = printHandoverListManager.queryCountInfoBySendCode(sendCode);
-
-        if (sendCodeCountDto != null ) {
-            data.setScanPackageNum(sendCodeCountDto.getScanPackageNum());
-            data.setScanBoxNum(sendCodeCountDto.getScanBoxNum());
-            data.setScanBoardNum(sendCodeCountDto.getScanBoardNum());
+        List<SendM> scanDataList = this.sendMService.selectBoxCodeBySiteAndSendCode(createSite, sendCode);
+        Set<String> pacakgeCodes = new HashSet<String>();
+        Set<String> boxCodes = new HashSet<String>();
+        Set<String> boardCodes = new HashSet<String>();
+        if (scanDataList != null && scanDataList.size() > 0) {
+            for (SendM scanData : scanDataList) {
+                if(StringUtils.isNotBlank(scanData.getBoardCode())) {
+                    boardCodes.add(scanData.getBoardCode());
+                } else if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
+                    boxCodes.add(scanData.getBoxCode());
+                }else {
+                    pacakgeCodes.add(scanData.getBoxCode());
+                }
+            }
+            data.setScanPackageNum(pacakgeCodes.size());
+            data.setScanBoxNum(boxCodes.size());
+            data.setScanBoardNum(boardCodes.size());
         }
-        
         //查询封车状态信息
         if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
             data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());

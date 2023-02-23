@@ -287,4 +287,11 @@ public  class SendMDao extends BaseDao<SendM>  {
 
 		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectSendByBoardCode",searchParams);
 	}
+
+	public List<SendM> selectBoxCodeBySiteAndSendCode(Integer createSiteCode, String sendCode) {
+		SendM querySendM = new SendM();
+		querySendM.setCreateSiteCode(createSiteCode);
+		querySendM.setSendCode(sendCode);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectBoxCodeBySiteAndSendCode", querySendM);
+	}
 }
