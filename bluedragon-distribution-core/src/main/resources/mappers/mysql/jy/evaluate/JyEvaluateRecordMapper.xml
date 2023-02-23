@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao">
+
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="evaluate_type" jdbcType="INTEGER" property="evaluateType" />
+    <result column="target_biz_id" jdbcType="VARCHAR" property="targetBizId" />
+    <result column="source_biz_id" jdbcType="VARCHAR" property="sourceBizId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="dimension_code" jdbcType="INTEGER" property="dimensionCode" />
+    <result column="img_count" jdbcType="INTEGER" property="imgCount" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, evaluate_type, target_biz_id, source_biz_id, status, dimension_code,
+    img_count, img_url, remark, create_user_name, update_user_erp,
+    update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity">
+    insert into jy_evaluate_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="evaluateType != null">
+        evaluate_type,
+      </if>
+      <if test="targetBizId != null">
+        target_biz_id,
+      </if>
+      <if test="sourceBizId != null">
+        source_biz_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="dimensionCode != null">
+        dimension_code,
+      </if>
+      <if test="imgCount != null">
+        img_count,
+      </if>
+      <if test="imgUrl != null">
+        img_url,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="evaluateType != null">
+        #{evaluateType,jdbcType=INTEGER},
+      </if>
+      <if test="targetBizId != null">
+        #{targetBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceBizId != null">
+        #{sourceBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="dimensionCode != null">
+        #{dimensionCode,jdbcType=INTEGER},
+      </if>
+      <if test="imgCount != null">
+        #{imgCount,jdbcType=INTEGER},
+      </if>
+      <if test="imgUrl != null">
+        #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+
+  <select id="findRecordsBySourceBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_evaluate_record
+    where source_biz_id = #{sourceBizId,jdbcType=VARCHAR}
+    and yn = 1
+  </select>
+
+
+</mapper>

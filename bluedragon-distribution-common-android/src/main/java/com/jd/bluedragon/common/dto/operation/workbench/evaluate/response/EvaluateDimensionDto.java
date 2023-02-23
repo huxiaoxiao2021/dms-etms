@@ -18,6 +18,11 @@ public class EvaluateDimensionDto implements Serializable {
     private String dimensionName;
 
     /**
+     * 评价维度状态:1-重点关注
+     */
+    private Integer status;
+
+    /**
      * 图片列表
      */
     private List<String> imgUrlList;
@@ -41,6 +46,14 @@ public class EvaluateDimensionDto implements Serializable {
 
     public void setDimensionName(String dimensionName) {
         this.dimensionName = dimensionName;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public List<String> getImgUrlList() {
