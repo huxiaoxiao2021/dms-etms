@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
+import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
@@ -17,27 +18,27 @@ import org.springframework.stereotype.Service;
  * @Date: 2023/2/20 14:14
  * @Description:
  */
-@Service("changeOrderPrintFristConsumer")
-public class ChangeOrderPrintFristConsumer extends MessageBaseConsumer {
+@Service("changeOrderPrintConsumer")
+public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChangeOrderPrintFristConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChangeOrderPrintConsumer.class);
 
     @Autowired
     private JyExceptionService jyExceptionService;
 
     @Override
     public void consume(Message message) throws Exception {
-        logger.info("ChangeOrderPrintFristConsumer -message {}", message.getText());
+        logger.info("ChangeOrderPrintConsumer -message {}", message.getText());
         if (StringHelper.isEmpty(message.getText())) {
-            logger.warn("ChangeOrderPrintFristConsumer consume --> 消息为空");
+            logger.warn("ChangeOrderPrintConsumer consume --> 消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn("ChangeOrderPrintFristConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+            logger.warn("ChangeOrderPrintConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        PushPrintRecordDto printRecordDto = JsonHelper.fromJson(message.getText(), PushPrintRecordDto.class);
-        JyExceptionPrintDto dto = getJyExceptionPrintDto(printRecordDto);
+        ChangeOrderPrintMq changeOrderPrintMq = JsonHelper.fromJson(message.getText(), ChangeOrderPrintMq.class);
+        JyExceptionPrintDto dto = getJyExceptionPrintDto(changeOrderPrintMq);
         jyExceptionService.printSuccess(dto);
     }
 
@@ -46,11 +47,11 @@ public class ChangeOrderPrintFristConsumer extends MessageBaseConsumer {
      *
      * @return
      */
-    private JyExceptionPrintDto getJyExceptionPrintDto(PushPrintRecordDto printRecordDto) {
+    private JyExceptionPrintDto getJyExceptionPrintDto(ChangeOrderPrintMq mq) {
         JyExceptionPrintDto dto = new JyExceptionPrintDto();
-        dto.setOperateType(printRecordDto.getOperateType());
-        dto.setSiteCode(printRecordDto.getSiteCode());
-        dto.setPackageCode(printRecordDto.getPackageCode());
+        dto.setOperateType(mq.getOperateType());
+        dto.setSiteCode(mq.getSiteCode());
+        dto.setWaybillCode(mq.getWaybillCode());
         return dto;
     }
 }

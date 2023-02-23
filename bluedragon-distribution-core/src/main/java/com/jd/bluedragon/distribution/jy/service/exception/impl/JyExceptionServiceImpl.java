@@ -832,14 +832,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Override
     public void printSuccess(JyExceptionPrintDto printDto) {
-        if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())
-            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())
-            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType())
-            || Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT.getType())){
 
-            if (printDto.getSiteCode() == null){
-                return;
-            }
+        if (printDto.getSiteCode() == null){
+            return;
+        }
+        if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+            logger.info("JyExceptionServiceImpl.printSuccess 包裹补打");
             if (StringUtils.isEmpty(printDto.getPackageCode())){
                 return;
             }
@@ -856,7 +854,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             for (JyExceptionEntity entity:jyExceptionEntities){
                 printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
             }
+        }else if(Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
+            logger.info("JyExceptionServiceImpl.printSuccess 换单打印");
+            if (StringUtils.isEmpty(printDto.getWaybillCode())){
+                return;
+            }
+            if (!WaybillUtil.isWaybillCode(printDto.getWaybillCode())){
+                return;
+            }
+            JyExceptionEntity conditon = new JyExceptionEntity();
+            conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
+            conditon.setWaybillCode(printDto.getWaybillCode());
+            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+            if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                return;
+            }
+            for (JyExceptionEntity entity:jyExceptionEntities){
+                printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+            }
         }
+
+
     }
 
     @Override

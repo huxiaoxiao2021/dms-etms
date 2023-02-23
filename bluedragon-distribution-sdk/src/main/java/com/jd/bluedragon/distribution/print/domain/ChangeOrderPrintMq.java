@@ -24,11 +24,6 @@ public class ChangeOrderPrintMq implements Serializable {
     private String waybillCode;
 
     /**
-     * 补打的包裹
-     */
-    private List<String> reprintPackages;
-
-    /**
      * 操作人
      */
     private Integer userCode;
@@ -73,13 +68,6 @@ public class ChangeOrderPrintMq implements Serializable {
         this.waybillCode = waybillCode;
     }
 
-    public List<String> getReprintPackages() {
-        return reprintPackages;
-    }
-
-    public void setReprintPackages(List<String> reprintPackages) {
-        this.reprintPackages = reprintPackages;
-    }
 
     public Integer getUserCode() {
         return userCode;

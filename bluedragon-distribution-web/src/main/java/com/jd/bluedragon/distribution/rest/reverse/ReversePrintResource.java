@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
+import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
@@ -85,8 +86,8 @@ public class ReversePrintResource {
     private WaybillCancelService waybillCancelService;
 
     @Autowired
-    @Qualifier("changeWaybillPrintSendProducer")
-    private DefaultJMQProducer changeWaybillPrintSendProducer;
+    @Qualifier("changeWaybillPrintSecondProducer")
+    private DefaultJMQProducer changeWaybillPrintSecondProducer;
     
     /**
      * 外单逆向换单打印提交数据
@@ -348,9 +349,11 @@ public class ReversePrintResource {
         }
 
         //发送换单打印消息
-        PushPrintRecordDto printRecordDto = convert2PushPrintRecordDto(request);
+
+        ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(request);
         try {
-            changeWaybillPrintSendProducer.send(request.getOldCode(),JsonHelper.toJson(printRecordDto));
+            log.info("ReversePrintResource.reversePrintAfter-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
+            changeWaybillPrintSecondProducer.send(request.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
         } catch (JMQException e) {
             log.error("ReversePrintResource.reversePrintAfter-->发送换单打印消息数据失败{}",JsonHelper.toJson(request),e);
         }
@@ -363,8 +366,8 @@ public class ReversePrintResource {
      * @param request
      * @return
      */
-    private PushPrintRecordDto convert2PushPrintRecordDto(ReversePrintRequest request){
-        PushPrintRecordDto dto = new PushPrintRecordDto();
+    private ChangeOrderPrintMq convert2PushPrintRecordDto(ReversePrintRequest request){
+        ChangeOrderPrintMq dto = new ChangeOrderPrintMq();
         dto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
         dto.setWaybillCode(request.getOldCode());
         dto.setSiteCode(request.getSiteCode());
