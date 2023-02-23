@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ExchangePrintRequest;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
@@ -15,7 +16,9 @@ import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
@@ -30,12 +33,14 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Consumes;
@@ -78,6 +83,10 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillCancelService waybillCancelService;
+
+    @Autowired
+    @Qualifier("changeWaybillPrintSendProducer")
+    private DefaultJMQProducer changeWaybillPrintSendProducer;
     
     /**
      * 外单逆向换单打印提交数据
@@ -337,8 +346,31 @@ public class ReversePrintResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志异常】");
         }
+
+        //发送换单打印消息
+        PushPrintRecordDto printRecordDto = convert2PushPrintRecordDto(request);
+        try {
+            changeWaybillPrintSendProducer.send(request.getOldCode(),JsonHelper.toJson(printRecordDto));
+        } catch (JMQException e) {
+            log.error("ReversePrintResource.reversePrintAfter-->发送换单打印消息数据失败{}",JsonHelper.toJson(request),e);
+        }
+
         return result;
     }
+
+    /**
+     * 转换打印记录dto
+     * @param request
+     * @return
+     */
+    private PushPrintRecordDto convert2PushPrintRecordDto(ReversePrintRequest request){
+        PushPrintRecordDto dto = new PushPrintRecordDto();
+        dto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
+        dto.setWaybillCode(request.getOldCode());
+        dto.setSiteCode(request.getSiteCode());
+        return dto;
+    }
+
     /**
      * 转换为离线称重task
      * @param request

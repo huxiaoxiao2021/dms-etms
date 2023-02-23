@@ -1027,6 +1027,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         //业务表记录匹配成功单号
         entity.setPackageCode(mqDto.getPackageCode());
+        entity.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getPackageCode()));
         entity.setUpdateTime(mqDto.getNotifyTime());
         entity.setUpdateUserErp(mqDto.getNotifyErp());
         entity.setUpdateUserName(baseStaffByErp.getStaffName());

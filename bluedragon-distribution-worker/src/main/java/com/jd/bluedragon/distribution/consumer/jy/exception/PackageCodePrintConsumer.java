@@ -78,10 +78,7 @@ public class PackageCodePrintConsumer extends MessageBaseConsumer {
             logger.warn("PackageCodePrintConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-
-        RePrintRecordMq rePrintRecordMq = JsonHelper.fromJson(message.getText(), RePrintRecordMq.class);
-        JyExceptionPrintDto dto = new JyExceptionPrintDto();
-        BeanUtils.copyProperties(rePrintRecordMq,dto);
+        JyExceptionPrintDto dto = JsonHelper.fromJson(message.getText(), JyExceptionPrintDto.class);
         jyExceptionService.printSuccess(dto);
     }
 
