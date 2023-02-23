@@ -194,10 +194,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	}
 
 	private List<ReassignWaybill> toReassignWaybillList(ReassignWaybillRequest reassignWaybillRequest) {
-		if(reassignWaybillRequest.getPackageCodeList() == null) {
-			return null;
-		}
 		List<ReassignWaybill> packList = new ArrayList<>();
+		if(reassignWaybillRequest.getPackageCodeList() == null) {
+			return packList;
+		}
 		for(String packageCode:reassignWaybillRequest.getPackageCodeList()) {
 			reassignWaybillRequest.setPackageBarcode(packageCode);
 			packList.add(ReassignWaybill.toReassignWaybill(reassignWaybillRequest));
