@@ -38,6 +38,13 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
     /**
+     * 允许二次组板（返调度场景）
+     * @param addBoardBox
+     * @return
+     */
+    Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox);
+
+    /**
      * 将板、箱/包裹关系推给TC(不校验板状态)
      * @param addBoardBox
      * @return
@@ -111,7 +118,8 @@ public interface GroupBoardManager {
      * @return
      */
     Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode);
-    
+
+
 
     /**
      * 根据运单取消组板

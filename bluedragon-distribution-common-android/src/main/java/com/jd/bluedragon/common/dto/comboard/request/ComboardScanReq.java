@@ -64,6 +64,20 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      * 扫描件数（包裹或者箱子，扫描运单要返回包裹数量）
      */
     private Integer scanDetailCount;
+
+    /**
+     * 集包袋号
+     */
+    private String materialCode;
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
+    }
+
     public String getBarCode() {
         return barCode;
     }

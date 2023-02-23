@@ -246,6 +246,7 @@
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
+		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -486,6 +487,7 @@
 
 				<value>uccPropertyConfiguration.reComboardTimeLimit</value>
 				<value>uccPropertyConfiguration.boardListQuerySwitch</value>
+				<value>uccPropertyConfiguration.reComboardSwitch</value>
 
 			</list>
 		</property>
