@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.ScheduleAfterTypeEnum;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 
@@ -31,8 +32,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service("reassignWaybill")
 public class ReassignWaybillServiceImpl implements ReassignWaybillService {
@@ -160,19 +164,43 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
     	JdResult<Boolean> jdResult = new JdResult<Boolean>();
 		jdResult.setData(Boolean.FALSE);
 		jdResult.toFail();
-		if (reassignWaybillRequest == null || StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())) {
+		if (reassignWaybillRequest == null 
+				|| (StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())
+						&& CollectionUtils.isEmpty(reassignWaybillRequest.getPackageCodeList()))) {
 			log.warn("backScheduleAfter --> 传入参数非法");
 			jdResult.toFail(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			return jdResult;
 		}
-		log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
-		ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
-		if (add(packTagPrint)) {
-			jdResult.toSuccess();
-			jdResult.setData(Boolean.TRUE);
-		} else {
-			jdResult.toFail(308, "处理失败");
+		if(ScheduleAfterTypeEnum.PACKAGE_CODE_LIST.getCode().equals(reassignWaybillRequest.getScheduleAfterType())) {
+			List<ReassignWaybill> packList = toReassignWaybillList(reassignWaybillRequest);
+			if(!CollectionUtils.isEmpty(packList)) {
+				for(ReassignWaybill item: packList) {
+					add(item);
+				}
+			}
+		}else {
+			log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
+			ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
+			if (add(packTagPrint)) {
+				jdResult.toSuccess();
+				jdResult.setData(Boolean.TRUE);
+			} else {
+				jdResult.toFail(308, "处理失败");
+			}
 		}
 		return jdResult;
 	}
+
+	private List<ReassignWaybill> toReassignWaybillList(ReassignWaybillRequest reassignWaybillRequest) {
+		if(reassignWaybillRequest.getPackageCodeList() == null) {
+			return null;
+		}
+		List<ReassignWaybill> packList = new ArrayList<>();
+		for(String packageCode:reassignWaybillRequest.getPackageCodeList()) {
+			reassignWaybillRequest.setPackageBarcode(packageCode);
+			packList.add(ReassignWaybill.toReassignWaybill(reassignWaybillRequest));
+		}
+		return packList;
+	}
+	
 }
