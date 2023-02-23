@@ -37,7 +37,7 @@ public class JyEvaluateRecordEntity implements Serializable {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
 
@@ -161,11 +161,11 @@ public class JyEvaluateRecordEntity implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

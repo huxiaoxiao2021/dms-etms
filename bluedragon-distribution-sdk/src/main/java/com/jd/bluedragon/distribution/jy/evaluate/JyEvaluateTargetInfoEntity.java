@@ -9,21 +9,55 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
 
     private Long id;
 
-    private String unloadVehicleBizId;
+    private Integer targetAreaCode;
 
-    private String boardCode;
+    private String targetAreaName;
 
-    private Long startSiteId;
+    private Integer targetSiteCode;
 
-    private String startSiteName;
+    private String targetSiteName;
 
-    private Long endSiteId;
+    private String targetTaskId;
 
-    private String endSiteName;
+    private String targetBizId;
 
-    private String goodsAreaCode;
+    private Date targetStartTime;
 
-    private String createUserErp;
+    private Date targetFinishTime;
+
+    private String transWorkItemCode;
+
+    private String vehicleNumber;
+
+    private Date sealTime;
+
+    private String helperErp;
+
+    private Integer sourceAreaCode;
+
+    private String sourceAreaName;
+
+    private Integer sourceSiteCode;
+
+    private String sourceSiteName;
+
+    private String sourceTaskId;
+
+    private String sourceBizId;
+
+    private Date unsealTime;
+
+    private Integer evaluateType;
+
+    private Integer status;
+
+    private String dimensionCode;
+
+    private Integer imgCount;
+
+    private String evaluateUserErp;
+
+    private String remark;
 
     private String createUserName;
 
@@ -39,15 +73,6 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
 
     private Date ts;
 
-    /**
-     * 组板数量
-     */
-    private Integer boardCodeNum;
-
-    /**
-     * 子任务ID
-     */
-    private String unloadVehicleStageBizId;
 
     public Long getId() {
         return id;
@@ -57,68 +82,204 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
         this.id = id;
     }
 
-    public String getUnloadVehicleBizId() {
-        return unloadVehicleBizId;
+    public Integer getTargetAreaCode() {
+        return targetAreaCode;
     }
 
-    public void setUnloadVehicleBizId(String unloadVehicleBizId) {
-        this.unloadVehicleBizId = unloadVehicleBizId;
+    public void setTargetAreaCode(Integer targetAreaCode) {
+        this.targetAreaCode = targetAreaCode;
     }
 
-    public String getBoardCode() {
-        return boardCode;
+    public String getTargetAreaName() {
+        return targetAreaName;
     }
 
-    public void setBoardCode(String boardCode) {
-        this.boardCode = boardCode;
+    public void setTargetAreaName(String targetAreaName) {
+        this.targetAreaName = targetAreaName;
     }
 
-    public Long getStartSiteId() {
-        return startSiteId;
+    public Integer getTargetSiteCode() {
+        return targetSiteCode;
     }
 
-    public void setStartSiteId(Long startSiteId) {
-        this.startSiteId = startSiteId;
+    public void setTargetSiteCode(Integer targetSiteCode) {
+        this.targetSiteCode = targetSiteCode;
     }
 
-    public String getStartSiteName() {
-        return startSiteName;
+    public String getTargetSiteName() {
+        return targetSiteName;
     }
 
-    public void setStartSiteName(String startSiteName) {
-        this.startSiteName = startSiteName;
+    public void setTargetSiteName(String targetSiteName) {
+        this.targetSiteName = targetSiteName;
     }
 
-    public Long getEndSiteId() {
-        return endSiteId;
+    public String getTargetTaskId() {
+        return targetTaskId;
     }
 
-    public void setEndSiteId(Long endSiteId) {
-        this.endSiteId = endSiteId;
+    public void setTargetTaskId(String targetTaskId) {
+        this.targetTaskId = targetTaskId;
     }
 
-    public String getEndSiteName() {
-        return endSiteName;
+    public String getTargetBizId() {
+        return targetBizId;
     }
 
-    public void setEndSiteName(String endSiteName) {
-        this.endSiteName = endSiteName;
+    public void setTargetBizId(String targetBizId) {
+        this.targetBizId = targetBizId;
     }
 
-    public String getGoodsAreaCode() {
-        return goodsAreaCode;
+    public Date getTargetStartTime() {
+        return targetStartTime;
     }
 
-    public void setGoodsAreaCode(String goodsAreaCode) {
-        this.goodsAreaCode = goodsAreaCode;
+    public void setTargetStartTime(Date targetStartTime) {
+        this.targetStartTime = targetStartTime;
     }
 
-    public String getCreateUserErp() {
-        return createUserErp;
+    public Date getTargetFinishTime() {
+        return targetFinishTime;
     }
 
-    public void setCreateUserErp(String createUserErp) {
-        this.createUserErp = createUserErp;
+    public void setTargetFinishTime(Date targetFinishTime) {
+        this.targetFinishTime = targetFinishTime;
+    }
+
+    public String getTransWorkItemCode() {
+        return transWorkItemCode;
+    }
+
+    public void setTransWorkItemCode(String transWorkItemCode) {
+        this.transWorkItemCode = transWorkItemCode;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public Date getSealTime() {
+        return sealTime;
+    }
+
+    public void setSealTime(Date sealTime) {
+        this.sealTime = sealTime;
+    }
+
+    public String getHelperErp() {
+        return helperErp;
+    }
+
+    public void setHelperErp(String helperErp) {
+        this.helperErp = helperErp;
+    }
+
+    public Integer getSourceAreaCode() {
+        return sourceAreaCode;
+    }
+
+    public void setSourceAreaCode(Integer sourceAreaCode) {
+        this.sourceAreaCode = sourceAreaCode;
+    }
+
+    public String getSourceAreaName() {
+        return sourceAreaName;
+    }
+
+    public void setSourceAreaName(String sourceAreaName) {
+        this.sourceAreaName = sourceAreaName;
+    }
+
+    public Integer getSourceSiteCode() {
+        return sourceSiteCode;
+    }
+
+    public void setSourceSiteCode(Integer sourceSiteCode) {
+        this.sourceSiteCode = sourceSiteCode;
+    }
+
+    public String getSourceSiteName() {
+        return sourceSiteName;
+    }
+
+    public void setSourceSiteName(String sourceSiteName) {
+        this.sourceSiteName = sourceSiteName;
+    }
+
+    public String getSourceTaskId() {
+        return sourceTaskId;
+    }
+
+    public void setSourceTaskId(String sourceTaskId) {
+        this.sourceTaskId = sourceTaskId;
+    }
+
+    public String getSourceBizId() {
+        return sourceBizId;
+    }
+
+    public void setSourceBizId(String sourceBizId) {
+        this.sourceBizId = sourceBizId;
+    }
+
+    public Date getUnsealTime() {
+        return unsealTime;
+    }
+
+    public void setUnsealTime(Date unsealTime) {
+        this.unsealTime = unsealTime;
+    }
+
+    public Integer getEvaluateType() {
+        return evaluateType;
+    }
+
+    public void setEvaluateType(Integer evaluateType) {
+        this.evaluateType = evaluateType;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getDimensionCode() {
+        return dimensionCode;
+    }
+
+    public void setDimensionCode(String dimensionCode) {
+        this.dimensionCode = dimensionCode;
+    }
+
+    public Integer getImgCount() {
+        return imgCount;
+    }
+
+    public void setImgCount(Integer imgCount) {
+        this.imgCount = imgCount;
+    }
+
+    public String getEvaluateUserErp() {
+        return evaluateUserErp;
+    }
+
+    public void setEvaluateUserErp(String evaluateUserErp) {
+        this.evaluateUserErp = evaluateUserErp;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public String getCreateUserName() {
@@ -176,21 +337,4 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
     public void setTs(Date ts) {
         this.ts = ts;
     }
-
-    public Integer getBoardCodeNum() {
-        return boardCodeNum;
-    }
-
-    public void setBoardCodeNum(Integer boardCodeNum) {
-        this.boardCodeNum = boardCodeNum;
-    }
-
-    public String getUnloadVehicleStageBizId() {
-        return unloadVehicleStageBizId;
-    }
-
-    public void setUnloadVehicleStageBizId(String unloadVehicleStageBizId) {
-        this.unloadVehicleStageBizId = unloadVehicleStageBizId;
-    }
-
 }
