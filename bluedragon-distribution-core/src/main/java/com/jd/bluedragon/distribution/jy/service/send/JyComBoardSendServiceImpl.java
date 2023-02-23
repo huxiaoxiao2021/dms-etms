@@ -1556,7 +1556,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
           && System.currentTimeMillis() - sendTime.getTime() <= ucc.getReComboardTimeLimit() * 3600L * 1000L) {
-        throw new JyBizException("该包裹已发货");
+        throw new JyBizException("该单号已发货");
       }
     }
   }
@@ -1592,7 +1592,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException(HintService.getHint(HintCodeConstants.SEND_BY_WAYBILL_PROCESSING));
     }
     // 校验是否已经发货
-    deliveryService.multiSendVerification(sendM, sendResult);
+    //deliveryService.multiSendVerification(sendM, sendResult);
     if (Objects.equals(sendResult.getKey(), SendResult.CODE_SENDED)) {
       throw new JyBizException(sendResult.getValue());
     }
