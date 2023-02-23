@@ -12,7 +12,7 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
+class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
 
     private final static String NAMESPACE = JySendAggsDaoBak.class.getName();
 
@@ -44,5 +44,9 @@ public class JySendAggsDaoBak extends BaseDao<JySendAggsEntity> implements JySen
 
     public List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendAggMainData", query);
+    }
+
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
     }
 }
