@@ -107,20 +107,4 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
     public BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs) {
         return printHandoverListJsfService.doBatchExportAsyncToTripartite(query,content, tos, ccs);
     }
-
-    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.queryCountInfoBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public SendCodeCountDto queryCountInfoBySendCode(String sendCode) {
-        try{
-            BaseEntity<SendCodeCountDto> baseEntity = printHandoverListJsfService.queryCountInfoBySendCode(sendCode);
-            if (baseEntity != null && baseEntity.isSuccess()) {
-                return baseEntity.getData();
-            }
-            return null;
-        }catch (Exception e) {
-            log.error("获取批次号统计信息失败：{}",sendCode,e);
-        }
-        return null;
-    }
 }
