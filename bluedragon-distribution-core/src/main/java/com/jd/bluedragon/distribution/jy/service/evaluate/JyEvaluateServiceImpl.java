@@ -7,8 +7,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
@@ -19,7 +17,7 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -183,10 +181,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         Integer targetSiteCode = sealCarDto.getStartSiteId();
         Integer sourceSiteCode = sealCarDto.getEndSiteId();
 
-        // 根据派车单号和起始站点查询发货任务
-        JyBizTaskSendVehicleEntity sendVehicle = jyEvaluateCommonService.findByTransWorkAndStartSite(transWorkItemCode, targetSiteCode);
+        // 根据派车单号查询发货任务
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findByByTransWorkItemCode(transWorkItemCode);
         // 查询发货调度任务ID
-        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicle.getBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicleDetail.getSendVehicleBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
         // 查询卸车调度任务ID
         String sourceTaskId = jyEvaluateCommonService.getJyScheduleTaskId(request.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
         // 查询发货任务协助人
@@ -196,7 +194,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         // 根据卸车任务操作场地查询区域信息
         BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(sourceSiteCode);
 
-        return createEvaluateTargetInfo(sealCarDto, sendVehicle, sourceTaskId,
+        return createEvaluateTargetInfo(sealCarDto, sendVehicleDetail, sourceTaskId,
                 targetTaskId, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto, request);
     }
 
@@ -210,7 +208,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
 
-    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleEntity sendVehicle,
+    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleDetailEntity sendDetail,
                                                                 String sourceTaskId, String targetTaskId,
                                                                 List<JyTaskGroupMemberEntity> taskGroupMembers,
                                                                 BaseStaffSiteOrgDto targetSiteOrgDto,
@@ -222,9 +220,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         targetInfo.setTargetSiteCode(sealCarDto.getStartSiteId());
         targetInfo.setTargetSiteName(sealCarDto.getStartSiteName());
         targetInfo.setTargetTaskId(targetTaskId);
-        targetInfo.setTargetBizId(sendVehicle.getBizId());
-        targetInfo.setTargetStartTime(sendVehicle.getCreateTime());
-        targetInfo.setTargetFinishTime(sendVehicle.getUpdateTime());
+        targetInfo.setTargetBizId(sendDetail.getSendVehicleBizId());
+        targetInfo.setTargetStartTime(sendDetail.getCreateTime());
+        targetInfo.setTargetFinishTime(sendDetail.getUpdateTime());
         targetInfo.setTransWorkItemCode(sealCarDto.getTransWorkItemCode());
         targetInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
         targetInfo.setSealTime(sealCarDto.getSealCarTime());
