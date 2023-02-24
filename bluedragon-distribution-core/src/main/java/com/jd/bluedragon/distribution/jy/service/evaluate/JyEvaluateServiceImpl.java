@@ -7,6 +7,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
@@ -14,11 +17,13 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
@@ -359,4 +364,58 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.queryPageList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Result<PageDto<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query) {
+        Result<PageDto<JyEvaluateTargetInfoEntity>> result = Result.success();
+        this.checkAndFillQuery(query);
+        PageDto<JyEvaluateTargetInfoEntity> pageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
+        Long total = jyEvaluateTargetInfoDao.queryCount(query);
+        if (total != null && total > 0) {
+            pageDto.setTotalRow(total.intValue());
+            pageDto.setResult(jyEvaluateTargetInfoDao.queryPageList(query));
+        } else {
+            pageDto.setTotalRow(0);
+            pageDto.setResult(new ArrayList<>());
+        }
+        result.setData(pageDto);
+        return result;
+    }
+
+    private void checkAndFillQuery(JyEvaluateTargetInfoQuery query) {
+        if (query.getPageSize() == null || query.getPageSize() <= 0) {
+            query.setPageSize(10);
+        }
+        if (query.getPageNumber() == null || query.getPageNumber() < 1) {
+            query.setPageNumber(1);
+        }
+        query.setLimit(query.getPageSize());
+        int offset = (query.getPageNumber() - 1) * query.getPageSize();
+        query.setOffset(offset);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.queryCount", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Result<Long> queryCount(JyEvaluateTargetInfoQuery query) {
+        Result<Long> result = Result.success();
+        this.checkAndFillQuery(query);
+        result.setData(jyEvaluateTargetInfoDao.queryCount(query));
+        return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.queryInfoByTargetBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Result<JyEvaluateTargetInfoEntity> queryInfoByTargetBizId(String businessId) {
+        Result<JyEvaluateTargetInfoEntity> result = Result.success();
+        result.setData(jyEvaluateTargetInfoDao.queryInfoByTargetBizId(businessId));
+        return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.queryRecordByTargetBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Result<List<JyEvaluateRecordEntity>> queryRecordByTargetBizId(String businessId) {
+        Result<List<JyEvaluateRecordEntity>> result = Result.success();
+        result.setData(jyEvaluateRecordDao.queryRecordByTargetBizId(businessId));
+        return result;
+    }
 }

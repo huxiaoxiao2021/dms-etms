@@ -45,7 +45,7 @@ public class JDQ4ProducerImpl implements JDQProducer, InitializingBean, Disposab
     @Value("${JDQ_TEST_ENV:true}")
     boolean testEnv;
 
-    @Value("${JDQ_DISABLE:false}")
+    @Value("${JDQ_DISABLE:true}")
     boolean jdqDisable;
 
     KafkaProducer<String, String> producer;

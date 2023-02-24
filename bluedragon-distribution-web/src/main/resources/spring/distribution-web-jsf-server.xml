@@ -512,4 +512,11 @@
       server="dmsjsf">
     </jsf:provider>
 
+    <!--  分拣工作台装车评价报表jsf  -->
+    <jsf:provider id="jsfJyEvaluateService"
+                  interface="com.jd.bluedragon.distribution.jy.evaluate.service.JyEvaluateJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyEvaluateJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
