@@ -223,7 +223,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     condition.setSealCarCode(sealCarCodeList.get(0));
                 }
                 else {
+                    //走else逻辑为查询车牌号或者上游场地， 限制最大长度
                     if (NumberHelper.isPositiveNumber(request.getBarCode())) {
+                        //基础资料返回场地信息：BaseStaffSiteOrgDto： Integer siteCode;  校验场地以Integer最大长度限制  10位（Long最长19位）
+                        if(request.getBarCode().length() > 10) {
+                            result.error("请正确的车牌号后四位或上游场地编码！");
+                            return result;
+                        }
                         condition.setStartSiteId(Long.valueOf(request.getBarCode()));
                     }
                     if (request.getBarCode().length() == VEHICLE_NUMBER_FOUR) {
