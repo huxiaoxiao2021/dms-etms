@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
-import com.jd.fa.orderrefund.ReqSheet;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
