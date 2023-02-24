@@ -1519,8 +1519,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("未找到对应箱号，请检查");
       }
       request.setDestinationId(box.getReceiveSiteCode());
-      //匹配流向
-      matchDestinationCheck(request);
+
       if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
         BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
         InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
@@ -1531,6 +1530,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!cycleBagBindCheck(barCode, request.getCurrentOperate().getSiteCode(), box)) {
         throw new JyBizException(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
       }
+      //匹配流向
+      matchDestinationCheck(request);
     }
     JyComboardEntity condition = new JyComboardEntity();
     condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
