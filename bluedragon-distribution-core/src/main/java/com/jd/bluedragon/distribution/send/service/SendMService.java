@@ -64,4 +64,13 @@ public interface SendMService {
      * @return
      */
     public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode);
+
+    /**
+     *查询批次下的包裹号
+     * @param createSiteCode
+     * @param sendCode
+     * @return
+     */
+    public List<SendM> selectBoxCodeBySiteAndSendCode(Integer createSiteCode, String sendCode);
+
 }

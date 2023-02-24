@@ -77,11 +77,5 @@ public interface PrintHandoverListManager {
      * @return
      */
     BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs);
-
-    /**
-     * 查询批次统计详情
-     * @param sendCode
-     * @return
-     */
-    SendCodeCountDto queryCountInfoBySendCode(String sendCode);
+    
 }

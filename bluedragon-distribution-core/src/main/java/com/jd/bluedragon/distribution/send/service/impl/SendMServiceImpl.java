@@ -77,4 +77,10 @@ public class SendMServiceImpl implements SendMService{
     public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode) {
         return sendMDao.selectBySiteAndSendCode(createSiteCode,sendCode);
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendMServiceImpl.selectBoxCodeBySiteAndSendCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public List<SendM> selectBoxCodeBySiteAndSendCode(Integer createSiteCode, String sendCode) {
+        return sendMDao.selectBoxCodeBySiteAndSendCode(createSiteCode,sendCode);
+    }
 }
