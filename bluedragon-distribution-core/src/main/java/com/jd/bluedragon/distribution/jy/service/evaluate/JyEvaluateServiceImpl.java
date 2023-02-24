@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -148,17 +149,21 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> updateTargetEvaluate(EvaluateTargetReq request) {
-        JdCResponse<Boolean> result = new JdCResponse<>();
+        JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
             JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
             if (evaluateTargetInfo == null) {
-                result.setData(Boolean.FALSE);
+                LOGGER.warn("updateTargetEvaluate|修改评价详情时未找到评价基础信息:request={}", JsonHelper.toJson(request));
+                result.toError("修改评价详情时未找到评价基础信息");
                 return result;
             }
-            result.setData(Boolean.TRUE);
+            // 评价明细列表
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
+            // 修改
+            jyEvaluateCommonService.updateEvaluateInfo(evaluateTargetInfo, recordList);
         } catch (Exception e) {
-            LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常", e);
+            LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常", e);
             result.toError("服务器异常");
         }
         return result;
@@ -244,23 +249,37 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private List<JyEvaluateRecordEntity> createEvaluateRecord(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
-        String dimensionCodeStr = "";
+        StringBuilder dimensionCode = new StringBuilder();
         int imgCount = 0;
+        StringBuilder remark = new StringBuilder();
+        List<String> dimensionList = null;
+        if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
+            dimensionList = Arrays.asList(evaluateTargetInfo.getDimensionCode().split(Constants.SEPARATOR_COMMA));
+        }
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
-            dimensionCodeStr = Constants.SEPARATOR_COMMA + dimensionReq.getDimensionCode();
             JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
             record.setEvaluateType(1);
             record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
             record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
             record.setStatus(request.getStatus());
             record.setDimensionCode(dimensionReq.getDimensionCode());
+            if (CollectionUtils.isNotEmpty(dimensionList)) {
+                if (!dimensionList.contains(String.valueOf(dimensionReq.getDimensionCode()))) {
+                    dimensionCode.append(Constants.SEPARATOR_COMMA).append(dimensionReq.getDimensionCode());
+                }
+            } else {
+                dimensionCode.append(Constants.SEPARATOR_COMMA).append(dimensionReq.getDimensionCode());
+            }
             if (CollectionUtils.isNotEmpty(dimensionReq.getImgUrlList())) {
                 int count = dimensionReq.getImgUrlList().size();
                 imgCount = imgCount + count;
                 record.setImgCount(count);
                 record.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(dimensionReq.getImgUrlList()));
             }
-            record.setRemark(dimensionReq.getRemark());
+            if (StringUtils.isNotBlank(dimensionReq.getRemark())) {
+                remark.append(Constants.SEPARATOR_VERTICAL_LINE).append(dimensionReq.getRemark());
+                record.setRemark(dimensionReq.getRemark());
+            }
             record.setCreateUserErp(request.getUser().getUserErp());
             record.setCreateUserName(request.getUser().getUserName());
             record.setUpdateUserErp(request.getUser().getUserErp());
@@ -270,9 +289,40 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             record.setYn(Constants.YN_YES);
             recordList.add(record);
         }
-        evaluateTargetInfo.setDimensionCode(dimensionCodeStr.substring(1));
-        evaluateTargetInfo.setImgCount(imgCount);
+        String remarkStr = remark.substring(1);
+        String dimensionStr = dimensionCode.substring(1);
+        setExtendTargetInfo(request, evaluateTargetInfo, remarkStr, dimensionStr, imgCount);
         return recordList;
+    }
+
+    private void setExtendTargetInfo(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo,
+                                     String remarkStr, String dimensionStr, int imgCount) {
+        if (evaluateTargetInfo.getId() == null) {
+            evaluateTargetInfo.setDimensionCode(dimensionStr);
+            evaluateTargetInfo.setImgCount(imgCount);
+            if (StringUtils.isNotBlank(remarkStr)) {
+                evaluateTargetInfo.setRemark(remarkStr);
+            }
+        } else {
+            evaluateTargetInfo.setImgCount(evaluateTargetInfo.getImgCount() + imgCount);
+            if (StringUtils.isNotBlank(remarkStr)) {
+                if (StringUtils.isNotBlank(evaluateTargetInfo.getRemark())) {
+                    evaluateTargetInfo.setRemark(evaluateTargetInfo.getRemark() + Constants.SEPARATOR_VERTICAL_LINE + remarkStr);
+                } else {
+                    evaluateTargetInfo.setRemark(remarkStr);
+                }
+            }
+            evaluateTargetInfo.setStatus(request.getStatus());
+            List<String> oldUserErpList = Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA));
+            if (!oldUserErpList.contains(request.getUser().getUserErp())) {
+                evaluateTargetInfo.setEvaluateUserErp(evaluateTargetInfo.getEvaluateUserErp() + Constants.SEPARATOR_COMMA + request.getUser().getUserErp());
+            }
+            if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
+                evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr);
+            } else {
+                evaluateTargetInfo.setDimensionCode(dimensionStr);
+            }
+        }
     }
 
     private void transformDataToMap(Map<Integer, EvaluateDimensionDto> map, Map<Integer,

@@ -58,6 +58,13 @@ public class JyEvaluateCommonService {
         jyEvaluateRecordDao.batchInsert(recordList);
     }
 
+    @Transactional
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.updateEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void updateEvaluateInfo(JyEvaluateTargetInfoEntity evaluateTargetInfo, List<JyEvaluateRecordEntity> recordList) {
+        jyEvaluateTargetInfoDao.updateByPrimaryKeySelective(evaluateTargetInfo);
+        jyEvaluateRecordDao.batchInsert(recordList);
+    }
+
     /**
      * 通过封车编码获取封车信息
      */
