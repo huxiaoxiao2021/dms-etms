@@ -7,29 +7,19 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
-import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
-import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
-import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
-import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,16 +48,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private JyEvaluateTargetInfoDao jyEvaluateTargetInfoDao;
     @Autowired
     private JyEvaluateRecordDao jyEvaluateRecordDao;
-    @Autowired
-    private VosManager vosManager;
-    @Autowired
-    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
-    @Autowired
-    private JyScheduleTaskManager jyScheduleTaskManager;
-    @Autowired
-    private JyTaskGroupMemberDao jyTaskGroupMemberDao;
-    @Autowired
-    private BaseMajorManager baseMajorManager;
     @Autowired
     private JyEvaluateCommonService jyEvaluateCommonService;
 
@@ -148,20 +128,18 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
-            JdCResponse<JyEvaluateTargetInfoEntity> targetResult = createTargetInfo(request);
-            if (!targetResult.isSucceed()) {
-                LOGGER.warn("createTargetInfo|创建评价目标基础信息出错,request={},msg={}", JsonHelper.toJson(request), targetResult.getMessage());
-                result.toError(targetResult.getMessage());
-                return result;
-            }
             // 评价目标基础信息实体
-            JyEvaluateTargetInfoEntity evaluateTargetInfo = targetResult.getData();
+            JyEvaluateTargetInfoEntity evaluateTargetInfo = createTargetInfo(request);
             // 评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
             // 保存
             jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
+        } catch (JyBizException e) {
+            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
+            result.toError(e.getMessage());
+            return result;
         } catch (Exception e) {
-            LOGGER.error("findTargetEvaluateInfo|查询目标评价详情接口出现异常", e);
+            LOGGER.error("saveTargetEvaluate|保存评价详情接口出现异常", e);
             result.toError("服务器异常");
         }
         return result;
@@ -170,89 +148,46 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> updateTargetEvaluate(EvaluateTargetReq request) {
-        return null;
+        JdCResponse<Boolean> result = new JdCResponse<>();
+        result.toSucceed();
+        try {
+            JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
+            if (evaluateTargetInfo == null) {
+                result.setData(Boolean.FALSE);
+                return result;
+            }
+            result.setData(Boolean.TRUE);
+        } catch (Exception e) {
+            LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常", e);
+            result.toError("服务器异常");
+        }
+        return result;
     }
 
 
-    private JdCResponse<JyEvaluateTargetInfoEntity> createTargetInfo(EvaluateTargetReq request) {
-        JdCResponse<JyEvaluateTargetInfoEntity> result = new JdCResponse<>();
-        SealCarDto sealCarDto = findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
-        if (sealCarDto == null) {
-            LOGGER.warn("saveTargetEvaluate|根据封车编码查询运输封车详情返回空,request={}", JsonHelper.toJson(request));
-            result.toError("根据封车编码查询运输封车详情返回空");
-            return result;
-        }
+    private JyEvaluateTargetInfoEntity createTargetInfo(EvaluateTargetReq request) {
+        // 查询运输任务封车详情
+        SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
+
         String transWorkItemCode = sealCarDto.getTransWorkItemCode();
         Integer targetSiteCode = sealCarDto.getEndSiteId();
         Integer sourceSiteCode = sealCarDto.getDesealSiteId();
-        JyBizTaskSendVehicleEntity sendVehicleEntity = jyBizTaskSendVehicleService.findByTransWorkAndStartSite(new JyBizTaskSendVehicleEntity(transWorkItemCode, Long.valueOf(targetSiteCode)));
-        if (sendVehicleEntity == null) {
-            LOGGER.warn("saveTargetEvaluate|查询发货任务返回空,request={},transWorkItemCode={},targetSiteCode={}", JsonHelper.toJson(request), transWorkItemCode, targetSiteCode);
-            result.toError("查询发货任务返回空");
-            return result;
-        }
-        // 发货调度任务ID
-        String targetTaskId = getJyScheduleTaskId(sendVehicleEntity.getBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
-        if (StringUtils.isBlank(targetTaskId)) {
-            LOGGER.warn("saveTargetEvaluate|查询发货调度任务返回空,request={},targetBizId={}", JsonHelper.toJson(request), sendVehicleEntity.getBizId());
-            result.toError("查询发货调度任务返回空");
-            return result;
-        }
-        // 卸车调度任务ID
-        String sourceTaskId = getJyScheduleTaskId(request.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
-        if (StringUtils.isBlank(sourceTaskId)) {
-            LOGGER.warn("saveTargetEvaluate|查询卸车调度任务返回空,request={},sourceBizId={}", JsonHelper.toJson(request), request.getSourceBizId());
-            result.toError("查询卸车调度任务返回空");
-            return result;
-        }
+
+        // 根据派车单号和起始站点查询发货任务
+        JyBizTaskSendVehicleEntity sendVehicle = jyEvaluateCommonService.findByTransWorkAndStartSite(transWorkItemCode, targetSiteCode);
+        // 查询发货调度任务ID
+        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicle.getBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        // 查询卸车调度任务ID
+        String sourceTaskId = jyEvaluateCommonService.getJyScheduleTaskId(request.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
         // 查询发货任务协助人
-        JyTaskGroupMemberQuery query = new JyTaskGroupMemberQuery();
-        query.setRefTaskId(targetTaskId);
-        List<JyTaskGroupMemberEntity> taskGroupMembers = jyTaskGroupMemberDao.queryMemberListByTaskId(query);
-        if (CollectionUtils.isEmpty(taskGroupMembers)) {
-            LOGGER.warn("saveTargetEvaluate|查询发货任务协助人返回空,request={},targetTaskId={}", JsonHelper.toJson(request), targetTaskId);
-            result.toError("查询发货任务协助人返回空");
-            return result;
-        }
-        JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
-        BaseStaffSiteOrgDto targetSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
-        if (targetSiteOrgDto == null) {
-            LOGGER.warn("saveTargetEvaluate|查询发货任务所属区域返回空,request={},targetSiteCode={}", JsonHelper.toJson(request), targetSiteCode);
-            result.toError("查询发货任务所属区域返回空");
-            return result;
-        }
-        BaseStaffSiteOrgDto sourceSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sourceSiteCode);
-        if (sourceSiteOrgDto == null) {
-            LOGGER.warn("saveTargetEvaluate|查询卸车任务所属区域返回空,request={},sourceSiteCode={}", JsonHelper.toJson(request), sourceSiteCode);
-            result.toError("查询卸车任务所属区域返回空");
-            return result;
-        }
-        targetInfo.setTargetAreaCode((int)targetSiteOrgDto.getAreaId());
-        targetInfo.setTargetAreaName(targetSiteOrgDto.getAreaName());
-        targetInfo.setTargetSiteCode(targetSiteCode);
-        targetInfo.setTargetSiteName(sealCarDto.getEndSiteName());
-        targetInfo.setTargetTaskId(targetTaskId);
-        targetInfo.setTargetBizId(sendVehicleEntity.getBizId());
-        targetInfo.setTargetStartTime(sendVehicleEntity.getCreateTime());
-        targetInfo.setTargetFinishTime(sendVehicleEntity.getUpdateTime());
-        targetInfo.setTransWorkItemCode(transWorkItemCode);
-        targetInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
-        targetInfo.setSealTime(sealCarDto.getSealCarTime());
-        targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
+        List<JyTaskGroupMemberEntity> taskGroupMembers = jyEvaluateCommonService.queryMemberListByTaskId(targetTaskId);
+        // 根据发货任务操作场地查询区域信息
+        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetSiteCode);
+        // 根据卸车任务操作场地查询区域信息
+        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(sourceSiteCode);
 
-        targetInfo.setSourceAreaCode((int)sourceSiteOrgDto.getAreaId());
-        targetInfo.setSourceAreaName(sourceSiteOrgDto.getAreaName());
-        targetInfo.setSourceSiteCode(sourceSiteCode);
-        targetInfo.setSourceSiteName(sealCarDto.getDesealSiteName());
-        targetInfo.setSourceTaskId(sourceTaskId);
-        targetInfo.setSourceBizId(request.getSourceBizId());
-        targetInfo.setUnsealTime(sealCarDto.getDesealCarTime());
-        targetInfo.setEvaluateType(EVALUATE_TYPE_LOAD);
-        targetInfo.setStatus(request.getStatus());
-        targetInfo.setEvaluateUserErp(request.getUser().getUserErp());
-
-        result.setData(targetInfo);
-        return result;
+        return createEvaluateTargetInfo(sealCarDto, sendVehicle, sourceTaskId,
+                targetTaskId, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto, request);
     }
 
 
@@ -264,28 +199,48 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return userCodesStr.substring(1);
     }
 
-    /**
-     * 查询调度任务ID
-     */
-    private String getJyScheduleTaskId(String bizId, String taskType) {
-        JyScheduleTaskReq req = new JyScheduleTaskReq();
-        req.setBizId(bizId);
-        req.setTaskType(taskType);
-        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
-        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
+
+    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleEntity sendVehicle,
+                                                                String sourceTaskId, String targetTaskId,
+                                                                List<JyTaskGroupMemberEntity> taskGroupMembers,
+                                                                BaseStaffSiteOrgDto targetSiteOrgDto,
+                                                                BaseStaffSiteOrgDto sourceSiteOrgDto,
+                                                                EvaluateTargetReq request) {
+        JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
+        targetInfo.setTargetAreaCode((int)targetSiteOrgDto.getAreaId());
+        targetInfo.setTargetAreaName(targetSiteOrgDto.getAreaName());
+        targetInfo.setTargetSiteCode(sealCarDto.getEndSiteId());
+        targetInfo.setTargetSiteName(sealCarDto.getEndSiteName());
+        targetInfo.setTargetTaskId(targetTaskId);
+        targetInfo.setTargetBizId(sendVehicle.getBizId());
+        targetInfo.setTargetStartTime(sendVehicle.getCreateTime());
+        targetInfo.setTargetFinishTime(sendVehicle.getUpdateTime());
+        targetInfo.setTransWorkItemCode(sealCarDto.getTransWorkItemCode());
+        targetInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
+        targetInfo.setSealTime(sealCarDto.getSealCarTime());
+        targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
+
+        targetInfo.setSourceAreaCode((int)sourceSiteOrgDto.getAreaId());
+        targetInfo.setSourceAreaName(sourceSiteOrgDto.getAreaName());
+        targetInfo.setSourceSiteCode(sealCarDto.getDesealSiteId());
+        targetInfo.setSourceSiteName(sealCarDto.getDesealSiteName());
+        targetInfo.setSourceTaskId(sourceTaskId);
+        targetInfo.setSourceBizId(request.getSourceBizId());
+        targetInfo.setUnsealTime(sealCarDto.getDesealCarTime());
+        targetInfo.setEvaluateType(EVALUATE_TYPE_LOAD);
+        targetInfo.setStatus(request.getStatus());
+        targetInfo.setEvaluateUserErp(request.getUser().getUserErp());
+
+        targetInfo.setCreateUserErp(request.getUser().getUserErp());
+        targetInfo.setCreateUserName(request.getUser().getUserName());
+        targetInfo.setUpdateUserErp(request.getUser().getUserErp());
+        targetInfo.setUpdateUserName(request.getUser().getUserName());
+        targetInfo.setCreateTime(new Date());
+        targetInfo.setUpdateTime(new Date());
+        targetInfo.setYn(Constants.YN_YES);
+        return targetInfo;
     }
 
-    /**
-     * 通过封车编码获取封车信息
-     */
-    private SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode){
-        CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
-        LOGGER.info("TmsSealCarStatusConsumer获取封车信息返回数据sealCarCode={},result={}",sealCarCode, JsonHelper.toJson(sealCarDtoCommonDto));
-        if (sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()) {
-            return null;
-        }
-        return sealCarDtoCommonDto.getData();
-    }
 
     private List<JyEvaluateRecordEntity> createEvaluateRecord(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();

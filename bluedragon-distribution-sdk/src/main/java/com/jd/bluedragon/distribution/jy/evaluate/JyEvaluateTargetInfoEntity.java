@@ -59,6 +59,8 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
 
     private String remark;
 
+    private String createUserErp;
+
     private String createUserName;
 
     private String updateUserErp;
@@ -69,7 +71,7 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
 
@@ -282,6 +284,14 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
         this.remark = remark;
     }
 
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
+    }
+
     public String getCreateUserName() {
         return createUserName;
     }
@@ -322,11 +332,11 @@ public class JyEvaluateTargetInfoEntity implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 
