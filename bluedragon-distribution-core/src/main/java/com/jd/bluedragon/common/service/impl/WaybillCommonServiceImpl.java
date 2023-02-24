@@ -1110,7 +1110,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
         }
         //尊 、碎
-        appendRespectTypeText(target,waybill.getWaybillSign(),waybill.getWaybillExt());
+        appendRespectTypeText(target,waybill.getWaybillSign(),waybillExt);
 
         //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
@@ -1991,8 +1991,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR );
         }
         //“碎” 在 “尊” 的标识位追加
-        log.info("appendRespectTypeText-sendPay-{}",JSON.toJSONString(waybillExt.getSendPayMap()));
+        log.info("appendRespectTypeText-waybillExt-{}",JSON.toJSONString(waybillExt));
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
+        log.info("appendRespectTypeText-sendPayMap-{}",JSON.toJSONString(waybillExt.getSendPayMap()));
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
             log.info("进入appendRespectTypeText---碎");
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
