@@ -175,8 +175,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
 
         String transWorkItemCode = sealCarDto.getTransWorkItemCode();
-        Integer targetSiteCode = sealCarDto.getEndSiteId();
-        Integer sourceSiteCode = sealCarDto.getDesealSiteId();
+        Integer targetSiteCode = sealCarDto.getStartSiteId();
+        Integer sourceSiteCode = sealCarDto.getEndSiteId();
 
         // 根据派车单号和起始站点查询发货任务
         JyBizTaskSendVehicleEntity sendVehicle = jyEvaluateCommonService.findByTransWorkAndStartSite(transWorkItemCode, targetSiteCode);
@@ -214,8 +214,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
         targetInfo.setTargetAreaCode((int)targetSiteOrgDto.getAreaId());
         targetInfo.setTargetAreaName(targetSiteOrgDto.getAreaName());
-        targetInfo.setTargetSiteCode(sealCarDto.getEndSiteId());
-        targetInfo.setTargetSiteName(sealCarDto.getEndSiteName());
+        targetInfo.setTargetSiteCode(sealCarDto.getStartSiteId());
+        targetInfo.setTargetSiteName(sealCarDto.getStartSiteName());
         targetInfo.setTargetTaskId(targetTaskId);
         targetInfo.setTargetBizId(sendVehicle.getBizId());
         targetInfo.setTargetStartTime(sendVehicle.getCreateTime());
@@ -227,8 +227,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
         targetInfo.setSourceAreaCode((int)sourceSiteOrgDto.getAreaId());
         targetInfo.setSourceAreaName(sourceSiteOrgDto.getAreaName());
-        targetInfo.setSourceSiteCode(sealCarDto.getDesealSiteId());
-        targetInfo.setSourceSiteName(sealCarDto.getDesealSiteName());
+        targetInfo.setSourceSiteCode(sealCarDto.getEndSiteId());
+        targetInfo.setSourceSiteName(sealCarDto.getEndSiteName());
         targetInfo.setSourceTaskId(sourceTaskId);
         targetInfo.setSourceBizId(request.getSourceBizId());
         targetInfo.setUnsealTime(sealCarDto.getDesealCarTime());
