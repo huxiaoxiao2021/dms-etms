@@ -112,9 +112,6 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Autowired
     private NewSealVehicleService newsealVehicleService;
     
-    @Autowired
-    private PrintHandoverListManager printHandoverListManager;
-    
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfoNew(List<String> sendCodes) {
