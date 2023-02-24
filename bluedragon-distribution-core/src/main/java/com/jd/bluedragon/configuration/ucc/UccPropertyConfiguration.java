@@ -845,6 +845,16 @@ public class UccPropertyConfiguration {
 
     private Long reComboardTimeLimit;
 
+    private boolean reComboardSwitch;
+
+    public boolean getReComboardSwitch() {
+        return reComboardSwitch;
+    }
+
+    public void setReComboardSwitch(boolean reComboardSwitch) {
+        this.reComboardSwitch = reComboardSwitch;
+    }
+
     public Long getReComboardTimeLimit() {
         return reComboardTimeLimit;
     }
@@ -1204,7 +1214,7 @@ public class UccPropertyConfiguration {
     private String dewuCustomerCodes;
 
     private boolean czQuerySwitch;
-    
+
     private Boolean boardListQuerySwitch;
 
     public boolean getCzQuerySwitch() {
