@@ -6,10 +6,7 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2617,14 +2614,5 @@ public class BusinessUtil {
      */
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
-    }
-
-    /**
-     * 判断是否是易碎运单
-     * Sendpay 第746位等于1时，表示为易碎运单
-     * @param sendPay
-     */
-    public static boolean isFragile(String sendPay){
-        return isSignChar(sendPay,SendPayConstants.POSITION_746,SendPayConstants.CHAR_746_1);
     }
 }
