@@ -488,6 +488,8 @@
 				<value>uccPropertyConfiguration.reComboardTimeLimit</value>
 				<value>uccPropertyConfiguration.boardListQuerySwitch</value>
 				<value>uccPropertyConfiguration.reComboardSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
 
 			</list>
 		</property>
