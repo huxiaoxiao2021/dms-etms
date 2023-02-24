@@ -139,6 +139,29 @@
     </trim>
   </insert>
 
+  <insert id="batchInsert" parameterType="List">
+    insert into jy_evaluate_record (evaluate_type, target_biz_id,source_biz_id, status,dimension_code,img_count,img_url,remark,
+     create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+    update_time, yn, ts)  VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+     (#{item.evaluateType,jdbcType=INTEGER},
+      #{item.targetBizId,jdbcType=VARCHAR},
+      #{item.sourceBizId,jdbcType=VARCHAR},
+      #{item.status,jdbcType=INTEGER},
+      #{item.dimensionCode,jdbcType=INTEGER},
+      #{item.imgCount,jdbcType=INTEGER},
+      #{item.imgUrl,jdbcType=VARCHAR},
+      #{item.remark,jdbcType=VARCHAR},
+      #{item.createUserErp,jdbcType=VARCHAR},
+      #{item.createUserName,jdbcType=VARCHAR},
+      #{item.updateUserErp,jdbcType=VARCHAR},
+      #{item.updateUserName,jdbcType=VARCHAR},
+      #{item.createTime,jdbcType=TIMESTAMP},
+      #{item.updateTime,jdbcType=TIMESTAMP},
+      1,
+      now(3))
+    </foreach>
+  </insert>
 
   <select id="findRecordsBySourceBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
     select

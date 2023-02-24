@@ -13,6 +13,10 @@ public class JyEvaluateRecordDao extends BaseDao<JyEvaluateRecordEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
+    public int batchInsert(List<JyEvaluateRecordEntity> dataList) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", dataList);
+    }
+
     public List<JyEvaluateRecordEntity> findRecordsBySourceBizId(String sourceBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".findRecordsBySourceBizId", sourceBizId);
     }

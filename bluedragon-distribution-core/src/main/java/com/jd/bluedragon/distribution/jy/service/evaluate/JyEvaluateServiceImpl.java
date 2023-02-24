@@ -68,6 +68,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private JyTaskGroupMemberDao jyTaskGroupMemberDao;
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private JyEvaluateCommonService jyEvaluateCommonService;
 
 
     @Override
@@ -157,7 +159,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
             // 保存
-
+            jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
         } catch (Exception e) {
             LOGGER.error("findTargetEvaluateInfo|查询目标评价详情接口出现异常", e);
             result.toError("服务器异常");
