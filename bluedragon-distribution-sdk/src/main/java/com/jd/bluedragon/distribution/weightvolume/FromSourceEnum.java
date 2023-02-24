@@ -87,5 +87,10 @@ public enum FromSourceEnum {
     /**
      * 德邦融合-嘉峪关项目
      */
-    DPRH;
+    DPRH,
+
+    /**
+     * PDA称重
+     */
+    DMS_PDA;
 }
