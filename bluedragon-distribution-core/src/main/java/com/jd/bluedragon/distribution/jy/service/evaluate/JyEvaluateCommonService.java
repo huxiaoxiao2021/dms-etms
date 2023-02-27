@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -51,14 +52,14 @@ public class JyEvaluateCommonService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Transactional
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.saveEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void saveEvaluateInfo(JyEvaluateTargetInfoEntity evaluateTargetInfo, List<JyEvaluateRecordEntity> recordList) {
         jyEvaluateTargetInfoDao.insertSelective(evaluateTargetInfo);
         jyEvaluateRecordDao.batchInsert(recordList);
     }
 
-    @Transactional
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.updateEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void updateEvaluateInfo(JyEvaluateTargetInfoEntity evaluateTargetInfo, List<JyEvaluateRecordEntity> recordList) {
         jyEvaluateTargetInfoDao.updateByPrimaryKeySelective(evaluateTargetInfo);
