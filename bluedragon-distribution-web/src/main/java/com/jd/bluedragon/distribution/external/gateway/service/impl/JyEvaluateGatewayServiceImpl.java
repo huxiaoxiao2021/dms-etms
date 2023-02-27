@@ -115,6 +115,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             result.toFail("status不能为空");
             return result;
         }
+        if (Constants.NUMBER_ONE.equals(request.getStatus())) {
+            JdCResponse<Void> result = new JdCResponse<>();
+            result.toFail("无法从不满意修改为满意");
+            return result;
+        }
         if (CollectionUtils.isEmpty(request.getDimensionList())) {
             JdCResponse<Void> result = new JdCResponse<>();
             result.toFail("评价维度列表详情不能为空");
