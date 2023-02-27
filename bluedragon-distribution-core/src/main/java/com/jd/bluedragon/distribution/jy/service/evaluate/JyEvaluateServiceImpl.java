@@ -21,7 +21,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
@@ -316,9 +315,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             record.setYn(Constants.YN_YES);
             recordList.add(record);
         }
-        String remarkStr = remark.substring(1);
-        String dimensionStr = dimensionCode.substring(1);
-        setExtendTargetInfo(request, evaluateTargetInfo, remarkStr, dimensionStr, imgCount);
+        setExtendTargetInfo(request, evaluateTargetInfo, remark, dimensionCode, imgCount);
         return recordList;
     }
 
@@ -343,20 +340,22 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     private void setExtendTargetInfo(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo,
-                                     String remarkStr, String dimensionStr, int imgCount) {
+                                     StringBuilder remarkStr, StringBuilder dimensionStr, int imgCount) {
         if (evaluateTargetInfo.getId() == null) {
-            evaluateTargetInfo.setDimensionCode(dimensionStr);
+            if (dimensionStr.length() > 0) {
+                evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
+            }
             evaluateTargetInfo.setImgCount(imgCount);
-            if (StringUtils.isNotBlank(remarkStr)) {
-                evaluateTargetInfo.setRemark(remarkStr);
+            if (remarkStr.length() > 0) {
+                evaluateTargetInfo.setRemark(remarkStr.substring(1));
             }
         } else {
             evaluateTargetInfo.setImgCount(evaluateTargetInfo.getImgCount() + imgCount);
-            if (StringUtils.isNotBlank(remarkStr)) {
+            if (remarkStr.length() > 0) {
                 if (StringUtils.isNotBlank(evaluateTargetInfo.getRemark())) {
-                    evaluateTargetInfo.setRemark(evaluateTargetInfo.getRemark() + Constants.SEPARATOR_VERTICAL_LINE + remarkStr);
+                    evaluateTargetInfo.setRemark(evaluateTargetInfo.getRemark() + Constants.SEPARATOR_VERTICAL_LINE + remarkStr.substring(1));
                 } else {
-                    evaluateTargetInfo.setRemark(remarkStr);
+                    evaluateTargetInfo.setRemark(remarkStr.substring(1));
                 }
             }
             List<String> oldUserErpList = Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA));
@@ -364,9 +363,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 evaluateTargetInfo.setEvaluateUserErp(evaluateTargetInfo.getEvaluateUserErp() + Constants.SEPARATOR_COMMA + request.getUser().getUserErp());
             }
             if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
-                evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr);
+                evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr.substring(1));
             } else {
-                evaluateTargetInfo.setDimensionCode(dimensionStr);
+                evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
             }
         }
     }
