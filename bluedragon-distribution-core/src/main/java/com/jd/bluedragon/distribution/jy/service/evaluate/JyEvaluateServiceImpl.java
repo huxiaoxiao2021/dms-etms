@@ -239,8 +239,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                                                                 BaseStaffSiteOrgDto sourceSiteOrgDto,
                                                                 EvaluateTargetReq request) {
         JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
-        targetInfo.setTargetAreaCode((int)targetSiteOrgDto.getAreaId());
-        targetInfo.setTargetAreaName(targetSiteOrgDto.getAreaName());
+        targetInfo.setTargetAreaCode(targetSiteOrgDto.getOrgId());
+        targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
         targetInfo.setTargetSiteCode(sealCarDto.getStartSiteId());
         targetInfo.setTargetSiteName(sealCarDto.getStartSiteName());
         targetInfo.setTargetTaskId(targetTaskId);
@@ -252,8 +252,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         targetInfo.setSealTime(sealCarDto.getSealCarTime());
         targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
 
-        targetInfo.setSourceAreaCode((int)sourceSiteOrgDto.getAreaId());
-        targetInfo.setSourceAreaName(sourceSiteOrgDto.getAreaName());
+        targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
+        targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
         targetInfo.setSourceSiteCode(sealCarDto.getEndSiteId());
         targetInfo.setSourceSiteName(sealCarDto.getEndSiteName());
         targetInfo.setSourceTaskId(sourceTaskId);
