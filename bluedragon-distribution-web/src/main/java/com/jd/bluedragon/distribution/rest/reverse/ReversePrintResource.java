@@ -372,6 +372,7 @@ public class ReversePrintResource {
         dto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
         dto.setWaybillCode(request.getOldCode());
         dto.setSiteCode(request.getSiteCode());
+        dto.setUserErp(request.getStaffErpCode());
         return dto;
     }
 
