@@ -86,8 +86,8 @@ public class ReversePrintResource {
     private WaybillCancelService waybillCancelService;
 
     @Autowired
-    @Qualifier("changeWaybillPrintSecondProducer")
-    private DefaultJMQProducer changeWaybillPrintSecondProducer;
+    @Qualifier("changeWaybillPrintProducer")
+    private DefaultJMQProducer changeWaybillPrintProducer;
     
     /**
      * 外单逆向换单打印提交数据
@@ -354,7 +354,7 @@ public class ReversePrintResource {
         ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(request);
         try {
             log.info("ReversePrintResource.reversePrintAfter-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
-            changeWaybillPrintSecondProducer.send(request.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
+            changeWaybillPrintProducer.send(request.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
         } catch (JMQException e) {
             log.error("ReversePrintResource.reversePrintAfter-->发送换单打印消息数据失败{}",JsonHelper.toJson(request),e);
         }
