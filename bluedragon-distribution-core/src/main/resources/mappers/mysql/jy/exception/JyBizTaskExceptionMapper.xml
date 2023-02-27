@@ -388,7 +388,7 @@
         </if>
     </select>
 
-    <select id="queryExceptionTaskBizIds" parameterType="java.lang.String">
+    <select id="queryExceptionTaskBizIds" parameterType="java.lang.String" resultType="list">
         SELECT
             biz_id
         FROM jy_biz_task_exception
