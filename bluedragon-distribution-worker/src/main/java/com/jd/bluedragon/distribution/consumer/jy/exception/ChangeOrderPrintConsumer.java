@@ -53,6 +53,7 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
         dto.setSiteCode(mq.getSiteCode());
         dto.setWaybillCode(mq.getWaybillCode());
         dto.setUserErp(mq.getUserErp());
+        dto.setOperateTime(mq.getOperateTime());
         return dto;
     }
 }

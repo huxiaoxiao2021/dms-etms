@@ -373,6 +373,7 @@ public class ReversePrintResource {
         dto.setWaybillCode(request.getOldCode());
         dto.setSiteCode(request.getSiteCode());
         dto.setUserErp(request.getStaffErpCode());
+        dto.setOperateTime(new Date());
         return dto;
     }
 
