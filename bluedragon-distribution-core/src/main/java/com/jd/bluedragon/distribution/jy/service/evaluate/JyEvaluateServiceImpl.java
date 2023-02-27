@@ -370,14 +370,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         Result<PageDto<JyEvaluateTargetInfoEntity>> result = Result.success();
         this.checkAndFillQuery(query);
         PageDto<JyEvaluateTargetInfoEntity> pageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
-        Long total = jyEvaluateTargetInfoDao.queryCount(query);
-        if (total != null && total > 0) {
-            pageDto.setTotalRow(total.intValue());
-            pageDto.setResult(jyEvaluateTargetInfoDao.queryPageList(query));
-        } else {
-            pageDto.setTotalRow(0);
-            pageDto.setResult(new ArrayList<>());
-        }
+        pageDto.setResult(jyEvaluateTargetInfoDao.queryPageList(query));
         result.setData(pageDto);
         return result;
     }
