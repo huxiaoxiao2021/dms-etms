@@ -379,7 +379,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             JyEvaluateDimensionEntity dimensionEnum = dimensionEnumMap.get(record.getDimensionCode());
             evaluateDimensionDto.setDimensionName(dimensionEnum.getName());
             if (StringUtils.isNotBlank(record.getImgUrl())) {
-                evaluateDimensionDto.setImgUrlList(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA)));
+                evaluateDimensionDto.setImgUrlList(new ArrayList<>(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA))));
             }
             evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
             evaluateDimensionDto.setHasTextBox(dimensionEnum.getHasTextBox());
