@@ -832,21 +832,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Override
     public void printSuccess(JyExceptionPrintDto printDto) {
-
+        logger.info("JyExceptionServiceImpl.printSuccess -{}",JSON.toJSONString(printDto));
         if (printDto.getSiteCode() == null){
             return;
         }
         if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
             logger.info("JyExceptionServiceImpl.printSuccess 包裹补打");
-            if (StringUtils.isEmpty(printDto.getPackageCode())){
+            if (StringUtils.isEmpty(printDto.getPackageCode()) || StringUtils.isEmpty(printDto.getWaybillCode())){
                 return;
             }
-            if (!WaybillUtil.isPackageCode(printDto.getPackageCode())){
+            if (!WaybillUtil.isPackageCode(printDto.getPackageCode()) || !WaybillUtil.isWaybillCode(printDto.getWaybillCode())){
                 return;
             }
             JyExceptionEntity conditon = new JyExceptionEntity();
             conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
-            conditon.setPackageCode(printDto.getPackageCode());
+            if(StringUtils.isNotBlank(printDto.getPackageCode())){
+                conditon.setPackageCode(printDto.getPackageCode());
+            }
+            if(StringUtils.isNotBlank(printDto.getWaybillCode())){
+                conditon.setWaybillCode(printDto.getWaybillCode());
+            }
+            logger.info("printSuccess 查询条件 -{}",JSON.toJSONString(conditon));
             List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
             if (CollectionUtils.isEmpty(jyExceptionEntities)){
                 return;
