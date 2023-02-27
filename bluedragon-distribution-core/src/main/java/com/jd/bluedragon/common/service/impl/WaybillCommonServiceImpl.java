@@ -8,6 +8,9 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
+import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -44,6 +47,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -124,6 +129,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+    
+    @Autowired
+    @Qualifier("aoiServiceManager")
+    private AoiServiceManager aoiServiceManager;
 
     @Autowired
     private BasicGoodsAreaManager basicGoodsAreaManager;
@@ -1182,7 +1191,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         // 设置面单水印
         setWaterMark(target, waybill);
-
+        // 设置面单aoi信息
+        setAoiCode(target, waybill);
         return target;
     }
 
@@ -1201,7 +1211,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
         }
     }
-
     /**
      * 设置面单水印
      * <ul>
@@ -1245,7 +1254,52 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBcSign(TextConstants.PRE_SELL_FLAG);
         }
     }
-
+    /**
+     * 设置面单aoiCode
+     * @param target
+     * @param waybill
+     */
+    private void setAoiCode(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+    	String waybillCode = target.getWaybillCode();
+    	String aoiId = null;
+    	String aoiCode = null;
+    	//调用运单接口查询围栏信息获取aoiId
+    	JdResult<List<WaybillFenceDto>> fenceResult = this.waybillQueryManager.getWaybillFenceInfoByWaybillCode(waybillCode);
+    	if(fenceResult != null
+    		 && fenceResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(fenceResult.getData())) {
+    		//取派送aoiId
+    		for(WaybillFenceDto fenceData : fenceResult.getData()) {
+    			if(DmsConstants.WAYBILL_FENCE_TYPE_AOI.equals(fenceData.getFenceType())
+    					&& DmsConstants.WAYBILL_FENCE_DELIVERY_STAGE_2.equals(fenceData.getDeliveryStage())
+    					&& StringUtils.isNotBlank(fenceData.getFenceId())) {
+    				aoiId = fenceData.getFenceId();
+    				break;
+    			}
+    		}
+    	}
+    	if(StringUtils.isBlank(aoiId)){
+    		log.warn("查询运单{}电子围栏aoiId为空！",waybillCode);
+    		return;
+    	}
+    	//调用Gis接口查询aoiCode
+    	AoiBindRoadMappingQuery gisQuery = new AoiBindRoadMappingQuery();
+    	gisQuery.setAoiId(aoiId);
+    	if(target.getPrepareSiteCode() != null) {
+    		gisQuery.setSiteCode(target.getPrepareSiteCode().toString());
+    	}
+    	JdResult<List<AoiBindRoadMappingData>> aoiResult = aoiServiceManager.aoiBindRoadMappingExactSearch(gisQuery);
+    	if(aoiResult != null
+    		 && aoiResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(aoiResult.getData())) {
+    		aoiCode = aoiResult.getData().get(0).getAoiCode();
+    	}
+    	if(StringUtils.isBlank(aoiCode)){
+    		log.warn("查询Gis运单{}派送aoiCode为空！",waybillCode);
+    		return;
+    	}
+    	target.setAoiCode(aoiCode);
+    }
     /**
      * 获取附属地址
      * @param data
