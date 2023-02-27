@@ -838,25 +838,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
             logger.info("JyExceptionServiceImpl.printSuccess 包裹补打");
-            if (!WaybillUtil.isPackageCode(printDto.getPackageCode()) || !WaybillUtil.isWaybillCode(printDto.getWaybillCode())){
-                return;
+            if (StringUtils.isNotEmpty(printDto.getPackageCode()) || StringUtils.isNotEmpty(printDto.getWaybillCode())){
+                JyExceptionEntity conditon = new JyExceptionEntity();
+                conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
+                if(StringUtils.isNotBlank(printDto.getPackageCode())){
+                    conditon.setPackageCode(printDto.getPackageCode());
+                }
+                if(StringUtils.isNotBlank(printDto.getWaybillCode())){
+                    conditon.setWaybillCode(printDto.getWaybillCode());
+                }
+                logger.info("printSuccess 查询条件 -{}",JSON.toJSONString(conditon));
+                List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+                if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                    return;
+                }
+                for (JyExceptionEntity entity:jyExceptionEntities){
+                    printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+                }
             }
-            JyExceptionEntity conditon = new JyExceptionEntity();
-            conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
-            if(StringUtils.isNotBlank(printDto.getPackageCode())){
-                conditon.setPackageCode(printDto.getPackageCode());
-            }
-            if(StringUtils.isNotBlank(printDto.getWaybillCode())){
-                conditon.setWaybillCode(printDto.getWaybillCode());
-            }
-            logger.info("printSuccess 查询条件 -{}",JSON.toJSONString(conditon));
-            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
-            if (CollectionUtils.isEmpty(jyExceptionEntities)){
-                return;
-            }
-            for (JyExceptionEntity entity:jyExceptionEntities){
-                printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
-            }
+
         }else if(Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
             logger.info("JyExceptionServiceImpl.printSuccess 换单打印");
             if (StringUtils.isEmpty(printDto.getWaybillCode())){
