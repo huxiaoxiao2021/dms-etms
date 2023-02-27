@@ -1094,4 +1094,13 @@ public class BusinessHelper {
         }
       return attachmentUrl;
     }
+
+    /**
+     * 判断是否是易碎运单
+     * Sendpay 第746位等于1时，表示为易碎运单
+     * @param sendPayMap
+     */
+    public static boolean isFragile(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
+    }
 }
