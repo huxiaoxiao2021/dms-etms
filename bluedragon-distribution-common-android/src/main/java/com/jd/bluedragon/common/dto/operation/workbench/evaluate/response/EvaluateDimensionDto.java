@@ -23,6 +23,11 @@ public class EvaluateDimensionDto implements Serializable {
     private Integer status;
 
     /**
+     * 是否有文本框：0-无，1-有
+     */
+    private Integer hasTextBox;
+
+    /**
      * 图片列表
      */
     private List<String> imgUrlList;
@@ -54,6 +59,14 @@ public class EvaluateDimensionDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getHasTextBox() {
+        return hasTextBox;
+    }
+
+    public void setHasTextBox(Integer hasTextBox) {
+        this.hasTextBox = hasTextBox;
     }
 
     public List<String> getImgUrlList() {

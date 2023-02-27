@@ -25,6 +25,11 @@ public class JyEvaluateDimensionEntity implements Serializable {
     private Integer status;
 
     /**
+     * 是否有文本框：0-无，1-有
+     */
+    private Integer hasTextBox;
+
+    /**
      * 备注
      */
     private String remark;
@@ -75,6 +80,14 @@ public class JyEvaluateDimensionEntity implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getHasTextBox() {
+        return hasTextBox;
+    }
+
+    public void setHasTextBox(Integer hasTextBox) {
+        this.hasTextBox = hasTextBox;
     }
 
     public String getRemark() {

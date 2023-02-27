@@ -4,8 +4,8 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
@@ -85,7 +85,7 @@ public class JyEvaluateServiceImplTest {
 
     @Test
     public void testDimensionOptions() {
-        JdCResponse<List<SelectOption>> result = jyEvaluateService.dimensionOptions();
+        JdCResponse<List<DimensionOption>> result = jyEvaluateService.dimensionOptions();
         Assert.assertNotNull(result.getData());
     }
 
