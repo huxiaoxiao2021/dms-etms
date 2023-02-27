@@ -378,4 +378,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<List<WaybillVasDto>> getWaybillVasWithExtendInfo(String waybillCode);
+	
+	/**
+	 * 根据运单获取电子围栏信息
+	 * @param waybillCode
+	 * @return
+	 */
+	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);	
 }

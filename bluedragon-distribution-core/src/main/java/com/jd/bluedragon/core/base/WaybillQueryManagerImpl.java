@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
@@ -30,6 +31,11 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.lbs.presort.aoi.api.constant.SearchType;
+import com.jdl.lbs.presort.aoi.api.search.query.AoiBindExactSearchQuery;
+import com.jdl.lbs.presort.aoi.api.search.result.AoiBindRoadInfoDto;
+import com.jdl.lbs.presort.framework.core.vo.BaseResponseVo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -1284,5 +1290,28 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         waybillVasChoice.setQueryVasExtend(true);
         return waybillQueryApi.getWaybillVasWithExtendInfo(waybillCode,waybillVasChoice);
     }
+	@Override
+	public JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "waybillQueryApi.getWaybillFenceInfoByWaybillCode");
+		JdResult<List<WaybillFenceDto>> result = new JdResult<List<WaybillFenceDto>>();
+		try {
+			BaseEntity<List<WaybillFenceDto>>  rpcResult = waybillQueryApi.getWaybillFenceInfoByWaybillCode(waybillCode);
+			if(rpcResult != null
+					&& rpcResult.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode()){
+				result.setData(rpcResult.getData());
+				result.toSuccess();
+			}else{
+				log.warn("根据运单号获取围栏信息失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("根据运单号获取围栏信息失败！");
+			}
+		} catch (Exception e) {
+			log.error("根据运单号获取围栏信息异常！",e);
+			result.toError("根据运单号获取围栏信息异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return result;
+	}
 
 }
