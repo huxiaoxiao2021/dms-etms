@@ -293,6 +293,7 @@ public class ReversePrintResource {
     public InvokeResult<Boolean> reversePrintAfter(ReversePrintRequest request) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        log.info("ReversePrintResource.reversePrintAfter回调 ");
         /* 参数校验 */
         if (null == request || StringHelper.isEmpty(request.getOldCode())
                 || !WaybillUtil.isWaybillCode(request.getNewCode()) || !WaybillUtil.isPackageCode(request.getNewPackageCode())
