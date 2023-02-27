@@ -406,12 +406,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.queryPageList", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Result<PageDto<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query) {
-        Result<PageDto<JyEvaluateTargetInfoEntity>> result = Result.success();
+    public Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query) {
+        Result<List<JyEvaluateTargetInfoEntity>> result = Result.success();
         this.checkAndFillQuery(query);
-        PageDto<JyEvaluateTargetInfoEntity> pageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
-        pageDto.setResult(jyEvaluateTargetInfoDao.queryPageList(query));
-        result.setData(pageDto);
+        result.setData(jyEvaluateTargetInfoDao.queryPageList(query));
         return result;
     }
 
