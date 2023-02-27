@@ -838,9 +838,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
             logger.info("JyExceptionServiceImpl.printSuccess 包裹补打");
-            if (StringUtils.isEmpty(printDto.getPackageCode()) || StringUtils.isEmpty(printDto.getWaybillCode())){
-                return;
-            }
             if (!WaybillUtil.isPackageCode(printDto.getPackageCode()) || !WaybillUtil.isWaybillCode(printDto.getWaybillCode())){
                 return;
             }
