@@ -16,12 +16,12 @@
     <result column="vehicle_number" jdbcType="VARCHAR" property="vehicleNumber" />
     <result column="seal_time" jdbcType="TIMESTAMP" property="sealTime" />
     <result column="helper_erp" jdbcType="VARCHAR" property="helperErp" />
-    <result column="source_area_code" jdbcType="INTEGER" property="targetAreaCode" />
-    <result column="source_area_name" jdbcType="VARCHAR" property="targetAreaName" />
-    <result column="source_site_code" jdbcType="INTEGER" property="targetSiteCode" />
-    <result column="source_site_name" jdbcType="VARCHAR" property="targetSiteName" />
-    <result column="source_task_id" jdbcType="VARCHAR" property="targetTaskId" />
-    <result column="source_biz_id" jdbcType="VARCHAR" property="targetBizId" />
+    <result column="source_area_code" jdbcType="INTEGER" property="sourceAreaCode" />
+    <result column="source_area_name" jdbcType="VARCHAR" property="sourceAreaName" />
+    <result column="source_site_code" jdbcType="INTEGER" property="sourceSiteCode" />
+    <result column="source_site_name" jdbcType="VARCHAR" property="sourceSiteName" />
+    <result column="source_task_id" jdbcType="VARCHAR" property="sourceTaskId" />
+    <result column="source_biz_id" jdbcType="VARCHAR" property="sourceBizId" />
     <result column="unseal_time" jdbcType="TIMESTAMP" property="unsealTime" />
     <result column="evaluate_type" jdbcType="INTEGER" property="evaluateType" />
     <result column="status" jdbcType="INTEGER" property="status" />
