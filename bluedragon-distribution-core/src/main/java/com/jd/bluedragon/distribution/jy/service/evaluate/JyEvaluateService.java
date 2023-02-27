@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.List;
 
@@ -42,7 +41,7 @@ public interface JyEvaluateService {
     /**
      * 评价基础信息分页查询
      */
-    Result<PageDto<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
+    Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
 
     /**
      * 根据条件查询数量

@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * 提供给分拣工作台
  */
 public interface JyEvaluateJsfService {
-    Result<PageDto<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
+    Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
 
     Result<Long> queryCount(JyEvaluateTargetInfoQuery query);
 
