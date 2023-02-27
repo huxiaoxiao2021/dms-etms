@@ -141,7 +141,7 @@
 
   <insert id="batchInsert" parameterType="List">
     insert into jy_evaluate_record (evaluate_type, target_biz_id,source_biz_id, status,dimension_code,img_count,img_url,remark,
-     create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+     create_user_erp, create_user_name, update_user_erp, update_user_name, create_time,
     update_time, yn, ts)  VALUES
     <foreach collection="list" item="item" index="index" separator=",">
      (#{item.evaluateType,jdbcType=INTEGER},
