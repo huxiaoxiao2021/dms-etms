@@ -387,7 +387,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             map.put(record.getDimensionCode(), evaluateDimensionDto);
         } else {
             if (StringUtils.isNotBlank(record.getImgUrl())) {
-                List<String> currentImgUrlList = Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA));
+                List<String> currentImgUrlList = new ArrayList<>(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA)));
                 if (CollectionUtils.isEmpty(evaluateDimensionDto.getImgUrlList())) {
                     evaluateDimensionDto.setImgUrlList(currentImgUrlList);
                 } else {
