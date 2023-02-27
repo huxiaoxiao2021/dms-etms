@@ -229,7 +229,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                             condition.setStartSiteId(Long.valueOf(request.getBarCode()));
                         }catch (Exception e) {
                             log.error("JyUnSealVehicleServiceImpl.fetchUnSealTask:barCode输入错误，应输入场地编码或车牌后四位，转Long异常，req={]", JsonUtils.toJSONString(request));
-                            result.error("请正确的车牌号后四位或上游场地编码！");
+                            result.error("请输入正确的车牌号后四位或上游场地编码！");
                             return result;
                         }
                     }
