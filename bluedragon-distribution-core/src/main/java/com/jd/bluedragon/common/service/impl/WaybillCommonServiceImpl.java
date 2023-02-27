@@ -1983,22 +1983,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     private void appendRespectTypeText(BasePrintWaybill target,String waybillSign,WaybillExt waybillExt){
-        log.info("进入appendRespectTypeText---");
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybillSign,35,'1')){
-            log.info("进入appendRespectTypeText---尊");
             //提出-尊标识
             target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR );
         }
         //“碎” 在 “尊” 的标识位追加
-        log.info("appendRespectTypeText-waybillExt-{}",JSON.toJSONString(waybillExt));
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
-        log.info("appendRespectTypeText-sendPayMap-{}",JSON.toJSONString(waybillExt.getSendPayMap()));
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            log.info("进入appendRespectTypeText---碎");
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
         }
-        log.info("最后结果-{}",target.getRespectTypeText());
+        log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);
     }
 }
