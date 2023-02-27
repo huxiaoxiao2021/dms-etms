@@ -384,6 +384,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
             evaluateDimensionDto.setHasTextBox(dimensionEnum.getHasTextBox());
             evaluateDimensionDto.setRemark(record.getRemark());
+            map.put(record.getDimensionCode(), evaluateDimensionDto);
         } else {
             if (StringUtils.isNotBlank(record.getImgUrl())) {
                 List<String> currentImgUrlList = Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA));
