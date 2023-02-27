@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.evaluate.service.JyEvaluateJsfService;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateService;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ public class JyEvaluateJsfServiceImpl implements JyEvaluateJsfService {
     @Autowired
     private JyEvaluateService jyEvaluateService;
     @Override
-    public Result<PageDto<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query) {
+    public Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query) {
         return jyEvaluateService.queryPageList(query);
     }
 
