@@ -273,8 +273,8 @@
       <if test="imgCount != null">
         img_count = #{imgCount,jdbcType=INTEGER},
       </if>
-      <if test="evaluateUerErp != null">
-        evaluate_uer_erp = #{evaluateUerErp,jdbcType=VARCHAR},
+      <if test="evaluateUserErp != null">
+        evaluate_user_erp = #{evaluateUserErp,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
