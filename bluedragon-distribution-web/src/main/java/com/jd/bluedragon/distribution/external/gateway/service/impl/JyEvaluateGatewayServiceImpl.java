@@ -5,8 +5,8 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateService;
 import com.jd.bluedragon.external.gateway.service.JyEvaluateGatewayService;
 import com.jd.ump.annotation.JProEnum;
@@ -29,7 +29,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
     private JyEvaluateService jyEvaluateService;
 
     @Override
-    public JdCResponse<List<SelectOption>> dimensionOptions() {
+    public JdCResponse<List<DimensionOption>> dimensionOptions() {
         return jyEvaluateService.dimensionOptions();
     }
 

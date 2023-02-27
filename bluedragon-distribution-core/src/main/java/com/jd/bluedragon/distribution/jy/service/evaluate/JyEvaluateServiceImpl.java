@@ -5,10 +5,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateDimensionReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
@@ -19,7 +17,7 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -48,6 +46,13 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private static final Integer EVALUATE_TYPE_UNLOAD = 2;
 
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    private static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
+
+    private static final Integer EVALUATE_STATUS_SATISFIED = 1;
+
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
     @Autowired
@@ -60,8 +65,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.dimensionOptions", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<SelectOption>> dimensionOptions() {
-        JdCResponse<List<SelectOption>> result = new JdCResponse<>();
+    public JdCResponse<List<DimensionOption>> dimensionOptions() {
+        JdCResponse<List<DimensionOption>> result = new JdCResponse<>();
         result.toSucceed();
         try {
             List<JyEvaluateDimensionEntity> list = jyEvaluateDimensionDao.findAllDimension();
@@ -69,9 +74,14 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 result.setData(new ArrayList<>());
                 return result;
             }
-            List<SelectOption> options = new ArrayList<>();
+            List<DimensionOption> options = new ArrayList<>();
             for (JyEvaluateDimensionEntity dimension : list) {
-                options.add(new SelectOption(dimension.getCode(), dimension.getName(), dimension.getStatus()));
+                DimensionOption dimensionOption = new DimensionOption();
+                dimensionOption.setCode(dimension.getCode());
+                dimensionOption.setName(dimension.getName());
+                dimensionOption.setStatus(dimension.getStatus());
+                dimensionOption.setHasTextBox(dimension.getHasTextBox());
+                options.add(dimensionOption);
             }
             result.setData(options);
         } catch (Exception e) {
@@ -134,10 +144,22 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
+            JyEvaluateTargetInfoEntity targetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
+            if (targetInfo != null) {
+                result.toFail("请勿重复提交");
+                return result;
+            }
             // 评价目标基础信息实体
             JyEvaluateTargetInfoEntity evaluateTargetInfo = createTargetInfo(request);
+            List<JyEvaluateRecordEntity> recordList;
             // 评价明细列表
-            List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
+            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+                // 构造满意的记录
+                recordList = createSatisfiedEvaluateRecord(request, evaluateTargetInfo);
+            } else {
+                // 构造不满意的记录
+                recordList = createEvaluateRecord(request, evaluateTargetInfo);
+            }
             // 保存
             jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
         } catch (JyBizException e) {
@@ -183,10 +205,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         Integer targetSiteCode = sealCarDto.getStartSiteId();
         Integer sourceSiteCode = sealCarDto.getEndSiteId();
 
-        // 根据派车单号和起始站点查询发货任务
-        JyBizTaskSendVehicleEntity sendVehicle = jyEvaluateCommonService.findByTransWorkAndStartSite(transWorkItemCode, targetSiteCode);
+        // 根据派车单号查询发货任务
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findByByTransWorkItemCode(transWorkItemCode);
         // 查询发货调度任务ID
-        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicle.getBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicleDetail.getSendVehicleBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
         // 查询卸车调度任务ID
         String sourceTaskId = jyEvaluateCommonService.getJyScheduleTaskId(request.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
         // 查询发货任务协助人
@@ -196,7 +218,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         // 根据卸车任务操作场地查询区域信息
         BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(sourceSiteCode);
 
-        return createEvaluateTargetInfo(sealCarDto, sendVehicle, sourceTaskId,
+        return createEvaluateTargetInfo(sealCarDto, sendVehicleDetail, sourceTaskId,
                 targetTaskId, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto, request);
     }
 
@@ -210,7 +232,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
 
-    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleEntity sendVehicle,
+    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleDetailEntity sendDetail,
                                                                 String sourceTaskId, String targetTaskId,
                                                                 List<JyTaskGroupMemberEntity> taskGroupMembers,
                                                                 BaseStaffSiteOrgDto targetSiteOrgDto,
@@ -222,9 +244,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         targetInfo.setTargetSiteCode(sealCarDto.getStartSiteId());
         targetInfo.setTargetSiteName(sealCarDto.getStartSiteName());
         targetInfo.setTargetTaskId(targetTaskId);
-        targetInfo.setTargetBizId(sendVehicle.getBizId());
-        targetInfo.setTargetStartTime(sendVehicle.getCreateTime());
-        targetInfo.setTargetFinishTime(sendVehicle.getUpdateTime());
+        targetInfo.setTargetBizId(sendDetail.getSendVehicleBizId());
+        targetInfo.setTargetStartTime(sendDetail.getCreateTime());
+        targetInfo.setTargetFinishTime(sendDetail.getUpdateTime());
         targetInfo.setTransWorkItemCode(sealCarDto.getTransWorkItemCode());
         targetInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
         targetInfo.setSealTime(sealCarDto.getSealCarTime());
@@ -300,6 +322,26 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return recordList;
     }
 
+    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecord(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo) {
+        List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
+        JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
+        record.setEvaluateType(1);
+        record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
+        record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
+        record.setStatus(request.getStatus());
+        record.setCreateUserErp(request.getUser().getUserErp());
+        record.setCreateUserName(request.getUser().getUserName());
+        record.setUpdateUserErp(request.getUser().getUserErp());
+        record.setUpdateUserName(request.getUser().getUserName());
+        record.setCreateTime(new Date());
+        record.setUpdateTime(new Date());
+        record.setYn(Constants.YN_YES);
+        recordList.add(record);
+
+        evaluateTargetInfo.setEvaluateUserErp(request.getUser().getUserErp());
+        return recordList;
+    }
+
     private void setExtendTargetInfo(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo,
                                      String remarkStr, String dimensionStr, int imgCount) {
         if (evaluateTargetInfo.getId() == null) {
@@ -317,7 +359,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                     evaluateTargetInfo.setRemark(remarkStr);
                 }
             }
-            evaluateTargetInfo.setStatus(request.getStatus());
             List<String> oldUserErpList = Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA));
             if (!oldUserErpList.contains(request.getUser().getUserErp())) {
                 evaluateTargetInfo.setEvaluateUserErp(evaluateTargetInfo.getEvaluateUserErp() + Constants.SEPARATOR_COMMA + request.getUser().getUserErp());
@@ -341,9 +382,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (StringUtils.isNotBlank(record.getImgUrl())) {
                 evaluateDimensionDto.setImgUrlList(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA)));
             }
-            if (Constants.NUMBER_ONE.equals(dimensionEnum.getStatus())) {
-                evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
-            }
+            evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
+            evaluateDimensionDto.setHasTextBox(dimensionEnum.getHasTextBox());
             evaluateDimensionDto.setRemark(record.getRemark());
         } else {
             if (StringUtils.isNotBlank(record.getImgUrl())) {

@@ -12,8 +12,8 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -43,7 +43,7 @@ public class JyEvaluateCommonService {
     @Autowired
     private VosManager vosManager;
     @Autowired
-    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+    private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
@@ -78,14 +78,16 @@ public class JyEvaluateCommonService {
         return sealCarDtoCommonDto.getData();
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findByTransWorkAndStartSite", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(String transWorkItemCode, Integer targetSiteCode) {
-        JyBizTaskSendVehicleEntity sendVehicleEntity = jyBizTaskSendVehicleService.findByTransWorkAndStartSite(new JyBizTaskSendVehicleEntity(transWorkItemCode, Long.valueOf(targetSiteCode)));
-        if (sendVehicleEntity == null) {
-            LOGGER.warn("findSendTaskByBizId|查询发货任务返回空,transWorkItemCode={},targetSiteCode={}", transWorkItemCode, targetSiteCode);
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findByByTransWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskSendVehicleDetailEntity findByByTransWorkItemCode(String transWorkItemCode) {
+        JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+        query.setTransWorkItemCode(transWorkItemCode);
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
+        if (sendVehicleDetail == null) {
+            LOGGER.warn("findByByTransWorkItemCode|查询发货任务返回空,transWorkItemCode={}", transWorkItemCode);
             throw new JyBizException("查询发货任务返回空");
         }
-        return sendVehicleEntity;
+        return sendVehicleDetail;
     }
 
     /**

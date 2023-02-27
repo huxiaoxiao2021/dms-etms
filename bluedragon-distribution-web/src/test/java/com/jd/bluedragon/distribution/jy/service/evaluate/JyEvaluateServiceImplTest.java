@@ -1,5 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.evaluate;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
@@ -7,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,4 +82,51 @@ public class JyEvaluateServiceImplTest {
         Result<List<JyEvaluateRecordEntity>> result = jyEvaluateService.queryRecordByTargetBizId(businessId);
         log.info("queryRecordByTargetBizIdTest result: {}", JsonHelper.toJson(result));
     }
+
+    @Test
+    public void testDimensionOptions() {
+        JdCResponse<List<DimensionOption>> result = jyEvaluateService.dimensionOptions();
+        Assert.assertNotNull(result.getData());
+    }
+
+    @Test
+    public void testCheckIsEvaluate() {
+        EvaluateTargetReq evaluateTargetReq = new EvaluateTargetReq();
+        evaluateTargetReq.setUser(createUser());
+        evaluateTargetReq.setCurrentOperate(createCurrentOperate());
+        evaluateTargetReq.setSourceBizId("SC22022347855110");
+
+        JdCResponse<Boolean> result = jyEvaluateService.checkIsEvaluate(evaluateTargetReq);
+        Assert.assertFalse(result.getData());
+    }
+
+    @Test
+    public void testFindTargetEvaluateInfo() {
+        EvaluateTargetReq evaluateTargetReq = new EvaluateTargetReq();
+        evaluateTargetReq.setUser(createUser());
+        evaluateTargetReq.setCurrentOperate(createCurrentOperate());
+        evaluateTargetReq.setSourceBizId("SC22022347855110");
+
+        JdCResponse<List<EvaluateDimensionDto>> result = jyEvaluateService.findTargetEvaluateInfo(evaluateTargetReq);
+        Assert.assertNull(result.getData());
+    }
+
+    private User createUser() {
+        User user = new User();
+        user.setUserErp("xumigen");
+        user.setUserName("徐迷根");
+        user.setUserCode(18225);
+        return user;
+    }
+
+    private CurrentOperate createCurrentOperate() {
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(10186);
+        currentOperate.setSiteName("北京凉水河快运中心");
+        currentOperate.setDmsCode("010K001");
+        currentOperate.setOrgId(6);
+        currentOperate.setOrgName("总公司");
+        return currentOperate;
+    }
+
 }

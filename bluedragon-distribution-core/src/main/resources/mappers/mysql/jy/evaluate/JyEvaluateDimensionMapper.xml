@@ -7,6 +7,7 @@
     <result column="code" jdbcType="INTEGER" property="code" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="has_text_box" jdbcType="INTEGER" property="hasTextBox" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
     <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
@@ -19,16 +20,16 @@
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, code, name, status, remark, create_user_erp, create_user_name, update_user_erp,
+    id, code, name, status, has_text_box, remark, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, ts
   </sql>
 
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity">
     insert into jy_evaluate_dimension (code,
-                                       name, status, remark, create_user_name, update_user_erp, update_user_name,
+                                       name, status, has_text_box, remark, create_user_name, update_user_erp, update_user_name,
                                        create_time, update_time, yn, ts)
     values (#{code,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
-            #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR},
+            #{status,jdbcType=INTEGER}, #{hasTextBox,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR},
             #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
             #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT},
             #{ts,jdbcType=TIMESTAMP})

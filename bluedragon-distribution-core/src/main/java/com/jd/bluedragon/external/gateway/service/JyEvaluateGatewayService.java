@@ -2,8 +2,8 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.common.dto.select.SelectOption;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface JyEvaluateGatewayService {
     /**
      * 评价维度枚举
      */
-    JdCResponse<List<SelectOption>> dimensionOptions();
+    JdCResponse<List<DimensionOption>> dimensionOptions();
 
     /**
      * 查询评价与否
