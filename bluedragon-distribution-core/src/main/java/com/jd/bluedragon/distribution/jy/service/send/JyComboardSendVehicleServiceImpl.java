@@ -46,6 +46,7 @@ import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -484,9 +485,10 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     queryTaskSendDto.setKeyword(request.getKeyword());
     //设置默认预计发货时间查询范围
     try {
-      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyCzSendTaskPlanTimeBeginDay()));
-      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), ucc.getJyCzSendTaskPlanTimeEndDay()));
-      queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJySendTaskCreateTimeBeginDay()));
+      Date now =new Date();
+      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addHoursByDay(now,-Double.valueOf(ucc.getJyCzSendTaskPlanTimeBeginDay())));
+      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addHoursByDay(now, Double.valueOf(ucc.getJyCzSendTaskPlanTimeEndDay())));
+      queryTaskSendDto.setCreateTimeBegin(DateHelper.addHoursByDay(now, -Double.valueOf(ucc.getJySendTaskCreateTimeBeginDay())));
 
     } catch (Exception e) {
       log.error("查询传站运输任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e);
