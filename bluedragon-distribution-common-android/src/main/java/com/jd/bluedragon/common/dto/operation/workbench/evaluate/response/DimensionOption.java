@@ -34,6 +34,11 @@ public class DimensionOption implements Serializable {
      */
     private Integer hasTextBox;
 
+    /**
+     * 是否选中
+     */
+    private boolean selectedFlag;
+
     public Integer getCode() {
         return code;
     }
@@ -72,5 +77,13 @@ public class DimensionOption implements Serializable {
 
     public void setHasTextBox(Integer hasTextBox) {
         this.hasTextBox = hasTextBox;
+    }
+
+    public boolean isSelectedFlag() {
+        return selectedFlag;
+    }
+
+    public void setSelectedFlag(boolean selectedFlag) {
+        this.selectedFlag = selectedFlag;
     }
 }
