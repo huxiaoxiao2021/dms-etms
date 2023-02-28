@@ -388,12 +388,12 @@
         </if>
     </select>
 
-    <select id="queryExceptionTaskBizIds" parameterType="java.lang.String" resultType="list">
+    <select id="queryExceptionTaskBizIds" parameterType="java.lang.Integer" resultType="list">
         SELECT
             biz_id
         FROM jy_biz_task_exception
         WHERE
-        yn = 1 and status =1 and processing_status =0 and  DATE_SUB(CURDATE(), INTERVAL #{outOfDate} DAY) >date(ts)
+        yn = 1 and status =1 and processing_status =0 and  DATE_SUB(CURDATE(), INTERVAL #{outOfDate,jdbcType=INTEGER} DAY) >date(ts)
     </select>
     
     <update id="updateJyBizTaskExceptionOutOfDate"  parameterType="List">
