@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.worker.jy;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.task.JYBizTaskCleanService;
 import com.jd.bluedragon.distribution.jy.service.task.JYBizUnloadTaskCleanServiceImpl;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -50,6 +51,9 @@ public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
     @Qualifier("jyBizSendTaskCleanService")
     private JYBizTaskCleanService jyBizSendTaskCleanService;
 
+    @Autowired
+    private JyExceptionService jyExceptionService;
+
     @Override
     public boolean execute(Object[] objects, String s) throws Exception {
         if(logger.isInfoEnabled()){
@@ -62,6 +66,9 @@ public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
             flag = Boolean.FALSE;
         }
         if(!jyBizSendTaskCleanService.clean()){
+            flag = Boolean.FALSE;
+        }
+        if(!jyExceptionService.clean()){
             flag = Boolean.FALSE;
         }
         if(logger.isInfoEnabled()){
