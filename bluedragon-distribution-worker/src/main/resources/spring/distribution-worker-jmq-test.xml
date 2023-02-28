@@ -503,6 +503,7 @@
     <!--  拣运组板岗-运单异步取消组板发货  -->
     <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
+    </jmq:consumer>
     <!--  jy转运卸车任务板关系创建消费 -->
     <jmq:consumer id="jmq.jyUnloadTaskBoardRelationGenerateConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.task.board.relation}" listener="jyUnloadTaskBoardRelationGenerateConsume"/>
