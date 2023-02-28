@@ -368,6 +368,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         dto.setWaybillCode(request.getOldCode());
         dto.setSiteCode(request.getSiteCode());
         dto.setUserErp(request.getStaffErpCode());
+        dto.setUserCode(request.getStaffId());
+        dto.setUserName(request.getStaffRealName());
         dto.setOperateTime(new Date());
         return dto;
     }

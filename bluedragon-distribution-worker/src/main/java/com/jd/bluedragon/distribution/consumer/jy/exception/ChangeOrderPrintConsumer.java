@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy.exception;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
@@ -7,11 +9,16 @@ import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -26,6 +33,13 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
     @Autowired
     private JyExceptionService jyExceptionService;
 
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     public void consume(Message message) throws Exception {
         logger.info("ChangeOrderPrintConsumer -message {}", message.getText());
@@ -38,8 +52,18 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
             return;
         }
         ChangeOrderPrintMq changeOrderPrintMq = JsonHelper.fromJson(message.getText(), ChangeOrderPrintMq.class);
-        JyExceptionPrintDto dto = getJyExceptionPrintDto(changeOrderPrintMq);
-        jyExceptionService.printSuccess(dto);
+        String lockKey =String.format(CacheKeyConstants.CACHE_KEY_CHANGE_ORDER_PRINT_KEY,changeOrderPrintMq.getWaybillCode());
+        try{
+            Boolean result = redisClientOfJy.set(lockKey, "1", 20, TimeUnit.SECONDS, false);
+            if(!result){
+                return ;
+            }
+            JyExceptionPrintDto dto = getJyExceptionPrintDto(changeOrderPrintMq);
+            jyExceptionService.printSuccess(dto);
+        }finally {
+            redisClientOfJy.del(lockKey);
+        }
+
     }
 
     /**
@@ -52,8 +76,11 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
         dto.setOperateType(mq.getOperateType());
         dto.setSiteCode(mq.getSiteCode());
         dto.setWaybillCode(mq.getWaybillCode());
-        dto.setUserErp(mq.getUserErp());
         dto.setOperateTime(mq.getOperateTime());
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(mq.getUserCode());
+        if(baseStaff != null){
+            dto.setUserErp(baseStaff.getErp());
+        }
         return dto;
     }
 }
