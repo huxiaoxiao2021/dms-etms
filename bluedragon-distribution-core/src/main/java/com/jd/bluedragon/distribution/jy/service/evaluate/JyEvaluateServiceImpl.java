@@ -280,7 +280,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         StringBuilder remark = new StringBuilder();
         List<String> dimensionList = null;
         if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
-            dimensionList = Arrays.asList(evaluateTargetInfo.getDimensionCode().split(Constants.SEPARATOR_COMMA));
+            dimensionList = new ArrayList<>(Arrays.asList(evaluateTargetInfo.getDimensionCode().split(Constants.SEPARATOR_COMMA)));
         }
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
             JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
@@ -358,14 +358,16 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                     evaluateTargetInfo.setRemark(remarkStr.substring(1));
                 }
             }
-            List<String> oldUserErpList = Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA));
+            List<String> oldUserErpList = new ArrayList<>(Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA)));
             if (!oldUserErpList.contains(request.getUser().getUserErp())) {
                 evaluateTargetInfo.setEvaluateUserErp(evaluateTargetInfo.getEvaluateUserErp() + Constants.SEPARATOR_COMMA + request.getUser().getUserErp());
             }
-            if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
-                evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr.substring(1));
-            } else {
-                evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
+            if (dimensionStr.length() > 0) {
+                if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
+                    evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr.substring(1));
+                } else {
+                    evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
+                }
             }
         }
     }
