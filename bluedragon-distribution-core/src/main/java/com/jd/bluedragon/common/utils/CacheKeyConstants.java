@@ -373,5 +373,11 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
 
+    /**
+     * 换单打印
+     * sealCarCode
+     */
+    public static final String CACHE_KEY_CHANGE_ORDER_PRINT_KEY = JY_CACHE_PREFIX + "changeOrderPrintLock:%s";
+
 
 }
