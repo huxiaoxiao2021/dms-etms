@@ -70,14 +70,14 @@ public class JyEvaluateServiceImplTest {
 
     @Test
     public void queryInfoByTargetBizIdTest() {
-        String businessId = "";
+        String businessId = "SST23022400000075";
         Result<JyEvaluateTargetInfoEntity> result = jyEvaluateService.queryInfoByTargetBizId(businessId);
         log.info("queryInfoByTargetBizIdTest result: {}", JsonHelper.toJson(result));
     }
 
     @Test
     public void queryRecordByTargetBizIdTest() {
-        String businessId = "";
+        String businessId = "SST23022400000075";
         Result<List<JyEvaluateRecordEntity>> result = jyEvaluateService.queryRecordByTargetBizId(businessId);
         log.info("queryRecordByTargetBizIdTest result: {}", JsonHelper.toJson(result));
     }
