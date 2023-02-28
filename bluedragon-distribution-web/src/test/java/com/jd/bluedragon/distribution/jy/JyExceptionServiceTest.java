@@ -99,4 +99,9 @@ public class JyExceptionServiceTest {
         System.out.println(JSONObject.toJSON(listJdCResponse));
     }
 
+    public void updateJyBizTaskExceptionOutOfDateTest(){
+
+        JdCResponse response = jyExceptionGatewayService.updateJyBizTaskExceptionOutOfDate();
+    }
+
 }
