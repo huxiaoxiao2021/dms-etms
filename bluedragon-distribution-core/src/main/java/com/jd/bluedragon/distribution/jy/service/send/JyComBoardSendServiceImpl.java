@@ -2263,7 +2263,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
       JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
       //如果已封车的批次不触发取消组板发货
-      if (newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
+      if (checkSealTime(comboardEntity) && newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
         return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
       }
 
@@ -2360,6 +2360,16 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
   }
 
+  private boolean checkSealTime(JyBizTaskComboardEntity comboardEntity) {
+    if (comboardEntity.getSealTime() == null) {
+      return false;
+    }
+    if ( System.currentTimeMillis() - comboardEntity.getSealTime().getTime() >  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+      return false;
+    }
+    return true;
+  }
+
   @Override
   public InvokeResult<Void> cancelSortMachineComboard(CancelBoardReq request) {
     try {
@@ -2395,7 +2405,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }else{
 
         //如果已封车的批次不触发取消组板发货
-        if (newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
+        if (checkSealTime(comboardEntity) && newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
           return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
         }
         BatchUpdateCancelReq batchUpdateCancelReq = new BatchUpdateCancelReq();
@@ -2447,7 +2457,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("异步发送取消组板取消发货全程跟踪失败");
     }
   }
-
+  
   private void asyncSendComboardWaybillTrace(CancelBoardReq request, String waybillCode) {
     // 获取运单包裹数
     Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
