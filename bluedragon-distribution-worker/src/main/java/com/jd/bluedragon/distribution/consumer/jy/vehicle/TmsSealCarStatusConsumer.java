@@ -152,7 +152,12 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                     if (entity.getBoardStatus().equals(ComboardStatusEnum.PROCESSING.getCode())){
                         JyBizTaskComboardReq finishBoard = new JyBizTaskComboardReq();
                         finishBoard.setBoardCode(entity.getBoardCode());
-                        jyBizTaskComboardService.finishBoard(finishBoard);
+                        if (logger.isInfoEnabled()) {
+                            logger.info("开始操作完结板任务：{}",entity.getBoardCode());
+                        }
+                        if (!jyBizTaskComboardService.finishBoard(finishBoard)) {
+                            logger.error("操作完结板任务失败：{}",entity.getBoardCode());
+                        }
                     }
                 }
                 if (logger.isInfoEnabled()) {
