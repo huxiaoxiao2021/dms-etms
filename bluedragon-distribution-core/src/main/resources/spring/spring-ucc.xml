@@ -247,7 +247,7 @@
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
-
+		<property name="cloudOssInsertSwitch" value="${cloudOssInsertSwitch:false}"/>
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -493,6 +493,7 @@
 				<value>uccPropertyConfiguration.supportMutilScan</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 
 			</list>
 		</property>
