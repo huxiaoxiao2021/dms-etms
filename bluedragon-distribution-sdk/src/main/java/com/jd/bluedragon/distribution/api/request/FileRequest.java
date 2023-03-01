@@ -14,6 +14,8 @@ public class FileRequest implements Serializable {
 
     private String fileName;
 
+    private String bucketName;
+
     public String getFileNamePrefix() {
         return fileNamePrefix;
     }
@@ -28,5 +30,13 @@ public class FileRequest implements Serializable {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 }
