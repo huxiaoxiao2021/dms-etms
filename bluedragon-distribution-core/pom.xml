@@ -95,6 +95,13 @@
 			</exclusions>
         </dependency>
 
+		<!-- oss上传-->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.490</version>
+		</dependency>
+
 		<!--终端 返单审核校验  yukuidong -->
 		<dependency>
 			<groupId>erp.ql.station</groupId>
