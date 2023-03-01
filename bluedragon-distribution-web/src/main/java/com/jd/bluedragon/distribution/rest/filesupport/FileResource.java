@@ -8,12 +8,14 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.bluedragon.distribution.rest.storage.StorageResource;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -50,6 +52,7 @@ public class FileResource {
     @POST
     @Path("/uploadfile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     public InvokeResult<String> uploadfile(MultipartFormDataInput formDataInputs){
         log.info("上传文件开始");
         InvokeResult<String> invokeResult = new InvokeResult<>();
@@ -63,6 +66,7 @@ public class FileResource {
             try {
                 InputStream inputStream = inputPart.getBody(InputStream.class,null);
                 String fileName = getFileNameByFileInputPart(inputPart);
+                log.info("上传文件名称fileName[{}]",fileName);
                 amazonS3ClientWrapper.putObjectWithFlow("",inputStream,fileName);
             } catch (IOException e) {
                 log.error("上传文件报错",e);
@@ -77,25 +81,32 @@ public class FileResource {
     @POST
     @Path("/downloadFile")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Consumes("application/x-www-form-urlencoded")
-    public Response downloadFile(@FormParam("fileName") String fileName) {
-        log.info("下载文件-开始fileName[{}]",fileName);
-        S3Object s3Object = amazonS3ClientWrapper.getObject("",fileName);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response downloadFile(FileRequest fileRequest) {
+        log.info("下载文件-开始fileRequest[{}]", JsonHelper.toJson(fileRequest));
         Response.ResponseBuilder response = null;
+        if(StringUtils.isEmpty(fileRequest.getBucketName()) || StringUtils.isEmpty(fileRequest.getFileName())){
+            log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+            response = Response.status(Response.Status.BAD_REQUEST);
+            return response.build();
+        }
+        S3Object s3Object = amazonS3ClientWrapper.getObject(fileRequest.getBucketName(),fileRequest.getFileName());
+
         if(s3Object == null){
-            log.info("下载文件报错-文件不存在fileName[{}]",fileName);
-            response = Response.ok("file not found");
+            log.error("下载文件报错-文件不存在fileName[{}]",fileRequest.getFileName());
+            response = Response.status(Response.Status.NOT_FOUND);
             return response.build();
 
         }
         response = Response.ok(s3Object.getObjectContent());
-        response.header("Content-Disposition", "attachment;filename=" + fileName);
+        response.header("Content-Disposition", "attachment;filename=" + fileRequest.getFileName());
         return response.build();
     }
 
-    @GET
+    @POST
     @Path("/listFiles")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public InvokeResult<List<String>> listFiles(FileRequest fileRequest) {
         InvokeResult<List<String>> invokeResult = new InvokeResult<>();
         invokeResult.success();
@@ -105,8 +116,10 @@ public class FileResource {
     }
 
     @POST
-    @Path("/storage/putaway")
+    @Path("/deleteFile")
     @JProfiler(jKey = "DMS.WEB.StorageResource.putaway", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public InvokeResult<Boolean> deleteFile(FileRequest fileRequest){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.success();
