@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckD
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWeightVolumeGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -56,6 +57,12 @@ public class JyWeightVolumeGatewayServiceImpl implements JyWeightVolumeGatewaySe
         if (StringUtils.isBlank(barCode)) {
             result.toError("运单号/包裹号为空, 请重新输入");
             return result;
+        }
+
+        //对包裹发送全程跟踪补充体积
+        if (WaybillUtil.isPackageCode(request.getBarCode()) &&
+                request.getHeight() != null && request.getLength() != null && request.getWidth() != null) {
+            request.setVolume(request.getHeight() * request.getLength() * request.getWidth());
         }
 
         try {
