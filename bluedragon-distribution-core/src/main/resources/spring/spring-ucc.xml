@@ -247,7 +247,6 @@
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
-		<property name="sanwuOutOfDate" value="${sanwuOutOfDate:30}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -492,7 +491,6 @@
 				<value>uccPropertyConfiguration.reComboardSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
-				<value>uccPropertyConfiguration.sanwuOutOfDate</value>
 
 			</list>
 		</property>
