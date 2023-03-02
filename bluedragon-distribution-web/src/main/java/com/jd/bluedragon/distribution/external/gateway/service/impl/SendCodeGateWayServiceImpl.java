@@ -386,6 +386,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
                     packageCodes.add(scanData.getBoxCode());
                 }
             }
+            if (scanDataList.size() < PAGE_SIZE) {
+                break;
+            }
             pageNumber++;
             scanDataList = this.sendMService.selectBoxCodeBySiteAndSendCode(createSite, sendCode, pageNumber, PAGE_SIZE);
         }
