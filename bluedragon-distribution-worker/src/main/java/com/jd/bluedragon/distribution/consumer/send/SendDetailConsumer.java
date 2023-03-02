@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
+import com.jd.bluedragon.distribution.send.domain.DmsSendToEmsWaybillInfoMq;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -37,6 +38,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.alibaba.fastjson.JSONObject;
@@ -44,6 +46,8 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +131,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("blockerComOrbrefundRqMQ")
     @Autowired
     private DefaultJMQProducer blockerComOrbrefundRqMQ;
+    
+    @Autowired
+    @Qualifier("dmsSendToEmsWaybillInfoProducer")
+    private DefaultJMQProducer dmsSendToEmsWaybillInfoProducer;
 
     /**
      * 缓存redis的key
@@ -254,6 +262,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             BaseEntity<BigWaybillDto> baseEntity = this.getWaybillBaseEntity(waybillCode);
             if (baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 Waybill waybill = baseEntity.getData().getWaybill();
+                WaybillPickup waybillPickup = baseEntity.getData().getWaybillPickup();
                 if (BusinessUtil.isRMA(waybill.getWaybillSign())) {
                     if (!rmaHandOverWaybillService.buildAndStorage(sendDetail, waybill, baseEntity.getData().getGoodsList())) {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
@@ -275,6 +284,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.saveSendRelation(sendDetail);
                 //处理冷链拦截快退
                 this.doColdIntercept(waybill,sendDetail);
+                // 构建并发送MQ给邮管局消息
+                this.sendToEmsWaybillInfoMQ(sendDetail, waybill,waybillPickup);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -282,7 +293,104 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             log.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
         }
     }
+    /**
+     * 判断是否发邮政单子，发出消息
+     *
+     * @param sendDetail
+     * @param waybill
+     */
+    private void sendToEmsWaybillInfoMQ(SendDetailMessage sendDetail, Waybill waybill, WaybillPickup waybillPickup) {
+    	Integer preSiteCode = waybill.getOldSiteId();
+    	Integer receiveSiteCode = sendDetail.getReceiveSiteCode();
+    	//判断发货站点是预分拣站点
+        if(!ObjectUtils.equals(preSiteCode, receiveSiteCode)) {
+        	return;
+        }
+        BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
+    	//判断发货站点是否三方邮政落地配-16001
+        boolean isThirdSmsSite = false;
+        if(receiveSiteDto != null 
+        		&& Constants.THIRD_SITE_TYPE.equals(receiveSiteDto.getSiteType())
+        		&& Constants.THIRD_SITE_SUB_TYPE.equals(receiveSiteDto.getSubType())
+        		&& Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(receiveSiteDto.getThirdType())) {
+        	isThirdSmsSite = true;
+        }
+        if(!isThirdSmsSite) {
+        	return;
+        }
+        // 发货目的地是邮政站点，发出mq
+        Message message = parseSendDetailToSendEmsMq(sendDetail, waybill,waybillPickup, receiveSiteDto,receiveSiteDto, dmsSendToEmsWaybillInfoProducer.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
+        this.log.info("分拣发邮政站点，发送MQ[{}],业务ID[{}],消息主题: {}", message.getTopic(), message.getBusinessId(), message.getText());
+        dmsSendToEmsWaybillInfoProducer.sendOnFailPersistent(message.getBusinessId(), message.getText());
+    }
+    /**
+     * 构建发邮政MQ消息体
+     *
+     * @param sendDetail
+     * @param waybillPickup
+     * @param waybill
+     * @param rbDto
+     * @param topic
+     * @param source
+     * @return
+     */
+    private Message parseSendDetailToSendEmsMq(SendDetailMessage sendDetail, Waybill waybill, WaybillPickup waybillPickup, BaseStaffSiteOrgDto rbDto,BaseStaffSiteOrgDto preSiteDto, String topic, String source) {
+        Message message = new Message();
+        DmsSendToEmsWaybillInfoMq dto = new DmsSendToEmsWaybillInfoMq();
+        if (sendDetail != null) {
+            // MQ包含的信息:包裹号,发货站点,发货时间,组板发货时包含板号
+            dto.setPackageBarcode(sendDetail.getPackageBarcode());
+            dto.setWaybillCode(waybill.getWaybillCode());
+            dto.setCreateSiteCode(sendDetail.getCreateSiteCode());
+            dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+            dto.setReceiveSiteName(rbDto.getSiteName());
+            dto.setOperateTime(new Date(sendDetail.getOperateTime()));
+            dto.setOperatorId(sendDetail.getCreateUserCode());
+            dto.setOperatorName(sendDetail.getCreateUser());
+            dto.setSendCode(sendDetail.getSendCode());
+            dto.setWaybillSign(waybill.getWaybillSign());
+            dto.setSource(source);
+            dto.setCreateUserCode(sendDetail.getCreateUserCode());
+            dto.setCreateUser(sendDetail.getCreateUser());
+            dto.setBoxCode(sendDetail.getBoxCode());
+            dto.setBoardCode(sendDetail.getBoardCode());
 
+            dto.setReceiverName(waybill.getReceiverName());
+            dto.setPaymentType(waybill.getPayment());
+            dto.setBusiId(waybill.getBusiId());
+            dto.setOrderTime(waybill.getOrderSubmitTime());
+
+            dto.setSendPay(waybill.getSendPay());
+            dto.setReceiveDmsSiteCode(rbDto.getDmsSiteCode());
+            dto.setPreSiteCode(waybill.getOldSiteId());
+            dto.setPreSiteName(preSiteDto.getSiteName());
+            
+            dto.setConsigner(waybill.getConsigner());
+        	dto.setConsignerMobile(waybill.getConsignerMobile());
+        	dto.setConsignerAddress(waybill.getConsignerAddress());
+        	if(waybillPickup != null) {
+                dto.setConsignerProvinceId(waybillPickup.getConsignerProvinceId());
+                dto.setConsignerCityId(waybillPickup.getConsignerCityId());
+                dto.setConsignerCountryId(waybillPickup.getConsignerCountyId());
+                dto.setConsignerTownId(waybillPickup.getConsignerTownId());
+        	}
+        	
+        	dto.setReceiverName(waybill.getReceiverName());
+        	dto.setReceiverMobile(waybill.getReceiverMobile());
+        	dto.setReceiverAddress(waybill.getReceiverAddress());
+        	
+            dto.setReceiverProvinceId(waybill.getProvinceId());
+            dto.setReceiverCityId(waybill.getCityId());
+            dto.setReceiverCountryId(waybill.getCountryId());
+            dto.setReceiverTownId(waybill.getTownId());
+        	
+            message.setTopic(topic);
+            message.setText(JSON.toJSONString(dto));
+            message.setBusinessId(sendDetail.getPackageBarcode());
+            
+        }
+        return message;
+    }    
     private void saveSendRelation(SendDetailMessage sendDetail) {
 		DmsSendRelation dmsSendRelation = new DmsSendRelation();
 		dmsSendRelation.setOriginalSiteCode(sendDetail.getCreateSiteCode());
@@ -304,6 +412,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         choice.setQueryWaybillExtend(true);
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
+        choice.setQueryWaybillP(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
 
@@ -626,8 +735,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
-                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
-                                        //|| productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL);
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD)
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL);
             if(!isColdProductType){
                 log.warn("处理冷链拦截快退逻辑，非冷链产品类型，无须处理，运单号：{}",waybillCode);
                 return;

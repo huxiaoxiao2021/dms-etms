@@ -206,6 +206,7 @@ public class BusinessLogConstans {
         INSPECTION_SALE_REVERSE_REJECT(BizTypeEnum.INSPECTION,5004,"逆向售后驳回验货"),
         INSPECTION_SORT_CENTER_INSPECTION(BizTypeEnum.INSPECTION,50012,"分拣中心验货"),
         INSPECTION_SORT_CENTER_INSPECTION_OFFLINE(BizTypeEnum.INSPECTION,50013,"离线分拣中心验货"),
+        INSPECTION_WAYBILL_QUERY_NON_EXIST(BizTypeEnum.INSPECTION,50014,"转运验货包裹运单系统查询不存在"),
 
         PRINT_PRINT(BizTypeEnum.PRINT,20011,"打印"),
         PRINT_PACKAGE_LABEL_PRINT(BizTypeEnum.PRINT,20112,"包裹标签打印"),

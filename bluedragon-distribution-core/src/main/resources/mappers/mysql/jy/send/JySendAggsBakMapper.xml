@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDaoBak">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" id="jySendAggsMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="operateSiteId" column="operate_site_id"/>
+        <result property="receiveSiteId" column="receive_site_id"/>
+        <result property="shouldScanCount" column="should_scan_count"/>
+        <result property="actualScanCount" column="actual_scan_count"/>
+        <result property="actualScanWeight" column="actual_scan_weight"/>
+        <result property="actualScanVolume" column="actual_scan_volume"/>
+        <result property="interceptScanCount" column="intercept_scan_count"/>
+        <result property="forceSendCount" column="force_send_count"/>
+        <result property="totalShouldScanCount" column="total_should_scan_count"/>
+        <result property="totalScannedCount" column="total_scanned_count"/>
+        <result property="totalInterceptCount" column="total_intercept_count"/>
+        <result property="totalForceSendCount" column="total_force_send_count"/>
+        <result property="totalScannedWeight" column="total_scanned_weight"/>
+        <result property="totalScannedVolume" column="total_scanned_volume"/>
+        <result property="totalScannedPackageCodeCount" column="total_scanned_package_code_count"/>
+        <result property="totalScannedBoxCodeCount" column="total_scanned_box_code_count"/>
+        <result property="vehicleWeight" column="vehicle_weight"/>
+        <result property="vehicleVolume" column="vehicle_volume"/>
+        <result property="createTime" column="create_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+        <result property="actualScanPackageCodeCount" column="actual_scan_package_code_count"/>
+        <result property="actualScanBoxCodeCount" column="actual_scan_box_code_count"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+
+        <result property="totalScannedWaybillCount" column="total_scanned_waybill_count"/>
+        <result property="totalInterceptWaybillCount" column="total_intercept_waybill_count"/>
+        <result property="totalIncompleteWaybillCount" column="total_incomplete_waybill_count"/>
+        <result property="totalNotScannedWaybillCount" column="total_not_scanned_waybill_count"/>
+        <result property="totalForceWaybillCount" column="total_force_waybill_count"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,        biz_id,        trans_work_item_code,        vehicle_number,        operate_site_id,        receive_site_id,        should_scan_count,        actual_scan_count,        actual_scan_weight,        actual_scan_volume,        intercept_scan_count,        force_send_count,        total_should_scan_count,        total_scanned_count,        total_intercept_count,        total_force_send_count,        total_scanned_weight,        total_scanned_volume,        total_scanned_package_code_count,        total_scanned_box_code_count,        vehicle_weight,        vehicle_volume,        create_time,        yn,        ts,        actual_scan_package_code_count,        actual_scan_box_code_count,        send_vehicle_biz_id
+        ,total_scanned_waybill_count,total_intercept_waybill_count,total_incomplete_waybill_count,
+        total_not_scanned_waybill_count,total_force_waybill_count</sql>
+
+    <insert id="insert" parameterType="JySendAggsEntity">
+        INSERT INTO jy_send_aggs (
+        <if test="id != null">
+            id
+        </if>
+        ,
+        <if test="bizId != null">
+            biz_id
+        </if>
+        ,
+        <if test="transWorkItemCode != null">
+            trans_work_item_code
+        </if>
+        ,
+        <if test="vehicleNumber != null">
+            vehicle_number
+        </if>
+        ,
+        <if test="operateSiteId != null">
+            operate_site_id
+        </if>
+        ,
+        <if test="receiveSiteId != null">
+            receive_site_id
+        </if>
+        ,
+        <if test="shouldScanCount != null">
+            should_scan_count
+        </if>
+        ,
+        <if test="actualScanCount != null">
+            actual_scan_count
+        </if>
+        ,
+        <if test="actualScanWeight != null">
+            actual_scan_weight
+        </if>
+        ,
+        <if test="actualScanVolume != null">
+            actual_scan_volume
+        </if>
+        ,
+        <if test="interceptScanCount != null">
+            intercept_scan_count
+        </if>
+        ,
+        <if test="forceSendCount != null">
+            force_send_count
+        </if>
+        ,
+        <if test="totalShouldScanCount != null">
+            total_should_scan_count
+        </if>
+        ,
+        <if test="totalScannedCount != null">
+            total_scanned_count
+        </if>
+        ,
+        <if test="totalInterceptCount != null">
+            total_intercept_count
+        </if>
+        ,
+        <if test="totalForceSendCount != null">
+            total_force_send_count
+        </if>
+        ,
+        <if test="totalScannedWeight != null">
+            total_scanned_weight
+        </if>
+        ,
+        <if test="totalScannedVolume != null">
+            total_scanned_volume
+        </if>
+        ,
+        <if test="totalScannedPackageCodeCount != null">
+            total_scanned_package_code_count
+        </if>
+        ,
+        <if test="totalScannedBoxCodeCount != null">
+            total_scanned_box_code_count
+        </if>
+        ,
+        <if test="vehicleWeight != null">
+            vehicle_weight
+        </if>
+        ,
+        <if test="vehicleVolume != null">
+            vehicle_volume
+        </if>
+        ,
+        <if test="createTime != null">
+            create_time
+        </if>
+        ,
+        <if test="yn != null">
+            yn
+        </if>
+        ,
+        <if test="ts != null">
+            ts
+        </if>
+        ,
+        <if test="actualScanPackageCodeCount != null">
+            actual_scan_package_code_count
+        </if>
+        ,
+        <if test="actualScanBoxCodeCount != null">
+            actual_scan_box_code_count
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id
+        </if>
+        ) VALUES (
+        <if test="id != null">
+            #{id}
+        </if>
+        ,
+        <if test="bizId != null">
+            #{bizId}
+        </if>
+        ,
+        <if test="transWorkItemCode != null">
+            #{transWorkItemCode}
+        </if>
+        ,
+        <if test="vehicleNumber != null">
+            #{vehicleNumber}
+        </if>
+        ,
+        <if test="operateSiteId != null">
+            #{operateSiteId}
+        </if>
+        ,
+        <if test="receiveSiteId != null">
+            #{receiveSiteId}
+        </if>
+        ,
+        <if test="shouldScanCount != null">
+            #{shouldScanCount}
+        </if>
+        ,
+        <if test="actualScanCount != null">
+            #{actualScanCount}
+        </if>
+        ,
+        <if test="actualScanWeight != null">
+            #{actualScanWeight}
+        </if>
+        ,
+        <if test="actualScanVolume != null">
+            #{actualScanVolume}
+        </if>
+        ,
+        <if test="interceptScanCount != null">
+            #{interceptScanCount}
+        </if>
+        ,
+        <if test="forceSendCount != null">
+            #{forceSendCount}
+        </if>
+        ,
+        <if test="totalShouldScanCount != null">
+            #{totalShouldScanCount}
+        </if>
+        ,
+        <if test="totalScannedCount != null">
+            #{totalScannedCount}
+        </if>
+        ,
+        <if test="totalInterceptCount != null">
+            #{totalInterceptCount}
+        </if>
+        ,
+        <if test="totalForceSendCount != null">
+            #{totalForceSendCount}
+        </if>
+        ,
+        <if test="totalScannedWeight != null">
+            #{totalScannedWeight}
+        </if>
+        ,
+        <if test="totalScannedVolume != null">
+            #{totalScannedVolume}
+        </if>
+        ,
+        <if test="totalScannedPackageCodeCount != null">
+            #{totalScannedPackageCodeCount}
+        </if>
+        ,
+        <if test="totalScannedBoxCodeCount != null">
+            #{totalScannedBoxCodeCount}
+        </if>
+        ,
+        <if test="vehicleWeight != null">
+            #{vehicleWeight}
+        </if>
+        ,
+        <if test="vehicleVolume != null">
+            #{vehicleVolume}
+        </if>
+        ,
+        <if test="createTime != null">
+            #{createTime}
+        </if>
+        ,
+        <if test="yn != null">
+            #{yn}
+        </if>
+        ,
+        <if test="ts != null">
+            #{ts}
+        </if>
+        ,
+        <if test="actualScanPackageCodeCount != null">
+            #{actualScanPackageCodeCount}
+        </if>
+        ,
+        <if test="actualScanBoxCodeCount != null">
+            #{actualScanBoxCodeCount}
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            #{sendVehicleBizId}
+        </if>
+        )
+    </insert>
+
+    <update id="update" parameterType="JySendAggsEntity">
+        UPDATE jy_send_aggs
+        <set>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            ,
+            <if test="bizId != null">
+                biz_id = #{bizId}
+            </if>
+            ,
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode}
+            </if>
+            ,
+            <if test="vehicleNumber != null">
+                vehicle_number = #{vehicleNumber}
+            </if>
+            ,
+            <if test="operateSiteId != null">
+                operate_site_id = #{operateSiteId}
+            </if>
+            ,
+            <if test="receiveSiteId != null">
+                receive_site_id = #{receiveSiteId}
+            </if>
+            ,
+            <if test="shouldScanCount != null">
+                should_scan_count = #{shouldScanCount}
+            </if>
+            ,
+            <if test="actualScanCount != null">
+                actual_scan_count = #{actualScanCount}
+            </if>
+            ,
+            <if test="actualScanWeight != null">
+                actual_scan_weight = #{actualScanWeight}
+            </if>
+            ,
+            <if test="actualScanVolume != null">
+                actual_scan_volume = #{actualScanVolume}
+            </if>
+            ,
+            <if test="interceptScanCount != null">
+                intercept_scan_count = #{interceptScanCount}
+            </if>
+            ,
+            <if test="forceSendCount != null">
+                force_send_count = #{forceSendCount}
+            </if>
+            ,
+            <if test="totalShouldScanCount != null">
+                total_should_scan_count = #{totalShouldScanCount}
+            </if>
+            ,
+            <if test="totalScannedCount != null">
+                total_scanned_count = #{totalScannedCount}
+            </if>
+            ,
+            <if test="totalInterceptCount != null">
+                total_intercept_count = #{totalInterceptCount}
+            </if>
+            ,
+            <if test="totalForceSendCount != null">
+                total_force_send_count = #{totalForceSendCount}
+            </if>
+            ,
+            <if test="totalScannedWeight != null">
+                total_scanned_weight = #{totalScannedWeight}
+            </if>
+            ,
+            <if test="totalScannedVolume != null">
+                total_scanned_volume = #{totalScannedVolume}
+            </if>
+            ,
+            <if test="totalScannedPackageCodeCount != null">
+                total_scanned_package_code_count = #{totalScannedPackageCodeCount}
+            </if>
+            ,
+            <if test="totalScannedBoxCodeCount != null">
+                total_scanned_box_code_count = #{totalScannedBoxCodeCount}
+            </if>
+            ,
+            <if test="vehicleWeight != null">
+                vehicle_weight = #{vehicleWeight}
+            </if>
+            ,
+            <if test="vehicleVolume != null">
+                vehicle_volume = #{vehicleVolume}
+            </if>
+            ,
+            <if test="createTime != null">
+                create_time = #{createTime}
+            </if>
+            ,
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+            ,
+            <if test="ts != null">
+                ts = #{ts}
+            </if>
+            ,
+            <if test="actualScanPackageCodeCount != null">
+                actual_scan_package_code_count = #{actualScanPackageCodeCount}
+            </if>
+            ,
+            <if test="actualScanBoxCodeCount != null">
+                actual_scan_box_code_count = #{actualScanBoxCodeCount}
+            </if>
+            ,
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="getVehicleSendStatistics" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE send_vehicle_biz_id = #{sendVehicleBizId}
+        and yn = 1 limit 1
+    </select>
+
+    <select id="findBySendVehicleBiz" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send_aggs
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+
+
+    <!--查询关键字匹配 -->
+    <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity">
+        UPDATE
+        jy_send_aggs set
+
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id = #{sendVehicleBizId},
+        </if>
+        <if test="transWorkItemCode != null">
+            trans_work_item_code = #{transWorkItemCode},
+        </if>
+        <if test="vehicleNumber != null">
+            vehicle_number = #{vehicleNumber},
+        </if>
+        <if test="operateSiteId != null">
+            operate_site_id = #{operateSiteId},
+        </if>
+        <if test="receiveSiteId != null">
+            receive_site_id = #{receiveSiteId},
+        </if>
+        <if test="shouldScanCount != null">
+            should_scan_count = #{shouldScanCount},
+        </if>
+        <if test="actualScanCount != null">
+            actual_scan_count = #{actualScanCount},
+        </if>
+        <if test="actualScanPackageCodeCount != null">
+            actual_scan_package_code_count = #{actualScanPackageCodeCount},
+        </if>
+        <if test="actualScanBoxCodeCount != null">
+            actual_scan_box_code_count = #{actualScanBoxCodeCount},
+        </if>
+        <if test="actualScanWeight != null">
+            actual_scan_weight = #{actualScanWeight},
+        </if>
+        <if test="actualScanVolume != null">
+            actual_scan_volume = #{actualScanVolume},
+        </if>
+        <if test="interceptScanCount != null">
+            intercept_scan_count = #{interceptScanCount},
+        </if>
+        <if test="forceSendCount != null">
+            force_send_count = #{forceSendCount},
+        </if>
+        <if test="totalShouldScanCount != null">
+            total_should_scan_count = #{totalShouldScanCount},
+        </if>
+        <if test="totalScannedCount != null">
+            total_scanned_count = #{totalScannedCount},
+        </if>
+        <if test="totalInterceptCount != null">
+            total_intercept_count = #{totalInterceptCount},
+        </if>
+        <if test="totalForceSendCount != null">
+            total_force_send_count = #{totalForceSendCount},
+        </if>
+        <if test="totalScannedWeight != null">
+            total_scanned_weight = #{totalScannedWeight},
+        </if>
+        <if test="totalScannedVolume != null">
+            total_scanned_volume = #{totalScannedVolume},
+        </if>
+        <if test="totalScannedPackageCodeCount != null">
+            total_scanned_package_code_count = #{totalScannedPackageCodeCount},
+        </if>
+        <if test="totalScannedBoxCodeCount != null">
+            total_scanned_box_code_count = #{totalScannedBoxCodeCount},
+        </if>
+        <if test="vehicleWeight != null">
+            vehicle_weight = #{vehicleWeight},
+        </if>
+        <if test="vehicleVolume != null">
+            vehicle_volume = #{vehicleVolume},
+        </if>
+        <if test="createTime != null">
+            create_time = #{createTime},
+        </if>
+        <if test="yn != null">
+            yn = #{yn},
+        </if>
+        ts = now()
+        where
+        biz_id = #{bizId}
+    </update>
+
+    <insert id="insertBySendAggEntity" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity">
+        INSERT INTO jy_send_aggs
+        (
+        <if test="bizId != null">
+            biz_id,
+        </if>
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id,
+        </if>
+        <if test="transWorkItemCode != null">
+            trans_work_item_code,
+        </if>
+        <if test="vehicleNumber != null">
+            vehicle_number,
+        </if>
+        <if test="operateSiteId != null">
+            operate_site_id,
+        </if>
+        <if test="receiveSiteId != null">
+            receive_site_id,
+        </if>
+        <if test="shouldScanCount != null">
+            should_scan_count,
+        </if>
+        <if test="actualScanCount != null">
+            actual_scan_count,
+        </if>
+        <if test="actualScanPackageCodeCount != null">
+            actual_scan_package_code_count,
+        </if>
+        <if test="actualScanBoxCodeCount != null">
+            actual_scan_box_code_count,
+        </if>
+        <if test="actualScanWeight != null">
+            actual_scan_weight,
+        </if>
+        <if test="actualScanVolume != null">
+            actual_scan_volume,
+        </if>
+        <if test="interceptScanCount != null">
+            intercept_scan_count,
+        </if>
+        <if test="forceSendCount != null">
+            force_send_count,
+        </if>
+        <if test="totalShouldScanCount != null">
+            total_should_scan_count,
+        </if>
+        <if test="totalScannedCount != null">
+            total_scanned_count,
+        </if>
+        <if test="totalInterceptCount != null">
+            total_intercept_count,
+        </if>
+        <if test="totalForceSendCount != null">
+            total_force_send_count,
+        </if>
+        <if test="totalScannedWeight != null">
+            total_scanned_weight,
+        </if>
+        <if test="totalScannedVolume != null">
+            total_scanned_volume,
+        </if>
+        <if test="totalScannedPackageCodeCount != null">
+            total_scanned_package_code_count,
+        </if>
+        <if test="totalScannedBoxCodeCount != null">
+            total_scanned_box_code_count,
+        </if>
+        <if test="vehicleWeight != null">
+            vehicle_weight,
+        </if>
+        <if test="vehicleVolume != null">
+            vehicle_volume,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        <if test="yn != null">
+            yn,
+        </if>
+        ts)
+        VALUES
+        (
+        <if test="bizId != null">
+            #{bizId},
+        </if>
+        <if test="sendVehicleBizId != null">
+            #{sendVehicleBizId},
+        </if>
+        <if test="transWorkItemCode != null">
+            #{transWorkItemCode},
+        </if>
+        <if test="vehicleNumber != null">
+            #{vehicleNumber},
+        </if>
+        <if test="operateSiteId != null">
+            #{operateSiteId},
+        </if>
+        <if test="receiveSiteId != null">
+            #{receiveSiteId},
+        </if>
+        <if test="shouldScanCount != null">
+            #{shouldScanCount},
+        </if>
+        <if test="actualScanCount != null">
+            #{actualScanCount},
+        </if>
+        <if test="actualScanPackageCodeCount != null">
+            #{actualScanPackageCodeCount},
+        </if>
+        <if test="actualScanBoxCodeCount != null">
+            #{actualScanBoxCodeCount},
+        </if>
+        <if test="actualScanWeight != null">
+            #{actualScanWeight},
+        </if>
+        <if test="actualScanVolume != null">
+            #{actualScanVolume},
+        </if>
+        <if test="interceptScanCount != null">
+            #{interceptScanCount},
+        </if>
+        <if test="forceSendCount != null">
+            #{forceSendCount},
+        </if>
+        <if test="totalShouldScanCount != null">
+            #{totalShouldScanCount},
+        </if>
+        <if test="totalScannedCount != null">
+            #{totalScannedCount},
+        </if>
+        <if test="totalInterceptCount != null">
+            #{totalInterceptCount},
+        </if>
+        <if test="totalForceSendCount != null">
+            #{totalForceSendCount},
+        </if>
+        <if test="totalScannedWeight != null">
+            #{totalScannedWeight},
+        </if>
+        <if test="totalScannedVolume != null">
+            #{totalScannedVolume},
+        </if>
+        <if test="totalScannedPackageCodeCount != null">
+            #{totalScannedPackageCodeCount},
+        </if>
+        <if test="totalScannedBoxCodeCount != null">
+            #{totalScannedBoxCodeCount},
+        </if>
+        <if test="vehicleWeight != null">
+            #{vehicleWeight},
+        </if>
+        <if test="vehicleVolume != null">
+            #{vehicleVolume},
+        </if>
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+        <if test="yn != null">
+            #{yn},
+        </if>
+        now()
+        )
+    </insert>
+
+    <select id="getSendAggBakData" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_send_aggs
+        WHERE
+        yn = 1
+        <if test="operateSiteId!=null">
+            and operate_site_id =#{operateSiteId}
+        </if>
+        <if test="bizId!=null">
+            and biz_id =#{bizId}
+        </if>
+    </select>
+
+    <select id="findSendAggExistAbnormal" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE send_vehicle_biz_id = #{sendVehicleBizId} and total_incomplete_waybill_count > 0
+        and yn = 1 limit 1
+    </select>
+
+</mapper>

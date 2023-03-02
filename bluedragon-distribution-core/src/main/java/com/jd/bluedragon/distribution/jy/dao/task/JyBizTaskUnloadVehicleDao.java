@@ -52,6 +52,16 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
+     * 根据bizId获取数据
+     * @return
+     */
+    public JyBizTaskUnloadVehicleEntity findByBizIdIgnoreYn(String bizId){
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizId",bizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizIdIgnoreYn", params);
+    }
+
+    /**
      * 根据bizId获取实际解封车顺序
      * @return
      */
@@ -226,5 +236,15 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      */
     public List<JyBizTaskUnloadVehicleEntity> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".listUnloadVehicleTask",entity);
+    }
+
+
+    /**
+     * 根据车牌、状态、目的地查询任务信息
+     * @param condition
+     * @return
+     */
+    public List<JyBizTaskUnloadVehicleEntity> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByFuzzyVehicleNumberAndStatus",condition);
     }
 }

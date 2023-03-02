@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.ObjectHelper;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ import java.util.Map;
 
 /**
  * 发车业务任务表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -49,6 +51,15 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 
+    /**
+     * 更新到来时间或者即将到来时间，取最小值为准更新
+     * @param entity
+     * @return
+     */
+    public int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".updateComeTimeOrNearComeTime", entity);
+    }
+
     public JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(JyBizTaskSendVehicleEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkAndStartSite", entity);
     }
@@ -60,14 +71,25 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        List<Integer> lineType = new ArrayList<>();
-        lineType.add(JyLineTypeEnum.OTHER.getCode());
-        lineType.add(entity.getLineType());
-        params.put("lineTypeList", lineType);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
         return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
+    }
+
+    public List<JyBizTaskSendLineTypeCountDto> sumTaskByLineType(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
+            params.put("sendVehicleBizList", sendVehicleBizList);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByLineType", params);
     }
 
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
@@ -80,7 +102,10 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         params.put("sendVehicleBizList", sendVehicleBizList);
         if (entity.getLineType() != null) {
             List<Integer> lineType = new ArrayList<>();
-            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(entity.getLineType())
+                ||JyLineTypeEnum.BRANCH_LINE.getCode().equals(entity.getLineType())){
+                lineType.add(JyLineTypeEnum.OTHER.getCode());
+            }
             lineType.add(entity.getLineType());
             params.put("lineTypeList", lineType);
         }
@@ -151,4 +176,18 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         params.put("lineTypeList", lineTypes);
         return this.getSqlSession().selectOne(NAMESPACE + ".countBizNumForCheckLineType", params);
 	}
+
+    public List<JyBizTaskSendCountDto> sumTaskByVehicleStatusForTransfer(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (ObjectHelper.isNotNull(entity.getLineType())){
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
+        if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
+            params.put("sendVehicleBizList", sendVehicleBizList);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
+    }
 }

@@ -3,7 +3,7 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:context="http://www.springframework.org/schema/context"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 
 
     http://www.springframework.org/schema/context
@@ -62,7 +62,7 @@
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
-	
+
 	<import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
 
 </beans>

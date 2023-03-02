@@ -142,6 +142,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private String tagsSign;
     /**
+     * 组号
+     */
+    private String refGroupCode;
+    /**
      * 创建人ERP
      */
     private String createUserErp;
@@ -192,7 +196,7 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
     private Integer taskType;
 
     /**
-     * 时间字段过滤查询：实际到达时间
+     * 时间字段过滤查询：解封车时间 状态等于待卸状态时使用update_time代替，因为解封车时间使用的是flink加工的字段防止有延迟
      */
     private Date actualArriveStartTime;
 
@@ -410,6 +414,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public String getTagsSign() {
         return this.tagsSign;
+    }
+
+    public String getRefGroupCode() {
+        return refGroupCode;
+    }
+
+    public void setRefGroupCode(String refGroupCode) {
+        this.refGroupCode = refGroupCode;
     }
 
     public String setCreateUserErp(String createUserErp) {

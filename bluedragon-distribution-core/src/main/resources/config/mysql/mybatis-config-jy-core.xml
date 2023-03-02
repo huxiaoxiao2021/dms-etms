@@ -53,7 +53,14 @@
 		<mapper resource="mappers/mysql/jy/send/JySendSealCodeMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendTransferLogMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendProductAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/goodsPhotoInfo/GoodsPhotoInfoMapper.xml" />
+		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateMapper.xml" />
+		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateDetailMapper.xml" />
 
+		<mapper resource="mappers/mysql/jy/comboard/JyBizTaskComboardMapper.xml" />
+		<mapper resource="mappers/mysql/jy/comboard/JyComboardAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/comboard/JyGroupSortCrossDetailMapper.xml" />
 
 	</mappers>
 </configuration>

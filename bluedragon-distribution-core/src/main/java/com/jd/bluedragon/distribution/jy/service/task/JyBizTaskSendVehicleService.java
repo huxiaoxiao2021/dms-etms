@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -18,6 +19,13 @@ public interface JyBizTaskSendVehicleService {
     int saveSendVehicleTask(JyBizTaskSendVehicleEntity entity);
 
     int updateSendVehicleTask(JyBizTaskSendVehicleEntity entity);
+
+    /**
+     * 更新到来时间或者即将到来时间，取最小值为准更新
+     * @param entity
+     * @return
+     */
+    int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 根据派车单查发车任务
@@ -41,6 +49,22 @@ public interface JyBizTaskSendVehicleService {
      */
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
 
+    /**
+     * 按线路类型统计发货任务数量
+     * @param entity
+     * @param sendVehicleBizList
+     * @return
+     */
+    List<JyBizTaskSendLineTypeCountDto> sumTaskByLineType(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
+
+
+    /**
+     * 传站
+     * @param entity
+     * @param sendVehicleBizList
+     * @return
+     */
+    List<JyBizTaskSendCountDto> sumTaskByVehicleStatusForTransfer(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
     /**
      * 分页查询发货任务
      * @param entity

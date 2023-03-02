@@ -1,0 +1,33 @@
+package com.jd.bluedragon.distribution.jy.dao.send;
+
+import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.send.*;
+
+import java.util.List;
+
+/**
+ * 发货数据统计表
+ * 
+ * @author chenyaguo
+ * @email
+ * @date 2022-11-02 15:26:08
+ */
+class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
+
+    private final static String NAMESPACE = JySendProductAggsDao.class.getName();
+
+    public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
+    }
+
+    public Long getToScanCountSum(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
+    }
+
+
+    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);
+    }
+
+
+}

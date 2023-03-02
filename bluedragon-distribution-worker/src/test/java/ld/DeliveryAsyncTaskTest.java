@@ -20,8 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * @author wyh
@@ -55,7 +54,10 @@ public class DeliveryAsyncTaskTest {
                 "    \"type\": 1350\n" +
                 "}";
         final Task task = JsonHelper.fromJson(json, Task.class);
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService =  new ThreadPoolExecutor(10, 10,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+
         for (;;) {
             Thread.sleep(10);
             executorService.execute(new Runnable() {

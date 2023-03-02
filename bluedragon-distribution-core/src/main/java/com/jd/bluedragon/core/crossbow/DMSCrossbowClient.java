@@ -8,6 +8,8 @@ import com.jd.lop.crossbow.dto.LopResponse;
 import com.jd.lop.crossbow.sdk.LopClient;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ public class DMSCrossbowClient {
      * @throws RuntimeException 如果crossbow调用失败则抛出相应的异常由调用方处理
      */
     @JProfiler(jKey = "dms.core.DMSCrossBowClient.executor", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public String executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, Map<String, String> urlArgs) throws RuntimeException {
+    public String executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, Map<String, String> urlArgs, Map<String, String> headerParams) throws RuntimeException {
 
         /* 1. 组装基本参数 */
         LopRequest request = new LopRequest();
@@ -62,6 +64,10 @@ public class DMSCrossbowClient {
         request.addUrlArgs(urlArgs);
         request.setAppKey(crossBowConfig.getAppKey());
         request.setBody(parameterStr);
+        //传递header参数
+        if(headerParams != null && !headerParams.isEmpty()) {
+        	request.addHeaders(headerParams);
+        }
 
         /* 2. 设置安全插件对应的内容 */
         request = CrossbowSecurityProcessorSelector.getProcessor(crossBowConfig.getSecurityEnum())

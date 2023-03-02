@@ -1,16 +1,30 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CloseVirtualBoardPo;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
+import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
+import com.jd.bluedragon.common.dto.comboard.request.CancelBoardReq;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardDetailDto;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
+import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
 import com.jd.bluedragon.distribution.sdk.modules.board.domain.BoardCompleteRequest;
@@ -18,6 +32,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -35,7 +50,6 @@ import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +64,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.utils.DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2;
 
 @Service("sortBoardJsfService")
@@ -61,6 +77,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     private static String AUTO_CREATE_BOARD_KEY_PREFIX = "AUTO-CREATE-BOARD-KEY-";
     @Autowired
     private SortBoardGatewayService sortBoardGatewayService;
+    @Autowired
+    private SendCodeService sendCodeService;
     @Autowired
     BoardCombinationService boardCombinationService;
     @Autowired
@@ -80,8 +98,10 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     private SendMService sendMService;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-
+    @Autowired
+    private JyComBoardSendService jyComBoardSendService;
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.combinationBoardNew", mState = JProEnum.TP)
@@ -127,13 +147,28 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         if(CollectionUtils.isNotEmpty(boardDtos.getData())){
             List<com.jd.bluedragon.distribution.board.domain.Board> boards = new ArrayList<>(boardDtos.getData().size());
             for(BoardDto dto : boardDtos.getData()){
-                boards.add(initBoard(dto));
+                String sendCode = genSendCode(request);
+                com.jd.bluedragon.distribution.board.domain.Board board = initBoard(dto);
+                board.setSendCode(sendCode);
+                boards.add(board);
             }
             response.setData(boards);
         }
 
         return response;
     }
+
+    private String genSendCode(AddBoardRequest request) {
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code,
+                String.valueOf(request.getSiteCode()));
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code,
+                String.valueOf(request.getDestinationId()));
+        String sendCode = sendCodeService
+                .createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS, request.getUserErp());
+        return sendCode;
+    }
+
 
 
 
@@ -186,7 +221,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(request.getMachineCode());    		
+            
+            virtualBoardService.sendWaybillTrace(operatorData,request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
             response.toSucceed();
@@ -219,6 +258,98 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         response.toSucceed();
         response.setData(boardCode);
         return response;
+    }
+
+    @Override
+    public Response<BoardSendDto> sortMachineComboard(BindBoardRequest request) {
+        Response<BoardSendDto> response = new Response<>();
+        try {
+            ComboardScanReq req = createComboardScanReq(request);
+            InvokeResult<ComboardScanResp> result = jyComBoardSendService.sortMachineComboard(req);
+            log.info("分拣机组板发货调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
+            if(result.getCode() != 200){
+                response.toFail(MessageFormat.format("调板服务组板发货接口失败code:{0}，message:{1}", result.getCode(),
+                        result.getMessage()));
+                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
+                        JsonHelper.toJson(req));
+                return response;
+            }
+            BoardSendDto boardSendDto = new BoardSendDto();
+            boardSendDto.setBoardCode(result.getData().getBoardCode());
+            boardSendDto.setBoardSendEnum(result.getData().getScanDetailCount()+"");
+            response.setData(boardSendDto);
+            response.toSucceed();
+            return response;
+        }catch (Exception e){
+            log.error("自动化组板操作发货异常，组板信息：{}", JsonHelper.toJson(request));
+            response.toFail("自动化组板发货操作异常异常");
+            return response;
+        }
+    }
+
+    private void assembleBaseReq(BaseReq req,BindBoardRequest request) {
+        com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
+        user.setUserCode(request.getOperatorInfo().getUserCode());
+        user.setUserErp(request.getOperatorInfo().getUserErp());
+        user.setUserName(request.getOperatorInfo().getUserName());
+        req.setUser(user);
+
+        com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
+        currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
+        currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
+        currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
+        req.setCurrentOperate(currentOperate);
+    }
+
+    private ComboardScanReq createComboardScanReq(BindBoardRequest request) {
+        ComboardScanReq req = new ComboardScanReq();
+        assembleBaseReq(req,request);
+        req.setBarCode(request.getBarcode());
+        req.setBizSource(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name());
+        req.setBoardCode(request.getBoard().getCode());
+        req.setEndSiteId(request.getBoard().getDestinationId());
+        req.setDestinationId(request.getBoard().getDestinationId());
+        req.setEndSiteName(request.getBoard().getDestination());
+        req.setSendCode(request.getBoard().getSendCode());
+        return req;
+    }
+
+    private CancelBoardReq createCancelBoardReq(BindBoardRequest request) {
+        CancelBoardReq req = new CancelBoardReq();
+        req.setEndSiteName(request.getBoard().getDestination());
+        req.setBoardCode(request.getBoard().getCode());
+        assembleBaseReq(req,request);
+        req.setBizSource(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name());
+        List<ComboardDetailDto>  cancelList = Lists.newArrayList();
+        ComboardDetailDto dto = new ComboardDetailDto();
+        dto.setBarCode(request.getBarcode());
+        cancelList.add(dto);
+        req.setCancelList(cancelList);
+
+        return req;
+    }
+
+    @Override
+    public Response<Void> cancelSortMachineComboard(BindBoardRequest request) {
+        Response<Void> response = new Response<>();
+        try {
+            CancelBoardReq req = createCancelBoardReq(request);
+            InvokeResult<Void> result = jyComBoardSendService.cancelSortMachineComboard(req);
+            log.info("分拣机组板发货调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
+            if(result.getCode() != 200){
+                response.toFail(MessageFormat.format("调板服务组板发货接口失败code:{0}，message:{1}", result.getCode(),
+                        result.getMessage()));
+                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
+                        JsonHelper.toJson(req));
+                return response;
+            }
+            response.toSucceed();
+            return response;
+        }catch (Exception e){
+            log.error("自动化组板操作发货异常，组板信息：{}", JsonHelper.toJson(request),e);
+            response.toFail("自动化组板发货操作异常异常");
+            return response;
+        }
     }
 
 
@@ -271,6 +402,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
                         initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
                 for (String code : boardCodes){
+//                    BoardReq req = createFinishBoardReq(operatorInfo, code);
+//                    jyComBoardSendService.finishBoard(req);
                     //调板服务关闭板状态
                     CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
                     JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
@@ -290,6 +423,21 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
     }
 
+    private BoardReq createFinishBoardReq(com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo, String code) {
+        BoardReq req = new BoardReq();
+        req.setBizSource(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name());
+        req.setBoardCode(code);
+        com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
+        currentOperate.setOperateTime(new Date());
+        currentOperate.setSiteCode(operatorInfo.getSiteCode());
+        req.setCurrentOperate(currentOperate);
+
+        com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
+        user.setUserErp(operatorInfo.getUserErp());
+        user.setUserName(operatorInfo.getUserName());
+        req.setUser(user);
+        return req;
+    }
 
 
     private Response<Void> checkParam4AutoBoardComplete(AutoBoardCompleteRequest request){
@@ -559,6 +707,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setCreateTime(new Date());
         domain.setOperateTime(sendM.getOperateTime());
         domain.setBoardCode(sendM.getBoardCode());
+        
         return domain;
     }
 
@@ -584,6 +733,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
+        domain.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        domain.setOperatorId(request.getMachineCode());
         return domain;
     }
 

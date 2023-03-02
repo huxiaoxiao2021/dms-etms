@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -32,4 +33,19 @@ public interface JyUnloadAggsService {
      */
     List<ExcepScanDto>  queryExcepScanStatistics(JyUnloadAggsEntity entity);
 
+    Boolean insertOrUpdateJyUnloadCarAggsMain(JyUnloadAggsEntity entity);
+
+    Boolean insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity);
+
+    //查包裹维度任务统计信息
+    JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto);
+
+    //查运单维度任务统计信息
+    JyUnloadAggsEntity queryWaybillStatisticsUnderTask(DimensionQueryDto dto);
+
+    JyUnloadAggsEntity queryWaybillStatisticsUnderBoard(DimensionQueryDto dto);
+
+    JyUnloadAggsEntity queryToScanAndMoreScanStatistics(String bizId);
+
+    JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto);
 }

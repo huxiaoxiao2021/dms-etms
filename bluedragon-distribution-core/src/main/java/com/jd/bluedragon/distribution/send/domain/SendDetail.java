@@ -153,7 +153,16 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
      */
     private Integer bizSource;
     private List<String> boxCodeList;
-
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;
+	
     public String getSource() {
         return source;
     }
@@ -458,7 +467,8 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 
     public static SendDetail toSendDatail(Sorting sorting) {
         SendDetail sendDetail = new SendDetail();
-
+        sendDetail.setOperatorTypeCode(sorting.getOperatorTypeCode());
+        sendDetail.setOperatorId(sorting.getOperatorId());
         String aBoxCode = sorting.getBoxCode();
         String aPackageCode = sorting.getPackageCode();
 
@@ -625,5 +635,21 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
         this.isCancel = builder.isCancel;
         this.operateTime = builder.operateTime;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 
 }

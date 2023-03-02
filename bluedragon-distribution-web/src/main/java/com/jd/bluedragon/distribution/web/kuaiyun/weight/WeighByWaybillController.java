@@ -561,6 +561,12 @@ public class WeighByWaybillController extends DmsBaseController {
                 //可让前台强制提交
                 waybillWeightVO.setCanSubmit(1);
                 return false;
+            } else if (invokeResult != null && invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
+                waybillWeightVO.setErrorMessage(invokeResult.getMessage());
+                waybillWeightVO.setErrorCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                //不可让前台强制提交
+                waybillWeightVO.setCanSubmit(0);
+                return false;
             }
 
             //校验重泡比

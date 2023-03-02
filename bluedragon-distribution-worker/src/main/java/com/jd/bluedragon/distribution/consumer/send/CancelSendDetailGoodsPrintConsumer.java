@@ -14,14 +14,14 @@ import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
+ * @deprecated (2023-01-26托寄物打印已经不依赖es，无需写入)
  * @author tangchunqing
  * @Description: 取消发货明细消费 托寄物品名打印用
  * @date 2018年11月21日 17时:47分
  */
-@Service("cancelSendDetailGoodsPrintConsumer")
+@Deprecated
 public class CancelSendDetailGoodsPrintConsumer extends MessageBaseConsumer {
     private static final Logger log = LoggerFactory.getLogger(CancelSendDetailGoodsPrintConsumer.class);
 

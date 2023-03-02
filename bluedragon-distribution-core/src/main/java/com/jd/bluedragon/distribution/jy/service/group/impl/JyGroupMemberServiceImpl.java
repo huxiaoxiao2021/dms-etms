@@ -453,7 +453,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			taskGroupMember.setUpdateUser(removeMemberRequest.getOperateUserCode());
 			taskGroupMember.setUpdateUserName(removeMemberRequest.getOperateUserName());
 			//小组任务成员，设置结束时间
-			jyTaskGroupMemberService.endWorkByMemberCodeList(taskGroupMember,memberCodes);
+			jyTaskGroupMemberService.endWorkByMemberCodeListForAutoSignOut(taskGroupMember,memberCodes);
 		}
 		return result;
 	}
@@ -492,5 +492,34 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		returnData.setGroupMemberNum(jyGroupMemberDao.queryGroupMemberNum(memberData.getRefGroupCode()));
 		result.setData(returnData);
 		return result;
+	}
+	@Override
+	public JdCResponse<GroupMemberData> queryGroupMemberDataByPositionCode(String positionCode) {
+		JdCResponse<GroupMemberData> result = new JdCResponse<>();
+		result.toSucceed();
+		//查询岗位码对应的小组信息
+		JyGroupQuery groupQuery = new JyGroupQuery();
+		groupQuery.setPositionCode(positionCode);
+		JyGroupEntity groupData = null;
+		Result<JyGroupEntity> groupResult = jyGroupService.queryGroupByPosition(groupQuery);
+		if(groupResult != null 
+				&& groupResult.isSuccess()
+				&& groupResult.getData() != null) {
+			groupData = groupResult.getData();
+			GroupMemberData returnData = new GroupMemberData();
+			returnData.setGroupCode(groupData.getGroupCode());
+			returnData.setGroupMemberNum(jyGroupMemberDao.queryGroupMemberNum(groupData.getGroupCode()));
+			result.setData(returnData);
+		}else {
+			result.toFail("岗位码没有对应的小组信息");
+		}
+		return result;
+	}
+	@Override
+	public List<String> queryUnSignOutMemberCodeList(List<String> memberCodeList) {
+		if(CollectionUtils.isEmpty(memberCodeList)) {
+			return new ArrayList<String>();
+		}
+		return jyGroupMemberDao.queryUnSignOutMemberCodeList(memberCodeList);
 	}
 }

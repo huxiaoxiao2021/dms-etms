@@ -20,6 +20,7 @@ import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.List;
 public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayService {
 
     @Autowired
+    @Qualifier("jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
@@ -205,5 +207,15 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     @Override
     public JdCResponse<SendBatchResp> querySendBatch(SendBatchReq request) {
         return retJdCResponse(jySendVehicleService.listSendBatchByTaskDetail(request));
+    }
+
+    @Override
+    public JdCResponse<List<SendVehicleProductTypeAgg>> getSendVehicleToScanAggByProduct(SendVehicleCommonRequest request) {
+        return retJdCResponse(jySendVehicleService.sendVehicleToScanAggByProduct(request));
+    }
+
+    @Override
+    public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
+        return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
     }
 }

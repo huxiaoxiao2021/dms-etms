@@ -23,6 +23,8 @@
         <result property="lineTypeName" column="line_type_name"/>
         <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
         <result property="lastSealCarTime" column="last_seal_car_time"/>
+        <result property="comeTime" column="come_time"/>
+        <result property="nearComeTime" column="near_come_time"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -39,10 +41,15 @@
         <result property="total" column="total"/>
     </resultMap>
 
+    <resultMap id="lineTypeSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto">
+        <result property="lineType" column="line_type"/>
+        <result property="total" column="total"/>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
-        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,
+        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
     </sql>
 
@@ -102,6 +109,12 @@
             </if>
             <if test="lastSealCarTime != null">
                 last_seal_car_time,
+            </if>
+            <if test="comeTime != null">
+                come_time,
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time,
             </if>
             <if test="createUserErp != null">
                 create_user_erp,
@@ -185,6 +198,12 @@
             </if>
             <if test="lastSealCarTime != null">
                 #{lastSealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="comeTime != null">
+                #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                #{nearComeTime,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null">
                 #{createUserErp,jdbcType=VARCHAR},
@@ -270,6 +289,12 @@
             <if test="lastSealCarTime != null">
                 last_seal_car_time = #{lastSealCarTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
@@ -352,6 +377,12 @@
             <if test="lastSealCarTime != null">
                 last_seal_car_time = #{lastSealCarTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
@@ -378,6 +409,27 @@
             </if>
         </set>
         where biz_id = #{bizId}
+    </update>
+
+    <update id="updateComeTimeOrNearComeTime" parameterType="JyBizTaskSendVehicleEntity">
+        update jy_biz_task_send_vehicle
+        <set>
+            update_time = now(),
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
+            </if>
+
+        </set>
+        where biz_id = #{bizId} and yn = 1
+        <if test="comeTime != null">
+          and  ( come_time > #{comeTime,jdbcType=TIMESTAMP} or come_time is null )
+        </if>
+        <if test="nearComeTime != null">
+          and  ( near_come_time > #{nearComeTime,jdbcType=TIMESTAMP} or near_come_time is null )
+        </if>
     </update>
 
     <select id="findByBizId" resultMap="jyBizTaskSendVehicleMap" parameterType="java.lang.String">
@@ -473,6 +525,29 @@
             and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
         GROUP BY vehicle_status
+    </select>
+
+    <select id="sumTaskByLineType" resultMap="lineTypeSumResultMap">
+        SELECT
+        line_type, COUNT(*) total
+        FROM
+        jy_biz_task_send_vehicle
+        WHERE
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="entity.vehicleStatus != null">
+            AND vehicle_status = #{entity.vehicleStatus}
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
+        </if>
+        GROUP BY line_type
     </select>
 
     <select id="querySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">
@@ -619,7 +694,9 @@
         AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        <if test="entity.transferFlag!=null and entity.transferFlag ==2">
         AND d.excep_label =0
+        </if>
         <if test="entity.endSiteId != null">
             AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         </if>

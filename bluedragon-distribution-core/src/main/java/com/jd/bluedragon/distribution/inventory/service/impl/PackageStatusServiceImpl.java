@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
 import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -64,6 +66,9 @@ public class PackageStatusServiceImpl implements PackageStatusService {
     
     @Autowired
     private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
+
+    @Autowired
+    private RouterService routerService;
 
     /**
      * 运单路由字段使用的分隔符
@@ -326,19 +331,8 @@ public class PackageStatusServiceImpl implements PackageStatusService {
 
         //2.查自己的表
         if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
-            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-            if (StringUtils.isNotBlank(routerStr)) {
-                String[] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
-                //当前分拣中心下一网点
-                for (int i = 0; i < routerNodes.length - 1; i++) {
-                    int curNode = Integer.parseInt(routerNodes[i]);
-                    int nexNode = Integer.parseInt(routerNodes[i + 1]);
-                    if (curNode == createSiteCode) {
-                        receiveSiteCode = nexNode;
-                        break;
-                    }
-                }
-            }
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(createSiteCode, waybillCode);
+            receiveSiteCode = routeNextDto == null? null : routeNextDto.getFirstNextSiteId();
         }
 
         if (receiveSiteCode != null && receiveSiteCode > 0) {

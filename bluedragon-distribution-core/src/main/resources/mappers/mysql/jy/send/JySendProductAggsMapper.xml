@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity" id="jySendProductAggsMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="operateSiteId" column="operate_site_id"/>
+        <result property="receiveSiteId" column="receive_site_id"/>
+        <result property="shouldScanCount" column="should_scan_count"/>
+        <result property="productType" column="product_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="yn" column="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        send_vehicle_biz_id,
+        biz_id,
+        operate_site_id,
+        receive_site_id,
+        should_scan_count,
+        create_time,
+        product_type,
+        yn,
+        ts
+    </sql>
+
+
+
+    <select id="getSendVehicleProductTypeList" parameterType="java.lang.String" resultType="com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType">
+        select product_type as productType,
+           sum(should_scan_count) as productwaitScanCount
+           from jy_send_product_aggs
+           WHERE
+             yn = 1
+           AND send_vehicle_biz_id = #{sendVehicleBizId}
+           GROUP BY product_type
+    </select>
+
+    <select id="getToScanCountSum" parameterType="java.lang.String" resultType="java.lang.Long">
+        select
+               sum(should_scan_count) as productwaitScanCount
+        from jy_send_product_aggs
+        WHERE
+            yn = 1
+          AND send_vehicle_biz_id = #{sendVehicleBizId}
+
+    </select>
+
+
+    <select id="getSendAggsListByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery" resultMap="jySendProductAggsMap">
+        select * from jy_send_product_aggs
+        where yn =1
+        and operate_site_id = #{operateSiteId}
+        and create_time between #{startTime} and #{endTime}
+
+    </select>
+
+
+
+</mapper>

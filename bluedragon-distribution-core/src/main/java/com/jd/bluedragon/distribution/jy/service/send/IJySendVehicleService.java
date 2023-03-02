@@ -6,10 +6,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 
 import java.util.List;
 
@@ -27,6 +29,13 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
+
+    /**
+     * 查找各线路类型的任务数量
+     * @param request
+     * @return
+     */
+    List<JyLineTypeDto> findSendVehicleLineTypeAgg(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult);
 
     /**
      * 无任务绑定发货任务列表
@@ -151,4 +160,84 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request);
+
+
+
+    /**
+     * 获取分拣发车岗待扫产品类型列表
+     * @param request
+     * @return
+     */
+    InvokeResult<List<SendVehicleProductTypeAgg>> sendVehicleToScanAggByProduct(SendVehicleCommonRequest request);
+
+    /**
+     * 按产品类型获取分拣发车岗待扫包裹列表
+     * @param request
+     * @return
+     */
+    InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
+
+    /**
+     * 获取车辆类型列表信息
+     * @return
+     */
+    InvokeResult<List<VehicleSpecResp>> listVehicleType();
+
+    /**
+     * 创建自建类型的运输车辆任务（主任务）
+     * @param createVehicleTaskReq
+     * @return
+     */
+    InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq);
+
+    /**
+     * 删除自建类型的运输车辆任务（主任务）
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+
+    /**
+     * 删除前校验-接口
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+
+    /**
+     * 查询运输车辆任务列表：根据流向或者报告号筛选任务列表
+     * @param vehicleTaskReq
+     * @return
+     */
+    InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+
+
+    /**
+     * 查询运输车辆任务列表：任务迁移场景时会根据迁入或者迁出做不同逻辑计算
+     * 迁出时 扫包裹号定位包裹所在任务，迁入时 @1可扫包裹 @2也可录入站点id
+     * @param transferVehicleTaskReq
+     * @return
+     */
+    InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq);
+
+    /**
+     * 自建任务绑定-运输真实任务
+     * @param bindVehicleDetailTaskReq
+     * @return
+     */
+    InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
+
+    /**
+     * 迁移发货批次数据
+     * @param transferSendTaskReq
+     * @return
+     */
+    InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq);
+
+    /**
+     * 取消发货
+     * @param cancelSendTaskReq
+     * @return
+     */
+    InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 }

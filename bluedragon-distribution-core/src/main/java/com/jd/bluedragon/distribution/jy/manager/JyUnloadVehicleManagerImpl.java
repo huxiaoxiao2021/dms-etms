@@ -53,6 +53,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     private JyDemotionService jyDemotionService;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryToScanBarCodeDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JyVehicleTaskUnloadDetail> queryToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("卸车：查询待扫包裹明细已降级!");
@@ -76,6 +77,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryInterceptBarCodeDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JyVehicleTaskUnloadDetail> queryInterceptBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("卸车：查询拦截包裹明细已降级!");
@@ -99,6 +101,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryMoreScanBarCodeDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JyVehicleTaskUnloadDetail> queryMoreScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("卸车：查询多扫包裹明细已降级!");
@@ -123,6 +126,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryMoreScanAndToScanBarCodeDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JyVehicleTaskUnloadDetail> queryMoreScanAndToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("卸车：查询多扫和待扫包裹明细已降级!");
@@ -147,6 +151,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.findUnloadDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("卸车：查询卸车包裹数据已降级!");
@@ -167,6 +172,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.querySearCarDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JySealCarDetail> querySearCarDetail(Pager<JySealCarDetail> query) {
 
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.querySearCarDetail");
@@ -186,6 +192,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.getGoodsAreaCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) {
         BaseGoodsAreaNextSiteDto goodsAreaNextSiteDto = new BaseGoodsAreaNextSiteDto();
         goodsAreaNextSiteDto.setSiteCode(currentSiteCode);
@@ -207,7 +214,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.IJyUnloadVehicleManager.queryUnloadTaskWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryUnloadTaskWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query) {
         Pager<JyUnloadTaskWaybillAgg> waybillAggPager = new Pager<>();
 

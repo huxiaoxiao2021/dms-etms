@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.jsf.dms.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -31,6 +32,8 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @Autowired
     @Qualifier("groupBoardService")
     private GroupBoardService groupBoardService;
+    @Autowired
+    UccPropertyConfiguration ucc;
 
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.resuseBoards",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -53,11 +56,24 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    public Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox) {
+        if (ucc.getReComboardSwitch()){
+            return groupBoardService.addBoxToBoardV2(addBoardBox);
+        }
+        return groupBoardService.addBoxToBoard(addBoardBox);
+    }
+
+    @Override
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox) {
 
         return groupBoardService.addBoxToBoardIgnoreStatus(addBoardBox);
+    }
+
+    @Override
+    public Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox) {
+        return groupBoardService.addBoxesToBoard(addBoardBox);
     }
 
     @Override
@@ -137,12 +153,56 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
 
     }
 
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
+    public Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode) {
+        return groupBoardService.getBoxCountInfoByBoardCode(boardCode);
+    }
+
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.batchRemoveBardBoxByBoxCodes",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
     public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto) {
         return groupBoardService.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+    }
 
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.removeBardBoxByWaybillCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Response removeBoardBoxByWaybillCode(RemoveBoardBoxDto removeBoardWaybillDto) {
+        return groupBoardService.removeBardBoxByWaybillCode(removeBoardWaybillDto);
+    }
+
+    @Override
+    public BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode) {
+        Response<BoardBoxInfoDto> boardBoxInfo = groupBoardService.getBoardBoxInfo(barCode, siteCode);
+        if (boardBoxInfo != null && boardBoxInfo.getData()!= null ) {
+            return boardBoxInfo.getData();
+        }
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardBoxCount",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Integer getBoardBoxCount(String boardCode, Integer siteCode) {
+        Response<Integer> response = groupBoardService.getBoardBoxCount(boardCode, siteCode);
+        if (response != null && response.getData()!= null ) {
+            return response.getData();
+        }
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardListBySendFlow",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<Board> getBoardListBySendFlow(BoardListRequest request) {
+        Response<List<Board>> response = groupBoardService.getBoardListBySendFlow(request);
+        if (response != null && response.getData()!= null ) {
+            return response.getData();
+        }
+        return null;
     }
 
 }

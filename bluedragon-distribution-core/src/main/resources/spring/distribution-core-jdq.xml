@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <util:properties id="maxblock150">
+        <prop key="connections.max.idle.ms">900000</prop>
+        <prop key="metadata.max.age.ms">900000</prop>
+        <prop key="max.block.ms">250</prop>
+    </util:properties>
+
+    <bean id="opLogJDQProducer" class="com.jd.bluedragon.distribution.jdq4.impl.JDQ4ProducerImpl">
+        <property name="username" value="${jdq.producer.businessLog.clientId}"/>
+        <property name="domain" value="${jdq.dmsautomatic.businessLog.domain}"/>
+        <property name="password" value="${jdq.operatelog.businessLog.password}"/>
+        <property name="topic" value="${jdq.operatelog.businessLog.topic}"/>
+        <property name="userDefinedProperties" ref="maxblock150"/>
+    </bean>
+
+    <bean id="boardChuteConsumer" class="com.jd.bluedragon.distribution.jdq4.consume.BoardChuteConsumer">
+        <property name="username" value="${jdq.producer.boardchute.username}"/>
+        <property name="domain" value="${jdq.dmsautomatic.boardchute.domain}"/>
+        <property name="password" value="${jdq.operatelog.boardchute.password}"/>
+        <property name="groupId" value="${jdq.operatelog.boardchute.groupId}"/>
+        <property name="topic" value="${jdq.operatelog.boardchute.topic}"/>
+    </bean>
+</beans>

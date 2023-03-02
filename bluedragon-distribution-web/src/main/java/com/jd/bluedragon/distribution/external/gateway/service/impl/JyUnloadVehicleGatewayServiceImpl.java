@@ -61,6 +61,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Autowired
     private TransportRelatedService transportRelatedService;
 
+
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
         CallerInfo info = Profiler.registerInfo("JyUnloadVehicleGatewayService.createNoTaskUnloadTask",
@@ -180,13 +181,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.toSuccess();
             response.setData(invokeResult.getData());
             return response;
-        }
-        else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+        } else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
             response.setCode(InvokeResult.CODE_HINT);
             response.addPromptBox(0, invokeResult.getMessage());
             return response;
-        }
-        else {
+        } else if (invokeResult.getCode() == InvokeResult.DP_SPECIAL_CODE) {
+            response.addPromptBox(101, invokeResult.getMessage());
+            return response;
+        } else {
             response.toFail(invokeResult.getMessage());
             return response;
         }

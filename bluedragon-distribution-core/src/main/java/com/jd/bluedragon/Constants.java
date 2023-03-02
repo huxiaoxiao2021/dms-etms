@@ -788,9 +788,19 @@ public class Constants {
      */
     public static final Integer THIRD_SITE_SUB_TYPE = 16;
     /**
+     * 第三方配送站点-三级类型-邮政落地配-16001
+     */
+    public static final Integer THIRD_SITE_THIRD_TYPE_SMS = 16001;
+    /**
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+
+    /**
+     * Long值-0
+     */
+    public static final Long LONG_ZERO = 0L;
+
     /**
      * 配置信息-北京的分拣中心
      */
@@ -1266,6 +1276,25 @@ public class Constants {
      * */
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
+    /**
+     * 外单增值服务编码
+     */
+    public static final String EASY_FROZEN_SERVICE = "deductibleService";
+
+    /**
+     *外单易冻品增值服务编码
+     */
+    public static final String EASY_FROZEN_SERVICE_KEY = "39001003";
+
+    /**
+     * 自营单易冻品增值服务编码
+     */
+    public static final String SELF_EASY_FROZEN_SERVICE = "easyFreeze";
+
+    /**
+     * 特保单增值服务编码
+     */
+    public static final String LUXURY_SECURITY_SERVICE = "luxurySecurity";
 
     public static final String INSPECTION_TOKEN1="D945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
     public static final String INSPECTION_TOKEN2="E945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
@@ -1481,7 +1510,7 @@ public class Constants {
     /**
      * 操作标识|关闭-0
      */
-    public static final Integer FLAG_OPRATE_OFF = 0;    
+    public static final Integer FLAG_OPRATE_OFF = 0;
     /**
      * PDA无封车号任务前缀
      */
@@ -1551,6 +1580,11 @@ public class Constants {
      * 数字：0
      */
     public static final Integer NUMBER_ZERO = 0;
+
+    /**
+     * 数字：1
+     */
+    public static final Integer NUMBER_ONE = 1;
 
     /**
      * SendD取消状态
@@ -1730,10 +1764,16 @@ public class Constants {
 
     public static final String SEND_TASK_MANUAL_CREATED_PREFIX = "NSST";
     /**
-     * sql中in语句数量限制 200
+     * sql中in语句数量限制 100
      */
-    public static final int DB_SQL_IN_LIMIT_NUM = 200;
-    
+    public static final int DB_SQL_IN_LIMIT_NUM = 100;
+    /**
+     * sql拆分-最大分组数 10000
+     */
+    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
+
+    public static  final  int COMBOARD_LIMIT =100;
+
     /**
      * 传摆发货功能编码：0203004-gz
      */
@@ -1754,14 +1794,50 @@ public class Constants {
      * 批量一车一单发货批次扫描批次
      */
     public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
-
-    /**
-     * 抖音来源标识
-     */
-    public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
     /**
      * 无任务卸车上游站点初始值
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
 
+
+    /**
+     * 路由对应分拣发货操作类型值
+     */
+    public static final Integer SORT_SEND_VEHICLE = 41;
+
+    /**
+     * 特殊字符正则
+     */
+    public static final String SPECIAL_CHAR_REGEX = "[\n\r\t`~!@#$%^&*()+=|{}':;,\\[\\].<>/?！￥…（）—【】‘；：”“’。， 、？]";
+
+    public static final Integer DEFAULT_PAGE_NO  = 1;
+    public static final Integer DEFAULT_PAGE_SIZE  = 10;
+    public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
+
+
+    /** 运力编码：飞机场网点类型 */
+    public static final Integer NODE_TYPE_AIRPORT = 7;
+    /** 运力编码：火车站网点类型 */
+    public static final Integer NODE_TYPE_RAILWAY = 9;
+
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_COMBOARD_BOARD_LOCK_PREFIX  = "jy_comboard_board_lock_%s";
+    /**
+     * 租板岗-混扫任务锁前缀
+     */
+    public static final String JY_COMBOARD_CTT_LOCK_PREFIX  = "jy_comboard_ctt_lock_%s";
+
+    public static final int  LOCK_EXPIRE  = 3;
+
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
 }

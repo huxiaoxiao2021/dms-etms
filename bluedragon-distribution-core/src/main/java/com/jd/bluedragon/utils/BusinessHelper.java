@@ -1,6 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
@@ -58,13 +57,26 @@ public class BusinessHelper {
 
 
     /**
-     * Y开头的也认为是箱号（上海亚一用）
+     * Y开头的也认为是箱号（上海亚一用），
+     * 新增嘉峪关项目的箱号，开放引入外部箱号
      */
     public static Boolean isBoxcode(String s) {
         if (StringHelper.isEmpty(s)) {
             return false;
         }
-        return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
+        return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX) || isDPBoxCode(s);
+    }
+
+    /**
+     * 是否德邦箱号-嘉峪关项目
+     * @param s
+     * @return
+     */
+    public static boolean isDPBoxCode(String s) {
+        if (StringHelper.isEmpty(s)) {
+            return false;
+        }
+        return DmsConstants.RULE_BOXCODE_REGEX_OPEN_DP.matcher(s).matches();
     }
 
     public static boolean isNumeric(String str) {
@@ -998,6 +1010,28 @@ public class BusinessHelper {
         return WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG.equals(thirdCarrierFlag);
     }
 
+    public static boolean isDPSiteCode1(Integer subSiteType){
+        return Objects.equals(subSiteType, 6580);
+
+    }
+
+    /**
+     * 判断是否为德邦单号：预转+已转
+     * waybillSign-140-1: 已转
+     * waybillSign-140-2: 预转
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDPWaybill1_2(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_2, WaybillSignConstants.CHAR_140_1);
+    }
+    public static boolean isDPWaybill1(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_1);
+    }
+    public static boolean isDPWaybill2(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_140, WaybillSignConstants.CHAR_140_2);
+    }
+
     /**
      * 是否特殊品类运单（黄金或珠宝等贵重物品）
      *
@@ -1006,5 +1040,38 @@ public class BusinessHelper {
      */
     public static boolean isSpecialOrder(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_596), SendPayConstants.STR_596_1);
+    }
+    /**
+     * 
+     * @param extendMap
+     * @return
+     */
+    public static String getAttachmentUrlForJxd(Map<String, String> extendMap) {
+    	if (extendMap == null || !extendMap.containsKey(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS)){
+    		return null;
+    	}
+    	String attachmentUrl = null;
+    	List cardInfosData = JsonHelper.fromJson(extendMap.get(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS), List.class);
+        if(CollectionUtils.isNotEmpty(cardInfosData)) {
+        	for(Object item:cardInfosData) {
+        		if(item instanceof Map) {
+        			Map data = (Map)item;
+        			if(data.containsKey(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL)) {
+        				attachmentUrl = data.get(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL).toString();
+        				break;
+        			}
+        		}
+        	}
+        }
+      return attachmentUrl;
+    }
+
+    /**
+     * 判断是否是易碎运单
+     * Sendpay 第746位等于1时，表示为易碎运单
+     * @param sendPayMap
+     */
+    public static boolean isFragile(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
     }
 }

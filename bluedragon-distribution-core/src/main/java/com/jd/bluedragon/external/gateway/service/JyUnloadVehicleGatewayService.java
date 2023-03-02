@@ -129,4 +129,5 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request);
+
 }

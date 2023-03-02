@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
@@ -14,13 +15,13 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -29,6 +30,7 @@ import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -41,6 +43,7 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -65,6 +68,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg.TYPE_CREATE_TRANS_ABNORMAL_AND_UNSEAL;
 
 /**
  * create by zhanglei 2017-05-10
@@ -150,6 +155,11 @@ public class NewSealVehicleResource {
     @Autowired
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+
+    @Autowired
+    @Qualifier("createTransAbnormalAndUnsealProducer")
+    private DefaultJMQProducer createTransAbnormalAndUnsealProducer;
 
     /**
      * 校验并获取运力编码信息
@@ -404,19 +414,24 @@ public class NewSealVehicleResource {
             @PathParam("transportCode") String transportCode, @PathParam("batchCode") String batchCode, @PathParam("sealCarType") Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
+            //2.获取运力信息并检查目的站点
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+            if (vtsDto == null) {    //JSF接口返回空
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
+                return sealVehicleResponse;
+            }
             //1.检查批次号
-            checkBatchCode(sealVehicleResponse, batchCode);
+            checkBatchCode(sealVehicleResponse, vtsDto.getData(), batchCode, null);
             //批次号校验通过,且是按运力编码封车，需要校验目的地是否一致
             if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
-                //2.获取运力信息并检查目的站点
-                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-                if (vtsDto == null) {    //JSF接口返回空
-                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
-                    return sealVehicleResponse;
-                }
+
                 if (Constants.RESULT_SUCCESS == vtsDto.getCode()) { //JSF接口调用成功
-                    if (SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode).equals(vtsDto.getData().getEndNodeId())) {  // 目标站点一致
+                    if (Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), null)
+                            && newsealVehicleService.isAirTransport(vtsDto.getData())
+                            && transportCode.startsWith("T")) {
+
+                    } else if (SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode).equals(vtsDto.getData().getEndNodeId())) {  // 目标站点一致
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {// 目标站点不一致
@@ -455,8 +470,16 @@ public class NewSealVehicleResource {
         Integer sealCarType = sealCarPreRequest.getSealCarType();
         String transportCode = sealCarPreRequest.getTransportCode();
         try {
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto
+                    = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+            if (vtsDto == null) {
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
+                return sealVehicleResponse;
+            }
+
             //1.检查批次号
-            checkBatchCode(sealVehicleResponse, sendCode);
+            checkBatchCode(sealVehicleResponse, vtsDto.getData(), sendCode, sealCarPreRequest.getSealCarSource());
             if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                 //按任务封车 干支封车拦截校验
@@ -470,22 +493,33 @@ public class NewSealVehicleResource {
                         return sealVehicleResponse;
                     }
                 }
-               com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto
-                        = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-                if (vtsDto == null) {
-                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
-                    return sealVehicleResponse;
-                }
+
                 if (Constants.RESULT_SUCCESS == vtsDto.getCode() && vtsDto.getData() != null) {
                     /**
                      * 校验规则
                      *  1、普通封车：校验运力编码目的地和批次目的地一致
                      *  2、传摆封车：满足1或者目的地站点类型是中转场
+                     *  3、用户使用T开头空铁运力编码时:校验【封车操作人场地】必须为批次号【始发地】或【目的地】其中之一；满足其一可操作空铁摆渡封车，否则无法封车成功。规避批次流向封错的问题【空铁新需求】
+                     *  4. 用户使用T开头空铁运力编码时:不校验批次号始发地/目的地  与 T空铁运力始发地/目的地 是否相同——1月11日新增
                      * */
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
                     Integer endNodeId = vtsDto.getData().getEndNodeId();
-                    if (receiveSiteCode.equals(endNodeId)) {
+                    if (sealCarPreRequest.getCreateSiteCode() != null
+                            && SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarPreRequest.getSealCarSource())
+                            && newsealVehicleService.isAirTransport(vtsDto.getData())
+                            && transportCode.startsWith("T")) {
+                        Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
+                        Integer receiveSiteCodeInSendCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+                        if (Objects.equals(sealCarPreRequest.getCreateSiteCode(), createSiteCodeInSendCode)
+                                || Objects.equals(sealCarPreRequest.getCreateSiteCode(), receiveSiteCodeInSendCode)) {
+                            sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                        } else {
+                            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                            sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_TRANSPORT_START_END_RANGE_ERROR);
+                        }
+
+                    } else if (receiveSiteCode.equals(endNodeId)) {
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
@@ -1121,6 +1155,14 @@ public class NewSealVehicleResource {
             unSealVehicleResponse.setMessage(response.getMessage());
             return unSealVehicleResponse;
         }
+
+        try {
+            createTransAbnormalAndUnseal2jmq(request);
+        } catch (JMQException e) {
+            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+        }
+
+
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
@@ -1133,6 +1175,38 @@ public class NewSealVehicleResource {
             unSealVehicleResponse.setMessage("提报异常成功，解封签异常");
         }
         return unSealVehicleResponse;
+    }
+
+    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP}) public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
+        TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
+        com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = request.getSealCarDto();
+        CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
+        msg.setDesealCarTime(sealCarDto.getDesealCarTime());
+        msg.setDesealCodes(sealCarDto.getDesealCodes());
+        msg.setDesealSiteId(sealCarDto.getDesealSiteId());
+        msg.setDesealSiteName(sealCarDto.getDesealSiteName());
+        msg.setDesealUserCode(sealCarDto.getDesealUserCode());
+        msg.setDesealUserName(sealCarDto.getDesealUserName());
+        msg.setSealCarCode(sealCarDto.getSealCarCode());
+        msg.setVehicleNumber(sealCarDto.getVehicleNumber());
+        msg.setAbnormalDesc(transAbnormalDto.getAbnormalDesc());
+        msg.setAbnormalTypeCode(transAbnormalDto.getAbnormalTypeCode());
+        msg.setAbnormalTypeName(transAbnormalDto.getAbnormalTypeName());
+        msg.setPhotoUrlList(transAbnormalDto.getPhotoUrlList());
+        msg.setReferBillCode(transAbnormalDto.getReferBillCode());
+        msg.setReferBillType(transAbnormalDto.getReferBillType());
+
+        msg.setSource(TYPE_CREATE_TRANS_ABNORMAL_AND_UNSEAL);
+        msg.setCreateTransAbnormalTime(new Date());
+
+        String msgkey = "";
+        if (StringUtils.isNotEmpty(sealCarDto.getSealUserCode())) {
+            msgkey = sealCarDto.getSealUserCode();
+        }
+        String body = JSONObject.toJSONString(msg);
+        createTransAbnormalAndUnsealProducer.send(msgkey, body);
+        log.info("提报异常并解封车消息发送成功，消息内容：{}", body);
+
     }
 
 
@@ -1197,7 +1271,7 @@ public class NewSealVehicleResource {
      * @param batchCode
      * @return
      */
-    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, String batchCode) {
+    private void checkBatchCode(NewSealVehicleResponse sealVehicleResponse, TransportResourceDto transportResourceDto, String batchCode, Integer sealCarSource) {
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
         //1.批次号是否符合编码规范，不合规范直接返回参数错误
         if (receiveSiteCode == null) {
@@ -1214,31 +1288,43 @@ public class NewSealVehicleResource {
             return;
         }
 
-        //2.是否已经封车
-        CommonDto<Boolean> isSealed = newsealVehicleService.isBatchCodeHasSealed(batchCode);
-        if (isSealed == null) {
-            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
-            log.warn("服务异常，运输系统查询批次号状态结果为空, 批次号:{}", batchCode);
-            return;
-        }
+        //2.是否已经封车: 同一个批次号，T开头空铁运力封几次都行 ， 非T空铁运力的只能封一次，不能重复封车 【空铁新增逻辑】
+        CommonDto<Boolean> isSealed = null;
+        boolean flag = Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), sealCarSource)
+                && newsealVehicleService.isAirTransport(transportResourceDto)
+                && transportResourceDto.getTransCode().startsWith("T");
+        if (!flag) {
+            //空铁摆渡T运力不校验批次号是否封车
+            isSealed = newsealVehicleService.isBatchCodeHasSealedExcludeAirFerry(batchCode);
 
-        if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
-            if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
-                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
-                sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
-            } else {//未被封车
-                sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+            if (isSealed == null) {
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
+                log.warn("服务异常，运输系统查询批次号状态结果为空, 批次号:{}", batchCode);
+                return;
             }
-        } else if (Constants.RESULT_WARN == isSealed.getCode()) { //接口返回警告信息，给前台提示
-            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            sealVehicleResponse.setMessage(isSealed.getMessage());
-        } else {//服务出错或者出异常，打日志
-            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
-            log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
-            log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
+
+            if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
+                if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
+                } else {//未被封车
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                }
+            } else if (Constants.RESULT_WARN == isSealed.getCode()) { //接口返回警告信息，给前台提示
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage(isSealed.getMessage());
+            } else {//服务出错或者出异常，打日志
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
+                log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
+                log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
+            }
+
+        } else {
+            sealVehicleResponse.setCode(JdResponse.CODE_OK);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
         }
 
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）

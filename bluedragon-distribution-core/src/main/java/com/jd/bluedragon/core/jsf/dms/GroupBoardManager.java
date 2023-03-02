@@ -38,11 +38,20 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
     /**
+     * 允许二次组板（返调度场景）
+     * @param addBoardBox
+     * @return
+     */
+    Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox);
+
+    /**
      * 将板、箱/包裹关系推给TC(不校验板状态)
      * @param addBoardBox
      * @return
      */
     Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox);
+
+    Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox);
 
     /**
      * 组板转移
@@ -102,4 +111,41 @@ public interface GroupBoardManager {
      * @return
      */
     public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 查询板上统计信息
+     * @param boardCode
+     * @return
+     */
+    Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode);
+
+    /**
+     * 根据运单取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    Response removeBoardBoxByWaybillCode (RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 根据包裹、场地获取板信息、板箱信息
+     * @param barCode
+     * @param siteCode
+     * @return
+     */
+    BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode);
+
+    /**
+     * 获取当前板号的包裹总数
+     * @param boardCode
+     * @param siteCode
+     * @return
+     */
+    Integer getBoardBoxCount(String boardCode, Integer siteCode);
+
+    /**
+     * 根据流向获取板列表
+     * @param request
+     * @return
+     */
+    List<Board> getBoardListBySendFlow(BoardListRequest request);
 }

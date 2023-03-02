@@ -16,6 +16,8 @@
         <result property="endSiteId" column="end_site_id"/>
         <result property="endSiteName" column="end_site_name"/>
         <result property="planDepartTime" column="plan_depart_time"/>
+        <result property="comeTime" column="come_time"/>
+        <result property="nearComeTime" column="near_come_time"/>
         <result property="sealCarTime" column="seal_car_time"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
@@ -35,7 +37,7 @@
 
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
-        end_site_id, end_site_name, plan_depart_time, seal_car_time,
+        end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label
     </sql>
 
@@ -71,6 +73,12 @@
             </if>
             <if test="planDepartTime != null">
                 plan_depart_time,
+            </if>
+            <if test="comeTime != null">
+                come_time,
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time,
             </if>
             <if test="sealCarTime != null">
                 seal_car_time,
@@ -130,6 +138,12 @@
             </if>
             <if test="planDepartTime != null">
                 #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="comeTime != null">
+                #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                #{nearComeTime,jdbcType=TIMESTAMP},
             </if>
             <if test="sealCarTime != null">
                 #{sealCarTime,jdbcType=TIMESTAMP},
@@ -191,6 +205,12 @@
             <if test="planDepartTime != null">
                 plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
             </if>
@@ -248,6 +268,12 @@
             </if>
             <if test="planDepartTime != null">
                 plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
             </if>
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
@@ -327,6 +353,12 @@
             create_user_erp,
             create_user_name,
             create_time,
+            <if test="lineType != null">
+                line_type,
+            </if>
+            <if test="lineTypeName != null">
+                line_type_name,
+            </if>
             yn
         )
         VALUES
@@ -345,6 +377,12 @@
             #{createUserErp},
             #{createUserName},
             NOW(),
+            <if test="lineType != null">
+                #{lineType},
+            </if>
+            <if test="lineTypeName != null">
+                #{lineTypeName},
+            </if>
             1
        )
     </insert>
@@ -371,6 +409,10 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="entity.lineType!=null">
+                AND line_type =#{entity.lineType}
+            </if>
+
     </select>
 
     <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -381,6 +423,12 @@
             </if>
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime},
+            </if>
+            <if test="comeTime != null">
+                come_time = #{comeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nearComeTime != null">
+                near_come_time = #{nearComeTime,jdbcType=TIMESTAMP},
             </if>
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp},
@@ -424,7 +472,7 @@
         </trim>
         WHERE
         yn = 1
-        AND biz_id = #{entity.bizId}      
+        AND biz_id = #{entity.bizId}
         AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
         AND start_site_id = #{entity.startSiteId}
         AND end_site_id = #{entity.endSiteId}
@@ -478,7 +526,7 @@
         </if>
     </select>
 
-    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.util.List">
+    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Long">
         SELECT
             end_site_id
         FROM jy_biz_task_send_vehicle_detail

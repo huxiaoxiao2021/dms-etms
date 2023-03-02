@@ -205,6 +205,9 @@
     <bean id="abnormalWayBillDao" class="com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="abnormalWaybillDiffDao" class="com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWaybillDiffDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <bean id="turnoverBoxDao" class="com.jd.bluedragon.distribution.receive.dao.TurnoverBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -523,7 +526,6 @@
     <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
     <!-- 清场 -->
     <bean id="inventoryTaskDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryTaskDaoImpl"/>
@@ -845,6 +847,18 @@
     <bean id="jySendDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+    <bean id="jyComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyComboardAggsDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyGroupSortCrossDetailDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jySendSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendSealCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
@@ -855,6 +869,20 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyBizTaskSendVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="goodsPhotoDao" class="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="jySendProductAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="jyBizTaskMachineCalibrateDao" class="com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskMachineCalibrateDetailDao" class="com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
