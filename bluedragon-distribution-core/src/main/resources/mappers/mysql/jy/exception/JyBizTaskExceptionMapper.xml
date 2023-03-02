@@ -387,21 +387,4 @@
             LIMIT #{offSet}, #{pageSize};
         </if>
     </select>
-
-    <select id="queryExceptionTaskBizIds" parameterType="java.lang.Integer" resultType="java.lang.String">
-        SELECT
-            biz_id
-        FROM jy_biz_task_exception
-        WHERE
-        yn = 1 and status =1 and processing_status =0 and  DATE_SUB(CURDATE(), INTERVAL #{outOfDate,jdbcType=INTEGER} DAY) >date(ts)
-    </select>
-    
-    <update id="updateJyBizTaskExceptionOutOfDate"  parameterType="List">
-        update jy_biz_task_exception set status=4
-        where yn =1
-        and biz_id in
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
-            #{item,jdbcType=VARCHAR}
-        </foreach>
-    </update>
 </mapper>

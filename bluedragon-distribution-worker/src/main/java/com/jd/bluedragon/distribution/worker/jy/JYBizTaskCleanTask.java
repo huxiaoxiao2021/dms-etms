@@ -51,9 +51,6 @@ public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
     @Qualifier("jyBizSendTaskCleanService")
     private JYBizTaskCleanService jyBizSendTaskCleanService;
 
-    @Autowired
-    private JyExceptionService jyExceptionService;
-
     @Override
     public boolean execute(Object[] objects, String s) throws Exception {
         if(logger.isInfoEnabled()){
@@ -66,9 +63,6 @@ public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
             flag = Boolean.FALSE;
         }
         if(!jyBizSendTaskCleanService.clean()){
-            flag = Boolean.FALSE;
-        }
-        if(!jyExceptionService.clean()){
             flag = Boolean.FALSE;
         }
         if(logger.isInfoEnabled()){
