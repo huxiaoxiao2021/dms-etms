@@ -2471,7 +2471,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         // 取消发货
         if(!cancelSend(request,barCodeList)){
           log.error("取消发货操作失败，接口参数：{}", JsonHelper.toJson(barCodeList));
-          throw new JyBizException("取消发货失败");
         }
       }
       
