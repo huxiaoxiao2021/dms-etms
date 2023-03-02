@@ -223,8 +223,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
     		OperatorData operatorData = new OperatorData();
     		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(request.getMachineCode());    		
-            
+    		operatorData.setOperatorId(request.getMachineCode());
+
             virtualBoardService.sendWaybillTrace(operatorData,request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
@@ -311,6 +311,9 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         req.setDestinationId(request.getBoard().getDestinationId());
         req.setEndSiteName(request.getBoard().getDestination());
         req.setSendCode(request.getBoard().getSendCode());
+        if (request.getCancelLast()){
+            req.setCancelLastSend(true);
+        }
         return req;
     }
 
@@ -707,7 +710,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setCreateTime(new Date());
         domain.setOperateTime(sendM.getOperateTime());
         domain.setBoardCode(sendM.getBoardCode());
-        
+
         return domain;
     }
 
