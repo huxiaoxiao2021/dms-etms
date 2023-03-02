@@ -99,6 +99,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -2456,8 +2457,26 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("取消组板失败");
       }
 
+
+      // 发送取消组板全程跟踪
+      OperatorInfo operatorInfo = new OperatorInfo();
+      operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
+      operatorInfo.setSiteName(request.getCurrentOperate().getSiteName());
+      operatorInfo.setUserCode(request.getUser().getUserCode());
+      if (!CollectionUtils.isEmpty(barCodeList)) {
+        String barCode = barCodeList.get(0);
+        virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
+                request.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
+                getBizSourceEnum(request).getValue());
+        // 取消发货
+        if(!cancelSend(request,barCodeList)){
+          log.error("取消发货操作失败，接口参数：{}", JsonHelper.toJson(barCodeList));
+          throw new JyBizException("取消发货失败");
+        }
+      }
+      
       // 异步发送取消组板和发货的全程跟踪
-      asyncSendCancelComboardAndSend(request, barCodeList);
+      // asyncSendCancelComboardAndSend(request, barCodeList);
     }catch (Exception e ) {
       if (log.isErrorEnabled()) {
         log.error("取消组板异常：{}",JsonHelper.toJson(request),e);
@@ -2521,29 +2540,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
-  private void cancelSend(CancelBoardReq request, List<String> barCodeList) {
-    if (request.isSelectAll()) {
-      SendM sendM = toSendM(request);
-      sendM.setBoxCode(request.getBoardCode());
-      JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
-      queryBoard.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-      queryBoard.setBoardCode(request.getBoardCode());
-      JyBizTaskComboardEntity boardTaskInfo = jyBizTaskComboardService
-              .queryBizTaskByBoardCode(queryBoard);
-      if (boardTaskInfo != null) {
-        sendM.setSendCode(boardTaskInfo.getSendCode());
-      } else {
-        log.error("未获取到当前板号: {}的任务信息", request.getBoardCode());
-        throw new JyBizException("未获取到当前板号的任务信息");
-      }
-      deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
-    }else {
-      SendM sendM = toSendM(request);
-      for (String barCode : barCodeList) {
-        sendM.setBoxCode(barCode);
-        deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
-      }
+  private boolean cancelSend(CancelBoardReq request, List<String> barCodeList) {
+    SendM sendM = toSendM(request);
+    sendM.setBoxCode(barCodeList.get(0));
+    ThreeDeliveryResponse tDeliveryResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+    if (!ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
+      return false;
     }
+    return true;
   }
   private SendM toSendM(CancelBoardReq request) {
     SendM sendM = new SendM();
