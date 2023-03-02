@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -72,7 +73,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
         if (null == context.getRequest().getTargetSiteCode() || context.getRequest().getTargetSiteCode() <= 0) {
             return result;
         }
-
+        context.getRequest().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
         LOGGER.debug("ScheduleSiteSupportInterceptHandler.handle-->现场操作返调度:{}", JsonHelper.toJson(context.getRequest()));
 
        /* 校验基本参数是否确实 */

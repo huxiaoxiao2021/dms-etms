@@ -217,6 +217,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         try {
             Integer dmsCode = context.getRequest().getDmsSiteCode();
             WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
+            commonWaybill.setLocalSchedule(context.getRequest().getLocalSchedule());
             context.setResponse(commonWaybill);
             context.setBasePrintWaybill(commonWaybill);
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
