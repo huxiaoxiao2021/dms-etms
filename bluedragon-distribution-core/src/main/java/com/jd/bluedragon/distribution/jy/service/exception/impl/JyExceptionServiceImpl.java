@@ -112,8 +112,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 通用异常上报入口-扫描
      *
@@ -880,20 +879,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     }
 
-    @Override
-    public boolean clean() {
-        logger.info("执行三无任务更新状态---");
-        int sanwuOutOfDate = uccPropertyConfiguration.getSanwuOutOfDate();
-        List<String> ids = jyBizTaskExceptionDao.queryExceptionTaskBizIds(sanwuOutOfDate);
-        List<List<String>> idLists = Lists.partition(ids, 100);
-        if(CollectionUtils.isNotEmpty(idLists)){
-            for (int i = 0; i < idLists.size(); i++) {
-                int result = jyBizTaskExceptionDao.updateJyBizTaskExceptionOutOfDate(idLists.get(i));
-                logger.info("执行结果-{}",result);
-            }
-        }
-        return true;
-    }
 
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
