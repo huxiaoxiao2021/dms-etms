@@ -138,29 +138,38 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
                 && StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType())){
             String productType = context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType();
             if(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(productType)){
-				if (remark.length() > 0) {
-					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
-				}
 				//企业名称
-				if(StringHelper.isNotEmpty(basePrintWaybill.getSenderCompany())) {
+				String sendPrincipalCompany = context.getBigWaybillDto().getWaybill().getWaybillExt().getSendPrincipalCompany();
+				if(StringHelper.isNotEmpty(sendPrincipalCompany)) {
+					if (remark.length() > 0) {
+						remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					}
 					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
-					remark = StringHelper.append(remark, basePrintWaybill.getSenderCompany());
+					remark = StringHelper.append(remark, sendPrincipalCompany);
 				}
 				//联系人
 				if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerTel())){
-					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					if (remark.length() > 0) {
+						remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					}
 					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
 					remark = StringHelper.append(remark, basePrintWaybill.getConsignerTel());
 				}else if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerMobile())){
-					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					if (remark.length() > 0) {
+						remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+					}
 					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
 					remark = StringHelper.append(remark, basePrintWaybill.getConsignerMobile());
 				}
                 //存储条件
-				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				if (remark.length() > 0) {
+					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				}
                 remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_STORAGE_CONDITION);
 				//优先配送
-				remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				if (remark.length() > 0) {
+					remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
+				}
                 remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_DELIVERY);
             }
         }
