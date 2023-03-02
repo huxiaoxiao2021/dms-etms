@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.gateway;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
+import com.jd.bluedragon.common.dto.station.ScanForLoginRequest;
 import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
@@ -103,9 +104,21 @@ public interface UserSignGatewayService {
 	 */
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
 	/**
-	 * 查询用户最近一次未签退数据
-	 * @param query
+	 * 签到前校验
+	 * @param userSignRequest
 	 * @return
 	 */
-	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);	
+	JdCResponse<UserSignRecordData> checkBeforeSignIn(UserSignRequest userSignRequest);
+	/**
+	 * 登录-查询扫描用户信息
+	 * @param scanRequest
+	 * @return
+	 */
+	JdCResponse<ScanUserData> queryUserDataForLogin(ScanForLoginRequest scanRequest);
+	/**
+	 * 登录-查询扫岗位信息
+	 * @param scanRequest
+	 * @return
+	 */
+	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);	
 }

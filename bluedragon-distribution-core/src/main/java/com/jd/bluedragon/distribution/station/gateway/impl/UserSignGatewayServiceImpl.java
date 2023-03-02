@@ -2,9 +2,16 @@ package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
+import com.jd.bluedragon.common.dto.station.ScanForLoginRequest;
 import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
@@ -22,6 +30,9 @@ import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,14 +55,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	private UserSignRecordService userSignRecordService;
 
 	@Autowired
-	private PositionRecordService positionRecordService;
-
-	@Autowired
 	private PositionManager positionManager;
-
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
-	
+	private HintService hintService;
+
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithPosition(signInRequest);
@@ -188,7 +195,123 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return userSignRecordService.deleteUserSignRecord(userSignRequest);
 	}
 	@Override
-	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
-		return userSignRecordService.queryLastUnSignOutRecordData(query);
-	}	
+	public JdCResponse<UserSignRecordData> checkBeforeSignIn(UserSignRequest userSignRequest) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		if(userSignRequest == null) {
+			result.toFail("请求参数不能为空！");
+			return result;
+		}
+		String positionCode = userSignRequest.getPositionCode();
+		String scanUserCode = userSignRequest.getScanUserCode();
+		if(StringHelper.isNotEmpty(scanUserCode)) {
+			if(!BusinessUtil.isScanUserCode(scanUserCode)){
+				result.toFail("请扫描正确的人员码！");
+				return result;
+			}
+			userSignRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
+			userSignRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
+		}else if(StringHelper.isEmpty(userSignRequest.getUserCode())) {
+			result.toFail("用户编码不能为空！");
+			return result;
+		}
+		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
+	}
+	@Override
+	public JdCResponse<ScanUserData> queryUserDataForLogin(ScanForLoginRequest scanRequest) {
+		JdCResponse<ScanUserData> result = new JdCResponse<>();
+		result.toSucceed();
+		if(scanRequest ==null || !BusinessUtil.isScanUserCode(scanRequest.getScanUserCode())) {
+			result.toFail("请扫描正确的人员码！");
+			return result;
+		}
+		String scanUserCode = scanRequest.getScanUserCode();
+		String positionCode = scanRequest.getPositionCode();
+		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
+		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
+			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
+			return result;
+		}
+		//已扫描岗位码，校验在岗状态
+		if(StringUtils.isNotBlank(positionCode)) {
+			JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,jobCode,userCode);
+			if(checkResult.needConfirm()) {
+				result.toConfirm(checkResult.getMessage());
+			}
+		}
+		//设置返回值对象
+		ScanUserData data = new ScanUserData();
+		data.setJobCode(jobCode);
+		data.setUserCode(userCode);
+		result.setData(data);
+		return result;
+	}
+	@Override
+	public JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest) {
+		JdCResponse<PositionData> result = new JdCResponse<>();
+		result.toSucceed();
+		if(scanRequest ==null || StringUtils.isBlank(scanRequest.getPositionCode())) {
+			result.toFail("请扫描正确的网格码！");
+			return result;
+		}
+		String positionCode = scanRequest.getPositionCode();
+		try{
+			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> apiResult = positionManager.queryPositionInfo(positionCode);
+			if(apiResult == null){
+				result.toFail("查询网格码失败！");
+				return result;
+			}
+			if(!apiResult.isSuccess()
+					|| apiResult.getData() == null){
+				result.toFail("扫描的网格码无效！");
+				return result;
+			}
+			//已扫描人员码，校验在岗状态
+			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
+				JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,scanRequest.getJobCode(),scanRequest.getUserCode());
+				if(checkResult.needConfirm()) {
+					result.toConfirm(checkResult.getMessage());
+				}
+			}
+			//设置返回值对象
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(result.getData(),positionData);
+			result.setData(positionData);
+		}catch (Exception e){
+			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+			result.toError("查询岗位信息异常");
+		}
+		return result ;
+	}
+	private JdCResponse<UserSignRecordData> checkUserSignStatus(String positionCode,Integer jobCode,String userCode){
+		JdCResponse<UserSignRecordData> result = new JdCResponse<UserSignRecordData>();
+		result.toSucceed();
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setUserCode(userCode);
+		UserSignRecordData lastUnSignOutData = null;
+		JdCResponse<UserSignRecordData> lastUnSignOutResult = this.userSignRecordService.queryLastUnSignOutRecordData(query);
+		if(lastUnSignOutResult != null
+				&&lastUnSignOutResult.getData() != null) {
+			lastUnSignOutData = lastUnSignOutResult.getData();
+		}
+		if(lastUnSignOutData != null 
+				&& lastUnSignOutData.getPositionCode() != null
+				&& positionCode.equals(lastUnSignOutData.getPositionCode())) {
+            String confirmMsg = "此人在【"+lastUnSignOutData.getPositionCode()+"】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
+			Map<String, String> argsMap = new HashMap<>();
+            if(StringUtils.isNotBlank(lastUnSignOutData.getGridName())
+            		&& StringUtils.isNotBlank(lastUnSignOutData.getWorkName())) {
+                argsMap.put(HintArgsConstants.ARG_FIRST, StringHelper.append(lastUnSignOutData.getGridName(), Constants.SEPARATOR_COMMA_CN+lastUnSignOutData.getWorkName()));
+            }else {
+            	argsMap.put(HintArgsConstants.ARG_FIRST, lastUnSignOutData.getPositionCode());
+            }
+            confirmMsg = HintService.getHint(confirmMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap);
+			result.toConfirm(confirmMsg);
+		}
+		return result;
+	}
 }

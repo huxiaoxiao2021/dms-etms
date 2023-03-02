@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.hint.service;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -91,7 +92,8 @@ public class HintService {
      */
     public static String getHint(String reversedStr, String hintCode, Map<String, String> paramsMap){
         String str = HintService.getHint(hintCode, paramsMap) ;
-        if(str == null){
+        if(str == null
+        		|| Objects.equal(hintCode, str)){
             str = reversedStr;
         }
         return str;

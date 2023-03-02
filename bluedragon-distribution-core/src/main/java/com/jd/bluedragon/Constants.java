@@ -33,6 +33,10 @@ public class Constants {
     public static final String SYS_NAME = "sys.dms";
 
     public static final String SEPARATOR_COMMA = ",";
+    /**
+     * 中文-'，'
+     */
+    public static final String SEPARATOR_COMMA_CN = "，";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
