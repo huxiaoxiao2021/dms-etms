@@ -311,9 +311,6 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         req.setDestinationId(request.getBoard().getDestinationId());
         req.setEndSiteName(request.getBoard().getDestination());
         req.setSendCode(request.getBoard().getSendCode());
-        if (request.getCancelLast()){
-            req.setCancelLastSend(true);
-        }
         return req;
     }
 
