@@ -1687,13 +1687,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     domain.setBizSource(getSendBizSourceEnumEnum(request).getCode());
     domain.setBoardCode(request.getBoardCode());
     domain.setYn(1);
-    if (request.getCurrentOperate().getOperateTime() == null){
-      domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
-      domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
-    }else{
+    if (Objects.equals(request.getBizSource(), BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       Date date = DateUtils.addMilliseconds(request.getCurrentOperate().getOperateTime(), Constants.DELIVERY_DELAY_TIME);
       domain.setCreateTime(date);//固定加5秒
       domain.setOperateTime(date);//固定加5秒
+    }else{
+      domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
+      domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
     }
     return domain;
   }
