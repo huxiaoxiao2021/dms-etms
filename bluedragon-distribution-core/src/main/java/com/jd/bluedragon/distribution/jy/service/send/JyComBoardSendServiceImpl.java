@@ -300,7 +300,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
         try {
           BoardCountReq boardCountReq = new BoardCountReq();
-          Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+          Date queryTime = DateHelper.addHoursByDay(new Date(), -Double.valueOf(ucc.getJyComboardTaskCreateTimeBeginDay()));
           boardCountReq.setCreateTime(queryTime);
           boardCountReq.setEndSiteIdList(endSiteIdList);
           boardCountReq.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
