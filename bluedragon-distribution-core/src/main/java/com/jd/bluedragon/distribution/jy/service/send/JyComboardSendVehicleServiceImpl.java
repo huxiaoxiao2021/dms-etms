@@ -188,12 +188,6 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       JyBizTaskSendSortTypeEnum orderTypeEnum) {
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
-    if (CollectionUtils.isNotEmpty(queryTaskSendDto.getSendVehicleBizList())){
-      //如果是精确搜索不带时间过滤，防止下错任务找不到任务
-      queryCondition.setLastPlanDepartTimeBegin(null);
-      queryCondition.setLastPlanDepartTimeEnd(null);
-      queryCondition.setCreateTimeBegin(null);
-    }
 
     if (!ucc.getCzQuerySwitch()){
       log.info("=============3.走兼容模式================");
@@ -489,12 +483,6 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   @Override
   List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
       List<String> sendVehicleBizList) {
-    if (CollectionUtils.isNotEmpty(sendVehicleBizList)){
-      //如果是精确搜索不带时间过滤，防止下错任务找不到任务
-      condition.setLastPlanDepartTimeBegin(null);
-      condition.setLastPlanDepartTimeEnd(null);
-      condition.setCreateTimeBegin(null);
-    }
     if (!ucc.getCzQuerySwitch()){
       log.info("=============2.走兼容模式================");
       condition.setLineType(null);
