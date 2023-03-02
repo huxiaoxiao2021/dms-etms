@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
@@ -1134,12 +1135,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),Constants.WAYBILL_SIGN_POSITION_92,Constants.WAYBILL_SIGN_POSITION_92_3)){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_BOX);
         }
-        //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
-        if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
-            target.setRoad(waybill.getWaybillExt().getUnpackClassifyNum());
-            target.setRoadCode(waybill.getWaybillExt().getUnpackClassifyNum());
-        	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
-        }
+        // 设置面单路区信息
+        setRoadCode(target, waybill);
         //特殊商家处理
         if(BusinessUtil.isYHD(waybill.getSendPay())){
         	//一号店订单:设置商家别名YHD，商家logo标识yhd4949.gif
@@ -1191,8 +1188,27 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         setAoiCode(target, waybill);
         return target;
     }
-
     /**
+     * 设置路区号及拆包员号
+     * @param target
+     * @param waybill
+     */
+    private void setRoadCode(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+        String roadCode = target.getRoadCode();
+    	//现场调度标识-设置路区为0
+        if(DmsConstants.LOCAL_SCHEDULE.equals(target.getLocalSchedule())){
+        	roadCode = DmsConstants.LOCAL_SCHEDULE_ROAD_CODE;
+        }
+    	//拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
+        if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
+        	roadCode = waybill.getWaybillExt().getUnpackClassifyNum();
+        	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
+        }
+        target.setRoad(roadCode);
+        target.setRoadCode(roadCode);
+	}
+
+	/**
      * 设置模板分组编码
      * @param waybill
      * @param commonWaybill

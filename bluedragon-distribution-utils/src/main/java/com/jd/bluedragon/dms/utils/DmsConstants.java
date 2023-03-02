@@ -382,7 +382,14 @@ public class DmsConstants {
      * 围栏-配送阶段（目前包括 1-揽收和2-派送）
      */
     public static final Integer WAYBILL_FENCE_DELIVERY_STAGE_2  = 2;
-    
+    /**
+     * 返调度-标识：1
+     */
+    public static final Integer LOCAL_SCHEDULE = 1;
+    /**
+     * 返调度-路区：0
+     */
+    public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";    
     /**
      * 暂存类型枚举值
      */
