@@ -8,6 +8,9 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
+import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -44,6 +47,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -124,6 +129,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+    
+    @Autowired
+    @Qualifier("aoiServiceManager")
+    private AoiServiceManager aoiServiceManager;
 
     @Autowired
     private BasicGoodsAreaManager basicGoodsAreaManager;
@@ -1114,12 +1123,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
         }
-        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
-        	//提出-尊标识
-        	target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR);
-        	target.appendSpecialMark(target.getRespectTypeText(),false);
-        }
+        //尊 、碎
+        appendRespectTypeText(target,waybill.getWaybillSign(),waybillExt);
 
         //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
@@ -1182,7 +1187,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         // 设置面单水印
         setWaterMark(target, waybill);
-
+        // 设置面单aoi信息
+        setAoiCode(target, waybill);
         return target;
     }
 
@@ -1201,7 +1207,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
         }
     }
-
     /**
      * 设置面单水印
      * <ul>
@@ -1245,7 +1250,52 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBcSign(TextConstants.PRE_SELL_FLAG);
         }
     }
-
+    /**
+     * 设置面单aoiCode
+     * @param target
+     * @param waybill
+     */
+    private void setAoiCode(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+    	String waybillCode = target.getWaybillCode();
+    	String aoiId = null;
+    	String aoiCode = null;
+    	//调用运单接口查询围栏信息获取aoiId
+    	JdResult<List<WaybillFenceDto>> fenceResult = this.waybillQueryManager.getWaybillFenceInfoByWaybillCode(waybillCode);
+    	if(fenceResult != null
+    		 && fenceResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(fenceResult.getData())) {
+    		//取派送aoiId
+    		for(WaybillFenceDto fenceData : fenceResult.getData()) {
+    			if(DmsConstants.WAYBILL_FENCE_TYPE_AOI.equals(fenceData.getFenceType())
+    					&& DmsConstants.WAYBILL_FENCE_DELIVERY_STAGE_2.equals(fenceData.getDeliveryStage())
+    					&& StringUtils.isNotBlank(fenceData.getFenceId())) {
+    				aoiId = fenceData.getFenceId();
+    				break;
+    			}
+    		}
+    	}
+    	if(StringUtils.isBlank(aoiId)){
+    		log.warn("查询运单{}电子围栏aoiId为空！",waybillCode);
+    		return;
+    	}
+    	//调用Gis接口查询aoiCode
+    	AoiBindRoadMappingQuery gisQuery = new AoiBindRoadMappingQuery();
+    	gisQuery.setAoiId(aoiId);
+    	if(target.getPrepareSiteCode() != null) {
+    		gisQuery.setSiteCode(target.getPrepareSiteCode().toString());
+    	}
+    	JdResult<List<AoiBindRoadMappingData>> aoiResult = aoiServiceManager.aoiBindRoadMappingExactSearch(gisQuery);
+    	if(aoiResult != null
+    		 && aoiResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(aoiResult.getData())) {
+    		aoiCode = aoiResult.getData().get(0).getAoiCode();
+    	}
+    	if(StringUtils.isBlank(aoiCode)){
+    		log.warn("查询Gis运单{}派送aoiCode为空！",waybillCode);
+    		return;
+    	}
+    	target.setAoiCode(aoiCode);
+    }
     /**
      * 获取附属地址
      * @param data
@@ -2102,5 +2152,26 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             return null;
         }
         return baseEntity.getData();
+    }
+
+    /**
+     * 处理“尊” 标识位逻辑
+     * @param
+     * @param waybillSign
+     * @return
+     */
+    private void appendRespectTypeText(BasePrintWaybill target,String waybillSign,WaybillExt waybillExt){
+        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
+        if(BusinessUtil.isSignChar(waybillSign,35,'1')){
+            //提出-尊标识
+            target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR );
+        }
+        //“碎” 在 “尊” 的标识位追加
+        String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
+        if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+        }
+        log.info("appendRespectTypeText-{}",target.getRespectTypeText());
+        target.appendSpecialMark(target.getRespectTypeText(),false);
     }
 }

@@ -1217,6 +1217,11 @@ public class UccPropertyConfiguration {
 
     private Boolean boardListQuerySwitch;
 
+    /**
+     * 三无任务 距离当前日期的历史天数
+     */
+    private int sanwuOutOfDate;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -2907,5 +2912,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public int getSanwuOutOfDate() {
+        return sanwuOutOfDate;
+    }
+
+    public void setSanwuOutOfDate(int sanwuOutOfDate) {
+        this.sanwuOutOfDate = sanwuOutOfDate;
     }
 }
