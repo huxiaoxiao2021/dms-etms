@@ -72,7 +72,4 @@ public interface JyExceptionService {
      */
     void printSuccess(JyExceptionPrintDto printDto);
 
-
-    boolean clean();
-
 }
