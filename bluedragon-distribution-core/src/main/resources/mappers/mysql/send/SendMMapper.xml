@@ -684,5 +684,6 @@
 		box_code, board_code
 		from send_m
 		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 </mapper>
