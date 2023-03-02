@@ -390,6 +390,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	context.setBasePrintWaybill(labelPrinting);
         	context.setLabelPrintingResponse(labelPrinting);
         }
+        labelPrinting.setLocalSchedule(request.getLocalSchedule());
         //B网面单要求将运单号后四位突出显示
         String waybillCode = request.getWaybillCode();
         if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
