@@ -1195,6 +1195,16 @@ public class UccPropertyConfiguration {
 
     private Boolean boardListQuerySwitch;
 
+    private boolean  supportMutilScan;
+
+    public boolean getSupportMutilScan() {
+        return supportMutilScan;
+    }
+
+    public void setSupportMutilScan(boolean supportMutilScan) {
+        this.supportMutilScan = supportMutilScan;
+    }
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }

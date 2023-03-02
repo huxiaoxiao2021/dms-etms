@@ -1064,7 +1064,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     resp.setBarCode(request.getBarCode());
     resp.setBarCodeType(request.getBarCodeType());
     resp.setScanDetailCount(request.getScanDetailCount());
-    if (request.getNeedSkipSendFlowCheck()){
+    if (ucc.getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){
       return new InvokeResult(NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE, NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE, resp);
     }
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
@@ -1631,7 +1631,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
       throw new JyBizException(customMsg.toString());
     }
-    //TODO
     if (ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND.equals(sendResult.getInterceptCode())) {
       request.setCancelLastSend(true);
     }
@@ -1842,8 +1841,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException(NOT_BELONG_THIS_HUNSAO_TASK_CODE,NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE);
     }
     if (!request.getEndSiteId().equals(request.getDestinationId()) && !request.getNeedSkipSendFlowCheck()){
-      request.setNeedSkipSendFlowCheck(true);
-      //throw new JyBizException(NOT_CONSISTENT_WHIT_LAST_SENDFLOW_CODE,NOT_CONSISTENT_WHIT_LAST_SENDFLOW_MESSAGE);
+      if (ucc.getSupportMutilScan()){
+        request.setNeedSkipSendFlowCheck(true);
+      }
+      else {
+        throw new JyBizException(NOT_CONSISTENT_WHIT_LAST_SENDFLOW_CODE,NOT_CONSISTENT_WHIT_LAST_SENDFLOW_MESSAGE);
+      }
     }
   }
 
