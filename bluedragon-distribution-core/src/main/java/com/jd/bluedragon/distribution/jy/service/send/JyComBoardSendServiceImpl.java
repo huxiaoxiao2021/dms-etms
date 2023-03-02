@@ -2463,6 +2463,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
       operatorInfo.setSiteName(request.getCurrentOperate().getSiteName());
       operatorInfo.setUserCode(request.getUser().getUserCode());
+      operatorInfo.setOperateTime(new Date());
       if (!CollectionUtils.isEmpty(barCodeList)) {
         String barCode = barCodeList.get(0);
         virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
