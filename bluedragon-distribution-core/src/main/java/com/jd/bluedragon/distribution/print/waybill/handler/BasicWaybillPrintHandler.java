@@ -217,7 +217,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         try {
             Integer dmsCode = context.getRequest().getDmsSiteCode();
             WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
-            commonWaybill.setLocalSchedule(context.getRequest().getLocalSchedule());
+            //返调度-设置标识 
+            if(NumberHelper.gt0(context.getRequest().getTargetSiteCode())){
+            	context.getRequest().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
+            	commonWaybill.setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
+            }
             context.setResponse(commonWaybill);
             context.setBasePrintWaybill(commonWaybill);
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
