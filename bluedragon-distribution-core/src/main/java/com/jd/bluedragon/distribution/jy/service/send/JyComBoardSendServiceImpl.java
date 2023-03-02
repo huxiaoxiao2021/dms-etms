@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import IceInternal.Ex;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
@@ -1528,7 +1527,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       if (WaybillUtil.isWaybillCode(barCode) && waybill.getGoodNumber() < ucc
           .getBulkScanPackageMinCount()) {
-        throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");//TODO
+        throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
       if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
         request.setScanDetailCount(waybill.getGoodNumber());
@@ -1632,6 +1631,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
       throw new JyBizException(customMsg.toString());
     }
+    //TODO
     if (ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND.equals(sendResult.getInterceptCode())) {
       request.setCancelLastSend(true);
     }
