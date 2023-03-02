@@ -34,6 +34,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -235,7 +236,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 }
                 else {
                     if (NumberHelper.isPositiveNumber(request.getBarCode())) {
-                        condition.setStartSiteId(Long.valueOf(request.getBarCode()));
+                        try{
+                            condition.setStartSiteId(Long.valueOf(request.getBarCode()));
+                        }catch (Exception e) {
+                            log.error("JyUnSealVehicleServiceImpl.fetchUnSealTask:barCode输入错误，应输入场地编码或车牌后四位，转Long异常，req={]", JsonUtils.toJSONString(request));
+                            result.error("请输入正确的车牌号后四位或上游场地编码！");
+                            return result;
+                        }
                     }
                     if (request.getBarCode().length() == VEHICLE_NUMBER_FOUR) {
                         condition.setFuzzyVehicleNumber(request.getBarCode());
