@@ -2463,6 +2463,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
       operatorInfo.setSiteName(request.getCurrentOperate().getSiteName());
       operatorInfo.setUserCode(request.getUser().getUserCode());
+      if(request.getCurrentOperate().getOperateTime() == null){
+        operatorInfo.setOperateTime(new Date());
+      }else{
+        operatorInfo.setOperateTime(request.getCurrentOperate().getOperateTime());
+      }
       if (!CollectionUtils.isEmpty(barCodeList)) {
         String barCode = barCodeList.get(0);
         virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
@@ -2473,7 +2478,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("取消发货操作失败，接口参数：{}", JsonHelper.toJson(barCodeList));
         }
       }
-      
+
       // 异步发送取消组板和发货的全程跟踪
       // asyncSendCancelComboardAndSend(request, barCodeList);
     }catch (Exception e ) {
