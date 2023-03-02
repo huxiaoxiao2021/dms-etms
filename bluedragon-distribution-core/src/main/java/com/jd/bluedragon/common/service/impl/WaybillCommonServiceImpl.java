@@ -1275,6 +1275,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	String waybillCode = target.getWaybillCode();
     	String aoiId = null;
     	String aoiCode = null;
+    	//现场反调度不设置aoiCode
+        if(DmsConstants.LOCAL_SCHEDULE.equals(target.getLocalSchedule())){
+        	log.info("现场反调度{}不设置aoiCode！",waybillCode);
+        	return;
+        }
     	//调用运单接口查询围栏信息获取aoiId
     	JdResult<List<WaybillFenceDto>> fenceResult = this.waybillQueryManager.getWaybillFenceInfoByWaybillCode(waybillCode);
     	if(fenceResult != null
