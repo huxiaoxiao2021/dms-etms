@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -11,7 +10,6 @@ import com.jdl.basic.common.utils.Result;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,12 +23,10 @@ import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
-import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -56,17 +52,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
-	@Autowired
-	private HintService hintService;
-
+	
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithPosition(signInRequest);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signOutWithPosition",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest) {
 		return userSignRecordService.signOutWithPosition(signOutRequest);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signAuto",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAuto(userSignRequest);
@@ -83,6 +83,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
 		return userSignRecordService.querySignListByOperateUser(query);
 	}	
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionData",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
 		log.info("queryPositionData - 获取基础服务数据");
@@ -109,7 +111,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return response ;
 
 	}
-
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionInfo",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
 		log.info("queryPositionInfo - 获取基础服务数据");
@@ -135,7 +138,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return response ;
 	}
-
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryScanUserData",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<ScanUserData> queryScanUserData(String scanUserCode) {
 		JdCResponse<ScanUserData> result = new JdCResponse<ScanUserData>();
@@ -151,10 +155,14 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		result.setData(data);
 		return result;
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryLastUserSignRecordData",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
 		return userSignRecordService.queryLastUserSignRecordData(query);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryScanUserDataForLogin",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<ScanUserData> queryScanUserDataForLogin(String scanUserCode) {
 		JdCResponse<ScanUserData> result = this.queryScanUserData(scanUserCode);
@@ -194,6 +202,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
 		return userSignRecordService.deleteUserSignRecord(userSignRequest);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.checkBeforeSignIn",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> checkBeforeSignIn(UserSignRequest userSignRequest) {
 		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
@@ -217,6 +227,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<ScanUserData> queryUserDataForLogin(ScanForLoginRequest scanRequest) {
 		JdCResponse<ScanUserData> result = new JdCResponse<>();
@@ -249,6 +261,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		result.setData(data);
 		return result;
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest) {
 		JdCResponse<PositionData> result = new JdCResponse<>();
@@ -279,7 +293,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			}
 			//设置返回值对象
 			PositionData positionData = new PositionData();
-			BeanUtils.copyProperties(result.getData(),positionData);
+			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
@@ -298,19 +312,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				&&lastUnSignOutResult.getData() != null) {
 			lastUnSignOutData = lastUnSignOutResult.getData();
 		}
+		//判断在岗状态，在岗岗位码和当前不一致，给出提示
 		if(lastUnSignOutData != null 
 				&& lastUnSignOutData.getPositionCode() != null
-				&& positionCode.equals(lastUnSignOutData.getPositionCode())) {
-            String confirmMsg = "此人在【"+lastUnSignOutData.getPositionCode()+"】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
-			Map<String, String> argsMap = new HashMap<>();
+				&& !positionCode.equals(lastUnSignOutData.getPositionCode())) {
+			String workName = lastUnSignOutData.getPositionCode();
+            Map<String, String> argsMap = new HashMap<>();
             if(StringUtils.isNotBlank(lastUnSignOutData.getGridName())
             		&& StringUtils.isNotBlank(lastUnSignOutData.getWorkName())) {
-                argsMap.put(HintArgsConstants.ARG_FIRST, StringHelper.append(lastUnSignOutData.getGridName(), Constants.SEPARATOR_COMMA_CN+lastUnSignOutData.getWorkName()));
+            	workName = StringHelper.append(lastUnSignOutData.getGridName(), Constants.SEPARATOR_COMMA_CN+lastUnSignOutData.getWorkName());
             }else {
-            	argsMap.put(HintArgsConstants.ARG_FIRST, lastUnSignOutData.getPositionCode());
+            	workName = lastUnSignOutData.getPositionCode();
             }
-            confirmMsg = HintService.getHint(confirmMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap);
-			result.toConfirm(confirmMsg);
+            argsMap.put(HintArgsConstants.ARG_FIRST, workName);
+            String defaultMsg = String.format(HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN_MSG, workName);
+			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
 		}
 		return result;
 	}

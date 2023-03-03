@@ -64,7 +64,12 @@ public class HintService {
      * @time 2021-07-14 18:23:32 周三
      */
     public static String getHint(String hintCode, Map<String, String> paramsMap){
-        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
+        HintResp hintResp = null;
+		try {
+			hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
+		} catch (Exception e) {
+			log.error("hintApiUnwrapManager.getHint-error!",e);
+		}
         return (hintResp != null && hintResp.getHintMsg() != null) ? String.format("%s-%s", hintCode, hintResp.getHintMsg()) : hintCode;
     }
 
