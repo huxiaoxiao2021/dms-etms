@@ -5,20 +5,28 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JyComboardDao extends BaseDao<JyComboardEntity> {
 
     private final static String NAMESPACE = JyComboardDao.class.getName();
+
+    private static final String DB_TABLE_NAME = "jy_comboard";
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
     public int deleteByPrimaryKey(Long id) {
         return this.getSqlSession().delete(NAMESPACE + ".deleteByPrimaryKey", id);
     }
 
     public int insert(JyComboardEntity entity) {
+        entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
     public int insertSelective(JyComboardEntity record) {
+        record.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", record);
     }
     public JyComboardEntity selectByPrimaryKey(Long id) {
