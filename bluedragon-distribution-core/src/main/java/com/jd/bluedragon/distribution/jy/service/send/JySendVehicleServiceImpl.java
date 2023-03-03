@@ -2823,8 +2823,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
         if (basicVehicleType != null) {
-            progress.setVolume(BigDecimal.valueOf(basicVehicleType.getVolume()));
-            progress.setWeight(BigDecimal.valueOf(basicVehicleType.getWeight()));
+            if(basicVehicleType.getVolume() != null) {
+                progress.setVolume(BigDecimal.valueOf(basicVehicleType.getVolume()));
+            }
+            if(basicVehicleType.getWeight() != null) {
+                progress.setWeight(BigDecimal.valueOf(basicVehicleType.getWeight()));
+            }
         }
 
         if (sendAgg != null && basicVehicleType != null) {

@@ -3142,8 +3142,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         sendMessage(tlist, tSendM, needSendMQ);
                         //同步取消半退明细
                         reversePartDetailService.cancelPartSend(tSendM);
-                        // 更新包裹装车记录表的扫描状态为取消扫描状态
-                        updateScanActionByPackageCodes(tlist, tSendM);
+                        // 更新包裹装车记录表的扫描状态为取消扫描状态 转运系统自行处理，2023年02月28日下线
+                        // updateScanActionByPackageCodes(tlist, tSendM);
                     }
                     Profiler.registerInfoEnd(callerInfo);
 					return responsePack;

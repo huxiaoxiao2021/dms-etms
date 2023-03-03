@@ -25,6 +25,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -575,7 +576,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
     Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
-    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    //List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    List<User> userList =new ArrayList<>();
+    User user =new User();
+    user.setUserErp("sys");
+    user.setUserCode(123);
+    user.setUserName("系统管理员");
+    userList.add(user);
     resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
@@ -1133,7 +1140,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           return;
         }
         AddBoardBox addBoardBox = assembleComboardParam(request);
-        Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
+        Response<Integer> comboardResp = groupBoardManager.addBoxToBoardV2(addBoardBox);
         if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
           throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
         }
@@ -1518,11 +1525,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("未找到对应箱号，请检查");
       }
       request.setDestinationId(box.getReceiveSiteCode());
+
+      if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
+        BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
+        InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
+        if (!bindMaterialRet.codeSuccess()) {
+          throw new JyBizException("绑定集包袋失败：" + bindMaterialRet.getMessage());
+        }
+      }
+      if (!cycleBagBindCheck(barCode, request.getCurrentOperate().getSiteCode(), box)) {
+        throw new JyBizException(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
+      }
       //匹配流向
       matchDestinationCheck(request);
-      if (!cycleBagBindCheck(barCode, request.getCurrentOperate().getSiteCode(), box)) {
-        throw new JyBizException(BoxResponse.MESSAGE_BC_NO_BINDING);
-      }
     }
     JyComboardEntity condition = new JyComboardEntity();
     condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
@@ -1547,10 +1562,23 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       //三小时内禁止再次发货，返调度再次发货问题处理
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
-          && System.currentTimeMillis() - sendTime.getTime() <= 3L * 3600L * 1000L) {
-        throw new JyBizException("该包裹已发货");
+          && System.currentTimeMillis() - sendTime.getTime() <= ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+        throw new JyBizException("该单号已发货");
       }
     }
+  }
+
+  private BoxMaterialRelationRequest getBoxMaterialRelationRequest(ComboardScanReq request, String barCode) {
+    BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
+    req.setUserCode(request.getUser().getUserCode());
+    req.setUserName(request.getUser().getUserName());
+    req.setOperatorERP(request.getUser().getUserErp());
+    req.setSiteCode(request.getCurrentOperate().getSiteCode());
+    req.setSiteName(request.getCurrentOperate().getSiteName());
+    req.setBoxCode(barCode);
+    req.setMaterialCode(request.getMaterialCode());
+    req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // 绑定
+    return req;
   }
 
   /**
@@ -1571,7 +1599,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException(HintService.getHint(HintCodeConstants.SEND_BY_WAYBILL_PROCESSING));
     }
     // 校验是否已经发货
-    deliveryService.multiSendVerification(sendM, sendResult);
+    //deliveryService.multiSendVerification(sendM, sendResult);
     if (Objects.equals(sendResult.getKey(), SendResult.CODE_SENDED)) {
       throw new JyBizException(sendResult.getValue());
     }
@@ -1665,13 +1693,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     domain.setBizSource(getSendBizSourceEnumEnum(request).getCode());
     domain.setBoardCode(request.getBoardCode());
     domain.setYn(1);
-    if (request.getCurrentOperate().getOperateTime() == null){
-      domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
-      domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
-    }else{
+    if (Objects.equals(request.getBizSource(), BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       Date date = DateUtils.addMilliseconds(request.getCurrentOperate().getOperateTime(), Constants.DELIVERY_DELAY_TIME);
       domain.setCreateTime(date);//固定加5秒
       domain.setOperateTime(date);//固定加5秒
+    }else{
+      domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
+      domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
     }
     return domain;
   }
@@ -1747,7 +1775,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void matchDestinationCheck(ComboardScanReq request) {
     if (!request.getSupportMutilSendFlow()){
       if (!request.getEndSiteId().equals(request.getDestinationId())){
-        throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
+        final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
+        if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
+        }
       }
       return;
     }

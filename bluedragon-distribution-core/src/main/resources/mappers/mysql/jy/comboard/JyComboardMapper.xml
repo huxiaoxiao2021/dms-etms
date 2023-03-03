@@ -347,6 +347,6 @@
     <if test="cancelFlag!=null">
       and cancel_flag =#{cancelFlag}
     </if>
-    limit 1
+    order by id desc limit 1
   </select>
 </mapper>
