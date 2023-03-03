@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.jd.bluedragon.distribution.api.JdRequest;
-
 import java.io.Serializable;
 import java.util.Date;
 

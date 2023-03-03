@@ -5,23 +5,19 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.common.dto.strandreport.request.StrandReportReq;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
+import com.jd.bluedragon.distribution.abnormal.service.StrandService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.rest.abnormal.StrandResouce;
 import com.jd.bluedragon.external.gateway.service.StrandReportGateWayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class StrandReportGateWayServiceImpl implements StrandReportGateWayService {
-    private final Logger logger = LoggerFactory.getLogger(StrandReportGateWayServiceImpl.class);
 
     @Autowired
-    StrandResouce strandResouce;
+    StrandService strandService;
 
   @Override
   @JProfiler(
@@ -54,7 +50,7 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
     Resouce_req.setOperateTime(request.getOperateTime());
     Resouce_req.setBusinessType(10);
 
-    InvokeResult<Boolean> invokeResult = strandResouce.report(Resouce_req);
+    InvokeResult<Boolean> invokeResult = strandService.report(Resouce_req);
     if (null == invokeResult) {
       res.toFail("上报异常");
     } else {
@@ -78,7 +74,7 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
   public JdCResponse<List<ConfigStrandReasonData>> queryReasonList() {
     JdCResponse<List<ConfigStrandReasonData>> res = new JdCResponse<>();
     
-    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandResouce.queryReasonList();
+    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandService.queryReasonList();
     if (null == invokeResult) {
       res.toFail("获取异常原因列表失败！");
     } else {
@@ -104,7 +100,7 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
   public JdCResponse<List<ConfigStrandReasonData>> queryAllReasonList() {
     JdCResponse<List<ConfigStrandReasonData>> res = new JdCResponse<>();
 
-    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandResouce.queryAllReasonList();
+    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandService.queryAllReasonList();
     if (null == invokeResult) {
       res.toFail("获取异常原因列表失败！");
     } else {

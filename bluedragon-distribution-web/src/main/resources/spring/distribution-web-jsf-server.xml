@@ -512,4 +512,12 @@
       server="dmsjsf">
     </jsf:provider>
 
+    <!--  提供给逆向集约接口   -->
+    <jsf:provider id="reverseIntensiveServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService"
+                  alias="${dms.jsf.alias}"
+                  ref="reverseIntensiveService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

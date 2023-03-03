@@ -3,31 +3,41 @@ package com.jd.bluedragon.distribution.qualityControl.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
 import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
 import com.jd.ldop.business.api.dto.response.Response;
@@ -43,6 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -84,6 +95,124 @@ public class QualityControlService {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private SortingService sortingService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Resource(name = "checkPrintInterceptReasonIdSetForOld")
+    private Set<Integer> checkPrintInterceptReasonIdSetForOld;
+
+    /**
+     * 协商再投状态校验
+     * 
+     * @param request
+     * @return
+     */
+    public InvokeResult<RedeliveryMode> redeliveryCheck(RedeliveryCheckRequest request) {
+        InvokeResult<RedeliveryMode> result=new InvokeResult<RedeliveryMode>();
+
+        RedeliveryMode data=new RedeliveryMode();
+        data.setIsCompleted(true);
+
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setData(data);
+
+        if(StringUtils.isEmpty(request.getCode()) || null==request.getCodeType() || request.getCodeType()<1){
+            log.warn("PDA调用协商再投状态验证接口失败-参数错误。入参:{}",JsonHelper.toJson(request));
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("请扫描者包裹号、运单号或箱号！");
+            return result;
+        }
+
+        try{
+            List<String> waybillCodeList=new ArrayList<String>();
+
+            //如果是包裹或运单
+            if (request.getCodeType()==1 || request.getCodeType()==2){
+                String waybillCode= WaybillUtil.getWaybillCode(request.getCode());
+                waybillCodeList.add(waybillCode);
+            }
+
+            //如果是箱号
+            if (request.getCodeType()==3){
+                waybillCodeList = sortingService.getWaybillCodeListByBoxCode(request.getCode());
+            }
+
+            if(waybillCodeList != null && waybillCodeList.size() > 0){
+                for (String waybillCode :waybillCodeList){
+                    Waybill waybillData = waybillQueryManager.getWaybillByWayCode(waybillCode);
+                    //补打拦截
+                    if (waybillData != null
+                            && checkPrintInterceptReasonIdSetForOld != null
+                            && request.getSupExceptionId() != null
+                            && checkPrintInterceptReasonIdSetForOld.contains(request.getSupExceptionId())
+                            && waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
+                        //取消拦截  存在时跳过 不进行补打拦截提示
+                        JdCancelWaybillResponse jdCancelResponse = waybillService.dealCancelWaybill(waybillCode);
+                        if (jdCancelResponse == null || jdCancelResponse.getCode() == null || jdCancelResponse.getCode().equals(JdResponse.CODE_OK)) {
+                            data.setIsCompleted(false);
+                            data.setWaybillCode(waybillCode);
+                            result.setData(data);
+                            result.setMessage("此单号["+ waybillCode +"]"+ HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
+                            break;
+                        }
+                    }
+                    //协商再投拦截
+                    if (waybillData != null
+                            && waybillData.getBusiId() != null
+                            && getRedeliveryState(waybillCode, waybillData.getBusiId()) == 0) {
+                        data.setIsCompleted(false);
+                        data.setWaybillCode(waybillCode);
+                        result.setData(data);
+                        result.setMessage("此单号["+ waybillCode +"]为【发起协商再投未处理】状态，需商家审核完成才能提交异常！");
+                        break;
+                    }
+                    else {
+                        log.warn("PDA调用协商再投状态验证接口失败-无商家信息。运单号:{},入参:{}",waybillCode,JsonHelper.toJson(request));
+                    }
+                }
+            }
+            else {
+                log.warn("PDA调用协商再投状态验证接口失败-无运单信息。入参:{}",JsonHelper.toJson(request));
+                result.setCode(InvokeResult.RESULT_NULL_WAYBILLCODE_CODE);
+                result.setMessage(InvokeResult.RESULT_NULL_WAYBILLCODE_MESSAGE);
+            }
+        } catch (Exception ex) {
+            log.error("PDA调用协商再投状态验证接口失败。异常信息:{}",ex.getMessage(),ex);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+
+        return result;
+    }
+
+    public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
+            log.warn("PDA调用异常配送接口插入质控任务表失败-参数错误[{}]",JsonHelper.toJson(request));
+            result.setCode(QualityControlResponse.CODE_SERVICE_ERROR);
+            result.setMessage("请扫描运单号或者包裹号！");
+            return result;
+        }
+        try{
+            convertThenAddTask(request);
+        }catch(Exception ex){
+            log.error("PDA调用异常配送接口插入质控任务表失败，原因 " , ex);
+            result.setCode(QualityControlResponse.CODE_SERVICE_ERROR);
+            result.setMessage(QualityControlResponse.MESSAGE_SERVICE_ERROR);
+            return result;
+        }
+        result.setCode(QualityControlResponse.CODE_OK);
+        result.setMessage(QualityControlResponse.MESSAGE_OK);
+        return result;
+    }
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
