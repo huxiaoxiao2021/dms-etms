@@ -2607,6 +2607,43 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+
+  public static boolean isCarCode(String carCode) {
+    if (StringUtils.isBlank(carCode)) {
+      return false;
+    }
+    return CARCODE_REGEX.matcher(carCode).matches() ;
+  }
+
+    /**
+     * 判断是否是快运运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,40,'2')
+                && BusinessUtil.isSignChar(waybillSign,54,'0')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
+
+    /**
+     * 判断是否是快运改址拦截的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyAddressModifyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return isKyWaybill(waybillSign)
+                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3');
+    }
     /**
      * 通过运单标识 判断是否需求称重
      * <p>
@@ -2648,36 +2685,5 @@ public class BusinessUtil {
      */
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
-
-    }
-
-    /**
-     * 判断是否是快运运单
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isKyWaybill(String waybillSign){
-        if (waybillSign == null){
-            return false;
-        }
-        return BusinessUtil.isSignChar(waybillSign,40,'2')
-                && BusinessUtil.isSignChar(waybillSign,54,'0')
-                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
-                && BusinessUtil.isSignChar(waybillSign,89,'0');
-    }
-
-    /**
-     * 判断是否是快运改址拦截的运单
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isKyAddressModifyWaybill(String waybillSign){
-        if (waybillSign == null){
-            return false;
-        }
-        return isKyWaybill(waybillSign)
-                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3');
     }
 }

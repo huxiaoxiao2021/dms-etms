@@ -187,6 +187,12 @@ public class DmsConstants {
      */
     public  static final Pattern WORKITEM_SIMPLECODE_REGEX = Pattern.compile("^\\d{14}$");
 
+
+    /**
+     * 车牌号
+     */
+    public  static final Pattern CARCODE_REGEX = Pattern.compile("^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$");
+
     /**
      * 新批次号正则;
      * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
@@ -219,7 +225,7 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
-    
+
     /**
      * 工种类型
      */
@@ -352,12 +358,12 @@ public class DmsConstants {
      * 抖音来源标识
      */
     public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
-    
+
     /**
      * 运单前缀-抖音-JDAZ
      */
     public static final String WAYBILL_CODE_PRE_DOUYIN  = "JDAZ";
-    
+
     /**
      * 增值服务编码-京喜送达服务（ed-a-0073）
      */
