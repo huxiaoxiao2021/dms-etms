@@ -22,21 +22,12 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private JySendProductAggsDao jySendProductAggsDao;
-
-    @Autowired
-    private JySendProductAggsDaoMain jySendProductAggsDaoMain;
-
-    @Autowired
-    private JySendProductAggsDaoBak jySendProductAggsDaoBak;
-
-    @Autowired
-    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
+    private JySendProductAggsSpecialDao jySendProductAggsSpecialDao;
 
     @Override
     public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId) {
 
-        JySendProductAggsDaoStrategy jySendProductAggsDao = getJySendProductAggsDao();
+        JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getSendVehicleProductTypeList");
         List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
@@ -46,7 +37,7 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
 
     @Override
     public Long getToScanCountSum(String sendVehicleBizId) {
-        JySendProductAggsDaoStrategy jySendProductAggsDao = getJySendProductAggsDao();
+        JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getToScanCountSum");
         Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
@@ -56,56 +47,12 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
 
     @Override
     public Boolean insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity) {
-        Boolean result = jySendProductAggsDaoMain.updateByBizProduct(entity)>0;
-        if(!result){
-            return jySendProductAggsDaoMain.insert(entity)>0;
-        }
-        return result;
+        return jySendProductAggsSpecialDao.insertOrUpdateJySendProductAggsMain(entity);
     }
 
     @Override
     public Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity) {
-        Boolean result = jySendProductAggsDaoBak.updateByBizProduct(entity) >0;
-        if(!result){
-            return jySendProductAggsDaoBak.insert(entity) > 0;
-        }
-        return result;
+        return jySendProductAggsSpecialDao.insertOrUpdateJySendProductAggsBak(entity);
     }
-
-    @Override
-    public List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query) {
-        return jySendProductAggsDaoMain.getSendProductAggMainData(query);
-    }
-
-    @Override
-    public List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query) {
-        return jySendProductAggsDaoBak.getSendProductAggBakData(query);
-    }
-
-    @Override
-    public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
-        return jySendProductAggsDao.getSendAggsListByCondition(query);
-    }
-
-    /**
-     * 获取具体的DAO
-     * @return
-     */
-    private JySendProductAggsDaoStrategy getJySendProductAggsDao(){
-        if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
-            log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 读新库开启");
-            if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
-                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读备库开启");
-                return jySendProductAggsDaoBak;
-            }else {
-                log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读主库开启");
-                return jySendProductAggsDaoMain;
-            }
-        }
-        log.info("getJySendProductAggs-JySendAggOldOrNewDataReadSwitch 关闭");
-        return jySendProductAggsDao;
-    }
-
-
 
 }

@@ -816,6 +816,16 @@ public class UccPropertyConfiguration {
 
     private Long reComboardTimeLimit;
 
+    private boolean reComboardSwitch;
+
+    public boolean getReComboardSwitch() {
+        return reComboardSwitch;
+    }
+
+    public void setReComboardSwitch(boolean reComboardSwitch) {
+        this.reComboardSwitch = reComboardSwitch;
+    }
+
     public Long getReComboardTimeLimit() {
         return reComboardTimeLimit;
     }
@@ -1184,6 +1194,16 @@ public class UccPropertyConfiguration {
     private boolean czQuerySwitch;
 
     private Boolean boardListQuerySwitch;
+
+    private boolean  supportMutilScan;
+
+    public boolean getSupportMutilScan() {
+        return supportMutilScan;
+    }
+
+    public void setSupportMutilScan(boolean supportMutilScan) {
+        this.supportMutilScan = supportMutilScan;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;

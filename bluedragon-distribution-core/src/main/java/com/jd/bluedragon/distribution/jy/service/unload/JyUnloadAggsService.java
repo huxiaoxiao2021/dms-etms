@@ -37,10 +37,6 @@ public interface JyUnloadAggsService {
 
     Boolean insertOrUpdateJyUnloadCarAggsBak(JyUnloadAggsEntity entity);
 
-    List<JyUnloadAggsEntity> getUnloadAggsMainData(JyUnloadAggsEntity query);
-
-    List<JyUnloadAggsEntity> getUnloadAggsBakData(JyUnloadAggsEntity query);
-
     //查包裹维度任务统计信息
     JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto);
 
