@@ -65,7 +65,7 @@ public interface SendCodeGateWayService {
      */
     JdCResponse<SendCodeInfoDto> checkSendCodeForPickupRegister(String sendCode);
     /**
-     * 查询批次封车信息
+         * 查询批次封车信息
      * @param sendCode
      * @return
      */
