@@ -2544,6 +2544,13 @@ public class BusinessUtil {
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
 
+  public static boolean isCarCode(String carCode) {
+    if (StringUtils.isBlank(carCode)) {
+      return false;
+    }
+    return CARCODE_REGEX.matcher(carCode).matches() ;
+  }
+
     /**
      * 判断是否是快运运单
      *

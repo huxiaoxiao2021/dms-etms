@@ -859,6 +859,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         return null;
     }
+    public List<String> querySendVehicleBizIdByTransWorkCode(QueryTaskSendDto queryTaskSendDto) {
+        List<String> tranWorkCodes = new ArrayList<>();
+        tranWorkCodes.add(queryTaskSendDto.getKeyword());
+        List<JyBizTaskSendVehicleEntity> entityList = taskSendVehicleService.findSendTaskByTransWorkCode(tranWorkCodes, queryTaskSendDto.getStartSiteId());
+        if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+            if (log.isInfoEnabled()){
+                log.info("根据派车单号查询任务bizId：{}",JsonHelper.toJson(entityList));
+            }
+            List<String> bizIdList = new ArrayList<>();
+            for (JyBizTaskSendVehicleEntity entity : entityList) {
+                bizIdList.add(entity.getBizId());
+            }
+            return bizIdList;
+        }
+        return null;
+    }
 
     public List<String> querySendVehicleBizIdByTaskSimpleCode(QueryTaskSendDto queryTaskSendDto) {
         com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(queryTaskSendDto.getKeyword());

@@ -72,6 +72,7 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(910);
         query.setCurrentOperate(currentOperate);
+        query.setNeedSendFlowStatistics(true);
         JdCResponse<TableTrolleyResp> re = jyComboardGatewayService.listTableTrolleyUnderCross(query);
         System.out.println("根据滑道获取结果：" + JsonHelper.toJson(re));
         TableTrolleyReq tableTrolleyReq = new TableTrolleyReq();
