@@ -100,7 +100,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Autowired
     private NewSealVehicleService newsealVehicleService;
     
-    private static final Integer PAGE_SIZE = 500;
+    private static final Integer PAGE_SIZE = 1000;
     
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -385,6 +385,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
                 } else {
                     packageCodes.add(scanData.getBoxCode());
                 }
+            }
+            if (scanDataList.size() < PAGE_SIZE) {
+                break;
             }
             pageNumber++;
             scanDataList = this.sendMService.selectBoxCodeBySiteAndSendCode(createSite, sendCode, pageNumber, PAGE_SIZE);
