@@ -202,6 +202,15 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
 		return userSignRecordService.deleteUserSignRecord(userSignRequest);
 	}
+	@Override
+	/**
+	 * 查询最近一次-已签未退记录
+	 * @param query
+	 * @return
+	 */
+	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
+		return userSignRecordService.queryLastUnSignOutRecordData(query);
+	}	
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.checkBeforeSignIn",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -274,7 +283,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String positionCode = scanRequest.getPositionCode();
 		try{
 			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
-			Result<com.jdl.basic.api.domain.position.PositionData> apiResult = positionManager.queryPositionInfo(positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> apiResult = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
 			if(apiResult == null){
 				result.toFail("查询网格码失败！");
 				return result;

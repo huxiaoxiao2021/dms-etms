@@ -104,6 +104,12 @@ public interface UserSignGatewayService {
 	 */
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
 	/**
+	 * 查询最近一次-已签未退记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);	
+	/**
 	 * 签到前校验
 	 * @param userSignRequest
 	 * @return

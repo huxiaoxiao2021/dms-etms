@@ -88,6 +88,7 @@ public class UserSignGatewayServiceImplTest {
     	positionResult.toSuccess();
     	com.jdl.basic.api.domain.position.PositionData positionData = new com.jdl.basic.api.domain.position.PositionData();
     	positionData.setGridCode("G0000001");
+    	positionData.setDefaultMenuCode("testMenuCode");
     	positionResult.setData(positionData);
     	
     	lastUnSignOutRecordData = new JdCResponse<UserSignRecordData>();
@@ -99,7 +100,7 @@ public class UserSignGatewayServiceImplTest {
     	lastUnSignOutRecordData.setData(unSignOutData);
     }
     private void setMockPositionData() {
-    	when(positionManager.queryPositionInfo(positionCode1)).thenReturn(positionResult);
+    	when(positionManager.queryPositionWithIsMatchAppFunc(positionCode1)).thenReturn(positionResult);
     }
     private void setLastUnSignOutRecordData() {
     	when(userSignRecordService.queryLastUnSignOutRecordData(any(UserSignQueryRequest.class))).thenReturn(lastUnSignOutRecordData);
@@ -149,5 +150,15 @@ public class UserSignGatewayServiceImplTest {
     	result = userSignGatewayService.checkBeforeSignIn(userSignRequest);
     	Assert.assertEquals(JdCResponse.CODE_CONFIRM,result.getCode());
     	System.out.println(JsonHelper.toJson(result));
-    }    
+    }
+    @Test
+    public void testQueryLastUnSignOutRecordData() throws Exception{
+    	UserSignQueryRequest query = new UserSignQueryRequest();
+    	query.setPositionCode(positionCode1);
+    	query.setUserCode(userCode);
+    	setLastUnSignOutRecordData();
+    	JdCResponse<UserSignRecordData> result = userSignGatewayService.queryLastUnSignOutRecordData(query);
+    	Assert.assertEquals(JdCResponse.CODE_SUCCESS,result.getCode());
+    	System.out.println(JsonHelper.toJson(result));
+    }
 }
