@@ -220,14 +220,12 @@
         </foreach>
     </update>
 
-    <select id="selectLatelyOneByCondition" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultMap="jyBizTaskMachineCalibrateDetailMap">
+    <select id="selectLatelyOneByMachineCode" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition" resultMap="jyBizTaskMachineCalibrateDetailMap">
         select
         <include refid="Base_Column_List"/>
         from jy_biz_task_machine_calibrate_detail
-        <where>
-            yn = 1
-            <include refid="condition_sql"/>
-        </where>
+        where yn = 1
+        and machine_code = #{machineCode} 
         order by task_create_time desc
         limit 1
     </select>
