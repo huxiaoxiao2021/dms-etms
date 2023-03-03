@@ -616,6 +616,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(comboardEntity.getComboardSource()));
             boardDto.setStatus(comboardEntity.getBoardStatus());
             boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(comboardEntity.getBoardStatus()));
+            boardDto.setBoardCreateTime(comboardEntity.getCreateTime());
         }
 
         JyComboardAggsEntity aggsEntity = null;

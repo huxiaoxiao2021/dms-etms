@@ -46,6 +46,7 @@ import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -187,6 +188,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       JyBizTaskSendSortTypeEnum orderTypeEnum) {
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
+
     if (!ucc.getCzQuerySwitch()){
       log.info("=============3.走兼容模式================");
       queryCondition.setLineType(null);
@@ -281,18 +283,37 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     if (!StringUtils.isBlank(queryTaskSendDto.getKeyword())) {
     Long endSiteId = null;
 
-    // 取当前操作网点的路由下一节点
+    // 扫描包裹号取路由流向
     if (WaybillUtil.isPackageCode(queryTaskSendDto.getKeyword())) {
       endSiteId = getWaybillNextRouter(WaybillUtil.getWaybillCode(queryTaskSendDto.getKeyword()),
           startSiteId);
-    } else if (BusinessUtil.isBoxcode(queryTaskSendDto.getKeyword())
+    }//扫箱号取箱号目的地（传站）
+    else if (BusinessUtil.isBoxcode(queryTaskSendDto.getKeyword())
         && JyComboardLineTypeEnum.TRANSFER.getCode().equals(queryTaskSendDto.getLineType())) {
       endSiteId = getBoxEndSiteId(queryTaskSendDto.getKeyword());
-    } else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
+    }//取批次目的地
+    else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
       endSiteId = Long
           .valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(queryTaskSendDto.getKeyword()));
-    } else if (BusinessUtil.isTaskSimpleCode(queryTaskSendDto.getKeyword())) {
+    }//根据任务简码获取派车单号码
+    else if (BusinessUtil.isTaskSimpleCode(queryTaskSendDto.getKeyword())) {
       List<String> sendVehicleBizList = querySendVehicleBizIdByTaskSimpleCode(queryTaskSendDto);
+      if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
+        return sendVehicleBizList;
+      }
+      result.hintMessage("未检索到相应的派车任务！");
+      return null;
+    }//完整车牌号检索
+    else if (BusinessUtil.isCarCode(queryTaskSendDto.getKeyword())){
+      List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+      if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
+        return sendVehicleBizList;
+      }
+      result.hintMessage("未检索到相应的派车任务！");
+      return null;
+    }
+    else if (queryTaskSendDto.getKeyword().startsWith("TW") &&  queryTaskSendDto.getKeyword().length()==16){
+      List<String> sendVehicleBizList = querySendVehicleBizIdByTransWorkCode(queryTaskSendDto);
       if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
         return sendVehicleBizList;
       }
@@ -484,9 +505,10 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     queryTaskSendDto.setKeyword(request.getKeyword());
     //设置默认预计发货时间查询范围
     try {
-      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyCzSendTaskPlanTimeBeginDay()));
-      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), ucc.getJyCzSendTaskPlanTimeEndDay()));
-      queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJySendTaskCreateTimeBeginDay()));
+      Date now =new Date();
+      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addHoursByDay(now,-Double.valueOf(ucc.getJyCzSendTaskPlanTimeBeginDay())));
+      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addHoursByDay(now, Double.valueOf(ucc.getJyCzSendTaskPlanTimeEndDay())));
+      queryTaskSendDto.setCreateTimeBegin(DateHelper.addHoursByDay(now, -Double.valueOf(ucc.getJySendTaskCreateTimeBeginDay())));
 
     } catch (Exception e) {
       log.error("查询传站运输任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e);
