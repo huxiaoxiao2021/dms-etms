@@ -45,6 +45,11 @@ import java.util.List;
 @Service("tmsTransWorkCarArriveConsumer")
 public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
+    //AREA  围栏到达
+    public static final Integer  AREA = 1;
+    //APP  司机点击到达
+    public static final Integer  APP = 2;
+
     private Logger logger = LoggerFactory.getLogger(TmsTransWorkCarArriveConsumer.class);
 
     @Autowired
@@ -74,6 +79,10 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
         }
         if(StringUtils.isEmpty(mqBody.getTransWorkItemCode()) || StringUtils.isEmpty(mqBody.getArriveTime())){
             logger.error("TmsTransWorkCarArriveConsumer consume -->关键数据为空，内容为【{}】", message.getText());
+            return;
+        }
+        if( !AREA.equals(mqBody.getOperateType()) && !APP.equals(mqBody.getOperateType()) ){
+            logger.warn("TmsTransWorkCarArriveConsumer consume -->非司机到达和围栏到达丢弃，内容为【{}】", message.getText());
             return;
         }
         //获取派车明细编码对应的封车任务 并 更新状态为待解
@@ -143,6 +152,11 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
          */
         private String arriveTime;
 
+        /**
+         * 操作类型
+         */
+        private Integer operateType;
+
         public String getTransWorkItemCode() {
             return transWorkItemCode;
         }
@@ -157,6 +171,14 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
         public void setArriveTime(String arriveTime) {
             this.arriveTime = arriveTime;
+        }
+
+        public Integer getOperateType() {
+            return operateType;
+        }
+
+        public void setOperateType(Integer operateType) {
+            this.operateType = operateType;
         }
     }
 }
