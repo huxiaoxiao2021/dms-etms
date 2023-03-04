@@ -190,6 +190,9 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
                 query.setSendCodeList(sealCarInfoBySealCarCodeOfTms.getBatchCodes());
                 List<JyBizTaskComboardEntity> boardEntityList = jyBizTaskComboardService.listBoardTaskBySendCode(query);
+                if (CollectionUtils.isEmpty(boardEntityList)) {
+                    return;
+                }
                 List<String> boardList = new ArrayList<>();
                 for (JyBizTaskComboardEntity entity : boardEntityList) {
                     boardList.add(entity.getBoardCode());
@@ -201,7 +204,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                     logger.error("批量完结板失败：{}",JsonHelper.toJson(boardList));
                 }
             }catch (Exception e) {
-                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()));
+                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()),e);
             }
         }
     }
