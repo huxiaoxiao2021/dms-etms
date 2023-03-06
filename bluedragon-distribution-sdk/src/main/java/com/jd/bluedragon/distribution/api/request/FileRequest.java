@@ -14,7 +14,7 @@ public class FileRequest implements Serializable {
 
     private String fileName;
 
-    private String bucketName;
+    private String folder;
 
     public String getFileNamePrefix() {
         return fileNamePrefix;
@@ -32,11 +32,11 @@ public class FileRequest implements Serializable {
         this.fileName = fileName;
     }
 
-    public String getBucketName() {
-        return bucketName;
+    public String getFolder() {
+        return folder;
     }
 
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 }
