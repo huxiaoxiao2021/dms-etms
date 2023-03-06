@@ -701,6 +701,12 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+    <!--  collection_record和collection_record_detail 待集齐集合表  -->
+    <bean id="collectionRecordDao" class="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+
     <!--  分拣箱号关联  -->
     <bean id="boxRelationDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />

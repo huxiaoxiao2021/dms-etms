@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao" >
+
+	<resultMap id="collectionRecordMap" type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" >
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+		<result column="collection_code" property="collectionCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code" property="aggCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code_type" property="aggCodeType" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="sum" property="sum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_collected" property="isCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_extra_collected" property="isExtraCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="agg_mark" property="aggMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<resultMap id="collectionRecordDetailMap"
+			   type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" >
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+		<result column="collection_code" property="collectionCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="scan_code" property="scanCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="scan_code_type" property="scanCodeType" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code" property="aggCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code_type" property="aggCodeType" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="collected_status" property="collectedStatus" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="collected_mark" property="collectedMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="collected_time" property="collectedTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="base_select_sql">
+
+	</sql>
+
+	<sql id="base_select_sql_detail">
+	</sql>
+
+	<insert id="insertCollectionRecord" parameterType="CollectionRecordPo">
+		INSERT INTO collection_record
+		(
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`,
+			`agg_mark`, `create_time`, `yn`
+		)
+		VALUES (
+			#{id, jdbcType=BIGINT},
+			#{collectionCode, jdbcType=VARCHAR},
+			#{aggCode, jdbcType=VARCHAR},
+			#{aggCodeType, jdbcType=VARCHAR},
+			#{sum, jdbcType=INTEGER},
+			#{isCollected, jdbcType=INTEGER},
+			#{isExtraCollected, jdbcType=INTEGER},
+			#{aggMark, jdbcType=VARCHAR},
+			NOW(),1
+		)
+	</insert>
+
+	<insert id="batchInsertCollectionRecord" parameterType="java.util.List">
+		INSERT INTO collection_record
+		(
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`,
+			`agg_mark`, `create_time`, `yn`
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item.id, jdbcType=BIGINT},
+			#{item.collectionCode, jdbcType=VARCHAR},
+			#{item.aggCode, jdbcType=VARCHAR},
+			#{item.aggCodeType, jdbcType=VARCHAR},
+			#{item.sum, jdbcType=INTEGER},
+			#{item.isCollected, jdbcType=INTEGER},
+			#{item.isExtraCollected, jdbcType=INTEGER},
+			#{item.aggMark, jdbcType=VARCHAR},
+			NOW(),1
+		</foreach>
+	</insert>
+
+	<insert id="batchInsertCollectionRecordDetail" parameterType="java.util.List">
+		INSERT INTO collection_record_detail
+		create_time
+			`id`, `collection_code`, `scan_code`, `scan_code_type`, `agg_code`, `agg_code_type`,
+			`collected_status`, `collected_mark`, `create_time`, `yn`
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+				#{item.id, jdbcType=BIGINT},
+				#{item.collectionCode, jdbcType=VARCHAR},
+				#{item.scanCode, jdbcType=VARCHAR},
+				#{item.scanCodeType, jdbcType=VARCHAR},
+				#{item.aggCode, jdbcType=VARCHAR},
+				#{item.aggCodeType, jdbcType=VARCHAR},
+				#{item.collectedStatus, jdbcType=INTEGER},
+				#{item.collectedMark, jdbcType=VARCHAR},
+				now(), 1
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateCollectionRecord" parameterType="CollectionRecordPo">
+		UPDATE
+			collection_record
+		<set>
+			<if test="isCollected != null">
+				is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+			<if test="aggMark != null">
+				and agg_mark = #{aggMark, jdbcType=VARCHAR}
+			</if>
+			and update_time = NOW()
+		</set>
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</update>
+
+	<update id="updateCollectionRecordDetail" parameterType="CollectionRecordDetailPo">
+		UPDATE
+			collection_record_detail
+		<set>
+			<if test="collectedStatus != null">
+				collected_status = #{collectedStatus, jdbcType=INTEGER}
+			</if>
+			<if test="collectedMark != null">
+				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			</if>
+			and collected_time = NOW()
+		</set>
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code = #{scanCode, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</update>
+
+	<select id="findCollectionRecord" parameterType="CollectionRecordPo" resultMap="collectionRecordMap">
+		SELECT
+			collection_code, agg_code, agg_code_type, sum, is_collected, is_extra_collected, agg_mark
+		FROM
+			collection_record
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			<if test="aggCode != null and aggCodeType != null">
+				and aggCode = #{aggCode, jdbcType=VARCHAR}
+				and aggCodeType = #{aggCodeType, jdbcType=VARCHAR}
+			</if>
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="findCollectionRecordDetail" parameterType="CollectionRecordDetailPo"
+			resultMap="collectionRecordDetailMap">
+		SELECT
+			collection_code, scan_code, scan_code_type, agg_code, agg_code_type, collected_status, collected_mark
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			<if test="scanCode != null">
+				and scanCode = #{scanCode, jdbcType=VARCHAR}
+			</if>
+			<if test="aggCode != null and aggCodeType != null">
+				and aggCode = #{aggCode, jdbcType=VARCHAR}
+				and aggCodeType = #{aggCodeType, jdbcType=VARCHAR}
+			</if>
+			<if test="collectedStatus != null">
+				and collected_status = #{collectedStatus, jdbcType=VARCHAR}
+			</if>
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="countCollectionRecordByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			collection_record
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="countCollectionRecordDetailByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</select>
+
+</mapper>
