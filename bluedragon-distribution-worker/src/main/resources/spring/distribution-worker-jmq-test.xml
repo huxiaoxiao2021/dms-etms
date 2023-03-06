@@ -556,5 +556,8 @@
     <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
     </jmq:consumer>
+    <jmq:consumer id="jmq.jyCollectDataInitConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.data.init}" listener="jyCollectDataInitConsumer"/>
+    </jmq:consumer>
 </beans>
 
