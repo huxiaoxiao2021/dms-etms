@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 
@@ -67,8 +68,8 @@ public interface JyExceptionService {
 
     /**
      * 打印成功后续处理
-     * @param rePrintRecordMq
+     * @param printDto
      */
-    void printSuccess(RePrintRecordMq rePrintRecordMq);
+    void printSuccess(JyExceptionPrintDto printDto);
 
 }

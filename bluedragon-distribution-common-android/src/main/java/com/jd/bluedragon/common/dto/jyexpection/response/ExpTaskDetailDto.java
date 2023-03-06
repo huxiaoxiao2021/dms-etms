@@ -79,6 +79,13 @@ public class ExpTaskDetailDto implements Serializable {
     // 上架人erp
     private String shelfErp;
 
+    //长
+    private Integer length;
+    //宽
+    private Integer width;
+    //高
+    private Integer height;
+
     public String getWeight() {
         return weight;
     }
@@ -269,5 +276,29 @@ public class ExpTaskDetailDto implements Serializable {
 
     public void setShelfErp(String shelfErp) {
         this.shelfErp = shelfErp;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 }

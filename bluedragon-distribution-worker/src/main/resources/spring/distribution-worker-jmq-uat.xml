@@ -470,5 +470,10 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
 
+    <!--  换单打印消费  -->
+    <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
