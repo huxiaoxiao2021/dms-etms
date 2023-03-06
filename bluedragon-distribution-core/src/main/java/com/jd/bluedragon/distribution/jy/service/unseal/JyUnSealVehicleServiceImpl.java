@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -1058,5 +1059,157 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     private boolean filterBySealCarCode(SealCodeRequest request, SealCarDto sealCarDto) {
         return StringUtils.isNotBlank(sealCarDto.getSealCarCode()) && Objects.equals(request.getSealCarCode(), sealCarDto.getSealCarCode());
+    }
+
+    /**
+     * 获取待解封车数据详情
+     *
+     * @param request 请求参数
+     * @return 详情
+     * @author fanggang7
+     * @time 2023-03-02 21:37:32 周四
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnSealVehicleServiceImpl.getUnSealTaskInfo", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Override
+    public Result<SealTaskInfo> getUnSealTaskInfo(SealTaskInfoRequest request) {
+        logInfo("JyUnSealVehicleServiceImpl.getSealTaskDetail param: {}", JsonHelper.toJson(request));
+        Result<SealTaskInfo> result = Result.success();
+
+        try {
+            final Result<Void> checkResult = checkParam4getSealTaskDetail(request);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+            JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
+            if(unloadVehicle == null){
+                log.error("saveRealUnSealRanking not find task! {}", request.getSealCarCode());
+                return result.toFail("未获取到任务数据");
+            }
+
+            final SealTaskInfo sealTaskInfo = new SealTaskInfo();
+            result.setData(sealTaskInfo);
+
+            sealTaskInfo.setSealCarCode(unloadVehicle.getSealCarCode());
+            sealTaskInfo.setVehicleNumber(unloadVehicle.getVehicleNumber());
+            sealTaskInfo.setVehicleStatus(unloadVehicle.getVehicleStatus());
+            sealTaskInfo.setTransportCode(unloadVehicle.getTransWorkItemCode());
+
+            // 查询积分排序
+            if (request.getQueryRankOrder()) {
+                final Result<Void> queryEsSealCarMonitorResult = queryRankOrderIndex(request, unloadVehicle.getEndSiteId(), sealTaskInfo);
+                if (!queryEsSealCarMonitorResult.isSuccess()) {
+                    return result.toFail(queryEsSealCarMonitorResult.getMessage(), queryEsSealCarMonitorResult.getCode());
+                }
+            }
+
+            // 查询ES
+            if (request.getQueryEsSealCarMonitor()) {
+                final Result<Void> queryEsSealCarMonitorResult = queryEsSealCarMonitor(request, sealTaskInfo);
+                if (!queryEsSealCarMonitorResult.isSuccess()) {
+                    return result.toFail(queryEsSealCarMonitorResult.getMessage(), queryEsSealCarMonitorResult.getCode());
+                }
+            }
+
+            // 查询封签号列表
+            if (request.getQuerySealCode()) {
+                final Result<Void> querySealCodeListResult = querySealCodeList(request, sealTaskInfo);
+                if (!querySealCodeListResult.isSuccess()) {
+                    return result.toFail(querySealCodeListResult.getMessage(), querySealCodeListResult.getCode());
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("JyUnSealVehicleServiceImpl.getSealTaskDetail param: {} ", JsonHelper.toJson(request), e);
+            result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4getSealTaskDetail(SealTaskInfoRequest request){
+        Result<Void> result = Result.success();
+        if(request == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        if(StringUtils.isBlank(request.getBizId())){
+            return result.toFail("参数错误，bizId不能为空");
+        }
+        return result;
+    }
+
+    /**
+     * 查询es统计相关信息
+     */
+    private Result<Void> queryEsSealCarMonitor(SealTaskInfoRequest request, SealTaskInfo sealTaskInfo) {
+        Result<Void> result = Result.success();
+        SealCarMonitor sealCarMonitor = jySealVehicleManager.querySealCarData(request.getSealCarCode());
+        if(sealCarMonitor == null){
+            return result.toFail("获取待解封车信息为空!");
+        }
+        sealTaskInfo.setStartSiteName(sealCarMonitor.getStartSiteName());
+        sealTaskInfo.setLocalCount(sealCarMonitor.getLocalCount());
+        sealTaskInfo.setExternalCount(sealCarMonitor.getExternalCount());
+        sealTaskInfo.setTransportCode(sealCarMonitor.getTransportCode());
+        return result;
+    }
+
+    /**
+     * 查询封签号列表
+     */
+    private Result<Void> querySealCodeList(SealTaskInfoRequest request, SealTaskInfo sealTaskInfo) {
+        Result<Void> result = Result.success();
+
+        SealCarDto sealCarDtoQuery = new SealCarDto();
+        sealCarDtoQuery.setSealCarCode(request.getSealCarCode());
+        Integer pageNumber = 1, pageSize = 10;
+        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(pageNumber, pageSize);
+
+        try {
+            CommonDto<PageDto<SealCarDto>> sealInfoResult = newSealVehicleService.findSealInfo(sealCarDtoQuery, queryPageDto);
+            if (sealInfoResult == null) {
+                log.warn("querySealCodeList newSealVehicleService.findSealInfo return null {} {}", JsonHelper.toJson(sealCarDtoQuery), JsonHelper.toJson(queryPageDto));
+                result.toFail("查询运输任务数据为空");
+                return result;
+            }
+            if (!Objects.equals(sealInfoResult.getCode(), Constants.RESULT_SUCCESS)) {
+                log.warn("querySealCodeList newSealVehicleService.findSealInfo fail {} {}", JsonHelper.toJson(sealCarDtoQuery), JsonHelper.toJson(queryPageDto));
+                result.toFail("查询运输任务数据失败");
+                return result;
+            }
+            final PageDto<SealCarDto> pageDto = sealInfoResult.getData();
+            for (SealCarDto sealCarDto : pageDto.getResult()) {
+                if (StringUtils.isNotBlank(sealCarDto.getSealCarCode()) && Objects.equals(request.getSealCarCode(), sealCarDto.getSealCarCode())) {
+                    sealTaskInfo.setSealCodes(sealCarDto.getSealCodes());
+                    sealTaskInfo.setBillCode(sealCarDto.getBillCode());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            log.error("querySealCodeList newSealVehicleService.findSealInfo exception {} {}", JsonHelper.toJson(sealCarDtoQuery), JsonHelper.toJson(queryPageDto));
+            return result.toFail("查询运输数据异常");
+        }
+
+        return result;
+    }
+
+    /**
+     * 查询es统计相关信息
+     */
+    private Result<Void> queryRankOrderIndex(SealTaskInfoRequest request, Long endSiteId, SealTaskInfo sealTaskInfo) {
+        Result<Void> result = Result.success();
+        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+        condition.setEndSiteId(endSiteId);
+        // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
+        Date currentDate = new Date();
+        condition.setSortTime(DateHelper.newTimeRangeHoursAgo(currentDate, DEFAULT_LAST_HOUR));
+        condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
+        condition.setBizId(request.getBizId());
+        JyBizTaskUnloadVehicleEntity realRankingResult = jyBizTaskUnloadVehicleService.findRealRankingByBizId(condition);
+        logInfo("getSealTaskDetail realRankingResult, req:{},resp:{}", JsonHelper.toJson(condition),JsonHelper.toJson(realRankingResult));
+        if(realRankingResult == null){
+            log.error("getSealTaskDetail not find task by condition! {}", request.getBizId());
+            return result.toFail();
+        }
+        sealTaskInfo.setOrderIndex(realRankingResult.getRealRanking());
+        return result;
     }
 }

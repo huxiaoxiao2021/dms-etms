@@ -19,6 +19,8 @@ public class SealTaskInfo implements Serializable {
      */
     private String vehicleNumber;
 
+    private String sealCarCode;
+
     /**
      * 车型
      */
@@ -104,12 +106,35 @@ public class SealTaskInfo implements Serializable {
      */
     private Date actualArriveTime;
 
+    /**
+     * 任务排序
+     */
+    private Integer orderIndex;
+
+    /**
+     * 任务号
+     */
+    private String billCode;
+
+    /**
+     * 封签号集合
+     */
+    private List<String> sealCodes;
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getSealCarCode() {
+        return sealCarCode;
+    }
+
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 
     public String getCarModel() {
@@ -246,5 +271,29 @@ public class SealTaskInfo implements Serializable {
 
     public void setActualArriveTime(Date actualArriveTime) {
         this.actualArriveTime = actualArriveTime;
+    }
+
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    public String getBillCode() {
+        return billCode;
+    }
+
+    public void setBillCode(String billCode) {
+        this.billCode = billCode;
+    }
+
+    public List<String> getSealCodes() {
+        return sealCodes;
+    }
+
+    public void setSealCodes(List<String> sealCodes) {
+        this.sealCodes = sealCodes;
     }
 }

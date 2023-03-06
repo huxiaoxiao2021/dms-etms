@@ -55,7 +55,12 @@ public class VehicleBaseInfo implements Serializable {
     /**
      * 抽检类型
      */
-    private Integer spotCheckType;    
+    private Integer spotCheckType;
+
+    /**
+     * 排序
+     */
+    private Integer orderIndex;
 
     public String getSealCarCode() {
         return sealCarCode;
@@ -128,4 +133,12 @@ public class VehicleBaseInfo implements Serializable {
 	public void setSpotCheckType(Integer spotCheckType) {
 		this.spotCheckType = spotCheckType;
 	}
+
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
 }
