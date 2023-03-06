@@ -41,6 +41,7 @@
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
+		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
 	</properties>
 
 	<dependencies>
@@ -2630,6 +2631,11 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
+		<dependency>
+			<groupId>com.jd.lbs.presort</groupId>
+			<artifactId>block-presort-rpc-aoi-api</artifactId>
+			<version>${block-presort-rpc-aoi-api.version}</version>
+		</dependency>
 
     </dependencies>
 
