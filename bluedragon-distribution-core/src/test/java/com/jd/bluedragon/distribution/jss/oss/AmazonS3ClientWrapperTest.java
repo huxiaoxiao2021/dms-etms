@@ -24,13 +24,13 @@ public class AmazonS3ClientWrapperTest {
     @Before
     public void setUp() throws Exception {
         amazonS3ClientWrapperUnderTest = new AmazonS3ClientWrapper();
-        amazonS3ClientWrapperUnderTest.setAccessKey("JDC_86FF2DB8DB2E09A472EDB6FE0F83");
-        amazonS3ClientWrapperUnderTest.setSecretKey("003C88D99BD343252D13D68D39473AFE");
+        amazonS3ClientWrapperUnderTest.setAccessKey("JDC_D7F39DBD95C716540108BD9333F4");
+        amazonS3ClientWrapperUnderTest.setSecretKey("0AB20B66892C2A4374094F360F912C0A");
         amazonS3ClientWrapperUnderTest.setSigningRegion("cn-north-1");
         amazonS3ClientWrapperUnderTest.setEndpoint("http://s3-internal-office.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
         amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
-        amazonS3ClientWrapperUnderTest.setBucketName("dms-web");
+        amazonS3ClientWrapperUnderTest.setBucketName("dmsweb");
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
 
     }

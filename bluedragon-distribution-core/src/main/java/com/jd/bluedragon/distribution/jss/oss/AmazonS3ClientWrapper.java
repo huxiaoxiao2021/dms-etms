@@ -236,7 +236,8 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.listObjects")
     public List<String> listObjects(String folder, String fileNamePrefix,int maxKeys,String marker){
-        if(StringUtils.isEmpty(fileNamePrefix)){
+        if(StringUtils.isEmpty(folder)){
+            log.error("listObjects-folder不能为空[{}]fileNamePrefix[{}]",folder,fileNamePrefix);
             return Collections.emptyList();
         }
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
