@@ -242,6 +242,7 @@
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
