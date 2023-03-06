@@ -52,7 +52,7 @@ public class JssServiceImpl implements JssService {
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
         try {
             if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
-                amazonS3ClientWrapper.putObject(bucket,inputStream,keyName,length);
+                amazonS3ClientWrapper.putObject(inputStream,bucket,keyName,length);
                 return;
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();
@@ -173,7 +173,7 @@ public class JssServiceImpl implements JssService {
         try {
             String key = UUID.randomUUID().toString() + "." + extName;
             if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
-                return amazonS3ClientWrapper.putObjectThenGetUrl(bucket,inStream,key,bytes.length);
+                return amazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();
 

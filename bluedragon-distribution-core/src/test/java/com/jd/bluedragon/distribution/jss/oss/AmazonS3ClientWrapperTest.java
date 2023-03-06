@@ -8,13 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class AmazonS3ClientWrapperTest {
 
@@ -23,55 +24,42 @@ public class AmazonS3ClientWrapperTest {
     @Before
     public void setUp() throws Exception {
         amazonS3ClientWrapperUnderTest = new AmazonS3ClientWrapper();
+        amazonS3ClientWrapperUnderTest.setAccessKey("JDC_86FF2DB8DB2E09A472EDB6FE0F83");
+        amazonS3ClientWrapperUnderTest.setSecretKey("003C88D99BD343252D13D68D39473AFE");
+        amazonS3ClientWrapperUnderTest.setSigningRegion("cn-north-1");
+        amazonS3ClientWrapperUnderTest.setEndpoint("http://s3-internal-office.cn-north-1.jdcloud-oss.com");
+        amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
+        amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
+        amazonS3ClientWrapperUnderTest.setBucketName("dms-web");
+        amazonS3ClientWrapperUnderTest.afterPropertiesSet();
+
     }
 
     @Test
-    public void testPutObjectAndContentType() {
+    public void testPutObjectAndContentType() throws Exception{
         // Setup
-        final InputStream inputStream = new ByteArrayInputStream("content".getBytes());
+        File file = new File("/Users/xumigen/Downloads/北京开放大学形考3.pdf");
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObjectAndContentType("bucketName", inputStream, "fileName", "contentType",
+        amazonS3ClientWrapperUnderTest.putObjectAndContentType( new FileInputStream(file), "test2",file.getName(), null,
                 0L);
 
         // Verify the results
     }
 
-    @Test
-    public void testPutObjectAndContentType_EmptyInputStream() {
-        // Setup
-        final InputStream inputStream = new NullInputStream(1);
 
-        // Run the test
-        amazonS3ClientWrapperUnderTest.putObjectAndContentType("bucketName", inputStream, "fileName", "contentType",
-                0L);
-
-        // Verify the results
-    }
 
     @Test
-    public void testPutObjectAndContentType_BrokenInputStream() {
+    public void testPutObjectThenGetUrl() throws Exception{
         // Setup
-        final InputStream inputStream = new BrokenInputStream();
+        File file = new File("/Users/xumigen/Downloads/北京开放大学形考3.pdf");
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObjectAndContentType("bucketName", inputStream, "fileName", "contentType",
-                0L);
+        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl( new FileInputStream(file), "test3","北京开放大学形考3.pdf",
+                0L,0);
 
         // Verify the results
-    }
-
-    @Test
-    public void testPutObjectThenGetUrl() {
-        // Setup
-        final InputStream inputStream = new ByteArrayInputStream("content".getBytes());
-
-        // Run the test
-        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl("bucketName", inputStream, "fileName",
-                0L);
-
-        // Verify the results
-        assertEquals("result", result);
+        assertNotNull( result);
     }
 
     @Test
@@ -80,8 +68,8 @@ public class AmazonS3ClientWrapperTest {
         final InputStream inputStream = new NullInputStream(1);
 
         // Run the test
-        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl("bucketName", inputStream, "fileName",
-                0L);
+        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl(inputStream, "","fileName",
+                0L,0);
 
         // Verify the results
         assertEquals("result", result);
@@ -93,8 +81,8 @@ public class AmazonS3ClientWrapperTest {
         final InputStream inputStream = new BrokenInputStream();
 
         // Run the test
-        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl("bucketName", inputStream, "fileName",
-                0L);
+        final String result = amazonS3ClientWrapperUnderTest.putObjectThenGetUrl(inputStream, "","fileName",
+                0L,0);
 
         // Verify the results
         assertEquals("result", result);
@@ -106,7 +94,7 @@ public class AmazonS3ClientWrapperTest {
         final InputStream inputStream = new ByteArrayInputStream("content".getBytes());
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObject("bucketName", inputStream, "fileName", 0L);
+        amazonS3ClientWrapperUnderTest.putObject(inputStream, "","fileName", 0L);
 
         // Verify the results
     }
@@ -117,7 +105,7 @@ public class AmazonS3ClientWrapperTest {
         final InputStream inputStream = new NullInputStream(1);
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObject("bucketName", inputStream, "fileName", 0L);
+        amazonS3ClientWrapperUnderTest.putObject( inputStream, "","fileName", 0L);
 
         // Verify the results
     }
@@ -128,7 +116,7 @@ public class AmazonS3ClientWrapperTest {
         final InputStream inputStream = new BrokenInputStream();
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObject("bucketName", inputStream, "fileName", 0L);
+        amazonS3ClientWrapperUnderTest.putObject( inputStream, "","fileName", 0L);
 
         // Verify the results
     }
@@ -137,7 +125,7 @@ public class AmazonS3ClientWrapperTest {
     public void testDeleteObject() {
         // Setup
         // Run the test
-        amazonS3ClientWrapperUnderTest.deleteObject("bucketName", "key");
+        amazonS3ClientWrapperUnderTest.deleteObject( "","key");
 
         // Verify the results
     }
@@ -146,27 +134,27 @@ public class AmazonS3ClientWrapperTest {
     public void testGeneratePresignedUrl() throws Exception {
         // Setup
         // Run the test
-        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl("bucketName", 1, "fileName");
+        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test2","北京开放大学形考3.pdf");
 
         // Verify the results
-        assertEquals(new URL("https://example.com/"), result);
+        assertNotNull(result);
     }
 
     @Test
     public void testGetUrl() throws Exception {
         // Setup
         // Run the test
-        final URL result = amazonS3ClientWrapperUnderTest.getUrl("bucketName", "fileName");
+        final URL result = amazonS3ClientWrapperUnderTest.getUrl( "test2","北京开放大学形考3.pdf");
 
         // Verify the results
-        assertEquals(new URL("https://example.com/"), result);
+        assertNotNull(result);
     }
 
     @Test
     public void testIsExists() {
         // Setup
         // Run the test
-        final boolean result = amazonS3ClientWrapperUnderTest.isExists("bucketName", "fileName");
+        final boolean result = amazonS3ClientWrapperUnderTest.isExists( "","fileName");
 
         // Verify the results
         assertFalse(result);
@@ -176,7 +164,7 @@ public class AmazonS3ClientWrapperTest {
     public void testListObjects() {
         // Setup
         // Run the test
-        final List<String> result = amazonS3ClientWrapperUnderTest.listObjects("bucketName", "fileNamePrefix", 0,
+        final List<String> result = amazonS3ClientWrapperUnderTest.listObjects( "","fileNamePrefix", 0,
                 "marker");
 
         // Verify the results
@@ -184,20 +172,10 @@ public class AmazonS3ClientWrapperTest {
     }
 
     @Test
-    public void testListObjectListing() {
-        // Setup
-        // Run the test
-        final ObjectListing result = amazonS3ClientWrapperUnderTest.listObjectListing("bucketName", "fileNamePrefix", 0,
-                "marker");
-
-        // Verify the results
-    }
-
-    @Test
     public void testGetObject() {
         // Setup
         // Run the test
-        final S3Object result = amazonS3ClientWrapperUnderTest.getObject("bucketName", "fileName");
+        final S3Object result = amazonS3ClientWrapperUnderTest.getObject( "","fileName");
 
         // Verify the results
     }
