@@ -601,13 +601,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
     Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
-    //List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
-    List<User> userList =new ArrayList<>();
-    User user =new User();
-    user.setUserErp("sys");
-    user.setUserCode(123);
-    user.setUserName("系统管理员");
-    userList.add(user);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
     resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
