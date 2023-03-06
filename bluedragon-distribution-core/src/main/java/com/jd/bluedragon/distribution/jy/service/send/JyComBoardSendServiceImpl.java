@@ -594,6 +594,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
     entity.setGroupCode(request.getGroupCode());
     entity.setStartSiteId(Long.valueOf(startSiteCode));
+    entity.setStartSiteId(Long.valueOf(startSiteCode));
+    // 获取当前场地扫描人员信息
+    JyComboardEntity userQuery = new JyComboardEntity();
+    userQuery.setGroupCode(request.getGroupCode());
+    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
+    userQuery.setCreateTime(time);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
     sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
@@ -784,6 +793,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (log.isInfoEnabled()) {
       log.info("开始流向下板的详细信息：{}", JsonHelper.toJson(request));
     }
+    // 获取当前网格码内扫描人员信息
+    JyComboardEntity userQuery = new JyComboardEntity();
+    userQuery.setGroupCode(request.getGroupCode());
+    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
+    userQuery.setCreateTime(time);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    resp.setScanUserList(userList);
     // 获取当前流向
     TableTrolleyQuery query = new TableTrolleyQuery();
     query.setSiteCode(request.getEndSiteId());
