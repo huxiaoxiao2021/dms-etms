@@ -195,6 +195,12 @@
 				<version>${jdq4-sdk-version}</version>
 			</dependency>
 
+			<dependency>
+				<artifactId>jackson-databind</artifactId>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<version>2.10.0</version>
+			</dependency>
+
 			<!-- 单点登录    start-->
 			<dependency>
 				<groupId>com.jd.ssa</groupId>

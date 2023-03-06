@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
@@ -827,31 +830,55 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     @Override
-    public void printSuccess(RePrintRecordMq rePrintRecordMq) {
-        if (!Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+    public void printSuccess(JyExceptionPrintDto printDto) {
+        logger.info("JyExceptionServiceImpl.printSuccess -{}",JSON.toJSONString(printDto));
+        if (printDto.getSiteCode() == null){
             return;
         }
-        if (rePrintRecordMq.getSiteCode() == null){
-            return;
-        }
-        if (StringUtils.isEmpty(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        if (!WaybillUtil.isPackageCode(rePrintRecordMq.getPackageCode())){
-            return;
-        }
-        JyExceptionEntity conditon = new JyExceptionEntity();
-        conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
-        conditon.setPackageCode(rePrintRecordMq.getPackageCode());
-        List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
-        if (CollectionUtils.isEmpty(jyExceptionEntities)){
-            return;
-        }
-        for (JyExceptionEntity entity:jyExceptionEntities){
-            printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
+        if (Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+            logger.info("JyExceptionServiceImpl.printSuccess 包裹补打");
+            if (StringUtils.isNotEmpty(printDto.getPackageCode()) || StringUtils.isNotEmpty(printDto.getWaybillCode())){
+                JyExceptionEntity conditon = new JyExceptionEntity();
+                conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
+                if(StringUtils.isNotBlank(printDto.getPackageCode())){
+                    conditon.setPackageCode(printDto.getPackageCode());
+                }
+                if(StringUtils.isNotBlank(printDto.getWaybillCode())){
+                    conditon.setWaybillCode(printDto.getWaybillCode());
+                }
+                logger.info("printSuccess 查询条件 -{}",JSON.toJSONString(conditon));
+                List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+                if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                    return;
+                }
+                for (JyExceptionEntity entity:jyExceptionEntities){
+                    printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+                }
+            }
+
+        }else if(Objects.equals(printDto.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
+            logger.info("JyExceptionServiceImpl.printSuccess 换单打印");
+            if (StringUtils.isEmpty(printDto.getWaybillCode())){
+                return;
+            }
+            if (!WaybillUtil.isWaybillCode(printDto.getWaybillCode())){
+                return;
+            }
+            JyExceptionEntity conditon = new JyExceptionEntity();
+            conditon.setSiteCode(Long.valueOf(printDto.getSiteCode()));
+            conditon.setWaybillCode(printDto.getWaybillCode());
+            List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+            if (CollectionUtils.isEmpty(jyExceptionEntities)){
+                return;
+            }
+            for (JyExceptionEntity entity:jyExceptionEntities){
+                printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+            }
         }
 
+
     }
+
 
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
@@ -1006,6 +1033,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         //业务表记录匹配成功单号
         entity.setPackageCode(mqDto.getPackageCode());
+        entity.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getPackageCode()));
         entity.setUpdateTime(mqDto.getNotifyTime());
         entity.setUpdateUserErp(mqDto.getNotifyErp());
         entity.setUpdateUserName(baseStaffByErp.getStaffName());
@@ -1233,6 +1261,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
         // 图片
         dto.setImageUrls(cacheDto.getImageUrls());
+        dto.setLength(cacheDto.getLength());
+        dto.setWidth(cacheDto.getWidth());
+        dto.setHeight(cacheDto.getHeight());
         return dto;
     }
 

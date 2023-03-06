@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
@@ -17,20 +16,14 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.common.KeyValueDto;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
-import com.jd.bluedragon.distribution.jy.service.send.JySendVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.rest.base.SiteResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.sendprint.SendPrintResource;
@@ -57,13 +50,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE;
 
 /**
  * @author : xumigen
@@ -108,6 +99,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+    
+    private static final Integer PAGE_SIZE = 1000;
     
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -313,7 +306,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
 	@Override
-	public JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query) {
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.querySendCodeSealInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query) {
 		JdCResponse<SendCodeSealInfoDto> result = new JdCResponse<SendCodeSealInfoDto>();
 		result.toSucceed();
 		SendCodeSealInfoDto data = new SendCodeSealInfoDto();
@@ -374,11 +368,31 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         	data.setReceiveSiteName(receiveSiteDto.getSiteName());
         }
         data.setSendCode(sendCode);
-        Set<String> pacakgeCodes = new HashSet<String>();
+        
+        // 考虑到大批次问题，分页查询
+        Set<String> packageCodes = new HashSet<String>();
         Set<String> boxCodes = new HashSet<String>();
         Set<String> boardCodes = new HashSet<String>();
-
-        data.setScanPackageNum(pacakgeCodes.size());
+        Integer pageNumber = 1;
+        List<SendM> scanDataList = this.sendMService.selectBoxCodeBySiteAndSendCode(createSite, sendCode,pageNumber, PAGE_SIZE);
+        while (!CollectionUtils.isEmpty(scanDataList)) {
+            for (SendM scanData : scanDataList) {
+                if (StringUtils.isNotBlank(scanData.getBoardCode())) {
+                    boardCodes.add(scanData.getBoardCode());
+                }
+                if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
+                    boxCodes.add(scanData.getBoxCode());
+                } else {
+                    packageCodes.add(scanData.getBoxCode());
+                }
+            }
+            if (scanDataList.size() < PAGE_SIZE) {
+                break;
+            }
+            pageNumber++;
+            scanDataList = this.sendMService.selectBoxCodeBySiteAndSendCode(createSite, sendCode, pageNumber, PAGE_SIZE);
+        }
+        data.setScanPackageNum(packageCodes.size());
         data.setScanBoxNum(boxCodes.size());
         data.setScanBoardNum(boardCodes.size());
         //查询封车状态信息

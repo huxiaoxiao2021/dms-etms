@@ -79,11 +79,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         }
         String packageCode = spotCheckContext.getPackageCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        // 纯配外单校验
-        if(!BusinessUtil.isPurematch(spotCheckContext.getWaybill().getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
-            return;
-        }
         // 泡重比校验
         if(weightVolumeRatioCheck(spotCheckContext, result)){
             return;
