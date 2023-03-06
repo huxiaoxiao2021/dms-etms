@@ -117,7 +117,6 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
 @Service
@@ -595,14 +594,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
     entity.setGroupCode(request.getGroupCode());
     entity.setStartSiteId(Long.valueOf(startSiteCode));
-    // 获取当前场地扫描人员信息
-    JyComboardEntity userQuery = new JyComboardEntity();
-    userQuery.setGroupCode(request.getGroupCode());
-    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
-    userQuery.setCreateTime(time);
-    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
-    resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
     sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
@@ -793,14 +784,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (log.isInfoEnabled()) {
       log.info("开始流向下板的详细信息：{}", JsonHelper.toJson(request));
     }
-    // 获取当前网格码内扫描人员信息
-    JyComboardEntity userQuery = new JyComboardEntity();
-    userQuery.setGroupCode(request.getGroupCode());
-    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
-    userQuery.setCreateTime(time);
-    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
-    resp.setScanUserList(userList);
     // 获取当前流向
     TableTrolleyQuery query = new TableTrolleyQuery();
     query.setSiteCode(request.getEndSiteId());
@@ -2772,6 +2755,26 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     invokeResult.setCode(RESULT_SUCCESS_CODE);
     invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
     return invokeResult;
+  }
+
+  @Override
+  public InvokeResult<SendFlowDataResp> queryUserByStartSiteCode(BoardReq request) {
+    SendFlowDataResp resp = new SendFlowDataResp();
+    List<User> userList = new ArrayList<>();
+    resp.setScanUserList(userList);
+    try{
+      // 获取当前场地扫描人员信息
+      JyComboardEntity userQuery = new JyComboardEntity();
+      userQuery.setGroupCode(request.getGroupCode());
+      userQuery.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
+      userQuery.setCreateTime(time);
+      userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    }catch (Exception e) {
+      log.error("获取扫描人员信息失败{}",JsonHelper.toJson(request));
+    }
+    resp.setScanUserList(userList);
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
   private HashMap<String, JyComboardAggsEntity> getBoardScanCountMap(List<JyComboardAggsEntity> boardScanCountList) {
