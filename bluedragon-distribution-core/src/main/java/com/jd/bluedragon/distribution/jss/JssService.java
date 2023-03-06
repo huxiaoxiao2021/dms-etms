@@ -93,21 +93,4 @@ public interface JssService {
     String uploadFile(String bucket, byte[] bytes, String extName);
 
 
-
-    /**
-     * 是否存在bucket
-     *
-     * @param bucket
-     * @return
-     */
-     boolean hasBucket(String bucket);
-
-    /**
-     * 创建bucket
-     *
-     * @param bucket
-     * @return
-     */
-     void createBucket(String bucket);
-
 }
