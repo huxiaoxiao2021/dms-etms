@@ -50,3 +50,4 @@ bluedragon-distribution.iws
 /bluedragon-distribution-external-sdk/.classpath
 /bluedragon-distribution-external-sdk/target
 */target
+*.DS_Store

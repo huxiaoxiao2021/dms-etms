@@ -2,11 +2,10 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.integral.request.IntegralRankingRequest;
 import com.jd.bluedragon.common.dto.integral.request.IntegralRequest;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
-import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyRuleDescriptionDTO;
+import com.jd.bluedragon.common.dto.integral.request.IntegralSummaryRequest;
+import com.jd.bluedragon.common.dto.integral.response.*;
 import com.jd.bluedragon.distribution.integral.service.IntegralService;
 import com.jd.bluedragon.external.gateway.service.IntegralGatewayService;
 import com.jd.ump.annotation.JProEnum;
@@ -70,5 +69,23 @@ public class IntegralGatewayServiceImpl implements IntegralGatewayService {
         JyIntegralDetailQuery query = new JyIntegralDetailQuery();
         BeanUtils.copyProperties(request, query);
         return integralService.queryQuotaDescriptionByCondition(query);
+    }
+
+    @Override
+    @JProfiler(jKey = "IntegralGatewayService.integralRankingList",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<JyIntegralRankingDTO>> integralRankingList(IntegralRankingRequest req) {
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "IntegralGatewayService.integralSummary",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<IntegralSummaryDto>> integralSummary(IntegralSummaryRequest req) {
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "IntegralGatewayService.personalIntegralRanking",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<JyPersonalIntegralRankingDto> personalIntegralRanking(IntegralRankingRequest req) {
+        return null;
     }
 }
