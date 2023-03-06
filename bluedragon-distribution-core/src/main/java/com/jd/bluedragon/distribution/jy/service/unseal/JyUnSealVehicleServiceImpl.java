@@ -497,6 +497,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         }
 
         vehicleBaseInfo.setSealCarCode(entity.getSealCarCode());
+        vehicleBaseInfo.setBizId(entity.getBizId());
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
@@ -1072,7 +1073,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnSealVehicleServiceImpl.getUnSealTaskInfo", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public Result<SealTaskInfo> getUnSealTaskInfo(SealTaskInfoRequest request) {
-        logInfo("JyUnSealVehicleServiceImpl.getSealTaskDetail param: {}", JsonHelper.toJson(request));
+        logInfo("JyUnSealVehicleServiceImpl.getUnSealTaskInfo param: {}", JsonHelper.toJson(request));
         Result<SealTaskInfo> result = Result.success();
 
         try {
@@ -1119,7 +1120,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
 
         } catch (Exception e) {
-            log.error("JyUnSealVehicleServiceImpl.getSealTaskDetail param: {} ", JsonHelper.toJson(request), e);
+            log.error("JyUnSealVehicleServiceImpl.getUnSealTaskInfo param: {} ", JsonHelper.toJson(request), e);
             result.toFail("系统异常");
         }
         return result;

@@ -18,6 +18,11 @@ public class VehicleBaseInfo implements Serializable {
     private String sealCarCode;
 
     /**
+     * 业务编码
+     */
+    private String bizId;
+
+    /**
      * 车牌号
      */
     private String vehicleNumber;
@@ -68,6 +73,14 @@ public class VehicleBaseInfo implements Serializable {
 
     public void setSealCarCode(String sealCarCode) {
         this.sealCarCode = sealCarCode;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public String getVehicleNumber() {
