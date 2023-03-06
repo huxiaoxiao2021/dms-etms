@@ -31,7 +31,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.*;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;

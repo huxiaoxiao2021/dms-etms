@@ -20,7 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;

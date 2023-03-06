@@ -8,7 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.Date;
 
