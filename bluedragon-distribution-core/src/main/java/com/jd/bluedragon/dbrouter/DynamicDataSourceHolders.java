@@ -8,23 +8,22 @@ public class DynamicDataSourceHolders {
     holder.set(dataSource);
   }
 
-  public static DynamicDataSourceType getDataSource(){
-    return holder.get();
-  }
+  public static DynamicDataSourceType getDataSource(){ return holder.get(); }
 
   public static void clearDataSource() {
     holder.remove();
   }
+
 
   public static DynamicDataSourceType getDataSources(String dataSource){
     DynamicDataSourceType d = null;
     if (DynamicDataSourceType.DEFAULT.name().equals(dataSource)){
       d =DynamicDataSourceType.DEFAULT;
     }
-    if (DynamicDataSourceType.AGGS_MAIN.name().equals(dataSource)){
+    else if (DynamicDataSourceType.AGGS_MAIN.name().equals(dataSource)){
       d =DynamicDataSourceType.AGGS_MAIN;
     }
-    if (DynamicDataSourceType.AGGS_SLAVE.name().equals(dataSource)){
+    else if (DynamicDataSourceType.AGGS_SLAVE.name().equals(dataSource)){
       d =DynamicDataSourceType.AGGS_SLAVE;
     }
     return d;

@@ -6,9 +6,9 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicDataSources extends AbstractRoutingDataSource {
+public class AggsDataSources extends AbstractRoutingDataSource {
 
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DynamicDataSources.class);
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AggsDataSources.class);
 
   private Object defaultDataSource;
 
