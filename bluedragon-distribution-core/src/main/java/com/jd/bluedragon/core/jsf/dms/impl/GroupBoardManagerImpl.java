@@ -205,4 +205,15 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return null;
     }
 
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardListBySendFlow",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Boolean batchCloseBoard(List<String> boardCodeList) {
+        Response<Boolean> response = groupBoardService.batchCloseBoard(boardCodeList);
+        if (response != null) {
+            return response.getData();
+        }
+        return false;
+    }
+
 }

@@ -995,6 +995,46 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是冷链专送
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdDelivery(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G);
+    }
+
+    /**
+     * 判断是否是冷链城配
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdCityDistribute(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是冷链卡班
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdKB(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否是冷链小票
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdReceipt(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_6, WaybillSignConstants.CHAR_80_7);
+    }
+
+    /**
      * 判断是否是生鲜纯配城配共配
      * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
      * @param waybillSign
@@ -2543,6 +2583,13 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+
+  public static boolean isCarCode(String carCode) {
+    if (StringUtils.isBlank(carCode)) {
+      return false;
+    }
+    return CARCODE_REGEX.matcher(carCode).matches() ;
+  }
 
     /**
      * 判断是否是快运运单
