@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd ">
 
-	<!-- ucc 配置 -->
+	<!-- ucc 配置  -->
 	<bean id="uccConfigInsPostProcessor" class="com.jd.coo.ucc.client.service.UccConfigInsPostProcessor"/>
 
 	<bean id="uccConfigCenter" class="com.jd.coo.ucc.client.service.UccConfigCenter" lazy-init="false">
