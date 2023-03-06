@@ -18,4 +18,11 @@
         <property name="userDefinedProperties" ref="maxblock150"/>
     </bean>
 
+    <bean id="boardChuteConsumer" class="com.jd.bluedragon.distribution.jdq4.consume.BoardChuteConsumer">
+        <property name="username" value="${jdq.producer.boardchute.username}"/>
+        <property name="domain" value="${jdq.dmsautomatic.boardchute.domain}"/>
+        <property name="password" value="${jdq.operatelog.boardchute.password}"/>
+        <property name="groupId" value="${jdq.operatelog.boardchute.groupId}"/>
+        <property name="topic" value="${jdq.operatelog.boardchute.topic}"/>
+    </bean>
 </beans>

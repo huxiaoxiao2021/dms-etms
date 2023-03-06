@@ -472,7 +472,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
             if (commonDto == null) {
                 invokeResult.setCode(SERVER_ERROR_CODE);
-                invokeResult.setMessage("查询运力信息结果为空:");
+                invokeResult.setMessage("查询运力信息结果为空");
                 return invokeResult;
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
@@ -481,8 +481,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 transportResp.setTransWay(data.getTransWay());
                 transportResp.setTransTypeName(data.getTransTypeName());
                 if (reqcuest.getEndSiteId().equals(endNodeId)) {
-                    invokeResult.setCode(JdResponse.CODE_OK);
-                    invokeResult.setMessage(JdResponse.MESSAGE_OK);
+                    invokeResult.setCode(RESULT_SUCCESS_CODE);
+                    invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                     invokeResult.setData(transportResp);
                 } else {
                     //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
@@ -493,7 +493,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         invokeResult.setData(transportResp);
                     } else {
                         invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                        invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
+                        invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVE_DIFF_ERROR);
                         return invokeResult;
                     }
                 }
@@ -616,6 +616,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardDto.setComboardSource(JyBizTaskComboardSourceEnum.getNameByCode(comboardEntity.getComboardSource()));
             boardDto.setStatus(comboardEntity.getBoardStatus());
             boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(comboardEntity.getBoardStatus()));
+            boardDto.setBoardCreateTime(comboardEntity.getCreateTime());
         }
 
         JyComboardAggsEntity aggsEntity = null;

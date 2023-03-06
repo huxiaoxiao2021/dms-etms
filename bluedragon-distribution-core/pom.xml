@@ -41,6 +41,7 @@
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
+		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
 	</properties>
 
 	<dependencies>
@@ -399,7 +400,7 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>3.1.16</version>
+			<version>3.5.5</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>asm</artifactId>
@@ -411,7 +412,7 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>3.1.16</version>
+			<version>3.5.5</version>
 		</dependency>
 
 
@@ -646,6 +647,10 @@
 				<exclusion>
 					<artifactId>aspectjweaver</artifactId>
 					<groupId>org.aspectj</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1303,8 +1308,14 @@
 		</dependency>
         <dependency>
             <artifactId>log4j-1.2-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-            <version>2.3</version>
+			<groupId>org.apache.logging.log4j</groupId>
+            <version>2.17.1-jdsec.rc1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j-core</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
 		<!-- TC -->
@@ -1922,9 +1933,17 @@
 					<artifactId>jackson-mapper-asl</artifactId>
 					<groupId>org.codehaus.jackson</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+		</dependency>
+	
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
@@ -2102,6 +2121,12 @@
 
 
 		<dependency>
+			<groupId>com.jd.bdp.jdq</groupId>
+			<artifactId>jdwdata</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
 			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
@@ -2236,13 +2261,13 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.12.3</version>
+            <version>2.17.1-jdsec.rc1</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.12.3</version>
+            <version>2.17.1-jdsec.rc1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -2606,6 +2631,11 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
+		<dependency>
+			<groupId>com.jd.lbs.presort</groupId>
+			<artifactId>block-presort-rpc-aoi-api</artifactId>
+			<version>${block-presort-rpc-aoi-api.version}</version>
+		</dependency>
 
     </dependencies>
 

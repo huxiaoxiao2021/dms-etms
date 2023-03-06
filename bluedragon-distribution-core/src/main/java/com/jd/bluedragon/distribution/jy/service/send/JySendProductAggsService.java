@@ -24,10 +24,5 @@ public interface JySendProductAggsService {
 
     Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity);
 
-    List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query);
-
-    List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query);
-
-    List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query);
 }
 

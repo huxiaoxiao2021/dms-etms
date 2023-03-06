@@ -13,7 +13,7 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public class JySendAggsDao extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
+class JySendAggsDao extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
 
     private final static String NAMESPACE = JySendAggsDao.class.getName();
 
