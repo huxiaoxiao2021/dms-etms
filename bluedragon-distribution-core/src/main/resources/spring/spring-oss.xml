@@ -11,13 +11,15 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <!-- 云oss -->
-    <bean id="amazonS3ClientWrapper" class="com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper">
+    <bean id="dmswebAmazonS3ClientWrapper" class="com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper">
        <property name="accessKey" value="${oss.accessKey}"/>
        <property name="secretKey" value="${oss.secretKey}"/>
        <property name="signingRegion" value="${oss.signingRegion}"/>
        <property name="endpoint" value="${oss.endpoint}"/>
-       <property name="socketTimeout" value="${oss.socketTimeout}"/>
-       <property name="connectionTimeout" value="${oss.connectionTimeout}"/>
+        <property name="bucketName" value="${oss.bucketName:dms-web}"/>
+       <property name="socketTimeout" value="${oss.socketTimeout:5000}"/>
+       <property name="connectionTimeout" value="${oss.connectionTimeout:5000}"/>
+
     </bean>
 
 

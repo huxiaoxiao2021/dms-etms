@@ -16,6 +16,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.CharArrayBuffer;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -26,10 +27,11 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -47,35 +49,74 @@ public class FileResource {
     @Autowired
     private AmazonS3ClientWrapper amazonS3ClientWrapper;
 
-    private static String FORM_FILE_ELEMENT_NAME = "attachment";
+    /**
+     * 表单中的附件属性名称
+     */
+    private static final String FORM_FILE_ELEMENT_NAME = "attachment";
 
+    /**
+     * 表单中的 bucketName属性名称
+     */
+    private static final String FORM_FOLDER_ELEMENT_NAME = "folder";
+
+    /**
+     * 表单中文件名称属性名
+     */
+    private static final String FORM_FILENAME_ELEMENT_NAME = "fileName";
+
+    /**
+     * 如果上传文件的名称包含中文，需要客户端对内容做编码，编码方式：
+     * URLEncoder.encode("你好", "utf-8")
+     * 获取值的时候已经做了解码 URLDecoder.decode("", "UTF-8")
+     * @param formDataInputs
+     * @return
+     */
     @POST
     @Path("/uploadfile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public InvokeResult<String> uploadfile(MultipartFormDataInput formDataInputs){
-        log.info("上传文件开始");
+        CallerInfo info = Profiler.registerInfo("DMS.WEB.FileResource.uploadfile", Constants.UMP_APP_NAME_DMSWEB, false, true);
         InvokeResult<String> invokeResult = new InvokeResult<>();
-        Map<String, List<InputPart>> uploadForm = formDataInputs.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get(FORM_FILE_ELEMENT_NAME);
-        if(CollectionUtils.isEmpty(inputParts)){
-            invokeResult.error("上传文件内容为空表单name："+FORM_FILE_ELEMENT_NAME);
-            return invokeResult;
-        }
-        for (InputPart inputPart : inputParts) {
-            try {
-                InputStream inputStream = inputPart.getBody(InputStream.class,null);
-                String fileName = getFileNameByFileInputPart(inputPart);
-                log.info("上传文件名称fileName[{}]",fileName);
-                amazonS3ClientWrapper.putObjectWithFlow("",inputStream,fileName);
-            } catch (IOException e) {
-                log.error("上传文件报错",e);
+        log.info("上传文件开始");
+        String fileName = null;
+        String folder = null;
+        try {
+            Map<String, List<InputPart>> uploadForm = formDataInputs.getFormDataMap();
+            folder = getElementValue(uploadForm,FORM_FOLDER_ELEMENT_NAME);
+            fileName = getElementValue(uploadForm,FORM_FILENAME_ELEMENT_NAME);
+            if(StringUtils.isEmpty(folder)){
+                log.info("上传文件-文件夹folder内容为空");
+                invokeResult.error("上传文件内容为空表单name："+FORM_FOLDER_ELEMENT_NAME);
+                return invokeResult;
             }
+            if(StringUtils.isEmpty(fileName)){
+                log.info("上传文件-文件夹folder内容为空");
+                invokeResult.error("上传文件内容为空表单name："+FORM_FOLDER_ELEMENT_NAME);
+                return invokeResult;
+            }
+            List<InputPart> inputParts = uploadForm.get(FORM_FILE_ELEMENT_NAME);
+            if(CollectionUtils.isEmpty(inputParts)){
+                log.info("上传文件folder[{}]附件内容为空",folder);
+                invokeResult.error("上传文件内容为空表单name："+FORM_FILE_ELEMENT_NAME);
+                return invokeResult;
+            }
+            InputStream inputStream = inputParts.get(0).getBody(InputStream.class,null);
+            MediaType mediaType = inputParts.get(0).getMediaType();
+            amazonS3ClientWrapper.putObjectWithFlow(inputStream,mediaType.toString(),folder,fileName);
+            invokeResult.success();
+            log.info("上传文件结束folder[{}]fileName[{}]",folder,fileName);
+            return invokeResult;
+        } catch (Exception e) {
+            log.error("上传文件报错fileName[{}]folder[{}]",fileName,folder,e);
+            Profiler.functionError(info);
+            invokeResult.error("上传文件报错");
+            return invokeResult;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
-        invokeResult.success();
-        log.info("上传文件结束");
-        return invokeResult;
     }
+
 
 
     @POST
@@ -84,23 +125,33 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response downloadFile(FileRequest fileRequest) {
         log.info("下载文件-开始fileRequest[{}]", JsonHelper.toJson(fileRequest));
+        CallerInfo info = Profiler.registerInfo("DMS.WEB.FileResource.downloadFile", Constants.UMP_APP_NAME_DMSWEB, false, true);
         Response.ResponseBuilder response = null;
-        if(StringUtils.isEmpty(fileRequest.getBucketName()) || StringUtils.isEmpty(fileRequest.getFileName())){
-            log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
-            response = Response.status(Response.Status.BAD_REQUEST);
-            return response.build();
-        }
-        S3Object s3Object = amazonS3ClientWrapper.getObject(fileRequest.getBucketName(),fileRequest.getFileName());
+        try {
+            if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())){
+                log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+                response = Response.status(Response.Status.BAD_REQUEST);
+                return response.build();
+            }
+            S3Object s3Object = amazonS3ClientWrapper.getObject(fileRequest.getFolder(),fileRequest.getFileName());
+            if(s3Object == null){
+                log.error("下载文件报错-文件不存在fileName[{}]",fileRequest.getFileName());
+                response = Response.status(Response.Status.NOT_FOUND);
+                return response.build();
 
-        if(s3Object == null){
-            log.error("下载文件报错-文件不存在fileName[{}]",fileRequest.getFileName());
-            response = Response.status(Response.Status.NOT_FOUND);
+            }
+            response = Response.ok(s3Object.getObjectContent());
+            response.header("Content-Disposition", "attachment;filename=" + URLDecoder.decode(fileRequest.getFileName(), "UTF-8"));
+            response.type(s3Object.getObjectMetadata().getContentType());
             return response.build();
-
+        } catch (Exception e) {
+            log.error("上传文件报错fileRequest[{}]", JsonHelper.toJson(fileRequest),e);
+            Profiler.functionError(info);
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+            return response.build();
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        response = Response.ok(s3Object.getObjectContent());
-        response.header("Content-Disposition", "attachment;filename=" + fileRequest.getFileName());
-        return response.build();
     }
 
     @POST
@@ -109,33 +160,40 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public InvokeResult<List<String>> listFiles(FileRequest fileRequest) {
         InvokeResult<List<String>> invokeResult = new InvokeResult<>();
+        if(StringUtils.isEmpty(fileRequest.getFolder())){
+            log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+            invokeResult.error("下载文件报错-参数校验不通过folder不能为空");
+            return invokeResult;
+        }
         invokeResult.success();
-        List<String> listFiles = amazonS3ClientWrapper.listObjects("",fileRequest.getFileNamePrefix(),1000,null);
+        List<String> listFiles = amazonS3ClientWrapper.listObjects(fileRequest.getFolder(),fileRequest.getFileNamePrefix(),1000,null);
         invokeResult.setData(listFiles);
         return invokeResult;
     }
 
     @POST
     @Path("/deleteFile")
-    @JProfiler(jKey = "DMS.WEB.StorageResource.putaway", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.FileResource.deleteFile", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public InvokeResult<Boolean> deleteFile(FileRequest fileRequest){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())){
+            log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+            result.error("下载文件报错-参数校验不通过fileName、folder不能为空");
+            return result;
+        }
         result.success();
-        amazonS3ClientWrapper.deleteObject("",fileRequest.getFileName());
+        amazonS3ClientWrapper.deleteObject(fileRequest.getFolder(),fileRequest.getFileName());
         return result;
     }
 
-    public static String getFileNameByFileInputPart(InputPart filePart) {
-        String[] contentDispositionHeader = filePart.getHeaders().getFirst("Content-Disposition").split(";");
-        for (String fileName : contentDispositionHeader) {
-            if ((fileName.trim().startsWith("filename"))) {
-                String[] tmp = fileName.split("=");
-                String fileNameStr = tmp[1].trim().replace("\"", "");
-                return fileNameStr;
-            }
+    public static String getElementValue(Map<String, List<InputPart>> uploadForm,String elementName) throws IOException{
+        List<InputPart> inputPartList = uploadForm.get(elementName);
+        if(CollectionUtils.isEmpty(inputPartList)){
+            return null;
         }
-        return null;
+        String value = inputPartList.get(0).getBodyAsString().trim().replace("\"", "");
+        return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
     }
 }
