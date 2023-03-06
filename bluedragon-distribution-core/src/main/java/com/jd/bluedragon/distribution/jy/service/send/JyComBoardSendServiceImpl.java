@@ -2758,7 +2758,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  public InvokeResult<SendFlowDataResp> queryUserByStartSiteCode(BoardReq request) {
+  public InvokeResult<SendFlowDataResp> querySacnUser(SendFlowQueryReq request) {
     SendFlowDataResp resp = new SendFlowDataResp();
     List<User> userList = new ArrayList<>();
     resp.setScanUserList(userList);

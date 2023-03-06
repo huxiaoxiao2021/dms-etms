@@ -630,7 +630,7 @@ public class JyComboardGatewayServiceImplTest {
     
     @Test
     public void  queryUserByStartSiteCodeTest() {
-        BoardReq boardReq = new BoardReq();
+        SendFlowQueryReq boardReq = new SendFlowQueryReq();
         CurrentOperate operate = new CurrentOperate();
         operate.setSiteCode(910);
         operate.setSiteName("北京马驹桥分拣中心");
@@ -640,6 +640,6 @@ public class JyComboardGatewayServiceImplTest {
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         boardReq.setUser(user);
-        jyComboardGatewayService.queryUserByStartSiteCode(boardReq);
+        jyComboardGatewayService.querySacnUser(boardReq);
     }
 }
