@@ -159,6 +159,6 @@ public interface JyComboardGatewayService {
    * @param req
    * @return
    */
-  JdCResponse<SendFlowDataResp> querySacnUser(SendFlowQueryReq req);
+  JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
 
 }

@@ -160,8 +160,8 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse<SendFlowDataResp> querySacnUser(SendFlowQueryReq req) {
-    return retJdCResponse(jyComBoardSendService.querySacnUser(req));
+  public JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req) {
+    return retJdCResponse(jyComBoardSendService.queryScanUser(req));
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

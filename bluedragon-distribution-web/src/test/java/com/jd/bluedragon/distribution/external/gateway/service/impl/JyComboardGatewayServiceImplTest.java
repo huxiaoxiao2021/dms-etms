@@ -640,6 +640,6 @@ public class JyComboardGatewayServiceImplTest {
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         boardReq.setUser(user);
-        jyComboardGatewayService.querySacnUser(boardReq);
+        jyComboardGatewayService.queryScanUser(boardReq);
     }
 }

@@ -188,5 +188,5 @@ public interface JyComBoardSendService {
    * @param req
    * @return
    */
-  InvokeResult<SendFlowDataResp> querySacnUser(SendFlowQueryReq req);
+  InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
 }
