@@ -16,6 +16,7 @@ public interface JyEvaluateService {
     /**
      * 评价维度枚举
      */
+    补充缓存
     JdCResponse<List<DimensionOption>> dimensionOptions();
 
     /**
@@ -26,6 +27,7 @@ public interface JyEvaluateService {
     /**
      * 查询评价详情
      */
+    返回对象修改
     JdCResponse<List<EvaluateDimensionDto>> findTargetEvaluateInfo(EvaluateTargetReq request);
 
     /**

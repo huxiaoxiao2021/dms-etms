@@ -110,6 +110,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     @Override
+    map 内存组装
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<EvaluateDimensionDto>> findTargetEvaluateInfo(EvaluateTargetReq request) {
         JdCResponse<List<EvaluateDimensionDto>> result = new JdCResponse<>();
@@ -137,7 +138,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return result;
     }
 
-    @Override
+    @Override加锁
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> saveTargetEvaluate(EvaluateTargetReq request) {
         JdCResponse<Void> result = new JdCResponse<>();
@@ -158,7 +159,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             } else {
                 // 构造不满意的记录
                 recordList = createEvaluateRecord(request, evaluateTargetInfo);
-            }
+            }注释
             // 保存
             jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
         } catch (JyBizException e) {
@@ -195,7 +196,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return result;
     }
 
-
+报表字段单独加工
     private JyEvaluateTargetInfoEntity createTargetInfo(EvaluateTargetReq request) {
         // 查询运输任务封车详情
         SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
@@ -284,7 +285,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
             JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
-            record.setEvaluateType(1);
+            record.setEvaluateType(1);评价类型做枚举
             record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
             record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
             record.setStatus(request.getStatus());
@@ -299,7 +300,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (CollectionUtils.isNotEmpty(dimensionReq.getImgUrlList())) {
                 int count = dimensionReq.getImgUrlList().size();
                 imgCount = imgCount + count;
-                record.setImgCount(count);
+                record.setImgCount(count); 报表字段走异步
                 record.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(dimensionReq.getImgUrlList()));
             }
             if (StringUtils.isNotBlank(dimensionReq.getRemark())) {
@@ -341,7 +342,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private void setExtendTargetInfo(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo,
                                      StringBuilder remarkStr, StringBuilder dimensionStr, int imgCount) {
-        if (evaluateTargetInfo.getId() == null) {
+        if (evaluateTargetInfo.getId() == null) {  报表加工另外处理
             if (dimensionStr.length() > 0) {
                 evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
             }
@@ -372,6 +373,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
     }
 
+    注释 + 定义变量
     private void transformDataToMap(Map<Integer, EvaluateDimensionDto> map, Map<Integer,
             JyEvaluateDimensionEntity> dimensionEnumMap, JyEvaluateRecordEntity record) {
         EvaluateDimensionDto evaluateDimensionDto = map.get(record.getDimensionCode());
