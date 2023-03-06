@@ -10,11 +10,20 @@ import java.io.Serializable;
  **/
 public class FileRequest implements Serializable {
 
+    /**
+     * 查看文件列表是需要传
+     */
     private String fileNamePrefix;
 
     private String fileName;
 
     private String folder;
+
+    /**
+     * 删除和上传时需要传入
+     */
+    private String secretKey;
+
 
     public String getFileNamePrefix() {
         return fileNamePrefix;
@@ -38,5 +47,13 @@ public class FileRequest implements Serializable {
 
     public void setFolder(String folder) {
         this.folder = folder;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
     }
 }

@@ -12,6 +12,7 @@ import com.jd.jss.service.ObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,8 @@ public class JssServiceImpl implements JssService {
     private JssStorageClient jssStorageClient;
 
     @Autowired
-    private AmazonS3ClientWrapper amazonS3ClientWrapper;
+    @Qualifier("dmswebAmazonS3ClientWrapper")
+    private AmazonS3ClientWrapper dmswebAmazonS3ClientWrapper;
 
     @Value("#{'${jss.httpsSet}'.split(',')}")
     private Set<String> httpsSet;
@@ -51,7 +53,7 @@ public class JssServiceImpl implements JssService {
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
         try {
             if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
-                amazonS3ClientWrapper.putObject(inputStream,bucket,keyName,length);
+                dmswebAmazonS3ClientWrapper.putObject(inputStream,bucket,keyName,length);
                 return;
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();
@@ -72,7 +74,7 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public InputStream downloadFile(String bucket, String keyName) throws JssStorageException {
-        S3Object s3Object = amazonS3ClientWrapper.getObject(bucket,keyName);
+        S3Object s3Object = dmswebAmazonS3ClientWrapper.getObject(bucket,keyName);
         if(s3Object != null){
             return s3Object.getObjectContent();
         }
@@ -93,7 +95,7 @@ public class JssServiceImpl implements JssService {
     @Override
     public void deleteFile(String bucket, String keyName) throws JssStorageException {
         try {
-            amazonS3ClientWrapper.deleteObject(bucket,keyName);
+            dmswebAmazonS3ClientWrapper.deleteObject(bucket,keyName);
             JingdongStorageService jss = jssStorageClient.getStorageService();
             jss.bucket(bucket).object(keyName).delete();
         } catch (Exception e) {
@@ -103,7 +105,7 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public boolean exist(String bucket, String keyName) throws JssStorageException {
-        if(amazonS3ClientWrapper.isExists(bucket,keyName)){
+        if(dmswebAmazonS3ClientWrapper.isExists(bucket,keyName)){
             return true;
         }
         try {
@@ -117,7 +119,7 @@ public class JssServiceImpl implements JssService {
     @Override
     public URI getURI(String bucket, String keyName, int timeout) throws JssStorageException {
         try {
-            URL url = amazonS3ClientWrapper.getUrl(bucket,keyName);
+            URL url = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
             if(url != null){
                 return URI.create(url.toString());
             }
@@ -141,7 +143,7 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String getPublicBucketUrl(String bucket, String keyName) {
-        URL wrapperUrl = amazonS3ClientWrapper.getUrl(bucket,keyName);
+        URL wrapperUrl = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
         if(wrapperUrl != null){
             return wrapperUrl.toString();
         }
@@ -168,7 +170,7 @@ public class JssServiceImpl implements JssService {
         try {
             String key = UUID.randomUUID().toString() + "." + extName;
             if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
-                return amazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
+                return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();
 
