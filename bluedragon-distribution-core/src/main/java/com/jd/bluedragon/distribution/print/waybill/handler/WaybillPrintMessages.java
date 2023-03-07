@@ -82,4 +82,10 @@ public class WaybillPrintMessages{
 
     public static final String MESSAGE_PACKAGE_PRINTED = "订单标签已打印，如需打印请操作包裹补打或去站长工作台操作包裹打印";
 
+	public static final String MESSAGE_PACKAGE_UNCOLLECTED = "未操作揽收，禁止面单补打";
+
+	public static final String MESSAGE_USER_CODE_NOT_FOUND = "操作人ERP为空";
+
+	public static final String MESSAGE_USER_INFO_NOT_FOUND = "找不到ERP对应的操作人信息";
+
 }
