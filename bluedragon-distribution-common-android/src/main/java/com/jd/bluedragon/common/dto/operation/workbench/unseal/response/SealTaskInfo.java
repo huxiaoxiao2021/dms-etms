@@ -112,6 +112,11 @@ public class SealTaskInfo implements Serializable {
     private Integer orderIndex;
 
     /**
+     * 错误解封车顺序提示语
+     */
+    private String wrongOrderMessage;
+
+    /**
      * 任务号
      */
     private String billCode;
@@ -279,6 +284,14 @@ public class SealTaskInfo implements Serializable {
 
     public void setOrderIndex(Integer orderIndex) {
         this.orderIndex = orderIndex;
+    }
+
+    public String getWrongOrderMessage() {
+        return wrongOrderMessage;
+    }
+
+    public void setWrongOrderMessage(String wrongOrderMessage) {
+        this.wrongOrderMessage = wrongOrderMessage;
     }
 
     public String getBillCode() {

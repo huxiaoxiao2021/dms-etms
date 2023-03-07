@@ -1205,12 +1205,15 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
         condition.setBizId(request.getBizId());
         JyBizTaskUnloadVehicleEntity realRankingResult = jyBizTaskUnloadVehicleService.findRealRankingByBizId(condition);
-        logInfo("getSealTaskDetail realRankingResult, req:{},resp:{}", JsonHelper.toJson(condition),JsonHelper.toJson(realRankingResult));
+        logInfo("queryRankOrderIndex realRankingResult, req:{},resp:{}", JsonHelper.toJson(condition),JsonHelper.toJson(realRankingResult));
+        // 可能存在未找到排序的数据
         if(realRankingResult == null){
-            log.error("getSealTaskDetail not find task by condition! {}", request.getBizId());
-            return result.toFail();
+            log.error("queryRankOrderIndex find rank null! {}", request.getBizId());
+            sealTaskInfo.setOrderIndex(-1);
+            return result;
         }
         sealTaskInfo.setOrderIndex(realRankingResult.getRealRanking());
+        sealTaskInfo.setWrongOrderMessage(HintService.getHint(HintCodeConstants.JY_UNSEAL_WRONG_ORDER_MESSAGE));
         return result;
     }
 }

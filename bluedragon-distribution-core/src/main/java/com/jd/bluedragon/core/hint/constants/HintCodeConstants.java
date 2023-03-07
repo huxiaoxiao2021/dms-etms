@@ -1007,4 +1007,6 @@ public class HintCodeConstants {
 
     // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
     public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
+
+    public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
 }
