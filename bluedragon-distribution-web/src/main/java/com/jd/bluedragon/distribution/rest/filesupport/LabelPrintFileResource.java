@@ -220,7 +220,7 @@ public class LabelPrintFileResource {
         return result;
     }
 
-    public static String getElementValue(Map<String, List<InputPart>> uploadForm,String elementName) throws IOException{
+    private static String getElementValue(Map<String, List<InputPart>> uploadForm,String elementName) throws IOException{
         List<InputPart> inputPartList = uploadForm.get(elementName);
         if(CollectionUtils.isEmpty(inputPartList)){
             return null;
