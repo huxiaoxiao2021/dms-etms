@@ -71,6 +71,8 @@ public class ScanPackageRespDto implements Serializable {
      */
     private Boolean createBoardSuccessFlag;
 
+    private UnloadCollectDto unloadCollectDto;
+
     public String getBizId() {
         return bizId;
     }
@@ -221,5 +223,13 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setCreateBoardSuccessFlag(Boolean createBoardSuccessFlag) {
         this.createBoardSuccessFlag = createBoardSuccessFlag;
+    }
+
+    public UnloadCollectDto getUnloadCollectDto() {
+        return unloadCollectDto;
+    }
+
+    public void setUnloadCollectDto(UnloadCollectDto unloadCollectDto) {
+        this.unloadCollectDto = unloadCollectDto;
     }
 }

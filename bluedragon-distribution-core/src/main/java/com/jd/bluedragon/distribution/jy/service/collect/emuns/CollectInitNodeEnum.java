@@ -9,8 +9,8 @@ public enum CollectInitNodeEnum {
 
 
     SEAL_INIT(101, "封车初始化"),
-    CANCEL_SEAL_INIT(102, "本车集齐"),
-    NULL_TASK_INIT(103, "在库集齐");
+    CANCEL_SEAL_INIT(102, "撤销封车初始化"),
+    NULL_TASK_INIT(103, "无任务扫描初始化");
 
     private int code;
     private String desc;
