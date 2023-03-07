@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 
 import com.google.common.base.Joiner;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateDimensionReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
@@ -64,136 +63,87 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.dimensionOptions", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<DimensionOption>> dimensionOptions() {
-        JdCResponse<List<DimensionOption>> result = new JdCResponse<>();
-        result.toSucceed();
-        try {
-            List<JyEvaluateDimensionEntity> list = jyEvaluateDimensionDao.findAllDimension();
-            if (CollectionUtils.isEmpty(list)) {
-                result.setData(new ArrayList<>());
-                return result;
-            }
-            List<DimensionOption> options = new ArrayList<>();
-            for (JyEvaluateDimensionEntity dimension : list) {
-                DimensionOption dimensionOption = new DimensionOption();
-                dimensionOption.setCode(dimension.getCode());
-                dimensionOption.setName(dimension.getName());
-                dimensionOption.setStatus(dimension.getStatus());
-                dimensionOption.setHasTextBox(dimension.getHasTextBox());
-                options.add(dimensionOption);
-            }
-            result.setData(options);
-        } catch (Exception e) {
-            LOGGER.error("dimensionOptions|获取评价维度枚举列表接口出现异常", e);
-            result.toError("服务器异常");
+    public List<DimensionOption> dimensionOptions() {
+        List<JyEvaluateDimensionEntity> list = jyEvaluateDimensionDao.findAllDimension();
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
         }
-        return result;
+        List<DimensionOption> options = new ArrayList<>();
+        for (JyEvaluateDimensionEntity dimension : list) {
+            DimensionOption dimensionOption = new DimensionOption();
+            dimensionOption.setCode(dimension.getCode());
+            dimensionOption.setName(dimension.getName());
+            dimensionOption.setStatus(dimension.getStatus());
+            dimensionOption.setHasTextBox(dimension.getHasTextBox());
+            options.add(dimensionOption);
+        }
+        return options;
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<Boolean> checkIsEvaluate(EvaluateTargetReq request) {
-        JdCResponse<Boolean> result = new JdCResponse<>();
-        result.toSucceed();
-        try {
-            JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-            if (evaluateTargetInfo == null) {
-                result.setData(Boolean.FALSE);
-                return result;
-            }
-            result.setData(Boolean.TRUE);
-        } catch (Exception e) {
-            LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常", e);
-            result.toError("服务器异常");
+    public Boolean checkIsEvaluate(EvaluateTargetReq request) {
+        JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
+        if (evaluateTargetInfo == null) {
+            return Boolean.FALSE;
         }
-        return result;
+        return Boolean.TRUE;
     }
 
     @Override
     map 内存组装
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<EvaluateDimensionDto>> findTargetEvaluateInfo(EvaluateTargetReq request) {
-        JdCResponse<List<EvaluateDimensionDto>> result = new JdCResponse<>();
-        result.toSucceed();
-        try {
-            List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
-            if (CollectionUtils.isEmpty(recordList)) {
-                result.setData(new ArrayList<>());
-                return result;
-            }
-            Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = jyEvaluateDimensionDao.findAllDimensionMap();
-            if (dimensionEnumMap.isEmpty()) {
-                result.toError("查询评价维度枚举列表为空");
-                return result;
-            }
-            Map<Integer, EvaluateDimensionDto> map = new HashMap<>();
-            for (JyEvaluateRecordEntity record : recordList) {
-                transformDataToMap(map, dimensionEnumMap, record);
-            }
-            result.setData(new ArrayList<>(map.values()));
-        } catch (Exception e) {
-            LOGGER.error("findTargetEvaluateInfo|查询目标评价详情接口出现异常", e);
-            result.toError("服务器异常");
+    public List<EvaluateDimensionDto> findTargetEvaluateInfo(EvaluateTargetReq request) {
+        List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
+        if (CollectionUtils.isEmpty(recordList)) {
+            return new ArrayList<>();
         }
-        return result;
+        Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = jyEvaluateDimensionDao.findAllDimensionMap();
+        if (dimensionEnumMap.isEmpty()) {
+            throw new JyBizException("查询评价维度枚举列表为空");
+        }
+        Map<Integer, EvaluateDimensionDto> map = new HashMap<>();
+        for (JyEvaluateRecordEntity record : recordList) {
+            transformDataToMap(map, dimensionEnumMap, record);
+        }
+        return new ArrayList<>(map.values());
     }
 
     @Override加锁
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<Void> saveTargetEvaluate(EvaluateTargetReq request) {
-        JdCResponse<Void> result = new JdCResponse<>();
-        result.toSucceed();
-        try {
-            JyEvaluateTargetInfoEntity targetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-            if (targetInfo != null) {
-                result.toFail("请勿重复提交");
-                return result;
-            }
-            // 评价目标基础信息实体
-            JyEvaluateTargetInfoEntity evaluateTargetInfo = createTargetInfo(request);
-            List<JyEvaluateRecordEntity> recordList;
-            // 评价明细列表
-            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-                // 构造满意的记录
-                recordList = createSatisfiedEvaluateRecord(request, evaluateTargetInfo);
-            } else {
-                // 构造不满意的记录
-                recordList = createEvaluateRecord(request, evaluateTargetInfo);
-            }注释
-            // 保存
-            jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
-        } catch (JyBizException e) {
-            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
-            result.toError(e.getMessage());
-            return result;
-        } catch (Exception e) {
-            LOGGER.error("saveTargetEvaluate|保存评价详情接口出现异常", e);
-            result.toError("服务器异常");
+    public void saveTargetEvaluate(EvaluateTargetReq request) {
+        JyEvaluateTargetInfoEntity targetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
+        if (targetInfo != null) {
+            throw new JyBizException("请勿重复提交");
         }
-        return result;
+        // 评价目标基础信息实体
+        JyEvaluateTargetInfoEntity evaluateTargetInfo = createTargetInfo(request);
+        List<JyEvaluateRecordEntity> recordList;
+        // 评价明细列表
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+            // 构造满意的记录
+            recordList = createSatisfiedEvaluateRecord(request, evaluateTargetInfo);
+        } else {
+            // 构造不满意的记录
+            recordList = createEvaluateRecord(request, evaluateTargetInfo);
+        }
+        注释
+        // 保存
+        jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<Void> updateTargetEvaluate(EvaluateTargetReq request) {
-        JdCResponse<Void> result = new JdCResponse<>();
-        result.toSucceed();
-        try {
-            JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-            if (evaluateTargetInfo == null) {
-                LOGGER.warn("updateTargetEvaluate|修改评价详情时未找到评价基础信息:request={}", JsonHelper.toJson(request));
-                result.toError("修改评价详情时未找到评价基础信息");
-                return result;
-            }
-            // 评价明细列表
-            List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
-            // 修改
-            jyEvaluateCommonService.updateEvaluateInfo(evaluateTargetInfo, recordList);
-        } catch (Exception e) {
-            LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常", e);
-            result.toError("服务器异常");
+    public void updateTargetEvaluate(EvaluateTargetReq request) {
+        JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
+        if (evaluateTargetInfo == null) {
+            LOGGER.warn("updateTargetEvaluate|修改评价详情时未找到评价基础信息:request={}", JsonHelper.toJson(request));
+            throw new JyBizException("修改评价详情时未找到评价基础信息");
         }
-        return result;
+        // 评价明细列表
+        List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
+        // 修改
+        jyEvaluateCommonService.updateEvaluateInfo(evaluateTargetInfo, recordList);
     }
 
 报表字段单独加工
