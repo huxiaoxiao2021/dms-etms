@@ -19,6 +19,10 @@ import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.*;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailResDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportQueryParamReqDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportReqDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportResDto;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -2062,5 +2066,27 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             log.error("{}--MQ发送异常businessId={}，msg={},errMsg={}", methodDesc, businessId, msg, e.getMessage(), e);
         }
     }
+
+
+    @Override
+    public InvokeResult<ScanCollectStatisticsDto> queryCollectStatisticsByDiffDimension(CollectStatisticsQueryDto reqDto) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectReportResDto> findCollectReportPage(CollectReportReqDto reqDto) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectReportDetailResDto> findCollectReportDetailPage(CollectReportReqDto reqDto) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
+        return null;
+    }
+
 
 }
