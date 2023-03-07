@@ -323,36 +323,51 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
     }
 
-    注释 + 定义变量
+
     private void transformDataToMap(Map<Integer, EvaluateDimensionDto> map, Map<Integer,
             JyEvaluateDimensionEntity> dimensionEnumMap, JyEvaluateRecordEntity record) {
-        EvaluateDimensionDto evaluateDimensionDto = map.get(record.getDimensionCode());
+        // 评价维度编码
+        Integer dimensionCode = record.getDimensionCode();
+        // 评价维度对应图片url
+        String imgUrl = record.getImgUrl();
+        // 评价维度文本框内容
+        String remark = record.getRemark();
+
+        EvaluateDimensionDto evaluateDimensionDto = map.get(dimensionCode);
         if (evaluateDimensionDto == null) {
             evaluateDimensionDto = new EvaluateDimensionDto();
-            evaluateDimensionDto.setDimensionCode(record.getDimensionCode());
-            JyEvaluateDimensionEntity dimensionEnum = dimensionEnumMap.get(record.getDimensionCode());
+            evaluateDimensionDto.setDimensionCode(dimensionCode);
+            // 评价维度详情
+            JyEvaluateDimensionEntity dimensionEnum = dimensionEnumMap.get(dimensionCode);
+            // 设置维度名称
             evaluateDimensionDto.setDimensionName(dimensionEnum.getName());
-            if (StringUtils.isNotBlank(record.getImgUrl())) {
-                evaluateDimensionDto.setImgUrlList(new ArrayList<>(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA))));
+            // 设置维度图片列表
+            if (StringUtils.isNotBlank(imgUrl)) {
+                evaluateDimensionDto.setImgUrlList(new ArrayList<>(Arrays.asList(imgUrl.split(Constants.SEPARATOR_COMMA))));
             }
+            // 设置维度是否重点关注
             evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
+            // 设置维度是否携带文本框
             evaluateDimensionDto.setHasTextBox(dimensionEnum.getHasTextBox());
-            evaluateDimensionDto.setRemark(record.getRemark());
-            map.put(record.getDimensionCode(), evaluateDimensionDto);
+            // 设置维度文本框内容
+            evaluateDimensionDto.setRemark(remark);
+            map.put(dimensionCode, evaluateDimensionDto);
         } else {
-            if (StringUtils.isNotBlank(record.getImgUrl())) {
-                List<String> currentImgUrlList = new ArrayList<>(Arrays.asList(record.getImgUrl().split(Constants.SEPARATOR_COMMA)));
+            // 同一评价维度图片放在一起
+            if (StringUtils.isNotBlank(imgUrl)) {
+                List<String> currentImgUrlList = new ArrayList<>(Arrays.asList(imgUrl.split(Constants.SEPARATOR_COMMA)));
                 if (CollectionUtils.isEmpty(evaluateDimensionDto.getImgUrlList())) {
                     evaluateDimensionDto.setImgUrlList(currentImgUrlList);
                 } else {
                     evaluateDimensionDto.getImgUrlList().addAll(currentImgUrlList);
                 }
             }
-            if (StringUtils.isNotBlank(record.getRemark())) {
-                if (StringUtils.isNotBlank(evaluateDimensionDto.getRemark())) {
-                    evaluateDimensionDto.setRemark(evaluateDimensionDto.getRemark() + "\n" + record.getRemark());
+            // 文本框内容显示在一起
+            if (StringUtils.isNotBlank(remark)) {
+                if (StringUtils.isBlank(evaluateDimensionDto.getRemark())) {
+                    evaluateDimensionDto.setRemark(remark);
                 } else {
-                    evaluateDimensionDto.setRemark(record.getRemark());
+                    evaluateDimensionDto.setRemark(evaluateDimensionDto.getRemark() + "\n" + remark);
                 }
             }
         }

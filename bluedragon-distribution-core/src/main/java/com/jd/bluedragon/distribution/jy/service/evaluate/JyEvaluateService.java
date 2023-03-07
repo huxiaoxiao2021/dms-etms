@@ -41,7 +41,7 @@ public interface JyEvaluateService {
     /**
      * 评价基础信息分页查询
      */
-    List<JyEvaluateTargetInfoEntity> queryPageList(JyEvaluateTargetInfoQuery query);
+    Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
 
     /**
      * 根据条件查询数量
