@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -53,6 +54,7 @@ import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.dms.report.WeightVolSendCodeJSFService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolSendCodeSumVo;
+import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
@@ -129,6 +131,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     GroupBoardManager groupBoardManager;
+    @Autowired
+    BasicQueryWSManager basicQueryWSManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -669,4 +673,41 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         return result;
     }
+
+    @Override
+    public String transformLicensePrefixToChinese(String carLicense) {
+        try {
+            Map<String, String> dictMap = getDictMap("1066", 2, "1066");
+            return CarLicenseTransformUtil.transformLicensePrefixToChinese(carLicense, dictMap);
+        } catch (Exception e) {
+            log.error("transformLicensePrefixToChinese error carLicense[" + carLicense + "]", e);
+            return carLicense;
+        }
+    }
+
+
+
+    public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {
+        if(StringUtils.isNotEmpty(parentCode) && StringUtils.isNotEmpty(dictGroup)){
+            try {
+                List<BasicDictDto>  list = basicQueryWSManager.getDictList(parentCode, dictLevel, dictGroup);
+                if(CollectionUtils.isNotEmpty(list)){
+                    Map<String,String> result = new HashMap<>();
+                    for (BasicDictDto item : list) {
+                        if(item == null || item.getDictCode() == null){
+                            continue;
+                        }
+                        result.put(item.getDictCode(), item.getDictName());
+                    }
+                    if(!result.isEmpty()){
+                        return result;
+                    }
+                }
+            } catch (Exception e) {
+                log.error("获取基础资料车牌归属区号-汉字映射关系异常", e);
+            }
+        }
+        return CarLicenseTransformUtil.numToChinese;
+    }
+
 }

@@ -1801,6 +1801,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
           throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
         }
+        request.setDestinationId(parentSiteId);
       }
       return;
     }
