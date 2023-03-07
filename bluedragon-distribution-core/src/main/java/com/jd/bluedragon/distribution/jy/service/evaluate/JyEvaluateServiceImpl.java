@@ -127,8 +127,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 构造不满意的记录
             recordList = createEvaluateRecord(request, evaluateTargetInfo);
         }
-        注释
-        // 保存
+        // 保存(前面都是对象组装，事务都加在这一层)
         jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
     }
 
@@ -142,7 +141,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
         // 评价明细列表
         List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
-        // 修改
+        // 修改(前面都是对象组装，事务都加在这一层)
         jyEvaluateCommonService.updateEvaluateInfo(evaluateTargetInfo, recordList);
     }
 
@@ -235,7 +234,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
             JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
-            record.setEvaluateType(1);评价类型做枚举
+            record.setEvaluateType(EVALUATE_TYPE_LOAD);
             record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
             record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
             record.setStatus(request.getStatus());
