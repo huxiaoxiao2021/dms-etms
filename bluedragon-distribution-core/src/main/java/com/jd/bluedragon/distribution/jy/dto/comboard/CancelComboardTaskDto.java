@@ -47,6 +47,15 @@ public class CancelComboardTaskDto {
 
     private Integer pageNo;
     private Integer pageSize;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;  
 
     public String getUserName() {
         return userName;
@@ -127,4 +136,20 @@ public class CancelComboardTaskDto {
     public void setUserCode(int userCode) {
         this.userCode = userCode;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }
