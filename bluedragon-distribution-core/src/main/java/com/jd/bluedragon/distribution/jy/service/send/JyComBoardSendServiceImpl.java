@@ -1237,10 +1237,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }else{
       operatorInfo.setOperateTime(request.getCurrentOperate().getOperateTime());
     }
-    if(request.getCurrentOperate() != null) {
-    	operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-    	operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
-    }
+    operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+    operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
     return operatorInfo;
   }
 

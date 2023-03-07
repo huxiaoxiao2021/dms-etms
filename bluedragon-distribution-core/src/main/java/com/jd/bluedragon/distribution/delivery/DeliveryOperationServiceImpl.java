@@ -488,6 +488,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         operatorInfo.setSiteName(dto.getStartSiteName());
         operatorInfo.setUserCode(dto.getUserCode());
         operatorInfo.setOperateTime(dto.getOperateTime());
+        operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
+        operatorInfo.setOperatorId(dto.getOperatorId()); 
         return operatorInfo;
     }
 
