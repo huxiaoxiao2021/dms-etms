@@ -78,8 +78,14 @@ public class IntegralGatewayServiceImpl implements IntegralGatewayService {
     }
 
     @Override
-    @JProfiler(jKey = "IntegralGatewayService.integralSummary",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<IntegralSummaryDto>> integralSummary(IntegralSummaryRequest req) {
+    @JProfiler(jKey = "IntegralGatewayService.integralMonthlySummary",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<JyIntegralMonthlySummaryDto>> integralMonthlySummary(IntegralSummaryRequest req) {
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "IntegralGatewayService.integralDailySummary",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<JyIntegralDailySummaryDto>> integralDailySummary(IntegralSummaryRequest req) {
         return null;
     }
 

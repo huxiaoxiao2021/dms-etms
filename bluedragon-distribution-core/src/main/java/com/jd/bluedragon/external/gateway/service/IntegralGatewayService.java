@@ -47,11 +47,19 @@ public interface IntegralGatewayService {
     JdCResponse<List<JyIntegralRankingDTO>> integralRankingList(IntegralRankingRequest req);
 
     /**
-     * 积分汇总
+     * 每月积分汇总
      * @param req
      * @return
      */
-    JdCResponse<List<IntegralSummaryDto>> integralSummary(IntegralSummaryRequest req);
+    JdCResponse<List<JyIntegralMonthlySummaryDto>> integralMonthlySummary(IntegralSummaryRequest req);
+
+
+    /**
+     * 每日积分汇总
+     * @param req
+     * @return
+     */
+    JdCResponse<List<JyIntegralDailySummaryDto>> integralDailySummary(IntegralSummaryRequest req);
 
     /**
      * 个人积分排名
