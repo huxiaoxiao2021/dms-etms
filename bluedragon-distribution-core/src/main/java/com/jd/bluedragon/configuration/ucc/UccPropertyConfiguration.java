@@ -1197,6 +1197,26 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
+    private String siteForbiddenList;
+
+    private String orgForbiddenList;
+
+    public String getSiteForbiddenList() {
+        return siteForbiddenList;
+    }
+
+    public void setSiteForbiddenList(String siteForbiddenList) {
+        this.siteForbiddenList = siteForbiddenList;
+    }
+
+    public String getOrgForbiddenList() {
+        return orgForbiddenList;
+    }
+
+    public void setOrgForbiddenList(String orgForbiddenList) {
+        this.orgForbiddenList = orgForbiddenList;
+    }
+
     public boolean getSupportMutilScan() {
         return supportMutilScan;
     }
