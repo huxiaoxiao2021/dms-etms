@@ -367,6 +367,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (log.isInfoEnabled()) {
       log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
     }
+    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList()) 
+            || request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
+      throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
+    }
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
     if (resp == null ) {
       return new InvokeResult(CREATE_GROUP_CTT_DATA_CODE, CREATE_GROUP_CTT_DATA_MESSAGE);
@@ -462,6 +466,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
+    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
+      throw new JyBizException("未获取到流向信息！");
+    }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
     // 校验是否包含当前流向
     for (TableTrolleyDto tableTrolleyDto : request.getTableTrolleyDtoList()) {
@@ -476,6 +483,21 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return new InvokeResult(HAVE_SEND_FLOW_UNDER_GROUP_CODE, HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE);
       }
     }
+
+    // 获取混扫任务下的流向信息
+    JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+    condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+    condition.setTemplateCode(request.getTemplateCode());
+    condition.setGroupCode(request.getGroupCode());
+    List<JyGroupSortCrossDetailEntity> sendFlowList = 
+            jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+    if (!CollectionUtils.isEmpty(sendFlowList)) {
+      Integer sendFlowSize = sendFlowList.size() + request.getTableTrolleyDtoList().size();
+      if (sendFlowSize > ucc.getCttGroupSendFLowLimit()) {
+        throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
+      }
+    }
+    
     if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
       return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     } else {
@@ -2632,6 +2654,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setGroupCode(request.getGroupCode());
     List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
 
+    if (CollectionUtils.isEmpty(entityList)) {
+      throw new JyBizException("任务已删除,请刷新页面！");
+    }
+    
     List<Long> ids = new ArrayList<>();
     for (JyGroupSortCrossDetailEntity entity : entityList) {
       ids.add(entity.getId());

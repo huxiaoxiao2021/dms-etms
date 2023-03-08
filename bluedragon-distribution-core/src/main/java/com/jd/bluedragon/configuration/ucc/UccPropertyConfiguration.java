@@ -796,6 +796,11 @@ public class UccPropertyConfiguration {
 
     private String autoPackageSendInspectionDelSiteCodes;
 
+    /**
+     * 混扫任务流向限制
+     */
+    private Integer cttGroupSendFLowLimit;
+
     public boolean isAutoPackageSendInspectionSwitch() {
         return autoPackageSendInspectionSwitch;
     }
@@ -2829,5 +2834,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public Integer getCttGroupSendFLowLimit() {
+        return cttGroupSendFLowLimit;
+    }
+
+    public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
+        this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
     }
 }
