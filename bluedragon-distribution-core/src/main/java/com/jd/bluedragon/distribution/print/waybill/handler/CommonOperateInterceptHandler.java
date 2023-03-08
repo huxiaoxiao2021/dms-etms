@@ -136,21 +136,9 @@ public class CommonOperateInterceptHandler extends NeedPrepareDataInterceptHandl
                     return interceptResult;
                 }
             }
-            // 提供终端jsf接口执行
-            if (terminalNeedCheckCollectFinished.contains(context.getRequest().getOperateType())
-                    && BusinessHelper.isPureOrNotRejectOrder(waybillSign)) {
-                //揽收交接完成（-1300）全程跟踪结果
-                List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
-                //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
-                if (! (context.getCollectComplete() || collectHandoverCompleteResult.size() != 0)) {
-                    interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_PACKAGE_UNCOLLECTED);
-                    return interceptResult;
-                }
-            }
-            // 青龙打印客户端执行
-            if (qlClientNeedCheckCollectFinished.contains(context.getRequest().getOperateType())
-                    && BusinessHelper.isPureOrNotRejectOrder(waybillSign)
-                    && (context.getThirdPartner() || context.getBusinessDepartment())) {
+
+            boolean isTerminalNeedIntercept = isTerminalNeedIntercept(context, waybillSign);
+            if (isTerminalNeedIntercept) {
                 //揽收交接完成（-1300）全程跟踪结果
                 List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
                 //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
@@ -295,6 +283,11 @@ public class CommonOperateInterceptHandler extends NeedPrepareDataInterceptHandl
         }
         needHitStatusSet.addAll(WayBillFinishedEnum.waybillStatusFinishedSet);
         needHitStatusSet.removeAll(needInterceptStatusSet);
+    }
+
+    private boolean isTerminalNeedIntercept(WaybillPrintContext context, String waybillSign) {
+        return (terminalNeedCheckCollectFinished.contains(context.getRequest().getOperateType()) && BusinessHelper.isPureOrNotRejectOrder(waybillSign))             // 提供终端jsf接口执行
+                || (qlClientNeedCheckCollectFinished.contains(context.getRequest().getOperateType()) && BusinessHelper.isPureOrNotRejectOrder(waybillSign) && (context.getThirdPartner() || context.getBusinessDepartment()));            // 青龙打印客户端执行
     }
 
 }
