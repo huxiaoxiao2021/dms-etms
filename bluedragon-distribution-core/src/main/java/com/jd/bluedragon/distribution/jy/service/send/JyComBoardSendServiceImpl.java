@@ -1052,7 +1052,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       execComboard(request);
       execSend(request);
     } catch (JyBizException e) {
-      log.error("传站组板即发货扫描异常",e);
+      log.info("传站组板即发货扫描异常",e);
       if (ObjectHelper.isNotNull(e.getCode())){
         return new InvokeResult(e.getCode(), e.getMessage());
       }
@@ -1741,13 +1741,22 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!CollectionUtils.isEmpty(sortingList)) {
       for (Sorting sortingTemp : sortingList) {
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(sortingTemp.getBoxCode());
-        if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE)) {
-          log.info("分拣传站租板校验--包裹【{}】 已经集包【{}】", request.getBarCode(),
-              JsonHelper.toJson(sortingTemp));
+        if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE) && !checkReComboard(sortingTemp)) {
+          log.info("分拣传站租板校验--包裹【{}】 已经集包【{}】", request.getBarCode(), JsonHelper.toJson(sortingTemp));
           throw new JyBizException(BoxResponse.MESSAGE_CODE_PACKAGE_BOX);
         }
       }
     }
+  }
+
+  private boolean checkReComboard(Sorting sorting) {
+    if (ObjectHelper.isNotNull(sorting)){
+      Date sortingCreateTime = sorting.getCreateTime();
+      if (sortingCreateTime != null && System.currentTimeMillis() - sortingCreateTime.getTime() >  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean cycleBagBindCheck(String boxCode, Integer siteCode, Box box) {
