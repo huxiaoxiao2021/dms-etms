@@ -141,10 +141,6 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             ids.add(entity.getId());
         }
         
-        if (CollectionUtils.isEmpty(ids)) {
-            throw new JyBizException("流向已移除,请刷新页面！");
-        }
-        
         updateReq.setIds(ids);
         updateReq.setUpdateUserErp(request.getUser().getUserErp());
         updateReq.setUpdateUserName(request.getUser().getUserName());

@@ -364,12 +364,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
+    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
+      throw new JyBizException("参数错误: 无流向信息！");
+    }
     if (log.isInfoEnabled()) {
       log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
     }
-    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList()) 
-            || request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
-      throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
+    if (request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
+      throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个！");
     }
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
     if (resp == null ) {
@@ -467,7 +469,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
-      throw new JyBizException("未获取到流向信息！");
+      throw new JyBizException("参数错误: 无流向信息！");
     }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
     // 校验是否包含当前流向
