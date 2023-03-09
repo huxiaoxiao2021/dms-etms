@@ -3733,7 +3733,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
-
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorId(tSendM.getOperatorId());
+        operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+        status.setOperatorData(operatorData);
+        
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
