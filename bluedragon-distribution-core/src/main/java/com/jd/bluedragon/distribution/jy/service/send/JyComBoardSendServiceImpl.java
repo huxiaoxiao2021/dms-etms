@@ -427,7 +427,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setCrossCode(barCode.substring(0, index));
       query.setTabletrolleyCode(barCode.substring(index + 1));
       tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
+    }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+      query.setSiteCode(Integer.valueOf(barCode));
+      tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
     }
+      
     if (tableTrolleyJsfResp != null && !CollectionUtils
         .isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
       tableTrolleyResp.setTableTrolleyDtoList(
@@ -593,7 +597,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       entity.setCrossCode(barCode.substring(0, index));
       entity.setTabletrolleyCode(barCode.substring(index + 1));
       cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
-    }
+    }else if ()
     if (cttGroupDataResp == null || CollectionUtils
         .isEmpty(cttGroupDataResp.getCttGroupDtolist())) {
       log.info("获取混扫任务信息异常： {}", JsonHelper.toJson(request));
