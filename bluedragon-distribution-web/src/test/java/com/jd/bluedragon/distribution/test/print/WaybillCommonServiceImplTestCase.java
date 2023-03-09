@@ -462,5 +462,39 @@ public class WaybillCommonServiceImplTestCase {
 		//检查aoiCode值
 		boolean hasFlag = (aoiCode.equals(context.getBasePrintWaybill().getAoiCode()));
 		Assert.assertTrue(hasFlag);
+		
+		context.getBasePrintWaybill().setAoiCode(null);
+		context.getBasePrintWaybill().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
+		waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+		//检查返调度aoiCode值
+		hasFlag = (context.getBasePrintWaybill().getAoiCode() == null);
+		Assert.assertTrue(hasFlag);
+	}
+	/**
+	 * 设置aoiCode逻辑测试
+	 * @throws Exception
+	 */
+	@Test
+	public void testSetRoadCode() throws Exception{
+		WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		context.getBasePrintWaybill().setWaybillCode("JDX000222916956");
+		String roadCode = "256";
+		context.getBasePrintWaybill().setRoadCode(roadCode);
+		//检查roadCode值
+		boolean hasFlag = (roadCode.equals(context.getBasePrintWaybill().getRoadCode()));
+		Assert.assertTrue(hasFlag);
+		
+		context.getBasePrintWaybill().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
+		waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+		//检查返调度值
+		hasFlag = ("0".equals(context.getBasePrintWaybill().getRoadCode()));
+		Assert.assertTrue(!hasFlag);
+		
+		String unpackClassifyNum="P1";
+		context.getBigWaybillDto().getWaybill().getWaybillExt().setUnpackClassifyNum(unpackClassifyNum);
+		waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+		//检查拆包场景的值
+		hasFlag = (unpackClassifyNum.equals(context.getBasePrintWaybill().getRoadCode()));
+		Assert.assertTrue(!hasFlag);		
 	}
 }
