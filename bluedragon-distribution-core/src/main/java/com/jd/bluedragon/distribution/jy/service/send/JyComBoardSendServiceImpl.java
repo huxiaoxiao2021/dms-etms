@@ -1567,7 +1567,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyComboardEntity entity = jyComboardService.queryIfScaned(condition);
     if (ObjectHelper.isNotNull(entity)) {
       Date comboardTime = entity.getCreateTime();
-      if (comboardTime != null && System.currentTimeMillis() - comboardTime.getTime() <=  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+      if (comboardTime != null && (System.currentTimeMillis() - comboardTime.getTime() <=  ucc.getReComboardTimeLimit() * 3600L * 1000L)) {
         log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
         throw new JyBizException("该单号已组过板");
       }
@@ -1584,7 +1584,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       //三小时内禁止再次发货，返调度再次发货问题处理
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
-          && System.currentTimeMillis() - sendTime.getTime() <= ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+          && (System.currentTimeMillis() - sendTime.getTime() <= ucc.getReComboardTimeLimit() * 3600L * 1000L)) {
         throw new JyBizException("该单号已发货");
       }
     }
@@ -1752,7 +1752,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private boolean checkReComboard(Sorting sorting) {
     if (ObjectHelper.isNotNull(sorting)){
       Date sortingCreateTime = sorting.getCreateTime();
-      if (sortingCreateTime != null && System.currentTimeMillis() - sortingCreateTime.getTime() >  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+      if (sortingCreateTime != null && (System.currentTimeMillis() - sortingCreateTime.getTime() >  ucc.getReComboardTimeLimit() * 3600L * 1000L)) {
         return true;
       }
     }
