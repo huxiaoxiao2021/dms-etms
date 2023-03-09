@@ -451,7 +451,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    */
   private boolean checkBarCode(String barCode) {
     if (WaybillUtil.isPackageCode(barCode) || BusinessHelper.isBoxcode(barCode) || checkCTTCode(
-        barCode)) {
+        barCode) || SerialRuleUtil.isMatchNumeric(barCode)) {
       return Boolean.TRUE;
     }
     return Boolean.FALSE;
@@ -597,6 +597,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       int index = barCode.indexOf("-");
       entity.setCrossCode(barCode.substring(0, index));
       entity.setTabletrolleyCode(barCode.substring(index + 1));
+      cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
+    }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+      // 目的地站点
+      entity.setEndSiteId(Long.valueOf(barCode));
       cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
     }
     
