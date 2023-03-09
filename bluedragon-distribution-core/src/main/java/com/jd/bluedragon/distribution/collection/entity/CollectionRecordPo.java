@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Date;
  * @Version： V1.0
  */
 @Data
+@NoArgsConstructor
+@Builder
 public class CollectionRecordPo {
 
     /**

@@ -3,16 +3,12 @@ package com.jd.bluedragon.distribution.collection.entity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import lombok.Data;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +36,7 @@ public class CollectionCollectorEntity {
      * 根据collectionElement创建所有的businessType和businessType下的condition
      * @return 返回所有命中的业务
      */
-    public List<CollectionCodeEntity> genCollectionCodeEntity() {
+    public List<CollectionCodeEntity> genCollectionCodeEntities() {
         if (MapUtils.isEmpty(collectElements)) {
             return Collections.emptyList();
         }

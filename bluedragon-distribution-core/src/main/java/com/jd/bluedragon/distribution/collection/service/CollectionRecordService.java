@@ -1,8 +1,16 @@
 package com.jd.bluedragon.distribution.collection.service;
 
+import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -44,4 +52,37 @@ public interface CollectionRecordService {
      * @return 返回成功或者失败
      */
     boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result);
+
+    /**
+     * 查询某一个待集齐集合下的aggCode的集齐情况
+     * @param collectionCode
+     * @param aggCode
+     * @param aggCodeTypeEnum
+     */
+    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCode(String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum);
+
+    /**
+     * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
+     * @param collectionCode 集合号
+     * @param aggCode 聚合统计号
+     * @param aggCodeTypeEnum 聚合统计类型
+     */
+    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+
+    /**
+     * 通过查询元素定位到所有的满足该元素下的所有的集合的未集齐aggCode数量
+     * @param element 查询元素
+     * @return
+     */
+    Integer countNoneCollectedAggCodeNumByCollectionCode(CollectionCodeEntity collectionCodeEntity);
+
+    /**
+     * 根据collectionCode集合ID查询该集合的汇总信息
+     * @param element 查询元素
+     * @return
+     */
+    @Deprecated
+    void sumCollection(Map<CollectionConditionKeyEnum, Object> element);
+
+    void sumCollectionByCollectionCode(String collectionCode);
 }
