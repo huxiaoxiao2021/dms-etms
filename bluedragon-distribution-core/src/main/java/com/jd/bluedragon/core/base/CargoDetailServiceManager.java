@@ -15,4 +15,6 @@ public interface CargoDetailServiceManager {
      * @return CommonDto<List<CargoDetailDto>>
      */
     public CommonDto<List<CargoDetailDto>> getCargoDetailInfoByBatchCode(CargoDetailDto cargoDetailDto, int offset, int rowlimit);
+
+    public List<String> querySealCarPackageList(Integer createSiteCode, String batchCode);
 }

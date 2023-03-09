@@ -3,9 +3,12 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -25,8 +28,8 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -76,6 +79,11 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitProducer")
+    private DefaultJMQProducer jyCollectDataInitProducer;
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsSealCarStatusConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -139,6 +147,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
+            //发送集齐消息初始化MQ
+            sendInitCollectMq(tmsSealCarStatus);
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
@@ -165,6 +175,16 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
         }
         return false;
+    }
+
+    private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
+        InitCollectDto initCollectDto = new InitCollectDto();
+        initCollectDto.setSealCarCode(tmsSealCarStatus.getSealCarCode());
+        initCollectDto.setOperateTime(System.currentTimeMillis());
+        initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
+        jyCollectDataInitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),JsonHelper.toJson(tmsSealCarStatus));
+
+
     }
 
     /**
