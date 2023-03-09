@@ -33,6 +33,7 @@ import com.jd.rd.unpack.jsf.distributionReceive.result.MessageResult;
 import com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,15 +201,32 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
 
     }
 
-    private Map<String, String> makeSparesMap(SpWmsCreateInRequest request) {
+    private Map<String, String> makeSparesMap(SpWmsCreateInRequest request, List<Product> products) {
         Map<String, String> map = new HashMap<>();
         for (SpWmsCreateInProduct product : request.getSpareCodes()) {
             map.put(product.getProductCode(), product.getSpareCode());
         }
+        //多个商品时动态如果没有传入逗号则动态生成备件条码
+        /*for(Product product : products){
+            if(product.getQuantity() > 1){
+                if(map.get(product.getProductId()).indexOf(',') != -1){
+                    continue;
+                }else{
+                    //不用他给的数据了。直接自己创建
+                    if()
+                }
+            }
+        }*/
         return map;
     }
 
-
+    private String makeSpare(){
+        String Pre = "YCPS";
+        Random ro = new Random();
+        Date now = new Date();
+        Pre += DateUtil.formatDate(now, "yyMMddssSSS") + ro.nextInt(9999);
+        return Pre;
+    }
 
     private boolean sendReverseMessageToSpwms(SpWmsCreateInRequest request) throws Exception {
 
@@ -273,7 +291,7 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                     }
                 }
                 //List<Spare> spares = this.getSpare(baseOrgId, Integer.parseInt(baseStoreId), sendDetail, products);
-                Map<String, String> sparesMap = makeSparesMap(request);
+                Map<String, String> sparesMap = makeSparesMap(request,products);
 
                 if (sparesMap == null || sparesMap.isEmpty()) {
                     this.log.warn("{}||ReverseSendServiceImpl -- > sendReverseMessageToSpwms,获取备件条码为空", waybillCode);
@@ -287,7 +305,14 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                         ReverseSendSpwmsOrder spwmsOrder = new ReverseSendSpwmsOrder();
                         spwmsOrder.setWaybillCode(waybillCode);
                         spwmsOrder.setSendCode(sendDetail.getSendCode());
-                        spwmsOrder.setSpareCode(sparesMap.get(products.get(i).getProductId()));
+                        if(j > 0){
+                            //存在多个 自己生成备件条码
+                            spwmsOrder.setSpareCode(makeSpare());
+                        }else{
+                            //一单一品，一个备件条码
+                            spwmsOrder.setSpareCode(sparesMap.get(products.get(i).getProductId()));
+
+                        }
                         spwmsOrder.setProductId(products.get(i).getProductId());
                         spwmsOrder.setProductName(products.get(i).getName());
                         spwmsOrder.setProductPrice(products.get(i).getPrice() == null ? Double.valueOf(0) :products.get(i).getPrice().doubleValue());
@@ -446,6 +471,7 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                     this.log.warn("{}-spwms发货备件库失败，返回 ErrorMessage 结果:{}", waybillCode, msgResult.getErrorMessage());
                     return false;
                 }
+
             } catch (RuntimeException e) {
                 this.log.error("运单号=[{}]send_d_id=[{}]send_code[{}][spwms发货备件库失败]",
                         waybillCode, sendDetail.getSendDId(), sendDetail.getSendCode(), e);
