@@ -52,7 +52,7 @@ public interface JyExceptionService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(String barcode);
+    JdCResponse<ExpTaskDto> queryByBarcode(Integer type,String barcode);
 
     /**
      * 任务明细

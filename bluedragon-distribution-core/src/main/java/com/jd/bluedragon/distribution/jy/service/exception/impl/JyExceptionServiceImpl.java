@@ -71,6 +71,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
     private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
+    private String msg ="任务状态由%s变更为%s";
+
     // 统计数据缓存时间：半小时
     private static final int COUNT_CACHE_SECOND = 30 * 60;
 
@@ -149,12 +151,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
-        String bizId="";
+        String bizId = getBizId(req.getType(), req.getBarCode());
         if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(req.getType())){
             if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
                 return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
             }
-            bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
             jySanwuExceptionService.uploadScanOfSanwu(req,position,source,baseStaffByErp,bizId);
         }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(req.getType())){
             //如果是包裹号
@@ -162,7 +163,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
             }
             String waybillCode =WaybillUtil.getWaybillCode(req.getBarCode());
-            bizId = getBizId(JyBizTaskExceptionTypeEnum.SCRAPPED, waybillCode);
             jyScrappedExceptionService.uploadScanofScrapped(req,position,source,baseStaffByErp,bizId);
         }
 
@@ -196,6 +196,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
         bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
         bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
+        String.format(msg,cycle.getName(),task.getStatus()+"-"+task.getProcessingStatus());
         jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 
@@ -499,6 +500,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (position == null) {
             return JdCResponse.fail("岗位码有误!" + positionCode);
         }
+        JyBizTaskExceptionTypeEnum exceptionType = JyBizTaskExceptionTypeEnum.getEnumByCode(req.getType());
+        if(exceptionType == null){
+            return JdCResponse.fail("异常类型有误!");
+        }
 
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaffByErp == null) {
@@ -507,7 +512,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 校验操作人的岗位 与 任务被分配岗位是否匹配
         String gridRid = getGridRid(position);
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
+        String bizId =getBizId(req.getType(), req.getBarCode());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
@@ -545,8 +550,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      *
      */
     @Override
-    public JdCResponse<ExpTaskDto> queryByBarcode(String barcode) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barcode);
+    public JdCResponse<ExpTaskDto> queryByBarcode(Integer type, String barcode) {
+
+        String bizId = getBizId(type, barcode);
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + barcode);
@@ -811,7 +817,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
 
     private void createSanWuTask(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
         if (byBizId != null) {
             logger.warn("已存在当前条码的任务,请勿重复提交!");
@@ -883,7 +889,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void printComplate(String barCode,String operateErp,Date dateTime,boolean isPc) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barCode);
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), barCode);
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -942,7 +948,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param mqDto
      */
     private void matchSuccessProcess(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU,mqDto.getBarCode());
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(),mqDto.getBarCode());
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -1137,8 +1143,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return JSON.parseObject(JSON.toJSONString(positionResult.getData()), PositionDetailRecord.class);
     }
 
-    private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {
-        return en.name() + "_" + barCode;
+    private String getBizId(Integer type, String barCode) {
+        if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(type)){
+            return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
+        }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(type)){
+            return JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
+        }
+        return "";
     }
 
 

@@ -886,6 +886,10 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
+    <bean id="jyExceptionScrappedDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

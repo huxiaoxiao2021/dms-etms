@@ -256,7 +256,7 @@
         select status,count(*) as `count`
         FROM jy_biz_task_exception
         WHERE
-            yn = 1 and status in (0,2)
+            yn = 1 and status in (0,2,3)
             and distribution_target = #{gridRefId}
         group by status
     </select>

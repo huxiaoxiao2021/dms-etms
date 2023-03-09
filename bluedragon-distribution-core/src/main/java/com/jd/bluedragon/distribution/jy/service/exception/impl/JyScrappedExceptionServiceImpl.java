@@ -14,12 +14,10 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
+import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
@@ -112,6 +110,8 @@ public class JyScrappedExceptionServiceImpl implements JyScrappedExceptionServic
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
     @Autowired
     private JyExceptionService jyExceptionService;
+    @Autowired
+    private JyExceptionScrappedDao jyExceptionScrappedDao;
 
     @Override
     public JdCResponse<Object> uploadScanofScrapped(ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, BaseStaffSiteOrgDto baseStaffByErp, String bizId) {
@@ -126,10 +126,6 @@ public class JyScrappedExceptionServiceImpl implements JyScrappedExceptionServic
             if (byBizId != null) {
                 return JdCResponse.fail("该异常已上报!");
             }
-
-            req.setSiteId(position.getSiteCode());
-
-
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
             taskEntity.setBizId(bizId);
             taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
@@ -153,17 +149,16 @@ public class JyScrappedExceptionServiceImpl implements JyScrappedExceptionServic
             taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
             taskEntity.setYn(1);
 
-            JyExceptionEntity expEntity = new JyExceptionEntity();
-            expEntity.setBizId(bizId);
-            expEntity.setBarCode(req.getBarCode());
-            expEntity.setSiteCode(new Long(position.getSiteCode()));
-            expEntity.setSiteName(position.getSiteName());
-            expEntity.setCreateUserErp(req.getUserErp());
-            expEntity.setCreateUserName(baseStaffByErp.getStaffName());
-            expEntity.setCreateTime(new Date());
+            JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
+            scrappedPo.setBizId(bizId);
+            scrappedPo.setWaybillCode(req.getBarCode());
+            scrappedPo.setSiteCode(position.getSiteCode());
+            scrappedPo.setSiteName(position.getSiteName());
+            scrappedPo.setCreateErp(req.getUserErp());
+            scrappedPo.setCreateTime(new Date());
             try {
                 jyBizTaskExceptionDao.insertSelective(taskEntity);
-                jyExceptionDao.insertSelective(expEntity);
+                jyExceptionScrappedDao.insertSelective(scrappedPo);
                 jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
             } catch (Exception e) {
                 logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
@@ -174,6 +169,22 @@ public class JyScrappedExceptionServiceImpl implements JyScrappedExceptionServic
             redisClient.del(existKey);
         }
         return JdCResponse.ok();
+    }
+
+    @Override
+    public JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList() {
+        JdCResponse<List<JyExceptionScrappedTypeDto>> result = new JdCResponse<>();
+        List<JyExceptionScrappedTypeDto> dtoList = new ArrayList<>();
+        JyExceptionScrappedTypeEnum[] types = JyExceptionScrappedTypeEnum.values();
+        for (JyExceptionScrappedTypeEnum type:types) {
+            JyExceptionScrappedTypeDto dto = new JyExceptionScrappedTypeDto();
+            dto.setScrappedTypCode(type.getCode());
+            dto.setScrappedTypeName(type.getName());
+            dtoList.add(dto);
+        }
+        result.setData(dtoList);
+        result.toSucceed("请求成功!");
+        return result;
     }
 
     /**
