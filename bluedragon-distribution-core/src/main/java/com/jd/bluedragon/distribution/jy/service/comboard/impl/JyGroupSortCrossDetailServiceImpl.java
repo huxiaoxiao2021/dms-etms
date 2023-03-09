@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -20,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -138,6 +140,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             }
             ids.add(entity.getId());
         }
+        
         updateReq.setIds(ids);
         updateReq.setUpdateUserErp(request.getUser().getUserErp());
         updateReq.setUpdateUserName(request.getUser().getUserName());
