@@ -196,6 +196,19 @@
 		</where>
 	</select>
 
+	<select id="countNoneCollectedAggCodeByCollectionCode" resultType="java.lang.Integer"
+			parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			collection_record
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and is_collected = 0
+			and yn = 1
+		</where>
+	</select>
+
 	<select id="countCollectionRecordDetailByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
 		SELECT
 			count(1)
@@ -206,5 +219,63 @@
 			and yn = 1
 		</where>
 	</select>
+
+	<select id="findAggCodeByScanCode" parameterType="java.lang.String" resultMap="collectionRecordDetailMap">
+		SELECT
+			collection_code, agg_code, agg_code_type
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code = #{scanCode, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="countAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter">
+		SELECT
+			collection_code, agg_code, agg_code_type, count(scan_code) as sumScanNum, sum(is_collected) as collectedNum,
+		sum(is_extra_collected) as extraCollectedNum
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="countAggCollectedByAggCodeWithMark" parameterType="CollectionRecordDetailPo"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
+		SELECT
+			collected_mark, count(collected_mark) as num
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		group by collected_mark
+		</where>
+	</select>
+
+	<select id="sumCollectionByCollectionCode" parameterType="java.lang.String" resultType="">
+		SELECT
+			*
+		FROM
+			collection_record_detail crd inner join collection_record cr
+		ON
+			crd.collection_code = cr.collection_code
+			and crd.agg_code = cr.agg_code
+			and crd.agg_code_type = cr.agg_code_type
+		where
+			crd.yn = 1 and cr.yn = 1
+		group by
+			crd.collection_code, crd.agg_code, crd.agg_code_type, crd.collected_mark
+	</select>
+
 
 </mapper>

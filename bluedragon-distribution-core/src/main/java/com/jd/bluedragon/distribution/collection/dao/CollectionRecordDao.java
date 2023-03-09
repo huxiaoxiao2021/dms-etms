@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.collection.dao;
 
 import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
+import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.ibatis.session.SqlSession;
 
@@ -69,10 +71,25 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectionRecordByCollectionCode"), collectionCode);
     }
 
+    public Integer countNoneCollectedAggCodeByCollectionCode(String collectionCode) {
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCode"), collectionCode);
+    }
+
     public Integer countCollectionRecordDetailByCollectionCode(String collectionCode) {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectionRecordDetailByCollectionCode"), collectionCode);
     }
 
+    public List<CollectionRecordDetailPo> findAggCodeByScanCode(CollectionRecordDetailPo collectionRecordDetailPo) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByScanCode"), collectionRecordDetailPo);
+    }
+
+    public CollectionAggCodeCounter countAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCollectedByAggCode"), collectionRecordDetailPo);
+    }
+
+    public List<CollectionScanMarkCounter> countAggCollectedByAggCodeWithMark(CollectionRecordDetailPo collectionRecordDetailPo) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".countAggCollectedByAggCodeWithMark"), collectionRecordDetailPo);
+    }
 
     public void setSqlSession(SqlSession sqlSession) {
         this.sqlSession = sqlSession;
