@@ -9,8 +9,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum JyBizTaskExceptionTypeEnum {
 
     SANWU(0, "三无"),
-    DAMAGED(1, "破损"),
-    SCRAPPED(2, "报废"),
+    SCRAPPED(1, "报废"),
+    //DAMAGED(2, "破损"),
     ;
 
     private Integer code;
@@ -36,6 +36,18 @@ public enum JyBizTaskExceptionTypeEnum {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static JyBizTaskExceptionTypeEnum getEnumByCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
+        for (JyBizTaskExceptionTypeEnum value : JyBizTaskExceptionTypeEnum.values()) {
+            if (code.equals(value.getCode())) {
+                return value;
+            }
+        }
+        return null;
     }
 
 }
