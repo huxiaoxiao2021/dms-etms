@@ -428,6 +428,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setTabletrolleyCode(barCode.substring(index + 1));
       tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
     }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+      // 目的地站点
       query.setSiteCode(Integer.valueOf(barCode));
       tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
     }
