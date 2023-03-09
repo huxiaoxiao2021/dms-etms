@@ -133,6 +133,37 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
         return result;
     }
 
+    /**
+     * 批量插入
+     * @param requests
+     * @return
+     */
+    @Override
+    public InvokeResult<List<String>> batchVirtualSpWmsCreateIn(List<SpWmsCreateInRequest> requests) {
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        List<String> errorList = new ArrayList<>();
+        result.setData(errorList);
+        if(CollectionUtils.isEmpty(requests)){
+            return result;
+        }
+        for(SpWmsCreateInRequest request :requests ){
+            try {
+                //一条失败跳过 记录
+                InvokeResult<Boolean> invokeResult =  virtualSpWmsCreateIn(request);
+                if(!invokeResult.codeSuccess()){
+                    errorList.add(request.getWaybillCode());
+                    result.setCode(InvokeResult.SERVICE_FAIL_CODE);
+                    log.warn("batchVirtualSpWmsCreateIn one waybill {} fail !,msg:{} ",request.getWaybillCode(),invokeResult.getMessage());
+                }
+            }catch (Exception e){
+                errorList.add(request.getWaybillCode());
+                log.error("batchVirtualSpWmsCreateIn one waybill {} error ! ",request.getWaybillCode(),e);
+            }
+
+        }
+        return result;
+    }
+
 
     private String makeSendCode(SpWmsCreateInRequest request) {
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
@@ -177,6 +208,8 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
         return map;
     }
 
+
+
     private boolean sendReverseMessageToSpwms(SpWmsCreateInRequest request) throws Exception {
 
 
@@ -200,9 +233,11 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
             log.error("sendReverseMessageToSpwms getBaseSiteBySiteId error {}", JsonHelper.toJson(request));
             return false;
         }
-
-
-        String sendCode = makeSendCode(request);
+        //如果没指定批次号则自动创建
+        String sendCode = request.getSendCode();
+        if(StringUtils.isBlank(sendCode)){
+            sendCode = makeSendCode(request);
+        }
         List<SendDetail> sendDetails = makeSendDetail(request, sendCode);
 
         // 增加判断d表中数据为逆向数据
