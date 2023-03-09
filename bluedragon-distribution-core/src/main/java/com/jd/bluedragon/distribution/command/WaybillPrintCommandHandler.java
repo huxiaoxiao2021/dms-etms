@@ -46,8 +46,8 @@ public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<Waybi
                 waybillPrintRequest.setVersionCode(target.getVersionCode());
             }
 			//初始化操作人信息
-			if(null!=context.getRequest().getUserCode()){
-				BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByStaffId(context.getRequest().getUserCode());
+			if(null!=waybillPrintRequest.getUserCode()){
+				BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByStaffId(waybillPrintRequest.getUserCode());
 				if(null!=baseStaffByErpNoCache && Integer.valueOf(64).equals(baseStaffByErpNoCache.getSiteType())){
 					context.setDmsCenter(Boolean.TRUE);
 				}
