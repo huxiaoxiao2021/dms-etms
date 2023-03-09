@@ -220,12 +220,9 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             }
 
             //发送全程跟踪
-            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(request.getMachineCode());
-
-            virtualBoardService.sendWaybillTrace(operatorData,request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
+            
+            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
             response.toSucceed();
@@ -298,6 +295,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
         currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
         currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
+        currentOperate.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        currentOperate.setOperatorId(request.getMachineCode());
         req.setCurrentOperate(currentOperate);
     }
 
@@ -353,14 +352,22 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
 
-    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo( OperatorInfo operatorInfo){
+    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(BindBoardRequest request){
+    	if(request == null) {
+    		return null;
+    	}
+    	OperatorInfo operatorInfo = request.getOperatorInfo();
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operator = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
+        if(operatorInfo != null) {
         operator.setOperateTime(operatorInfo.getOperateTime());
         operator.setSiteCode(operatorInfo.getSiteCode());
         operator.setSiteName(operatorInfo.getSiteName());
         operator.setUserCode(operatorInfo.getUserCode());
         operator.setUserName(operatorInfo.getUserName());
-        operator.setUserErp(operatorInfo.getUserErp());
+            operator.setUserErp(operatorInfo.getUserErp());        	
+        }
+        operator.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        operator.setOperatorId(request.getMachineCode());
         return operator;
     }
 
