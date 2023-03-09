@@ -308,7 +308,8 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       result.hintMessage("未检索到相应的派车任务！");
       return null;
     }//完整车牌号检索
-    else if (queryTaskSendDto.getKeyword().length()>=7){
+    else if (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)
+        || queryTaskSendDto.getKeyword().matches(DmsConstants.CODE_PREFIX)){
       String chineseCarNum = "";
       if (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)){
         chineseCarNum =queryTaskSendDto.getKeyword();
