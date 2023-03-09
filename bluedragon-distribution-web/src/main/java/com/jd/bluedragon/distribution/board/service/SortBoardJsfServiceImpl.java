@@ -334,11 +334,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         try {
             CancelBoardReq req = createCancelBoardReq(request);
             InvokeResult<Void> result = jyComBoardSendService.cancelSortMachineComboard(req);
-            log.info("分拣机组板发货调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
+            log.info("分拣机取消组板调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
             if(result.getCode() != 200){
                 response.toFail(MessageFormat.format("调板服务组板发货接口失败code:{0}，message:{1}", result.getCode(),
                         result.getMessage()));
-                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
+                log.warn("调分拣机取消组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
                         JsonHelper.toJson(req));
                 return response;
             }
