@@ -627,4 +627,19 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
+    
+    @Test
+    public void  queryUserByStartSiteCodeTest() {
+        SendFlowQueryReq boardReq = new SendFlowQueryReq();
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        boardReq.setCurrentOperate(operate);
+        boardReq.setGroupCode("G00000059001");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        boardReq.setUser(user);
+        jyComboardGatewayService.queryScanUser(boardReq);
+    }
 }
