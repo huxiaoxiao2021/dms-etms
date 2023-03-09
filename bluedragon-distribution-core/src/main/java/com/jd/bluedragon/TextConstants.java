@@ -327,4 +327,8 @@ public class TextConstants {
      * 优先配送
      */
     public static final String COMMON_TEXT_DELIVERY  = "【优先配送】";
+    /**
+     * 医药专送
+     */
+    public static final String COMMON_TEXT_MEDICINE_DELIVET = "医药专送";
 }
