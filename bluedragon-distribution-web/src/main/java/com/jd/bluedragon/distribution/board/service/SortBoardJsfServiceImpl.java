@@ -286,13 +286,17 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
     private void assembleBaseReq(BaseReq req,BindBoardRequest request) {
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
-        user.setUserCode(request.getOperatorInfo().getUserCode());
+        if(request.getOperatorInfo().getUserCode() != null) {
+        	user.setUserCode(request.getOperatorInfo().getUserCode());
+        }
         user.setUserErp(request.getOperatorInfo().getUserErp());
         user.setUserName(request.getOperatorInfo().getUserName());
         req.setUser(user);
 
         com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
-        currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
+        if(request.getOperatorInfo().getSiteCode() != null) {
+        	currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
+        }
         currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
         currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
         currentOperate.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
@@ -334,11 +338,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         try {
             CancelBoardReq req = createCancelBoardReq(request);
             InvokeResult<Void> result = jyComBoardSendService.cancelSortMachineComboard(req);
-            log.info("分拣机组板发货调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
+            log.info("分拣机取消组板调参数:{}，返回值:{}", JsonHelper.toJson(req), JsonHelper.toJson(result));
             if(result.getCode() != 200){
                 response.toFail(MessageFormat.format("调板服务组板发货接口失败code:{0}，message:{1}", result.getCode(),
                         result.getMessage()));
-                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
+                log.warn("调分拣机取消组板接口失败code:{}，message:{},请求参数:{}", result.getCode(), result.getMessage(),
                         JsonHelper.toJson(req));
                 return response;
             }

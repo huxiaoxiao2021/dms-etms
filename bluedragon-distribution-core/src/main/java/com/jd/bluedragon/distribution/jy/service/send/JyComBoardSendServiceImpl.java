@@ -2478,6 +2478,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }else{
         operatorInfo.setOperateTime(request.getCurrentOperate().getOperateTime());
       }
+      operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+      operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
       if (!CollectionUtils.isEmpty(barCodeList)) {
         String barCode = barCodeList.get(0);
         virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
