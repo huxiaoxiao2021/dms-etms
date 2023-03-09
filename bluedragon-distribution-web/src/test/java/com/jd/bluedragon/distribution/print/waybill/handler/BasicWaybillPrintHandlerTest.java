@@ -2,13 +2,16 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.impl.WaybillCommonServiceImpl;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import com.jd.bluedragon.distribution.print.waybill.handler.BasicWaybillPrintHandler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -22,11 +25,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyInt;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BasicWaybillPrintHandlerTest {
@@ -41,7 +48,7 @@ public class BasicWaybillPrintHandlerTest {
     @Mock
     private BaseMinorManager baseMinorManager;
 
-    @InjectMocks
+    @Mock
     private WaybillCommonServiceImpl waybillCommonService;
 
     @Mock
@@ -52,6 +59,12 @@ public class BasicWaybillPrintHandlerTest {
 
     @Mock
     private BaseService baseService;
+    
+    @Mock
+    SysConfigService sysConfigService;
+    
+    @Mock
+    private BaseMajorManager baseMajorManager;
 
     @Test
     public void testHandle(){
@@ -64,8 +77,9 @@ public class BasicWaybillPrintHandlerTest {
         /*构造mock*/
         BaseEntity<BigWaybillDto> baseEntity  = this.makeWaybill();
         when(waybillQueryManager.getWaybillDataForPrint("JDV000488704633")).thenReturn(baseEntity);
-        when(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false)).thenReturn(new com.jd.bluedragon.common.domain.Waybill());
-        when(baseMinorManager.getBaseTraderById(null)).thenReturn(new BasicTraderInfoDTO());
+        com.jd.bluedragon.common.domain.Waybill waybill = new com.jd.bluedragon.common.domain.Waybill();
+        when(waybillCommonService.convWaybillWS(any(BigWaybillDto.class), anyBoolean(), anyBoolean(),anyBoolean(),anyBoolean())).thenReturn(waybill);
+        when(baseMinorManager.getBaseTraderById(anyInt())).thenReturn(new BasicTraderInfoDTO());
 
 
         /*构造waybillCommonService依赖的mock*/

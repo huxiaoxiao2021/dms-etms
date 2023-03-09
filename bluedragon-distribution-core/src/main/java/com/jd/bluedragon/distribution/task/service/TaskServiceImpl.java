@@ -459,6 +459,9 @@ public class TaskServiceImpl implements TaskService {
     @JProfiler(jKey= "DMSCORE.TaskService.add",mState = {JProEnum.TP})
 	@Override
     public Integer add(Task task, boolean ifCheckTaskMode) {
+    	if(log.isDebugEnabled()) {
+        	log.debug("addTask：{} " ,JsonHelper.toJson(task));
+        }
         Assert.notNull(task, "task must not be null");
 		if (isDynamicProducerOn(task)) {
 			String topic = taskJmqTopicRouter.getTopic(task);
