@@ -286,13 +286,17 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
     private void assembleBaseReq(BaseReq req,BindBoardRequest request) {
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
-        user.setUserCode(request.getOperatorInfo().getUserCode());
+        if(request.getOperatorInfo().getUserCode() != null) {
+        	user.setUserCode(request.getOperatorInfo().getUserCode());
+        }
         user.setUserErp(request.getOperatorInfo().getUserErp());
         user.setUserName(request.getOperatorInfo().getUserName());
         req.setUser(user);
 
         com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
-        currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
+        if(request.getOperatorInfo().getSiteCode() != null) {
+        	currentOperate.setSiteCode(request.getOperatorInfo().getSiteCode());
+        }
         currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
         currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
         currentOperate.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
