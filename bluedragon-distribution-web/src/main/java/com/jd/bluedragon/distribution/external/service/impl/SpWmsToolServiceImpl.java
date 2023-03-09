@@ -33,6 +33,8 @@ import com.jd.rd.unpack.jsf.distributionReceive.result.MessageResult;
 import com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -147,9 +149,13 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
         if(CollectionUtils.isEmpty(requests)){
             return result;
         }
+        int i = 1;
         for(SpWmsCreateInRequest request :requests ){
+            CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.service.impl.SpWmsToolServiceImpl.batchVirtualSpWmsCreateInOfOneWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
             try {
+
                 //一条失败跳过 记录
+                log.info("批量处理备件库入库单,处理到第{}条,{},{}",i++,request.getWaybillCode());
                 InvokeResult<Boolean> invokeResult =  virtualSpWmsCreateIn(request);
                 if(!invokeResult.codeSuccess()){
                     errorList.add(request.getWaybillCode());
@@ -159,6 +165,9 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
             }catch (Exception e){
                 errorList.add(request.getWaybillCode());
                 log.error("batchVirtualSpWmsCreateIn one waybill {} error ! ",request.getWaybillCode(),e);
+                Profiler.functionError(info);
+            }finally {
+                Profiler.registerInfoEnd(info);
             }
 
         }
@@ -300,6 +309,7 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                 int spare_num = 0;
 
                 List<ReverseSendSpwmsOrder> spwmsOrders = new ArrayList<ReverseSendSpwmsOrder>();
+                List<String> usedSpareCode = new ArrayList<>();
                 for (int i = 0; i < products.size(); i++) {
                     for (int j = 0; j < products.get(i).getQuantity(); j++) {
                         ReverseSendSpwmsOrder spwmsOrder = new ReverseSendSpwmsOrder();
@@ -310,9 +320,19 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                             spwmsOrder.setSpareCode(makeSpare());
                         }else{
                             //一单一品，一个备件条码
-                            spwmsOrder.setSpareCode(sparesMap.get(products.get(i).getProductId()));
-
+                            //如果一个运单下的备件条码被使用过则创建一个新的条码
+                            String spareCode = sparesMap.get(products.get(i).getProductId());
+                            if(StringUtils.isBlank(spareCode)){
+                                log.error("未通过商品编号获取到备件条码,{},{}",products.get(i).getProductId(),request.getWaybillCode());
+                                return false;
+                            }
+                            if(usedSpareCode.contains(spareCode)){
+                                spwmsOrder.setSpareCode(makeSpare());
+                            }else{
+                                spwmsOrder.setSpareCode(spareCode);
+                            }
                         }
+                        usedSpareCode.add(spwmsOrder.getSpareCode());
                         spwmsOrder.setProductId(products.get(i).getProductId());
                         spwmsOrder.setProductName(products.get(i).getName());
                         spwmsOrder.setProductPrice(products.get(i).getPrice() == null ? Double.valueOf(0) :products.get(i).getPrice().doubleValue());
