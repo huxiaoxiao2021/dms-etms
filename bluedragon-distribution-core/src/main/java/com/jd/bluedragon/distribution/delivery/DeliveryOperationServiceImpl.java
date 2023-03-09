@@ -488,6 +488,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         operatorInfo.setSiteName(dto.getStartSiteName());
         operatorInfo.setUserCode(dto.getUserCode());
         operatorInfo.setOperateTime(dto.getOperateTime());
+        operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
+        operatorInfo.setOperatorId(dto.getOperatorId()); 
         return operatorInfo;
     }
 
@@ -559,6 +561,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             operatorInfo.setSiteName(dto.getSiteName());
             operatorInfo.setUserCode(dto.getUserCode());
             operatorInfo.setOperateTime(new Date());
+            operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
+            operatorInfo.setOperatorId(dto.getOperatorId()); 
             virtualBoardService.sendWaybillTrace(packageD.getPackageBarcode(),
                     operatorInfo,dto.getBoardCode(),dto.getSiteName(),
                     WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,

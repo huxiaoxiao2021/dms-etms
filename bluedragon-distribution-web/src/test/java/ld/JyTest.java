@@ -61,6 +61,7 @@ public class JyTest {
         SpWmsCreateInProduct spWmsCreateInProduct2 = new SpWmsCreateInProduct();
         spWmsCreateInProduct2.setProductCode("11122");
         spWmsCreateInProduct2.setSpareCode("22233");
+
         list.add(spWmsCreateInProduct2);
         request.setSpareCodes(list);
         for (int i = 0; i < 10; i++) {

@@ -1378,7 +1378,11 @@ public class SortingServiceImpl implements SortingService {
 			waybillStatus.setOperateTime(sorting.getOperateTime() == null ? new Date() : sorting.getOperateTime());
 			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
 			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
-
+	        OperatorData operatorData = new OperatorData();
+	        operatorData.setOperatorId(sorting.getOperatorId());
+	        operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
+	        waybillStatus.setOperatorData(operatorData);
+	        
 			Task task = new Task();
 			task.setTableName(Task.TABLE_NAME_POP);
 			task.setSequenceName(Task.getSequenceName(task.getTableName()));
