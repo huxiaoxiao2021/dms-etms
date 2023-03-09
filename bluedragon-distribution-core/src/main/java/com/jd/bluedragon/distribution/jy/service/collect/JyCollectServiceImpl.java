@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
+import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTypeService;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
@@ -83,6 +85,31 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         collectSiteTypeService.removeCollect(collectDto);
 
+        return null;
+    }
+
+    @Override
+    public InvokeResult updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        return null;
+    }
+
+    @Override
+    public CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        return null;
+    }
+
+    @Override
+    public CollectReportStatisticsDto scanQueryWaybillCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNum(CollectStatisticsQueryDto reqDto) {
         return null;
     }
 

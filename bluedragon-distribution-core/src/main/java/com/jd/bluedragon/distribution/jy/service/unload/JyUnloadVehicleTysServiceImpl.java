@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
@@ -164,6 +165,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyGroupService")
     private JyGroupService jyGroupService;
+    @Autowired
+    private JyCollectService jyCollectService;
 
 
     @Override
@@ -747,7 +750,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto, unloadScanDto.getStageBizId());
             }
             // 加盟商余额校验 + 推验货任务
-            jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_PACKAGE.getCode());
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -890,7 +893,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
         // 验货校验
-        jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+        jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_WAYBILL.getCode());
         // 组装返回数据
         jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
         // 设置拦截缓存
@@ -2070,7 +2073,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<ScanCollectStatisticsDto> queryCollectStatisticsByDiffDimension(CollectStatisticsQueryDto reqDto) {
-        return null;
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.queryCollectStatisticsByDiffDimension--不齐维度统计数据查询：";
+        InvokeResult<ScanCollectStatisticsDto> res = new InvokeResult<>();
+        res.success();
+        //不齐运单数量
+        InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNumRes = jyCollectService.collectWaitWaybillNum(reqDto);
+        if(!collectWaitWaybillNumRes.codeSuccess()) {
+            log.info("{}不齐运单数量查询错误，param={},res={}", methodDesc, reqDto, JsonUtils.toJSONString(collectWaitWaybillNumRes));
+            res.error(collectWaitWaybillNumRes.getMessage());
+            return res;
+        }
+        return collectWaitWaybillNumRes;
     }
 
     @Override

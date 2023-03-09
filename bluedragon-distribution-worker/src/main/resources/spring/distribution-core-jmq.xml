@@ -767,9 +767,14 @@
         <property name="topic" value="${jmq.topic.cancelTransAbnormal}" />
         <property name="timeout" value="1000" />
     </bean>
-    <!--  拣运集齐  -->
+    <!--  拣运集齐初始化  -->
     <bean id="jyCollectDataInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.collect.data.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运集齐批量修改  -->
+    <bean id="jyCollectBatchUpdateProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update}" />
         <property name="timeout" value="1000" />
     </bean>
 </beans>

@@ -469,8 +469,13 @@
     <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
+    <!-- 集齐初始化消费 -->
     <jmq:consumer id="jmq.jyCollectDataInitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.data.init}" listener="jyCollectDataInitConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐数据批量修改 -->
+    <jmq:consumer id="jmq.jyCollectBatchUpdateStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update}" listener="jyCollectBatchUpdateStatusConsumer"/>
     </jmq:consumer>
 </beans>
 

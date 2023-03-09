@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectQueryReqDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailResDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportResDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
+import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 
 /**
  * @Author zhengchengfa
@@ -50,4 +49,34 @@ public interface JyCollectService {
      */
     InvokeResult removeCollect(CollectDto collectDto);
 
+    /**
+     * 修改单条集齐状态
+     */
+    InvokeResult updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto);
+
+    /**
+     * 扫描查询集齐统计数据
+     */
+    CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
+
+    /**
+     * 按单验货查询运单类型统计
+     * 该接口直接运单的集齐类型，，按单验货一定齐了，但运单异步不一定初始化完，故只查类型，统计数据业务层自己处理
+     * @return
+     */
+    CollectReportStatisticsDto scanQueryWaybillCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
+
+    /**
+     * 按运单维度批量更新集齐状态
+     * @param paramDto
+     * @return
+     */
+    InvokeResult waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto);
+
+    /**
+     * 不齐运单统计数量查询
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNum(CollectStatisticsQueryDto reqDto);
 }
