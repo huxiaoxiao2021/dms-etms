@@ -831,6 +831,11 @@ public class UccPropertyConfiguration {
 
     private String autoPackageSendInspectionDelSiteCodes;
 
+    /**
+     * 混扫任务流向限制
+     */
+    private Integer cttGroupSendFLowLimit;
+
     public boolean isAutoPackageSendInspectionSwitch() {
         return autoPackageSendInspectionSwitch;
     }
@@ -1224,6 +1229,26 @@ public class UccPropertyConfiguration {
     private Boolean boardListQuerySwitch;
 
     private boolean  supportMutilScan;
+
+    private String siteForbiddenList;
+
+    private String orgForbiddenList;
+
+    public String getSiteForbiddenList() {
+        return siteForbiddenList;
+    }
+
+    public void setSiteForbiddenList(String siteForbiddenList) {
+        this.siteForbiddenList = siteForbiddenList;
+    }
+
+    public String getOrgForbiddenList() {
+        return orgForbiddenList;
+    }
+
+    public void setOrgForbiddenList(String orgForbiddenList) {
+        this.orgForbiddenList = orgForbiddenList;
+    }
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
@@ -2931,5 +2956,13 @@ public class UccPropertyConfiguration {
 
     public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
         this.cloudOssInsertSwitch = cloudOssInsertSwitch;
+    }
+
+    public Integer getCttGroupSendFLowLimit() {
+        return cttGroupSendFLowLimit;
+    }
+
+    public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
+        this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
     }
 }
