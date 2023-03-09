@@ -30,6 +30,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -524,6 +525,8 @@ public class SendVehicleTransactionManager {
     }
 
     private boolean checkIsCz(Integer receiveSiteId) {
+        BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
+
         return false;
     }
 
