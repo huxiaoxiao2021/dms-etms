@@ -56,18 +56,28 @@ public class CollectionAggCodeCounter {
     private Integer extraCollectedNum;
 
     /**
-     * 无collectedMark的情况
+     * 未到
      */
-    private Integer noneCollectedMarkNum;
+    private Integer noneMarkNoneCollectedNum;
 
     /**
-     * 相同collectedMark数量
+     * 本车已集齐
      */
-    private Integer innerCollectedMarkNum;
+    private Integer innerMarkCollectedNum;
 
     /**
-     * 不同collectedMark数量
+     * 本车未集齐
      */
-    private Integer outCollectedMarkNum;
+    private Integer innerMarkNoneCollectedNum;
+
+    /**
+     * 在库已集齐
+     */
+    private Integer outMarkCollectedNum;
+
+    /**
+     * 在库未集齐
+     */
+    private Integer outMarkNoneCollectedNum;
 
 }

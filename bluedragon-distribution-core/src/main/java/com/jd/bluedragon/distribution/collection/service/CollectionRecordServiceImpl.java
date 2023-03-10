@@ -50,6 +50,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private KvIndexDao kvIndexDao;
 
     @Override
+    public String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity) {
+        return null;
+    }
+
+    @Override
     public boolean initFullCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result) {
         /* 1. 必要的参数检查 */
         if (Objects.isNull(collectionCreatorEntity)) {
@@ -83,7 +88,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionScanCodeEntity -> CollectionRecordDetailPo.builder()
                         .collectionCode(collectionCode)
                         .scanCode(collectionScanCodeEntity.getScanCode())
-                        .scanCodeType(collectionScanCodeEntity.getScanCodeType())
+                        .scanCodeType(collectionScanCodeEntity.getScanCodeType().name())
                         .aggCode(collectionScanCodeEntity.getCollectionAggCodeMaps().getOrDefault(aggCodeTypeEnum, "null"))
                         .aggCodeType(aggCodeTypeEnum.name())
                         .collectedStatus(CollectionStatusEnum.none_collected.getStatus())
@@ -139,7 +144,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionScanCodeEntity -> CollectionRecordDetailPo.builder()
                             .collectionCode(collectionCode)
                             .scanCode(collectionScanCodeEntity.getScanCode())
-                            .scanCodeType(collectionScanCodeEntity.getScanCodeType())
+                            .scanCodeType(collectionScanCodeEntity.getScanCodeType().name())
                             .aggCode(
                                 collectionScanCodeEntity.getCollectionAggCodeMaps().getOrDefault(aggCodeTypeEnum, "null")
                             )
@@ -244,6 +249,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    public boolean initAndCollectedPartCollection(CollectionCreatorEntity collectionCreatorEntity,
+        Result<Boolean> result) {
+        return false;
+    }
+
+    @Override
     public boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result) {
         if (null == collectionCollectorEntity
             || StringUtils.isEmpty(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode())) {
@@ -294,7 +305,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
                             .collectionCode(collectionCodeEntity.getCollectionCode())
                             .scanCode(scanCode)
-                            .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType())
+                            .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
                             .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))
                             .aggCodeType(aggCodeTypeEnum.name())
                             .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
@@ -440,16 +451,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 .build()
         );
         /* 理论上来讲，上一次查询有数据，这次查询也应该有数据 */
-        collectionAggCodeCounter.setNoneCollectedMarkNum(
+        collectionAggCodeCounter.setNoneMarkNoneCollectedNum(
             (int)collectionScanMarkCounters.parallelStream().filter(
                 collectionScanMarkCounter -> StringUtils.isEmpty(collectionScanMarkCounter.getCollectedMark())).count()
         );
-        collectionAggCodeCounter.setInnerCollectedMarkNum(
+        collectionAggCodeCounter.setInnerMarkCollectedNum(
             (int)collectionScanMarkCounters.parallelStream().filter(
                 collectionScanMarkCounter -> Objects
                     .equals(collectedMark, collectionScanMarkCounter.getCollectedMark())).count()
         );
-        collectionAggCodeCounter.setOutCollectedMarkNum(
+        collectionAggCodeCounter.setOutMarkCollectedNum(
             (int)collectionScanMarkCounters.parallelStream().filter(
                 collectionScanMarkCounter -> StringUtils.isNotEmpty(collectionScanMarkCounter.getCollectedMark()) && !Objects
                     .equals(collectedMark, collectionScanMarkCounter.getCollectedMark())).count()

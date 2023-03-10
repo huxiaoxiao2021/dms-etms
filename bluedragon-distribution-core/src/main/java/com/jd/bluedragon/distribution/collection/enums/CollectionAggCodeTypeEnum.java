@@ -19,8 +19,10 @@ public enum CollectionAggCodeTypeEnum {
 
     waybill_code("运单号"),
 
+    @Deprecated
     vehicle_number("车牌号"),
 
+    @Deprecated
     box_code("箱号")
 
     ;

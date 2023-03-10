@@ -5,11 +5,9 @@ import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +22,8 @@ import java.util.Map;
  * @Version： V1.0
  */
 public interface CollectionRecordService {
+
+    String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity);
 
     /**
      * 初始化待集齐集合对象，包括collection_record统计主表和collection_record_detail统计明细表
@@ -44,6 +44,14 @@ public interface CollectionRecordService {
      * @return 返回是否创建成功
      */
     boolean initPartCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result);
+
+    /**
+     * 增量初始化待集齐集合对象，并将该待集齐单号置为已集齐的状态
+     * @param collectionCreatorEntity
+     * @param result
+     * @return
+     */
+    boolean initAndCollectedPartCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result);
 
     /**
      * 根据操作的单号去消除在待集齐集合中的单号状态
@@ -75,6 +83,7 @@ public interface CollectionRecordService {
      * @return
      */
     Integer countNoneCollectedAggCodeNumByCollectionCode(CollectionCodeEntity collectionCodeEntity);
+
 
     /**
      * 根据collectionCode集合ID查询该集合的汇总信息

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
 import lombok.Data;
 
 import java.util.Map;
@@ -27,7 +28,13 @@ public class CollectionScanCodeEntity {
     /**
      * 待集齐单号类型
      */
-    private String scanCodeType;
+    private CollectionScanCodeTypeEnum scanCodeType;
+
+    /**
+     * 聚合统计类型
+     * 流向
+     */
+    private String aggMark;
 
     /**
      * 待集齐单号的各种聚合维度下的聚合编码，
