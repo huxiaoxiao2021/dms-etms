@@ -820,7 +820,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Integer jyComboardSealQueryBoardListTime;
+    private Double jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -2911,10 +2911,11 @@ public class UccPropertyConfiguration {
     }
 
     public Integer getJyComboardSealQueryBoardListTime() {
+    public Double getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
