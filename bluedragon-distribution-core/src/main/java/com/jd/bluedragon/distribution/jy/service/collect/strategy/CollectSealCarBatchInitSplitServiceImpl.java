@@ -1,0 +1,171 @@
+package com.jd.bluedragon.distribution.jy.service.collect.strategy;
+
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.CargoDetailServiceManager;
+import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
+import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectInitSplitServiceFactory;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.data.dto.CargoDetailDto;
+import com.jd.tms.data.dto.CommonDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Author zhengchengfa
+ * @Description //集齐初始化： 按封车内批次号分页拆分
+ * @date
+ **/
+public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplitService, InitializingBean {
+    private Logger log = LoggerFactory.getLogger(CollectSealCarBatchInitSplitServiceImpl.class);
+
+    @Autowired
+    private CargoDetailServiceManager cargoDetailServiceManager;
+    @Autowired
+    private JyCollectService jyCollectService;
+    @Autowired
+    private VosManager vosManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier(value = "jyCollectDataPageInitProducer")
+    private DefaultJMQProducer jyCollectDataPageInitProducer;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        CollectInitSplitServiceFactory.registerCollectInitSplitService(CollectInitNodeEnum.SEAL_INIT.getCode(), this);
+    }
+
+
+    @Override
+    public boolean splitBeforeInit(InitCollectDto initCollectDto) {
+
+        //只处理 到拣运中心的数据, 封车,解封车进围栏 状态数据
+        SealCarDto sealCarInfoBySealCarCodeOfTms = vosManager.findSealCarInfoBySealCarCodeOfTms(initCollectDto.getBizId());
+        if(sealCarInfoBySealCarCodeOfTms == null){
+            log.error("从运输未获取到封车信息,{}", JsonHelper.toJson(initCollectDto));
+            return false;
+        }
+        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
+        //检查目的地是否是拣运中心
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+        if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
+            //丢弃数据
+            log.info("不需要关心的数据丢弃,目的站点:{},目的站点类型:{}，消息:{}",endSiteId,siteInfo==null?null:siteInfo.getSiteType(),
+                    JsonHelper.toJson(initCollectDto));
+            return true;
+        }
+
+        List<String> batchCodes = sealCarInfoBySealCarCodeOfTms.getBatchCodes();
+        if (batchCodes == null) {
+            log.warn("封车编码【{}】没有获取到对应的批次信息!,message={}", initCollectDto.getBizId(), JsonHelper.toJson(initCollectDto));
+            return true;
+        }
+        for (String batchCode : batchCodes){
+            splitBeforeInitSendMq(batchCode, initCollectDto, sealCarInfoBySealCarCodeOfTms);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean initAfterSplit(InitCollectSplitDto initCollectSplitDto) {
+
+        List<String> pcList = this.getPageNoPackageCodeListFromTms(initCollectSplitDto);
+
+        CollectDto collectDto = new CollectDto();
+//        //todo zcf  对每批包裹号处理集齐初始化
+        jyCollectService.initCollect(collectDto);
+        return true;
+    }
+
+
+    private void splitBeforeInitSendMq(String batchCode, InitCollectDto initCollectDto, SealCarDto sealCarDto) {
+        CargoDetailDto cargoDetailDto = new CargoDetailDto();
+        cargoDetailDto.setBatchCode(batchCode);
+        cargoDetailDto.setYn(1);
+        //每次去运输获取数据的量;
+        int limitSize = 1000;
+        int currentSize  = limitSize ;
+        int offset = 0;
+        //集齐处理页容量
+        int collectBatchPageSize = CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE > limitSize ? limitSize : CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
+
+        while(currentSize == limitSize){
+            CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
+            if(cargoDetailReturn == null || cargoDetailReturn.getCode() != com.jd.etms.vos.dto.CommonDto.CODE_SUCCESS ) {
+                log.error("获取批次{}下包裹数据异常,条件：offset={},limitSize={}, result={}",batchCode,offset,limitSize, JsonHelper.toJson(cargoDetailReturn));
+                throw new JyBizException("运输接口根据批次获取包裹信息异常");
+            }
+            if(cargoDetailReturn.getData().isEmpty()) {
+                break;
+            }
+            currentSize = cargoDetailReturn.getData().size();
+            //发送集齐拆分的最大分页pageNo
+            int collectBatchMaxPageNo = currentSize / collectBatchPageSize + (currentSize % collectBatchPageSize > 0 ? 1 : 0);
+            for(int pageNo = 1; pageNo <= collectBatchMaxPageNo; pageNo++ ) {
+                InitCollectSplitDto mqDto = new InitCollectSplitDto();
+                mqDto.setBizId(initCollectDto.getBizId());
+                mqDto.setOperateTime(initCollectDto.getOperateTime());
+                mqDto.setPageSize(collectBatchPageSize);
+                mqDto.setPageNo(pageNo);
+                mqDto.setSealBatchCode(batchCode);
+                mqDto.setOperateNode(initCollectDto.getOperateNode());
+                mqDto.setSealSiteCode(sealCarDto.getSealSiteId());
+                mqDto.setShouldUnSealSiteCode(sealCarDto.getEndSiteId());
+                String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
+                String msg = JsonUtils.toJSONString(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("CollectSealCarBatchInItSplitServiceImpl.splitSendMq:封车节点集齐数据初始化按批次号拆分producer, msg={}", msg);
+                }
+                jyCollectDataPageInitProducer.sendOnFailPersistent(businessId, msg);
+            }
+            offset =  offset + limitSize;
+        }
+    }
+
+
+    private List<String> getPageNoPackageCodeListFromTms(InitCollectSplitDto initCollectSplitDto) {
+        CargoDetailDto cargoDetailDto = new CargoDetailDto();
+        cargoDetailDto.setBatchCode(initCollectSplitDto.getSealBatchCode());
+        cargoDetailDto.setYn(1);
+        int offset = ( initCollectSplitDto.getPageNo() -1 ) * initCollectSplitDto.getPageSize() ;
+
+        CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,initCollectSplitDto.getPageSize());
+        if(cargoDetailReturn == null || cargoDetailReturn.getCode() != com.jd.etms.vos.dto.CommonDto.CODE_SUCCESS ) {
+            log.error("getPageNoPackageListFromTms获取批次{}下包裹数据异常,条件={}, result={}",JsonUtils.toJSONString(initCollectSplitDto), JsonHelper.toJson(cargoDetailReturn));
+            throw new JyBizException("运输接口根据批次获取包裹信息异常");
+        }
+        if(cargoDetailReturn.getData().isEmpty()) {
+            log.warn("");
+        }
+        List<CargoDetailDto> cargoDetailDtoList =  cargoDetailReturn.getData();
+        List<String> packageCodeList = new ArrayList<>();
+        log.info("从运输系统获取批次【{}】包裹信息,offset={},dto={}", initCollectSplitDto.getSealBatchCode(), offset, JsonUtils.toJSONString(initCollectSplitDto));
+        for(CargoDetailDto cargoDetailDtoTemp:cargoDetailDtoList){
+            packageCodeList.add(cargoDetailDtoTemp.getPackageCode());
+        }
+        return packageCodeList;
+    }
+
+
+
+
+}

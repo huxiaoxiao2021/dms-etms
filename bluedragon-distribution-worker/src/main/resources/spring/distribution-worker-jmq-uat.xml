@@ -469,13 +469,17 @@
     <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
-    <!-- 集齐初始化消费 -->
-    <jmq:consumer id="jmq.jyCollectDataInitConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.collect.data.init}" listener="jyCollectDataInitConsumer"/>
+    <!-- 集齐初始化拆分批消费 -->
+    <jmq:consumer id="jmq.jyCollectDataInitSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.data.init.split}" listener="jyCollectDataInitSplitConsumer"/>
     </jmq:consumer>
     <!-- 集齐数据批量修改 -->
     <jmq:consumer id="jmq.jyCollectBatchUpdateStatusConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update}" listener="jyCollectBatchUpdateStatusConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐拆分批初始化消费 -->
+    <jmq:consumer id="jmq.JyCollectDataSplitBatchInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.data.page.init}" listener="JyCollectDataSplitBatchInitConsumer"/>
     </jmq:consumer>
 </beans>
 

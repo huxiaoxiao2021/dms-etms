@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.consumer.jy.vehicle;
+package com.jd.bluedragon.distribution.consumer.jy.collect;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;

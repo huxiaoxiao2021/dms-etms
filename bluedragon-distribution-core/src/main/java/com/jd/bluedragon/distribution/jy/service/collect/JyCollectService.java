@@ -15,17 +15,17 @@ public interface JyCollectService {
 
     /**
      * 查询集齐统计信息
-     * @param collectQueryReqDto
+     * @param collectReportReqDto
      * @return
      */
-    InvokeResult<CollectReportResDto> findCollectInfo(CollectQueryReqDto collectQueryReqDto);
+    InvokeResult<CollectReportResDto> findCollectInfo(CollectReportReqDto collectReportReqDto);
 
     /**
      * 查询集齐明细信息
-     * @param collectQueryReqDto
+     * @param collectReportReqDto
      * @return
      */
-    InvokeResult<CollectReportDetailResDto> findCollectDetail(CollectQueryReqDto collectQueryReqDto);
+    InvokeResult<CollectReportDetailResDto> findCollectDetail(CollectReportReqDto collectReportReqDto);
 
     /**
      * 解析该场地为运单的中转场地还是末端场地

@@ -1,16 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.collect.factory;
 
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectQueryReqDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailPackageDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportStatisticsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

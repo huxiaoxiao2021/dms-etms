@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyCollectTysService;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectQueryReqDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportReqDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailResDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportResDto;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
@@ -19,13 +19,13 @@ public class JyCollectTysServiceImpl implements JyCollectTysService {
     private JyCollectService jyCollectService;
 
     @Override
-    public InvokeResult<CollectReportResDto> findCollectInfo(CollectQueryReqDto collectQueryReqDto) {
-        return jyCollectService.findCollectInfo(collectQueryReqDto);
+    public InvokeResult<CollectReportResDto> findCollectInfo(CollectReportReqDto collectReportReqDto) {
+        return jyCollectService.findCollectInfo(collectReportReqDto);
     }
 
 
     @Override
-    public InvokeResult<CollectReportDetailResDto> findCollectDetail(CollectQueryReqDto collectQueryReqDto) {
-        return jyCollectService.findCollectDetail(collectQueryReqDto);
+    public InvokeResult<CollectReportDetailResDto> findCollectDetail(CollectReportReqDto collectReportReqDto) {
+        return jyCollectService.findCollectDetail(collectReportReqDto);
     }
 }

@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectQueryReqDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailPackageDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 
 import java.util.List;
 
@@ -17,15 +14,15 @@ public interface CollectStatisticsDimensionService {
     /**
      * 查询集齐统计
      */
-    abstract List<CollectReportStatisticsDto> collectStatistics(CollectQueryReqDto collectQueryReqDto);
+    CollectReportStatisticsDto collectStatistics(CollectStatisticsQueryParamDto paramDto);
 
     /**
      * 查询集齐列表（分页）
      */
-    abstract List<CollectReportDto> queryCollectListPage(CollectQueryReqDto collectQueryReqDto);
+    List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto);
 
     /**
      * 查询集齐明细
      */
-    abstract List<CollectReportDetailPackageDto> queryCollectDetail(CollectQueryReqDto collectQueryReqDto);
+    List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto);
 }

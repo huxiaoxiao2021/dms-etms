@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
  * @Description //中转场地类型
  * @date
  **/
+@Deprecated
 @Service("transferSiteTypeImpl")
 public class TransferSiteTypeImpl implements CollectSiteTypeService, InitializingBean {
 
