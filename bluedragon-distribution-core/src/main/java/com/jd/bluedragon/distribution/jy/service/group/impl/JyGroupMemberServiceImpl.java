@@ -523,4 +523,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		}
 		return jyGroupMemberDao.queryUnSignOutMemberCodeList(memberCodeList);
 	}
+	@Override
+	public JyGroupMemberEntity queryBySignRecordId(Long signRecordId) {
+		if(signRecordId == null || signRecordId <= 0) {
+			return null;
+		}
+		return jyGroupMemberDao.queryBySignRecordId(signRecordId);
+	}
 }
