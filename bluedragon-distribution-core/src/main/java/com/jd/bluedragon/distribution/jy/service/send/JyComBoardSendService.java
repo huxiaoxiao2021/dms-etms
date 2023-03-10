@@ -182,4 +182,11 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<BoardQueryResp> listComboardBySendFlow(BoardQueryReq request);
+
+  /**
+   * 获取扫描人员详情
+   * @param req
+   * @return
+   */
+  InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
 }

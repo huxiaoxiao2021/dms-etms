@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.kom.common.util.IRedisClient;
 import java.util.Date;
@@ -79,7 +80,10 @@ public class JyComboardServiceImpl implements JyComboardService {
         String key = entity.getGroupCode()+ ":"+DateHelper.formatDate(new Date(),DATE_FORMAT1);
         try {
             if (redisDao.exists(key)){
-                redisDao.sAdd(key, JsonHelper.toJson(user));
+                Long size =redisDao.sCard(key);
+                if (ObjectHelper.isNotNull(size) && size <= 128){
+                    redisDao.sAdd(key, JsonHelper.toJson(user));
+                }
             }
             else {
                 redisDao.sAdd(key, JsonHelper.toJson(user));

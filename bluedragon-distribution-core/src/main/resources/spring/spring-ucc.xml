@@ -249,6 +249,8 @@
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
 		<property name="cloudOssInsertSwitch" value="${cloudOssInsertSwitch:false}"/>
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
+		<property name="cttGroupSendFLowLimit" value="${cttGroupSendFLowLimit:10}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -495,6 +497,7 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
 				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 
+				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
 			</list>
 		</property>
 	</bean>
