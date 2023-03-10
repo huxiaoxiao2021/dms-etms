@@ -13,24 +13,22 @@ import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
-import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service("jyEvaluateService")
 public class JyEvaluateServiceImpl implements JyEvaluateService {
@@ -42,14 +40,18 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
      */
     private static final Integer EVALUATE_TYPE_LOAD = 1;
 
-    private static final Integer EVALUATE_TYPE_UNLOAD = 2;
-
     /**
      * 评价状态：0-不满意 1-满意
      */
-    private static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
-
     private static final Integer EVALUATE_STATUS_SATISFIED = 1;
+
+    /**
+     * 装车评价锁前缀
+     */
+    public static final String SEND_EVALUATE_LOCK_PREFIX = "SEND_EVALUATE_LOCK_";
+
+    private final static int LOCK_TIME = 60;
+
 
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
@@ -59,6 +61,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private JyEvaluateRecordDao jyEvaluateRecordDao;
     @Autowired
     private JyEvaluateCommonService jyEvaluateCommonService;
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
 
     @Override
@@ -83,198 +88,130 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean checkIsEvaluate(EvaluateTargetReq request) {
-        JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-        if (evaluateTargetInfo == null) {
+        JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
+        if (evaluateRecord == null) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }
 
     @Override
-    map 内存组装
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<EvaluateDimensionDto> findTargetEvaluateInfo(EvaluateTargetReq request) {
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
         if (CollectionUtils.isEmpty(recordList)) {
             return new ArrayList<>();
         }
-        Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = jyEvaluateDimensionDao.findAllDimensionMap();
-        if (dimensionEnumMap.isEmpty()) {
+        List<JyEvaluateDimensionEntity> list = jyEvaluateDimensionDao.findAllDimension();
+        if (CollectionUtils.isEmpty(list)) {
             throw new JyBizException("查询评价维度枚举列表为空");
         }
+        // 将评价枚举列表转换为map
+        Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = transformDataToMap(list);
+        // 组装结果
         Map<Integer, EvaluateDimensionDto> map = new HashMap<>();
         for (JyEvaluateRecordEntity record : recordList) {
-            transformDataToMap(map, dimensionEnumMap, record);
+            transformData(map, dimensionEnumMap, record);
         }
         return new ArrayList<>(map.values());
     }
 
-    @Override加锁
+    @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void saveTargetEvaluate(EvaluateTargetReq request) {
-        JyEvaluateTargetInfoEntity targetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-        if (targetInfo != null) {
-            throw new JyBizException("请勿重复提交");
+        try {
+            // 获取锁
+            if (!lock(request.getSourceBizId())) {
+                throw new JyBizException("多人同时评价该任务，请稍后重试！");
+            }
+            // 校验操作合法性
+            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+                // 查询一条评价记录
+                List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
+                        throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
+                    } else {
+                        throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
+                    }
+                }
+            }
+            String targetBizId = getTargetBizId(request);
+            // 评价明细列表
+            List<JyEvaluateRecordEntity> recordList;
+            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+                // 构造满意的记录
+                recordList = createSatisfiedEvaluateRecord(request, targetBizId);
+            } else {
+                // 构造不满意的记录
+                recordList = createEvaluateRecordList(request, targetBizId);
+            }
+            // 保存评价明细(前面都是对象组装，事务都加在这一层)
+            jyEvaluateCommonService.saveEvaluateInfo(recordList);
+        } finally {
+            unLock(request.getSourceBizId());
         }
-        // 评价目标基础信息实体
-        JyEvaluateTargetInfoEntity evaluateTargetInfo = createTargetInfo(request);
-        List<JyEvaluateRecordEntity> recordList;
-        // 评价明细列表
-        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-            // 构造满意的记录
-            recordList = createSatisfiedEvaluateRecord(request, evaluateTargetInfo);
-        } else {
-            // 构造不满意的记录
-            recordList = createEvaluateRecord(request, evaluateTargetInfo);
-        }
-        // 保存(前面都是对象组装，事务都加在这一层)
-        jyEvaluateCommonService.saveEvaluateInfo(evaluateTargetInfo, recordList);
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void updateTargetEvaluate(EvaluateTargetReq request) {
-        JyEvaluateTargetInfoEntity evaluateTargetInfo = jyEvaluateTargetInfoDao.findBySourceBizId(request.getSourceBizId());
-        if (evaluateTargetInfo == null) {
-            LOGGER.warn("updateTargetEvaluate|修改评价详情时未找到评价基础信息:request={}", JsonHelper.toJson(request));
-            throw new JyBizException("修改评价详情时未找到评价基础信息");
-        }
-        // 评价明细列表
-        List<JyEvaluateRecordEntity> recordList = createEvaluateRecord(request, evaluateTargetInfo);
-        // 修改(前面都是对象组装，事务都加在这一层)
-        jyEvaluateCommonService.updateEvaluateInfo(evaluateTargetInfo, recordList);
-    }
-
-报表字段单独加工
-    private JyEvaluateTargetInfoEntity createTargetInfo(EvaluateTargetReq request) {
-        // 查询运输任务封车详情
-        SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
-
-        String transWorkItemCode = sealCarDto.getTransWorkItemCode();
-        Integer targetSiteCode = sealCarDto.getStartSiteId();
-        Integer sourceSiteCode = sealCarDto.getEndSiteId();
-
-        // 根据派车单号查询发货任务
-        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findByByTransWorkItemCode(transWorkItemCode);
-        // 查询发货调度任务ID
-        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(sendVehicleDetail.getSendVehicleBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
-        // 查询卸车调度任务ID
-        String sourceTaskId = jyEvaluateCommonService.getJyScheduleTaskId(request.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
-        // 查询发货任务协助人
-        List<JyTaskGroupMemberEntity> taskGroupMembers = jyEvaluateCommonService.queryMemberListByTaskId(targetTaskId);
-        // 根据发货任务操作场地查询区域信息
-        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetSiteCode);
-        // 根据卸车任务操作场地查询区域信息
-        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(sourceSiteCode);
-
-        return createEvaluateTargetInfo(sealCarDto, sendVehicleDetail, sourceTaskId,
-                targetTaskId, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto, request);
-    }
-
-
-    private String getUserCodesStr(List<JyTaskGroupMemberEntity> taskGroupMembers) {
-        String userCodesStr = "";
-        for (JyTaskGroupMemberEntity taskGroupMember : taskGroupMembers) {
-            userCodesStr = Constants.SEPARATOR_COMMA + taskGroupMember.getUserCode();
-        }
-        return userCodesStr.substring(1);
-    }
-
-
-    private JyEvaluateTargetInfoEntity createEvaluateTargetInfo(SealCarDto sealCarDto, JyBizTaskSendVehicleDetailEntity sendDetail,
-                                                                String sourceTaskId, String targetTaskId,
-                                                                List<JyTaskGroupMemberEntity> taskGroupMembers,
-                                                                BaseStaffSiteOrgDto targetSiteOrgDto,
-                                                                BaseStaffSiteOrgDto sourceSiteOrgDto,
-                                                                EvaluateTargetReq request) {
-        JyEvaluateTargetInfoEntity targetInfo = new JyEvaluateTargetInfoEntity();
-        targetInfo.setTargetAreaCode(targetSiteOrgDto.getOrgId());
-        targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
-        targetInfo.setTargetSiteCode(sealCarDto.getStartSiteId());
-        targetInfo.setTargetSiteName(sealCarDto.getStartSiteName());
-        targetInfo.setTargetTaskId(targetTaskId);
-        targetInfo.setTargetBizId(sendDetail.getSendVehicleBizId());
-        targetInfo.setTargetStartTime(sendDetail.getCreateTime());
-        targetInfo.setTargetFinishTime(sendDetail.getUpdateTime());
-        targetInfo.setTransWorkItemCode(sealCarDto.getTransWorkItemCode());
-        targetInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
-        targetInfo.setSealTime(sealCarDto.getSealCarTime());
-        targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
-
-        targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
-        targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
-        targetInfo.setSourceSiteCode(sealCarDto.getEndSiteId());
-        targetInfo.setSourceSiteName(sealCarDto.getEndSiteName());
-        targetInfo.setSourceTaskId(sourceTaskId);
-        targetInfo.setSourceBizId(request.getSourceBizId());
-        targetInfo.setUnsealTime(sealCarDto.getDesealCarTime());
-        targetInfo.setEvaluateType(EVALUATE_TYPE_LOAD);
-        targetInfo.setStatus(request.getStatus());
-        targetInfo.setEvaluateUserErp(request.getUser().getUserErp());
-
-        targetInfo.setCreateUserErp(request.getUser().getUserErp());
-        targetInfo.setCreateUserName(request.getUser().getUserName());
-        targetInfo.setUpdateUserErp(request.getUser().getUserErp());
-        targetInfo.setUpdateUserName(request.getUser().getUserName());
-        targetInfo.setCreateTime(new Date());
-        targetInfo.setUpdateTime(new Date());
-        targetInfo.setYn(Constants.YN_YES);
-        return targetInfo;
-    }
-
-
-    private List<JyEvaluateRecordEntity> createEvaluateRecord(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo) {
-        List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
-        StringBuilder dimensionCode = new StringBuilder();
-        int imgCount = 0;
-        StringBuilder remark = new StringBuilder();
-        List<String> dimensionList = null;
-        if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
-            dimensionList = new ArrayList<>(Arrays.asList(evaluateTargetInfo.getDimensionCode().split(Constants.SEPARATOR_COMMA)));
-        }
-        for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
-            JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
-            record.setEvaluateType(EVALUATE_TYPE_LOAD);
-            record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
-            record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
-            record.setStatus(request.getStatus());
-            record.setDimensionCode(dimensionReq.getDimensionCode());
-            if (CollectionUtils.isNotEmpty(dimensionList)) {
-                if (!dimensionList.contains(String.valueOf(dimensionReq.getDimensionCode()))) {
-                    dimensionCode.append(Constants.SEPARATOR_COMMA).append(dimensionReq.getDimensionCode());
-                }
-            } else {
-                dimensionCode.append(Constants.SEPARATOR_COMMA).append(dimensionReq.getDimensionCode());
+        try {
+            // 获取锁
+            if (!lock(request.getSourceBizId())) {
+                throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
+            String targetBizId = getTargetBizId(request);
+            // 评价明细列表
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecordList(request, targetBizId);
+            // 保存评价明细(前面都是对象组装，事务都加在这一层)
+            jyEvaluateCommonService.saveEvaluateInfo(recordList);
+        } finally {
+            unLock(request.getSourceBizId());
+        }
+    }
+
+
+
+    private String getTargetBizId(EvaluateTargetReq request) {
+        // 查询一条评价记录
+        JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
+        if (evaluateRecord == null) {
+            // 根据运输封车编码查询对应的发货任务
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByBizId(request.getSourceBizId());
+            return sendVehicleDetail.getBizId();
+        } else {
+            return evaluateRecord.getTargetBizId();
+        }
+    }
+
+
+    private List<JyEvaluateRecordEntity> createEvaluateRecordList(EvaluateTargetReq request, String targetBizId) {
+        List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
+        for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
+            JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
+            record.setDimensionCode(dimensionReq.getDimensionCode());
             if (CollectionUtils.isNotEmpty(dimensionReq.getImgUrlList())) {
-                int count = dimensionReq.getImgUrlList().size();
-                imgCount = imgCount + count;
-                record.setImgCount(count); 报表字段走异步
                 record.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(dimensionReq.getImgUrlList()));
             }
-            if (StringUtils.isNotBlank(dimensionReq.getRemark())) {
-                remark.append(Constants.SEPARATOR_VERTICAL_LINE).append(dimensionReq.getRemark());
-                record.setRemark(dimensionReq.getRemark());
-            }
-            record.setCreateUserErp(request.getUser().getUserErp());
-            record.setCreateUserName(request.getUser().getUserName());
-            record.setUpdateUserErp(request.getUser().getUserErp());
-            record.setUpdateUserName(request.getUser().getUserName());
-            record.setCreateTime(new Date());
-            record.setUpdateTime(new Date());
-            record.setYn(Constants.YN_YES);
+            record.setRemark(dimensionReq.getRemark());
             recordList.add(record);
         }
-        setExtendTargetInfo(request, evaluateTargetInfo, remark, dimensionCode, imgCount);
         return recordList;
     }
 
-    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecord(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo) {
+    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecord(EvaluateTargetReq request, String targetBizId) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
+        JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
+        recordList.add(record);
+        return recordList;
+    }
+
+    private JyEvaluateRecordEntity createEvaluateRecord(EvaluateTargetReq request, String targetBizId) {
         JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
-        record.setEvaluateType(1);
-        record.setTargetBizId(evaluateTargetInfo.getTargetBizId());
-        record.setSourceBizId(evaluateTargetInfo.getSourceBizId());
+        record.setEvaluateType(EVALUATE_TYPE_LOAD);
+        record.setTargetBizId(targetBizId);
+        record.setSourceBizId(request.getSourceBizId());
         record.setStatus(request.getStatus());
         record.setCreateUserErp(request.getUser().getUserErp());
         record.setCreateUserName(request.getUser().getUserName());
@@ -283,47 +220,42 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         record.setCreateTime(new Date());
         record.setUpdateTime(new Date());
         record.setYn(Constants.YN_YES);
-        recordList.add(record);
-
-        evaluateTargetInfo.setEvaluateUserErp(request.getUser().getUserErp());
-        return recordList;
+        return record;
     }
 
-    private void setExtendTargetInfo(EvaluateTargetReq request, JyEvaluateTargetInfoEntity evaluateTargetInfo,
-                                     StringBuilder remarkStr, StringBuilder dimensionStr, int imgCount) {
-        if (evaluateTargetInfo.getId() == null) {  报表加工另外处理
-            if (dimensionStr.length() > 0) {
-                evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
+    private boolean lock(String sourceBizId) {
+        String lockKey = SEND_EVALUATE_LOCK_PREFIX + sourceBizId;
+        LOGGER.info("装车评价开始获取锁lockKey={}", lockKey);
+        try {
+            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS)) {
+                Thread.sleep(100);
+                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS);
             }
-            evaluateTargetInfo.setImgCount(imgCount);
-            if (remarkStr.length() > 0) {
-                evaluateTargetInfo.setRemark(remarkStr.substring(1));
-            }
-        } else {
-            evaluateTargetInfo.setImgCount(evaluateTargetInfo.getImgCount() + imgCount);
-            if (remarkStr.length() > 0) {
-                if (StringUtils.isNotBlank(evaluateTargetInfo.getRemark())) {
-                    evaluateTargetInfo.setRemark(evaluateTargetInfo.getRemark() + Constants.SEPARATOR_VERTICAL_LINE + remarkStr.substring(1));
-                } else {
-                    evaluateTargetInfo.setRemark(remarkStr.substring(1));
-                }
-            }
-            List<String> oldUserErpList = new ArrayList<>(Arrays.asList(evaluateTargetInfo.getEvaluateUserErp().split(Constants.SEPARATOR_COMMA)));
-            if (!oldUserErpList.contains(request.getUser().getUserErp())) {
-                evaluateTargetInfo.setEvaluateUserErp(evaluateTargetInfo.getEvaluateUserErp() + Constants.SEPARATOR_COMMA + request.getUser().getUserErp());
-            }
-            if (dimensionStr.length() > 0) {
-                if (StringUtils.isNotBlank(evaluateTargetInfo.getDimensionCode())) {
-                    evaluateTargetInfo.setDimensionCode(evaluateTargetInfo.getDimensionCode() + Constants.SEPARATOR_COMMA + dimensionStr.substring(1));
-                } else {
-                    evaluateTargetInfo.setDimensionCode(dimensionStr.substring(1));
-                }
-            }
+        } catch (Exception e) {
+            LOGGER.error("装车评价lock异常:sourceBizId={},e=", sourceBizId, e);
+            jimdbCacheService.del(lockKey);
+        }
+        return true;
+    }
+
+    private void unLock(String sourceBizId) {
+        try {
+            String lockKey = SEND_EVALUATE_LOCK_PREFIX + sourceBizId;
+            jimdbCacheService.del(lockKey);
+        } catch (Exception e) {
+            LOGGER.error("装车评价unLock异常:sourceBizId={},e=", sourceBizId, e);
         }
     }
 
+    private Map<Integer, JyEvaluateDimensionEntity> transformDataToMap(List<JyEvaluateDimensionEntity> list) {
+        Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = new HashMap<>();
+        for (JyEvaluateDimensionEntity entity : list) {
+            dimensionEnumMap.put(entity.getCode(), entity);
+        }
+        return dimensionEnumMap;
+    }
 
-    private void transformDataToMap(Map<Integer, EvaluateDimensionDto> map, Map<Integer,
+    private void transformData(Map<Integer, EvaluateDimensionDto> map, Map<Integer,
             JyEvaluateDimensionEntity> dimensionEnumMap, JyEvaluateRecordEntity record) {
         // 评价维度编码
         Integer dimensionCode = record.getDimensionCode();

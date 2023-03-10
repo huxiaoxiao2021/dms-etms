@@ -4,16 +4,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
-import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
 import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -38,13 +38,13 @@ public class JyEvaluateCommonService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JyEvaluateCommonService.class);
 
     @Autowired
-    private JyEvaluateTargetInfoDao jyEvaluateTargetInfoDao;
-    @Autowired
     private JyEvaluateRecordDao jyEvaluateRecordDao;
     @Autowired
     private VosManager vosManager;
     @Autowired
     private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
@@ -54,17 +54,10 @@ public class JyEvaluateCommonService {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.saveEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void saveEvaluateInfo(JyEvaluateTargetInfoEntity evaluateTargetInfo, List<JyEvaluateRecordEntity> recordList) {
-        jyEvaluateTargetInfoDao.insertSelective(evaluateTargetInfo);
+    public void saveEvaluateInfo(List<JyEvaluateRecordEntity> recordList) {
         jyEvaluateRecordDao.batchInsert(recordList);
     }
 
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.updateEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void updateEvaluateInfo(JyEvaluateTargetInfoEntity evaluateTargetInfo, List<JyEvaluateRecordEntity> recordList) {
-        jyEvaluateTargetInfoDao.updateByPrimaryKeySelective(evaluateTargetInfo);
-        jyEvaluateRecordDao.batchInsert(recordList);
-    }
 
     /**
      * 通过封车编码获取封车信息
@@ -79,8 +72,19 @@ public class JyEvaluateCommonService {
         return sealCarDtoCommonDto.getData();
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findByByTransWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JyBizTaskSendVehicleDetailEntity findByByTransWorkItemCode(String transWorkItemCode) {
+
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findSendTaskByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskSendVehicleDetailEntity findSendTaskByBizId(String sourceBizId) {
+        // 根据卸车bizId查询卸车任务详情
+        JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(sourceBizId);
+        if (unloadVehicle == null) {
+            LOGGER.warn("findSendTaskByBizId|查询卸车任务返回空:sourceBizId={}", sourceBizId);
+            throw new JyBizException("查询卸车任务返回空");
+        }
+        // 派车单号
+        String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
+        // 根据派车单号查询发货任务
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setTransWorkItemCode(transWorkItemCode);
         JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
@@ -90,6 +94,7 @@ public class JyEvaluateCommonService {
         }
         return sendVehicleDetail;
     }
+
 
     /**
      * 查询调度任务ID

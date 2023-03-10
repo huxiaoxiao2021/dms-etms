@@ -157,6 +157,10 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
                 return result;
             }
             jyEvaluateService.updateTargetEvaluate(request);
+        } catch (JyBizException e) {
+            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错,msg={}", e.getMessage());
+            result.toError(e.getMessage());
+            return result;
         } catch (Exception e) {
             LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常", e);
             result.toError("服务器异常");

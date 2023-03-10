@@ -41,10 +41,4 @@
     where yn = 1
   </select>
 
-  <select id="findAllDimensionMap" resultMap="BaseResultMap">
-    select  <include refid="Base_Column_List" />
-    from jy_evaluate_dimension
-    where yn = 1
-  </select>
-
 </mapper>
