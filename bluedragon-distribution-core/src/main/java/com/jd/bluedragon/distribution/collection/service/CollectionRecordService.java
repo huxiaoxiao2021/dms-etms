@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.collection.service;
 
-import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
+import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +29,11 @@ public interface CollectionRecordService {
      * @return
      */
     String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp);
+
+    /**
+     * 根据当前的扫描要素查询所有可能得待集齐集合ID
+     */
+    List<CollectionCodeEntity> queryAllCollectionCodesByElement(Map<CollectionConditionKeyEnum, Object> elements, CollectionBusinessTypeEnum businessTypeEnum);
 
     /**
      * 初始化待集齐集合对象，包括collection_record统计主表和collection_record_detail统计明细表
@@ -99,5 +103,14 @@ public interface CollectionRecordService {
     @Deprecated
     void sumCollection(Map<CollectionConditionKeyEnum, Object> element);
 
-    void sumCollectionByCollectionCode(String collectionCode);
+    /**
+     * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
+     * todo ======
+     * @param collectionCodes
+     * @return
+     */
+    List<CollectionCounter> sumCollectionByCollectionCode(List<String> collectionCodes);
+
+    Collction
+
 }

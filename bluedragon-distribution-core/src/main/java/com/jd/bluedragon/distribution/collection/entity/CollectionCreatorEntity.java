@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,6 +27,12 @@ public class CollectionCreatorEntity {
      * 当前待集齐的业务类型对象，以及保存了当前待集齐业务类型的条件和aggCodeType的聚合类型对象。
      */
     private CollectionCodeEntity collectionCodeEntity;
+
+    /**
+     * 当前待集齐的业务中，所有的aggCode的aggMark值，用于排序或者分类，
+     * 比如运单号对应的货区编码和流向，则key：JDVA0001， value：910
+     */
+    private Map<String, String> collectionAggMarks;
 
     /**
      * 当前待集齐集合的待集齐单号信息，以及包含了当前待集齐单号的聚合对象信息

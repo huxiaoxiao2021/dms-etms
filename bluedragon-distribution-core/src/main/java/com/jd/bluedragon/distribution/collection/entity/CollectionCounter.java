@@ -17,6 +17,11 @@ import lombok.Data;
 public class CollectionCounter {
 
     /**
+     * 集合ID
+     */
+    private String collectionCode;
+
+    /**
      * 需要集齐总数
      */
     private Integer sumScanNum;

@@ -277,5 +277,11 @@
 			crd.collection_code, crd.agg_code, crd.agg_code_type, crd.collected_mark
 	</select>
 
+	<select id="sumCollectionRecordByCollectionCode" parameterType="java.lang.String" resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCounter">
+
+
+
+	</select>
+
 
 </mapper>
