@@ -83,10 +83,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-    
+
     @Autowired
     private GroupBoardManager groupBoardManager;
-    
+
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
 
@@ -139,10 +139,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return false;
         }
         Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
-        
+
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
-        
+
         //检查目的地是否是拣运中心
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
