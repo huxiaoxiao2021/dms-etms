@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.busineCode.jqCode;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.busineCode.BusinessCodeManager;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
@@ -43,6 +45,9 @@ public class JQCodeServiceImpl implements JQCodeService {
     @Autowired
     private BusinessCodeManager businessCodeManager;
 
+    @Autowired
+    private KvIndexDao kvIndexDao;
+
     @Override
     @JProfiler(jKey = "DMS.CORE.JQCodeService.createJQCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
         JProEnum.TP,JProEnum.FunctionError})
@@ -66,8 +71,17 @@ public class JQCodeServiceImpl implements JQCodeService {
         attributeParam.put(BusinessCodeAttributeKey.JQCodeAttributeKeyEnum.collection_business_type.name(),
             collectionBusinessTypeEnum.name());
         /* 根据businessType创建待集齐集合的条件，并添加到attributeParam中写入属性表 */
-        attributeParam.put(BusinessCodeAttributeKey.JQCodeAttributeKeyEnum.collection_condition.name(),
-            CollectionConditionKeyEnum.getCondition(collectionConditionKeyMap,collectionBusinessTypeEnum));
+        String condition = CollectionConditionKeyEnum.getCondition(collectionConditionKeyMap,collectionBusinessTypeEnum);
+        attributeParam.put(BusinessCodeAttributeKey.JQCodeAttributeKeyEnum.collection_condition.name(), condition);
+
+        KvIndex kvIndex = new KvIndex();
+        kvIndex.setKeyword(condition);
+        kvIndex.setValue(jqCode);
+        if (kvIndexDao.add(kvIndex) <= 0) {
+            log.error("创建待集齐集合号失败：{}，业务类型{}，数据来源：{}",
+                JSON.toJSONString(collectionConditionKeyMap), collectionBusinessTypeEnum.name(), fromSource.name());
+            return "";
+        }
 
         boolean isSuccess = businessCodeManager.saveBusinessCodeAndAttribute(jqCode,
             BusinessCodeNodeTypeEnum.collection_code, attributeParam, createUser, fromSource);
@@ -76,6 +90,7 @@ public class JQCodeServiceImpl implements JQCodeService {
             log.error("插入业务单号主表副表失败，创建集齐集合号失败，集合号:{},集合属性:{}", jqCode, JsonHelper.toJson(attributeParam));
             return StringUtils.EMPTY;
         }
+
 
         return jqCode;
     }

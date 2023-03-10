@@ -91,4 +91,8 @@ public class CollectionCodeEntity {
     public String getCollectionCondition() {
         return collectionCondition;
     }
+
+    public Map<CollectionConditionKeyEnum, Object> getCollectElements() {
+        return collectElements;
+    }
 }

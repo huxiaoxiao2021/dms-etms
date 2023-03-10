@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
@@ -49,9 +51,28 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     @Autowired
     private KvIndexDao kvIndexDao;
 
+    @Autowired
+    private JQCodeService jqCodeService;
+
     @Override
-    public String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity) {
-        return null;
+    public String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
+        if (null == collectionCodeEntity || null == collectionCodeEntity.getBusinessType()) {
+            log.error("获取待集齐集合ID失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
+            return "";
+        }
+        String condition = collectionCodeEntity.buildCollectionCondition().getCollectionCondition();
+        if (StringUtils.isEmpty(condition)) {
+            log.error("获取待集齐集合ID的要素失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
+            return "";
+        }
+        String JQCode = kvIndexDao.queryRecentOneByKeyword(condition);
+        if (StringUtils.isNotEmpty(JQCode)) {
+            log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}", JQCode, JSON.toJSONString(collectionCodeEntity));
+            return JQCode;
+        }
+        return jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
+            BusinessCodeFromSourceEnum.DMS_WORKER_SYS, userErp);
+
     }
 
     @Override

@@ -23,7 +23,13 @@ import java.util.Map;
  */
 public interface CollectionRecordService {
 
-    String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity);
+    /**
+     * 查询或者创建一个待集齐集合ID
+     * @param collectionCodeEntity
+     * @param userErp
+     * @return
+     */
+    String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp);
 
     /**
      * 初始化待集齐集合对象，包括collection_record统计主表和collection_record_detail统计明细表
