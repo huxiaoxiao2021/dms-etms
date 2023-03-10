@@ -17,25 +17,34 @@ public class CarLicenseTransformUtil {
     numToChinese.put("022","津");
     numToChinese.put("010","京");
     numToChinese.put("023","渝");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
-    numToChinese.put("010","京");
+    numToChinese.put("591","闽");
+    numToChinese.put("931","甘");
+    numToChinese.put("020","粤");
+    numToChinese.put("771","桂");
+    numToChinese.put("851","贵");
+    numToChinese.put("311","冀");
+    numToChinese.put("451","黑");
+    numToChinese.put("371","豫");
+    numToChinese.put("027","鄂");
+    numToChinese.put("731","湘");
+    numToChinese.put("025","苏");
+    numToChinese.put("791","赣");
+    numToChinese.put("431","吉");
+    numToChinese.put("024","辽");
+    numToChinese.put("471","蒙");
+    numToChinese.put("951","宁");
+    numToChinese.put("531","鲁");
+    numToChinese.put("351","晋");
+    numToChinese.put("029","陕");
+
+    numToChinese.put("028","川");
+    numToChinese.put("991","新");
+    numToChinese.put("891","藏");
+    numToChinese.put("871","云");
+    numToChinese.put("571","浙");
+    numToChinese.put("971","青");
+    numToChinese.put("898","琼");
+    numToChinese.put("551","皖");
   }
 
   /**

@@ -820,7 +820,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Integer jyComboardSealQueryBoardListTime;
+    private Double jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -830,6 +830,11 @@ public class UccPropertyConfiguration {
     private boolean autoPackageSendInspectionSwitch;
 
     private String autoPackageSendInspectionDelSiteCodes;
+
+    /**
+     * 混扫任务流向限制
+     */
+    private Integer cttGroupSendFLowLimit;
 
     public boolean isAutoPackageSendInspectionSwitch() {
         return autoPackageSendInspectionSwitch;
@@ -1224,6 +1229,26 @@ public class UccPropertyConfiguration {
     private Boolean boardListQuerySwitch;
 
     private boolean  supportMutilScan;
+
+    private String siteForbiddenList;
+
+    private String orgForbiddenList;
+
+    public String getSiteForbiddenList() {
+        return siteForbiddenList;
+    }
+
+    public void setSiteForbiddenList(String siteForbiddenList) {
+        this.siteForbiddenList = siteForbiddenList;
+    }
+
+    public String getOrgForbiddenList() {
+        return orgForbiddenList;
+    }
+
+    public void setOrgForbiddenList(String orgForbiddenList) {
+        this.orgForbiddenList = orgForbiddenList;
+    }
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
@@ -2885,11 +2910,11 @@ public class UccPropertyConfiguration {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
-    public Integer getJyComboardSealQueryBoardListTime() {
+    public Double getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
@@ -2931,5 +2956,13 @@ public class UccPropertyConfiguration {
 
     public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
         this.cloudOssInsertSwitch = cloudOssInsertSwitch;
+    }
+
+    public Integer getCttGroupSendFLowLimit() {
+        return cttGroupSendFLowLimit;
+    }
+
+    public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
+        this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
     }
 }
