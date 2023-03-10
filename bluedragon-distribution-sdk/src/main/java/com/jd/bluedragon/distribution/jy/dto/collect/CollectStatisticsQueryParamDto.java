@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @Description //集齐查询参数请求bean
  * @date
  **/
-public class CollectQueryReqDto extends UnloadBaseDto implements Serializable {
+public class CollectStatisticsQueryParamDto extends UnloadBaseDto implements Serializable {
 
     private static final long serialVersionUID = -6963372061306635997L;
 
@@ -17,24 +17,9 @@ public class CollectQueryReqDto extends UnloadBaseDto implements Serializable {
     private String waybillCode;
     /**
      * 集齐类型
-     * com.jd.tys.pda.api.pack.dto.jycommon.TysCollectTypeEnum
+     * CollectTypeEnum
      */
     private Integer collectType;
-
-    /**
-     * 是否自建任务标识： true
-     */
-    private Boolean manualCreateTaskFlag;
-    /**
-     * 页容量
-     */
-    private int pageSize;
-    /**
-     * 页码
-     */
-    private int pageNo;
-
-
 
     public String getBizId() {
         return bizId;
@@ -58,29 +43,5 @@ public class CollectQueryReqDto extends UnloadBaseDto implements Serializable {
 
     public void setCollectType(Integer collectType) {
         this.collectType = collectType;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public int getPageNo() {
-        return pageNo;
-    }
-
-    public void setPageNo(int pageNo) {
-        this.pageNo = pageNo;
-    }
-
-    public Boolean getManualCreateTaskFlag() {
-        return manualCreateTaskFlag;
-    }
-
-    public void setManualCreateTaskFlag(Boolean manualCreateTaskFlag) {
-        this.manualCreateTaskFlag = manualCreateTaskFlag;
     }
 }

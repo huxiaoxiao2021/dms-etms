@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
  * @Description // 集齐类型服务   策略类（仅实现，不做策略方法）
  * @date
  **/
+@Deprecated
 public interface CollectSiteTypeService {
 
     /**

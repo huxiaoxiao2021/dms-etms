@@ -663,14 +663,20 @@
     </bean>
 
     <!--  拣运集齐初始化  -->
-    <bean id="jyCollectDataInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.collect.data.init}" />
+    <bean id="jyCollectDataInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.data.init.split}" />
         <property name="timeout" value="1000" />
     </bean>
 
     <!--  拣运集齐批量修改  -->
     <bean id="jyCollectBatchUpdateProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.collect.status.batch.update}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运集齐初始化分批拆分  -->
+    <bean id="jyCollectDataPageInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.data.page.init}" />
         <property name="timeout" value="1000" />
     </bean>
 </beans>

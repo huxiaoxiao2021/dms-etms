@@ -81,8 +81,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    @Qualifier(value = "jyCollectDataInitProducer")
-    private DefaultJMQProducer jyCollectDataInitProducer;
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
 
 
     @Override
@@ -182,7 +182,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         initCollectDto.setBizId(tmsSealCarStatus.getSealCarCode());
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
-        jyCollectDataInitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),JsonHelper.toJson(tmsSealCarStatus));
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),JsonHelper.toJson(tmsSealCarStatus));
 
 
     }

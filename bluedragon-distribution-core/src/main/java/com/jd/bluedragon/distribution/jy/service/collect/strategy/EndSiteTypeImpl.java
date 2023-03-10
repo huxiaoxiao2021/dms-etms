@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
  * @Description //末级场地类型
  * @date
  **/
+@Deprecated
 @Service("endSiteTypeImpl")
 public class EndSiteTypeImpl implements CollectSiteTypeService, InitializingBean {
 

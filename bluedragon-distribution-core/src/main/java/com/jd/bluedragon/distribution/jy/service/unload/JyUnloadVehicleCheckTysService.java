@@ -159,8 +159,8 @@ public class JyUnloadVehicleCheckTysService {
     private JyCollectService jyCollectService;
 
     @Autowired
-    @Qualifier(value = "jyCollectDataInitProducer")
-    private DefaultJMQProducer jyCollectDataInitProducer;
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
     @Autowired
     @Qualifier(value = "jyCollectBatchUpdateProducer")
     private DefaultJMQProducer jyCollectBatchUpdateProducer;
@@ -1433,8 +1433,12 @@ public class JyUnloadVehicleCheckTysService {
         mqDto.setBatchType(CollectBatchUpdateTypeEnum.WAYBILL_BATCH.getCode());
         mqDto.setScanCode(unloadScanCollectDealDto.getScanCode());
         mqDto.setScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        String msg = com.jd.bluedragon.utils.JsonHelper.toJson(mqDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
+        }
         //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
-        jyCollectBatchUpdateProducer.sendOnFailPersistent(mqDto.getScanCode(), com.jd.bluedragon.utils.JsonHelper.toJson(mqDto));
+        jyCollectBatchUpdateProducer.sendOnFailPersistent(mqDto.getScanCode(), msg);
     }
 
     /**
@@ -1451,6 +1455,10 @@ public class JyUnloadVehicleCheckTysService {
         initCollectDto.setTaskNullScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
         //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
         String businessId = String.format("%:%s", initCollectDto.getBizId(), initCollectDto.getTaskNullScanCode());
-        jyCollectDataInitProducer.sendOnFailPersistent(businessId, com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto));
+        String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
+        }
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(businessId, msg);
     }
 }
