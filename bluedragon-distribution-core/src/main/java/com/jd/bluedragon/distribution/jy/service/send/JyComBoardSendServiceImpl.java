@@ -2758,7 +2758,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
-    Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(ucc.getJyComboardSealQueryBoardListTime()));
+    Date time = DateHelper.addHoursByDay(new Date(), -ucc.getJyComboardSealQueryBoardListTime());
     sendFlow.setQueryTimeBegin(time);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
