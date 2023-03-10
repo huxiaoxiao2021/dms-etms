@@ -107,7 +107,7 @@
                 <ref bean="firstPrintInterceptHandler" />
                 <ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -131,7 +131,7 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
@@ -157,7 +157,7 @@
 			<list>
 				<ref bean="queryWaybillByBusiCodeHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -180,7 +180,7 @@
                 <ref bean="basicWaybillPrintHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
-                <ref bean="c2cInterceptHandler"/>
+                <ref bean="commonOperateInterceptHandler"/>
                 <ref bean="interceptWaybillHandler"/>
                 <ref bean="specialMarkWaybillHandler"/>
                 <ref bean="specialTextWaybillHandler"/>
@@ -204,7 +204,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
@@ -229,7 +229,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -252,7 +252,7 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="eclpInterceptHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -272,7 +272,7 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="eclpShoppingInterceptHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -291,7 +291,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -313,6 +313,7 @@
 				<ref bean="sitePlateBasicHandler"/>
 				<ref bean="sitePlateInterceptHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>
@@ -335,7 +336,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
@@ -361,7 +362,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -385,7 +386,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -411,7 +412,7 @@
 				<ref bean="reverseChangeInterceptHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -438,7 +439,7 @@
 			<list>
 				<ref bean="reverseChangeReprintHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
@@ -462,7 +463,7 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
-                <ref bean="c2cInterceptHandler"/>
+                <ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleSiteSupportInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -483,7 +484,7 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
-                <ref bean="c2cInterceptHandler"/>
+                <ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleSiteSupportInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -507,6 +508,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -531,6 +533,7 @@
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>

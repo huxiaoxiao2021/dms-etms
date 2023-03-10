@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.command;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.handler.AbstractJsonCommandHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -16,6 +20,10 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<WaybillPrintContext,InterceptResult<String>>{
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+
 	/**
 	 * 将json请求内容转换为WaybillPrintContext对象
 	 */
@@ -37,6 +45,19 @@ public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<Waybi
 			if(StringUtils.isBlank(waybillPrintRequest.getVersionCode())){
                 waybillPrintRequest.setVersionCode(target.getVersionCode());
             }
+			//初始化操作人信息
+			if(null!=waybillPrintRequest.getUserCode()){
+				BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByStaffId(waybillPrintRequest.getUserCode());
+				if(null!=baseStaffByErpNoCache && Integer.valueOf(64).equals(baseStaffByErpNoCache.getSiteType())){
+					context.setDmsCenter(Boolean.TRUE);
+				}
+				if (null != baseStaffByErpNoCache && Constants.BASE_SITE_TYPE_THIRD.equals(baseStaffByErpNoCache.getSiteType())) {
+					context.setThirdPartner(Boolean.TRUE);
+				}
+				if (null != baseStaffByErpNoCache && Constants.TERMINAL_SITE_TYPE_4.equals(baseStaffByErpNoCache.getSiteType())) {
+					context.setBusinessDepartment(Boolean.TRUE);
+				}
+			}
 		}
 		context.setRequest(waybillPrintRequest);
 		context.setResult(result);

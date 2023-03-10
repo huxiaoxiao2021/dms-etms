@@ -38,6 +38,7 @@ public enum WaybillPrintOperateTypeEnum {
     SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打"),
     SMS_PDA_REPRINT(100310, "终端：一体机"),
     SITE_HSD_PACKAGE_PRINT(100311, "终端函速达包裹打印"),
+    DADA_PACKAGE_PRINT(100313, "达达包裹补打"),
     PDF_DJ_JDB_PACKAGE_REPRINT(100315, "大件：大件京东帮"),
     /**
      * 100316-终端外部渠道B2C打印，调用系统o2o-provider
