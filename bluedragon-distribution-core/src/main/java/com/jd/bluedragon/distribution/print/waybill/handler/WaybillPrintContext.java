@@ -110,7 +110,18 @@ public class WaybillPrintContext implements Context{
 	 * 操作人所属场地是否为分拣中心
 	 */
     private Boolean dmsCenter=Boolean.FALSE;
-    /**
+
+	/**
+	 * 操作人所属场地是否为第三方
+	 */
+	private Boolean isThirdPartner = Boolean.FALSE;
+
+	/**
+	 * 操作人所属站点是否为营业部
+	 */
+	private Boolean isBusinessDepartment = Boolean.FALSE;
+
+	/**
      * 是否使用目的分拣中心,获取滑道信息时设置
      */
     private boolean isUseEndDmsId = false;
@@ -268,5 +279,21 @@ public class WaybillPrintContext implements Context{
 	}
 	public void setWaybillEndDmsId(Integer waybillEndDmsId) {
 		this.waybillEndDmsId = waybillEndDmsId;
+	}
+
+	public Boolean getThirdPartner() {
+		return isThirdPartner;
+	}
+
+	public void setThirdPartner(Boolean thirdPartner) {
+		isThirdPartner = thirdPartner;
+	}
+
+	public Boolean getBusinessDepartment() {
+		return isBusinessDepartment;
+	}
+
+	public void setBusinessDepartment(Boolean businessDepartment) {
+		isBusinessDepartment = businessDepartment;
 	}
 }
