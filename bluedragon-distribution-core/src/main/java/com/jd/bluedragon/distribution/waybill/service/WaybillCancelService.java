@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
 
@@ -43,6 +44,8 @@ public interface WaybillCancelService {
     boolean isFullOrderFail(String waybillCode);
 
     int updateByWaybillCodeInterceptType99(String waybillCode);
+
+    Result<Integer> delByWaybillCodeListInterceptType99(List<String> waybillCode);
 
     /**
      * 按运单号校验是否存在异常运单拦截

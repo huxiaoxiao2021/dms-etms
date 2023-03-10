@@ -10,12 +10,14 @@ import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalService;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
 import com.jd.bluedragon.distribution.wss.service.PopAbnormalWssService;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -116,6 +118,30 @@ public class DmsExternalServiceImpl implements DmsExternalService {
         return result;
     }
 
-
-
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+    /**
+     * 删除运单拦截
+     *
+     * @param waybillCodeList 运单单号列表
+     * @return 处理结果
+     */
+    @Override
+    public BaseEntity<Integer> delInterceptType99WaybillCancel(List<String> waybillCodeList) {
+        BaseEntity<Integer> result = new BaseEntity<>();
+        result.setData(0);
+        try {
+            final Result<Integer> handleResult = waybillCancelService.delByWaybillCodeListInterceptType99(waybillCodeList);
+            if (!handleResult.isSuccess()) {
+                result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+                return result;
+            }
+            result.setData(handleResult.getData());
+        } catch (Exception e) {
+            log.error("删除运单拦截异常: 入参：{}", JsonHelper.toJson(waybillCodeList),e);
+            result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+            result.setMessage("删除运单拦截异常" + e.getMessage());
+        }
+        return result;
+    }
 }
