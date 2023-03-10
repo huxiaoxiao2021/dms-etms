@@ -125,17 +125,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
             // 校验操作合法性
-            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-                // 查询一条评价记录
-                List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
-                if (CollectionUtils.isNotEmpty(statusList)) {
-                    if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
-                        throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
-                    } else {
-                        throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
-                    }
-                }
-            }
+            checkEvaluateValidity(request);
+            // 获取评价目标bizId
             String targetBizId = getTargetBizId(request);
             // 评价明细列表
             List<JyEvaluateRecordEntity> recordList;
@@ -172,6 +163,22 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
 
+    private void checkEvaluateValidity(EvaluateTargetReq request) {
+        // 如果本次评价满意
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+            // 查询评价状态列表
+            List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
+            if (CollectionUtils.isNotEmpty(statusList)) {
+                // 如果之前已经评价过满意
+                if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
+                    throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
+                } else {
+                    // 如果之前评价不满意，则不能修改为满意
+                    throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
+                }
+            }
+        }
+    }
 
     private String getTargetBizId(EvaluateTargetReq request) {
         // 查询一条评价记录
