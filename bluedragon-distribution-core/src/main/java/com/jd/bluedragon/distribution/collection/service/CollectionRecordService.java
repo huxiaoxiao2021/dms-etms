@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
@@ -109,8 +110,35 @@ public interface CollectionRecordService {
      * @param collectionCodes
      * @return
      */
-    List<CollectionCounter> sumCollectionByCollectionCode(List<String> collectionCodes);
+    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodes);
 
-    Collction
+    /**
+     * 根据待集齐集合
+     * @param collectionCodeEntities
+     * @param collectionStatusEnum
+     * @param aggCodeTypeEnum
+     * @return
+     */
+    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
+
+    /**
+     * 根据待集齐集合
+     * @param collectionCodeEntities
+     * @param collectionStatusEnum
+     * @param aggCodeTypeEnum
+     * @return
+     */
+    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatusWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
+
+    /**
+     * 根据集合ID和aggCode查询统计明细信息
+     * @param collectionCodeEntities
+     * @param aggCode
+     * @param aggCodeTypeEnum
+     * @param collectionStatusEnum
+     * @return
+     */
+    List<CollectionScanCodeCounter> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, CollectionStatusEnum collectionStatusEnum);
+
 
 }

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import lombok.Data;
+
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.entity
@@ -11,6 +13,7 @@ package com.jd.bluedragon.distribution.collection.entity;
  * @Since: JDK 1.8
  * @Version： V1.0
  */
+@Data
 public class CollectionScanCodeCounter {
 
     private String collectionCode;
@@ -18,4 +21,12 @@ public class CollectionScanCodeCounter {
     private String aggCode;
 
     private String aggCodeType;
+
+    private String scanCode;
+
+    private String scanCodeType;
+
+    private String collectedStatus;
+
+    private String collectedMark;
 }

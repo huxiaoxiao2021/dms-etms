@@ -668,7 +668,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionCounter> sumCollectionByCollectionCode(List<String> collectionCode) {
+    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCode) {
         if (CollectionUtils.isEmpty(collectionCode)) {
             log.info("待查询的集合ID不存在，查询失败");
             return Collections.emptyList();
@@ -678,6 +678,24 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         return Collections.emptyList();
     }
 
+    @Override
+    public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(
+        List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
+        return null;
+    }
 
+    @Override
+    public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatusWithCollectedMark(
+        List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
+        return null;
+    }
 
+    @Override
+    public List<CollectionScanCodeCounter> queryCollectionScanDetailByAggCode(
+        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum,
+        CollectionStatusEnum collectionStatusEnum) {
+        return null;
+    }
 }
