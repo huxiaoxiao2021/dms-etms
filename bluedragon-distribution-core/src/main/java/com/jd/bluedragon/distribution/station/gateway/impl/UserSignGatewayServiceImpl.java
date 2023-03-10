@@ -40,7 +40,7 @@ import java.util.Objects;
 
 /**
  * 人员签到表--JsfService接口实现
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -55,21 +55,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
-	
+
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithPosition(signInRequest);
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signOutWithPosition",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest) {
 		return userSignRecordService.signOutWithPosition(signOutRequest);
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signAuto",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAuto(userSignRequest);
@@ -85,9 +85,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Override
 	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
 		return userSignRecordService.querySignListByOperateUser(query);
-	}	
+	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionData",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
 		log.info("queryPositionData - 获取基础服务数据");
@@ -150,7 +150,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<ScanUserData> queryScanUserData(String scanUserCode) {
 		JdCResponse<ScanUserData> result = new JdCResponse<ScanUserData>();
 		result.toSucceed();
-		
+
 		if(!BusinessUtil.isScanUserCode(scanUserCode)) {
 			result.toFail("请扫描正确的人员码！");
 			return result;
@@ -162,7 +162,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return result;
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryLastUserSignRecordData",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
 		return userSignRecordService.queryLastUserSignRecordData(query);
@@ -216,7 +216,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	 */
 	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
 		return userSignRecordService.queryLastUnSignOutRecordData(query);
-	}	
+	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.checkBeforeSignIn",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -328,7 +328,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			lastUnSignOutData = lastUnSignOutResult.getData();
 		}
 		//判断在岗状态，在岗岗位码和当前不一致，给出提示
-		if(lastUnSignOutData != null 
+		if(lastUnSignOutData != null
 				&& lastUnSignOutData.getPositionCode() != null
 				&& !positionCode.equals(lastUnSignOutData.getPositionCode())) {
 			String workName = lastUnSignOutData.getPositionCode();
