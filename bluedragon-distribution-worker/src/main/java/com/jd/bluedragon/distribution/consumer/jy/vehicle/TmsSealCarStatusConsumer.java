@@ -25,6 +25,7 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -195,6 +197,13 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 }
                 List<String> boardList = new ArrayList<>();
                 for (JyBizTaskComboardEntity entity : boardEntityList) {
+                    if (!entity.getBoardStatus().equals(ComboardStatusEnum.SEALED.getCode())) {
+                        JyBizTaskComboardEntity jyBizTaskComboardEntity =new JyBizTaskComboardEntity();
+                        jyBizTaskComboardEntity.setId(entity.getId());
+                        jyBizTaskComboardEntity.setBoardStatus(ComboardStatusEnum.SEALED.getCode());
+                        jyBizTaskComboardEntity.setSealTime(new Date());
+                        jyBizTaskComboardService.updateBizTaskById(jyBizTaskComboardEntity);
+                    }
                     boardList.add(entity.getBoardCode());
                 }
                 if (logger.isInfoEnabled()) {
