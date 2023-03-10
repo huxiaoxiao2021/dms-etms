@@ -128,15 +128,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             checkEvaluateValidity(request);
             // 获取评价目标bizId
             String targetBizId = getTargetBizId(request);
-            // 评价明细列表
-            List<JyEvaluateRecordEntity> recordList;
-            if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-                // 构造满意的记录
-                recordList = createSatisfiedEvaluateRecord(request, targetBizId);
-            } else {
-                // 构造不满意的记录
-                recordList = createEvaluateRecordList(request, targetBizId);
-            }
+            // 构造评价明细列表
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request, targetBizId);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
         } finally {
@@ -152,9 +145,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
+            // 获取评价目标bizId
             String targetBizId = getTargetBizId(request);
             // 评价明细列表
-            List<JyEvaluateRecordEntity> recordList = createEvaluateRecordList(request, targetBizId);
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request, targetBizId);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
         } finally {
@@ -192,8 +186,17 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
     }
 
+    private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+            // 构造满意的记录
+            return createSatisfiedEvaluateRecords(request, targetBizId);
+        } else {
+            // 构造不满意的记录
+            return createUnsatisfiedEvaluateRecords(request, targetBizId);
+        }
+    }
 
-    private List<JyEvaluateRecordEntity> createEvaluateRecordList(EvaluateTargetReq request, String targetBizId) {
+    private List<JyEvaluateRecordEntity> createUnsatisfiedEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
             JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
@@ -207,7 +210,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return recordList;
     }
 
-    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecord(EvaluateTargetReq request, String targetBizId) {
+    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
         JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
         recordList.add(record);
