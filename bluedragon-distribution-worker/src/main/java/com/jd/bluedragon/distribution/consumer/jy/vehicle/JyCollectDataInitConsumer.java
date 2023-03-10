@@ -108,7 +108,7 @@ public class JyCollectDataInitConsumer extends MessageBaseConsumer {
     private boolean dealSealCollectInit(InitCollectDto initCollectDto) {
 
         //只处理 到拣运中心的数据, 封车,解封车进围栏 状态数据
-        SealCarDto sealCarInfoBySealCarCodeOfTms = vosManager.findSealCarInfoBySealCarCodeOfTms(initCollectDto.getSealCarCode());
+        SealCarDto sealCarInfoBySealCarCodeOfTms = vosManager.findSealCarInfoBySealCarCodeOfTms(initCollectDto.getBizId());
         if(sealCarInfoBySealCarCodeOfTms == null){
             logger.error("从运输未获取到封车信息,{}", JsonHelper.toJson(initCollectDto));
             return false;
@@ -125,7 +125,7 @@ public class JyCollectDataInitConsumer extends MessageBaseConsumer {
 
         List<String> batchCodes = sealCarInfoBySealCarCodeOfTms.getBatchCodes();
         if (batchCodes == null) {
-            logger.warn("封车编码【{}】没有获取到对应的批次信息!,message={}", initCollectDto.getSealCarCode(), JsonHelper.toJson(initCollectDto));
+            logger.warn("封车编码【{}】没有获取到对应的批次信息!,message={}", initCollectDto.getBizId(), JsonHelper.toJson(initCollectDto));
             return true;
         }
         List<String> allPackageList = new ArrayList<>();

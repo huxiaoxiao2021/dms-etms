@@ -179,7 +179,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
         InitCollectDto initCollectDto = new InitCollectDto();
-        initCollectDto.setSealCarCode(tmsSealCarStatus.getSealCarCode());
+        initCollectDto.setBizId(tmsSealCarStatus.getSealCarCode());
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
         jyCollectDataInitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),JsonHelper.toJson(tmsSealCarStatus));

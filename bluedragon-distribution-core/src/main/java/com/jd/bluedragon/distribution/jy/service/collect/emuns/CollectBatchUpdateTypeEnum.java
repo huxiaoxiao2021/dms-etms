@@ -5,17 +5,14 @@ package com.jd.bluedragon.distribution.jy.service.collect.emuns;
  * @Description //集齐初始化节点
  * @date
  **/
-public enum CollectInitNodeEnum {
+public enum CollectBatchUpdateTypeEnum {
 
-
-    SEAL_INIT(101, "封车初始化"),
-    CANCEL_SEAL_INIT(102, "撤销封车初始化"),
-    NULL_TASK_INIT(103, "无任务扫描初始化");
+    WAYBILL_BATCH(101, "运单维度批处理");
 
     private int code;
     private String desc;
 
-    CollectInitNodeEnum(int code, String desc) {
+    CollectBatchUpdateTypeEnum(int code, String desc) {
         this.code = code;
         this.desc = desc;
     }

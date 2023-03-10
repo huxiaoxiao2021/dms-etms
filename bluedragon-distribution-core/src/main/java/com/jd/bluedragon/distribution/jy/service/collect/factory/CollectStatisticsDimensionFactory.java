@@ -27,7 +27,7 @@ public class CollectStatisticsDimensionFactory {
     private CollectStatisticsDimensionFactory() {
     }
 
-    private static final CollectStatisticsDimensionService EMPTY = new EmptyCollectStatisticsDimension();
+//    private static final CollectStatisticsDimensionService EMPTY = new EmptyCollectStatisticsDimension();
 
     /**
      * 根据k获取对象
@@ -53,25 +53,25 @@ public class CollectStatisticsDimensionFactory {
         CollectStatisticsDimensionMap.put(type, collectStatisticsDimensionService);
     }
 
-    /**
-     * 空对象
-     */
-    private static class EmptyCollectStatisticsDimension implements CollectStatisticsDimensionService {
-        @Override
-        public List<CollectReportStatisticsDto> collectStatistics(CollectQueryReqDto collectQueryReqDto) {
-            return null;
-        }
-
-        @Override
-        public List<CollectReportDto> queryCollectListPage(CollectQueryReqDto collectQueryReqDto) {
-            //todo zcf
-            return null;
-        }
-
-        @Override
-        public List<CollectReportDetailPackageDto> queryCollectDetail(CollectQueryReqDto collectQueryReqDto) {
-            return null;
-        }
-    }
+//    /**
+//     * 空对象
+//     */
+//    private static class EmptyCollectStatisticsDimension implements CollectStatisticsDimensionService {
+//        @Override
+//        public List<CollectReportStatisticsDto> collectStatistics(CollectQueryReqDto collectQueryReqDto) {
+//            return null;
+//        }
+//
+//        @Override
+//        public List<CollectReportDto> queryCollectListPage(CollectQueryReqDto collectQueryReqDto) {
+//            //todo zcf
+//            return null;
+//        }
+//
+//        @Override
+//        public List<CollectReportDetailPackageDto> queryCollectDetail(CollectQueryReqDto collectQueryReqDto) {
+//            return null;
+//        }
+//    }
 
 }

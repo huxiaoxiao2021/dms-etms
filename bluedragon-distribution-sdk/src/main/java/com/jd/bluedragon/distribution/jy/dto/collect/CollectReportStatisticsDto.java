@@ -13,7 +13,7 @@ public class CollectReportStatisticsDto implements Serializable {
 
     /**
      * 集齐类型
-     * com.jd.tys.pda.api.pack.dto.jycommon.TysCollectTypeEnum
+     * CollectTypeEnum
      */
     private Integer collectType;
     /**

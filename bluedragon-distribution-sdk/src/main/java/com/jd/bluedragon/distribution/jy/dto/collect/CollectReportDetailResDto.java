@@ -14,12 +14,12 @@ public class CollectReportDetailResDto implements Serializable {
 
     /**
      * 集齐维度
-     * com.jd.tys.pda.api.pack.dto.jycommon.TysCollectDimensionEnum
+     * CollectSiteTypeEnum
      */
     private String collectDimension;
     /**
      * 集齐类型
-     * com.jd.tys.pda.api.pack.dto.jycommon.TysCollectTypeEnum
+     * CollectTypeEnum
      */
     private Integer collectType;
     /**
