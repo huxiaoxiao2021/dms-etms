@@ -2,12 +2,13 @@ package com.jd.bluedragon.common.dto.jyexpection.request;
 
 public class ExpReceiveReq extends ExpBaseReq {
 
+    private String barCode;
+
     /**
      * 异常类型 0：三无 1：报废 2：破损
      */
     private Integer type;
 
-    private String barCode;
 
     public String getBarCode() {
         return barCode;

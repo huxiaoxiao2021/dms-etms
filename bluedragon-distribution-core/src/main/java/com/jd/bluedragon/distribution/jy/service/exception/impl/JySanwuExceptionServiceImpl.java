@@ -13,13 +13,12 @@ import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionServiceStrategy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -42,51 +41,21 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl implements JySanwuExceptionService {
+public class JySanwuExceptionServiceImpl implements JyExceptionServiceStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
-    private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
-    private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
-    // 统计数据缓存时间：半小时
-    private static final int COUNT_CACHE_SECOND = 30 * 60;
-
-    // 任务明细缓存时间
-    private static final int TASK_DETAIL_CACHE_DAYS = 30;
-    private static final String SPLIT = ",";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
     @Autowired
-    private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
-    @Autowired
     private JyExceptionDao jyExceptionDao;
-    @Autowired
-    private PositionQueryJsfManager positionQueryJsfManager;
-    // 三无接口
-    @Autowired
-    private ExpInfoSummaryJsfManager expInfoSummaryJsfManager;
-    @Autowired
-    private BaseMajorManager baseMajorManager;
     @Autowired
     private SendDetailService sendDetailService;
     @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClient;
-
-    @Autowired
-    @Qualifier("scheduleTaskChangeStatusWorkerProducer")
-    private DefaultJMQProducer scheduleTaskChangeStatusWorkerProducer;
-    @Autowired
-    @Qualifier("scheduleTaskAddWorkerProducer")
-    private DefaultJMQProducer scheduleTaskAddWorkerProducer;
-    @Autowired
-    @Qualifier("scheduleTaskChangeStatusProducer")
-    private DefaultJMQProducer scheduleTaskChangeStatusProducer;
-    @Autowired
-    @Qualifier("scheduleTaskAddProducer")
-    private DefaultJMQProducer scheduleTaskAddProducer;
     @Autowired
     @Qualifier("jyUnloadVehicleManager")
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
@@ -99,9 +68,14 @@ public class JySanwuExceptionServiceImpl implements JySanwuExceptionService {
      * 通用异常上报入口-扫描
      *
      */
-    public JdCResponse<Object> uploadScanOfSanwu(ExpUploadScanReq req, PositionDetailRecord position,
+    @Override
+    public JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position,
                                                  JyExpSourceEnum source,BaseStaffSiteOrgDto baseStaffByErp,String bizId) {
 
+
+        if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
+            return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
+        }
         //三无系统只处理大写字母
         req.setBarCode(req.getBarCode().toUpperCase());
         //三无异常处理逻辑

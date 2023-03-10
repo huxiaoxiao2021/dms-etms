@@ -4,13 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -26,10 +24,10 @@ import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionServiceStrategy;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyContext;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
-import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -116,11 +114,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
-
-    @Autowired
-    private JySanwuExceptionService jySanwuExceptionService;
-    @Autowired
-    private JyScrappedExceptionService jyScrappedExceptionService;
     /**
      * 通用异常上报入口-扫描
      *
@@ -152,20 +145,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
         String bizId = getBizId(req.getType(), req.getBarCode());
-        if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(req.getType())){
-            if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
-                return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
-            }
-            jySanwuExceptionService.uploadScanOfSanwu(req,position,source,baseStaffByErp,bizId);
-        }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(req.getType())){
-            //如果是包裹号
-            if(!WaybillUtil.isPackageCode(req.getBarCode()) || !WaybillUtil.isWaybillCode(req.getBarCode()) ){
-                return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
-            }
-            String waybillCode =WaybillUtil.getWaybillCode(req.getBarCode());
-            jyScrappedExceptionService.uploadScanofScrapped(req,position,source,baseStaffByErp,bizId);
-        }
-
+        JyExceptionServiceStrategy exceptionService = JyExceptionStrategyFactory.getJyExceptionServiceStrategy(req.getType());
+        exceptionService.uploadScan(req,position,source,baseStaffByErp,bizId);
         // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
         taskMessage.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
@@ -187,6 +168,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param cycle
      * @param entity
      */
+    @Override
     public void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
         JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
         JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
@@ -493,8 +475,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("条码不能为空!");
         }
         // 三无系统只处理大写字母
-        req.setBarCode(req.getBarCode().toUpperCase());
-
+        if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(req.getType())){
+            req.setBarCode(req.getBarCode().toUpperCase());
+        }
         String positionCode = req.getPositionCode();
         PositionDetailRecord position = getPosition(positionCode);
         if (position == null) {
