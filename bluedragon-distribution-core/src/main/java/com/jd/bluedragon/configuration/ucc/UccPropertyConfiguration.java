@@ -2910,7 +2910,6 @@ public class UccPropertyConfiguration {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
-    public Integer getJyComboardSealQueryBoardListTime() {
     public Double getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
