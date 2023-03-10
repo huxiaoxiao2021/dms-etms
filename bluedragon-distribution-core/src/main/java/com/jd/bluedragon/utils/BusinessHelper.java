@@ -1103,4 +1103,15 @@ public class BusinessHelper {
     public static boolean isFragile(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
     }
+
+    /**
+     * 纯配、非拒收逆向单
+     * wbs53位=2 & wbs15位!=6
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureOrNotRejectOrder(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_2)
+                && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_15, WaybillSignConstants.CHAR_15_6);
+    }
 }
