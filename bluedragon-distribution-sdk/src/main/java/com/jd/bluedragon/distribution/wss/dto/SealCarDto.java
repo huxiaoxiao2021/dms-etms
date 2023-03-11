@@ -77,6 +77,16 @@ public class SealCarDto implements Serializable {
 
     private String billCode;
 
+    /**
+     * 作业任务的bizId
+     */
+    private String bizId;
+
+    /**
+     * 解封车顺序
+     */
+    private Integer unsealOrderIndex;
+
     public SealCarDto() {
     }
 
@@ -553,5 +563,21 @@ public class SealCarDto implements Serializable {
 
     public void setBillCode(String billCode) {
         this.billCode = billCode;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public Integer getUnsealOrderIndex() {
+        return unsealOrderIndex;
+    }
+
+    public void setUnsealOrderIndex(Integer unsealOrderIndex) {
+        this.unsealOrderIndex = unsealOrderIndex;
     }
 }
