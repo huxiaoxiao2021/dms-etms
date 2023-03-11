@@ -83,10 +83,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-    
+
     @Autowired
     private GroupBoardManager groupBoardManager;
-    
+
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
 
@@ -139,10 +139,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return false;
         }
         Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
-        
+
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
-        
+
         //检查目的地是否是拣运中心
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
@@ -194,6 +194,9 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
                 query.setSendCodeList(sealCarInfoBySealCarCodeOfTms.getBatchCodes());
                 List<JyBizTaskComboardEntity> boardEntityList = jyBizTaskComboardService.listBoardTaskBySendCode(query);
+                if (CollectionUtils.isEmpty(boardEntityList)) {
+                    return;
+                }
                 List<String> boardList = new ArrayList<>();
                 for (JyBizTaskComboardEntity entity : boardEntityList) {
                     boardList.add(entity.getBoardCode());
@@ -205,7 +208,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                     logger.error("批量完结板失败：{}",JsonHelper.toJson(boardList));
                 }
             }catch (Exception e) {
-                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()));
+                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()),e);
             }
         }
     }
