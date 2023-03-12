@@ -8,10 +8,8 @@ import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
-import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
+import com.jd.bluedragon.distribution.collection.enums.*;
+import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -637,8 +634,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public Integer countNoneCollectedAggCodeNumByCollectionCode(CollectionCodeEntity collectionCodeEntity) {
-        return collectionRecordDao.countNoneCollectedAggCodeByCollectionCode(collectionCodeEntity.getCollectionCode());
+    public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
+            return 0;
+        }
+        return collectionCodeEntities.parallelStream().filter(
+            collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode())
+        ).mapToInt(
+            collectionCodeEntity -> collectionRecordDao.countNoneCollectedAggCodeByCollectionCode(collectionCodeEntity.getCollectionCode())
+        ).sum();
+
     }
 
     @Override
@@ -668,21 +673,158 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCode) {
-        if (CollectionUtils.isEmpty(collectionCode)) {
+    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             log.info("待查询的集合ID不存在，查询失败");
             return Collections.emptyList();
         }
 
-//        collectionRecordDao.
-        return Collections.emptyList();
+        return collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodeEntities.parallelStream()
+            .map(CollectionCodeEntity::getCollectionCode)
+            .filter(StringUtils::isNotEmpty)
+            .collect(Collectors.toList()));
+
     }
 
     @Override
     public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(
         List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
-        return null;
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters =
+            collectionRecordDao.sumCollectionAggCodeByCollectionCode(collectionCodeEntities.parallelStream()
+                .map(CollectionCodeEntity::getCollectionCode)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toList()), collectionStatusEnum.getStatus(),aggCode, aggCodeTypeEnum);
+
+        if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
+            return Collections.emptyList();
+        }
+
+        Map<String, List<CollectionCollectedMarkCounter>> markCounterMap = collectionCollectedMarkCounters.parallelStream().collect(Collectors.groupingBy(
+            collectionCollectedMarkCounter -> collectionCollectedMarkCounter.getCollectionCode()
+                .concat(",")
+                .concat(collectionCollectedMarkCounter.getAggCode())
+                .concat(",")
+                .concat(collectionCollectedMarkCounter.getAggCodeType())));
+
+        Map<String, List<CollectionCollectedMarkCounter>> effectiveMarkCounterMap = collectionCollectedMarkCounters.parallelStream()
+            .filter(collectionCollectedMarkCounter -> {
+
+                String key = collectionCollectedMarkCounter.getCollectionCode()
+                    .concat(",")
+                    .concat(collectionCollectedMarkCounter.getAggCode())
+                    .concat(",")
+                    .concat(collectionCollectedMarkCounter.getAggCodeType());
+
+                return markCounterMap.get(key).parallelStream().anyMatch(
+                    collectionCollectedMarkCounter1 -> !CollectionStatusEnum.extra_collected.getStatus().equals(
+                        collectionCollectedMarkCounter1.getCollectedStatus()));
+            }).collect(Collectors.groupingBy(
+                collectionCollectedMarkCounter -> collectionCollectedMarkCounter.getCollectionCode()
+                    .concat(",")
+                    .concat(collectionCollectedMarkCounter.getAggCode())
+                    .concat(",")
+                    .concat(collectionCollectedMarkCounter.getAggCodeType())));
+
+        List<CollectionAggCodeCounter> collectionAggCodeCounters = new Vector<>();
+        effectiveMarkCounterMap.forEach((key, itemMarkCounters) -> {
+            String[] itemKey = key.split(",");
+            String collectionCode = itemKey[0];
+            String aggCode1 = itemKey[1];
+            String aggCodeType = itemKey[2];
+
+            CollectionAggCodeCounter aggCodeCounter = CollectionAggCodeCounter.builder()
+                .collectionCode(collectionCode)
+                .aggCode(aggCode1)
+                .aggCodeType(aggCodeType)
+                .sumScanNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> !CollectionStatusEnum.extra_collected.getStatus().equals(item.getCollectedStatus())
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .collectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.collected.getStatus().equals(item.getCollectedStatus())
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .noneCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> !CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus())
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .extraCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.extra_collected.getStatus().equals(item.getCollectedStatus())
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .noneMarkNoneCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus()) && StringUtils.isEmpty(item.getCollectedMark())
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .innerMarkCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.collected.getStatus().equals(item.getCollectedStatus())
+                                && Objects.equals(item.getCollectedMark(), collectedMark)
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .innerMarkNoneCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus())
+                                && Objects.equals(item.getCollectedMark(), collectedMark)
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .outMarkCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.collected.getStatus().equals(item.getCollectedStatus())
+                                && !Objects.equals(item.getCollectedMark(), collectedMark)
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .outMarkNoneCollectedNum(
+                    itemMarkCounters.parallelStream()
+                        .filter(
+                            item -> CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus())
+                                && !Objects.equals(item.getCollectedMark(), collectedMark)
+                        )
+                        .mapToInt(CollectionCollectedMarkCounter::getNumber)
+                        .sum()
+                )
+                .build();
+
+            collectionAggCodeCounters.add(aggCodeCounter);
+
+
+        });
+
+        return collectionAggCodeCounters;
     }
 
     @Override
@@ -693,9 +835,38 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionScanCodeCounter> queryCollectionScanDetailByAggCode(
-        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum,
-        CollectionStatusEnum collectionStatusEnum) {
-        return null;
+    public List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(
+        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || StringUtils.isEmpty(aggCode) || null == aggCodeTypeEnum) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionRecordDao.queryCollectedDetailByCollectionAndAggCode(
+            collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList()),
+            aggCode, aggCodeTypeEnum);
+
+        if (CollectionUtils.isEmpty(collectionRecordDetailPos)) {
+            return Collections.emptyList();
+        }
+
+        return collectionRecordDetailPos.parallelStream().map(
+            collectionRecordDetailPo -> CollectionScanCodeDetail.builder()
+                .collectionCode(collectionRecordDetailPo.getCollectionCode())
+                .aggCode(collectionRecordDetailPo.getAggCode())
+                .aggCodeType(collectionRecordDetailPo.getAggCodeType())
+                .scanCode(collectionRecordDetailPo.getScanCode())
+                .scanCodeType(collectionRecordDetailPo.getScanCodeType())
+                .collectedStatus(CollectionStatusEnum.getEnum(collectionRecordDetailPo.getCollectedStatus()))
+                .collectedMarkType(
+                    StringUtils.isEmpty(collectionRecordDetailPo.getCollectedMark())?
+                        CollectionCollectedMarkTypeEnum.none :
+                        Objects.equals(collectionRecordDetailPo.getCollectedMark(), collectedMark)?
+                            CollectionCollectedMarkTypeEnum.inner : CollectionCollectedMarkTypeEnum.outer
+                )
+                .build()
+            )
+            .collect(Collectors.toList());
+
     }
 }

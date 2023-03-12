@@ -93,7 +93,7 @@ public interface CollectionRecordService {
      * @param element 查询元素
      * @return
      */
-    Integer countNoneCollectedAggCodeNumByCollectionCode(CollectionCodeEntity collectionCodeEntity);
+    Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
 
 
     /**
@@ -106,11 +106,10 @@ public interface CollectionRecordService {
 
     /**
      * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
-     * todo ======
-     * @param collectionCodes
+     * @param collectionCodeEntities
      * @return
      */
-    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodes);
+    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
 
     /**
      * 根据待集齐集合
@@ -119,7 +118,7 @@ public interface CollectionRecordService {
      * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
+    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
     /**
      * 根据待集齐集合
@@ -128,6 +127,7 @@ public interface CollectionRecordService {
      * @param aggCodeTypeEnum
      * @return
      */
+    @Deprecated
     List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatusWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
 
     /**
@@ -135,10 +135,9 @@ public interface CollectionRecordService {
      * @param collectionCodeEntities
      * @param aggCode
      * @param aggCodeTypeEnum
-     * @param collectionStatusEnum
      * @return
      */
-    List<CollectionScanCodeCounter> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, CollectionStatusEnum collectionStatusEnum);
+    List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
 
 }

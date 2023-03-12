@@ -1,14 +1,14 @@
 package com.jd.bluedragon.distribution.collection.dao;
 
 import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
-import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
-import com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter;
+import com.jd.bluedragon.distribution.collection.entity.*;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -89,6 +89,27 @@ public class CollectionRecordDao {
 
     public List<CollectionScanMarkCounter> countAggCollectedByAggCodeWithMark(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectList(NAMESPACE.concat(".countAggCollectedByAggCodeWithMark"), collectionRecordDetailPo);
+    }
+
+    public List<CollectionCounter> sumCollectionRecordByCollectionCode(List<String> collectionCodes) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionRecordByCollectionCode"), collectionCodes);
+    }
+
+    public List<CollectionCollectedMarkCounter> sumCollectionAggCodeByCollectionCode(List<String> collectionCodes, Integer isCollected, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("list", collectionCodes);
+        param.put("isCollected", isCollected);
+        param.put("aggCode", aggCode);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionAggCodeByCollectionCode"), param);
+    }
+
+    public List<CollectionRecordDetailPo> queryCollectedDetailByCollectionAndAggCode(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum){
+        Map<String, Object> param = new HashMap<>();
+        param.put("list", collectionCodes);
+        param.put("aggCode", aggCode);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        return this.sqlSession.selectList(NAMESPACE.concat(".queryCollectedDetailByCollectionAndAggCode"), param);
     }
 
     public void setSqlSession(SqlSession sqlSession) {

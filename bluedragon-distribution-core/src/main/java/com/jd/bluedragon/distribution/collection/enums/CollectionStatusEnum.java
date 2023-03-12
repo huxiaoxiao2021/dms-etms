@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.collection.enums;
 
+import java.util.Arrays;
+
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.enums
@@ -34,6 +36,16 @@ public enum CollectionStatusEnum {
 
     CollectionStatusEnum(Integer status) {
         this.status = status;
+    }
+
+    public static CollectionStatusEnum getEnum(Integer status) {
+        for(CollectionStatusEnum statusEnum : CollectionStatusEnum.values()) {
+            if (statusEnum.getStatus().equals(status)) {
+                return statusEnum;
+            }
+        }
+
+        return none_collected;
     }
 
     public Integer getStatus() {

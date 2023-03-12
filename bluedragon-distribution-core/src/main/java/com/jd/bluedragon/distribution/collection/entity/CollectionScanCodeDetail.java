@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import com.jd.bluedragon.distribution.collection.enums.CollectionCollectedMarkTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -14,7 +17,8 @@ import lombok.Data;
  * @Version： V1.0
  */
 @Data
-public class CollectionScanCodeCounter {
+@Builder
+public class CollectionScanCodeDetail {
 
     private String collectionCode;
 
@@ -26,7 +30,7 @@ public class CollectionScanCodeCounter {
 
     private String scanCodeType;
 
-    private String collectedStatus;
+    private CollectionStatusEnum collectedStatus;
 
-    private String collectedMark;
+    private CollectionCollectedMarkTypeEnum collectedMarkType;
 }
