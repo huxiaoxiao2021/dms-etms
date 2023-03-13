@@ -92,6 +92,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         targetResultDto.setOperateUserName(targetInitDto.getOperateUserName());
         targetResultDto.setOperateTime(targetInitDto.getOperateTime());
         targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
+        targetResultDto.setFirstEvaluate(targetInitDto.isFirstEvaluate());
         // 设置本次评价明细
         targetResultDto.setDimensionList(targetInitDto.getDimensionList());
         // 设置当前汇总数据
