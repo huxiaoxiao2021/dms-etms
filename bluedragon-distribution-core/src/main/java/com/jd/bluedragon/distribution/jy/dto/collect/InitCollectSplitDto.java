@@ -25,6 +25,7 @@ public class InitCollectSplitDto implements Serializable {
     private Integer operateNode;
     private Integer pageNo;
     private Integer pageSize;
+    private String operatorErp;
 
 
     //***************封车节点处理集齐拆分关注字段-*************************
@@ -56,6 +57,7 @@ public class InitCollectSplitDto implements Serializable {
      * 空任务扫描场地编码
      */
     private Integer taskNullScanSiteCode;
+    private String waybillCode;
 
 
 
@@ -147,6 +149,22 @@ public class InitCollectSplitDto implements Serializable {
 
     public void setShouldUnSealSiteCode(Integer shouldUnSealSiteCode) {
         this.shouldUnSealSiteCode = shouldUnSealSiteCode;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
     }
 }
 
