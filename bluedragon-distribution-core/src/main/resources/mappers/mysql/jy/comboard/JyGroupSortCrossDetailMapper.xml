@@ -346,6 +346,5 @@
       #{item}
     </foreach>
     group by template_code
-    order by cross_code ,tabletrolley_code
   </select>
 </mapper>
