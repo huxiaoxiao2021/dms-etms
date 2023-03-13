@@ -144,7 +144,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
             taskEntity.setGridNo(position.getGridNo());
 
             taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
-            taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+            //taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             taskEntity.setCreateUserErp(req.getUserErp());
             taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
             taskEntity.setCreateTime(new Date());

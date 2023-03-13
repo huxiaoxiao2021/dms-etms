@@ -72,7 +72,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
     private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
-    private String msg ="任务状态由%s变更为%s";
+    private String msg ="任务状态由于%s操作,状态变更为%s";
 
     // 统计数据缓存时间：半小时
     private static final int COUNT_CACHE_SECOND = 30 * 60;
@@ -203,8 +203,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         String gridRid = getGridRid(position);
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
-        List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
-        statisticStatusResps.addAll(specialStatusStatistic);
+        //List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
+        //statisticStatusResps.addAll(specialStatusStatistic);
 
         HashMap<Integer, Integer> countMap = new HashMap<>();
         for (StatisticsByStatusDto s : statisticStatusResps) {
@@ -716,9 +716,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.error("调用三无接口异常-参数:" + JSON.toJSONString(dto), e);
             return JdCResponse.fail("提报三无系统失败请稍后再试!");
         }
-        //修改processStatus 为待匹配
+        //修改状态为 status处理中-processingStatus匹配中
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(req.getBizId());
+        update.setStatus(JyExpStatusEnum.PROCESSING.getCode());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());

@@ -92,7 +92,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             taskEntity.setGridNo(position.getGridNo());
 
             taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
-            taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+            //taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             taskEntity.setCreateUserErp(req.getUserErp());
             taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
             taskEntity.setCreateTime(new Date());
@@ -111,7 +111,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 jyExceptionScrappedDao.insertSelective(scrappedPo);
                 jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
             } catch (Exception e) {
-                logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
+                logger.error("写入报废提报数据出错了,request=" + JSON.toJSONString(req), e);
                 return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
             }
 
