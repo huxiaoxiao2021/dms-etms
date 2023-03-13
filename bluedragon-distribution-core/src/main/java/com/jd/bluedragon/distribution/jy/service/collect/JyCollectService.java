@@ -70,13 +70,6 @@ public interface JyCollectService {
     CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
 
     /**
-     * 按单验货查询运单类型统计
-     * 该接口直接运单的集齐类型，，按单验货一定齐了，但运单异步不一定初始化完，故只查类型，统计数据业务层自己处理
-     * @return
-     */
-    CollectReportStatisticsDto scanQueryWaybillCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
-
-    /**
      * 按运单维度批量更新集齐状态
      * @param paramDto
      * @return

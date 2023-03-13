@@ -4,10 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
@@ -24,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisti
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTypeService;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -308,7 +306,6 @@ public class JyCollectServiceImpl implements JyCollectService{
         return true;
     }
 
-
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.removeCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean removeCollect(CollectDto collectDto) {
@@ -343,17 +340,33 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
-//        todo zcf
-//        collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark();
-        return null;
-    }
-
-    @Override
-    @JProfiler(jKey = "JyCollectServiceImpl.scanQueryWaybillCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public CollectReportStatisticsDto scanQueryWaybillCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
-        //        todo zcf
-        return null;
+    public CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto reqDto) {
+        String methodDesc = "JyCollectServiceImpl.scanQueryCollectTypeStatistics：实操扫描查询统计：";
+        List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
+        String waybillCode = WaybillUtil.getWaybillCode(reqDto.getScanCode());
+        CollectionAggCodeTypeEnum typeEnum = CollectionAggCodeTypeEnum.waybill_code;
+        CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+                collectionCodeEntityList, waybillCode, typeEnum, reqDto.getBizId());
+        if(log.isInfoEnabled()) {
+            log.info("{}查询集齐服务,param1={},param1={},param1={},param1={},res={}",
+                    methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, typeEnum, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
+        }
+        CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
+        if(collectionAggCodeCounter == null) {
+            log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(resDto));
+            return resDto;
+        }
+        if(collectionAggCodeCounter.getNoneCollectedNum() > 0) {
+            resDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+            resDto.setStatisticsNum(collectionAggCodeCounter.getNoneCollectedNum());
+        }else if(collectionAggCodeCounter.getOutMarkCollectedNum() > 0 ) {
+            resDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+            resDto.setStatisticsNum(collectionAggCodeCounter.getOutMarkCollectedNum());
+        }else {
+            resDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+            resDto.setStatisticsNum(collectionAggCodeCounter.getInnerMarkCollectedNum());
+        }
+        return resDto;
     }
 
     @Override
@@ -392,6 +405,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         }
         return true;
     }
+
     private BigWaybillDto getWaybillPackage(String waybillCode) {
         BigWaybillDto result = null;
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true, false, true, true);
@@ -411,16 +425,21 @@ public class JyCollectServiceImpl implements JyCollectService{
         InvokeResult<ScanCollectStatisticsDto> res = new InvokeResult<>();
         res.success();
         Integer collectType = CollectTypeEnum.WAYBILL_BUQI.getCode();
-        CollectStatisticsQueryParamDto queryParamDto = new CollectStatisticsQueryParamDto();
-        queryParamDto.setBizId(reqDto.getBizId());
-        queryParamDto.setCollectType(collectType);
-        //
-        CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectType);
-        CollectReportStatisticsDto collectReportStatisticsDto = collectStatisticsService.collectStatistics(queryParamDto);
-        //
+//        CollectStatisticsQueryParamDto queryParamDto = new CollectStatisticsQueryParamDto();
+//        queryParamDto.setBizId(reqDto.getBizId());
+//        queryParamDto.setCollectType(collectType);
+//        //
+//        CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectType);
+//        CollectReportStatisticsDto collectReportStatisticsDto = collectStatisticsService.collectStatistics(queryParamDto);
+        List<CollectionCodeEntity> collectionCodeEntities = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
+        Integer waybillBuQiNum = collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities);
+        if(waybillBuQiNum == null) {
+            log.warn("JyCollectServiceImpl.collectWaitWaybillNum：查不齐运单数量返回空,服务req={}，查询参数={}", JsonHelper.toJson(reqDto), JsonHelper.toJson(collectionCodeEntities));
+            waybillBuQiNum = 0;
+        }
         ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
         resData.setCollectType(collectType);
-        resData.setWaybillBuQiNum(collectReportStatisticsDto.getStatisticsNum());
+        resData.setWaybillBuQiNum(waybillBuQiNum);
         res.setData(resData);
         return res;
     }

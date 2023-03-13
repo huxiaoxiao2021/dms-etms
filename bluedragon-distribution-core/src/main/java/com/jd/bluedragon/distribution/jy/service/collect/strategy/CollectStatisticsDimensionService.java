@@ -12,7 +12,7 @@ import java.util.List;
 public interface CollectStatisticsDimensionService {
 
     /**
-     * 查询集齐统计
+     * 查询集齐统计: PDA报表展示三个集齐类型统计数据
      */
     CollectReportStatisticsDto collectStatistics(CollectStatisticsQueryParamDto paramDto);
 

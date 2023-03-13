@@ -1403,7 +1403,7 @@ public class JyUnloadVehicleCheckTysService {
             //按运单修改集齐状态mq： 异步
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
             //查询集齐类型统计
-            CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryWaybillCollectTypeStatistics(unloadScanCollectDealDto);
+            CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto);
             collectDto.setCollectStatisticsNum(collectReportStatisticsDto.getStatisticsNum());
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
             collectDto.setCollectType(collectReportStatisticsDto.getCollectType());
