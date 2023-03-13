@@ -1453,6 +1453,7 @@ public class JyUnloadVehicleCheckTysService {
         initCollectDto.setTaskNullScanCodeType(unloadScanCollectDealDto.getScanCodeType());
         initCollectDto.setTaskNullScanCode(unloadScanCollectDealDto.getScanCode());
         initCollectDto.setTaskNullScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        initCollectDto.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
         //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
         String businessId = String.format("%:%s", initCollectDto.getBizId(), initCollectDto.getTaskNullScanCode());
         String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);

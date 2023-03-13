@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 
+import java.util.List;
+
 /**
  * @Author zhengchengfa
  * @Description ////集齐服务
@@ -41,13 +43,13 @@ public interface JyCollectService {
      * @param collectDto
      * @return
      */
-    InvokeResult initCollect(CollectDto collectDto);
+    boolean initCollect(CollectDto collectDto, List<String> detailList);
     /**
-     * 消除集齐数据（取消封车）
+     * 消除集齐数据（取消发货、车型封车）
      * @param collectDto
      * @return
      */
-    InvokeResult removeCollect(CollectDto collectDto);
+    boolean removeCollect(CollectDto collectDto);
 
     /**
      * 修改单条集齐状态

@@ -1,23 +1,41 @@
 package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectSiteTypeServiceFactory;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTypeService;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author zhengchengfa
@@ -25,6 +43,18 @@ import java.util.List;
  * @date
  **/
 public class JyCollectServiceImpl implements JyCollectService{
+    private Logger log = LoggerFactory.getLogger(JyCollectServiceImpl.class);
+
+
+    @Autowired
+    private CollectionRecordService collectionRecordService;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+    @Autowired
+    private WaybillService waybillService;
+
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.findCollectInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -79,7 +109,6 @@ public class JyCollectServiceImpl implements JyCollectService{
         return res;
     }
 
-
     /**
      * 获取场地类型具体实现 bean
      * @param collectDto
@@ -90,12 +119,11 @@ public class JyCollectServiceImpl implements JyCollectService{
                 parseSiteType(collectDto.getWaybillCode(), collectDto.getNextSiteCode()));
     }
 
-
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.parseSiteType",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Integer parseSiteType(String scanCode, Integer siteCode) {
+    public Integer parseSiteType(String waybillCode, Integer siteCode) {
         //是末级场地
-        if(this.isEndSite(scanCode, siteCode)){
+        if(this.isEndSite(waybillCode, siteCode)){
             return CollectSiteTypeEnum.WAYBILL.getCode();
         }
         //中转场地
@@ -104,37 +132,142 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     /**
      * 是否末端场地
-     * @param scanCode
+     * @param waybillCode
      * @param siteCode
      * @return
      */
-    private boolean isEndSite(String scanCode, Integer siteCode) {
-        //todo zcf  补充逻辑        运单末端场地redis缓存，K: 运单号 V: siteCode
+    private boolean isEndSite(String waybillCode, Integer siteCode) {
+        BaseEntity<Waybill> waybillRes = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+        if (waybillRes == null || waybillRes.getResultCode() != 1 || waybillRes.getData() == null) {
+            log.error("JyCollectServiceImpl.isEndSite:运单不存在：{}" , JsonHelper.toJson(waybillCode));
+            throw new JyBizException(waybillCode+"该运单信息不存在");
+        }
+        Waybill waybill = waybillRes.getData();
+        if(waybill == null) {
+            log.error("JyCollectServiceImpl.isEndSite:运单waybill不存在：{}" , JsonHelper.toJson(waybillCode));
+            throw new JyBizException(waybillCode+"该运单信息不存在");
+        }
+        Integer oldSiteId = waybill.getOldSiteId();
+        if(oldSiteId == null) {
+            log.warn("JyCollectServiceImpl.isEndSite:运单{}预分拣站点查询为空waybill={}", waybillCode, JsonHelper.toJson(waybill));
+            return false;
+        }
 
-        return  true;
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(oldSiteId);
+        if (baseSite == null || baseSite.getDmsId() == null) {
+            log.warn("JyCollectServiceImpl.isEndSite:根据站点【{}】获取站点信息为空,site={}", oldSiteId, JsonHelper.toJson(baseSite));
+            return false;
+        }
+        return  baseSite.getDmsId().equals(siteCode);
     }
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.initCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult initCollect(CollectDto collectDto) {
-        //todo zcf 直接调用集齐服务初始化，集齐服务处理场地是末端还是中转
-//        CollectSiteTypeService collectSiteTypeService = getCollectSiteTypeService(collectDto);
-//
-//        collectSiteTypeService.initCollect(collectDto);
+    public boolean initCollect(CollectDto collectDto, List<String> packageCodeList) {
+        String methodDesc = "JyCollectServiceImpl.initCollect:集齐初始化:";
+        CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
+        Result<Boolean> errMsgRes = new Result<>();
+        if(!collectionRecordService.initPartCollection(collectionCreatorEntity, errMsgRes)) {
+            log.error("{}集齐初始化错误，req={},res={}", methodDesc, JsonHelper.toJson(collectionCreatorEntity), JsonHelper.toJson(errMsgRes));
+            return false;
+        }
+        return true;
+    }
 
-        return null;
+    /**
+     * {
+     *   "collectionCodeEntity" : {
+     *     "businessType" : "unload_collection",
+     *     "collectElements" : {
+     *       "site_code" : "910",
+     *       "seal_car_code" : "SC2412341231231",
+     *       "date_time" : "2023-03-13"
+     *     }
+     *   },
+     *   "collectionAggMarks" : {
+     *     "JD0093356842901" : "39"
+     *   },
+     *   "collectionScanCodeEntities" : [ {
+     *     "scanCode" : "JD0093356842901-2-3-",
+     *     "scanCodeType" : "package_code",
+     *     "collectedMark" : "SC2412341231231",
+     *     "collectionAggCodeMaps" : {
+     *       "waybill_code" : "JD0093356842901"
+     *     }
+     *   } ]
+     * }
+     * @param collectDto
+     * @param packageCodeList
+     * @return
+     */
+    private CollectionCreatorEntity getCollectionCreatorEntity(CollectDto collectDto, List<String> packageCodeList) {
+        CollectionCreatorEntity entity = new CollectionCreatorEntity();
+        entity.setCollectionCodeEntity(getCollectionCodeEntity(collectDto));
+        entity.setCollectionAggMarks(getNextSiteCodeMap(collectDto));
+        entity.setCollectionScanCodeEntities(getCollectionScanCodeEntities(collectDto, packageCodeList));
+        return entity;
+    }
+    //集齐初始化参数组装
+    private List<CollectionScanCodeEntity> getCollectionScanCodeEntities(CollectDto collectDto, List<String> packageCodeList) {
+        List<CollectionScanCodeEntity> resEntity = new ArrayList<>();
+
+        Map<CollectionAggCodeTypeEnum, String> collectionAggCodeMaps = new HashMap<>();
+        collectionAggCodeMaps.put(CollectionAggCodeTypeEnum.waybill_code, collectDto.getWaybillCode());
+        for (String packageCode : packageCodeList) {
+            CollectionScanCodeEntity entity = new CollectionScanCodeEntity();
+            entity.setScanCode(packageCode);
+            entity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+            entity.setCollectedMark(collectDto.getBizId());
+            entity.setCollectionAggCodeMaps(collectionAggCodeMaps);
+            resEntity.add(entity);
+        }
+        return resEntity;
+    }
+    //集齐初始化参数组装
+    private CollectionCodeEntity getCollectionCodeEntity(CollectDto collectDto) {
+        CollectionCodeEntity collectionCodeEntity = buildCollectionCodeEntity(collectDto);
+        String collectionCode = collectionRecordService.getJQCodeByBusinessType(collectionCodeEntity, collectDto.getOperatorErp());
+        if(log.isInfoEnabled()) {
+            log.info("JyCollectServiceImpl.getCollectionCodeEntity获取collectionCode，参数collectionCodeEntity={},res={}", JsonHelper.toJson(collectionCodeEntity), collectionCode);
+        }
+        collectionCodeEntity.setCollectionCode(collectionCode);
+        return collectionCodeEntity;
+    }
+    //集齐初始化参数组装
+    private Map<String, String> getNextSiteCodeMap(CollectDto collectDto) {
+        Integer nextSiteId = null;
+        if(collectDto.getNextSiteCode() == null) {
+            nextSiteId = waybillService.getRouterFromMasterDb(collectDto.getWaybillCode(), collectDto.getCollectNodeSiteCode());
+        }
+        if(nextSiteId == null) {
+            log.warn("JyCollectServiceImpl.getNextSiteCodeMap集齐运单查询下游流向为空，reqDto={}", JsonHelper.toJson(collectDto));
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put(collectDto.getWaybillCode(), nextSiteId.toString());
+        return map;
+
+    }
+    //集齐初始化参数组装
+    private CollectionCodeEntity buildCollectionCodeEntity(CollectDto req) {
+        Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
+        collectElements.put(CollectionConditionKeyEnum.site_code, req.getCollectNodeSiteCode());
+        collectElements.put(CollectionConditionKeyEnum.seal_car_code, req.getBizId());
+        collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
+
+        CollectionBusinessTypeEnum collectionBusinessTypeEnum = CollectionBusinessTypeEnum.unload_collection;
+        if(this.isEndSite(req.getWaybillCode(), req.getCollectNodeSiteCode())) {
+            collectionBusinessTypeEnum = CollectionBusinessTypeEnum.all_site_collection;
+        }
+        CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(collectionBusinessTypeEnum);
+        collectionCodeEntity.addAllKey(collectElements);
+        return collectionCodeEntity;
     }
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.removeCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult removeCollect(CollectDto collectDto) {
-        //todo zcf 直接调用集齐服务初始化，集齐服务处理场地是末端还是中转
-//
-//        CollectSiteTypeService collectSiteTypeService = getCollectSiteTypeService(collectDto);
-//
-//        collectSiteTypeService.removeCollect(collectDto);
-
-        return null;
+    public boolean removeCollect(CollectDto collectDto) {
+        //todo  直接调用集齐服务初始化，集齐服务处理场地是末端还是中转
+        return true;
     }
 
     @Override

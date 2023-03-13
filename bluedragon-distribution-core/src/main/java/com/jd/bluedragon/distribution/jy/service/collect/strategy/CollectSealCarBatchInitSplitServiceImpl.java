@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectConstant;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectInitSplitServiceFactory;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -44,7 +45,8 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
     private VosManager vosManager;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
+    @Autowired
+    private WaybillService waybillService;
     @Autowired
     @Qualifier(value = "jyCollectDataPageInitProducer")
     private DefaultJMQProducer jyCollectDataPageInitProducer;
@@ -90,10 +92,17 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
 
         List<String> pcList = this.getPageNoPackageCodeListFromTms(initCollectSplitDto);
 
+        Integer nextSiteId = waybillService.getRouterFromMasterDb(initCollectSplitDto.getWaybillCode(), initCollectSplitDto.getShouldUnSealSiteCode());
+        if(nextSiteId == null) {
+            log.warn("CollectSealCarBatchInitSplitServiceImpl.initAfterSplit集齐运单查询下游流向为空，reqDto={}", JsonHelper.toJson(initCollectSplitDto));
+        }
         CollectDto collectDto = new CollectDto();
-//        //todo zcf  对每批包裹号处理集齐初始化
-        jyCollectService.initCollect(collectDto);
-        return true;
+        collectDto.setCollectNodeSiteCode(initCollectSplitDto.getShouldUnSealSiteCode());
+        collectDto.setBizId(initCollectSplitDto.getBizId());
+        collectDto.setWaybillCode(initCollectSplitDto.getWaybillCode());
+        collectDto.setNextSiteCode(nextSiteId);
+        collectDto.setOperatorErp(null);//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
+        return jyCollectService.initCollect(collectDto, pcList);
     }
 
 
@@ -105,10 +114,12 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
         int limitSize = 1000;
         int currentSize  = limitSize ;
         int offset = 0;
-        //集齐处理页容量
-        int collectBatchPageSize = CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE > limitSize ? limitSize : CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
 
-        while(currentSize == limitSize){
+        int collectOneBatchSize = CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
+        //集齐处理页容量
+        int collectBatchPageTotal = collectOneBatchSize > limitSize ? limitSize : collectOneBatchSize;
+
+        while(currentSize >= limitSize){
             CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
             if(cargoDetailReturn == null || cargoDetailReturn.getCode() != com.jd.etms.vos.dto.CommonDto.CODE_SUCCESS ) {
                 log.error("获取批次{}下包裹数据异常,条件：offset={},limitSize={}, result={}",batchCode,offset,limitSize, JsonHelper.toJson(cargoDetailReturn));
@@ -119,12 +130,12 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             }
             currentSize = cargoDetailReturn.getData().size();
             //发送集齐拆分的最大分页pageNo
-            int collectBatchMaxPageNo = currentSize / collectBatchPageSize + (currentSize % collectBatchPageSize > 0 ? 1 : 0);
+            int collectBatchMaxPageNo = currentSize / collectBatchPageTotal + (currentSize % collectBatchPageTotal > 0 ? 1 : 0);
             for(int pageNo = 1; pageNo <= collectBatchMaxPageNo; pageNo++ ) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
                 mqDto.setOperateTime(initCollectDto.getOperateTime());
-                mqDto.setPageSize(collectBatchPageSize);
+                mqDto.setPageSize(collectBatchPageTotal);
                 mqDto.setPageNo(pageNo);
                 mqDto.setSealBatchCode(batchCode);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());

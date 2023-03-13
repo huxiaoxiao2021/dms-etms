@@ -15,7 +15,11 @@ public class CollectDto implements Serializable {
 
     private Integer nextSiteCode;
 
-    private Integer siteCode;
+    private Integer collectNodeSiteCode;
+
+    private String operatorErp;
+
+    private String BizId;
 
 
     public String getWaybillCode() {
@@ -34,11 +38,27 @@ public class CollectDto implements Serializable {
         this.nextSiteCode = nextSiteCode;
     }
 
-    public Integer getSiteCode() {
-        return siteCode;
+    public Integer getCollectNodeSiteCode() {
+        return collectNodeSiteCode;
     }
 
-    public void setSiteCode(Integer siteCode) {
-        this.siteCode = siteCode;
+    public void setCollectNodeSiteCode(Integer collectNodeSiteCode) {
+        this.collectNodeSiteCode = collectNodeSiteCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
+    }
+
+    public String getBizId() {
+        return BizId;
+    }
+
+    public void setBizId(String bizId) {
+        BizId = bizId;
     }
 }

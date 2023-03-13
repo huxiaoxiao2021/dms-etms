@@ -38,6 +38,9 @@ public class InitCollectDto implements Serializable {
      */
     private Integer taskNullScanSiteCode;
 
+    private String operatorErp;
+
+
 
     public String getBizId() {
         return bizId;
@@ -85,6 +88,14 @@ public class InitCollectDto implements Serializable {
 
     public void setTaskNullScanSiteCode(Integer taskNullScanSiteCode) {
         this.taskNullScanSiteCode = taskNullScanSiteCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
     }
 }
 
