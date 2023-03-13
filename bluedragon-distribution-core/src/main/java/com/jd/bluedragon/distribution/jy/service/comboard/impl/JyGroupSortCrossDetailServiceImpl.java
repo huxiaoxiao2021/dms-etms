@@ -170,6 +170,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         CTTGroupDataResp resp = new CTTGroupDataResp();
         List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listGroupByEndSiteCodeOrCTTCode(entity);
         
+        if (CollectionUtils.isEmpty(cttGroupDtos)) {
+            return resp;
+        }
         // 查询混扫任务统计信息
         List<String> templateCodeList = new ArrayList<>();
         for (CTTGroupDto cttGroupDto : cttGroupDtos) {
