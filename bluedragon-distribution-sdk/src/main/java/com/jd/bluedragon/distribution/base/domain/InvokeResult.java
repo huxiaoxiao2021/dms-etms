@@ -121,6 +121,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
     public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
 
+    public static final int NOT_SUPPORT_CZ_LINE_TASK_CODE= 327;
+    public static final String NOT_SUPPORT_CZ_LINE_TASK_MESSAGE ="旧版传站发货功能已经下线，请使用新版传站组板发货功能！";
+
     public static final int NO_RE_DETELE_TASK_CODE= 329;
     public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
 

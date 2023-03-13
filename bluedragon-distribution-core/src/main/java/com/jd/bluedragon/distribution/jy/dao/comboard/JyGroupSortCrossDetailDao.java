@@ -87,7 +87,11 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
      * @param entity
      * @return
      */
-    public List<CTTGroupDto> listCTTGroupData(JyGroupSortCrossDetailEntity entity) {
-        return this.getSqlSession().selectList(NAMESPACE + ".listCTTGroupData",entity);
+    public List<CTTGroupDto> listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listGroupByEndSiteCodeOrCTTCode",entity);
+    }
+
+    public List<CTTGroupDto> listCountByTemplateCode(JyGroupSortCrossDetailEntity condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listCountByTemplateCode",condition);
     }
 }
