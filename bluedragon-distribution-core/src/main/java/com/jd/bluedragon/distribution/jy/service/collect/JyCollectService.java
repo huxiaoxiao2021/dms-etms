@@ -82,4 +82,10 @@ public interface JyCollectService {
      * @return
      */
     InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNum(CollectStatisticsQueryDto reqDto);
+    /**
+     * 按条件查集齐报表
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto);
 }

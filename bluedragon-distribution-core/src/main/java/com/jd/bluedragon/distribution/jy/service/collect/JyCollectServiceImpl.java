@@ -444,4 +444,18 @@ public class JyCollectServiceImpl implements JyCollectService{
         return res;
     }
 
+    @Override
+    public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
+        CollectReportReqDto param = new CollectReportReqDto();
+        param.setWaybillCode(WaybillUtil.getWaybillCode(reqDto.getScanCode()));
+        param.setCollectType(reqDto.getCollectType());
+        param.setManualCreateTaskFlag(reqDto.getManualCreateTaskFlag());
+        param.setUser(reqDto.getUser());
+        param.setCurrentOperate(reqDto.getCurrentOperate());
+        param.setBizId(reqDto.getBizId());
+        param.setPageNo(1);
+        param.setPageSize(30);
+        return this.findCollectInfo(param);
+    }
+
 }

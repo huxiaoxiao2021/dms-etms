@@ -2157,9 +2157,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 res.error("扫描数据为空");
                 return res;
             }
-//            todo zcf 这里确认给的是一个接口还是两个接口  是否支持按条件查询
-//            return jyCollectService.findCollectInfo(reqDto);
-            return null;
+            return jyCollectService.findCollectReportByScanCode(reqDto);
         }catch (Exception ex) {
             log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
             res.error("PDA按面单查询不齐报表数据服务异常" + ex.getMessage());
