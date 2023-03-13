@@ -512,14 +512,13 @@ public class SendVehicleTransactionManager {
      * 传站功能拦截
      * @param receiveSiteId
      * @param currentOperate
-     * @param user
      * @return
      */
-    boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate, User user){
+    public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate){
         Integer orgId =currentOperate.getOrgId();
         Integer siteId =currentOperate.getSiteCode();
-        if ((uccConfig.getOrgForbiddenList().contains(String.valueOf(orgId))
-            || uccConfig.getSiteForbiddenList().contains(String.valueOf(siteId))) && checkIsCz(receiveSiteId)){
+        if ((uccConfig.getCzOrgForbiddenList().contains(String.valueOf(orgId)) || uccConfig.getCzSiteForbiddenList().contains(String.valueOf(siteId)))
+            && checkIsCz(receiveSiteId)){
             return true;
         }
         return false;
@@ -527,7 +526,7 @@ public class SendVehicleTransactionManager {
 
     private boolean checkIsCz(Integer receiveSiteId) {
         BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
-        if (ObjectHelper.isNotNull(baseSiteInfoDto) && Constants.TERMINAL_SITE_TYPE_4.equals(baseSiteInfoDto.getSiteType())){
+        if (ObjectHelper.isNotNull(baseSiteInfoDto) && uccConfig.getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
             return true;
         }
         return false;
