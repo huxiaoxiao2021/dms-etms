@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
@@ -84,8 +83,8 @@ public class JyEvaluateServiceImplTest {
 
     @Test
     public void testDimensionOptions() {
-        JdCResponse<List<DimensionOption>> result = jyEvaluateService.dimensionOptions();
-        Assert.assertNotNull(result.getData());
+        List<DimensionOption> result = jyEvaluateService.dimensionOptions();
+        Assert.assertNotNull(result);
     }
 
     @Test
@@ -95,8 +94,8 @@ public class JyEvaluateServiceImplTest {
         evaluateTargetReq.setCurrentOperate(createCurrentOperate());
         evaluateTargetReq.setSourceBizId("SC22022347855110");
 
-        JdCResponse<Boolean> result = jyEvaluateService.checkIsEvaluate(evaluateTargetReq);
-        Assert.assertFalse(result.getData());
+        Boolean result = jyEvaluateService.checkIsEvaluate(evaluateTargetReq);
+        Assert.assertFalse(result);
     }
 
     @Test
@@ -106,8 +105,8 @@ public class JyEvaluateServiceImplTest {
         evaluateTargetReq.setCurrentOperate(createCurrentOperate());
         evaluateTargetReq.setSourceBizId("SC22022347855110");
 
-        JdCResponse<List<EvaluateDimensionDto>> result = jyEvaluateService.findTargetEvaluateInfo(evaluateTargetReq);
-        Assert.assertNull(result.getData());
+        List<EvaluateDimensionDto> result = jyEvaluateService.findTargetEvaluateInfo(evaluateTargetReq);
+        Assert.assertNull(result);
     }
 
     private User createUser() {
