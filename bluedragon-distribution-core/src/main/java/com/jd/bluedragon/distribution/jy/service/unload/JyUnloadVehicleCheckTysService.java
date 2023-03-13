@@ -1375,9 +1375,8 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态、
-            InvokeResult updateCollectStatusRes = jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto);
-            if(!updateCollectStatusRes.codeSuccess()) {
-                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(updateCollectStatusRes));
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
+                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }
             //
@@ -1410,9 +1409,8 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setCollectType(collectReportStatisticsDto.getCollectType());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态： 同步
-            InvokeResult updateCollectStatusRes = jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto);
-            if(!updateCollectStatusRes.codeSuccess()) {
-                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(updateCollectStatusRes));
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
+                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }
             //查询集齐类型统计

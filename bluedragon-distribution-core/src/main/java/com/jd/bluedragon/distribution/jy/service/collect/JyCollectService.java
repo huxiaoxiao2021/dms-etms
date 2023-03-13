@@ -44,6 +44,14 @@ public interface JyCollectService {
      * @return
      */
     boolean initCollect(CollectDto collectDto, List<String> detailList);
+
+    /**
+     * 集齐初始化 & 修改集齐状态
+     * @param collectDto
+     * @param detailList
+     * @return
+     */
+    boolean initAndCollectedPartCollection(CollectDto collectDto, List<String> detailList);
     /**
      * 消除集齐数据（取消发货、车型封车）
      * @param collectDto
@@ -54,7 +62,7 @@ public interface JyCollectService {
     /**
      * 修改单条集齐状态
      */
-    InvokeResult updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto);
+    boolean updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto);
 
     /**
      * 扫描查询集齐统计数据
@@ -73,7 +81,7 @@ public interface JyCollectService {
      * @param paramDto
      * @return
      */
-    InvokeResult waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto);
+    boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto);
 
     /**
      * 不齐运单统计数量查询

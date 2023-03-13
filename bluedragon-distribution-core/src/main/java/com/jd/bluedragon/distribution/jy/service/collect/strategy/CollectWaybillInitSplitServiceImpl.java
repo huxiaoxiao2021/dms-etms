@@ -113,7 +113,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         collectDto.setWaybillCode(waybillCode);
         collectDto.setNextSiteCode(nextSiteId);
         collectDto.setOperatorErp(request.getOperatorErp());
-        return jyCollectService.initCollect(collectDto, packageCodeList);
+        return jyCollectService.initAndCollectedPartCollection(collectDto, packageCodeList);
     }
 
     private List<String> getPageNoPackageCodeListFromWaybill(String waybillCode, int pageNo, int pageSize) {

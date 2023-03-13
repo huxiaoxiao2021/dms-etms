@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
@@ -26,15 +27,19 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -264,6 +269,20 @@ public class JyCollectServiceImpl implements JyCollectService{
     }
 
     @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.initAndCollectedPartCollection",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean initAndCollectedPartCollection(CollectDto collectDto, List<String> packageCodeList) {
+        String methodDesc = "JyCollectServiceImpl.initAndCollectedPartCollection:集齐初始化&修改机器状态:";
+        CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
+        Result<Boolean> errMsgRes = new Result<>();
+        if(!collectionRecordService.initAndCollectedPartCollection(collectionCreatorEntity, errMsgRes)) {
+            log.error("{}集齐初始化错误，req={},res={}", methodDesc, JsonHelper.toJson(collectionCreatorEntity), JsonHelper.toJson(errMsgRes));
+            return false;
+        }
+        return true;
+    }
+
+
+    @Override
     @JProfiler(jKey = "JyCollectServiceImpl.removeCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean removeCollect(CollectDto collectDto) {
         //todo  直接调用集齐服务初始化，集齐服务处理场地是末端还是中转
@@ -272,26 +291,91 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.updateSingleCollectStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto) {
-        return null;
+    public boolean updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
+        collectElements.put(CollectionConditionKeyEnum.site_code, unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        collectElements.put(CollectionConditionKeyEnum.seal_car_code, unloadScanCollectDealDto.getBizId());
+        collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
+        //
+        CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+        collectionScanCodeEntity.setScanCode(unloadScanCollectDealDto.getScanCode());
+        collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+        collectionScanCodeEntity.setCollectedMark(unloadScanCollectDealDto.getBizId());
+        //
+        CollectionCollectorEntity collectionCollectorEntity = new CollectionCollectorEntity();
+        collectionCollectorEntity.setCollectElements(collectElements);
+        collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
+        //
+        Result<Boolean> result = new Result<>();
+        if(!collectionRecordService.collectTheScanCode(collectionCollectorEntity, result)) {
+            log.error("JyCollectServiceImpl.updateSingleCollectStatus：修改集齐明细状态异常，req={},res={}", JsonHelper.toJson(collectionCollectorEntity), JsonHelper.toJson(result));
+            return false;
+        }
+        return true;
     }
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+//        todo zcf
+//        collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark();
         return null;
     }
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryWaybillCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public CollectReportStatisticsDto scanQueryWaybillCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        //        todo zcf
         return null;
     }
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.waybillBatchUpdateCollectStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
-        return null;
+    public boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
+        String methodDesc = "JyCollectServiceImpl.waybillBatchUpdateCollectStatus:运单批量修改集齐状态：";
+
+        Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
+        collectElements.put(CollectionConditionKeyEnum.site_code, paramDto.getScanSiteCode());
+        collectElements.put(CollectionConditionKeyEnum.seal_car_code, paramDto.getBizId());
+        collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
+        //
+
+        BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
+        if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
+            log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
+            return false;
+        }
+        //todo zcf 该方法consumer消费，超时时间设置大一些，避免大运单消费
+        for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
+            CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+            collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
+            collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+            collectionScanCodeEntity.setCollectedMark(paramDto.getBizId());
+
+            //
+            CollectionCollectorEntity reqEntity = new CollectionCollectorEntity();
+            reqEntity.setCollectElements(collectElements);
+            reqEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
+            Result<Boolean> errMsgRes = new Result<>();
+            if(!collectionRecordService.collectTheScanCode(reqEntity, errMsgRes)) {
+                log.error("{}, 运单循环调用修改包裹集齐数据异常，方法请求Dto={}, 异常包裹参数={}，errMsgRes={}",
+                        methodDesc, JsonHelper.toJson(paramDto), JsonHelper.toJson(reqEntity), JsonHelper.toJson(errMsgRes));
+                throw new JyBizException("运单循环调用修改包裹集齐数据异常" + errMsgRes.getMessage());
+            }
+        }
+        return true;
+    }
+    private BigWaybillDto getWaybillPackage(String waybillCode) {
+        BigWaybillDto result = null;
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true, false, true, true);
+        if (baseEntity != null) {
+            result = baseEntity.getData();
+        }
+        if (log.isInfoEnabled()){
+            log.info(MessageFormat.format("获取运单信息{0}, 结果为{1}", waybillCode, JsonHelper.toJson(result)));
+        }
+
+        return result;
     }
 
     @Override
@@ -313,7 +397,5 @@ public class JyCollectServiceImpl implements JyCollectService{
         res.setData(resData);
         return res;
     }
-
-
 
 }

@@ -82,9 +82,8 @@ public class JyCollectBatchUpdateStatusConsumer extends MessageBaseConsumer {
      * @return
      */
     private boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
-        InvokeResult invokeResult = jyCollectService.waybillBatchUpdateCollectStatus(paramDto);
-        if(!invokeResult.codeSuccess()) {
-            log.info("按运单批量修改运单集齐状态失败，param={},res={}", JsonUtils.toJSONString(paramDto), JsonUtils.toJSONString(invokeResult));
+        if(!jyCollectService.waybillBatchUpdateCollectStatus(paramDto)) {
+            log.info("按运单批量修改运单集齐状态失败，param={},res={}", JsonUtils.toJSONString(paramDto));
             return false;
         }
         return true;
