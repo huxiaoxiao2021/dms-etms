@@ -236,7 +236,7 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter">
 		SELECT
 			collection_code, agg_code, agg_code_type, count(scan_code) as sumScanNum, sum(is_collected) as collectedNum,
-		sum(is_extra_collected) as extraCollectedNum
+		sum(is_extra_collected) as extraCollectedNum, max(ts) as ts
 		FROM
 			collection_record_detail
 		<where>
@@ -250,7 +250,7 @@
 	<select id="countAggCollectedByAggCodeWithMark" parameterType="CollectionRecordDetailPo"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
 		SELECT
-			collected_mark, count(collected_mark) as num
+			collected_mark, count(collected_mark) as num, max(ts) as ts
 		FROM
 			collection_record_detail
 		<where>
@@ -266,7 +266,7 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCounter">
 
 		select
-			collection_code, count(agg_code), sum(is_collected),sum(is_extra_collected)
+			collection_code, count(agg_code), sum(is_collected),sum(is_extra_collected), max(ts) as ts
 		FROM
 			collection_record
 		where
@@ -286,7 +286,7 @@
 
 		select
 			crd.collection_code, crd.agg_code, crd.agg_code_type, crd.collected_mark, crd.collected_status, count(*)
-		as number
+		as number, max(ts) as ts
 		from
 			collection_record cr inner join collection_record_detail crd
 		on

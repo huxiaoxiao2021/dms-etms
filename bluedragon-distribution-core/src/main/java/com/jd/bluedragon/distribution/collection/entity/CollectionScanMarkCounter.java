@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.collection.entity;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.entity
@@ -40,4 +42,9 @@ public class CollectionScanMarkCounter {
      * 数量
      */
     private Integer num;
+
+    /**
+     * 数据时间，可以判断数据是否发生更新
+     */
+    private Timestamp ts;
 }

@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -18,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class CollectionAggCodeCounter {
 
     /**
@@ -79,5 +83,10 @@ public class CollectionAggCodeCounter {
      * 在库未集齐
      */
     private Integer outMarkNoneCollectedNum;
+
+    /**
+     * 数据时间，可以判断数据是否发生更新
+     */
+    private Timestamp ts;
 
 }

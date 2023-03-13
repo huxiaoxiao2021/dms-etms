@@ -25,6 +25,12 @@ public enum CollectionConditionKeyEnum {
 
     seal_car_code("封车编码"),
 
+    /**
+     * 精确到日
+     * 2023-03-13
+     */
+    date_time("日期时间")
+
     ;
 
     private final String name;
