@@ -185,7 +185,11 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.setCode(InvokeResult.CODE_HINT);
             response.addPromptBox(0, invokeResult.getMessage());
             return response;
-        } else if (invokeResult.getCode() == InvokeResult.DP_SPECIAL_CODE) {
+        } else if (invokeResult.getCode() == InvokeResult.CODE_CONFIRM) {
+            response.setCode(InvokeResult.CODE_CONFIRM);
+            response.addWarningBox(0, invokeResult.getMessage());
+            return response;
+        }else if (invokeResult.getCode() == InvokeResult.DP_SPECIAL_CODE) {
             response.addPromptBox(101, invokeResult.getMessage());
             return response;
         } else {
