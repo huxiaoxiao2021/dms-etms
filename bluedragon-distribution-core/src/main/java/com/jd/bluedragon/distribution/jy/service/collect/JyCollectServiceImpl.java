@@ -40,7 +40,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author zhengchengfa
@@ -112,6 +117,28 @@ public class JyCollectServiceImpl implements JyCollectService{
             res.add(collectStatisticsService.collectStatistics(queryParamDto));
         }
         return res;
+    }
+
+    /**
+     * 根据封车编码和站点查询待集齐集合的ID列表
+     * @param bizCode
+     * @param siteCode
+     * @param businessType
+     * @return
+     */
+    private List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType) {
+        String dateNow = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String dateNow_1 = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        List<String> dates = Arrays.asList(dateNow, dateNow_1);
+        return dates.parallelStream().flatMap((Function<String, Stream<CollectionCodeEntity>>)s -> {
+            Map<CollectionConditionKeyEnum, Object> element = new HashMap<>();
+            element.put(CollectionConditionKeyEnum.site_code, siteCode);
+            element.put(CollectionConditionKeyEnum.seal_car_code, bizCode);
+            element.put(CollectionConditionKeyEnum.date_time, s);
+
+            return collectionRecordService.queryAllCollectionCodesByElement(element, businessType).stream();
+        }).collect(Collectors.toList());
+
     }
 
     /**
