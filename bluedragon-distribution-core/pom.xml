@@ -1587,7 +1587,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
+			<version>1.2.8-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
