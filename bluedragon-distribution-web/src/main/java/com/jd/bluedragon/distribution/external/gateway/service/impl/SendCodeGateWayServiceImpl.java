@@ -217,7 +217,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     	Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
         Integer createSite = sites[0];
     	Integer receiveSite = sites[1];
-    	if (sendVehicleTransactionManager.needInterceptOfCz(receiveSite,request.getCurrentOperate(),request.getUser())){
+    	if (sendVehicleTransactionManager.needInterceptOfCz(receiveSite,request.getCurrentOperate())){
         return new JdVerifyResponse(NOT_SUPPORT_CZ_LINE_TASK_CODE,NOT_SUPPORT_CZ_LINE_TASK_MESSAGE);
       }
         BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
