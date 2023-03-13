@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
 import java.util.Date;
+import java.util.List;
 
 public class JyGroupSortCrossDetailEntity {
     private Long id;
@@ -38,6 +39,8 @@ public class JyGroupSortCrossDetailEntity {
     private Boolean yn;
 
     private Date ts;
+    
+    private transient List<String> templateCodeList;
 
     public Long getId() {
         return id;
@@ -181,5 +184,13 @@ public class JyGroupSortCrossDetailEntity {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public List<String> getTemplateCodeList() {
+        return templateCodeList;
+    }
+
+    public void setTemplateCodeList(List<String> templateCodeList) {
+        this.templateCodeList = templateCodeList;
     }
 }
