@@ -321,7 +321,7 @@
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultMap="cttGroupDtoMap">
     select template_code, template_name, create_user_name, create_user_erp, cross_code from jy_group_sort_cross_detail
-    where yn = 1
+    where group_code = #{groupCode}
     and start_site_id = #{startSiteId}
     <if test="endSiteId !=null and endSiteId!=''">
       and end_site_id = #{endSiteId}
@@ -332,7 +332,7 @@
     <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
       and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
     </if>
-    and group_code = #{groupCode}
+    and yn = 1
   </select>
   <select id="listCountByTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
@@ -340,11 +340,11 @@
     select template_code, count(1) as send_flow_count
     from jy_group_sort_cross_detail
     where group_code = #{groupCode}
-    and yn = 1
     and template_code in
     <foreach collection="templateCodeList" item="item" open="(" close=")" separator=",">
       #{item}
     </foreach>
+    and yn = 1
     group by template_code
   </select>
 </mapper>

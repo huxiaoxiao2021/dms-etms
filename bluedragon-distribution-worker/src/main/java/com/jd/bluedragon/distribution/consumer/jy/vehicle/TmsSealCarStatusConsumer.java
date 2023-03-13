@@ -203,12 +203,12 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                     }
                     boardList.add(entity.getBoardCode());
                 }
-                
+
                 if (!CollectionUtils.isEmpty(sealSendCodeList)) {
                     if (logger.isInfoEnabled()) {
                         logger.info("开始更新板状态：{}",JsonHelper.toJson(sealSendCodeList));
                     }
-                    if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealSendCodeList, sealCarInfoBySealCarCodeOfTms.getSealUserCode(), 
+                    if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealSendCodeList, sealCarInfoBySealCarCodeOfTms.getSealUserCode(),
                             sealCarInfoBySealCarCodeOfTms.getSealUserName(), ComboardStatusEnum.SEALED)) {
                         logger.info("批量更新板状态失败：{}",JsonHelper.toJson(sealSendCodeList));
                     }
@@ -223,6 +223,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             }
         }
     }
+
+
 
     /**
      * 类型转换 封车状态
