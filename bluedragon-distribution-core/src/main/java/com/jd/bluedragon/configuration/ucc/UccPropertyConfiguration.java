@@ -418,6 +418,7 @@ public class UccPropertyConfiguration {
     /**
      * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
      * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     * @Deprecated(已废弃)
      */
     @Deprecated
     private String siteEnableSendCodeEffectiveValidation;
@@ -557,6 +558,11 @@ public class UccPropertyConfiguration {
      * 货物滞留时间
      */
     private int goodsResidenceTime;
+
+    /**
+     * 写云es开关
+     */
+    private boolean cloudOssInsertSwitch;
 
 
     public String getAddiOwnNumberConf() {
@@ -2854,6 +2860,14 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public boolean isCloudOssInsertSwitch() {
+        return cloudOssInsertSwitch;
+    }
+
+    public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
+        this.cloudOssInsertSwitch = cloudOssInsertSwitch;
     }
 
     public Integer getCttGroupSendFLowLimit() {
