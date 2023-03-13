@@ -25,6 +25,9 @@ public class FileRequest implements Serializable {
     private String secretKey;
 
 
+    private String sourceSysName;
+
+
     public String getFileNamePrefix() {
         return fileNamePrefix;
     }
@@ -55,5 +58,13 @@ public class FileRequest implements Serializable {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public String getSourceSysName() {
+        return sourceSysName;
+    }
+
+    public void setSourceSysName(String sourceSysName) {
+        this.sourceSysName = sourceSysName;
     }
 }
