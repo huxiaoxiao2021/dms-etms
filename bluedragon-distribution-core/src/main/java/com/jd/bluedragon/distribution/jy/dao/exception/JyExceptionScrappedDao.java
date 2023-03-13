@@ -12,11 +12,14 @@ public class JyExceptionScrappedDao  extends BaseDao<JyExceptionScrappedPO> {
     final static String NAMESPACE = JyExceptionScrappedDao.class.getName();
 
 
+    public JyExceptionScrappedPO selectOneByBizId(String bizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByBizId", bizId);
+    }
     public int insertSelective(JyExceptionScrappedPO entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    public int updateByBizId(JyBizTaskExceptionEntity entity) {
+    public int updateByBizId(JyExceptionScrappedPO entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 

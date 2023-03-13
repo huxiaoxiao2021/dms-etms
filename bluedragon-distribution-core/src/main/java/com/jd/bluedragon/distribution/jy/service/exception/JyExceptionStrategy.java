@@ -11,8 +11,9 @@ import com.jdl.basic.api.domain.position.PositionDetailRecord;
  * @Date: 2023/3/9 21:18
  * @Description: 异常策略类
  */
-public interface JyExceptionServiceStrategy {
+public abstract class JyExceptionStrategy {
 
-    JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source,
-                                          BaseStaffSiteOrgDto baseStaffByErp, String bizId);
+    public abstract  JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source,
+                                                    BaseStaffSiteOrgDto baseStaffByErp, String bizId);
+
 }

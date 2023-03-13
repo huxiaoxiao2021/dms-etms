@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
@@ -23,9 +24,9 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
+import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionServiceStrategy;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyContext;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -40,6 +41,8 @@ import com.jd.ps.data.epf.dto.CommonDto;
 import com.jd.ps.data.epf.dto.ExpInfoSumaryInputDto;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.base.Pager;
@@ -114,11 +117,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
+    @Autowired
+    private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
     /**
      * 通用异常上报入口-扫描
      *
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req) {
         JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(req.getSource());
         if (source == null) {
@@ -145,7 +151,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
         String bizId = getBizId(req.getType(), req.getBarCode());
-        JyExceptionServiceStrategy exceptionService = JyExceptionStrategyFactory.getJyExceptionServiceStrategy(req.getType());
+        JyExceptionStrategy exceptionService = JyExceptionStrategyFactory.getJyExceptionServiceStrategy(req.getType());
         exceptionService.uploadScan(req,position,source,baseStaffByErp,bizId);
         // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
@@ -403,7 +409,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 ExpTaskDto dto = getTaskDto(entity);
 
                 // 待打印特殊处理
-                if (Objects.equals(JyExpStatusEnum.TO_PRINT.getCode(), entity.getStatus())) {
+                if (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())
+                        && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus()) ) {
                     // 待打印时间
                     dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
@@ -592,7 +599,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         // 设置 上架日期
-        if (Objects.equals(entity.getStatus(), JyExpStatusEnum.TO_PRINT.getCode())) {
+        if (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())
+                && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus())) {
             JyExceptionEntity query = new JyExceptionEntity();
             query.setSiteCode(entity.getSiteCode());
             query.setBizId(entity.getBizId());
@@ -798,7 +806,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     }
 
-
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -959,8 +966,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionDao.update(entity);
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
-        conditon.setStatus(JyExpStatusEnum.TO_PRINT.getCode());
-        conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        conditon.setStatus(JyExpStatusEnum.PROCESSING.getCode());
+        conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode());
         conditon.setProcessEndTime(mqDto.getNotifyTime());
         conditon.setUpdateTime(mqDto.getNotifyTime());
         conditon.setUpdateUserErp(mqDto.getNotifyErp());

@@ -8,7 +8,6 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionServiceStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import com.jd.ump.annotation.JProEnum;
@@ -180,6 +179,16 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionScrappedTypeList", mState = {JProEnum.TP})
     public JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList() {
         return jyScrappedExceptionService.getJyExceptionScrappedTypeList();
+    }
+
+    @Override
+    public JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req) {
+        return jyScrappedExceptionService.processTaskOfscrapped(req);
+    }
+
+    @Override
+    public JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req) {
+        return jyScrappedExceptionService.getTaskDetailOfscrapped(req);
     }
 
 }

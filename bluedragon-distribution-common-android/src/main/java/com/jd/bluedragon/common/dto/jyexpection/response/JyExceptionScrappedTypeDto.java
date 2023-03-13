@@ -9,6 +9,7 @@ import java.io.Serializable;
  */
 public class JyExceptionScrappedTypeDto implements Serializable {
 
+
     /**
      * 报废类型code 值
      */

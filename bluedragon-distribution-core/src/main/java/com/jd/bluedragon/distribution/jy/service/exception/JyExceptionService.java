@@ -60,7 +60,7 @@ public interface JyExceptionService {
     JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req);
 
     /**
-     * 处理任务接口
+     * 处理任务接口-三无
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
 

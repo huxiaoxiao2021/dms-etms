@@ -57,6 +57,11 @@ public class JyExceptionScrappedPO {
     private Integer firstCheckStatus;
 
     /**
+     * 审核第一人审核时间
+     */
+    private Date firstCheckTime;
+
+    /**
      * 第二审核人erp
      */
     private String secondChecker;
@@ -65,6 +70,12 @@ public class JyExceptionScrappedPO {
      * 第二审核人审核状态 1：待审批 2：审批通过 3：审批驳回
      */
     private Integer secondCheckStatus;
+
+
+    /**
+     * 审核第二人审核时间
+     */
+    private Date secondCheckTime;
 
     /**
      * 第三审核人erp
@@ -75,6 +86,11 @@ public class JyExceptionScrappedPO {
      * 第三审核人审核状态 1：待审批 2：审批通过 3：审批驳回
      */
     private Integer thirdCheckStatus;
+
+    /**
+     * 审核第三人审核时间
+     */
+    private Date thirdCheckTime;
 
     /**
      * 删除标识
@@ -249,5 +265,29 @@ public class JyExceptionScrappedPO {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public Date getFirstCheckTime() {
+        return firstCheckTime;
+    }
+
+    public void setFirstCheckTime(Date firstCheckTime) {
+        this.firstCheckTime = firstCheckTime;
+    }
+
+    public Date getSecondCheckTime() {
+        return secondCheckTime;
+    }
+
+    public void setSecondCheckTime(Date secondCheckTime) {
+        this.secondCheckTime = secondCheckTime;
+    }
+
+    public Date getThirdCheckTime() {
+        return thirdCheckTime;
+    }
+
+    public void setThirdCheckTime(Date thirdCheckTime) {
+        this.thirdCheckTime = thirdCheckTime;
     }
 }

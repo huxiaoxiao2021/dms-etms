@@ -2,23 +2,19 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
-import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
-import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionServiceStrategy;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -26,6 +22,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
@@ -41,7 +39,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl implements JyExceptionServiceStrategy {
+public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
@@ -69,9 +67,9 @@ public class JySanwuExceptionServiceImpl implements JyExceptionServiceStrategy {
      *
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JySanwuExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position,
                                                  JyExpSourceEnum source,BaseStaffSiteOrgDto baseStaffByErp,String bizId) {
-
 
         if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
             return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
