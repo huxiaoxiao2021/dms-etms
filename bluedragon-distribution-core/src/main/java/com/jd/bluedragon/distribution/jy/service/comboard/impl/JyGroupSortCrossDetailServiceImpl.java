@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -167,10 +168,31 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     @Override
     public CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
-        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listCTTGroupData(entity);
+        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listGroupByEndSiteCodeOrCTTCode(entity);
+        
+        // 查询混扫任务统计信息
+        List<String> templateCodeList = new ArrayList<>();
+        for (CTTGroupDto cttGroupDto : cttGroupDtos) {
+            templateCodeList.add(cttGroupDto.getTemplateCode());
+        }
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setTemplateCodeList(templateCodeList);
+        condition.setGroupCode(entity.getGroupCode());
+        List<CTTGroupDto> countList = jyGroupSortCrossDetailDao.listCountByTemplateCode(condition);
+        HashMap<String,Integer> countMap = getCountMapByCTTGroupDto(countList);
+        cttGroupDtos.forEach(item -> item.setSendFlowCount(countMap.get(item.getTemplateCode())));
+        
         log.info("混扫任务信息：{}", JsonHelper.toJson(cttGroupDtos));
         resp.setCttGroupDtolist(cttGroupDtos);
         return resp;
+    }
+
+    private HashMap<String, Integer> getCountMapByCTTGroupDto(List<CTTGroupDto> countList) {
+        HashMap<String, Integer> map = new HashMap<>();
+        for (CTTGroupDto cttGroupDto : countList) {
+            map.put(cttGroupDto.getTemplateCode(),cttGroupDto.getSendFlowCount());
+        }
+        return map;
     }
 
     @Override
