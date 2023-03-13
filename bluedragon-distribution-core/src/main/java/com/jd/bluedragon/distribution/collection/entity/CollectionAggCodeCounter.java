@@ -65,17 +65,20 @@ public class CollectionAggCodeCounter {
     private Integer noneMarkNoneCollectedNum;
 
     /**
-     * 本车已集齐
+     * 本车已集齐,
+     * 本车已扫
      */
     private Integer innerMarkCollectedNum;
 
     /**
      * 本车未集齐
+     * 本车待扫
      */
     private Integer innerMarkNoneCollectedNum;
 
     /**
      * 在库已集齐
+     * 非本车再库
      */
     private Integer outMarkCollectedNum;
 

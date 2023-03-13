@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTyp
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;

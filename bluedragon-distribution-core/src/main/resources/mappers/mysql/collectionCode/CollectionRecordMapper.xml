@@ -285,8 +285,8 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
 
 		select
-			crd.collection_code, crd.agg_code, crd.agg_code_type, crd.collected_mark, crd.collected_status, count(*)
-		as number, max(ts) as ts
+			cr.collection_code, cr.agg_code, cr.agg_code_type, crd.collected_mark, crd.collected_status, count(*)
+		as number, max(ts) as crd.ts
 		from
 			collection_record cr inner join collection_record_detail crd
 		on
@@ -311,6 +311,8 @@
 		</where>
 		group by
 			crd.collection_code, crd.agg_code, crd.agg_code_type, collected_mark, crd.collected_status
+		order by cr.agg_mark
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
 
@@ -332,6 +334,8 @@
 			and agg_codeType = #{aggCodeType, jdbcType = VARCHAR}
 			and yn = 1
 		</where>
+		order by collected_mark
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
 

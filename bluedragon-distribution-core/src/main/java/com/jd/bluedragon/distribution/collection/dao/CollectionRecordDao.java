@@ -95,20 +95,25 @@ public class CollectionRecordDao {
         return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionRecordByCollectionCode"), collectionCodes);
     }
 
-    public List<CollectionCollectedMarkCounter> sumCollectionAggCodeByCollectionCode(List<String> collectionCodes, Integer isCollected, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+    public List<CollectionCollectedMarkCounter> sumCollectionAggCodeByCollectionCode(List<String> collectionCodes,
+        Integer isCollected, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset) {
         Map<String, Object> param = new HashMap<>();
         param.put("list", collectionCodes);
         param.put("isCollected", isCollected);
         param.put("aggCode", aggCode);
         param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("limit", limit);
+        param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionAggCodeByCollectionCode"), param);
     }
 
-    public List<CollectionRecordDetailPo> queryCollectedDetailByCollectionAndAggCode(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum){
+    public List<CollectionRecordDetailPo> queryCollectedDetailByCollectionAndAggCode(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset){
         Map<String, Object> param = new HashMap<>();
         param.put("list", collectionCodes);
         param.put("aggCode", aggCode);
         param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("limit", limit);
+        param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".queryCollectedDetailByCollectionAndAggCode"), param);
     }
 

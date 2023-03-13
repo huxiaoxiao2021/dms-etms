@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
-import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -586,50 +585,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(String collectionCode, String aggCode,
+    public CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
-        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || null == aggCodeTypeEnum) {
-            log.error("统计待集齐集合的信息参数不全，{}-{}-{}", collectionCode, aggCode, aggCodeTypeEnum);
-            return null;
-        }
 
-        CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordDao.countAggCollectedByAggCode(
-            CollectionRecordDetailPo.builder()
-                .collectionCode(collectionCode)
-                .aggCode(aggCode)
-                .aggCodeType(aggCodeTypeEnum.name())
-                .build()
-        );
-        if (null == collectionAggCodeCounter) {
-            log.error("根据aggCode统计待集齐信息查询失败，未查询到需要集齐的数据");
-            return collectionAggCodeCounter;
-        }
+        List<CollectionAggCodeCounter> aggCodeCounters =
+            new ArrayList<>(
+                this.sumCollectionByCollectionCodeAndStatus(collectionCodeEntities, null, CollectionAggCodeTypeEnum.waybill_code, aggCode, collectedMark, 10, 0)
+            );
 
-        List<CollectionScanMarkCounter> collectionScanMarkCounters = collectionRecordDao.countAggCollectedByAggCodeWithMark(
-            CollectionRecordDetailPo.builder()
-                .collectionCode(collectionCode)
-                .aggCode(aggCode)
-                .aggCodeType(aggCodeTypeEnum.name())
-                .build()
-        );
-        /* 理论上来讲，上一次查询有数据，这次查询也应该有数据 */
-        collectionAggCodeCounter.setNoneMarkNoneCollectedNum(
-            (int)collectionScanMarkCounters.parallelStream().filter(
-                collectionScanMarkCounter -> StringUtils.isEmpty(collectionScanMarkCounter.getCollectedMark())).count()
-        );
-        collectionAggCodeCounter.setInnerMarkCollectedNum(
-            (int)collectionScanMarkCounters.parallelStream().filter(
-                collectionScanMarkCounter -> Objects
-                    .equals(collectedMark, collectionScanMarkCounter.getCollectedMark())).count()
-        );
-        collectionAggCodeCounter.setOutMarkCollectedNum(
-            (int)collectionScanMarkCounters.parallelStream().filter(
-                collectionScanMarkCounter -> StringUtils.isNotEmpty(collectionScanMarkCounter.getCollectedMark()) && !Objects
-                    .equals(collectedMark, collectionScanMarkCounter.getCollectedMark())).count()
-        );
-
-        return collectionAggCodeCounter;
+        return aggCodeCounters.parallelStream().findAny().orElse(null);
 
     }
 
@@ -689,7 +654,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     @Override
     public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(
         List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             return Collections.emptyList();
         }
@@ -698,7 +663,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             collectionRecordDao.sumCollectionAggCodeByCollectionCode(collectionCodeEntities.parallelStream()
                 .map(CollectionCodeEntity::getCollectionCode)
                 .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toList()), collectionStatusEnum.getStatus(),aggCode, aggCodeTypeEnum);
+                .collect(Collectors.toList()),
+                CollectionStatusEnum.collected.equals(collectionStatusEnum)? Constants.NUMBER_ONE : null,
+                aggCode, aggCodeTypeEnum, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
             return Collections.emptyList();
@@ -836,7 +803,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
     @Override
     public List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(
-        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset) {
 
         if (CollectionUtils.isEmpty(collectionCodeEntities) || StringUtils.isEmpty(aggCode) || null == aggCodeTypeEnum) {
             return Collections.emptyList();
@@ -844,7 +811,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionRecordDao.queryCollectedDetailByCollectionAndAggCode(
             collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList()),
-            aggCode, aggCodeTypeEnum);
+            aggCode, aggCodeTypeEnum, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordDetailPos)) {
             return Collections.emptyList();

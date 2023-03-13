@@ -82,16 +82,18 @@ public interface CollectionRecordService {
 
     /**
      * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
-     * @param collectionCode 集合号
-     * @param aggCode 聚合统计号
-     * @param aggCodeTypeEnum 聚合统计类型
+     * @param collectionCodeEntities 带有集齐ID的查询条件，
+     * @param aggCode 聚合统计号，例如JDVA0000000100101
+     * @param aggCodeTypeEnum 聚合统计号类型，例如：CollectionAggCodeTypeEnum#waybill_code 表示按运单号聚合
+     * @param collectedMark 集齐时的标示，用于统计或排序
+     * @return
      */
-    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 通过查询元素定位到所有的满足该元素下的所有的集合的未集齐aggCode数量
-     * @param element 查询元素
-     * @return
+     * @param collectionCodeEntities 查询元素 内包含待集齐集合ID
+     * @return 返回不齐数量
      */
     Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
 
@@ -118,7 +120,7 @@ public interface CollectionRecordService {
      * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
+    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
 
     /**
      * 根据待集齐集合
@@ -137,7 +139,7 @@ public interface CollectionRecordService {
      * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+    List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset);
 
 
 }

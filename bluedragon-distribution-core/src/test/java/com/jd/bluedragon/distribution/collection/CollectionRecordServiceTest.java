@@ -52,5 +52,6 @@ public class CollectionRecordServiceTest {
         collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
         System.out.println(JsonHelper.toJson(collectionCollectorEntity));
 
+        System.out.println(JsonHelper.toJson(Collections.singletonList(collectionCodeEntity)));
     }
 }
