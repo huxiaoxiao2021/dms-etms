@@ -515,11 +515,11 @@ public class SendVehicleTransactionManager {
      * @param user
      * @return
      */
-    boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate, User user){
+    public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate, User user){
         Integer orgId =currentOperate.getOrgId();
         Integer siteId =currentOperate.getSiteCode();
-        if ((uccConfig.getOrgForbiddenList().contains(String.valueOf(orgId))
-            || uccConfig.getSiteForbiddenList().contains(String.valueOf(siteId))) && checkIsCz(receiveSiteId)){
+        if ((uccConfig.getOrgForbiddenList().contains(String.valueOf(orgId)) || uccConfig.getSiteForbiddenList().contains(String.valueOf(siteId)))
+            && checkIsCz(receiveSiteId)){
             return true;
         }
         return false;

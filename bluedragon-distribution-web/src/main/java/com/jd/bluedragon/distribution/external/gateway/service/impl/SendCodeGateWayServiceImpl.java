@@ -54,6 +54,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import javax.annotation.Resource;
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_MESSAGE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_CODE;
 
 /**
@@ -83,25 +85,25 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     private UccPropertyConfiguration uccConfig;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
-    
+
     @Autowired
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
     private BasicSelectWsManager basicSelectWsManager;
-    
+
     @Autowired
     SendMService sendMService;
-    
+
     @Autowired
     private SendDetailService sendDetailService;
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
-    
+
     private static final Integer PAGE_SIZE = 1000;
-    
+
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfoNew(List<String> sendCodes) {
@@ -201,7 +203,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeAndAlliance",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})    
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeAndAlliance",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request) {
         log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
 
@@ -215,6 +217,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     	Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
         Integer createSite = sites[0];
     	Integer receiveSite = sites[1];
+    	if (sendVehicleTransactionManager.needInterceptOfCz(receiveSite,request.getCurrentOperate(),request.getUser())){
+        return new JdVerifyResponse(NOT_SUPPORT_CZ_LINE_TASK_CODE,NOT_SUPPORT_CZ_LINE_TASK_MESSAGE);
+      }
         BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
         BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
         if(ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
@@ -312,7 +317,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 		result.toSucceed();
 		SendCodeSealInfoDto data = new SendCodeSealInfoDto();
 		result.setData(data);
-		
+
 		if(query == null) {
 			result.toFail("传入参数不能为空！");
 			return result;
@@ -356,7 +361,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 			result.toFail("请录入正确的包裹号|批次号！");
 			return result;
 		}
-    	
+
         BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
         BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
         if(createSiteDto != null) {
@@ -368,7 +373,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         	data.setReceiveSiteName(receiveSiteDto.getSiteName());
         }
         data.setSendCode(sendCode);
-        
+
         // 考虑到大批次问题，分页查询
         Set<String> packageCodes = new HashSet<String>();
         Set<String> boxCodes = new HashSet<String>();
