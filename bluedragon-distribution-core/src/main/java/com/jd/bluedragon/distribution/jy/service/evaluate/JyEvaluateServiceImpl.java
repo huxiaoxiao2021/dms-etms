@@ -6,16 +6,20 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -52,6 +56,11 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private final static int LOCK_TIME = 60;
 
+    /**
+     * 装车评价初始化消息业务key
+     */
+    private static final String EVALUATE_INIT_BUSINESS_KEY = "INIT";
+
 
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
@@ -64,6 +73,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+    @Autowired
+    @Qualifier("evaluateTargetInitProducer")
+    private DefaultJMQProducer evaluateTargetInitProducer;
 
 
     @Override
@@ -124,14 +136,18 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
+            // 报表加工MQ实体
+            EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
-            checkEvaluateValidity(request);
-            // 获取评价目标bizId
-            String targetBizId = getTargetBizId(request);
+            checkEvaluateValidity(request, targetInitDto);
+            // 设置评价目标基础信息
+            setEvaluateTargetInfo(request, targetInitDto);
             // 构造评价明细列表
-            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request, targetBizId);
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
+            // 发送报表加工异步消息
+            sendEvaluateMQ(request, targetInitDto);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -145,61 +161,96 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
-            // 获取评价目标bizId
-            String targetBizId = getTargetBizId(request);
+            // 报表加工MQ实体
+            EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
+            // 设置评价目标基础信息
+            setEvaluateTargetInfo(request, targetInitDto);
             // 评价明细列表
-            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request, targetBizId);
+            List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
+            // 发送报表加工异步消息
+            sendEvaluateMQ(request, targetInitDto);
         } finally {
             unLock(request.getSourceBizId());
         }
     }
 
 
-    private void checkEvaluateValidity(EvaluateTargetReq request) {
+    private void sendEvaluateMQ(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
+        // 操作时间
+        targetInitDto.setOperateTime(System.currentTimeMillis());
+        // 操作人erp
+        targetInitDto.setOperateUserErp(request.getUser().getUserErp());
+        // 操作人姓名
+        targetInitDto.setOperateUserName(request.getUser().getUserName());
+        // 评价来源bizId
+        targetInitDto.setSourceBizId(request.getSourceBizId());
+        String businessId = request.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY
+                + Constants.UNDER_LINE + targetInitDto.getOperateTime();
+        evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
+    }
+
+    private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
         // 如果本次评价满意
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
             // 查询评价状态列表
             List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
-            if (CollectionUtils.isNotEmpty(statusList)) {
-                // 如果之前已经评价过满意
-                if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
-                    throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
-                } else {
-                    // 如果之前评价不满意，则不能修改为满意
-                    throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
-                }
+            // 如果记录为空，代表首次评价
+            if (CollectionUtils.isEmpty(statusList)) {
+                targetInitDto.setFirstEvaluate(Boolean.TRUE);
+                return;
+            }
+            // 如果之前已经评价过满意
+            if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
+                throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
+            } else {
+                // 如果之前评价不满意，则不能修改为满意
+                throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
             }
         }
     }
 
-    private String getTargetBizId(EvaluateTargetReq request) {
+    private void setEvaluateTargetInfo(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
         // 查询一条评价记录
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
         if (evaluateRecord == null) {
+            JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
+            // 派车单号
+            String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
             // 根据运输封车编码查询对应的发货任务
-            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByBizId(request.getSourceBizId());
-            return sendVehicleDetail.getBizId();
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByTransWorkItemCode(transWorkItemCode);
+            request.setTargetBizId(sendVehicleDetail.getBizId());
+            targetInitDto.setTargetBizId(sendVehicleDetail.getBizId());
+            targetInitDto.setTargetStartTime(sendVehicleDetail.getCreateTime());
+            targetInitDto.setTargetFinishTime(sendVehicleDetail.getUpdateTime());
+            targetInitDto.setTargetSiteCode(sendVehicleDetail.getStartSiteId().intValue());
+            targetInitDto.setTargetSiteName(sendVehicleDetail.getStartSiteName());
+            targetInitDto.setSealTime(sendVehicleDetail.getSealCarTime());
+            targetInitDto.setSourceBizId(request.getSourceBizId());
+            targetInitDto.setSourceSiteCode(unloadVehicle.getEndSiteId().intValue());
+            targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
+            targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
+            targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
         } else {
-            return evaluateRecord.getTargetBizId();
+            request.setTargetBizId(evaluateRecord.getTargetBizId());
         }
     }
 
-    private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
+    private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request) {
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
             // 构造满意的记录
-            return createSatisfiedEvaluateRecords(request, targetBizId);
+            return createSatisfiedEvaluateRecords(request);
         } else {
             // 构造不满意的记录
-            return createUnsatisfiedEvaluateRecords(request, targetBizId);
+            return createUnsatisfiedEvaluateRecords(request);
         }
     }
 
-    private List<JyEvaluateRecordEntity> createUnsatisfiedEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
+    private List<JyEvaluateRecordEntity> createUnsatisfiedEvaluateRecords(EvaluateTargetReq request) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
         for (EvaluateDimensionReq dimensionReq : request.getDimensionList()) {
-            JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
+            JyEvaluateRecordEntity record = createEvaluateRecord(request);
             record.setDimensionCode(dimensionReq.getDimensionCode());
             if (CollectionUtils.isNotEmpty(dimensionReq.getImgUrlList())) {
                 record.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(dimensionReq.getImgUrlList()));
@@ -210,17 +261,17 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         return recordList;
     }
 
-    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecords(EvaluateTargetReq request, String targetBizId) {
+    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecords(EvaluateTargetReq request) {
         List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
-        JyEvaluateRecordEntity record = createEvaluateRecord(request, targetBizId);
+        JyEvaluateRecordEntity record = createEvaluateRecord(request);
         recordList.add(record);
         return recordList;
     }
 
-    private JyEvaluateRecordEntity createEvaluateRecord(EvaluateTargetReq request, String targetBizId) {
+    private JyEvaluateRecordEntity createEvaluateRecord(EvaluateTargetReq request) {
         JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
         record.setEvaluateType(EVALUATE_TYPE_LOAD);
-        record.setTargetBizId(targetBizId);
+        record.setTargetBizId(request.getTargetBizId());
         record.setSourceBizId(request.getSourceBizId());
         record.setStatus(request.getStatus());
         record.setCreateUserErp(request.getUser().getUserErp());
@@ -308,7 +359,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 if (StringUtils.isBlank(evaluateDimensionDto.getRemark())) {
                     evaluateDimensionDto.setRemark(remark);
                 } else {
-                    evaluateDimensionDto.setRemark(evaluateDimensionDto.getRemark() + "\n" + remark);
+                    evaluateDimensionDto.setRemark(evaluateDimensionDto.getRemark() + Constants.LINE_NEXT_CHAR + remark);
                 }
             }
         }

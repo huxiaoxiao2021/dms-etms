@@ -16,6 +16,11 @@ public class EvaluateTargetReq implements Serializable {
     private String sourceBizId;
 
     /**
+     * 评价目标业务主键
+     */
+    private String targetBizId;
+
+    /**
      * 评价状态：1-满意，0-不满意
      */
     private Integer status;
@@ -41,6 +46,14 @@ public class EvaluateTargetReq implements Serializable {
 
     public void setSourceBizId(String sourceBizId) {
         this.sourceBizId = sourceBizId;
+    }
+
+    public String getTargetBizId() {
+        return targetBizId;
+    }
+
+    public void setTargetBizId(String targetBizId) {
+        this.targetBizId = targetBizId;
     }
 
     public Integer getStatus() {

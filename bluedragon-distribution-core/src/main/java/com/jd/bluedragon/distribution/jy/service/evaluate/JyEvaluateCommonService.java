@@ -73,23 +73,25 @@ public class JyEvaluateCommonService {
     }
 
 
-
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findSendTaskByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JyBizTaskSendVehicleDetailEntity findSendTaskByBizId(String sourceBizId) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findUnloadTaskByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findUnloadTaskByBizId(String sourceBizId) {
         // 根据卸车bizId查询卸车任务详情
         JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(sourceBizId);
         if (unloadVehicle == null) {
-            LOGGER.warn("findSendTaskByBizId|查询卸车任务返回空:sourceBizId={}", sourceBizId);
+            LOGGER.warn("findUnloadTaskByBizId|查询卸车任务返回空:sourceBizId={}", sourceBizId);
             throw new JyBizException("查询卸车任务返回空");
         }
-        // 派车单号
-        String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
+        return unloadVehicle;
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findSendTaskByTransWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskSendVehicleDetailEntity findSendTaskByTransWorkItemCode(String transWorkItemCode) {
         // 根据派车单号查询发货任务
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setTransWorkItemCode(transWorkItemCode);
         JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
         if (sendVehicleDetail == null) {
-            LOGGER.warn("findByByTransWorkItemCode|查询发货任务返回空,transWorkItemCode={}", transWorkItemCode);
+            LOGGER.warn("findSendTaskByTransWorkItemCode|查询发货任务返回空,transWorkItemCode={}", transWorkItemCode);
             throw new JyBizException("查询发货任务返回空");
         }
         return sendVehicleDetail;
