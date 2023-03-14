@@ -159,7 +159,7 @@ public class EvaluateTargetResultDto implements Serializable {
     private boolean firstEvaluate;
 
     /**
-     * 评价维度详情列表
+     * 本次评价详情列表（每次都是增量，不是历史汇总）
      */
     private List<EvaluateDimensionReq> dimensionList;
 
