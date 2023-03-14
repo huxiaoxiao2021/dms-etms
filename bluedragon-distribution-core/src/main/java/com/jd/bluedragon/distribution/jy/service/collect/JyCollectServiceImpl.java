@@ -453,7 +453,7 @@ public class JyCollectServiceImpl implements JyCollectService{
             log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
             return false;
         }
-        //todo zcf 该方法consumer消费，超时时间设置大一些，避免大运单消费
+        //todo 该方法consumer消费，超时时间设置大一些，避免大运单消费
         for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
             CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
             collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());

@@ -36,11 +36,6 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
     @Autowired
     private CollectionRecordService collectionRecordService;
 
-    @Override
-    public CollectReportStatisticsDto collectStatistics(CollectStatisticsQueryParamDto paramDto) {
-        //todo zcf
-        return null;
-    }
 
     @Override
     public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto) {
