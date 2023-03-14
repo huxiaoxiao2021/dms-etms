@@ -70,7 +70,9 @@ public class JyCollectBatchUpdateStatusConsumer extends MessageBaseConsumer {
         if(batchUpdateCollectStatusDto.getBatchType() == CollectBatchUpdateTypeEnum.WAYBILL_BATCH.getCode()) {
             return this.waybillBatchUpdateCollectStatus(batchUpdateCollectStatusDto);
         }else {
-            log.info("按批修改集齐状态，当前类型消息不做处理，丢掉");
+            if(log.isInfoEnabled()) {
+                log.info("按批修改集齐状态，当前类型消息不做处理，丢掉, {}", JsonHelper.toJson(batchUpdateCollectStatusDto));
+            }
         }
         return true;
 
@@ -83,7 +85,9 @@ public class JyCollectBatchUpdateStatusConsumer extends MessageBaseConsumer {
      */
     private boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
         if(!jyCollectService.waybillBatchUpdateCollectStatus(paramDto)) {
-            log.info("按运单批量修改运单集齐状态失败，param={},res={}", JsonUtils.toJSONString(paramDto));
+            if(log.isInfoEnabled()) {
+                log.info("按运单批量修改运单集齐状态失败，param={},res={}", JsonUtils.toJSONString(paramDto));
+            }
             return false;
         }
         return true;

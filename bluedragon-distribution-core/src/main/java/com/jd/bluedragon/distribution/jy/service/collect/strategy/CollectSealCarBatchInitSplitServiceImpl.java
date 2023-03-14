@@ -1,48 +1,44 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CargoDetailServiceManager;
 import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
-import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectScanDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
-import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectServiceConstant;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectInitSplitServiceFactory;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.util.DateUtil;
 import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.tms.data.dto.CommonDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +46,7 @@ import java.util.stream.Collectors;
  * @Description //集齐初始化： 按封车内批次号分页拆分
  * @date
  **/
+@Service
 public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplitService, InitializingBean {
     private Logger log = LoggerFactory.getLogger(CollectSealCarBatchInitSplitServiceImpl.class);
 
@@ -66,6 +63,9 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
     @Autowired
     @Qualifier(value = "jyCollectDataPageInitProducer")
     private DefaultJMQProducer jyCollectDataPageInitProducer;
+    @Autowired
+    private JyCollectCacheService jyCollectCacheService;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -74,8 +74,16 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
 
 
     @Override
+    @JProfiler(jKey = "CollectSealCarBatchInitSplitServiceImpl.splitBeforeInit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean splitBeforeInit(InitCollectDto initCollectDto) {
 
+        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.splitBeforeInit:封车节点集齐数据初始化前拆分逻辑：";
+        if (jyCollectCacheService.cacheExistSealCarCollectSplitBeforeInit(initCollectDto)) {
+            if (log.isInfoEnabled()) {
+                log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
+            }
+            return true;
+        }
         //只处理 到拣运中心的数据, 封车,解封车进围栏 状态数据
         SealCarDto sealCarInfoBySealCarCodeOfTms = vosManager.findSealCarInfoBySealCarCodeOfTms(initCollectDto.getBizId());
         if(sealCarInfoBySealCarCodeOfTms == null){
@@ -100,12 +108,20 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
         for (String batchCode : batchCodes){
             splitBeforeInitSendMq(batchCode, initCollectDto, sealCarInfoBySealCarCodeOfTms);
         }
+        jyCollectCacheService.cacheSaveSealCarCollectSplitBeforeInit(initCollectDto);
         return true;
     }
 
     @Override
+    @JProfiler(jKey = "CollectSealCarBatchInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAfterSplit(InitCollectSplitDto initCollectSplitDto) {
-
+        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.initAfterSplit:封车节点集齐数据拆分后执行初始化：";
+        if (jyCollectCacheService.cacheExistSealCarCollectInitAfterSplit(initCollectSplitDto)) {
+            if (log.isInfoEnabled()) {
+                log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectSplitDto));
+            }
+            return true;
+        }
         List<String> pcList = this.getPageNoPackageCodeListFromTms(initCollectSplitDto);
 
         //处理包裹数据，并按照运单分批
@@ -137,7 +153,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             jyCollectService.initCollect(collectDto, collectionScanCodeEntities);
         });
 
-
+        jyCollectCacheService.cacheSaveSealCarCollectInitAfterSplit(initCollectSplitDto);
         return true;
     }
 
@@ -150,7 +166,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
         int currentSize  = limitSize ;
         int offset = 0;
 
-        int collectOneBatchSize = CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
+       int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
         //集齐处理页容量
         int collectBatchPageTotal = collectOneBatchSize > limitSize ? limitSize : collectOneBatchSize;
 

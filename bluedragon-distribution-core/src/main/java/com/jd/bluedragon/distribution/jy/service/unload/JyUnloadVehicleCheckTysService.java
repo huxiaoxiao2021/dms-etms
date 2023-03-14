@@ -67,6 +67,8 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1342,11 +1344,28 @@ public class JyUnloadVehicleCheckTysService {
      * 转运卸车处理集齐逻辑
      */
     private void collectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
-        //TODO 后续上线建议做降级开关
+        if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+            //默认关闭开关，手动开启降级 true
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.collectDeal：转运集齐功能降级处理中");
+            }
+            return;
+        }
         if (!ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())
                 && !ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             log.warn("{}非包裹或运单，暂不处理集齐逻辑 unloadScanDto={}", unloadScanCollectDealDto.getScanCode(), JsonUtils.toJSONString(unloadScanCollectDealDto));
             return;
+        }
+        if(unloadScanCollectDealDto.getManualCreateTaskFlag() == null) {
+            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(unloadScanCollectDealDto.getBizId());
+            if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+                unloadScanCollectDealDto.setManualCreateTaskFlag(true);
+            }else {
+                unloadScanCollectDealDto.setManualCreateTaskFlag(false);
+            }
+        }
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.collectDeal:转运卸车集齐处理下传参数：{}, 当前结果集数据为{}", JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult));
         }
         //自建任务
         if(unloadScanCollectDealDto.getManualCreateTaskFlag()) {
@@ -1360,6 +1379,8 @@ public class JyUnloadVehicleCheckTysService {
      * 自建任务集齐处理
      */
     private void taskNullCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.taskNullCollectDeal", false, true);
+        //
         String methodDesc = "JyUnloadVehicleCheckTysService.taskNullCollectDeal--转运卸车无任务扫描处理集齐逻辑：";
         ScanPackageRespDto resData = invokeResult.getData();
         UnloadCollectDto collectDto = new UnloadCollectDto();
@@ -1388,11 +1409,13 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setCollectStatisticsNum(collectReportStatisticsDto.getStatisticsNum() <= 0 ? 1 : collectReportStatisticsDto.getStatisticsNum());
             collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
         }
+        Profiler.registerInfoEnd(info);
     }
     /**
      * 封车下发任务集齐处理
      */
     private void sealCarTaskCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.sealCarTaskCollectDeal", false, true);
         String methodDesc = "JyUnloadVehicleCheckTysService.sealCarTaskCollectDeal--转运卸车下发任务扫描处理集齐逻辑：";
 
         ScanPackageRespDto resData = invokeResult.getData();
@@ -1419,6 +1442,7 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setCollectStatisticsNum(collectReportStatisticsDto.getStatisticsNum());//如果查不到数据，自动+1.consumer初始化进行中
             collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
         }
+        Profiler.registerInfoEnd(info);
     }
 
     /**

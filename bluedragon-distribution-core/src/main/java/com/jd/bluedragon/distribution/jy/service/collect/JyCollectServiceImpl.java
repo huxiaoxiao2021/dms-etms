@@ -36,6 +36,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -50,6 +51,7 @@ import java.util.stream.Stream;
  * @Description //集齐服务实现
  * @date
  **/
+@Service
 public class JyCollectServiceImpl implements JyCollectService{
     private Logger log = LoggerFactory.getLogger(JyCollectServiceImpl.class);
 
@@ -62,6 +64,8 @@ public class JyCollectServiceImpl implements JyCollectService{
     private BaseMajorManager baseMajorManager;
     @Autowired
     private WaybillService waybillService;
+    @Autowired
+    private JyCollectCacheService jyCollectCacheService;
 
 
     @Override
@@ -442,36 +446,55 @@ public class JyCollectServiceImpl implements JyCollectService{
     public boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto) {
         String methodDesc = "JyCollectServiceImpl.waybillBatchUpdateCollectStatus:运单批量修改集齐状态：";
 
-        Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
-        collectElements.put(CollectionConditionKeyEnum.site_code, paramDto.getScanSiteCode());
-        collectElements.put(CollectionConditionKeyEnum.seal_car_code, paramDto.getBizId());
-        collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
-        //
-
-        BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
-        if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
-            log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
-            return false;
-        }
-        //todo 该方法consumer消费，超时时间设置大一些，避免大运单消费
-        for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
-            CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
-            collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
-            collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-            collectionScanCodeEntity.setCollectedMark(paramDto.getBizId());
-
-            //
-            CollectionCollectorEntity reqEntity = new CollectionCollectorEntity();
-            reqEntity.setCollectElements(collectElements);
-            reqEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
-            Result<Boolean> errMsgRes = new Result<>();
-            if(!collectionRecordService.collectTheScanCode(reqEntity, errMsgRes)) {
-                log.error("{}, 运单循环调用修改包裹集齐数据异常，方法请求Dto={}, 异常包裹参数={}，errMsgRes={}",
-                        methodDesc, JsonHelper.toJson(paramDto), JsonHelper.toJson(reqEntity), JsonHelper.toJson(errMsgRes));
-                throw new JyBizException("运单循环调用修改包裹集齐数据异常" + errMsgRes.getMessage());
+        if(!jyCollectCacheService.lockSaveTaskNullWaybillUpdateCollectStatus(paramDto)) {
+            if(log.isInfoEnabled()) {
+                log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(paramDto));
             }
+            return true;
         }
-        return true;
+        try{
+            if(jyCollectCacheService.cacheExistTaskNullWaybillUpdateCollectStatus(paramDto)) {
+                if(log.isInfoEnabled()) {
+                    log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(paramDto));
+                }
+                return true;
+            }
+            Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
+            collectElements.put(CollectionConditionKeyEnum.site_code, paramDto.getScanSiteCode());
+            collectElements.put(CollectionConditionKeyEnum.seal_car_code, paramDto.getBizId());
+            collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
+            //
+
+            BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
+            if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
+                log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
+                return false;
+            }
+            //todo 该方法consumer消费，超时时间设置大一些，避免大运单消费
+            for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
+                CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+                collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
+                collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+                collectionScanCodeEntity.setCollectedMark(paramDto.getBizId());
+
+                //
+                CollectionCollectorEntity reqEntity = new CollectionCollectorEntity();
+                reqEntity.setCollectElements(collectElements);
+                reqEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
+                Result<Boolean> errMsgRes = new Result<>();
+                if(!collectionRecordService.collectTheScanCode(reqEntity, errMsgRes)) {
+                    log.error("{}, 运单循环调用修改包裹集齐数据异常，方法请求Dto={}, 异常包裹参数={}，errMsgRes={}",
+                            methodDesc, JsonHelper.toJson(paramDto), JsonHelper.toJson(reqEntity), JsonHelper.toJson(errMsgRes));
+                    throw new JyBizException("运单循环调用修改包裹集齐数据异常" + errMsgRes.getMessage());
+                }
+            }
+            jyCollectCacheService.cacheSaveTaskNullWaybillUpdateCollectStatus(paramDto);
+            return true;
+        }catch (Exception e) {
+            throw new JyBizException("运单循环调用修改包裹集齐数据异常" + e.getMessage());
+        }finally {
+            jyCollectCacheService.lockDelTaskNullWaybillUpdateCollectStatus(paramDto);
+        }
     }
 
     private BigWaybillDto getWaybillPackage(String waybillCode) {
@@ -513,6 +536,7 @@ public class JyCollectServiceImpl implements JyCollectService{
     }
 
     @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.findCollectReportByScanCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
         CollectReportReqDto param = new CollectReportReqDto();
         param.setWaybillCode(WaybillUtil.getWaybillCode(reqDto.getScanCode()));

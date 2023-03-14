@@ -1195,6 +1195,13 @@ public class UccPropertyConfiguration {
 
     private Boolean boardListQuerySwitch;
 
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -2819,5 +2826,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
     }
 }
