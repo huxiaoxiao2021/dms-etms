@@ -34,12 +34,6 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
 
 
     @Override
-    public CollectReportStatisticsDto collectStatistics(CollectStatisticsQueryParamDto paramDto) {
-        //todo zcf
-        return null;
-    }
-
-    @Override
     public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
