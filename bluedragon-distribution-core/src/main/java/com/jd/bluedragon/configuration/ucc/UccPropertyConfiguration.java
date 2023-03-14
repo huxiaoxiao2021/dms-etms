@@ -1223,6 +1223,16 @@ public class UccPropertyConfiguration {
      */
     private String czSiteTypeForbiddenList;
 
+    private boolean needValidateBatchCodeHasSealed;
+
+    public boolean getNeedValidateBatchCodeHasSealed() {
+        return needValidateBatchCodeHasSealed;
+    }
+
+    public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+        this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+    }
+
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
     }

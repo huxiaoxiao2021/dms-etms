@@ -255,17 +255,22 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (!jimDbLock.lock(sealLockKey, sealVehicleReq.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
+        if (!ObjectHelper.isNotNull(sealVehicleReq.getBatchCodes())){
+            throw new JyBizException("批次不能为空！");
+        }
         try {
             JyBizTaskSendVehicleDetailEntity entity =jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
             if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            /*for (String sendCode:sealVehicleReq.getBatchCodes()){
-                if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
-                    throw new JyBizException("该批次:"+sendCode+"已经封车");
+            if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                for (String sendCode:sealVehicleReq.getBatchCodes()){
+                    if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复");
+                    }
                 }
-            }*/
+            }
 
             SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
             //车上已经封了的封签号

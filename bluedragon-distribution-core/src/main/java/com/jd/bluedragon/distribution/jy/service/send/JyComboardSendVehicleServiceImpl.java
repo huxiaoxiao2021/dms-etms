@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
@@ -40,6 +41,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import java.math.BigDecimal;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
@@ -62,6 +64,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -722,5 +725,26 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     pager.setPageNo(request.getPageNumber());
     pager.setPageSize(request.getPageSize());
     return pager;
+  }
+
+  @Override
+  public List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
+    List<LabelOption> tagList = new ArrayList<>();
+
+    // 司机是否领取任务
+    if (transWorkBillDto != null) {
+      // work_status = 20(已开始), status > 15(待接受)
+      if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+        SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+        tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+      }
+    }
+
+    // 车长
+    String carLengthDesc = setCarLength(entity);
+    SendVehicleLabelOptionEnum carLengthTag = SendVehicleLabelOptionEnum.CAR_LENGTH;
+    tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
+
+    return tagList;
   }
 }

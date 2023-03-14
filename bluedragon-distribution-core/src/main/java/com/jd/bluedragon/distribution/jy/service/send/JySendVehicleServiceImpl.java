@@ -176,8 +176,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
 
-    private static final int TRANS_BILL_STATUS_CONFIRM = 15;
-    private static final int TRANS_BILL_WORK_STATUS = 20;
+    public static final int TRANS_BILL_STATUS_CONFIRM = 15;
+    public static final int TRANS_BILL_WORK_STATUS = 20;
 
     @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
     private String vehicleMapUrl;
@@ -709,7 +709,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param transWorkBillDto
      * @return
      */
-    private List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
+    public List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
         List<LabelOption> tagList = new ArrayList<>();
 
 
@@ -2697,7 +2697,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param sendVehicleEntity
      * @return
      */
-    private String setCarLength(JyBizTaskSendVehicleEntity sendVehicleEntity) {
+    public String setCarLength(JyBizTaskSendVehicleEntity sendVehicleEntity) {
         String carLengthStr = StringUtils.EMPTY;
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(sendVehicleEntity.getVehicleType());
         if (basicVehicleType != null && StringUtils.isNotBlank(basicVehicleType.getVehicleLength())) {
