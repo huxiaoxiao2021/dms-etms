@@ -562,5 +562,15 @@
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
     </jmq:consumer>
 
+    <!--  异常-报废通知消费  -->
+    <jmq:consumer id="jmq.dmsExScrapNoticeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExScrapNoticeConsumer"/>
+    </jmq:consumer>
+
+    <!--  异常-未领取超时任务通知消费  -->
+    <jmq:consumer id="jmq.dmsExUnCollectOverTimeNoticeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.unCollectOverTimeNotice}" listener="dmsExUnCollectOverTimeNoticeConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

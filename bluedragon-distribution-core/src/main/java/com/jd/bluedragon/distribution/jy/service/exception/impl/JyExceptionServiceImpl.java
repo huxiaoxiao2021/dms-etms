@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
@@ -17,14 +15,10 @@ import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
+import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
@@ -34,9 +28,11 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.jmq.common.message.Message;
 import com.jd.ps.data.epf.dto.CommonDto;
 import com.jd.ps.data.epf.dto.ExpInfoSumaryInputDto;
 import com.jd.ps.data.epf.dto.ExpefNotify;
@@ -117,8 +113,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
+
     @Autowired
-    private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
+    @Qualifier("dmsScrapNoticeProducer")
+    private DefaultJMQProducer dmsScrapNoticeProducer;
+
+    @Autowired
+    @Qualifier("dmsUnCollectOverTimeNoticeProducer")
+    private DefaultJMQProducer dmsUnCollectOverTimeNoticeProducer;
+    
     /**
      * 通用异常上报入口-扫描
      *
@@ -807,6 +810,85 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     }
 
+    @Override
+    public void queryOverTimeExceptionAndNotice() {
+        Date queryEndTime = DateHelper.addDate(new Date(), -1);
+        Date queryStartTime = DateHelper.addDate(queryEndTime, -30); // 默认查询30天之内的数据
+        Map<String ,Object> params = Maps.newHashMap();
+        params.put("queryStartTime", queryStartTime);
+        params.put("queryEndTime", queryEndTime);
+        List<JyExceptionAgg> jyExceptionAggs = jyBizTaskExceptionDao.queryUnCollectAndOverTimeAgg(params);
+        if(CollectionUtils.isEmpty(jyExceptionAggs)){
+            logger.warn("根据条件:{}未查询到未领取的报废任务!", DateHelper.formatDateTime(queryStartTime) + Constants.SEPARATOR_HYPHEN + DateHelper.formatDateTime(queryEndTime));
+            return;
+        }
+        // 将查询的数据转换成map：key是场地，value是场地下的所有agg数据
+        Map<Integer, List<JyExceptionAgg>> map = Maps.newHashMap();
+        for (JyExceptionAgg temp : jyExceptionAggs) {
+            Integer siteCode = temp.getSiteCode();
+            if(map.containsKey(siteCode)){
+                map.get(siteCode).add(temp);
+            }else {
+                List<JyExceptionAgg> singleList = Lists.newArrayList();
+                singleList.add(temp);
+                map.put(temp.getSiteCode(), singleList);  
+            }
+        }
+        // 异步推送咚咚
+        for (Integer siteCode : map.keySet()) {
+            if(logger.isInfoEnabled()){
+                logger.info("未领取的超时任务异步咚咚通知场地:{}的负责人!", siteCode);
+            }
+            String businessId = siteCode + Constants.SEPARATOR_HYPHEN + DateHelper.formatDate(new Date());
+            dmsUnCollectOverTimeNoticeProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(map.get(siteCode)));
+        }
+    }
+
+    @Override
+    public void queryFreshScrapDetailAndNotice() {
+        Date queryStartTime = DateHelper.getCurrentDayWithOutTimes();
+        Date queryEndTime = new Date();
+        List<String> handlerErpList = queryScrapHandlerErp(queryStartTime, queryEndTime);
+        if(CollectionUtils.isEmpty(handlerErpList)){
+            logger.warn("未查询到当天18点之前已领取的报废任务!");
+            return;
+        }
+
+        List<Message> messageList = Lists.newArrayList();
+        for (String handlerErp : handlerErpList) {
+            Message message = new Message();
+            message.setTopic(dmsScrapNoticeProducer.getTopic());
+            JyExScrapNoticeMQ jyExScrapNoticeMQ = new JyExScrapNoticeMQ();
+            jyExScrapNoticeMQ.setHandlerErp(handlerErp);
+            jyExScrapNoticeMQ.setQueryStartTime(queryStartTime);
+            jyExScrapNoticeMQ.setQueryEndTime(queryEndTime);
+            message.setText(JsonHelper.toJson(jyExScrapNoticeMQ));
+            message.setBusinessId(handlerErp + Constants.SEPARATOR_HYPHEN + DateHelper.formatDate(new Date()));
+            messageList.add(message);
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("已领取的报废任务咚咚通知领取人:{}", JsonHelper.toJson(handlerErpList));
+        }
+        dmsScrapNoticeProducer.batchSendOnFailPersistent(messageList);
+    }
+
+    @Override
+    public List<String> queryScrapHandlerErp(Date queryStartTime, Date queryEndTime) {
+        Map<String ,Date> params = Maps.newHashMap();
+        params.put("queryStartTime", queryStartTime);
+        params.put("queryEndTime", queryEndTime);
+        return jyBizTaskExceptionDao.queryScrapHandlerErp(params);
+    }
+
+    @Override
+    public List<JyBizTaskExceptionEntity> queryScrapDetailByCondition(String handlerErp, Date queryStartTime, Date queryEndTime) {
+        Map<String ,Object> params = Maps.newHashMap();
+        params.put("handlerErp", handlerErp);
+        params.put("queryStartTime", queryStartTime);
+        params.put("queryEndTime", queryEndTime);
+        return jyBizTaskExceptionDao.queryScrapDetailByCondition(params);
+    }
+    
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -901,7 +983,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
-        conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
+        conditon.setStatus(JyExpStatusEnum.COMPLETE.getCode());
         conditon.setUpdateTime(dateTime);
         conditon.setUpdateUserErp(baseStaffByErp.getAccountNumber());
         conditon.setBizId(bizTaskException.getBizId());

@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
+import com.jd.lsb.flow.domain.HistoryApprove;
 
 import java.util.List;
 
@@ -27,4 +28,13 @@ public interface JyScrappedExceptionService {
     JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req);
 
     JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req);
+
+    void dealApproveTest(ExpScrappedDetailReq req);
+
+    /**
+     * 审批结果处理
+     * 
+     * @param historyApprove
+     */
+    void dealApproveResult(HistoryApprove historyApprove);
 }

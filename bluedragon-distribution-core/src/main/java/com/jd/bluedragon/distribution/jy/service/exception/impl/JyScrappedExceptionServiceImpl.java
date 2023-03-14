@@ -1,18 +1,27 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.FlowServiceManager;
+import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
-import com.jd.bluedragon.distribution.jy.exception.*;
-import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
@@ -21,7 +30,11 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionSe
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.lsb.flow.domain.ApprovalResult;
+import com.jd.lsb.flow.domain.HistoryApprove;
+import com.jd.lsb.flow.domain.jme.JmeFile;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -33,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +76,15 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
     @Autowired
     WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private HrUserManager hrUserManager;
+    
+    @Autowired
+    private FlowServiceManager flowServiceManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
@@ -184,11 +208,13 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
             update.setBizId(req.getBizId());
             update.setStatus(JyExpStatusEnum.PROCESSING.getCode());
-            update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.APPROVEING.getCode());
+            update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.APPROVING.getCode());
             update.setUpdateUserErp(req.getUserErp());
             update.setUpdateUserName(baseStaffByErp.getStaffName());
             update.setUpdateTime(new Date());
             jyBizTaskExceptionDao.updateByBizId(update);
+            // 审批处理
+            dealApprove(req);
             jyBizTaskExceptionLogService.recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS,update);
         }catch (Exception e){
             logger.error("报废处理任务接口异常-{}",e.getMessage(),e);
@@ -197,6 +223,199 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         response.toSucceed("请求成功");
         response.setData(Boolean.TRUE);
         return response;
+    }
+
+    @Override
+    public void dealApproveTest(ExpScrappedDetailReq req) {
+        dealApprove(req);
+    }
+
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
+    public void dealApproveResult(HistoryApprove historyApprove) {
+        // 业务bizId（在审批提交时传入的工单号就是业务bizId）
+        String bizId = historyApprove.getProcessInstanceNo();
+        // 审批状态
+        Integer state = historyApprove.getState();
+        // 审批人ERP
+        String approveErp = historyApprove.getApprover();
+        // 当前审批节点编码
+        String nodeName = historyApprove.getNodeName();
+        // 审批结果状态
+        int approveStatus = Objects.equals(state, ApprovalResult.AGREE.getValue()) ? JyApproveStatusEnum.PASS.getCode()
+                : Objects.equals(state, ApprovalResult.REJECT.getValue()) ? JyApproveStatusEnum.REJECT.getCode()
+                : JyApproveStatusEnum.UNKNOWN.getCode();
+        
+        switch (JyExScrapApproveStageEnum.convertApproveEnum(nodeName)){
+            case FIRST:
+                logger.info("生鲜报废工单号:{}的一级审批结果:{}", bizId, historyApprove.getState());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.FIRST.getCode());
+                break;
+            case SECOND:
+                logger.info("生鲜报废工单号:{}的二级审批结果:{}", bizId, historyApprove.getState());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.SECOND.getCode());
+                break;
+            case THIRD:
+                logger.info("生鲜报废工单号:{}的三级审批结果:{}", bizId, historyApprove.getState());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.THIRD.getCode());
+                break;
+            default:
+                logger.warn("未知节点编码:{}", bizId);
+        }
+    }
+
+    /**
+     * 更新审批结果
+     *
+     * @param bizId 业务bizId
+     * @param approveStatus 审批状态
+     * @param approveErp 审批人
+     * @param approveStage 审批阶段
+     */
+    private void updateApproveResult(String bizId, int approveStatus, String approveErp, int approveStage) {
+        if(Objects.equals(approveStatus, JyApproveStatusEnum.UNKNOWN.getCode())){
+            logger.warn("生效报废审批结果未知!");
+            return;
+        }
+        // 更新生鲜报废明细表数据
+        JyExceptionScrappedPO po = new JyExceptionScrappedPO();
+        po.setBizId(bizId);
+        Date now = new Date();
+        po.setUpdateTime(now);
+        if(Objects.equals(JyExScrapApproveStageEnum.FIRST.getCode(), approveStage)){
+            po.setFirstChecker(approveErp);
+            po.setFirstCheckStatus(approveStatus);
+            po.setFirstCheckTime(now);
+        }
+        if(Objects.equals(JyExScrapApproveStageEnum.SECOND.getCode(), approveStage)){
+            po.setSecondChecker(approveErp);
+            po.setSecondCheckStatus(approveStatus);
+            po.setSecondCheckTime(now);
+        }
+        if(Objects.equals(JyExScrapApproveStageEnum.THIRD.getCode(), approveStage)){
+            po.setThirdChecker(approveErp);
+            po.setThirdCheckStatus(approveStatus);
+            po.setThirdCheckTime(now);
+        }
+        jyExceptionScrappedDao.updateByBizId(po);
+        
+        // 更新异常任务表数据
+        JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
+        entity.setBizId(bizId);
+        int processStatus = Objects.equals(JyApproveStatusEnum.PASS.getCode(), approveStatus) 
+                ? JyBizTaskExceptionProcessStatusEnum.APPROVE_PASS.getCode() : JyBizTaskExceptionProcessStatusEnum.APPROVE_REJECT.getCode();
+        entity.setProcessingStatus(processStatus);
+        entity.setUpdateTime(now);
+        jyBizTaskExceptionDao.updateByBizId(entity);
+    }
+
+    /**
+     * 审批处理
+     * 
+     * @param req
+     */
+    private void dealApprove(ExpScrappedDetailReq req) {
+        JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
+        if(entity == null || StringUtils.isEmpty(entity.getCreateUserErp())){
+            logger.warn("未查询到:{}的报废任务!", req.getBizId());
+            return;
+        }
+        // 提交审批
+        String approveOrderCode = flowServiceManager.startFlow(
+                buildOA(req, entity), // OA数据
+                buildBusiness(entity), // 业务数据
+                buildFlow(entity), // 流程数据
+                FlowConstants.FLOW_CODE_FRESH_SCRAP, entity.getHandlerErp(), entity.getBizId());
+        if(logger.isInfoEnabled()){
+            logger.info("提交审批完成，审批工单号:{}", approveOrderCode);
+        }
+    }
+
+    /**
+     * 流程数据
+     * 
+     * @param entity
+     * @return
+     */
+    private Map<String, Object> buildFlow(JyBizTaskExceptionEntity entity) {
+        Map<String, Object> flowControlMap = Maps.newHashMap();
+        flowControlMap.put("firstTriggerErp", entity.getHandlerErp());
+        int approveCount;
+        // 查询场地当月报废数量
+        entity.setProcessBeginTime(DateHelper.getFirstDateOfMonth());
+        Integer count = jyBizTaskExceptionDao.queryScrapCountByCondition(entity);
+        // 报废审批级别数量阈值，默认：50,100
+        String exScrapApproveLevelCountLimit = uccPropertyConfiguration.getExScrapApproveLevelCountLimit();
+        String[] split = exScrapApproveLevelCountLimit.split(Constants.SEPARATOR_COMMA);
+        if(count <= Integer.parseInt(split[0])){
+            approveCount = JyExScrapApproveStageEnum.FIRST.getCount();
+        }else{
+            approveCount = JyExScrapApproveStageEnum.SECOND.getCount();
+            String superiorErp = hrUserManager.getSuperiorErp(entity.getHandlerErp());
+            flowControlMap.put("secondTriggerErp", superiorErp);
+            if(count > Integer.parseInt(split[1])){
+                approveCount = JyExScrapApproveStageEnum.THIRD.getCount();
+                superiorErp = hrUserManager.getSuperiorErp(superiorErp);
+                flowControlMap.put("thirdTriggerErp", superiorErp);
+            }
+        }
+        flowControlMap.put("approveCount", approveCount);
+        return flowControlMap;
+    }
+
+    /**
+     * 业务数据
+     * 
+     * @param entity
+     * @return
+     */
+    private Map<String, Object> buildBusiness(JyBizTaskExceptionEntity entity) {
+        Map<String,Object> businessMap = Maps.newHashMap();
+        // 设置业务唯一编码
+        businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY, entity.getBizId());
+        return businessMap;
+    }
+
+    /**
+     * oa数据
+     * 
+     * @param req
+     * @param entity
+     * @return
+     */
+    private Map<String, Object> buildOA(ExpScrappedDetailReq req, JyBizTaskExceptionEntity entity) {
+        Map<String, Object> oaMap = Maps.newHashMap();
+        oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_FRESH_SCRAP);
+        oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_FRESH_SCRAP);
+        List<String> mainColList = new ArrayList<>();
+        oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST, mainColList);
+        mainColList.add("生鲜报废单号:" + entity.getBarCode());
+        mainColList.add("生鲜报废场地:" + entity.getSiteName());
+        mainColList.add("生鲜报废提交人:" + entity.getHandlerErp());
+        mainColList.add("生鲜报废网格:" + entity.getGridCode());
+        List<JmeFile> annexList = Lists.newArrayList();
+        oaMap.put(FlowConstants.FLOW_OA_ANNEX, annexList);
+        if(StringUtils.isNotEmpty(req.getGoodsImageUrl())){
+            int index = 0;
+            for (String goodsImageUrl : req.getGoodsImageUrl().split(Constants.SEPARATOR_COMMA)) {
+                index ++;
+                JmeFile jmeFile = new JmeFile();
+                jmeFile.setFileName("物品照片" + index);
+                jmeFile.setFileUrl(goodsImageUrl);
+                annexList.add(jmeFile);
+            }
+        }
+        if(StringUtils.isNotEmpty(req.getCertifyImageUrl())){
+            int index = 0;
+            for (String certifyImageUrl : req.getCertifyImageUrl().split(Constants.SEPARATOR_COMMA)) {
+                index ++;
+                JmeFile jmeFile = new JmeFile();
+                jmeFile.setFileName("证明照片" + index);
+                jmeFile.setFileUrl(certifyImageUrl);
+                annexList.add(jmeFile);
+            }
+        }
+        return oaMap;
     }
 
     @Override

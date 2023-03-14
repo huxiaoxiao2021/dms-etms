@@ -14,9 +14,10 @@ public enum JyBizTaskExceptionProcessStatusEnum {
     ON_SHELF(2, "上架"),
     DONE(3, "处理完成"),
     WAITING_PRINT(4, "待打印"),
-    APPROVEING(5, "审批中"),
-    APPROVE_BACK(6, "审批驳回"),
-    WAITER_INTERVENTION(7, "客服介入中")
+    APPROVING(5, "审批中"),
+    APPROVE_PASS(6, "审批通过"),
+    APPROVE_REJECT(7, "审批驳回"),
+    WAITER_INTERVENTION(8, "客服介入中")
     ;
 
     private Integer code;
@@ -46,7 +47,7 @@ public enum JyBizTaskExceptionProcessStatusEnum {
 
     public static JyBizTaskExceptionProcessStatusEnum valueOf(int code){
         for (JyBizTaskExceptionProcessStatusEnum e:JyBizTaskExceptionProcessStatusEnum.values()){
-            if (e.getCode().intValue() == code){
+            if (e.getCode() == code){
                 return e;
             }
         }

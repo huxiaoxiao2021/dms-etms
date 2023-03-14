@@ -1197,6 +1197,12 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
+    /**
+     * 异常报废审批级别限定数量
+     *  多个级别以,隔开
+     */
+    private String exScrapApproveLevelCountLimit;
+
     public boolean getSupportMutilScan() {
         return supportMutilScan;
     }
@@ -2829,5 +2835,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public String getExScrapApproveLevelCountLimit() {
+        return exScrapApproveLevelCountLimit;
+    }
+
+    public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
+        this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
     }
 }
