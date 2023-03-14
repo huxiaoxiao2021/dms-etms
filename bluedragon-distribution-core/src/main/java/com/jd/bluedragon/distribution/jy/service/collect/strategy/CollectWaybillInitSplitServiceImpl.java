@@ -9,8 +9,10 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnu
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
-import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectServiceConstant;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectInitSplitServiceFactory;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -60,7 +62,8 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     WaybillPackageManager waybillPackageManager;
     @Autowired
     private WaybillService waybillService;
-
+    @Autowired
+    private JyCollectCacheService jyCollectCacheService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -72,40 +75,68 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         String methodDesc = "CollectWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
         String waybillCode = WaybillUtil.getWaybillCode(initCollectDto.getTaskNullScanCode());
 
-        BigWaybillDto bigWaybillDto = getWaybillPackage(waybillCode);
-        if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
-            log.warn("{}运单{}多包裹拆分任务, 查询包裹为空, reqDto:[{}]", methodDesc, waybillCode, JsonHelper.toJson(initCollectDto));
-            return false;
-        }
-        int collectOneBatchSize = CollectConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
-        int totalPackageNum = bigWaybillDto.getPackageList().size();
-        int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
-        for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
-            InitCollectSplitDto mqDto = new InitCollectSplitDto();
-            mqDto.setBizId(initCollectDto.getBizId());
-            mqDto.setOperateTime(initCollectDto.getOperateTime());
-            mqDto.setPageSize(collectBatchPageTotal);
-            mqDto.setPageNo(pageNo);
-            mqDto.setOperateNode(initCollectDto.getOperateNode());
-            mqDto.setOperatorErp(initCollectDto.getOperatorErp());
-
-            mqDto.setTaskNullScanCode(initCollectDto.getTaskNullScanCode());
-            mqDto.setWaybillCode(waybillCode);
-            mqDto.setTaskNullScanCodeType(initCollectDto.getTaskNullScanCodeType());
-            mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
-            String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
-            String msg = JsonUtils.toJSONString(mqDto);
+        if(jyCollectCacheService.lockSaveTaskNullWaybillCollectSplitBeforeInit(initCollectDto)) {
             if(log.isInfoEnabled()) {
-                log.info("{}.splitSendMq, msg={}", msg);
+                log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
             }
-            jyCollectDataPageInitProducer.sendOnFailPersistent(businessId, msg);
+            return true;
         }
+        try {
+            if (jyCollectCacheService.cacheExistTaskNullWaybillCollectSplitBeforeInit(initCollectDto)) {
+                if (log.isInfoEnabled()) {
+                    log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
+                }
+                return true;
+            }
 
-        return true;
+            BigWaybillDto bigWaybillDto = getWaybillPackage(waybillCode);
+            if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
+                log.warn("{}运单{}多包裹拆分任务, 查询包裹为空, reqDto:[{}]", methodDesc, waybillCode, JsonHelper.toJson(initCollectDto));
+                return false;
+            }
+            int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
+            int totalPackageNum = bigWaybillDto.getPackageList().size();
+            int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
+            for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
+                InitCollectSplitDto mqDto = new InitCollectSplitDto();
+                mqDto.setBizId(initCollectDto.getBizId());
+                mqDto.setOperateTime(initCollectDto.getOperateTime());
+                mqDto.setPageSize(collectBatchPageTotal);
+                mqDto.setPageNo(pageNo);
+                mqDto.setOperateNode(initCollectDto.getOperateNode());
+                mqDto.setOperatorErp(initCollectDto.getOperatorErp());
+
+                mqDto.setTaskNullScanCode(initCollectDto.getTaskNullScanCode());
+                mqDto.setWaybillCode(waybillCode);
+                mqDto.setTaskNullScanCodeType(initCollectDto.getTaskNullScanCodeType());
+                mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
+                String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
+                String msg = JsonUtils.toJSONString(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("{}.splitSendMq, msg={}", msg);
+                }
+                jyCollectDataPageInitProducer.sendOnFailPersistent(businessId, msg);
+            }
+            jyCollectCacheService.cacheSaveTaskNullWaybillCollectSplitBeforeInit(initCollectDto);
+            return true;
+        }catch (Exception e) {
+            log.error("{},服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(initCollectDto), e.getMessage(), e);
+            throw new JyBizException("空任务扫描按运单处理集齐初始化前的拆分逻辑异常" + e.getMessage());
+        }finally {
+            jyCollectCacheService.lockDelTaskNullWaybillCollectSplitBeforeInit(initCollectDto);
+        }
     }
 
     @Override
     public boolean initAfterSplit(InitCollectSplitDto request) {
+        String methodDesc = "CollectWaybillInitSplitServiceImpl.initAfterSplit:集齐数据按运单拆分批次后初始化：";
+
+        if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
+            if (log.isInfoEnabled()) {
+                log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return true;
+        }
         String waybillCode = getWaybillCode(request);
         List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, request.getPageNo(), request.getPageSize());
         Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getTaskNullScanSiteCode());
@@ -119,7 +150,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         collectDto.setNextSiteCode(nextSiteId);
         collectDto.setOperatorErp(request.getOperatorErp());
 
-        return jyCollectService.initAndCollectedPartCollection(collectDto,
+        boolean res = jyCollectService.initAndCollectedPartCollection(collectDto,
             packageCodeList.parallelStream().map(packageCode -> {
                 CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
                 collectionScanCodeEntity.setScanCode(packageCode);
@@ -129,6 +160,11 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, waybillCode));
                 return collectionScanCodeEntity;
             }).collect(Collectors.toList()));
+
+        if(res) {
+            jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
+        }
+        return res;
     }
 
     private List<String> getPageNoPackageCodeListFromWaybill(String waybillCode, int pageNo, int pageSize) {

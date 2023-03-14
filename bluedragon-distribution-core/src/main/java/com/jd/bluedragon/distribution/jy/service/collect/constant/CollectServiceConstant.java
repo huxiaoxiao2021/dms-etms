@@ -5,7 +5,7 @@ package com.jd.bluedragon.distribution.jy.service.collect.constant;
  * @Description //TODO
  * @date
  **/
-public class CollectConstant {
+public class CollectServiceConstant {
 
     /**
      * 集齐按批初始化，分批数量
