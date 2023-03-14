@@ -2662,4 +2662,29 @@ public class BusinessUtil {
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
     }
+
+    /**
+     *  自营生鲜 新逻辑
+     * sendpay第338位为1（且sendpay第2位为4或5或6或7或8或9）
+     */
+    public static boolean isSelfSX(String sendPay){
+        if(StringUtils.isBlank(sendPay)){
+            return false;
+        }
+       return isSignChar(sendPay,SendPayConstants.POSITION_338,SendPayConstants.POSITION_338_1) &&  isSx(sendPay);
+    }
+
+    /**
+     *  外单生鲜 新逻辑
+     *  waybillsign31位为9或A
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNotSelfSX(String waybillSign){
+        if(StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_9)
+                || isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_A);
+    }
 }

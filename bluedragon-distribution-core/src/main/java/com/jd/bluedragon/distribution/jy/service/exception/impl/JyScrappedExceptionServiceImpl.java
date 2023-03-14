@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
@@ -17,7 +18,9 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLog
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -43,30 +46,34 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private PositionQueryJsfManager positionQueryJsfManager;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
     @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClient;
     @Autowired
-    JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
+    private JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
     @Autowired
     private JyExceptionService jyExceptionService;
     @Autowired
     private JyExceptionScrappedDao jyExceptionScrappedDao;
     @Autowired
     private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, BaseStaffSiteOrgDto baseStaffByErp, String bizId) {
 
         if(!WaybillUtil.isPackageCode(req.getBarCode()) || !WaybillUtil.isWaybillCode(req.getBarCode()) ){
-            return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
+            return JdCResponse.fail("请扫描正确的运单号或包裹号!");
         }
         String waybillCode =WaybillUtil.getWaybillCode(req.getBarCode());
+        //校验生鲜单号 自营OR外单
+        if(!checkFresh(waybillCode)){
+            return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
+        }
         String existKey = "DMS.SCRAPPED.UPLOAD_SCAN:" + bizId;
         if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
             return JdCResponse.fail("该异常上报正在提交,请稍后再试!");
@@ -245,5 +252,36 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         dto.setThirdCheckStatus(po.getThirdCheckStatus());
         dto.setThirdCheckTime(po.getThirdCheckTime());
         return dto;
+    }
+
+    /**
+     * 检验生鲜单号
+     * @param waybillCode
+     * @return
+     */
+    private boolean checkFresh(String waybillCode){
+        //根据运单获取waybillSign
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        if(dataByChoice == null
+                || dataByChoice.getData() == null
+                || dataByChoice.getData().getWaybill() == null
+                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            logger.warn("查询运单waybillSign失败!-{}");
+            return false;
+        }
+        String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+        String sendPay = dataByChoice.getData().getWaybill().getSendPay();
+        //自营生鲜运单判断
+        if(BusinessUtil.isSelf(waybillSign) ){
+            if( BusinessUtil.isSelfSX(sendPay)){
+                return true;
+            }
+        }else {//外单
+            if(BusinessUtil.isNotSelfSX( waybillSign)){
+                return true;
+            }
+        }
+        return false;
     }
 }
