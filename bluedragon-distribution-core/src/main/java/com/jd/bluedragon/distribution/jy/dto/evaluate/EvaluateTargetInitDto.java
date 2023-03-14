@@ -13,36 +13,84 @@ public class EvaluateTargetInitDto implements Serializable {
 
     private static final long serialVersionUID = 8821734157832978341L;
 
+    /**
+     * 评价目标bizId
+     */
     private String targetBizId;
 
+    /**
+     * 评价目标站点ID
+     */
     private Integer targetSiteCode;
 
+    /**
+     * 评价目标站点名称
+     */
     private String targetSiteName;
 
+    /**
+     * 评价目标任务开始时间
+     */
     private Date targetStartTime;
 
+    /**
+     * 评价目标任务完成时间
+     */
     private Date targetFinishTime;
 
+    /**
+     * 评价来源bizId
+     */
     private String sourceBizId;
 
+    /**
+     * 评价来源站点ID
+     */
     private Integer sourceSiteCode;
 
+    /**
+     * 评价来源站点名称
+     */
     private String sourceSiteName;
 
+    /**
+     * 派车单号
+     */
     private String transWorkItemCode;
 
+    /**
+     * 车牌号
+     */
     private String vehicleNumber;
 
+    /**
+     * 封车时间
+     */
     private Date sealTime;
 
+    /**
+     * 解封车时间
+     */
     private Date unsealTime;
 
+    /**
+     * 操作人erp
+     */
     private String operateUserErp;
 
+    /**
+     * 操作人姓名
+     */
     private String operateUserName;
 
+    /**
+     * 操作时间
+     */
     private Long operateTime;
 
+    /**
+     * 是否首次评价
+     */
     private boolean firstEvaluate;
 
     /**

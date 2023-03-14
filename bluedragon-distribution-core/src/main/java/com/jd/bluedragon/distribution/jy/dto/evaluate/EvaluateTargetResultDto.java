@@ -13,62 +13,149 @@ public class EvaluateTargetResultDto implements Serializable {
 
     private static final long serialVersionUID = 8821734157832978341L;
 
+    /**
+     * 评价目标区域ID
+     */
     private Integer targetAreaCode;
 
+    /**
+     * 评价目标区域名称
+     */
     private String targetAreaName;
 
+    /**
+     * 评价目标站点ID
+     */
     private Integer targetSiteCode;
 
+    /**
+     * 评价目标站点名称
+     */
     private String targetSiteName;
 
+    /**
+     * 评价目标任务ID
+     */
     private String targetTaskId;
 
+    /**
+     * 评价目标bizId
+     */
     private String targetBizId;
 
+    /**
+     * 评价目标任务开始时间
+     */
     private Date targetStartTime;
 
+    /**
+     * 评价目标任务结束时间
+     */
     private Date targetFinishTime;
 
+    /**
+     * 派车单号
+     */
     private String transWorkItemCode;
 
+    /**
+     * 车牌号
+     */
     private String vehicleNumber;
 
+    /**
+     * 封车时间
+     */
     private Date sealTime;
 
+    /**
+     * 协助人erp集合，多个逗号分隔
+     */
     private String helperErp;
 
+    /**
+     * 评价来源区域ID
+     */
     private Integer sourceAreaCode;
 
+    /**
+     * 评价来源区域名称
+     */
     private String sourceAreaName;
 
+    /**
+     * 评价来源站点ID
+     */
     private Integer sourceSiteCode;
 
+    /**
+     * 评价来源站点名称
+     */
     private String sourceSiteName;
 
+    /**
+     * 评价来源任务ID
+     */
     private String sourceTaskId;
 
+    /**
+     * 评价来源bizId
+     */
     private String sourceBizId;
 
+    /**
+     * 解封车时间
+     */
     private Date unsealTime;
 
+    /**
+     * 评价类型：1-装车评价
+     */
     private Integer evaluateType;
 
+    /**
+     * 评价状态：0-不满意，1-满意
+     */
     private Integer status;
 
+    /**
+     * 评价维度编码集合，多个逗号隔开
+     */
     private String dimensionCode;
 
+    /**
+     * 图片数量
+     */
     private Integer imgCount;
 
+    /**
+     * 评价人erp集合，多个逗号隔开
+     */
     private String evaluateUserErp;
 
+    /**
+     * 备注集合，多个换行符隔开
+     */
     private String remark;
 
+    /**
+     * 本次评价人erp
+     */
     private String operateUserErp;
 
+    /**
+     * 本次评价人姓名
+     */
     private String operateUserName;
 
+    /**
+     * 本次评价操作时间
+     */
     private Long operateTime;
 
+    /**
+     * 是否首次评价
+     */
     private boolean firstEvaluate;
 
     /**
