@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
+import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
@@ -121,7 +122,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("dmsUnCollectOverTimeNoticeProducer")
     private DefaultJMQProducer dmsUnCollectOverTimeNoticeProducer;
-    
+    @Autowired
+    private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
+    @Autowired
+    private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
     /**
      * 通用异常上报入口-扫描
      *
@@ -424,6 +428,24 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
                         if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
                             dto.setImageUrls(cacheDto.getImageUrls());
+                        }
+                    }
+                }
+                if(JyBizTaskExceptionTypeEnum.SCRAPPED.equals(dto.getType())){
+                    ExpTaskByIdReq request = new ExpTaskByIdReq();
+                    request.setBizId(dto.getBizId());
+                    JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(request);
+                    if(JdCResponse.CODE_SUCCESS.equals(response.getCode()) && response.getData() != null){
+                        ExpScrappedDetailDto data = response.getData();
+                        if(StringUtils.isNotBlank(data.getThirdChecker())){
+                            dto.setCheckerErp(data.getThirdChecker());
+                            dto.setCheckTime(data.getThirdCheckTime());
+                        }else if(StringUtils.isNotBlank(data.getSecondChecker())){
+                            dto.setCheckerErp(data.getSecondChecker());
+                            dto.setCheckTime(data.getThirdCheckTime());
+                        }else {
+                            dto.setCheckerErp(data.getFirstChecker());
+                            dto.setCheckTime(data.getFirstCheckTime());
                         }
                     }
                 }
@@ -831,7 +853,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }else {
                 List<JyExceptionAgg> singleList = Lists.newArrayList();
                 singleList.add(temp);
-                map.put(temp.getSiteCode(), singleList);  
+                map.put(temp.getSiteCode(), singleList);
             }
         }
         // 异步推送咚咚
@@ -888,7 +910,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         params.put("queryEndTime", queryEndTime);
         return jyBizTaskExceptionDao.queryScrapDetailByCondition(params);
     }
-    
+
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -1298,8 +1320,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setAreaName(entity.getAreaName());
         dto.setReporterName(entity.getCreateUserName());
         dto.setTags(getTags(entity.getTags()));
-
         dto.setStatus(entity.getStatus());
+        dto.setProcessingStatus(entity.getProcessingStatus());
 
         String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
         boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
