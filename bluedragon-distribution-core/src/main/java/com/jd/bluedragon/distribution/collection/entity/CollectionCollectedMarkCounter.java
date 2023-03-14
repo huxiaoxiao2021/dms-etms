@@ -39,6 +39,11 @@ public class CollectionCollectedMarkCounter {
     private String collectedMark;
 
     /**
+     * 聚合统计标识
+     */
+    private String aggMark;
+
+    /**
      * 集齐状态
      */
     private Integer collectedStatus;

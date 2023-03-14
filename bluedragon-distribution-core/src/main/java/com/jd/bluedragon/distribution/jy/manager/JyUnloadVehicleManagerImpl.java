@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
@@ -193,6 +194,7 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.getGoodsAreaCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "IJyUnloadVehicleManager.getGoodsAreaCode@args0@args1", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
     public String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) {
         BaseGoodsAreaNextSiteDto goodsAreaNextSiteDto = new BaseGoodsAreaNextSiteDto();
         goodsAreaNextSiteDto.setSiteCode(currentSiteCode);

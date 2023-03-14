@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionCollectedMarkTy
 import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
+import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
@@ -36,6 +37,8 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
     @Autowired
     private CollectionRecordService collectionRecordService;
 
+    @Autowired
+    private IJyUnloadVehicleManager jyUnloadVehicleManager;
 
     @Override
     public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto) {
@@ -52,7 +55,8 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
 
         return collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
             CollectReportDto collectReportDto = new CollectReportDto();
-            //                collectReportDto.setGoodsAreaCode(collectionAggCodeCounter.getAggMark()); todo 查找货区编码
+            String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(collectReportReqDto.getCurrentOperate().getSiteCode(), Integer.valueOf(collectionAggCodeCounter.getAggMark()));
+            collectReportDto.setGoodsAreaCode(goodsAreaCode);
             collectReportDto.setNextSiteCode(Integer.valueOf(collectionAggCodeCounter.getAggMark()));
             collectReportDto.setScanDoNum(collectionAggCodeCounter.getInnerMarkCollectedNum());
             collectReportDto.setPackageNum(collectionAggCodeCounter.getSumScanNum());
