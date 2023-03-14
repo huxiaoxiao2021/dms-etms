@@ -36,6 +36,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -50,6 +51,7 @@ import java.util.stream.Stream;
  * @Description //集齐服务实现
  * @date
  **/
+@Service
 public class JyCollectServiceImpl implements JyCollectService{
     private Logger log = LoggerFactory.getLogger(JyCollectServiceImpl.class);
 

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * @Description //集齐初始化： 按封车内批次号分页拆分
  * @date
  **/
+@Service
 public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplitService, InitializingBean {
     private Logger log = LoggerFactory.getLogger(CollectSealCarBatchInitSplitServiceImpl.class);
 
