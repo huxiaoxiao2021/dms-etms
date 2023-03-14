@@ -534,6 +534,7 @@ public class JyCollectServiceImpl implements JyCollectService{
     }
 
     @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.findCollectReportByScanCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
         CollectReportReqDto param = new CollectReportReqDto();
         param.setWaybillCode(WaybillUtil.getWaybillCode(reqDto.getScanCode()));

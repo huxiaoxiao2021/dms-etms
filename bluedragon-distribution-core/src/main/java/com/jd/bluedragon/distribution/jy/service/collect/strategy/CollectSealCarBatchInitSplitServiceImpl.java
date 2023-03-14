@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CargoDetailServiceManager;
 import com.jd.bluedragon.core.base.VosManager;
@@ -25,6 +26,8 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.tms.data.dto.CommonDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -69,6 +72,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
 
 
     @Override
+    @JProfiler(jKey = "CollectSealCarBatchInitSplitServiceImpl.splitBeforeInit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean splitBeforeInit(InitCollectDto initCollectDto) {
 
         String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.splitBeforeInit:封车节点集齐数据初始化前拆分逻辑：";
@@ -107,6 +111,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
     }
 
     @Override
+    @JProfiler(jKey = "CollectSealCarBatchInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAfterSplit(InitCollectSplitDto initCollectSplitDto) {
         String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.initAfterSplit:封车节点集齐数据拆分后执行初始化：";
         if (jyCollectCacheService.cacheExistSealCarCollectInitAfterSplit(initCollectSplitDto)) {

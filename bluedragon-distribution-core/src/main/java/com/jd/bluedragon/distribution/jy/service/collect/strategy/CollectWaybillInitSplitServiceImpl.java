@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -23,6 +24,8 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -71,6 +74,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     }
 
     @Override
+    @JProfiler(jKey = "CollectWaybillInitSplitServiceImpl.splitBeforeInit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean splitBeforeInit(InitCollectDto initCollectDto) {
         String methodDesc = "CollectWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
         String waybillCode = WaybillUtil.getWaybillCode(initCollectDto.getTaskNullScanCode());
@@ -128,6 +132,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     }
 
     @Override
+    @JProfiler(jKey = "CollectWaybillInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAfterSplit(InitCollectSplitDto request) {
         String methodDesc = "CollectWaybillInitSplitServiceImpl.initAfterSplit:集齐数据按运单拆分批次后初始化：";
 

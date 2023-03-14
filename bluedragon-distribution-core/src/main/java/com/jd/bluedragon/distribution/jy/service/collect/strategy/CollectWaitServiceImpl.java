@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeDetail;
@@ -13,6 +14,8 @@ import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
 
 
     @Override
+    @JProfiler(jKey = "CollectWaitServiceImpl.queryCollectListPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
@@ -65,6 +69,7 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
     }
 
     @Override
+    @JProfiler(jKey = "CollectWaitServiceImpl.queryCollectDetail",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
