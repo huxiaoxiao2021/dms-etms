@@ -81,9 +81,8 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getWaybillCode(), CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
-        return collectionScanCodeDetails.parallelStream().map(new Function<CollectionScanCodeDetail, CollectReportDetailPackageDto>() {
-            @Override
-            public CollectReportDetailPackageDto apply(CollectionScanCodeDetail collectionScanCodeDetail) {
+        return collectionScanCodeDetails.parallelStream().map(
+            (Function<CollectionScanCodeDetail, CollectReportDetailPackageDto>)collectionScanCodeDetail -> {
                 CollectReportDetailPackageDto packageDto = new CollectReportDetailPackageDto();
                 packageDto.setPackageCode(collectionScanCodeDetail.getScanCode());
 
@@ -98,12 +97,11 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
                 } else if (CollectionStatusEnum.collected.equals(collectionScanCodeDetail.getCollectedStatus())
                     && CollectionCollectedMarkTypeEnum.outer.equals(collectionScanCodeDetail.getCollectedMarkType())) {
                     packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_END.getCode());//在库
-                } else if (CollectionStatusEnum.collected.equals(collectionScanCodeDetail.getCollectedStatus())) {
-                    packageDto.setPackageCollectStatus(-1);//todo 多扫
+                } else if (CollectionStatusEnum.extra_collected.equals(collectionScanCodeDetail.getCollectedStatus())) {
+                    packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_DO.getCode());
                 }
                 return null;
-            }
-        }).collect(Collectors.toList());
+            }).collect(Collectors.toList());
 
     }
 

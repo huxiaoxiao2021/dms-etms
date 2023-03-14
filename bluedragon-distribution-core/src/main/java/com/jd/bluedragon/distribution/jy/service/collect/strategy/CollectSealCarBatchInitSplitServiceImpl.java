@@ -3,8 +3,17 @@ package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CargoDetailServiceManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectScanDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -14,10 +23,15 @@ import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEn
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectInitSplitServiceFactory;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.tms.data.dto.CommonDto;
 import org.slf4j.Logger;
@@ -26,8 +40,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhengchengfa
@@ -92,19 +108,38 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
 
         List<String> pcList = this.getPageNoPackageCodeListFromTms(initCollectSplitDto);
 
-        Integer nextSiteId = waybillService.getRouterFromMasterDb(initCollectSplitDto.getWaybillCode(), initCollectSplitDto.getShouldUnSealSiteCode());
-        if(nextSiteId == null) {
-            log.warn("CollectSealCarBatchInitSplitServiceImpl.initAfterSplit集齐运单查询下游流向为空，reqDto={}", JsonHelper.toJson(initCollectSplitDto));
-        }
-        CollectDto collectDto = new CollectDto();
-        collectDto.setCollectNodeSiteCode(initCollectSplitDto.getShouldUnSealSiteCode());
-        collectDto.setBizId(initCollectSplitDto.getBizId());
-        collectDto.setWaybillCode(initCollectSplitDto.getWaybillCode());
-        collectDto.setNextSiteCode(nextSiteId);
-        collectDto.setOperatorErp(null);//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
-        return jyCollectService.initCollect(collectDto, pcList);
-    }
+        //处理包裹数据，并按照运单分批
+        Map<String, List<CollectionScanCodeEntity>> waybillCodeMap = pcList.parallelStream().map(s -> {
+            CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+            collectionScanCodeEntity.setScanCode(s);
+            collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+            collectionScanCodeEntity.setCollectedMark(initCollectSplitDto.getBizId());
+            collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(s)));
+            return collectionScanCodeEntity;
+        }).collect(Collectors.groupingBy(
+            collectionScanCodeEntity ->
+                collectionScanCodeEntity.getCollectionAggCodeMaps().getOrDefault(CollectionAggCodeTypeEnum.waybill_code, null))
+        );
 
+        waybillCodeMap.forEach((waybillCode, collectionScanCodeEntities) -> {
+            Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, initCollectSplitDto.getShouldUnSealSiteCode());
+            if(nextSiteId == null) {
+                log.warn("CollectSealCarBatchInitSplitServiceImpl.initAfterSplit集齐运单查询下游流向为空，运单号：{}，查询站点：{}"
+                    ,waybillCode, initCollectSplitDto.getShouldUnSealSiteCode());
+            }
+            CollectDto collectDto = new CollectDto();
+            collectDto.setCollectNodeSiteCode(initCollectSplitDto.getShouldUnSealSiteCode());
+            collectDto.setBizId(initCollectSplitDto.getBizId());
+            collectDto.setWaybillCode(initCollectSplitDto.getWaybillCode());
+            collectDto.setNextSiteCode(nextSiteId);
+            collectDto.setOperatorErp(initCollectSplitDto.getOperatorErp());//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
+
+            jyCollectService.initCollect(collectDto, collectionScanCodeEntities);
+        });
+
+
+        return true;
+    }
 
     private void splitBeforeInitSendMq(String batchCode, InitCollectDto initCollectDto, SealCarDto sealCarDto) {
         CargoDetailDto cargoDetailDto = new CargoDetailDto();

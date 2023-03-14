@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
@@ -28,7 +31,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhengchengfa
@@ -113,7 +118,17 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         collectDto.setWaybillCode(waybillCode);
         collectDto.setNextSiteCode(nextSiteId);
         collectDto.setOperatorErp(request.getOperatorErp());
-        return jyCollectService.initAndCollectedPartCollection(collectDto, packageCodeList);
+
+        return jyCollectService.initAndCollectedPartCollection(collectDto,
+            packageCodeList.parallelStream().map(packageCode -> {
+                CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+                collectionScanCodeEntity.setScanCode(packageCode);
+                collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+                collectionScanCodeEntity.setCollectedMark(request.getBizId());
+                //            collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(packageCode)));
+                collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, waybillCode));
+                return collectionScanCodeEntity;
+            }).collect(Collectors.toList()));
     }
 
     private List<String> getPageNoPackageCodeListFromWaybill(String waybillCode, int pageNo, int pageSize) {

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
@@ -47,7 +48,7 @@ public interface JyCollectService {
      * @param collectDto
      * @return
      */
-    boolean initCollect(CollectDto collectDto, List<String> detailList);
+    boolean initCollect(CollectDto collectDto, List<CollectionScanCodeEntity> detailList);
 
     /**
      * 集齐初始化 & 修改集齐状态
@@ -55,7 +56,7 @@ public interface JyCollectService {
      * @param detailList
      * @return
      */
-    boolean initAndCollectedPartCollection(CollectDto collectDto, List<String> detailList);
+    boolean initAndCollectedPartCollection(CollectDto collectDto, List<CollectionScanCodeEntity> detailList);
     /**
      * 消除集齐数据（取消发货、车型封车）
      * @param collectDto

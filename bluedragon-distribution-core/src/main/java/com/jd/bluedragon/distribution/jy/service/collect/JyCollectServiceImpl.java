@@ -41,10 +41,7 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -258,9 +255,29 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.initCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public boolean initCollect(CollectDto collectDto, List<String> packageCodeList) {
+    public boolean initCollect(CollectDto collectDto, List<CollectionScanCodeEntity> packageCodeList) {
         String methodDesc = "JyCollectServiceImpl.initCollect:集齐初始化:";
         CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
+
+        //根据中转和末端的场景决定是否需要从运单获取全量包裹数据
+        if (CollectionBusinessTypeEnum.all_site_collection.equals(collectionCreatorEntity.getCollectionCodeEntity().getBusinessType())) {
+            List<DeliveryPackageD> packageDList = waybillQueryManager.findWaybillPackList(collectDto.getWaybillCode());
+            if (CollectionUtils.isNotEmpty(packageDList)) {
+                Map<String, List<CollectionScanCodeEntity>> scanCodeMap = packageCodeList.parallelStream().collect(Collectors.groupingBy(CollectionScanCodeEntity::getScanCode));
+
+                packageCodeList.addAll(packageDList.parallelStream()
+                    .filter(packageD -> !scanCodeMap.containsKey(packageD.getPackageBarcode()))
+                    .map(packageD -> {
+                        CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+                        collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
+                        collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+                        collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, collectDto.getWaybillCode()));
+                        return collectionScanCodeEntity;
+                    }).collect(Collectors.toList())
+                );
+
+            }
+        }
         Result<Boolean> errMsgRes = new Result<>();
         if(!collectionRecordService.initPartCollection(collectionCreatorEntity, errMsgRes)) {
             log.error("{}集齐初始化错误，req={},res={}", methodDesc, JsonHelper.toJson(collectionCreatorEntity), JsonHelper.toJson(errMsgRes));
@@ -295,29 +312,14 @@ public class JyCollectServiceImpl implements JyCollectService{
      * @param packageCodeList
      * @return
      */
-    private CollectionCreatorEntity getCollectionCreatorEntity(CollectDto collectDto, List<String> packageCodeList) {
+    private CollectionCreatorEntity getCollectionCreatorEntity(CollectDto collectDto, List<CollectionScanCodeEntity> packageCodeList) {
         CollectionCreatorEntity entity = new CollectionCreatorEntity();
         entity.setCollectionCodeEntity(getCollectionCodeEntity(collectDto));
         entity.setCollectionAggMarks(getNextSiteCodeMap(collectDto));
-        entity.setCollectionScanCodeEntities(getCollectionScanCodeEntities(collectDto, packageCodeList));
+        entity.setCollectionScanCodeEntities(packageCodeList);
         return entity;
     }
-    //集齐初始化参数组装
-    private List<CollectionScanCodeEntity> getCollectionScanCodeEntities(CollectDto collectDto, List<String> packageCodeList) {
-        List<CollectionScanCodeEntity> resEntity = new ArrayList<>();
 
-        Map<CollectionAggCodeTypeEnum, String> collectionAggCodeMaps = new HashMap<>();
-        collectionAggCodeMaps.put(CollectionAggCodeTypeEnum.waybill_code, collectDto.getWaybillCode());
-        for (String packageCode : packageCodeList) {
-            CollectionScanCodeEntity entity = new CollectionScanCodeEntity();
-            entity.setScanCode(packageCode);
-            entity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-            entity.setCollectedMark(collectDto.getBizId());
-            entity.setCollectionAggCodeMaps(collectionAggCodeMaps);
-            resEntity.add(entity);
-        }
-        return resEntity;
-    }
     //集齐初始化参数组装
     private CollectionCodeEntity getCollectionCodeEntity(CollectDto collectDto) {
         CollectionCodeEntity collectionCodeEntity = buildCollectionCodeEntity(collectDto);
@@ -336,6 +338,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         }
         if(nextSiteId == null) {
             log.warn("JyCollectServiceImpl.getNextSiteCodeMap集齐运单查询下游流向为空，reqDto={}", JsonHelper.toJson(collectDto));
+            return Collections.emptyMap();
         }
         Map<String, String> map = new HashMap<>();
         map.put(collectDto.getWaybillCode(), nextSiteId.toString());
@@ -360,7 +363,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.initAndCollectedPartCollection",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public boolean initAndCollectedPartCollection(CollectDto collectDto, List<String> packageCodeList) {
+    public boolean initAndCollectedPartCollection(CollectDto collectDto, List<CollectionScanCodeEntity> packageCodeList) {
         String methodDesc = "JyCollectServiceImpl.initAndCollectedPartCollection:集齐初始化&修改机器状态:";
         CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
         Result<Boolean> errMsgRes = new Result<>();
