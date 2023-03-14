@@ -2831,4 +2831,8 @@ public class UccPropertyConfiguration {
     public Boolean getTysUnloadCarCollectDemoteSwitch() {
         return tysUnloadCarCollectDemoteSwitch;
     }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
 }
