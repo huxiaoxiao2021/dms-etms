@@ -4,10 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
@@ -43,7 +40,10 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,18 +105,81 @@ public class JyCollectServiceImpl implements JyCollectService{
      */
     private List<CollectReportStatisticsDto> getCollectReportDetailPackageDtoList(CollectReportReqDto collectReportReqDto) {
         List<CollectReportStatisticsDto> res = new ArrayList<>();
-        List<CollectTypeEnum> collectTypeList = Arrays.asList(CollectTypeEnum.WAYBILL_BUQI, CollectTypeEnum.TASK_JIQI, CollectTypeEnum.SITE_JIQI);
-        for(CollectTypeEnum en : collectTypeList) {
-            //
-            CollectStatisticsQueryParamDto queryParamDto = new CollectStatisticsQueryParamDto();
-            queryParamDto.setBizId(collectReportReqDto.getBizId());
-            queryParamDto.setCollectType(en.getCode());
-            queryParamDto.setWaybillCode(collectReportReqDto.getWaybillCode());
-            //
-            CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(en.getCode());
-            res.add(collectStatisticsService.collectStatistics(queryParamDto));
+
+        if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
+            return Collections.emptyList();
         }
+
+        //查询待集齐集合ID 列表
+        List<CollectionCodeEntity> collectionCodeEntities = new ArrayList<>(
+            getCollectionCodeEntityByElement(collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null));
+
+        //查询所有统计数据
+        List<CollectionCounter> allCounter = new ArrayList<>(
+            collectionRecordService.sumCollectionByCollectionCode(collectionCodeEntities));
+
+        Map<String, List<CollectionCodeEntity>> collectionCodeMap = collectionCodeEntities.parallelStream()
+            .collect(Collectors.groupingBy(CollectionCodeEntity::getCollectionCode));
+
+        //处理集齐集合的类型字段
+        List<CollectionCounter> collectedCounters = allCounter.parallelStream()
+                    .peek(
+                        collectionCounter ->
+                            collectionCounter.setBusinessType(
+                                collectionCodeMap.get(collectionCounter.getCollectionCode()).get(0).getBusinessType())
+                    )
+                    .collect(Collectors.toList());
+
+        //不齐数量
+        CollectReportStatisticsDto noneCollected = new CollectReportStatisticsDto();
+        noneCollected.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+        noneCollected.setStatisticsNum(
+            allCounter.parallelStream().mapToInt(CollectionCounter::getNoneCollectedNum).sum()
+        );
+        res.add(noneCollected);
+
+
+        //本车集齐数量
+        CollectReportStatisticsDto taskCollected = new CollectReportStatisticsDto();
+        taskCollected.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+        taskCollected.setStatisticsNum(
+            collectedCounters.parallelStream()
+                .filter(
+                    collectionCounter ->
+                        CollectionBusinessTypeEnum.unload_collection.equals(collectionCounter.getBusinessType())
+                )
+                .mapToInt(CollectionCounter::getCollectedNum)
+                .sum()
+        );
+        res.add(taskCollected);
+
+        //在库集齐数量
+        CollectReportStatisticsDto siteCollected = new CollectReportStatisticsDto();
+        siteCollected.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+        siteCollected.setStatisticsNum(
+            collectedCounters.parallelStream()
+                .filter(
+                    collectionCounter ->
+                        CollectionBusinessTypeEnum.all_site_collection.equals(collectionCounter.getBusinessType())
+                )
+                .mapToInt(CollectionCounter::getCollectedNum)
+                .sum()
+        );
+        res.add(siteCollected);
+
         return res;
+
+//        List<CollectTypeEnum> collectTypeList = Arrays.asList(CollectTypeEnum.WAYBILL_BUQI, CollectTypeEnum.TASK_JIQI, CollectTypeEnum.SITE_JIQI);
+//        for(CollectTypeEnum en : collectTypeList) {
+//            //
+//            CollectStatisticsQueryParamDto queryParamDto = new CollectStatisticsQueryParamDto();
+//            queryParamDto.setBizId(collectReportReqDto.getBizId());
+//            queryParamDto.setCollectType(en.getCode());
+//            queryParamDto.setWaybillCode(collectReportReqDto.getWaybillCode());
+//            //
+//            CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(en.getCode());
+//            res.add(collectStatisticsService.collectStatistics(queryParamDto));
+//        }
     }
 
     /**
@@ -126,7 +189,7 @@ public class JyCollectServiceImpl implements JyCollectService{
      * @param businessType
      * @return
      */
-    private List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType) {
+    public List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType) {
         String dateNow = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         String dateNow_1 = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         List<String> dates = Arrays.asList(dateNow, dateNow_1);
@@ -138,7 +201,6 @@ public class JyCollectServiceImpl implements JyCollectService{
 
             return collectionRecordService.queryAllCollectionCodesByElement(element, businessType).stream();
         }).collect(Collectors.toList());
-
     }
 
     /**

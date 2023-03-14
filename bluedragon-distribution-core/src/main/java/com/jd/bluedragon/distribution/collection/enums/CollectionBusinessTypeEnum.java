@@ -22,6 +22,7 @@ public enum CollectionBusinessTypeEnum {
     /**
      * 基于装运卸车扫描业务下的卸车集齐业务
      * 中转集齐
+     * 本车集齐
      */
     unload_collection("卸车集齐业务",
         Collections.singletonList(CollectionAggCodeTypeEnum.waybill_code),
@@ -30,6 +31,7 @@ public enum CollectionBusinessTypeEnum {
 
     /**
      * 末端集齐
+     * 在库
      */
     all_site_collection("场地集齐业务",
         Collections.singletonList(CollectionAggCodeTypeEnum.waybill_code),

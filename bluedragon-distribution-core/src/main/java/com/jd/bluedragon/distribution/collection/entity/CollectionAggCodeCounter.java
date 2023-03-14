@@ -40,6 +40,11 @@ public class CollectionAggCodeCounter {
     private String collectionCode;
 
     /**
+     * 聚合统计的标识字段
+     */
+    private String aggMark;
+
+    /**
      * 需要集齐总数
      */
     private Integer sumScanNum;
@@ -78,7 +83,7 @@ public class CollectionAggCodeCounter {
 
     /**
      * 在库已集齐
-     * 非本车再库
+     * 非本车已扫
      */
     private Integer outMarkCollectedNum;
 

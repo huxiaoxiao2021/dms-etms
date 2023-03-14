@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.collection.enums;
 
-import java.util.Arrays;
-
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.enums

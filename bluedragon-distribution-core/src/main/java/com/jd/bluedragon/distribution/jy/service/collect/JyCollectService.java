@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
@@ -36,6 +38,8 @@ public interface JyCollectService {
      * @return CollectSiteTypeEnum
      */
     Integer parseSiteType(String scanCode, Integer siteCode);
+
+    List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType);
 
 
     /**

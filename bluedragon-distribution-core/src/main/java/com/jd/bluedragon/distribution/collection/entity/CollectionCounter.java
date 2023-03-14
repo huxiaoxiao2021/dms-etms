@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -22,6 +23,11 @@ public class CollectionCounter {
      * 集合ID
      */
     private String collectionCode;
+
+    /**
+     * 当前待集齐的业务类型
+     */
+    private CollectionBusinessTypeEnum businessType;
 
     /**
      * 需要集齐总数
