@@ -147,19 +147,16 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
 					remark = StringHelper.append(remark, sendPrincipalCompany);
 				}
-				//联系人
-				if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerTel())){
+				//联系方式
+				String textContact = StringHelper.isNotEmpty(context.getBigWaybillDto().getWaybill().getConsignerTel()) ?
+						context.getBigWaybillDto().getWaybill().getConsignerTel() :
+						context.getBigWaybillDto().getWaybill().getConsignerMobile();
+				if(StringHelper.isNotEmpty(textContact)){
 					if (remark.length() > 0) {
 						remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 					}
 					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
-					remark = StringHelper.append(remark, basePrintWaybill.getConsignerTel());
-				}else if(StringHelper.isNotEmpty(basePrintWaybill.getConsignerMobile())){
-					if (remark.length() > 0) {
-						remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
-					}
-					remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
-					remark = StringHelper.append(remark, basePrintWaybill.getConsignerMobile());
+					remark = StringHelper.append(remark, textContact);
 				}
                 //存储条件
 				if (remark.length() > 0) {
