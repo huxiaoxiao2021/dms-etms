@@ -161,8 +161,8 @@ public class JyCollectCacheService {
     public String getLockKeyTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
         StringBuilder sb = new StringBuilder();
         sb.append(CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT)
-//                .append(paramDto.getBizId())
-//                .append(Constants.SEPARATOR_COLON)
+                .append(paramDto.getBizId())
+                .append(Constants.SEPARATOR_COLON)
                 .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()));
         return sb.toString();
     }
@@ -199,6 +199,7 @@ public class JyCollectCacheService {
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
                 .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()))
+                .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageNo())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageSize());
@@ -236,7 +237,6 @@ public class JyCollectCacheService {
         sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_INIT_AFTER_SPLIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
-                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()))
                 .append(paramDto.getPageNo())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageSize());
@@ -272,9 +272,7 @@ public class JyCollectCacheService {
     public String getCacheKeySealCarCollectSplitBeforeInit(InitCollectDto paramDto){
         StringBuilder sb = new StringBuilder();
         sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_SPLIT_BEFORE_INIT)
-                .append(paramDto.getBizId())
-                .append(Constants.SEPARATOR_COLON)
-                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()));
+                .append(paramDto.getBizId());
         return sb.toString();
     }
 }
