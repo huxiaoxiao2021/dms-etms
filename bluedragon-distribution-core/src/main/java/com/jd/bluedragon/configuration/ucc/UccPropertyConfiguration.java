@@ -1230,25 +1230,47 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
-    private String siteForbiddenList;
+    /**
+     * 传站拦截-- 场地黑名单
+     */
+    private String czSiteForbiddenList;
 
-    private String orgForbiddenList;
+    /**
+     * 传站拦截-- 大区黑名单
+     */
+    private String czOrgForbiddenList;
 
-    public String getSiteForbiddenList() {
-        return siteForbiddenList;
+    /**
+     * 传站拦截-场地类型黑名单
+     */
+    private String czSiteTypeForbiddenList;
+
+    public String getCzSiteTypeForbiddenList() {
+        return czSiteTypeForbiddenList;
     }
 
-    public void setSiteForbiddenList(String siteForbiddenList) {
-        this.siteForbiddenList = siteForbiddenList;
+    public void setCzSiteTypeForbiddenList(String czSiteTypeForbiddenList) {
+        this.czSiteTypeForbiddenList = czSiteTypeForbiddenList;
     }
 
-    public String getOrgForbiddenList() {
-        return orgForbiddenList;
+    public String getCzSiteForbiddenList() {
+        return czSiteForbiddenList;
     }
 
-    public void setOrgForbiddenList(String orgForbiddenList) {
-        this.orgForbiddenList = orgForbiddenList;
+    public void setCzSiteForbiddenList(String czSiteForbiddenList) {
+        this.czSiteForbiddenList = czSiteForbiddenList;
     }
+
+    public String getCzOrgForbiddenList() {
+        return czOrgForbiddenList;
+    }
+
+    public void setCzOrgForbiddenList(String czOrgForbiddenList) {
+        this.czOrgForbiddenList = czOrgForbiddenList;
+    }
+
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList;
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
@@ -2964,5 +2986,35 @@ public class UccPropertyConfiguration {
 
     public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
         this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getDpSpringSiteCode() {
+        return dpSpringSiteCode;
+    }
+
+    public void setDpSpringSiteCode(String dpSpringSiteCode) {
+        this.dpSpringSiteCode = dpSpringSiteCode;
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
+        if(dpSpringSiteCodeList != null){
+            return dpSpringSiteCodeList;
+        } else {
+            dpSpringSiteCodeList = new ArrayList<>();
+        }
+        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
+            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }
+        return this.dpSpringSiteCodeList;
+    }
+
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
     }
 }

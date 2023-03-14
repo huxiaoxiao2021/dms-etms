@@ -25,6 +25,7 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -198,12 +200,25 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                     return;
                 }
                 List<String> boardList = new ArrayList<>();
+                List<String> sealSendCodeList = new ArrayList<>();
                 for (JyBizTaskComboardEntity entity : boardEntityList) {
+                    if (!entity.getBoardStatus().equals(ComboardStatusEnum.SEALED.getCode())) {
+                        sealSendCodeList.add(entity.getSendCode());
+                    }
                     boardList.add(entity.getBoardCode());
                 }
-                if (logger.isInfoEnabled()) {
-                    logger.info("开始操作批量完结板：{}",JsonHelper.toJson(boardList));
+
+                if (!CollectionUtils.isEmpty(sealSendCodeList)) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("开始更新板状态：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
+                    if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealSendCodeList, sealCarInfoBySealCarCodeOfTms.getSealUserCode(),
+                            sealCarInfoBySealCarCodeOfTms.getSealUserName(), ComboardStatusEnum.SEALED)) {
+                        logger.info("批量更新板状态失败：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
                 }
+
+
                 if (!groupBoardManager.batchCloseBoard(boardList)) {
                     logger.error("批量完结板失败：{}",JsonHelper.toJson(boardList));
                 }
@@ -212,6 +227,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             }
         }
     }
+
+
 
     /**
      * 类型转换 封车状态
