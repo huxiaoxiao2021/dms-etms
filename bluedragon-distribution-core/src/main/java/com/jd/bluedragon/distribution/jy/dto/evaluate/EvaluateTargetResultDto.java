@@ -118,13 +118,15 @@ public class EvaluateTargetResultDto implements Serializable {
      */
     private Integer status;
 
+    // ----------以下4个属性为汇总数据-----------------
+
     /**
      * 评价维度编码集合，多个逗号隔开
      */
     private String dimensionCode;
 
     /**
-     * 图片数量
+     * 图片数量(所有评价维度的图片数量总和)
      */
     private Integer imgCount;
 
@@ -137,6 +139,8 @@ public class EvaluateTargetResultDto implements Serializable {
      * 备注集合，多个换行符隔开
      */
     private String remark;
+
+    // ---------------------------------------------
 
     /**
      * 本次评价人erp
