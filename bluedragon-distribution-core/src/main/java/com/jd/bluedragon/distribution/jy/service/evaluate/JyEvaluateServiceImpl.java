@@ -235,6 +235,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         } else {
             request.setTargetBizId(evaluateRecord.getTargetBizId());
         }
+        targetInitDto.setDimensionList(request.getDimensionList());
     }
 
     private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request) {

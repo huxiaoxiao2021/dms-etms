@@ -15,7 +15,6 @@ public interface JyEvaluateService {
     /**
      * 评价维度枚举
      */
-    补充缓存
     List<DimensionOption> dimensionOptions();
 
     /**
