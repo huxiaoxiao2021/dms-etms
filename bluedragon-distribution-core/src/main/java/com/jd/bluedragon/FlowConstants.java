@@ -19,6 +19,11 @@ public class FlowConstants {
     public static final String FLOW_CODE_PRINT_HANDOVER = "print_handover_list_export_apply";
 
     /**
+     * 流程编码-生鲜报废流程编码
+     */
+    public static final String FLOW_CODE_FRESH_SCRAP = "fresh_scrap_apply";
+
+    /**
      * 流程业务数据唯一key
      */
     public static final String FLOW_BUSINESS_NO_KEY = "businessNoKey";
@@ -45,11 +50,24 @@ public class FlowConstants {
      */
     public static final String FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER = "三方目的地的发货交接清单敏感字段导出申请";
 
+    /**
+     * 申请单主题-生鲜报废申请
+     */
+    public static final String FLOW_FLOW_WORK_THEME_FRESH_SCRAP = "生鲜报废申请单";
+    /**
+     * 申请单备注-生鲜报废申请
+     */
+    public static final String FLOW_FLOW_WORK_REMARK_FRESH_SCRAP = "生鲜报废申请";
+
 
     /**
      * 流程-OA数据-申请单主表数据key
      */
     public static final String FLOW_OA_JMEMAINCOLLIST = "jmeMainColList";
+    /**
+     * 流程-OA数据-申请单附件key
+     */
+    public static final String FLOW_OA_ANNEX = "jmeFiles";
 
     /**
      * 流程-实例上下文KEY：oa

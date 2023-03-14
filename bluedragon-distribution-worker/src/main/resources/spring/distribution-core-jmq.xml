@@ -774,4 +774,16 @@
         <property name="topic" value="${jmq.topic.change.order.print}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--  异常-报废详情通知  -->
+    <bean id="dmsScrapNoticeProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.scrapNotice}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  异常-未领取超时任务通知  -->
+    <bean id="dmsUnCollectOverTimeNoticeProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.unCollectOverTimeNotice}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 
+import java.util.Date;
 import java.util.List;
 
 public interface JyExceptionService {
@@ -76,4 +77,32 @@ public interface JyExceptionService {
      */
     void printSuccess(JyExceptionPrintDto printDto);
 
+    /**
+     * 查询超时异常任务并通知场地负责人
+     */
+    void queryOverTimeExceptionAndNotice();
+
+    /**
+     * 查询已领取的生鲜报废任务明细并通知领取人
+     */
+    void queryFreshScrapDetailAndNotice();
+
+    /**
+     * 根据处理时间查询报废处理人ERP
+     * 
+     * @param queryStartTime 查询开始时间
+     * @param queryEndTime 查询结束时间
+     * @return
+     */
+    List<String> queryScrapHandlerErp(Date queryStartTime, Date queryEndTime);
+
+    /**
+     * 根据处理时间查询报废人的报废任务详情
+     * 
+     * @param handlerErp 报废人ERP
+     * @param queryStartTime 查询开始时间
+     * @param queryEndTime 查询结束时间
+     * @return
+     */
+    List<JyBizTaskExceptionEntity> queryScrapDetailByCondition(String handlerErp, Date queryStartTime, Date queryEndTime);
 }

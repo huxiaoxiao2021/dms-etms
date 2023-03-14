@@ -4,12 +4,21 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
-    <!-- 审批结果回调接口，提供给审批回调使用 -->
+    <!-- 审批结果回调接口-发货交接清单 -->
     <jsf:provider id="printHandoverJsfApprovePostHandler"
                   interface="com.jd.lsb.flow.handler.ApprovePostHandler"
-                  alias="${dms.flow.approvePostHandler.alias}"
+                  alias="${dms.flow.alias.printHandover}"
                   ref="printHandoverApprovePostHandler"
                   server="dmsjsf">
-        <jsf:parameter key="token" value="${dms.flow.approvePostHandler.token}"/>
+        <jsf:parameter key="token" value="${dms.flow.token.printHandover}"/>
+    </jsf:provider>
+
+    <!-- 审批结果回调接口-生鲜报废 -->
+    <jsf:provider id="freshScrapJsfApprovePostHandler"
+                  interface="com.jd.lsb.flow.handler.ApprovePostHandler"
+                  alias="${dms.flow.alias.freshScrap}"
+                  ref="freshScrapApprovePostHandler"
+                  server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.flow.token.freshScrap}"/>
     </jsf:provider>
 </beans>

@@ -512,4 +512,12 @@
       server="dmsjsf">
     </jsf:provider>
 
+    <!--  定时调度对外jsf  -->
+    <jsf:provider id="jsfDmsTimingHandlerService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsTimingHandlerService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
