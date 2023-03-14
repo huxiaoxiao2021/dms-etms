@@ -1205,6 +1205,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         ExpTaskDto dto = new ExpTaskDto();
         dto.setBizId(entity.getBizId());
         dto.setSource(entity.getSource());
+        dto.setType(entity.getType());
         dto.setBarCode(entity.getBarCode());
         // 停留时间：当前时间-分配时间
         dto.setStayTime(getStayTime(entity.getDistributionTime()));

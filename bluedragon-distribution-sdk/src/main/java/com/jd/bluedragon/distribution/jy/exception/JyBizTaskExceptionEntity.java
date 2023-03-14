@@ -22,7 +22,7 @@ public class JyBizTaskExceptionEntity implements Serializable {
      */
     private String bizId;
     /**
-     * 异常类型0：三无 1：破损 2：报废
+     * 异常类型0：三无 1：报废 2：破损
      */
     private Integer type;
     /**

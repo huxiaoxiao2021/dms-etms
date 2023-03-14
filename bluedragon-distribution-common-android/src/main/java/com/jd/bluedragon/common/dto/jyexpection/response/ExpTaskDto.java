@@ -54,6 +54,11 @@ public class ExpTaskDto implements Serializable {
      */
     private Integer timeOut;
 
+    /**
+     * 异常类型0：三无 1：报废 2：破损
+     */
+    private Integer type;
+
     public String getBizId() {
         return bizId;
     }
@@ -176,5 +181,13 @@ public class ExpTaskDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }
