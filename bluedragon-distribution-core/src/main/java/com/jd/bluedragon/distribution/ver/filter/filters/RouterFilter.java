@@ -66,13 +66,10 @@ public class RouterFilter implements Filter {
             return;
         }
 
-        //德邦-驾驭项目项目，发往的嘉峪关场地不走下面的逻辑
-        if (!Objects.equals(request.getReceiveSiteCode(), 2078033)) {
+        //德邦-春季模式项目判断提示
+        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
             // 德邦春节项目的错发校验跳过
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
-                ConfigTransferDpSiteMatchQo siteQo = new ConfigTransferDpSiteMatchQo();
-                siteQo.setHandoverSiteCode(request.getCreateSiteCode());
-                siteQo.setPreSortSiteCode(request.getWaybillSite().getCode());
                 ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
                         .queryMatchConditionRecord(request.getCreateSiteCode(), request.getWaybillSite().getCode());
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
