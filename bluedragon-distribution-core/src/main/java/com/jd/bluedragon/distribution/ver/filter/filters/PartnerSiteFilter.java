@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -38,6 +39,9 @@ public class PartnerSiteFilter implements Filter {
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
@@ -45,8 +49,8 @@ public class PartnerSiteFilter implements Filter {
 
 
 
-        //德邦-驾驭项目项目，发往的嘉峪关场地不走下面的逻辑
-        if (!Objects.equals(request.getReceiveSiteCode(), 2078033)) {
+        //德邦-春季模式项目判断提示
+        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
             // 德邦春节项目的错发校验跳过
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
                 ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
