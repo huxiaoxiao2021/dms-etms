@@ -1432,7 +1432,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                             spwmsOrder.setSpareCode(spares.get(spare_num++).getCode());
                             spwmsOrder.setProductId(products.get(i).getProductId());
                             spwmsOrder.setProductName(products.get(i).getName());
-                            spwmsOrder.setProductPrice(products.get(i).getPrice().doubleValue());
+                            if(products.get(i).getPrice() != null) {
+                            	spwmsOrder.setProductPrice(products.get(i).getPrice().doubleValue());
+                            }
                             spwmsOrders.add(spwmsOrder);
                         }
                     }
