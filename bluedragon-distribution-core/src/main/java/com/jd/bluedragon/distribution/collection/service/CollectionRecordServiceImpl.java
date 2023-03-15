@@ -13,13 +13,11 @@ import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -567,24 +565,6 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCode(String collectionCode, String aggCode,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || null == aggCodeTypeEnum) {
-            log.error("统计待集齐集合的信息参数不全，{}-{}-{}", collectionCode, aggCode, aggCodeTypeEnum);
-            return null;
-        }
-
-        return collectionRecordDao.countAggCollectedByAggCode(
-                                                                CollectionRecordDetailPo.builder()
-                                                                    .collectionCode(collectionCode)
-                                                                    .aggCode(aggCode)
-                                                                    .aggCodeType(aggCodeTypeEnum.name())
-                                                                    .build()
-                                                            );
-
-    }
-
-    @Override
     public CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
@@ -609,32 +589,6 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             collectionCodeEntity -> collectionRecordDao.countNoneCollectedAggCodeByCollectionCode(collectionCodeEntity.getCollectionCode())
         ).sum();
 
-    }
-
-    @Override
-    public void sumCollection(Map<CollectionConditionKeyEnum, Object> element) {
-        if (MapUtils.isEmpty(element)) {
-            return ;
-        }
-
-        List<CollectionCodeEntity> collectionCodeEntities = Arrays.stream(CollectionBusinessTypeEnum.values()).filter(
-            collectionBusinessTypeEnum ->
-                collectionBusinessTypeEnum.getCollectionConditionKeys().parallelStream().allMatch(element::containsKey)
-        ).map(collectionBusinessTypeEnum -> {
-            CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(collectionBusinessTypeEnum);
-            collectionCodeEntity.addAllKey(element);
-            collectionCodeEntity.buildCollectionCondition();
-            return collectionCodeEntity;
-        }).collect(Collectors.toList());
-
-        collectionCodeEntities.parallelStream().forEach(new Consumer<CollectionCodeEntity>() {
-            @Override
-            public void accept(CollectionCodeEntity collectionCodeEntity) {
-
-            }
-        });
-
-        return ;
     }
 
     @Override
@@ -792,13 +746,6 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         });
 
         return collectionAggCodeCounters;
-    }
-
-    @Override
-    public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatusWithCollectedMark(
-        List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
-        return null;
     }
 
     @Override

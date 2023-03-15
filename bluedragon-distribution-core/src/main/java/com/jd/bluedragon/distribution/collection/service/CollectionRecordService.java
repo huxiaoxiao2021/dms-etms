@@ -73,14 +73,6 @@ public interface CollectionRecordService {
     boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result);
 
     /**
-     * 查询某一个待集齐集合下的aggCode的集齐情况
-     * @param collectionCode
-     * @param aggCode
-     * @param aggCodeTypeEnum
-     */
-    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCode(String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum);
-
-    /**
      * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
      * @param collectionCodeEntities 带有集齐ID的查询条件，
      * @param aggCode 聚合统计号，例如JDVA0000000100101
@@ -97,15 +89,6 @@ public interface CollectionRecordService {
      */
     Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
 
-
-    /**
-     * 根据collectionCode集合ID查询该集合的汇总信息
-     * @param element 查询元素
-     * @return
-     */
-    @Deprecated
-    void sumCollection(Map<CollectionConditionKeyEnum, Object> element);
-
     /**
      * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
      * @param collectionCodeEntities
@@ -121,16 +104,6 @@ public interface CollectionRecordService {
      * @return
      */
     List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
-
-    /**
-     * 根据待集齐集合
-     * @param collectionCodeEntities
-     * @param collectionStatusEnum
-     * @param aggCodeTypeEnum
-     * @return
-     */
-    @Deprecated
-    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatusWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
 
     /**
      * 根据集合ID和aggCode查询统计明细信息
