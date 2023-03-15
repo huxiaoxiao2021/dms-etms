@@ -405,7 +405,7 @@
             yn = 1 and type = 2
         and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
         and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
-        group by hander_erp
+        group by handler_erp
     </select>
 
     <select id="queryScrapDetailByCondition" parameterType="java.util.Map" resultMap="jyBizTaskExceptionMap">
