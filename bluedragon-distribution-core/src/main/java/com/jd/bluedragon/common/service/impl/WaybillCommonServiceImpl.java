@@ -1018,7 +1018,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         /*** 产品类型为md-m-0005时:医药专送 */
         if(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(productType)){
-            target.setRespectTypeText(TextConstants.COMMON_TEXT_MEDICINE);
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
         }
         //添加抖音标识
@@ -2063,6 +2062,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     private void appendRespectTypeText(BasePrintWaybill target,String waybillSign,WaybillExt waybillExt){
+        // 产品类型为md-m-0005时:医药专送,展示药
+        if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())) {
+            target.setRespectTypeText(TextConstants.COMMON_TEXT_MEDICINE);
+        }
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybillSign,35,'1')){
             //提出-尊标识
