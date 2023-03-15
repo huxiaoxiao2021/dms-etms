@@ -185,11 +185,4 @@
     where source_biz_id = #{sourceBizId,jdbcType=VARCHAR} and yn = 1
   </select>
 
-  <select id="queryRecordByTargetBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List"/>
-    from jy_evaluate_record
-    where target_biz_id = #{businessId}
-    and yn = 1
-  </select>
 </mapper>
