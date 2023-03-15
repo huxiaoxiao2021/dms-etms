@@ -28,6 +28,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -157,7 +158,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         //在库集齐数量
         CollectReportStatisticsDto siteCollected = new CollectReportStatisticsDto();
-        siteCollected.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+        siteCollected.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
         siteCollected.setStatisticsNum(
             collectedCounters.parallelStream()
                 .filter(
@@ -171,17 +172,6 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         return res;
 
-//        List<CollectTypeEnum> collectTypeList = Arrays.asList(CollectTypeEnum.WAYBILL_BUQI, CollectTypeEnum.TASK_JIQI, CollectTypeEnum.SITE_JIQI);
-//        for(CollectTypeEnum en : collectTypeList) {
-//            //
-//            CollectStatisticsQueryParamDto queryParamDto = new CollectStatisticsQueryParamDto();
-//            queryParamDto.setBizId(collectReportReqDto.getBizId());
-//            queryParamDto.setCollectType(en.getCode());
-//            queryParamDto.setWaybillCode(collectReportReqDto.getWaybillCode());
-//            //
-//            CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(en.getCode());
-//            res.add(collectStatisticsService.collectStatistics(queryParamDto));
-//        }
     }
 
     /**

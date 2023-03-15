@@ -12,17 +12,20 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnu
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.sn.SmartSNGen;
 import com.jd.fastjson.JSON;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -47,6 +50,10 @@ public class JQCodeServiceImpl implements JQCodeService {
 
     @Autowired
     private KvIndexDao kvIndexDao;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Override
     @JProfiler(jKey = "DMS.CORE.JQCodeService.createJQCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
@@ -74,24 +81,30 @@ public class JQCodeServiceImpl implements JQCodeService {
         String condition = CollectionConditionKeyEnum.getCondition(collectionConditionKeyMap,collectionBusinessTypeEnum);
         attributeParam.put(BusinessCodeAttributeKey.JQCodeAttributeKeyEnum.collection_condition.name(), condition);
 
-        KvIndex kvIndex = new KvIndex();
-        kvIndex.setKeyword(condition);
-        kvIndex.setValue(jqCode);
-        if (kvIndexDao.add(kvIndex) <= 0) {
-            log.error("创建待集齐集合号失败：{}，业务类型{}，数据来源：{}",
-                JSON.toJSONString(collectionConditionKeyMap), collectionBusinessTypeEnum.name(), fromSource.name());
-            return "";
+        String jqCodeKey = "collection_code_".concat(condition);
+
+        if (jimdbCacheService.setNx(jqCodeKey, jqCode, 5, TimeUnit.MINUTES)) {
+            KvIndex kvIndex = new KvIndex();
+            kvIndex.setKeyword(condition);
+            kvIndex.setValue(jqCode);
+            if (kvIndexDao.add(kvIndex) <= 0) {
+                log.error("创建待集齐集合号失败：{}，业务类型{}，数据来源：{}",
+                    JSON.toJSONString(collectionConditionKeyMap), collectionBusinessTypeEnum.name(), fromSource.name());
+                return "";
+            }
+
+            boolean isSuccess = businessCodeManager.saveBusinessCodeAndAttribute(jqCode,
+                BusinessCodeNodeTypeEnum.collection_code, attributeParam, createUser, fromSource);
+
+            if (!isSuccess) {
+                log.error("插入业务单号主表副表失败，创建集齐集合号失败，集合号:{},集合属性:{}", jqCode, JsonHelper.toJson(attributeParam));
+                return StringUtils.EMPTY;
+            }
+            return jqCode;
+
+        } else {
+            return jimdbCacheService.get(jqCodeKey);
         }
 
-        boolean isSuccess = businessCodeManager.saveBusinessCodeAndAttribute(jqCode,
-            BusinessCodeNodeTypeEnum.collection_code, attributeParam, createUser, fromSource);
-
-        if (!isSuccess) {
-            log.error("插入业务单号主表副表失败，创建集齐集合号失败，集合号:{},集合属性:{}", jqCode, JsonHelper.toJson(attributeParam));
-            return StringUtils.EMPTY;
-        }
-
-
-        return jqCode;
     }
 }

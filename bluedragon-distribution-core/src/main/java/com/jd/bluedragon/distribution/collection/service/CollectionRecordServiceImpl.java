@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +87,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 List<String> jqCodes =
                     new ArrayList<>(kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition()));
                 return jqCodes.stream().map(jqCode -> {
+                    log.info("根据condition:{}命中了待集齐集合ID:{}",collectionCodeEntity.getCollectionCondition(), jqCode);
                     CollectionCodeEntity collectionCodeEntity1 = new CollectionCodeEntity(businessTypeEnum);
                     collectionCodeEntity1.addAllKey(elements);
                     collectionCodeEntity1.buildCollectionCondition();
@@ -95,6 +98,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.CORE.CollectionRecordService.initFullCollection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
+        JProEnum.TP,JProEnum.FunctionError})
     public boolean initFullCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result) {
         /* 1. 必要的参数检查 */
         if (Objects.isNull(collectionCreatorEntity)) {
@@ -162,6 +167,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.CORE.CollectionRecordService.initPartCollection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
+        JProEnum.TP,JProEnum.FunctionError})
     public boolean initPartCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result) {
         /* 1. 必要的参数检查 */
         if (Objects.isNull(collectionCreatorEntity)) {
@@ -598,10 +605,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        return collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodeEntities.parallelStream()
+        List<CollectionCounter> collectionCounters = collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodeEntities.parallelStream()
             .map(CollectionCodeEntity::getCollectionCode)
             .filter(StringUtils::isNotEmpty)
             .collect(Collectors.toList()));
+
+        return collectionCounters.parallelStream()
+            .peek(
+                collectionCounter ->
+                    collectionCounter.setNoneCollectedNum(collectionCounter.getSumScanNum() - collectionCounter.getCollectedNum())
+            )
+            .collect(Collectors.toList());
 
     }
 
