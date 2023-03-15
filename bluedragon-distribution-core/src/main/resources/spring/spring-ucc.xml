@@ -240,6 +240,14 @@
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
+		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
+		<property name="cloudOssInsertSwitch" value="${cloudOssInsertSwitch:false}"/>
+		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
+		<property name="cttGroupSendFLowLimit" value="${cttGroupSendFLowLimit:10}"/>
+		<property name="czSiteForbiddenList" value="${czSiteForbiddenList:''}"/>
+		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
+		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -467,7 +475,16 @@
 				<value>uccPropertyConfiguration.jyComboardSealBoardListLimit</value>
 				<value>uccPropertyConfiguration.reComboardTimeLimit</value>
 				<value>uccPropertyConfiguration.boardListQuerySwitch</value>
+				<value>uccPropertyConfiguration.reComboardSwitch</value>
+				<value>uccPropertyConfiguration.supportMutilScan</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 
+				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
+				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
+				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
 			</list>
 		</property>
 	</bean>

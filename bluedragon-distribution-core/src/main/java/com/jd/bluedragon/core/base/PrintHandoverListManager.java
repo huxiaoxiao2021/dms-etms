@@ -1,10 +1,9 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
-import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
-import com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult;
+import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
+import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 
 import java.util.List;
@@ -76,5 +75,5 @@ public interface PrintHandoverListManager {
      * @return
      */
     BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs);
-
+    
 }

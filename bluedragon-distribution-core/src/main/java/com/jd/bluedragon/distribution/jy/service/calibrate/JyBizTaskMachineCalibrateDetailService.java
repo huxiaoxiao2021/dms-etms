@@ -44,12 +44,12 @@ public interface JyBizTaskMachineCalibrateDetailService {
     int updateTaskStatus(JyBizTaskMachineCalibrateDetailEntity entity);
 
     /**
-     * 根据条件查询最近一条记录
+     * 根据设备编码查询最近一条记录
      *
      * @param condition
      * @return
      */
-    JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateCondition condition);
+    JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByMachineCode(JyBizTaskMachineCalibrateCondition condition);
 
     /**
      * 根据条件查询任务

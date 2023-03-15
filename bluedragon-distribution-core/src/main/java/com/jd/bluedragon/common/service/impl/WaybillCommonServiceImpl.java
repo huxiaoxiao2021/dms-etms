@@ -8,6 +8,9 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
+import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
+import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -25,6 +28,7 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
@@ -43,6 +47,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -123,6 +129,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+    
+    @Autowired
+    @Qualifier("aoiServiceManager")
+    private AoiServiceManager aoiServiceManager;
 
     private static final String STORAGEWAYBILL_REDIS_KEY_PREFIX = "STORAGEWAY_KEY_";
 
@@ -1114,12 +1124,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
         }
-        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
-        	//提出-尊标识
-        	target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR);
-        	target.appendSpecialMark(target.getRespectTypeText(),false);
-        }
+        //尊 、碎
+        appendRespectTypeText(target,waybill.getWaybillSign(),waybillExt);
 
         //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
@@ -1129,12 +1135,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),Constants.WAYBILL_SIGN_POSITION_92,Constants.WAYBILL_SIGN_POSITION_92_3)){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_BOX);
         }
-        //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
-        if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
-            target.setRoad(waybill.getWaybillExt().getUnpackClassifyNum());
-            target.setRoadCode(waybill.getWaybillExt().getUnpackClassifyNum());
-        	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
-        }
+        // 设置面单路区信息
+        setRoadCode(target, waybill);
         //特殊商家处理
         if(BusinessUtil.isYHD(waybill.getSendPay())){
         	//一号店订单:设置商家别名YHD，商家logo标识yhd4949.gif
@@ -1182,11 +1184,31 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         // 设置面单水印
         setWaterMark(target, waybill);
-
+        // 设置面单aoi信息
+        setAoiCode(target, waybill);
         return target;
     }
-
     /**
+     * 设置路区号及拆包员号
+     * @param target
+     * @param waybill
+     */
+    private void setRoadCode(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+        String roadCode = target.getRoadCode();
+    	//现场调度标识-设置路区为0
+        if(DmsConstants.LOCAL_SCHEDULE.equals(target.getLocalSchedule())){
+        	roadCode = DmsConstants.LOCAL_SCHEDULE_ROAD_CODE;
+        }
+    	//拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
+        if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
+        	roadCode = waybill.getWaybillExt().getUnpackClassifyNum();
+        	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
+        }
+        target.setRoad(roadCode);
+        target.setRoadCode(roadCode);
+	}
+
+	/**
      * 设置模板分组编码
      * @param waybill
      * @param commonWaybill
@@ -1201,7 +1223,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
         }
     }
-
     /**
      * 设置面单水印
      * <ul>
@@ -1245,7 +1266,57 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBcSign(TextConstants.PRE_SELL_FLAG);
         }
     }
-
+    /**
+     * 设置面单aoiCode
+     * @param target
+     * @param waybill
+     */
+    private void setAoiCode(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+    	String waybillCode = target.getWaybillCode();
+    	String aoiId = null;
+    	String aoiCode = null;
+    	//现场反调度不设置aoiCode
+        if(DmsConstants.LOCAL_SCHEDULE.equals(target.getLocalSchedule())){
+        	log.info("现场反调度{}不设置aoiCode！",waybillCode);
+        	return;
+        }
+    	//调用运单接口查询围栏信息获取aoiId
+    	JdResult<List<WaybillFenceDto>> fenceResult = this.waybillQueryManager.getWaybillFenceInfoByWaybillCode(waybillCode);
+    	if(fenceResult != null
+    		 && fenceResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(fenceResult.getData())) {
+    		//取派送aoiId
+    		for(WaybillFenceDto fenceData : fenceResult.getData()) {
+    			if(DmsConstants.WAYBILL_FENCE_TYPE_AOI.equals(fenceData.getFenceType())
+    					&& DmsConstants.WAYBILL_FENCE_DELIVERY_STAGE_2.equals(fenceData.getDeliveryStage())
+    					&& StringUtils.isNotBlank(fenceData.getFenceId())) {
+    				aoiId = fenceData.getFenceId();
+    				break;
+    			}
+    		}
+    	}
+    	if(StringUtils.isBlank(aoiId)){
+    		log.warn("查询运单{}电子围栏aoiId为空！",waybillCode);
+    		return;
+    	}
+    	//调用Gis接口查询aoiCode
+    	AoiBindRoadMappingQuery gisQuery = new AoiBindRoadMappingQuery();
+    	gisQuery.setAoiId(aoiId);
+    	if(target.getPrepareSiteCode() != null) {
+    		gisQuery.setSiteCode(target.getPrepareSiteCode().toString());
+    	}
+    	JdResult<List<AoiBindRoadMappingData>> aoiResult = aoiServiceManager.aoiBindRoadMappingExactSearch(gisQuery);
+    	if(aoiResult != null
+    		 && aoiResult.isSucceed()
+    		 && !CollectionUtils.isEmpty(aoiResult.getData())) {
+    		aoiCode = aoiResult.getData().get(0).getAoiCode();
+    	}
+    	if(StringUtils.isBlank(aoiCode)){
+    		log.warn("查询Gis运单{}派送aoiCode为空！",waybillCode);
+    		return;
+    	}
+    	target.setAoiCode(aoiCode);
+    }
     /**
      * 获取附属地址
      * @param data
@@ -1983,5 +2054,26 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             return null;
         }
         return baseEntity.getData();
+    }
+
+    /**
+     * 处理“尊” 标识位逻辑
+     * @param
+     * @param waybillSign
+     * @return
+     */
+    private void appendRespectTypeText(BasePrintWaybill target,String waybillSign,WaybillExt waybillExt){
+        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
+        if(BusinessUtil.isSignChar(waybillSign,35,'1')){
+            //提出-尊标识
+            target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR );
+        }
+        //“碎” 在 “尊” 的标识位追加
+        String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
+        if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+        }
+        log.info("appendRespectTypeText-{}",target.getRespectTypeText());
+        target.appendSpecialMark(target.getRespectTypeText(),false);
     }
 }

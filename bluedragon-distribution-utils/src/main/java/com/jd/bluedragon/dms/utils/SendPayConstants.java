@@ -107,4 +107,10 @@ public interface SendPayConstants {
 	 */
 	int POSITION_8 = 8;
 	char CHAR_6 = '6';
+
+	/**
+	 * 第746位等于1时，表示为易碎运单
+	 */
+	int POSITION_746 = 746;
+	String CHAR_746_1 = "1";
 }

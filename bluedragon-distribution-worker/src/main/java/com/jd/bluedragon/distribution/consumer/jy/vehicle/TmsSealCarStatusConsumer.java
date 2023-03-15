@@ -3,9 +3,14 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -20,16 +25,20 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,6 +85,12 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
+
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsSealCarStatusConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -126,6 +141,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return false;
         }
         Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
+
+        // 完结板操作
+        closeBoard(sealCarInfoBySealCarCodeOfTms);
+
         //检查目的地是否是拣运中心
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
@@ -166,6 +185,46 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         }
         return false;
     }
+
+    private void closeBoard(SealCarDto sealCarInfoBySealCarCodeOfTms) {
+        if (!CollectionUtils.isEmpty(sealCarInfoBySealCarCodeOfTms.getBatchCodes())) {
+            try {
+                JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
+                query.setSendCodeList(sealCarInfoBySealCarCodeOfTms.getBatchCodes());
+                List<JyBizTaskComboardEntity> boardEntityList = jyBizTaskComboardService.listBoardTaskBySendCode(query);
+                if (CollectionUtils.isEmpty(boardEntityList)) {
+                    return;
+                }
+                List<String> boardList = new ArrayList<>();
+                List<String> sealSendCodeList = new ArrayList<>();
+                for (JyBizTaskComboardEntity entity : boardEntityList) {
+                    if (!entity.getBoardStatus().equals(ComboardStatusEnum.SEALED.getCode())) {
+                        sealSendCodeList.add(entity.getSendCode());
+                    }
+                    boardList.add(entity.getBoardCode());
+                }
+
+                if (!CollectionUtils.isEmpty(sealSendCodeList)) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("开始更新板状态：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
+                    if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealSendCodeList, sealCarInfoBySealCarCodeOfTms.getSealUserCode(),
+                            sealCarInfoBySealCarCodeOfTms.getSealUserName(), ComboardStatusEnum.SEALED)) {
+                        logger.info("批量更新板状态失败：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
+                }
+
+
+                if (!groupBoardManager.batchCloseBoard(boardList)) {
+                    logger.error("批量完结板失败：{}",JsonHelper.toJson(boardList));
+                }
+            }catch (Exception e) {
+                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()),e);
+            }
+        }
+    }
+
+
 
     /**
      * 类型转换 封车状态

@@ -6,10 +6,7 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -995,6 +992,46 @@ public class BusinessUtil {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
                 && isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_4)
                 && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3);
+    }
+
+    /**
+     * 判断是否是冷链专送
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdDelivery(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G);
+    }
+
+    /**
+     * 判断是否是冷链城配
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdCityDistribute(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是冷链卡班
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdKB(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否是冷链小票
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdReceipt(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_6, WaybillSignConstants.CHAR_80_7);
     }
 
     /**
@@ -2546,6 +2583,13 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+
+  public static boolean isCarCode(String carCode) {
+    if (StringUtils.isBlank(carCode)) {
+      return false;
+    }
+    return CARCODE_REGEX.matcher(carCode).matches() ;
+  }
 
     /**
      * 判断是否是快运运单

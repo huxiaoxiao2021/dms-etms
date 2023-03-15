@@ -307,6 +307,12 @@ public class TextConstants {
     public static final String COMMON_TEXT_MEDICINE_DP = "医药大票";
 
     public static final String COMMON_TEXT_MEDICINE_COLD = "医冷零担";
+
+    /**
+     * 碎
+     */
+    public static final String SPECIAL_MARK_FRAGILE ="碎";
+
     /**
      * 药
      */

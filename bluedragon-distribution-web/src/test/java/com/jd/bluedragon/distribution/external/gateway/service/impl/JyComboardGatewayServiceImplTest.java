@@ -72,6 +72,7 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(910);
         query.setCurrentOperate(currentOperate);
+        query.setNeedSendFlowStatistics(true);
         JdCResponse<TableTrolleyResp> re = jyComboardGatewayService.listTableTrolleyUnderCross(query);
         System.out.println("根据滑道获取结果：" + JsonHelper.toJson(re));
         TableTrolleyReq tableTrolleyReq = new TableTrolleyReq();
@@ -625,5 +626,20 @@ public class JyComboardGatewayServiceImplTest {
         deleteCTTGroupReq.setUser(user);
         JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+    
+    @Test
+    public void  queryUserByStartSiteCodeTest() {
+        SendFlowQueryReq boardReq = new SendFlowQueryReq();
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        boardReq.setCurrentOperate(operate);
+        boardReq.setGroupCode("G00000059001");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        boardReq.setUser(user);
+        jyComboardGatewayService.queryScanUser(boardReq);
     }
 }

@@ -30,8 +30,8 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().update(NAMESPACE + ".closeCalibrateDetailById", entity);
     }
 
-    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".selectLatelyOneByCondition", condition);
+    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByMachineCode(JyBizTaskMachineCalibrateDetailEntity condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectLatelyOneByMachineCode", condition);
     }
 
     public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateCondition condition) {

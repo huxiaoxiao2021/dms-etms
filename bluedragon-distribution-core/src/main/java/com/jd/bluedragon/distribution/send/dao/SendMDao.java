@@ -287,4 +287,16 @@ public  class SendMDao extends BaseDao<SendM>  {
 
 		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectSendByBoardCode",searchParams);
 	}
+
+	public List<SendM> selectBoxCodeBySiteAndSendCode(Integer createSiteCode, String sendCode, Integer pageNumber, Integer pageSize) {
+		if (pageNumber <= 0) {
+			return null;
+		}
+		SendM querySendM = new SendM();
+		querySendM.setCreateSiteCode(createSiteCode);
+		querySendM.setSendCode(sendCode);
+		querySendM.setLimit(pageSize);
+		querySendM.setOffset((pageNumber-1)*pageSize);
+		return getSqlSession().selectList(SendMDao.namespace + ".selectBoxCodeBySiteAndSendCode", querySendM);
+	}
 }

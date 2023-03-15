@@ -53,7 +53,7 @@ public class DateHelper {
     /**
      * 五分钟毫秒数
      */
-    public static final long FIVE_MINUTES_MILLI = 5 * ONE_MINUTES_MILLI;     
+    public static final long FIVE_MINUTES_MILLI = 5 * ONE_MINUTES_MILLI;
 
     /**
      * 十分钟的毫秒数
@@ -106,7 +106,7 @@ public class DateHelper {
 	/**
 	 * 时间格式
 	 */
-	private static final String SEND_CAR_TIME_FORMAT = "%s %s"; 
+	private static final String SEND_CAR_TIME_FORMAT = "%s %s";
 	/**
 	 * 运输时间截取长度
 	 */
@@ -130,6 +130,14 @@ public class DateHelper {
 
     public static Date addDate(final Date date, Integer days) {
         return DateHelper.add(date, Calendar.DATE, days);
+    }
+
+    public static Date addHours(final Date date, int hours) {
+        return DateHelper.add(date, Calendar.HOUR, hours);
+    }
+    public static Date addHoursByDay(final Date date, Double days) {
+        int hours =(int)(days * 24);
+        return DateHelper.add(date, Calendar.HOUR, hours);
     }
 
     public static String formatDate(Date date) {
@@ -582,7 +590,7 @@ public class DateHelper {
         return format.format(new Date());
     }
     /**
-     * 
+     *
      * @param hours
      * @return
      */

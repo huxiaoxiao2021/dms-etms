@@ -488,6 +488,15 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Integer outputType = 0;
 	
+    /**
+     * aoi编码
+     */
+	private String aoiCode;
+	/**
+	 * 返调度标识 1-返调度 0-其他打印
+	 */
+	private Integer localSchedule;
+	
 	public String getServiceCode() {
 		return serviceCode;
 	}
@@ -1738,5 +1747,17 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setOutputType(Integer outputType) {
 		this.outputType = outputType;
+	}
+	public String getAoiCode() {
+		return aoiCode;
+	}
+	public void setAoiCode(String aoiCode) {
+		this.aoiCode = aoiCode;
+	}
+	public Integer getLocalSchedule() {
+		return localSchedule;
+	}
+	public void setLocalSchedule(Integer localSchedule) {
+		this.localSchedule = localSchedule;
 	}
 }
