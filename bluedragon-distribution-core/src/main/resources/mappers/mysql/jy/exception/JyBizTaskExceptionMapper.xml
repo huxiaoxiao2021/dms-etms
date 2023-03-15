@@ -393,8 +393,8 @@
         FROM jy_biz_task_exception
         WHERE
             yn = 1 and status = 0
-          and  <![CDATA[   create_time <= #{endTime}  ]]>
-          and  <![CDATA[   create_time >= #{startTime}  ]]>
+          and  <![CDATA[   create_time >= #{queryStartTime}  ]]>
+          and  <![CDATA[   create_time <= #{queryEndTime}  ]]>
         group by site_code, grid_code
     </select>
 
@@ -414,7 +414,7 @@
         WHERE
             yn = 1 and type = 2
         and handler_erp = #{handlerErp}
-        and  <![CDATA[   process_begin_time >= #{processBeginTime}  ]]>
+        and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
         and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
     </select>
     

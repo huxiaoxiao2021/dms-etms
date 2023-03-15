@@ -64,7 +64,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
     }
 
     public List<JyExceptionAgg> queryUnCollectAndOverTimeAgg(Map<String, Object> params) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryUnCollectAndOverTimeAgg", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryUnCollectAndOverTimeAgg", params);
     }
 
     /**
