@@ -456,7 +456,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 list.add(dto);
             }
         }
-
+        logger.info("getExceptionTaskPageList 结果-{}",JSON.toJSONString(list));
         // 仅待取件列表 记录"进行中"的人数
         if (!Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PICK.getCode())) {
             return JdCResponse.ok(list);

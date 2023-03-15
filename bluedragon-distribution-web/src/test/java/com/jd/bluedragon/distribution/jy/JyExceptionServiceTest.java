@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
@@ -37,11 +39,11 @@ public class JyExceptionServiceTest {
         req.setUserErp("wuyoude");
         req.setSiteId(910);
         //req.setBarCode("sw000001");
-        req.setBarCode("SW1111112223");
-        //req.setBarCode("JDVA19408919504");
+        //req.setBarCode("SW1111112223");
+        req.setBarCode("JDVA19408919504");
         req.setSource(0);
         req.setPositionCode("GW00003001");
-        req.setType(0);
+        req.setType(1);
 
         JdCResponse<Object> response = jyExceptionService.uploadScan(req);
         System.out.println(JSON.toJSONString(response));
@@ -66,7 +68,8 @@ public class JyExceptionServiceTest {
         StatisticsByGridReq req = new StatisticsByGridReq();
         req.setUserErp("wuyoude");
         req.setPositionCode("GW00003001");
-        jyExceptionService.getGridStatisticsPageList(req);
+        JdCResponse<List<StatisticsByGridDto>> response = jyExceptionService.getGridStatisticsPageList(req);
+        System.out.println(JSON.toJSONString(response));
     }
 
 
@@ -74,13 +77,11 @@ public class JyExceptionServiceTest {
     public void getExceptionTaskPageList() {
 
         ExpTaskPageReq req = new ExpTaskPageReq();
-        req.setFloor(2);
-        req.setStatus(0);
-        req.setGridCode("CLLQ-07");
+        req.setStatus(1);
         req.setPositionCode("GW00003001");
-        req.setUserErp("userErp");
-        req.setOffSet(0);
-        jyExceptionService.getExceptionTaskPageList(req);
+        req.setUserErp("wuyoude");
+        JdCResponse<List<ExpTaskDto>> response = jyExceptionService.getExceptionTaskPageList(req);
+        System.out.println(JSON.toJSONString(response));
     }
 
 
