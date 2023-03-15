@@ -69,9 +69,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         if(BarCodeType.BOX_CODE.equals(barCodeType)){
             final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(entity.getBarcode());
             String boxCode = entity.getBarcode();
+            addReceiveTask(entity, boxCode);
             for (SendDetail sendDetail : boxDetailList) {
                 entity.setBarcode(sendDetail.getPackageBarcode());
-                addReceiveTask(entity, boxCode);
                 addInspectionTask(entity, boxCode);
             }
         } else {
@@ -95,6 +95,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         inspection.setBusinessType(businessType);
         inspection.setPackageBarOrWaybillCode(entity.getBarcode());
         inspection.setBizSource(InspectionBizSourceEnum.valueOf(entity.getRequestProfile().getSysSource()).getCode());
+        inspection.setBoxCode(boxCode);
         TaskRequest request = new TaskRequest();
         request.setBusinessType(businessType);
         request.setKeyword1(String.valueOf(entity.getOperatorInfo().getOperateSiteId()));
@@ -127,7 +128,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
         receiveRequest.setCarCode(Constants.EMPTY_FILL);
-        receiveRequest.setPackOrBox(entity.getBarcode());
+        receiveRequest.setPackOrBox(boxCode);
         receiveRequest.setId(0);
         Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
         receiveRequest.setBusinessType(businessType);
@@ -184,7 +185,6 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             request.setFeatureType(0);
             request.setIsCancel(0);
             request.setIsLoss(0);
-            request.setPackageCode(entity.getPackageCode());
             request.setReceiveSiteCode(entity.getReceiveSiteId());
             request.setReceiveSiteName(entity.getReceiveSiteName());
             request.setWaybillCode(entity.getWaybillCode());

@@ -65,6 +65,11 @@ public class LabelPrintFileResource {
     private static final String FORM_FILENAME_ELEMENT_NAME = "fileName";
 
     /**
+     * 调用方系统名称
+     */
+    private static final String FORM_SOURCESYSNAME_ELEMENT_NAME = "sourceSysName";
+
+    /**
      * 表单中读写权限secretKey
      */
     private static final String FORM_SECRETKEY_ELEMENT_NAME = "secretKey";
@@ -87,12 +92,14 @@ public class LabelPrintFileResource {
         String folder = null;
         String fileName = null;
         String secretKey = null;
+        String sourceSysName = null;
         try {
             Map<String, List<InputPart>> uploadForm = formDataInputs.getFormDataMap();
             folder = getElementValue(uploadForm,FORM_FOLDER_ELEMENT_NAME);
             fileName = getElementValue(uploadForm,FORM_FILENAME_ELEMENT_NAME);
             secretKey = getElementValue(uploadForm,FORM_SECRETKEY_ELEMENT_NAME);
-            log.info("上传文件-folder[{}]fileName[{}]secretKey[{}]", folder,fileName,secretKey);
+            sourceSysName = getElementValue(uploadForm,FORM_SOURCESYSNAME_ELEMENT_NAME);
+            log.info("上传文件-folder[{}]fileName[{}]secretKey[{}]sourceSysName[{}]", folder,fileName,secretKey,sourceSysName);
             if(StringUtils.isEmpty(secretKey)){
                 log.error("上传文件-secretKey不能为空");
                 invokeResult.error("上传文件secretKey不能为空");
@@ -111,6 +118,11 @@ public class LabelPrintFileResource {
             if(StringUtils.isEmpty(fileName)){
                 log.error("上传文件-文件夹folder内容为空");
                 invokeResult.error("上传文件内容为空表单name："+FORM_FILENAME_ELEMENT_NAME);
+                return invokeResult;
+            }
+            if(StringUtils.isEmpty(sourceSysName)){
+                log.error("上传文件-sourceSysName内容为空");
+                invokeResult.error("上传文件内容为空表单name："+FORM_SOURCESYSNAME_ELEMENT_NAME);
                 return invokeResult;
             }
             List<InputPart> inputParts = uploadForm.get(FORM_FILE_ELEMENT_NAME);
@@ -147,7 +159,7 @@ public class LabelPrintFileResource {
         Response.ResponseBuilder response = null;
         try {
             log.info("下载文件-fileRequest[{}]", JsonHelper.toJson(fileRequest));
-            if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())){
+            if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())|| StringUtils.isEmpty(fileRequest.getSourceSysName())){
                 log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
                 response = Response.status(Response.Status.BAD_REQUEST);
                 return response.build();
@@ -180,9 +192,9 @@ public class LabelPrintFileResource {
     public InvokeResult<List<String>> listFiles(FileRequest fileRequest) {
         InvokeResult<List<String>> invokeResult = new InvokeResult<>();
         log.info("查看文件列表-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
-        if(StringUtils.isEmpty(fileRequest.getFolder())){
+        if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())){
             log.warn("查看文件列表报错-参数校验不通过fileRequest[{}]",  JsonHelper.toJson(fileRequest));
-            invokeResult.error("查看文件列表报错-参数校验不通过folder不能为空");
+            invokeResult.error("查看文件列表报错-参数校验不通过folder、sourceSysName不能为空");
             return invokeResult;
         }
         invokeResult.success();
@@ -199,9 +211,9 @@ public class LabelPrintFileResource {
     public InvokeResult<Boolean> deleteFile(FileRequest fileRequest){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         log.info("删除文件-fileRequest[{}]", JsonHelper.toJson(fileRequest));
-        if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())){
+        if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName()) || StringUtils.isEmpty(fileRequest.getFileName())){
             log.warn("删除文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
-            result.error("删除文件报错-参数校验不通过fileName、folder不能为空");
+            result.error("删除文件报错-参数校验不通过fileName、folder、sourceSysName不能为空");
             return result;
         }
         if(StringUtils.isEmpty(fileRequest.getSecretKey())){
