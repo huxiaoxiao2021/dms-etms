@@ -36,30 +36,4 @@ public interface JyEvaluateService {
      * 评价修改
      */
     void updateTargetEvaluate(EvaluateTargetReq request);
-
-    /**
-     * 评价基础信息分页查询
-     */
-    Result<List<JyEvaluateTargetInfoEntity>> queryPageList(JyEvaluateTargetInfoQuery query);
-
-    /**
-     * 根据条件查询数量
-     * @param query
-     * @return
-     */
-    Result<Long> queryCount(JyEvaluateTargetInfoQuery query);
-
-    /**
-     * 根据被评价目标业务主键查询评价记录
-     * @param businessId
-     * @return
-     */
-    Result<List<JyEvaluateRecordEntity>> queryRecordByTargetBizId(String businessId);
-
-    /**
-     * 根据被评价目标业务主键查询评价基础信息
-     * @param businessId
-     * @return
-     */
-    Result<JyEvaluateTargetInfoEntity> queryInfoByTargetBizId(String businessId);
 }

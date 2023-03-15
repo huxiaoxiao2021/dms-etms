@@ -30,58 +30,6 @@ public class JyEvaluateServiceImplTest {
     private JyEvaluateService jyEvaluateService;
 
     @Test
-    public void queryPageListTest() {
-        JyEvaluateTargetInfoQuery query = new JyEvaluateTargetInfoQuery();
-        query.setTargetStartTime(new Date(1677229837000L));
-        query.setTargetEndTime(new Date(1677834637000L));
-        query.setTargetAreaCode(6);
-        query.setTargetSiteCode(910);
-        query.setVehicleNumber("京·A8888");
-        query.setEvaluateStartTime(new Date(1677229837000L));
-        query.setEvaluateEndTime(new Date(1677834637000L));
-        query.setSourceAreaCode(6);
-        query.setSourceSiteCode(910);
-        query.setHelperErp("wuyoude");
-        query.setPageNumber(1);
-        query.setPageSize(10);
-        Result<List<JyEvaluateTargetInfoEntity>> result = jyEvaluateService.queryPageList(query);
-        log.info("queryPageListTest result: {}", JsonHelper.toJson(result));
-    }
-
-    @Test
-    public void queryCountTest() {
-        JyEvaluateTargetInfoQuery query = new JyEvaluateTargetInfoQuery();
-        query.setTargetStartTime(new Date(1677229837000L));
-        query.setTargetEndTime(new Date(1677834637000L));
-        query.setTargetAreaCode(6);
-        query.setTargetSiteCode(910);
-        query.setVehicleNumber("京·A8888");
-        query.setEvaluateStartTime(new Date(1677229837000L));
-        query.setEvaluateEndTime(new Date(1677834637000L));
-        query.setSourceAreaCode(6);
-        query.setSourceSiteCode(910);
-        query.setHelperErp("wuyoude");
-        query.setPageNumber(1);
-        query.setPageSize(10);
-        Result<Long> result = jyEvaluateService.queryCount(query);
-        log.info("queryCountTest result: {}", JsonHelper.toJson(result));
-    }
-
-    @Test
-    public void queryInfoByTargetBizIdTest() {
-        String businessId = "SST23022400000075";
-        Result<JyEvaluateTargetInfoEntity> result = jyEvaluateService.queryInfoByTargetBizId(businessId);
-        log.info("queryInfoByTargetBizIdTest result: {}", JsonHelper.toJson(result));
-    }
-
-    @Test
-    public void queryRecordByTargetBizIdTest() {
-        String businessId = "SST23022400000075";
-        Result<List<JyEvaluateRecordEntity>> result = jyEvaluateService.queryRecordByTargetBizId(businessId);
-        log.info("queryRecordByTargetBizIdTest result: {}", JsonHelper.toJson(result));
-    }
-
-    @Test
     public void testDimensionOptions() {
         List<DimensionOption> result = jyEvaluateService.dimensionOptions();
         Assert.assertNotNull(result);
