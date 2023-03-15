@@ -1863,6 +1863,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!request.getEndSiteId().equals(request.getDestinationId())){
         final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
         if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          if (request.getForceSendFlag()){
+            request.setDestinationId(request.getEndSiteId());
+            return;
+          }
           if (needForceSend(request.getCurrentOperate().getSiteCode())){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
             throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
@@ -1905,10 +1909,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
       }
     }
+    //不在混扫的流向内
     if (!hasMatchDestinationIdFlag) {
-      //throw new JyBizException("扫描包裹/箱号所属流向不在当前混扫任务范畴内！");
+      if (request.getForceSendFlag()){
+        request.setDestinationId(request.getEndSiteId());
+        return;
+      }
+      if (needForceSend(request.getCurrentOperate().getSiteCode())){
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+        throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本混扫任务流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+      }
       throw new JyBizException(NOT_BELONG_THIS_HUNSAO_TASK_CODE,NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE);
     }
+    //混扫切换流向
     if (!request.getEndSiteId().equals(request.getDestinationId()) && !request.getNeedSkipSendFlowCheck()){
       if (ucc.getSupportMutilScan()){
         request.setNeedSkipSendFlowCheck(true);
