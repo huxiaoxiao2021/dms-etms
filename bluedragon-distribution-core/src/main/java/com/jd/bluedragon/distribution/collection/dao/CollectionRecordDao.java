@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public class CollectionRecordDao {
 
-    private static final String NAMESPACE = BusinessCodeDao.class.getName();
+    private static final String NAMESPACE = CollectionRecordDao.class.getName();
 
     private static final String TABLE_NAME_COLLECTION_RECORD = "COLLECTION_RECORD";
     private static final String TABLE_NAME_COLLECTION_RECORD_DETAIL = "COLLECTION_RECORD_DETAIL";

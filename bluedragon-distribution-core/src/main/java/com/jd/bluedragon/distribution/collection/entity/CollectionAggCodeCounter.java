@@ -46,6 +46,7 @@ public class CollectionAggCodeCounter {
 
     /**
      * 需要集齐总数
+     *  == 0 代表他没有被集齐初始化，
      */
     private Integer sumScanNum;
 
@@ -82,6 +83,11 @@ public class CollectionAggCodeCounter {
     private Integer innerMarkNoneCollectedNum;
 
     /**
+     * 本车多扫
+     */
+    private Integer innerMarkExtraCollectedNum;
+
+    /**
      * 在库已集齐
      * 非本车已扫
      */
@@ -91,6 +97,11 @@ public class CollectionAggCodeCounter {
      * 在库未集齐
      */
     private Integer outMarkNoneCollectedNum;
+
+    /**
+     * 在库多扫
+     */
+    private Integer outMarkExtraCollectedNum;
 
     /**
      * 数据时间，可以判断数据是否发生更新

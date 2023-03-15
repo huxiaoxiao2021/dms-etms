@@ -11,8 +11,8 @@
 		<result column="is_collected" property="isCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="is_extra_collected" property="isExtraCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="agg_mark" property="aggMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="DATETIME"/>
-		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
 		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
 	</resultMap>
@@ -27,8 +27,8 @@
 		<result column="agg_code_type" property="aggCodeType" javaType="java.lang.String" jdbcType="VARCHAR"/>
 		<result column="collected_status" property="collectedStatus" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="collected_mark" property="collectedMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="DATETIME"/>
-		<result column="collected_time" property="collectedTime" javaType="java.util.Date" jdbcType="DATETIME"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="collected_time" property="collectedTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
 		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
 	</resultMap>
@@ -40,14 +40,14 @@
 			`agg_mark`, `create_time`, `yn`
 		)
 		VALUES (
-			#{id, jdbcType = BIGINT},
-			#{collectionCode, jdbcType = VARCHAR},
-			#{aggCode, jdbcType = VARCHAR},
-			#{aggCodeType, jdbcType = VARCHAR},
-			#{sum, jdbcType = INTEGER},
-			#{isCollected, jdbcType = INTEGER},
-			#{isExtraCollected, jdbcType = INTEGER},
-			#{aggMark, jdbcType = VARCHAR},
+			#{id, jdbcType=BIGINT},
+			#{collectionCode, jdbcType=VARCHAR},
+			#{aggCode, jdbcType=VARCHAR},
+			#{aggCodeType, jdbcType=VARCHAR},
+			#{sum, jdbcType=INTEGER},
+			#{isCollected, jdbcType=INTEGER},
+			#{isExtraCollected, jdbcType=INTEGER},
+			#{aggMark, jdbcType=VARCHAR},
 			NOW(),1
 		)
 	</insert>
@@ -60,35 +60,35 @@
 		)
 		VALUES
 		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
-			#{item.id, jdbcType = BIGINT},
-			#{item.collectionCode, jdbcType = VARCHAR},
-			#{item.aggCode, jdbcType = VARCHAR},
-			#{item.aggCodeType, jdbcType = VARCHAR},
-			#{item.sum, jdbcType = INTEGER},
-			#{item.isCollected, jdbcType = INTEGER},
-			#{item.isExtraCollected, jdbcType = INTEGER},
-			#{item.aggMark, jdbcType = VARCHAR},
+			#{item.id, jdbcType=BIGINT},
+			#{item.collectionCode, jdbcType=VARCHAR},
+			#{item.aggCode, jdbcType=VARCHAR},
+			#{item.aggCodeType, jdbcType=VARCHAR},
+			#{item.sum, jdbcType=INTEGER},
+			#{item.isCollected, jdbcType=INTEGER},
+			#{item.isExtraCollected, jdbcType=INTEGER},
+			#{item.aggMark, jdbcType=VARCHAR},
 			NOW(),1
 		</foreach>
 	</insert>
 
 	<insert id="batchInsertCollectionRecordDetail" parameterType="java.util.List">
 		INSERT INTO collection_record_detail
-		create_time
+		(
 			`id`, `collection_code`, `scan_code`, `scan_code_type`, `agg_code`, `agg_code_type`,
 			`collected_status`, `collected_mark`, `create_time`, `yn`
 		)
 		VALUES
 		<foreach collection="list" item="item" index="index" separator=",">
 			(
-				#{item.id, jdbcType = BIGINT},
-				#{item.collectionCode, jdbcType = VARCHAR},
-				#{item.scanCode, jdbcType = VARCHAR},
-				#{item.scanCodeType, jdbcType = VARCHAR},
-				#{item.aggCode, jdbcType = VARCHAR},
-				#{item.aggCodeType, jdbcType = VARCHAR},
-				#{item.collectedStatus, jdbcType = INTEGER},
-				#{item.collectedMark, jdbcType = VARCHAR},
+				#{item.id, jdbcType=BIGINT},
+				#{item.collectionCode, jdbcType=VARCHAR},
+				#{item.scanCode, jdbcType=VARCHAR},
+				#{item.scanCodeType, jdbcType=VARCHAR},
+				#{item.aggCode, jdbcType=VARCHAR},
+				#{item.aggCodeType, jdbcType=VARCHAR},
+				#{item.collectedStatus, jdbcType=INTEGER},
+				#{item.collectedMark, jdbcType=VARCHAR},
 				now(), 1
 			)
 		</foreach>
@@ -99,19 +99,19 @@
 			collection_record
 		<set>
 			<if test="isCollected != null">
-				is_collected = #{isCollected, jdbcType = INTEGER}
+				is_collected = #{isCollected, jdbcType=INTEGER}
 			</if>
 			<if test="isExtraCollected != null">
-				and is_extra_collected = #{isExtraCollected, jdbcType = INTEGER}
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
 			<if test="aggMark != null">
-				and agg_mark = #{aggMark, jdbcType = VARCHAR}
+				and agg_mark = #{aggMark, jdbcType=VARCHAR}
 			</if>
 			and update_time = NOW()
 		</set>
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
-			and agg_code = #{aggCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</update>
@@ -121,16 +121,16 @@
 			collection_record_detail
 		<set>
 			<if test="collectedStatus != null">
-				collected_status = #{collectedStatus, jdbcType = INTEGER}
+				collected_status = #{collectedStatus, jdbcType=INTEGER}
 			</if>
 			<if test="collectedMark != null">
-				and collected_mark = #{collectedMark, jdbcType = VARCHAR}
+				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
 			</if>
 			and collected_time = NOW()
 		</set>
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
-			and scan_code = #{scanCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code = #{scanCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</update>
@@ -141,16 +141,16 @@
 		FROM
 			collection_record
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			<if test="aggCode != null and aggCodeType != null">
-				and aggCode = #{aggCode, jdbcType = VARCHAR}
-				and aggCodeType = #{aggCodeType, jdbcType = VARCHAR}
+				and agg_code = #{aggCode, jdbcType=VARCHAR}
+				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			</if>
 			<if test="isCollected != null">
-				and is_collected = #{isCollected, jdbcType = INTEGER}
+				and is_collected = #{isCollected, jdbcType=INTEGER}
 			</if>
 			<if test="isExtraCollected != null">
-				and is_extra_collected = #{isExtraCollected, jdbcType = INTEGER}
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
 			and yn = 1
 		</where>
@@ -163,16 +163,16 @@
 		FROM
 			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			<if test="scanCode != null">
-				and scanCode = #{scanCode, jdbcType = VARCHAR}
+				and scan_code = #{scanCode, jdbcType=VARCHAR}
 			</if>
 			<if test="aggCode != null and aggCodeType != null">
-				and aggCode = #{aggCode, jdbcType = VARCHAR}
-				and aggCodeType = #{aggCodeType, jdbcType = VARCHAR}
+				and agg_code = #{aggCode, jdbcType=VARCHAR}
+				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			</if>
 			<if test="collectedStatus != null">
-				and collected_status = #{collectedStatus, jdbcType = VARCHAR}
+				and collected_status = #{collectedStatus, jdbcType=VARCHAR}
 			</if>
 			and yn = 1
 		</where>
@@ -184,7 +184,7 @@
 		FROM
 			collection_record
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</select>
@@ -196,7 +196,7 @@
 		FROM
 			collection_record
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			and is_collected = 0
 			and yn = 1
 		</where>
@@ -208,7 +208,7 @@
 		FROM
 			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</select>
@@ -219,8 +219,8 @@
 		FROM
 			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
-			and scan_code = #{scanCode, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code = #{scanCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</select>
@@ -233,9 +233,9 @@
 		FROM
 			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType = VARCHAR}
-			and agg_code = #{aggCode, jdbcType = VARCHAR}
-			and agg_code_type = #{aggCodeType, jdbcType = VARCHAR}
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</select>
@@ -252,7 +252,7 @@
 			<if test="list != null">
 				collection_code in
 				<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType = VARCHAR}
+					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 			</if>
 			and yn = 1
@@ -275,24 +275,24 @@
 			<if test="list != null">
 				crd.collection_code in
 				<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType = VARCHAR}
+					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 			</if>
 			<if test="isCollected != null">
-				and cr.is_collected = #{isCollected, jdbcType = VARCHAR}
+				and cr.is_collected = #{isCollected, jdbcType=VARCHAR}
 			</if>
 			<if test="aggCodeType != null">
-				and cr.agg_code_type = #{aggCodeType, jdbcType = VARCHAR}
+				and cr.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			</if>
 			<if test="aggCode != null">
-				and cr.agg_code = #{aggCode, jdbcType = VARCHAR}
+				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
 			</if>
 			and yn = 1
 		</where>
 		group by
 			crd.collection_code, crd.agg_code, crd.agg_code_type, collected_mark, crd.collected_status
 		order by cr.agg_mark
-		limit #{offset, jdbcType = INTEGER}, #{limit, jdbcType = INTEGER}
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
 
@@ -307,15 +307,15 @@
 			<if test="list != null">
 				crd.collection_code in
 				<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType = VARCHAR}
+					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 			</if>
-			and agg_code = #{aggCode, jdbcType = VARCHAR}
-			and agg_codeType = #{aggCodeType, jdbcType = VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_codeType = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 		order by collected_mark
-		limit #{offset, jdbcType = INTEGER}, #{limit, jdbcType = INTEGER}
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
 

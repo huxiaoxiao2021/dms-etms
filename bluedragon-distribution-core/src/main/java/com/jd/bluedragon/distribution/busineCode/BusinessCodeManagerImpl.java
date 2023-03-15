@@ -70,7 +70,7 @@ public class BusinessCodeManagerImpl implements BusinessCodeManager {
         /* 2. 添加属性主表 */
         BusinessCodePo businessCodePo = new BusinessCodePo();
         businessCodePo.setCode(businessCode);
-        businessCodePo.setNodeType(BusinessCodeNodeTypeEnum.send_code.name());
+        businessCodePo.setNodeType(businessCodeNodeTypeEnum.name());
         businessCodePo.setCreateUser(createUser);
         businessCodePo.setUpdateUser(createUser);
         businessCodePo.setFromSource(fromSourceEnum.name());
