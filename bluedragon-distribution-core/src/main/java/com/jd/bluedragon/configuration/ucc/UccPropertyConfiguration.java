@@ -418,6 +418,7 @@ public class UccPropertyConfiguration {
     /**
      * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
      * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     * @Deprecated(已废弃)
      */
     @Deprecated
     private String siteEnableSendCodeEffectiveValidation;
@@ -557,6 +558,11 @@ public class UccPropertyConfiguration {
      * 货物滞留时间
      */
     private int goodsResidenceTime;
+
+    /**
+     * 写云es开关
+     */
+    private boolean cloudOssInsertSwitch;
 
 
     public String getAddiOwnNumberConf() {
@@ -785,7 +791,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Integer jyComboardSealQueryBoardListTime;
+    private Double jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -1202,24 +1208,43 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
-    private String siteForbiddenList;
+    /**
+     * 传站拦截-- 场地黑名单
+     */
+    private String czSiteForbiddenList;
 
-    private String orgForbiddenList;
+    /**
+     * 传站拦截-- 大区黑名单
+     */
+    private String czOrgForbiddenList;
 
-    public String getSiteForbiddenList() {
-        return siteForbiddenList;
+    /**
+     * 传站拦截-场地类型黑名单
+     */
+    private String czSiteTypeForbiddenList;
+
+    public String getCzSiteTypeForbiddenList() {
+        return czSiteTypeForbiddenList;
     }
 
-    public void setSiteForbiddenList(String siteForbiddenList) {
-        this.siteForbiddenList = siteForbiddenList;
+    public void setCzSiteTypeForbiddenList(String czSiteTypeForbiddenList) {
+        this.czSiteTypeForbiddenList = czSiteTypeForbiddenList;
     }
 
-    public String getOrgForbiddenList() {
-        return orgForbiddenList;
+    public String getCzSiteForbiddenList() {
+        return czSiteForbiddenList;
     }
 
-    public void setOrgForbiddenList(String orgForbiddenList) {
-        this.orgForbiddenList = orgForbiddenList;
+    public void setCzSiteForbiddenList(String czSiteForbiddenList) {
+        this.czSiteForbiddenList = czSiteForbiddenList;
+    }
+
+    public String getCzOrgForbiddenList() {
+        return czOrgForbiddenList;
+    }
+
+    public void setCzOrgForbiddenList(String czOrgForbiddenList) {
+        this.czOrgForbiddenList = czOrgForbiddenList;
     }
 
     public boolean getSupportMutilScan() {
@@ -2824,11 +2849,11 @@ public class UccPropertyConfiguration {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 
-    public Integer getJyComboardSealQueryBoardListTime() {
+    public Double getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
@@ -2854,6 +2879,14 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public boolean isCloudOssInsertSwitch() {
+        return cloudOssInsertSwitch;
+    }
+
+    public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
+        this.cloudOssInsertSwitch = cloudOssInsertSwitch;
     }
 
     public Integer getCttGroupSendFLowLimit() {
