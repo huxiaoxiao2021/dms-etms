@@ -511,6 +511,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("条码不能为空!");
         }
+        JyBizTaskExceptionTypeEnum exceptionType = JyBizTaskExceptionTypeEnum.getEnumByCode(req.getType());
+        if(exceptionType == null){
+            return JdCResponse.fail("异常类型有误!");
+        }
         // 三无系统只处理大写字母
         if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(req.getType())){
             req.setBarCode(req.getBarCode().toUpperCase());
@@ -520,10 +524,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (position == null) {
             return JdCResponse.fail("岗位码有误!" + positionCode);
         }
-        JyBizTaskExceptionTypeEnum exceptionType = JyBizTaskExceptionTypeEnum.getEnumByCode(req.getType());
-        if(exceptionType == null){
-            return JdCResponse.fail("异常类型有误!");
-        }
+
 
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaffByErp == null) {

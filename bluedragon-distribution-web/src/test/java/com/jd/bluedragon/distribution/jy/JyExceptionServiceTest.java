@@ -90,8 +90,9 @@ public class JyExceptionServiceTest {
 
         ExpReceiveReq req = new ExpReceiveReq();
         req.setUserErp("wuyoude");
-        req.setBarCode("sw000001");
+        req.setBarCode("SW1234567891");
         req.setPositionCode("GW00003001");
+        req.setType(0);
         jyExceptionService.receive(req);
     }
 
