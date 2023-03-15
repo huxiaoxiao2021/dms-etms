@@ -30,6 +30,10 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
      * 是否自建任务标识： true
      */
     private Boolean manualCreateTaskFlag;
+    /**
+     * 当前运单包裹数量
+     */
+    private Integer goodNumber;
 
 
     public String getBizId() {
@@ -70,5 +74,13 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
 
     public void setManualCreateTaskFlag(Boolean manualCreateTaskFlag) {
         this.manualCreateTaskFlag = manualCreateTaskFlag;
+    }
+
+    public Integer getGoodNumber() {
+        return goodNumber;
+    }
+
+    public void setGoodNumber(Integer goodNumber) {
+        this.goodNumber = goodNumber;
     }
 }

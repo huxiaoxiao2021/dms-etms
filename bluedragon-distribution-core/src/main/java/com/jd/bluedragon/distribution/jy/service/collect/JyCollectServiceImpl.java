@@ -418,6 +418,17 @@ public class JyCollectServiceImpl implements JyCollectService{
             log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(resDto));
             return resDto;
         }
+        //本车实际扫
+        resDto.setActualScanNum(
+                (Objects.isNull(collectionAggCodeCounter.getInnerMarkCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkCollectedNum())
+                + (Objects.isNull(collectionAggCodeCounter.getInnerMarkExtraCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkExtraCollectedNum()));
+        //是否被初始化过：没有被初始化过，说明是多扫，走在库集齐逻辑
+        boolean taskExistInitFlag = Objects.isNull(collectionAggCodeCounter.getSumScanNum()) || collectionAggCodeCounter.getSumScanNum() <= 0;
+        if(!taskExistInitFlag) {
+            resDto.setTaskExistInitFlag(false);
+            resDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+            return resDto;
+        }
         if(collectionAggCodeCounter.getNoneCollectedNum() > 0) {
             resDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
             resDto.setStatisticsNum(collectionAggCodeCounter.getNoneCollectedNum());
@@ -461,6 +472,7 @@ public class JyCollectServiceImpl implements JyCollectService{
                 return false;
             }
             //todo 该方法consumer消费，超时时间设置大一些，避免大运单消费
+            //todo zcf 集齐服务出批处理接口
             for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
                 CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
                 collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());

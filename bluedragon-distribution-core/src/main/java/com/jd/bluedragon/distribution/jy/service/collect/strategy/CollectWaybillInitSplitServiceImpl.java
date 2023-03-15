@@ -24,6 +24,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -106,6 +107,8 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
             int totalPackageNum = bigWaybillDto.getPackageList().size();
             int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
+
+            List<Message> messageList = new ArrayList<>();
             for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
@@ -120,12 +123,15 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 mqDto.setTaskNullScanCodeType(initCollectDto.getTaskNullScanCodeType());
                 mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
                 String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
-                String msg = JsonUtils.toJSONString(mqDto);
+                String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
-                    log.info("{}.splitSendMq, msg={}", msg);
+                    log.info("{}.splitSendMq, msg={}", msgText);
                 }
-                jyCollectDataPageInitProducer.sendOnFailPersistent(businessId, msg);
+                //todo 批量发jmq
+                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,businessId));
+
             }
+            jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
             jyCollectCacheService.cacheSaveTaskNullWaybillCollectSplitBeforeInit(initCollectDto);
             return true;
         }catch (Exception e) {

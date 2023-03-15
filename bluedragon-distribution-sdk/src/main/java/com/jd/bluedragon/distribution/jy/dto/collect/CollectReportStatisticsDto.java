@@ -21,6 +21,15 @@ public class CollectReportStatisticsDto implements Serializable {
      */
     private Integer statisticsNum;
 
+    /**
+     * 实际扫描数量
+     */
+    private Integer actualScanNum;
+    /**
+     * 下发任务扫描的运单是否存在初始化逻辑的标识
+     */
+    private Boolean taskExistInitFlag;
+
     public Integer getCollectType() {
         return collectType;
     }
@@ -35,5 +44,21 @@ public class CollectReportStatisticsDto implements Serializable {
 
     public void setStatisticsNum(Integer statisticsNum) {
         this.statisticsNum = statisticsNum;
+    }
+
+    public Integer getActualScanNum() {
+        return actualScanNum;
+    }
+
+    public void setActualScanNum(Integer actualScanNum) {
+        this.actualScanNum = actualScanNum;
+    }
+
+    public Boolean getTaskExistInitFlag() {
+        return taskExistInitFlag;
+    }
+
+    public void setTaskExistInitFlag(Boolean taskExistInitFlag) {
+        this.taskExistInitFlag = taskExistInitFlag;
     }
 }

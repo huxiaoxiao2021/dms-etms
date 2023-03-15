@@ -22,6 +22,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.data.dto.CargoDetailDto;
@@ -182,6 +183,8 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             currentSize = cargoDetailReturn.getData().size();
             //发送集齐拆分的最大分页pageNo
             int collectBatchMaxPageNo = currentSize / collectBatchPageTotal + (currentSize % collectBatchPageTotal > 0 ? 1 : 0);
+
+            List<Message> messageList = new ArrayList<>();
             for(int pageNo = 1; pageNo <= collectBatchMaxPageNo; pageNo++ ) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
@@ -193,12 +196,14 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
                 mqDto.setSealSiteCode(sealCarDto.getSealSiteId());
                 mqDto.setShouldUnSealSiteCode(sealCarDto.getEndSiteId());
                 String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
-                String msg = JsonUtils.toJSONString(mqDto);
+                String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
-                    log.info("CollectSealCarBatchInItSplitServiceImpl.splitSendMq:封车节点集齐数据初始化按批次号拆分producer, msg={}", msg);
+                    log.info("CollectSealCarBatchInItSplitServiceImpl.splitSendMq:封车节点集齐数据初始化按批次号拆分producer, msg={}", msgText);
                 }
-                jyCollectDataPageInitProducer.sendOnFailPersistent(businessId, msg);
+                //todo 批量发JMQ
+                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,businessId));
             }
+            jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
             offset =  offset + limitSize;
         }
     }

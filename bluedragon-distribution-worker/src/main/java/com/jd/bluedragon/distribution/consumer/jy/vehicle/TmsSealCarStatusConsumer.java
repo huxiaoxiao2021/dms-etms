@@ -147,8 +147,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
-            //发送集齐消息初始化MQ
-            sendInitCollectMq(tmsSealCarStatus);
+            //发送集齐消息初始化MQ  todo  只做转运场地初始化
+            if (BusinessUtil.isTransferSite(siteInfo.getSubType())) {
+                sendInitCollectMq(tmsSealCarStatus);
+            }
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
