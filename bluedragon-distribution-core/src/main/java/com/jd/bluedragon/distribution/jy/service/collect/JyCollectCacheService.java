@@ -200,6 +200,8 @@ public class JyCollectCacheService {
                 .append(Constants.SEPARATOR_COLON)
                 .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()))
                 .append(Constants.SEPARATOR_COLON)
+                .append(paramDto.getTaskNullScanCodeType())//运单初始化分两种，扫包裹运单只做初始化，扫运单该运单初始化同时更改集齐状态
+                .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageNo())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageSize());

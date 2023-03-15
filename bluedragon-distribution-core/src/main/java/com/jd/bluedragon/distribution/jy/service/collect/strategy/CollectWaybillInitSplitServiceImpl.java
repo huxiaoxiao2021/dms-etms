@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnu
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
+import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
@@ -26,6 +27,8 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -136,8 +139,70 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     @Override
     @JProfiler(jKey = "CollectWaybillInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAfterSplit(InitCollectSplitDto request) {
-        String methodDesc = "CollectWaybillInitSplitServiceImpl.initAfterSplit:集齐数据按运单拆分批次后初始化：";
+        if(ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(request.getTaskNullScanCodeType())) {
+            return batchCollectInitAndUpdateStatus(request);
+        }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(request.getTaskNullScanCodeType())) {
+            return batchCollectInit(request);
+        }else {
+            log.warn("CollectWaybillInitSplitServiceImpl.initAfterSplit:不做集齐初始化动作,req={}", JsonUtils.toJSONString(request));
+            return true;
+        }
+    }
 
+    /**
+     * 按包裹验货仅做集齐初始化
+     * @param request
+     * @return
+     */
+    private boolean batchCollectInit(InitCollectSplitDto request) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInit",Constants.UMP_APP_NAME_DMSWEB, false, true);
+
+        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.batchCollectInit:集齐数据按运单拆分批次后初始化：";
+        if (jyCollectCacheService.cacheExistSealCarCollectInitAfterSplit(request)) {
+            if (log.isInfoEnabled()) {
+                log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return true;
+        }
+        String waybillCode = getWaybillCode(request);
+        List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, request.getPageNo(), request.getPageSize());
+        Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getTaskNullScanSiteCode());
+        if(nextSiteId == null) {
+            log.warn("{}运单{}查询下游流向为空，reqDto={}", methodDesc, waybillCode, JsonHelper.toJson(request));
+        }
+        List<CollectionScanCodeEntity> collectionScanCodeEntityList = new ArrayList<>();
+        for(String packageCode : packageCodeList){
+            CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
+            collectionScanCodeEntity.setScanCode(packageCode);
+            collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+            collectionScanCodeEntity.setCollectedMark(request.getBizId());
+            collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(packageCode)));
+            collectionScanCodeEntityList.add(collectionScanCodeEntity);
+        }
+        CollectDto collectDto = new CollectDto();
+        collectDto.setCollectNodeSiteCode(request.getShouldUnSealSiteCode());
+        collectDto.setBizId(request.getBizId());
+        collectDto.setWaybillCode(request.getWaybillCode());
+        collectDto.setNextSiteCode(nextSiteId);
+        collectDto.setOperatorErp(request.getOperatorErp());
+
+        boolean res = jyCollectService.initCollect(collectDto, collectionScanCodeEntityList);
+        if(res) {
+            jyCollectCacheService.cacheSaveSealCarCollectInitAfterSplit(request);
+        }
+        Profiler.registerInfoEnd(info);
+        return res;
+    }
+
+    /**
+     * 按运单扫描做集齐初始化并修改集齐状态
+     * @param request
+     * @return
+     */
+    private boolean batchCollectInitAndUpdateStatus(InitCollectSplitDto request) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus",Constants.UMP_APP_NAME_DMSWEB, false, true);
+
+        String methodDesc = "CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus:集齐数据按运单拆分批次后初始化并修改集齐状态：";
         if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
             if (log.isInfoEnabled()) {
                 log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
@@ -148,7 +213,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, request.getPageNo(), request.getPageSize());
         Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getTaskNullScanSiteCode());
         if(nextSiteId == null) {
-            log.warn("CollectWaybillInitSplitServiceImpl.initAfterSplit集齐运单查询下游流向为空，reqDto={}", JsonHelper.toJson(request));
+            log.warn("{}运单{}查询下游流向为空，reqDto={}", methodDesc, waybillCode, JsonHelper.toJson(request));
         }
         CollectDto collectDto = new CollectDto();
         collectDto.setCollectNodeSiteCode(request.getTaskNullScanSiteCode());
@@ -171,6 +236,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         if(res) {
             jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
         }
+        Profiler.registerInfoEnd(info);
         return res;
     }
 
