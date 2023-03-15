@@ -69,9 +69,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         if(BarCodeType.BOX_CODE.equals(barCodeType)){
             final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(entity.getBarcode());
             String boxCode = entity.getBarcode();
+            addReceiveTask(entity, boxCode);
             for (SendDetail sendDetail : boxDetailList) {
                 entity.setBarcode(sendDetail.getPackageBarcode());
-                addReceiveTask(entity, boxCode);
                 addInspectionTask(entity, boxCode);
             }
         } else {
