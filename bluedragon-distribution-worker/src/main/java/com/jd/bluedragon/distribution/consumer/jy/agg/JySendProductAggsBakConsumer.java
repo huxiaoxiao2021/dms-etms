@@ -44,6 +44,7 @@ public class JySendProductAggsBakConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = ProfilerHelper.registerInfo("DMS.WORKER.JySendProductAggsBakConsumer.consume");
+        logger.info("JySendProductAggsBakConsumer consume -->{}",message.getText());
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JySendProductAggsBakConsumer consume --> 消息为空");
             return;
