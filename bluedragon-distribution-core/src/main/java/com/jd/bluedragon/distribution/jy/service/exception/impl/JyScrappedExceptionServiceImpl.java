@@ -95,7 +95,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
         logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
 
-        if (!WaybillUtil.isPackageCode(req.getBarCode()) || !WaybillUtil.isWaybillCode(req.getBarCode())) {
+        if (!checkBarCode(req.getBarCode())) {
             return JdCResponse.fail("请扫描正确的运单号或包裹号!");
         }
         String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
@@ -531,5 +531,14 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         logger.info("检验生鲜单号不通过");
         return false;
+    }
+
+    /**
+     * 校验单号是包裹号或者是运单号
+     * @param barCode
+     * @return
+     */
+    private boolean checkBarCode(String barCode){
+        return WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode);
     }
 }
