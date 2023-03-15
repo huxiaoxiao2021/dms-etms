@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -64,13 +66,13 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
 
     /**
      * 通用异常上报入口-扫描
-     *
      */
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JySanwuExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position,
-                                                 JyExpSourceEnum source,BaseStaffSiteOrgDto baseStaffByErp,String bizId) {
-
+                                          JyExpSourceEnum source, BaseStaffSiteOrgDto baseStaffByErp, String bizId) {
+        logger.info("三无上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
         if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
             return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
         }
@@ -159,16 +161,15 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
             expEntity.setCreateUserErp(req.getUserErp());
             expEntity.setCreateUserName(baseStaffByErp.getStaffName());
             expEntity.setCreateTime(new Date());
-            try {
-                jyBizTaskExceptionDao.insertSelective(taskEntity);
-                jyExceptionDao.insertSelective(expEntity);
-                jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
-            } catch (Exception e) {
-                logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
-                return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
-            }
-
-        }finally {
+            logger.info("写入三无异常提报-taskEntity-{} -expEntity-{}", JSON.toJSONString(taskEntity),
+                    JSON.toJSONString(expEntity));
+            jyBizTaskExceptionDao.insertSelective(taskEntity);
+            jyExceptionDao.insertSelective(expEntity);
+            jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
+        } catch (Exception e) {
+            logger.error("写入三无异常提报数据出错了,request=" + JSON.toJSONString(req), e);
+            return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
+        } finally {
             redisClient.del(existKey);
         }
         return JdCResponse.ok();

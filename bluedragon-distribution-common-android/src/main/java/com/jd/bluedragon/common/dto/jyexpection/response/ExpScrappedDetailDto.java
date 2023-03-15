@@ -28,9 +28,19 @@ public class ExpScrappedDetailDto implements Serializable {
     private String saveType;
 
     /**
+     * 提交时间
+     */
+    private Date submitTime;
+
+    /**
      * 报废类型code 值
      */
     private Integer scrappedTypCode;
+
+    /**
+     * 报废类型名称
+     */
+    private String scrappedTypName;
 
     /**
      * 物品照片 多个逗号分割
@@ -222,5 +232,21 @@ public class ExpScrappedDetailDto implements Serializable {
 
     public void setThirdCheckTime(Date thirdCheckTime) {
         this.thirdCheckTime = thirdCheckTime;
+    }
+
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
+    }
+
+    public String getScrappedTypName() {
+        return scrappedTypName;
+    }
+
+    public void setScrappedTypName(String scrappedTypName) {
+        this.scrappedTypName = scrappedTypName;
     }
 }

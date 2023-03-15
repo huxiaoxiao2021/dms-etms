@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.jy;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import org.junit.Test;
@@ -15,13 +17,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:bak/distribution-web-context-test.xml"})
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 public class JyExceptionServiceTest {
     @Autowired
     JyExceptionService jyExceptionService;
 
-    @Autowired
-    JyExceptionGatewayService jyExceptionGatewayService;
+
 
 
     @Test
@@ -29,19 +30,37 @@ public class JyExceptionServiceTest {
         ExpUploadScanReq req = new ExpUploadScanReq();
 
         req.setUserErp("wuyoude");
-        req.setBarCode("sw000001");
+        req.setSiteId(910);
+        //req.setBarCode("sw000001");
+        req.setBarCode("SW1111112223");
+        //req.setBarCode("JDVA19408919504");
         req.setSource(0);
-        req.setPositionCode("GW00029026");
+        req.setPositionCode("GW00003001");
+        req.setType(0);
 
-        jyExceptionService.uploadScan(req);
+        JdCResponse<Object> response = jyExceptionService.uploadScan(req);
+        System.out.println(JSON.toJSONString(response));
     }
 
+    @Test
+    public void statisticsByStatusTest(){
+
+        ExpBaseReq req = new ExpBaseReq();
+        req.setUserErp("wuyoude");
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        JdCResponse<List<StatisticsByStatusDto>> response = jyExceptionService.statisticsByStatus(req);
+
+        System.out.println(JSON.toJSONString(response));
+
+
+    }
 
     @Test
     public void getGridStatisticsPageList() {
         StatisticsByGridReq req = new StatisticsByGridReq();
-        req.setUserErp("bjxings");
-        req.setPositionCode("GW00007007");
+        req.setUserErp("wuyoude");
+        req.setPositionCode("GW00003001");
         jyExceptionService.getGridStatisticsPageList(req);
     }
 
@@ -95,8 +114,8 @@ public class JyExceptionServiceTest {
 
     @Test
     public void queryProductNameTest() {
-        JdCResponse<List<DmsBarCode>> listJdCResponse = jyExceptionGatewayService.queryProductName("a,aa,4");
-        System.out.println(JSONObject.toJSON(listJdCResponse));
+        //JdCResponse<List<DmsBarCode>> listJdCResponse = jyExceptionGatewayService.queryProductName("a,aa,4");
+        //System.out.println(JSONObject.toJSON(listJdCResponse));
     }
 
 }

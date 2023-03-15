@@ -8,6 +8,7 @@
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
     <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
     <result column="exception_type" property="exceptionType" jdbcType="INTEGER" />
+    <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
     <result column="goods_image_url" property="goodsImageUrl" jdbcType="VARCHAR" />
     <result column="certify_image_url" property="certifyImageUrl" jdbcType="VARCHAR" />
     <result column="first_checker" property="firstChecker" jdbcType="VARCHAR" />
@@ -27,7 +28,7 @@
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, site_code, site_name, biz_id, waybill_code, exception_type, goods_image_url, 
+    id, site_code, site_name, biz_id, waybill_code, exception_type, submit_time, goods_image_url,
     certify_image_url, first_checker, first_check_status, first_check_time, second_checker,
     second_check_status, second_check_time, third_checker, third_check_status, third_check_time,
     create_time, create_erp, update_time, update_erp, ts, yn
@@ -78,6 +79,9 @@
       </if>
       <if test="exceptionType != null" >
         exception_type,
+      </if>
+      <if test="submitTime != null" >
+        submit_time,
       </if>
       <if test="goodsImageUrl != null" >
         goods_image_url,
@@ -145,6 +149,9 @@
       <if test="exceptionType != null" >
         #{exceptionType,jdbcType=INTEGER},
       </if>
+      <if test="submitTime != null" >
+        #{submitTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="goodsImageUrl != null" >
         #{goodsImageUrl,jdbcType=VARCHAR},
       </if>
@@ -210,6 +217,9 @@
       </if>
       <if test="exceptionType != null" >
         exception_type = #{exceptionType,jdbcType=INTEGER},
+      </if>
+      <if test="submitTime != null" >
+        submit_time = #{submitTime,jdbcType=TIMESTAMP},
       </if>
       <if test="goodsImageUrl != null" >
         goods_image_url = #{goodsImageUrl,jdbcType=VARCHAR},

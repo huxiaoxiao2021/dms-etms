@@ -33,4 +33,13 @@ public enum JyExceptionScrappedTypeEnum {
     public void setName(String name) {
         this.name = name;
     }
+
+    public static JyExceptionScrappedTypeEnum valueOf(Integer code){
+        for (JyExceptionScrappedTypeEnum e:JyExceptionScrappedTypeEnum.values()){
+            if (code.equals(e.getCode())){
+                return e;
+            }
+        }
+        return null;
+    }
 }

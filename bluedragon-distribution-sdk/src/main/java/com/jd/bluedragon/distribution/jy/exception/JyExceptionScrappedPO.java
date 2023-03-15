@@ -29,8 +29,10 @@ public class JyExceptionScrappedPO {
      */
     private String siteName;
 
-
-
+    /**
+     * 上保时间
+     */
+    private Date submitTime;
     /**
      * 异常类型 1：生鲜报废
      */
@@ -289,5 +291,13 @@ public class JyExceptionScrappedPO {
 
     public void setThirdCheckTime(Date thirdCheckTime) {
         this.thirdCheckTime = thirdCheckTime;
+    }
+
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
     }
 }

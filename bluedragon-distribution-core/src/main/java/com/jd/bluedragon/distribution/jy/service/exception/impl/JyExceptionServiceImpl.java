@@ -159,7 +159,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         String bizId = getBizId(req.getType(), req.getBarCode());
         JyExceptionStrategy exceptionService = JyExceptionStrategyFactory.getJyExceptionServiceStrategy(req.getType());
-        exceptionService.uploadScan(req,position,source,baseStaffByErp,bizId);
+        JdCResponse<Object> response = exceptionService.uploadScan(req, position, source, baseStaffByErp, bizId);
+        if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+            return response;
+        }
         // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
         taskMessage.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
@@ -202,6 +205,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByStatusDto>> statisticsByStatus(ExpBaseReq req) {
+        logger.info("按取件状态统计 statisticsByStatus 入参 -{}",JSON.toJSONString(req));
         JdCResponse<List<StatisticsByStatusDto>> result = new JdCResponse<>();
         //岗位码相关
         PositionDetailRecord position = getPosition(req.getPositionCode());
@@ -503,6 +507,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<Object> receive(ExpReceiveReq req) {
+        logger.info("任务领取-receive-{}",JSON.toJSONString(req));
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("条码不能为空!");
         }
