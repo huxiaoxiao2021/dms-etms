@@ -5,11 +5,6 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)

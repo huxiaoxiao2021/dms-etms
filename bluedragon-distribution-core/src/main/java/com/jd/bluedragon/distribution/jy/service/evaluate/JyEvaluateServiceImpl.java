@@ -7,15 +7,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;

@@ -3,10 +3,6 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateTargetInfoQuery;
 
 import java.util.List;
 
