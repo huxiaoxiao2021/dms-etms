@@ -251,6 +251,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE = 3061;
     public static final String NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE= "与上单流向不一致，请注意更换托盘！";
 
+    public static final int COMBOARD_SCAN_FORCE_SEND_WARNING = 3062;
+
+
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
 

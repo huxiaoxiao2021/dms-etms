@@ -1848,6 +1848,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+
+  boolean needForceSend(Integer siteId){
+    if (ucc.getForceSendSiteList().equals(Constants.TOTAL_URL_INTERCEPTOR) || ucc.getForceSendSiteList().contains(String.valueOf(siteId))){
+      return true;
+    }
+    return false;
+  }
   /**
    * 校验当前barCode的流向 是否在当前混扫任务的流向范围内
    */
@@ -1856,6 +1863,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!request.getEndSiteId().equals(request.getDestinationId())){
         final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
         if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          if (needForceSend(request.getCurrentOperate().getSiteCode())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+            throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+          }
           throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
         }
         request.setDestinationId(parentSiteId);
@@ -2601,7 +2612,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
     	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
-    } 
+    }
     for (int i = 0; i < pageTotal; i++) {
       taskDto.setPageNo(i + 1);
       taskDto.setPageSize(onePageSize);

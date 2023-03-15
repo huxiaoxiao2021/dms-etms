@@ -1225,6 +1225,16 @@ public class UccPropertyConfiguration {
 
     private boolean needValidateBatchCodeHasSealed;
 
+    private String forceSendSiteList;
+
+    public String getForceSendSiteList() {
+        return forceSendSiteList;
+    }
+
+    public void setForceSendSiteList(String forceSendSiteList) {
+        this.forceSendSiteList = forceSendSiteList;
+    }
+
     public boolean getNeedValidateBatchCodeHasSealed() {
         return needValidateBatchCodeHasSealed;
     }
