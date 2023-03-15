@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.hint.service;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -63,7 +64,12 @@ public class HintService {
      * @time 2021-07-14 18:23:32 周三
      */
     public static String getHint(String hintCode, Map<String, String> paramsMap){
-        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
+        HintResp hintResp = null;
+		try {
+			hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
+		} catch (Exception e) {
+			log.error("hintApiUnwrapManager.getHint-error!",e);
+		}
         return (hintResp != null && hintResp.getHintMsg() != null) ? String.format("%s-%s", hintCode, hintResp.getHintMsg()) : hintCode;
     }
 
@@ -91,7 +97,8 @@ public class HintService {
      */
     public static String getHint(String reversedStr, String hintCode, Map<String, String> paramsMap){
         String str = HintService.getHint(hintCode, paramsMap) ;
-        if(str == null){
+        if(str == null
+        		|| Objects.equal(hintCode, str)){
             str = reversedStr;
         }
         return str;

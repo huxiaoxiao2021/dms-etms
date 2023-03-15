@@ -31,8 +31,10 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -88,6 +90,8 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   private BasicQueryWSManager basicQueryWSManager;
   @Autowired
   UccPropertyConfiguration ucc;
+  @Autowired
+  JySealVehicleService jySealVehicleService;
 
   @Override
   public InvokeResult<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
@@ -304,10 +308,22 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       result.hintMessage("未检索到相应的派车任务！");
       return null;
     }//完整车牌号检索
-    else if (BusinessUtil.isCarCode(queryTaskSendDto.getKeyword())){
-      List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
-      if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
-        return sendVehicleBizList;
+    else if (!NumberHelper.isNumber(queryTaskSendDto.getKeyword())
+        && (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)
+        || queryTaskSendDto.getKeyword().matches(DmsConstants.CODE_PREFIX))){
+      String chineseCarNum = "";
+      if (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)){
+        chineseCarNum =queryTaskSendDto.getKeyword();
+      }
+      else if (queryTaskSendDto.getKeyword().matches(DmsConstants.CODE_PREFIX)){
+        chineseCarNum =jySealVehicleService.transformLicensePrefixToChinese(queryTaskSendDto.getKeyword());
+      }
+      if (ObjectHelper.isNotNull(chineseCarNum)){
+        queryTaskSendDto.setKeyword(chineseCarNum);
+        List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+        if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
+          return sendVehicleBizList;
+        }
       }
       result.hintMessage("未检索到相应的派车任务！");
       return null;

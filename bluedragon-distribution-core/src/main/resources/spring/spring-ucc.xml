@@ -241,7 +241,12 @@
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
+		<property name="cloudOssInsertSwitch" value="${cloudOssInsertSwitch:false}"/>
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
+		<property name="cttGroupSendFLowLimit" value="${cttGroupSendFLowLimit:10}"/>
+		<property name="czSiteForbiddenList" value="${czSiteForbiddenList:''}"/>
+		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
+		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 
 	</bean>
@@ -475,8 +480,13 @@
 				<value>uccPropertyConfiguration.supportMutilScan</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 				<value>uccPropertyConfiguration.dpSpringSiteCode</value>
 
+				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
+				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
+				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
 			</list>
 		</property>
 	</bean>

@@ -118,6 +118,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
     public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
 
+    public static final int NOT_SUPPORT_CZ_LINE_TASK_CODE= 327;
+    public static final String NOT_SUPPORT_CZ_LINE_TASK_MESSAGE ="旧版传站发货功能已经下线，请使用新版传站组板发货功能！";
+
     public static final int NO_RE_DETELE_TASK_CODE= 329;
     public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
 
@@ -229,7 +232,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
 
     public static final int CHECK_BARCODE_CODE = 3056;
-    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
+    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号|目的地ID";
 
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;

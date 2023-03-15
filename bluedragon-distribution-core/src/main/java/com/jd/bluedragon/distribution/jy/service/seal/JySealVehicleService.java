@@ -81,4 +81,11 @@ public interface JySealVehicleService {
      * 根据包裹|箱号查询板详情信息
      */
     InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
+
+    /**将 带归属区号的车牌号 转换成 汉字开头的车牌号
+     *  例：010A68665 -> 京A68665
+     * @param carLicense
+     * @return
+     */
+    String transformLicensePrefixToChinese(String carLicense);
 }
