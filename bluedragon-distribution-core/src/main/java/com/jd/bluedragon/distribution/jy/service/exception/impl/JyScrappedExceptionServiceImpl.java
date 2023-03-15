@@ -77,7 +77,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Autowired
     private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
     @Autowired
-    WaybillQueryManager waybillQueryManager;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private HrUserManager hrUserManager;
