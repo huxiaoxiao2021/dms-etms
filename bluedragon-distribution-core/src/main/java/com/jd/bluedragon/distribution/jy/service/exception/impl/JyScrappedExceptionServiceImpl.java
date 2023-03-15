@@ -351,27 +351,36 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      */
     private Map<String, Object> buildFlow(JyBizTaskExceptionEntity entity) {
         Map<String, Object> flowControlMap = Maps.newHashMap();
-        flowControlMap.put("firstTriggerErp", entity.getHandlerErp());
-        int approveCount;
         // 查询场地当月报废数量
         entity.setProcessBeginTime(DateHelper.getFirstDateOfMonth());
         Integer count = jyBizTaskExceptionDao.queryScrapCountByCondition(entity);
         // 报废审批级别数量阈值，默认：50,100
         String exScrapApproveLevelCountLimit = uccPropertyConfiguration.getExScrapApproveLevelCountLimit();
         String[] split = exScrapApproveLevelCountLimit.split(Constants.SEPARATOR_COMMA);
-        if (count <= Integer.parseInt(split[0])) {
-            approveCount = JyExScrapApproveStageEnum.FIRST.getCount();
-        } else {
-            approveCount = JyExScrapApproveStageEnum.SECOND.getCount();
-            String superiorErp = hrUserManager.getSuperiorErp(entity.getHandlerErp());
-            flowControlMap.put("secondTriggerErp", superiorErp);
-            if (count > Integer.parseInt(split[1])) {
-                approveCount = JyExScrapApproveStageEnum.THIRD.getCount();
-                superiorErp = hrUserManager.getSuperiorErp(superiorErp);
-                flowControlMap.put("thirdTriggerErp", superiorErp);
-            }
+
+        // 场地当月报废数量小于50走一级审批
+        flowControlMap.put("firstTriggerErp", entity.getHandlerErp());
+        flowControlMap.put("approveCount", JyExScrapApproveStageEnum.FIRST.getCount());
+        if(count <= Integer.parseInt(split[0])){
+            return flowControlMap;
         }
-        flowControlMap.put("approveCount", approveCount);
+        // 场地当月报废数量大于50小于100走二级审批
+        String superiorErp = hrUserManager.getSuperiorErp(entity.getHandlerErp());
+        if(StringUtils.isEmpty(superiorErp)){ // 上级领导不存在则走一级审批
+            return flowControlMap;
+        }
+        flowControlMap.put("secondTriggerErp", superiorErp);
+        flowControlMap.put("approveCount", JyExScrapApproveStageEnum.SECOND.getCount());
+        if(count <= Integer.parseInt(split[1])){
+            return flowControlMap;
+        }
+        // 场地当月报废数量大于100走三级审批
+        superiorErp = hrUserManager.getSuperiorErp(superiorErp);
+        if(StringUtils.isEmpty(superiorErp)){ // 上级领导不存在则走二级审批
+            return flowControlMap;
+        }
+        flowControlMap.put("thirdTriggerErp", superiorErp);
+        flowControlMap.put("approveCount", JyExScrapApproveStageEnum.THIRD.getCount());
         return flowControlMap;
     }
 

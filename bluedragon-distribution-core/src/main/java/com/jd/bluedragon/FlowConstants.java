@@ -21,7 +21,7 @@ public class FlowConstants {
     /**
      * 流程编码-生鲜报废流程编码
      */
-    public static final String FLOW_CODE_FRESH_SCRAP = "fresh_scrap_apply";
+    public static final String FLOW_CODE_FRESH_SCRAP = "fresh_scrap_approve";
 
     /**
      * 流程业务数据唯一key
