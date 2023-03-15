@@ -187,6 +187,12 @@ public class DmsConstants {
      */
     public  static final Pattern WORKITEM_SIMPLECODE_REGEX = Pattern.compile("^\\d{14}$");
 
+
+    /**
+     * 车牌号
+     */
+    public  static final Pattern CARCODE_REGEX = Pattern.compile("^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$");
+
     /**
      * 新批次号正则;
      * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
@@ -219,7 +225,7 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
-    
+
     /**
      * 工种类型
      */
@@ -352,12 +358,12 @@ public class DmsConstants {
      * 抖音来源标识
      */
     public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
-    
+
     /**
      * 运单前缀-抖音-JDAZ
      */
     public static final String WAYBILL_CODE_PRE_DOUYIN  = "JDAZ";
-    
+
     /**
      * 增值服务编码-京喜送达服务（ed-a-0073）
      */
@@ -370,6 +376,30 @@ public class DmsConstants {
      * 增值服务编码-京喜送达服务-取值key2-url
      */
     public static final String WAYBILL_VAS_JXD_ATTCHMENTURL  = "attachmentUrl";
+    /**
+     * 围栏-类型-WAYBILLAOI
+     */
+    public static final String WAYBILL_FENCE_TYPE_AOI  = "WAYBILLAOI";
+    /**
+     * 围栏-配送阶段（目前包括 1-揽收和2-派送）
+     */
+    public static final Integer WAYBILL_FENCE_DELIVERY_STAGE_1  = 1;
+    /**
+     * 围栏-配送阶段（目前包括 1-揽收和2-派送）
+     */
+    public static final Integer WAYBILL_FENCE_DELIVERY_STAGE_2  = 2;
+    /**
+     * 返调度-标识：1
+     */
+    public static final Integer LOCAL_SCHEDULE = 1;
+    /**
+     * 返调度-路区：0
+     */
+    public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";
+
+    public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
+    public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
+    public static final String WHITE_SPACE = "\\s*";
     /**
      * 暂存类型枚举值
      */

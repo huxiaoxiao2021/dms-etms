@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * @author lixin39
@@ -30,7 +28,9 @@ public class WaybillQueryManagerTest {
     @Test
     public void testGetDataByChoice() throws InterruptedException {
         final CountDownLatch count = new CountDownLatch(10);
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = new ThreadPoolExecutor(10, 10,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
         for (int i = 0; i < 10; i++) {
             executor.execute(new Runnable() {
                 @Override

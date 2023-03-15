@@ -82,4 +82,10 @@ public interface JyGroupMemberService {
 	 * @return
 	 */
 	List<String> queryUnSignOutMemberCodeList(List<String> memberCodeList);
+	/**
+	 * 根据signRecordId查询小组成员记录
+	 * @param signRecordId
+	 * @return
+	 */
+	JyGroupMemberEntity queryBySignRecordId(Long signRecordId);
 }

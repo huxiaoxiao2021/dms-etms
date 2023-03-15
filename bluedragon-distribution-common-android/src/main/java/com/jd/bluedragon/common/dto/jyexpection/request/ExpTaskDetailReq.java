@@ -64,6 +64,13 @@ public class ExpTaskDetailReq extends ExpBaseReq {
     // 图片地址
     private String imageUrls;
 
+    //长
+    private Integer length;
+    //宽
+    private Integer width;
+    //高
+    private Integer height;
+
     public String getWeight() {
         return weight;
     }
@@ -232,5 +239,29 @@ public class ExpTaskDetailReq extends ExpBaseReq {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 }

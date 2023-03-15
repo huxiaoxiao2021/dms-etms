@@ -118,6 +118,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
     public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
 
+    public static final int NOT_SUPPORT_CZ_LINE_TASK_CODE= 327;
+    public static final String NOT_SUPPORT_CZ_LINE_TASK_MESSAGE ="旧版传站发货功能已经下线，请使用新版传站组板发货功能！";
+
     public static final int NO_RE_DETELE_TASK_CODE= 329;
     public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
 
@@ -229,7 +232,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
 
     public static final int CHECK_BARCODE_CODE = 3056;
-    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
+    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号|目的地ID";
 
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
@@ -243,6 +246,16 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
     public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
+
+
+    public static final int NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE = 3061;
+    public static final String NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE= "与上单流向不一致，请注意更换托盘！";
+
+    public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
+    public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
+
+    public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
+    public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

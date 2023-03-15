@@ -154,4 +154,11 @@ public interface JyComboardGatewayService {
    */
   JdCResponse<String> deleteCTTGroup(DeleteCTTGroupReq request);
 
+  /**
+   * 获取扫描人员详情
+   * @param req
+   * @return
+   */
+  JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
+
 }

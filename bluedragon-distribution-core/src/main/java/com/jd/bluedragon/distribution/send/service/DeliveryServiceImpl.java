@@ -3143,8 +3143,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         sendMessage(tlist, tSendM, needSendMQ);
                         //同步取消半退明细
                         reversePartDetailService.cancelPartSend(tSendM);
-                        // 更新包裹装车记录表的扫描状态为取消扫描状态
-                        updateScanActionByPackageCodes(tlist, tSendM);
+                        // 更新包裹装车记录表的扫描状态为取消扫描状态 转运系统自行处理，2023年02月28日下线
+                        // updateScanActionByPackageCodes(tlist, tSendM);
                     }
                     Profiler.registerInfoEnd(callerInfo);
 					return responsePack;
@@ -3240,7 +3240,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMItem.setUpdateTime(tSendM.getUpdateTime());
                     sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
-
+                    sendMItem.setOperatorId(tSendM.getOperatorId());
+                    sendMItem.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+                    
                     //将板号添加到板号集合中
                     if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
                         boardSet.add(sendMItem.getBoardCode());
@@ -3734,12 +3736,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
-
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorId(tSendM.getOperatorId());
+        operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+        status.setOperatorData(operatorData);
+        
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
         tTask.setBody(JsonHelper.toJson(status));
         log.info("取消发货 发全程跟踪work6666-3800：{} " ,sendDetail.getWaybillCode());
+        
         taskService.add(tTask);
     }
 
@@ -3799,6 +3806,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 					.updateTime(new Date()).build();
 			//如果按包裹取消发货，需取消分拣，更新取消分拣的操作时间晚取消分拣一秒
             sorting.setOperateTime(new Date(tSendM.getUpdateTime().getTime() + 1000));
+            sorting.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+            sorting.setOperatorId(tSendM.getOperatorId());
 			tSortingService.canCancel2(sorting);
 		}
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,

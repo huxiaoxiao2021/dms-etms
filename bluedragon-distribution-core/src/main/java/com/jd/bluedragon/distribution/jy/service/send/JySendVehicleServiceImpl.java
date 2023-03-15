@@ -850,12 +850,28 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return new ArrayList<>(sendVehicleBizSet);
     }
 
-    private Long getBoxEndSiteId(String keyword) {
+    public Long getBoxEndSiteId(String keyword) {
         if (BusinessUtil.isBoxcode(keyword)){
             final Box box = boxService.findBoxByCode(keyword);
             if (box != null && box.getReceiveSiteCode()!=null) {
                 return Long.valueOf(box.getReceiveSiteCode());
             }
+        }
+        return null;
+    }
+    public List<String> querySendVehicleBizIdByTransWorkCode(QueryTaskSendDto queryTaskSendDto) {
+        List<String> tranWorkCodes = new ArrayList<>();
+        tranWorkCodes.add(queryTaskSendDto.getKeyword());
+        List<JyBizTaskSendVehicleEntity> entityList = taskSendVehicleService.findSendTaskByTransWorkCode(tranWorkCodes, queryTaskSendDto.getStartSiteId());
+        if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+            if (log.isInfoEnabled()){
+                log.info("根据派车单号查询任务bizId：{}",JsonHelper.toJson(entityList));
+            }
+            List<String> bizIdList = new ArrayList<>();
+            for (JyBizTaskSendVehicleEntity entity : entityList) {
+                bizIdList.add(entity.getBizId());
+            }
+            return bizIdList;
         }
         return null;
     }
@@ -2823,8 +2839,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
         if (basicVehicleType != null) {
-            progress.setVolume(BigDecimal.valueOf(basicVehicleType.getVolume()));
-            progress.setWeight(BigDecimal.valueOf(basicVehicleType.getWeight()));
+            if(basicVehicleType.getVolume() != null) {
+                progress.setVolume(BigDecimal.valueOf(basicVehicleType.getVolume()));
+            }
+            if(basicVehicleType.getWeight() != null) {
+                progress.setWeight(BigDecimal.valueOf(basicVehicleType.getWeight()));
+            }
         }
 
         if (sendAgg != null && basicVehicleType != null) {

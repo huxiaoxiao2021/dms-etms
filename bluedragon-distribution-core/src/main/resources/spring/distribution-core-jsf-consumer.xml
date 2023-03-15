@@ -1251,4 +1251,21 @@
       timeout="10000"
       retries="${jsf.retries}"
       serialization="hessian"/>
+
+    <!-- 异常提报查询 -->
+    <jsf:consumer id="transAbnormalSelectApiJsf" interface="com.jd.tms.dtp.api.DtpTransAbnormalSelectApi"
+                  protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}" 
+                  timeout="${jsf.transAbnormalSelectApi.timeout}" 
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  Gis服务-Aoi查询  -->
+    <jsf:consumer id="aoiBindSearchService"
+                  interface="com.jdl.lbs.presort.aoi.api.search.AoiBindSearchService"
+                  alias="${jsf.aoiBindSearchService.alias}"
+                  timeout="${jsf.aoiBindSearchService.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>    
 </beans>
