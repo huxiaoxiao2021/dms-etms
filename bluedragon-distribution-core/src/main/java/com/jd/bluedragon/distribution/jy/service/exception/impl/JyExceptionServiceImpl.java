@@ -15,11 +15,11 @@ import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
+import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
@@ -27,10 +27,16 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -123,9 +129,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Qualifier("dmsUnCollectOverTimeNoticeProducer")
     private DefaultJMQProducer dmsUnCollectOverTimeNoticeProducer;
     @Autowired
-    private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
-    @Autowired
     private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Qualifier("bdBlockerCompleteMQ")
+    @Autowired
+    private DefaultJMQProducer bdBlockerCompleteMQ;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+    
     /**
      * 通用异常上报入口-扫描
      *
@@ -915,6 +930,93 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         params.put("queryStartTime", queryStartTime);
         params.put("queryEndTime", queryEndTime);
         return jyBizTaskExceptionDao.queryScrapDetailByCondition(params);
+    }
+
+    @Override
+    public void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
+        // 回传状态
+        Integer notifyStatus = jyExCustomerNotifyMQ.getNotifyStatus();
+        switch (CustomerNotifyStatusEnum.convertApproveEnum(notifyStatus)) {
+            case AGREE_LP:
+                // 接不通/外单客户同意理赔:
+                break;
+            case NOT_AGREE_LP:
+                // 外单客户不同意理赔
+                break;
+            case SELF_REPLENISH:
+                // 自营补单/补差: 妥投 todo 处理逻辑待定
+                break;
+            case CANCEL_ORDER:
+                // 取消订单: 写报废全程跟踪，发拦截成功消息
+                kfNotifyCancelDeal(jyExCustomerNotifyMQ);
+                break;
+            default:
+                logger.info("客服回传其他状态不做处理!");
+                return;
+        }
+        // 更新异常任务表状态
+        updateExTaskStatus(jyExCustomerNotifyMQ.getBusinessId());
+    }
+
+    private void kfNotifyCancelDeal(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
+        String bizId = jyExCustomerNotifyMQ.getBusinessId();
+        JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if(exTaskEntity == null){
+            logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);
+            return;
+        }
+        // 报废全程跟踪
+        pushScrapTrace(exTaskEntity);
+        // 发送拦截成功消息
+        sendInterceptMQ(exTaskEntity);
+    }
+
+    private void sendInterceptMQ(JyBizTaskExceptionEntity exTaskEntity) {
+        if(logger.isInfoEnabled()){
+            logger.info("生效报废单:{}触发拦截成功消息!", exTaskEntity.getBarCode());
+        }
+        bdBlockerCompleteMQ.sendOnFailPersistent(exTaskEntity.getBizId(), 
+                BusinessUtil.bdBlockerCompleteMQ(exTaskEntity.getBarCode(), DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date())));
+    }
+
+    private void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
+        WaybillStatus status=new WaybillStatus();
+        status.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
+        status.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
+        status.setWaybillCode(exTaskEntity.getBarCode());
+        status.setPackageCode(exTaskEntity.getBarCode());
+        status.setOperateTime(exTaskEntity.getProcessBeginTime());
+
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(exTaskEntity.getHandlerErp());
+        status.setOperatorId(baseStaff == null ? 0 : baseStaff.getStaffNo());
+        status.setOperator(baseStaff == null ? exTaskEntity.getHandlerErp() : baseStaff.getStaffName());
+        status.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
+
+        Task tTask = new Task();
+        tTask.setKeyword1(exTaskEntity.getBarCode());
+        tTask.setKeyword2(String.valueOf(status.getOperateType()));
+        tTask.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
+        tTask.setCreateTime(exTaskEntity.getProcessBeginTime());
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setBody(JsonHelper.toJson(status));
+        tTask.setFingerprint(Md5Helper.encode(status.getCreateSiteCode() + "_"
+                + status.getWaybillCode() + "-" + status.getOperateType() + "-" + status.getOperateTime().getTime()));
+        taskService.add(tTask);
+    }
+
+    private void updateExTaskStatus(String bizId) {
+        // 异常任务更新为'已完成'
+        JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
+        entity.setBizId(bizId);
+        entity.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+        entity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        entity.setUpdateTime(new Date());
+        entity.setProcessEndTime(new Date());
+        jyBizTaskExceptionDao.updateByBizId(entity);
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {

@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.consumer.jy.exception;
 
 import com.google.common.collect.Maps;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -40,9 +38,6 @@ public class DmsExScrapNoticeConsumerTest {
     private DmsExScrapNoticeConsumer dmsExScrapNoticeConsumer;
     
     @Autowired
-    private JyScrappedExceptionService jyScrappedExceptionService;
-
-    @Autowired
     private JyExceptionService jyExceptionService;
 
     @Autowired
@@ -73,12 +68,6 @@ public class DmsExScrapNoticeConsumerTest {
             params.put("queryEndTime", queryEndTime);
             List<JyExceptionAgg> jyExceptionAggs = jyBizTaskExceptionDao.queryUnCollectAndOverTimeAgg(params);
             Assert.assertTrue(true);
-            
-            ExpScrappedDetailReq req = new ExpScrappedDetailReq();
-            req.setBizId("SANWU_SW0000326");
-            req.setGoodsImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
-            req.setCertifyImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
-            jyScrappedExceptionService.dealApproveTest(req);
             
             long time = DateHelper.getFirstDateOfMonth().getTime();
             Message message = new Message();

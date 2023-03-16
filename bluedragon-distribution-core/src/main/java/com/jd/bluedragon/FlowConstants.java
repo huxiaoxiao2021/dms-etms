@@ -81,4 +81,13 @@ public class FlowConstants {
      * 流程-实例上下文KEY：flowControl
      */
     public static final String FLOW_DATA_MAP_KEY_FLOW_CONTROL = "flowControl";
+
+    // 生鲜报废流程控制key：审批次数
+    public static final String FLOW_DATA_MAP_SCRAP_COUNT = "approveCount";
+    // 生鲜报废流程控制key：审批一级触发人ERP
+    public static final String FLOW_DATA_MAP_FIRST_TRIGGER_ERP = "firstTriggerErp";
+    // 生鲜报废流程控制key：审批二级触发人ERP
+    public static final String FLOW_DATA_MAP_SECOND_TRIGGER_ERP = "secondTriggerErp";
+    // 生鲜报废流程控制key：审批三级触发人ERP
+    public static final String FLOW_DATA_MAP_THIRD_TRIGGER_ERP = "thirdTriggerErp";
 }

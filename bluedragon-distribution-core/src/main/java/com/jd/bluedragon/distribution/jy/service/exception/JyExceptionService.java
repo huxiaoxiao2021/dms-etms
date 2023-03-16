@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
@@ -105,4 +106,11 @@ public interface JyExceptionService {
      * @return
      */
     List<JyBizTaskExceptionEntity> queryScrapDetailByCondition(String handlerErp, Date queryStartTime, Date queryEndTime);
+
+    /**
+     * 处理客服回传消息
+     * 
+     * @param jyExCustomerNotifyMQ
+     */
+    void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ);
 }

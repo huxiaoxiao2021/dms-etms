@@ -484,5 +484,10 @@
     <jmq:consumer id="jmq.dmsExUnCollectOverTimeNoticeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.unCollectOverTimeNotice}" listener="dmsExUnCollectOverTimeNoticeConsumer"/>
     </jmq:consumer>
+
+    <!--  异常-客服回传消费  -->
+    <jmq:consumer id="jmq.dmsExCustomerNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExCustomerNotifyConsumer"/>
+    </jmq:consumer>
 </beans>
 

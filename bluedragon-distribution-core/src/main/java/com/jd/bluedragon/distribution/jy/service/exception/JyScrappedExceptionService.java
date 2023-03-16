@@ -29,8 +29,6 @@ public interface JyScrappedExceptionService {
 
     JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req);
 
-    void dealApproveTest(ExpScrappedDetailReq req);
-
     /**
      * 审批结果处理
      * 

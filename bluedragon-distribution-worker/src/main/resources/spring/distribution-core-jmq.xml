@@ -786,4 +786,11 @@
         <property name="topic" value="${jmq.topic.exception.unCollectOverTimeNotice}" />
         <property name="timeout" value="1000" />
     </bean>
+    
+    <!--  异常-报废审批通过异步通知客服系统  -->
+    <bean id="dmsScrapNoticeKFProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.scrapNoticeKF}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    
 </beans>
