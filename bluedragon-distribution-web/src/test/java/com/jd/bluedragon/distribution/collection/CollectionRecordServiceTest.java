@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.collection;
 
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.test.AbstractTestCase;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -105,7 +105,6 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      * 重要约束，为了保证增量模式下的操作效率，一次增量初始化时，只能保证一个aggCodeType下，最多只有一个aggCode。
      * 简而言之，如果按照运单(aggCodeType==运单号)，那么最多只能包含一个运单(aggCode==&{waybillCode0})
      * 不满足重要约束的直接返回失败
-     * @param collectionCreatorEntity 待集齐集合的创建对象
      * @return 返回是否创建成功
      */
     @Test
@@ -172,12 +171,20 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     /**
      * 根据操作的单号去消除在待集齐集合中的单号状态
-     * @param collectionCollectorEntity 待集齐单号对象
-     * @param result 处理结果
-     * @return 返回成功或者失败
      */
-    boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result) {
-        return true;
+    @Test
+    public void collectTheScanCode() {
+        CollectionCollectorEntity collectionCollectorEntity = new CollectionCollectorEntity();
+        collectionCollectorEntity.setCollectElements(collectionCodeEntityUnload.getCollectElements());
+
+        CollectionScanCodeEntity collectionScanCodeEntity2 = new CollectionScanCodeEntity();
+        collectionScanCodeEntity2.setScanCode("JD0093356842901-3-3-");
+        collectionScanCodeEntity2.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
+        collectionScanCodeEntity2.setCollectedMark("SC2412341231231");
+        collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
+
+        collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity2);
+        collectionRecordService.collectTheScanCode(collectionCollectorEntity, new Result<Boolean>());
     }
 
     /**

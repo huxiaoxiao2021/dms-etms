@@ -99,15 +99,15 @@
 			collection_record
 		<set>
 			<if test="isCollected != null">
-				is_collected = #{isCollected, jdbcType=INTEGER}
+				is_collected = #{isCollected, jdbcType=INTEGER},
 			</if>
 			<if test="isExtraCollected != null">
-				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+				is_extra_collected = #{isExtraCollected, jdbcType=INTEGER},
 			</if>
 			<if test="aggMark != null">
-				and agg_mark = #{aggMark, jdbcType=VARCHAR}
+				agg_mark = #{aggMark, jdbcType=VARCHAR},
 			</if>
-			and update_time = NOW()
+			update_time = NOW()
 		</set>
 		<where>
 			collection_code = #{collectionCode, jdbcType=VARCHAR}
@@ -121,12 +121,12 @@
 			collection_record_detail
 		<set>
 			<if test="collectedStatus != null">
-				collected_status = #{collectedStatus, jdbcType=INTEGER}
+				collected_status = #{collectedStatus, jdbcType=INTEGER},
 			</if>
 			<if test="collectedMark != null">
-				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+				collected_mark = #{collectedMark, jdbcType=VARCHAR},
 			</if>
-			and collected_time = NOW()
+			collected_time = NOW()
 		</set>
 		<where>
 			collection_code = #{collectionCode, jdbcType=VARCHAR}

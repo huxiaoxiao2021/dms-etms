@@ -363,13 +363,14 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExistItemList)
                     );
 
-                    /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
+                    /* 在过滤出已经存在的情况下，且状态是多扫或待扫的状态下 */
                     List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = collectionRecordDetailPos.parallelStream().filter(
-                        /* 首选过滤出存在且标注多扫的状态 */
+                        /* 首选过滤出存在且标注多扫或者待扫的状态 */
                         collectionRecordDetailPo ->
                             collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode()) &&
                                 collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode()).parallelStream().anyMatch(
                                     collectionRecordDetailPo1 -> CollectionStatusEnum.extra_collected.getStatus().equals(
+                                        collectionRecordDetailPo1.getCollectedStatus()) || CollectionStatusEnum.none_collected.getStatus().equals(
                                         collectionRecordDetailPo1.getCollectedStatus())
                                 )
                     ).peek(
@@ -390,10 +391,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     Integer isCollected = collectionRecordDetailPosExist.parallelStream().anyMatch(
                         collectionRecordDetailPo ->
                             CollectionStatusEnum.none_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
-                    ) || collectionRecordDetailPosNotExist.size() > 0? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
+                    )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
 
                     /* 计算是否多集 */
-                    Integer isExtraCollected = collectionRecordDetailPosNotExist.parallelStream().filter(
+                    Integer isExtraCollected = collectionRecordDetailPosExist.parallelStream().filter(
                         collectionRecordDetailPo ->
                             CollectionStatusEnum.extra_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
                     ).anyMatch(
@@ -412,7 +413,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setIsExtraCollected(isExtraCollected);
                     collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().get(aggCode));
                     collectionRecordPo.setSum(sum);
-                    collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) == 0) {
+                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    }
 
                 });
 
