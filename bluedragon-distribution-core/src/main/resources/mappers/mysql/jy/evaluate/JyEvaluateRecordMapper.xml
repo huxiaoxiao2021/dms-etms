@@ -178,11 +178,5 @@
     and yn = 1 and status = 0
   </select>
 
-  <select id="findStatusListBySourceBizId" parameterType="java.lang.String" resultType="java.lang.Integer">
-    select
-      status
-    from jy_evaluate_record
-    where source_biz_id = #{sourceBizId,jdbcType=VARCHAR} and yn = 1
-  </select>
 
 </mapper>

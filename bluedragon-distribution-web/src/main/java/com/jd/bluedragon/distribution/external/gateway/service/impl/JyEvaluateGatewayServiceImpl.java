@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.Dimens
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateService;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.external.gateway.service.JyEvaluateGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -25,6 +26,8 @@ import java.util.List;
 public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JyEvaluateGatewayServiceImpl.class);
+
+    private static final Integer REFRESH_CODE = 600;
 
     @Autowired
     private JyEvaluateService jyEvaluateService;
@@ -122,6 +125,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
             result.toError(e.getMessage());
             return result;
+        } catch (LoadIllegalException e) {
+            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
+            result.setCode(REFRESH_CODE);
+            result.setMessage(e.getMessage());
+            return result;
         } catch (Exception e) {
             LOGGER.error("saveTargetEvaluate|保存评价详情接口出现异常", e);
             result.toError("服务器异常");
@@ -160,6 +168,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
         } catch (JyBizException e) {
             LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错,msg={}", e.getMessage());
             result.toError(e.getMessage());
+            return result;
+        } catch (LoadIllegalException e) {
+            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错,msg={}", e.getMessage());
+            result.setCode(REFRESH_CODE);
+            result.setMessage(e.getMessage());
             return result;
         } catch (Exception e) {
             LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常", e);

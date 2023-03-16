@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -45,6 +46,11 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
      * 评价状态：0-不满意 1-满意
      */
     private static final Integer EVALUATE_STATUS_SATISFIED = 1;
+
+    /**
+     * 每个评价维度对应的图片上限
+     */
+    private static final Integer EVALUATE_IMAGE_LIMIT = 4;
 
     /**
      * 装车评价锁前缀
@@ -137,8 +143,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
             checkEvaluateValidity(request, targetInitDto);
-            // 设置评价目标基础信息
-            setEvaluateTargetInfo(request, targetInitDto);
             // 构造评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
@@ -160,8 +164,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             }
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
-            // 设置评价目标基础信息
-            setEvaluateTargetInfo(request, targetInitDto);
+            // 校验操作合法性
+            checkEvaluateValidity(request, targetInitDto);
             // 评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
@@ -191,29 +195,11 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
-        // 查询评价状态列表
-        List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
-        // 如果记录为空，代表首次评价
-        if (CollectionUtils.isEmpty(statusList)) {
-            targetInitDto.setFirstEvaluate(Boolean.TRUE);
-            return;
-        }
-        // 如果本次评价满意
-        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-            // 如果之前已经评价过满意
-            if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
-                throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
-            } else {
-                // 如果之前评价不满意，则不能修改为满意
-                throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
-            }
-        }
-    }
 
-    private void setEvaluateTargetInfo(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
-        // 查询一条评价记录
-        JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
-        if (evaluateRecord == null) {
+        List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
+        // 如果记录为空，代表首次评价
+        if (CollectionUtils.isEmpty(recordList)) {
+            targetInitDto.setFirstEvaluate(Boolean.TRUE);
             JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
             // 派车单号
             String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
@@ -230,11 +216,77 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
             targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
             targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
+            return;
+        }
+        // 如果本次评价满意
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+            checkOperateValidity(recordList);
         } else {
-            request.setTargetBizId(evaluateRecord.getTargetBizId());
-            targetInitDto.setTargetBizId(evaluateRecord.getTargetBizId());
+            // 校验图片数量是否超过限制
+            checkImageCountLimit(request, targetInitDto, recordList);
         }
     }
+
+    private void checkOperateValidity(List<JyEvaluateRecordEntity> recordList) {
+        for (JyEvaluateRecordEntity evaluateRecord : recordList) {
+            // 如果之前已经评价过满意
+            if (EVALUATE_STATUS_SATISFIED.equals(evaluateRecord.getStatus())) {
+                throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
+                // 如果之前评价不满意，则不能修改为满意
+            } else {
+                throw new JyBizException("该任务已经评价不满意，不可修改为满意！");
+            }
+        }
+    }
+
+    private void checkImageCountLimit(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto, List<JyEvaluateRecordEntity> recordList) {
+        // <评价维度，图片数量>
+        Map<Integer, Integer> dimensionMap = new HashMap<>();
+        for (JyEvaluateRecordEntity evaluateRecord : recordList) {
+            // 评价维度
+            Integer dimensionCode = evaluateRecord.getDimensionCode();
+            // 图片集合
+            String imgUrls = evaluateRecord.getImgUrl();
+            // 评价状态
+            Integer status = evaluateRecord.getStatus();
+            if (!EVALUATE_STATUS_SATISFIED.equals(status)) {
+                // 该评价维度累计的图片数量
+                Integer imgCount = dimensionMap.get(dimensionCode);
+                // 当前记录上的图片数量
+                Integer imgSize = imgUrls.split(Constants.SEPARATOR_COMMA).length;
+                if (imgCount == null) {
+                    dimensionMap.put(dimensionCode, imgSize);
+                } else {
+                    dimensionMap.put(dimensionCode, imgCount + imgSize);
+                }
+            }
+        }
+        // 如果之前没有评价过不满意，则不需要校验
+        if (dimensionMap.isEmpty()) {
+            request.setTargetBizId(recordList.get(0).getTargetBizId());
+            targetInitDto.setTargetBizId(recordList.get(0).getTargetBizId());
+            return;
+        }
+        // 校验图片是否超过上限
+        for (EvaluateDimensionReq evaluateDimensionReq : request.getDimensionList()) {
+            // 本次提交的评价维度
+            Integer dimensionCode = evaluateDimensionReq.getDimensionCode();
+            // 本次该评价维度提交的图片数量
+            Integer newImgCount = evaluateDimensionReq.getImgUrlList().size();
+            // 该评价维度已有的图片数量
+            Integer oldImgCount = dimensionMap.get(dimensionCode);
+            if (oldImgCount != null) {
+                if (oldImgCount >= EVALUATE_IMAGE_LIMIT) {
+                    throw new LoadIllegalException("照片数量超过上限，已有人上传照片，请刷新查看！");
+                } else if ((oldImgCount + newImgCount) > EVALUATE_IMAGE_LIMIT) {
+                    throw new LoadIllegalException("照片数量超过上限，已有人上传照片，请刷新查看！");
+                }
+            }
+        }
+    }
+
+
+
 
     private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request) {
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
