@@ -2,11 +2,15 @@ package ld;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.User;
-import com.jd.bluedragon.distribution.jy.dto.collect.UnloadScanCollectDealDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
+import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadVehicleCheckTysService;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,8 @@ public class JyTysUnloadTest {
 
     @Autowired
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
+    @Autowired
+    private JyUnloadVehicleTysService jyUnloadVehicleTysService;
 
     @Test
     public void test(){
@@ -39,7 +45,7 @@ public class JyTysUnloadTest {
     }
 
     @Test
-    public void collectDeal(){
+    public void collectDezalTest(){
         while(true) {
 
             try{
@@ -75,7 +81,8 @@ public class JyTysUnloadTest {
                         "    \"goodNumber\": 22,\n" +
                         "    \"manualCreateTaskFlag\": true,\n" +
                         "    \"scanCode\": \"JD0003419474704-1-22-\",\n" +
-                        "    \"scanCodeType\": 101,\n" +
+//                        "    \"scanCodeType\": 101,\n" +
+                        "    \"scanCodeType\": 102,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 18225,\n" +
                         "        \"userErp\": \"xumigen\",\n" +
@@ -112,6 +119,99 @@ public class JyTysUnloadTest {
     }
 
 
+    @Test
+    public void queryCollectStatisticsByDiffDimensionTest(){
+        while(true) {
+            try {
+                CollectStatisticsQueryDto param = new CollectStatisticsQueryDto();
+                param.setBizId("XCZJ23031600000013");
+                User user = new User();
+                user.setUserErp("xumigen");
+                param.setUser(user);
+                CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(10186);
+                param.setCurrentOperate(currentOperate);
+                InvokeResult<ScanCollectStatisticsDto> res = jyUnloadVehicleTysService.queryCollectStatisticsByDiffDimension(param);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void findCollectReportPageTest(){
+        while(true) {
+            try {
+                CollectReportReqDto param1 = new CollectReportReqDto();
+                param1.setPageNo(1);
+                param1.setPageSize(100);
+                param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+                param1.setBizId("XCZJ23031600000013");
+
+                User user = new User();
+                user.setUserErp("xumigen");
+                param1.setUser(user);
+                CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(10186);
+                param1.setCurrentOperate(currentOperate);
+                InvokeResult<CollectReportResDto>  res = jyUnloadVehicleTysService.findCollectReportPage(param1);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void findCollectReportDetailPageTest(){
+        while(true) {
+            try {
+                CollectReportReqDto param1 = new CollectReportReqDto();
+                param1.setPageNo(1);
+                param1.setPageSize(100);
+                param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+                param1.setBizId("XCZJ23031600000013");
+                param1.setWaybillCode("JD0003419474704");
+
+                User user = new User();
+                user.setUserErp("xumigen");
+                param1.setUser(user);
+                CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(10186);
+                param1.setCurrentOperate(currentOperate);
+                InvokeResult<CollectReportDetailResDto> res = jyUnloadVehicleTysService.findCollectReportDetailPage(param1);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Test
+    public void findCollectReportByScanCodeTest(){
+        while(true) {
+            try {
+                String json = "";
+                CollectReportQueryParamReqDto param1 = new CollectReportQueryParamReqDto();
+                param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+                param1.setBizId("XCZJ23031600000013");
+                param1.setScanCode("JD0003419474704");
+
+                User user = new User();
+                user.setUserErp("xumigen");
+                param1.setUser(user);
+                CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(10186);
+                param1.setCurrentOperate(currentOperate);
+                InvokeResult<CollectReportResDto>  res = jyUnloadVehicleTysService.findCollectReportByScanCode(param1);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 }
