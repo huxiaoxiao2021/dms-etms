@@ -33,6 +33,10 @@ public class BatchUpdateCollectStatusDto implements Serializable {
      */
     private Integer scanSiteCode;
 
+    private Integer pageNo;
+
+    private Integer pageSize;
+
 
 
 
@@ -74,6 +78,22 @@ public class BatchUpdateCollectStatusDto implements Serializable {
 
     public void setScanSiteCode(Integer scanSiteCode) {
         this.scanSiteCode = scanSiteCode;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
 

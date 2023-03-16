@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.jy.service.collect;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
@@ -14,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectServiceConstant;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectSiteTypeServiceFactory;
@@ -28,15 +31,19 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSON;
+import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.message.Message;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.erp.util.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -67,7 +74,11 @@ public class JyCollectServiceImpl implements JyCollectService{
     private WaybillService waybillService;
     @Autowired
     private JyCollectCacheService jyCollectCacheService;
-
+    @Autowired
+    @Qualifier(value = "jyCollectBatchUpdateProducer")
+    private DefaultJMQProducer jyCollectBatchUpdateProducer;
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.findCollectInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -465,17 +476,11 @@ public class JyCollectServiceImpl implements JyCollectService{
             collectElements.put(CollectionConditionKeyEnum.seal_car_code, paramDto.getBizId());
             collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
             //
-
-            BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
-            if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
-                log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
-                return false;
-            }
-            //todo 该方法consumer消费，超时时间设置大一些，避免大运单消费
-            //todo zcf 集齐服务出批处理接口
-            for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
+            String waybillCode = WaybillUtil.getWaybillCode(paramDto.getScanCode());
+            List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, paramDto.getPageNo(), paramDto.getPageSize());
+            for (String pCode : packageCodeList) {
                 CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
-                collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
+                collectionScanCodeEntity.setScanCode(pCode);
                 collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
                 collectionScanCodeEntity.setCollectedMark(paramDto.getBizId());
 
@@ -493,10 +498,108 @@ public class JyCollectServiceImpl implements JyCollectService{
             jyCollectCacheService.cacheSaveTaskNullWaybillUpdateCollectStatus(paramDto);
             return true;
         }catch (Exception e) {
-            throw new JyBizException("运单循环调用修改包裹集齐数据异常" + e.getMessage());
+            throw new JyBizException("运单批次循环调用修改包裹集齐数据异常" + e.getMessage());
         }finally {
             jyCollectCacheService.lockDelTaskNullWaybillUpdateCollectStatus(paramDto);
         }
+    }
+
+    public List<String> getPageNoPackageCodeListFromWaybill(String waybillCode, int pageNo, int pageSize) {
+        // 分页查询包裹数据
+        BigWaybillDto bigWaybillDto = getWaybill(waybillCode, pageNo, pageSize);
+        List<String> res = new ArrayList<>();
+        List<DeliveryPackageD> packages=bigWaybillDto.getPackageList();
+        for (DeliveryPackageD pack : packages) {
+            res.add(pack.getPackageBarcode());
+        }
+        return res;
+    }
+
+    /**
+     * 分页获取包裹数据
+     * @param waybillCode
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    private BigWaybillDto getWaybill(String waybillCode, int pageNo, int pageSize) {
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(false);
+        wChoice.setQueryWaybillM(true); // 查询waybillState
+
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+        BigWaybillDto bigWaybillDto = null;
+        if (baseEntity != null && baseEntity.getData()!= null) {
+            bigWaybillDto = baseEntity.getData();
+            BaseEntity<List<DeliveryPackageD>> pageLists =
+                    this.waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+            if (pageLists != null && pageLists.getData() != null ) {
+                bigWaybillDto.setPackageList(pageLists.getData());
+            }
+        }
+        return bigWaybillDto;
+    }
+
+    @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.batchUpdateCollectStatusWaybillSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean batchUpdateCollectStatusWaybillSplit(BatchUpdateCollectStatusDto paramDto) {
+        String methodDesc = "JyCollectServiceImpl.batchUpdateCollectStatusWaybillSplit:运单批量修改集齐状态按运单拆分：";
+
+        if(!jyCollectCacheService.lockSaveTaskNullWaybillSplitUpdateCollectStatus(paramDto)) {
+            if(log.isInfoEnabled()) {
+                log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(paramDto));
+            }
+            return true;
+        }
+        try{
+            if(jyCollectCacheService.cacheExistTaskNullWaybillSplitUpdateCollectStatus(paramDto)) {
+                if(log.isInfoEnabled()) {
+                    log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(paramDto));
+                }
+                return true;
+            }
+            //
+            BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
+            if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
+                log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
+                return false;
+            }
+            int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
+            int totalPackageNum = bigWaybillDto.getPackageList().size();
+            int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
+
+            List<Message> messageList = new ArrayList<>();
+            for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
+                BatchUpdateCollectStatusDto mqDto = new BatchUpdateCollectStatusDto();
+                BeanUtils.copyProperties(paramDto, mqDto);
+                mqDto.setPageNo(pageNo);
+                mqDto.setPageSize(collectOneBatchSize);
+                String msgText = JsonUtils.toJSONString(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("{}.{}：jmq消息, msg={}", methodDesc, jyCollectBatchUpdateProducer.getTopic(), msgText);
+                }
+                //todo 批量发jmq
+                messageList.add(new Message(jyCollectBatchUpdateProducer.getTopic(),msgText,getBusinessId(mqDto)));
+            }
+            jyCollectBatchUpdateProducer.batchSendOnFailPersistent(messageList);
+            jyCollectCacheService.cacheSaveTaskNullWaybillSplitUpdateCollectStatus(paramDto);
+            return true;
+        }catch (Exception e) {
+            throw new JyBizException("修改包裹集齐数据拆分运单逻辑异常" + e.getMessage());
+        }finally {
+            jyCollectCacheService.lockDelTaskNullWaybillSplitUpdateCollectStatus(paramDto);
+        }
+    }
+
+    public String getBusinessId(BatchUpdateCollectStatusDto mqDto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(mqDto.getBizId()).append(":")
+                .append(mqDto.getScanCode()).append(":")
+                .append(mqDto.getPageNo()).append(":")
+                .append(mqDto.getPageSize());
+        return sb.toString();
     }
 
     private BigWaybillDto getWaybillPackage(String waybillCode) {

@@ -568,5 +568,9 @@
     <jmq:consumer id="jmq.JyCollectDataSplitBatchInitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.data.page.init}" listener="JyCollectDataSplitBatchInitConsumer"/>
     </jmq:consumer>
+    <!-- 集齐数据批量修改按运单拆分 -->
+    <jmq:consumer id="jmq.jyCollectStatusBatchUpdateWaybillSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update.split}" listener="jyCollectStatusBatchUpdateWaybillSplitConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -72,6 +72,15 @@ public class ScanPackageRespDto implements Serializable {
     private Boolean createBoardSuccessFlag;
 
     private UnloadCollectDto unloadCollectDto;
+    /**
+     * 集齐异常提示返回
+     * （集齐不卡主流程，异常try/catch，把异常提示返回给）
+     */
+    private String unloadCollectErrWarn;
+    /**
+     * 集齐服务降级开关
+     */
+    private Boolean collectDemoteSwitch;
 
     public String getBizId() {
         return bizId;
@@ -231,5 +240,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setUnloadCollectDto(UnloadCollectDto unloadCollectDto) {
         this.unloadCollectDto = unloadCollectDto;
+    }
+
+    public String getUnloadCollectErrWarn() {
+        return unloadCollectErrWarn;
+    }
+
+    public void setUnloadCollectErrWarn(String unloadCollectErrWarn) {
+        this.unloadCollectErrWarn = unloadCollectErrWarn;
+    }
+
+    public Boolean getCollectDemoteSwitch() {
+        return collectDemoteSwitch;
+    }
+
+    public void setCollectDemoteSwitch(Boolean collectDemoteSwitch) {
+        this.collectDemoteSwitch = collectDemoteSwitch;
     }
 }
