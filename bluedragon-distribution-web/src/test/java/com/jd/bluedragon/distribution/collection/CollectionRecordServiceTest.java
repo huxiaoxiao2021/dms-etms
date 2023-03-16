@@ -213,8 +213,14 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      * @param collectionCodeEntities 查询元素 内包含待集齐集合ID
      * @return 返回不齐数量
      */
-    Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
-        return null;
+    @Test
+    public void countNoneCollectedAggCodeNumByCollectionCode() {
+        System.out.println(
+            JsonHelper.toJson(collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(
+                collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null)
+                )
+            )
+        );
     }
 
     /**

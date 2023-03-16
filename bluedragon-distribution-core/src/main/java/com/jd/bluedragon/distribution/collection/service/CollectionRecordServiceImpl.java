@@ -86,6 +86,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 collectionCodeEntity.buildCollectionCondition();
                 List<String> jqCodes =
                     new ArrayList<>(kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition()));
+                //fixme 查询多个列表的时候，给错的处理，不要
                 return jqCodes.stream().map(jqCode -> {
                     log.info("根据condition:{}命中了待集齐集合ID:{}",collectionCodeEntity.getCollectionCondition(), jqCode);
                     CollectionCodeEntity collectionCodeEntity1 = new CollectionCodeEntity(businessTypeEnum);
@@ -626,6 +627,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             return 0;
         }
+
         return collectionCodeEntities.parallelStream().filter(
             collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode())
         ).mapToInt(
@@ -731,7 +733,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 .noneCollectedNum(
                     itemMarkCounters.parallelStream()
                         .filter(
-                            item -> !CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus())
+                            item -> CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus())
                         )
                         .mapToInt(CollectionCollectedMarkCounter::getNumber)
                         .sum()
@@ -770,6 +772,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .mapToInt(CollectionCollectedMarkCounter::getNumber)
                         .sum()
                 )
+                .innerMarkExtraCollectedNum(
+                    itemMarkCounters.parallelStream().filter(
+                            item -> CollectionStatusEnum.extra_collected.getStatus().equals(item.getCollectedStatus())
+                                && Objects.equals(item.getCollectedMark(), collectedMark)
+                        ).mapToInt(CollectionCollectedMarkCounter::getNumber).sum()
+                )
                 .outMarkCollectedNum(
                     itemMarkCounters.parallelStream()
                         .filter(
@@ -787,6 +795,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         )
                         .mapToInt(CollectionCollectedMarkCounter::getNumber)
                         .sum()
+                )
+                .outMarkExtraCollectedNum(
+                    itemMarkCounters.parallelStream().filter(
+                        item -> CollectionStatusEnum.extra_collected.getStatus().equals(item.getCollectedStatus())
+                            && !Objects.equals(item.getCollectedMark(), collectedMark)
+                    ).mapToInt(CollectionCollectedMarkCounter::getNumber).sum()
                 )
                 .build();
 

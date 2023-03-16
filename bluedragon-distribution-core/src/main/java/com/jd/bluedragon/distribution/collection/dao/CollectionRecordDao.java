@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.collection.dao;
 
-import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
@@ -73,6 +72,13 @@ public class CollectionRecordDao {
 
     public Integer countNoneCollectedAggCodeByCollectionCode(String collectionCode) {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCode"), collectionCode);
+    }
+
+    public List<CollectionScanMarkCounter> sumCollectedByCollectionCodesWithCollectedMark(List<String> collectionCodes, String collectedMark) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("collectedMark", collectedMark);
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectedByCollectionCodesWithCollectedMark"), param);
     }
 
     public Integer countCollectionRecordDetailByCollectionCode(String collectionCode) {

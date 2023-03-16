@@ -156,6 +156,7 @@
 		</where>
 	</select>
 
+<!--	todo limit 还是做分页 -->
 	<select id="findCollectionRecordDetail" parameterType="CollectionRecordDetailPo"
 			resultMap="collectionRecordDetailMap">
 		SELECT
@@ -192,11 +193,15 @@
 	<select id="countNoneCollectedAggCodeByCollectionCode" resultType="java.lang.Integer"
 			parameterType="java.lang.String">
 		SELECT
-			count(1)
+			count(distinct agg_code)
 		FROM
-			collection_record
+			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			collection_code in
+			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and is_collected = 0
 			and yn = 1
 		</where>
@@ -213,7 +218,7 @@
 		</where>
 	</select>
 
-	<select id="findAggCodeByScanCode" parameterType="java.lang.String" resultMap="collectionRecordDetailMap">
+	<select id="findAggCodeByScanCode" parameterType="CollectionRecordDetailPo" resultMap="collectionRecordDetailMap">
 		SELECT
 			collection_code, agg_code, agg_code_type
 		FROM
@@ -254,6 +259,7 @@
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
+		group by agg_code, agg_code_type, collection_code
 	</select>
 
 	<select id="sumCollectionRecordByCollectionCode" parameterType="java.lang.String"
@@ -265,12 +271,10 @@
 		FROM
 			collection_record
 		where
-			<if test="list != null">
-				collection_code in
-				<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType=VARCHAR}
-				</foreach>
-			</if>
+			collection_code in
+			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
 			and yn = 1
 		group by
 			collection_code
@@ -281,8 +285,10 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
 
 		select
-			crd.collection_code, crd.agg_code, crd.agg_code_type, crd.collected_mark, crd.collected_status, count(1)
-		as number, max(crd.ts) as crd.ts
+			crd.collection_code as collectionCode, crd.agg_code as aggCode, crd.agg_code_type as aggCodeType,
+			crd.collected_mark as collectedMark,
+			crd.collected_status as collectedStatus, count(1)
+			as number, max(crd.ts) as ts
 		from
 			collection_record cr inner join collection_record_detail crd
 		on
@@ -303,13 +309,35 @@
 			<if test="aggCode != null">
 				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
 			</if>
-			and yn = 1
+			and crd.yn = 1
 		</where>
 		group by
 			crd.collection_code, crd.agg_code, crd.agg_code_type, collected_mark, crd.collected_status
 		order by cr.agg_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
+	</select>
+
+	<select id="sumCollectedByCollectionCodesWithCollectedMark" parameterType="java.util.Map"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
+
+		SELECT
+			collection_code as collectionCode, agg_code as aggCode, agg_code_type as aggCodeType, collected_status as
+			collectedStatus, collected_mark as collectedMark, count(1) as num , max(ts) as ts,
+		FROM
+			collection_record_detail
+		<where>
+			collection_code in
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
+			<if test="collectedMark != null">
+				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			</if>
+			and yn = 1
+		</where>
+		group by
+			collection_code, agg_code, agg_code_type, collected_status, collected_mark
 	</select>
 
 	<select id="queryCollectedDetailByCollectionAndAggCode" parameterType="CollectionRecordPo"
@@ -320,12 +348,10 @@
 		FROM
 			collection_record_detail
 		<where>
-			<if test="list != null">
-				crd.collection_code in
-				<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType=VARCHAR}
-				</foreach>
-			</if>
+			collection_code in
+			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
 			and agg_code = #{aggCode, jdbcType=VARCHAR}
 			and agg_codeType = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
