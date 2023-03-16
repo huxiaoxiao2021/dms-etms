@@ -77,7 +77,7 @@ public class JyExceptionServiceTest {
     public void getExceptionTaskPageList() {
 
         ExpTaskPageReq req = new ExpTaskPageReq();
-        req.setStatus(1);
+        req.setStatus(2);
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
         JdCResponse<List<ExpTaskDto>> response = jyExceptionService.getExceptionTaskPageList(req);

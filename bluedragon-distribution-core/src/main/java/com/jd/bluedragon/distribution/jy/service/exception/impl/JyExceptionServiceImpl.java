@@ -435,7 +435,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         }
                     }
                 }
-                if(JyBizTaskExceptionTypeEnum.SCRAPPED.equals(dto.getType())){
+                if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(dto.getType())){
                     ExpTaskByIdReq request = new ExpTaskByIdReq();
                     request.setBizId(dto.getBizId());
                     JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(request);
