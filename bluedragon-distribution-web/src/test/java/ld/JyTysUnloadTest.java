@@ -1,5 +1,6 @@
 package ld;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.User;
@@ -62,7 +63,47 @@ public class JyTysUnloadTest {
                 collectDealDto.setManualCreateTaskFlag(true);
 //            collectDealDto.setManualCreateTaskFlag(false);
 
-                jyUnloadVehicleCheckTysService.collectDeal(collectDealDto, invokeResult);
+                String json = "{\n" +
+                        "    \"bizId\": \"XCZJ23031600000013\",\n" +
+                        "    \"currentOperate\": {\n" +
+                        "        \"groupCode\": \"G00000052005\",\n" +
+                        "        \"operateTime\": 1678959622178,\n" +
+                        "        \"positionCode\": \"GW00108005\",\n" +
+                        "        \"siteCode\": 10186,\n" +
+                        "        \"siteName\": \"北京凉水河快运中心\"\n" +
+                        "    },\n" +
+                        "    \"goodNumber\": 22,\n" +
+                        "    \"manualCreateTaskFlag\": true,\n" +
+                        "    \"scanCode\": \"JD0003419474704-1-22-\",\n" +
+                        "    \"scanCodeType\": 101,\n" +
+                        "    \"user\": {\n" +
+                        "        \"userCode\": 18225,\n" +
+                        "        \"userErp\": \"xumigen\",\n" +
+                        "        \"userName\": \"徐迷根\"\n" +
+                        "    }\n" +
+                        "}";
+
+                UnloadScanCollectDealDto param1 = JSONObject.parseObject(json, UnloadScanCollectDealDto.class);
+                String json2 = "{\n" +
+                        "        \"barCode\": \"JD0003419474704-1-22-\",\n" +
+                        "        \"bizId\": \"XCZJ23031600000013\",\n" +
+                        "        \"collectDemoteSwitch\": false,\n" +
+                        "        \"confirmMsg\": {},\n" +
+                        "        \"firstScan\": false,\n" +
+                        "        \"prevSiteId\": 10186,\n" +
+                        "        \"prevSiteName\": \"北京凉水河快运中心\",\n" +
+                        "        \"stageFirstScan\": false,\n" +
+                        "        \"supplementary\": false,\n" +
+                        "        \"unloadCollectDto\": {\n" +
+                        "            \"collectType\": 102\n" +
+                        "        },\n" +
+                        "        \"warnMsg\": {}\n" +
+                        "    }";
+                ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json, ScanPackageRespDto.class);
+                InvokeResult<ScanPackageRespDto> param2 = new InvokeResult<>();
+                param2.success();
+                param2.setData(scanPackageRespDto);
+                jyUnloadVehicleCheckTysService.collectDeal(param1, param2);
                 log.info(JsonHelper.toJson(invokeResult));
             }catch (Exception e) {
                 e.printStackTrace();
