@@ -225,6 +225,22 @@
 		</where>
 	</select>
 
+	<select id="sumAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
+		SELECT
+			collection_code, agg_code, agg_code_type, collected_status, count(collected_status) as num
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+		group by
+			agg_code, agg_code_type, collection_code, collected_status
+	</select>
+
 	<select id="countAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter">
 		SELECT

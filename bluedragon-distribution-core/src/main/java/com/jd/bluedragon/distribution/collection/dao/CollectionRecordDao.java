@@ -83,6 +83,10 @@ public class CollectionRecordDao {
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByScanCode"), collectionRecordDetailPo);
     }
 
+    public List<CollectionScanMarkCounter> sumAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumAggCollectedByAggCode"), collectionRecordDetailPo);
+    }
+
     public CollectionAggCodeCounter countAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCollectedByAggCode"), collectionRecordDetailPo);
     }

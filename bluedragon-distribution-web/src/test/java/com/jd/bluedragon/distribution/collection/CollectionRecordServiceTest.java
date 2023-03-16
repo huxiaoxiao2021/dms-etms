@@ -195,8 +195,17 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      * @param collectedMark 集齐时的标示，用于统计或排序
      * @return
      */
-    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
-        return null;
+    @Test
+    public void countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark() {
+        System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
+            null, CollectionAggCodeTypeEnum.waybill_code, "SC2412341231231"
+        )));
+
+        System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
+            "JD0093356842901", CollectionAggCodeTypeEnum.waybill_code, "SC2412341231231"
+        )));
     }
 
     /**

@@ -150,7 +150,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
                     collectionRecordPo.setIsCollected(Constants.NUMBER_ZERO);
                     collectionRecordPo.setIsExtraCollected(Constants.NUMBER_ZERO);
-                    collectionRecordPo.setAggMark(null);//todo aggMark 初始化的时候设置值
+                    collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode, ""));
                     collectionRecordPo.setSum(item.size());
                     collectionRecordTotalPos.add(collectionRecordPo);
                 });
@@ -283,7 +283,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
                     collectionRecordPo.setIsCollected(isCollected);
                     collectionRecordPo.setIsExtraCollected(isExtraCollected);
-                    collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().get(aggCode));
+                    collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
                     collectionRecordPo.setSum(sum);
                     collectionRecordDao.insertCollectionRecord(collectionRecordPo);
 
@@ -384,26 +384,33 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordDetailPo -> collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo)
                     );
 
-                    /* 更新主表aggCode维度的统计信息 */
-                    Integer sum = collectionRecordDetailPosExist.size() + collectionRecordDetailPosNotExist.size();
+                    List<CollectionScanMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectedByAggCode(CollectionRecordDetailPo.builder()
+                        .collectionCode(collectionCode)
+                        .aggCode(aggCode)
+                        .aggCodeType(aggCodeTypeEnum.name())
+                        .build());
+
+                    //计算总数
+                    Integer sum = collectionScanMarkCounters.parallelStream()
+                        .filter(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                            || CollectionStatusEnum.collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        ).mapToInt(CollectionScanMarkCounter::getNum).sum();
 
                     /* 计算是否集齐 */
-                    Integer isCollected = collectionRecordDetailPosExist.parallelStream().anyMatch(
-                        collectionRecordDetailPo ->
-                            CollectionStatusEnum.none_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
-                    )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
+                    Integer isCollected = collectionScanMarkCounters.parallelStream()
+                        .anyMatch(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
 
                     /* 计算是否多集 */
-                    Integer isExtraCollected = collectionRecordDetailPosExist.parallelStream().filter(
-                        collectionRecordDetailPo ->
-                            CollectionStatusEnum.extra_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
-                    ).anyMatch(
-                        collectionRecordDetailPo ->
-                            collectionRecordDetailPos.parallelStream().noneMatch(
-                                collectionRecordDetailPo1 ->
-                                    Objects.equals(collectionRecordDetailPo1.getScanCode(), collectionRecordDetailPo.getScanCode())
-                            )
-                    )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
+                    Integer isExtraCollected = collectionScanMarkCounters.parallelStream()
+                        .anyMatch(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.extra_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
 
                     CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
                     collectionRecordPo.setCollectionCode(collectionCode);
@@ -440,6 +447,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
 
         String scanCode = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode();
+        String collectedMark = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectedMark();
         Map<CollectionAggCodeTypeEnum, String> element = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectionAggCodeMaps();
         /* 根据condition去business_code_attribute表中查询所有的集合ID,使用kv_index做查询 */
         collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
@@ -479,6 +487,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))
                             .aggCodeType(aggCodeTypeEnum.name())
                             .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
+                            .collectedMark(collectedMark)
                             .createTime(new Date())
                             .build())
                         .collect(Collectors.toList());
@@ -494,8 +503,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         List<CollectionRecordPo> collectionRecordPo = collectionRecordDao.findCollectionRecord(condition);
                         if (CollectionUtils.isEmpty(collectionRecordPo)) {
                             condition.setIsCollected(Constants.NUMBER_ZERO);
-                            condition.setSum(Constants.NUMBER_ONE);
+                            condition.setSum(Constants.NUMBER_ZERO);
                             condition.setIsExtraCollected(Constants.NUMBER_ONE);
+                            condition.setAggMark("");
                             collectionRecordDao.insertCollectionRecord(condition);
                         } else {
                             condition.setIsExtraCollected(Constants.NUMBER_ONE);
@@ -517,7 +527,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
                                 .aggCodeType(aggCodeTypeEnum.name())
                                 .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                                .collectedMark("")//todo collectedMark
+                                .collectedMark(collectedMark)
                                 .collectedTime(new Date())
                                 .build()));
                     }
@@ -529,7 +539,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 .aggCodeType(aggCodeTypeEnum.name())
                                 .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
                                 .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                                .collectedMark("")//todo collectedMark
+                                .collectedMark(collectedMark)
                                 .collectedTime(new Date())
                                 .build());
                         });
@@ -547,25 +557,48 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     }
                     aggCodeDetailPos.forEach(aggCodeDetailPo -> {
                         /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 todo 使用redis的hSet，缓存不存在则进行查库*/
-                        CollectionAggCodeCounter aggCodeCounter = collectionRecordDao.countAggCollectedByAggCode(
+                        List<CollectionScanMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectedByAggCode(
                             CollectionRecordDetailPo.builder()
                                 .collectionCode(collectionCodeEntity.getCollectionCode())
                                 .aggCode(aggCodeDetailPo.getAggCode())
                                 .aggCodeType(aggCodeDetailPo.getAggCodeType())
                                 .build());
                         /* 如果是已经集齐的aggCode的话，需要更新主标的aggCode的信息 */
-                        if (null == aggCodeCounter) {
+                        if (null == collectionScanMarkCounters) {
                             log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}，聚合号为：{}", collectionCodeEntity.getCollectionCode(), aggCodeDetailPo.getAggCode());
                             return;
                         }
-                        if (Objects.equals(aggCodeCounter.getCollectedNum(), aggCodeCounter.getSumScanNum())) {
-                            CollectionRecordPo recordCondition = new CollectionRecordPo();
-                            recordCondition.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                            recordCondition.setAggCode(aggCodeDetailPo.getAggCode());
-                            recordCondition.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                            recordCondition.setIsCollected(Constants.NUMBER_ONE);
-                            collectionRecordDao.updateCollectionRecord(recordCondition);
-                        }
+
+                        //计算总数
+                        Integer sum = collectionScanMarkCounters.parallelStream()
+                            .filter(
+                                collectionScanMarkCounter ->
+                                    CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                                        || CollectionStatusEnum.collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                            ).mapToInt(CollectionScanMarkCounter::getNum).sum();
+
+                        /* 计算是否集齐 */
+                        Integer isCollected = collectionScanMarkCounters.parallelStream()
+                            .anyMatch(
+                                collectionScanMarkCounter ->
+                                    CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                            )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
+
+                        /* 计算是否多集 */
+                        Integer isExtraCollected = collectionScanMarkCounters.parallelStream()
+                            .anyMatch(
+                                collectionScanMarkCounter ->
+                                    CollectionStatusEnum.extra_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                            )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
+
+                        CollectionRecordPo recordCondition = new CollectionRecordPo();
+                        recordCondition.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                        recordCondition.setAggCode(aggCodeDetailPo.getAggCode());
+                        recordCondition.setAggCodeType(aggCodeDetailPo.getAggCodeType());
+                        recordCondition.setIsCollected(isCollected);
+                        recordCondition.setIsExtraCollected(isExtraCollected);
+                        recordCondition.setSum(sum);
+                        collectionRecordDao.updateCollectionRecord(recordCondition);
 
                     });
                 }

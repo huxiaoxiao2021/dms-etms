@@ -2,21 +2,19 @@ package com.jd.bluedragon.distribution.collection.entity;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.entity
- * @ClassName: CollectionScanMarkCounter
+ * @ClassName: CollectionAggCodeSummary
  * @Description:
  * @Author： wuzuxiang
- * @CreateDate 2023/3/7 18:57
+ * @CreateDate 2023/3/16 11:00
  * @Copyright: Copyright (c)2020 JDL.CN All Right Reserved
  * @Since: JDK 1.8
  * @Version： V1.0
  */
 @Data
-public class CollectionScanMarkCounter {
+public class CollectionAggCodeSummary {
 
     /**
      * 聚合统计号
@@ -34,23 +32,13 @@ public class CollectionScanMarkCounter {
     private String collectionCode;
 
     /**
-     * 集齐状态
-     * @see com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum
+     * 聚合统计的标识字段
      */
-    private Integer collectedStatus;
-
-    /**
-     * mark
-     */
-    private String collectedMark;
+    private String aggMark;
 
     /**
      * 数量
      */
-    private Integer num;
+    private Integer number;
 
-    /**
-     * 数据时间，可以判断数据是否发生更新
-     */
-    private Timestamp ts;
 }
