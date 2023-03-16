@@ -640,9 +640,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return 0;
         }
 
+        List<String> collectionCodes = collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return 0;
+        }
+
         return collectionRecordDao.countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(
-            collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList()),
-            aggCodeTypeEnum, collectedMark);
+            collectionCodes, aggCodeTypeEnum, collectedMark);
 
     }
 
@@ -653,10 +657,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        List<CollectionCounter> collectionCounters = collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodeEntities.parallelStream()
+        List<String> collectionCodes = collectionCodeEntities.parallelStream()
             .map(CollectionCodeEntity::getCollectionCode)
             .filter(StringUtils::isNotEmpty)
-            .collect(Collectors.toList()), aggCodeTypeEnum);
+            .collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionCounter> collectionCounters = collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodes, aggCodeTypeEnum);
 
         return collectionCounters.parallelStream()
             .peek(
@@ -675,11 +685,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
+        List<String> collectionCodes = collectionCodeEntities.parallelStream()
+            .map(CollectionCodeEntity::getCollectionCode)
+            .filter(StringUtils::isNotEmpty)
+            .collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
         List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters =
-            collectionRecordDao.sumCollectionAggCodeByCollectionCode(collectionCodeEntities.parallelStream()
-                .map(CollectionCodeEntity::getCollectionCode)
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toList()),
+            collectionRecordDao.sumCollectionAggCodeByCollectionCode(collectionCodes,
                 CollectionStatusEnum.collected.equals(collectionStatusEnum)? Constants.NUMBER_ONE : null,
                 aggCode, aggCodeTypeEnum, limit, offset);
 
@@ -830,9 +846,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
+        List<String> collectionCodes = collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
         List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionRecordDao.queryCollectedDetailByCollectionAndAggCode(
-            collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList()),
-            aggCode, aggCodeTypeEnum, limit, offset);
+            collectionCodes, aggCode, aggCodeTypeEnum, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordDetailPos)) {
             return Collections.emptyList();

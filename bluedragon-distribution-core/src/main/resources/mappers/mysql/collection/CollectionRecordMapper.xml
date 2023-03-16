@@ -348,7 +348,7 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo">
 
 		SELECT
-			collection_code, agg_code, agg_codeType, collected_mark, count(1) as number
+			collection_code, agg_code, agg_code_type, collected_mark, count(1) as number
 		FROM
 			collection_record_detail
 		<where>
@@ -357,7 +357,7 @@
 				#{collectionCode, jdbcType=VARCHAR}
 			</foreach>
 			and agg_code = #{aggCode, jdbcType=VARCHAR}
-			and agg_codeType = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 		order by collected_mark
