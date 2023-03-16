@@ -3,12 +3,14 @@ package com.jd.bluedragon.openplateform;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -17,6 +19,8 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.openplateform.entity.JYCargoOperateEntity;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -59,6 +63,28 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
     @Override
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
+        // 纯箱号时，查箱号内明细，发验货记录 + 收货记录
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
+        // 如果是箱号
+        if(BarCodeType.BOX_CODE.equals(barCodeType)){
+            final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(entity.getBarcode());
+            String boxCode = entity.getBarcode();
+            addReceiveTask(entity, boxCode);
+            for (SendDetail sendDetail : boxDetailList) {
+                entity.setBarcode(sendDetail.getPackageBarcode());
+                addInspectionTask(entity, boxCode);
+            }
+        } else {
+            addInspectionTask(entity, null);
+        }
+
+        return new InvokeResult<>();
+    }
+
+    /**
+     * 添加验货任务
+     */
+    private void addInspectionTask(JYCargoOperateEntity entity, String boxCode){
         Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
         InspectionRequest inspection = new InspectionRequest();
         inspection.setUserCode(entity.getOperatorInfo().getOperateUserId());
@@ -69,11 +95,12 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         inspection.setBusinessType(businessType);
         inspection.setPackageBarOrWaybillCode(entity.getBarcode());
         inspection.setBizSource(InspectionBizSourceEnum.valueOf(entity.getRequestProfile().getSysSource()).getCode());
-
+        inspection.setBoxCode(boxCode);
         TaskRequest request = new TaskRequest();
         request.setBusinessType(businessType);
         request.setKeyword1(String.valueOf(entity.getOperatorInfo().getOperateSiteId()));
         request.setKeyword2(entity.getBarcode());
+        request.setBoxCode(boxCode);
         request.setType(Task.TASK_TYPE_INSPECTION);
         request.setOperateTime(DateFormatUtils.format(entity.getOperatorInfo().getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         request.setSiteCode(entity.getCreateSiteId());
@@ -86,10 +113,49 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 + Constants.PUNCTUATION_CLOSE_BRACKET;
         Task task = this.taskService.toTask(request, eachJson);
         if (log.isDebugEnabled()) {
-            log.debug("验货任务插入{}", JsonHelper.toJson(task));
+            log.debug("JYOpenCargoOperateServiceImpl.addInspectionTask {}", JsonHelper.toJson(task));
         }
         this.taskService.add(task, true);
-        return new InvokeResult<>();
+
+    }
+
+    /**
+     * 添加收货任务
+     * @param entity
+     * @param boxCode
+     */
+    private void addReceiveTask(JYCargoOperateEntity entity, String boxCode) {
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
+        receiveRequest.setCarCode(Constants.EMPTY_FILL);
+        receiveRequest.setPackOrBox(boxCode);
+        receiveRequest.setId(0);
+        Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
+        receiveRequest.setBusinessType(businessType);
+        receiveRequest.setUserCode(entity.getOperatorInfo().getOperateUserId());
+        receiveRequest.setUserName(entity.getOperatorInfo().getOperateUserName());
+        receiveRequest.setSiteCode(entity.getOperatorInfo().getOperateSiteId());
+        receiveRequest.setSiteName(entity.getOperatorInfo().getOperateSiteName());
+        receiveRequest.setOperateTime(DateFormatUtils.format(entity.getOperatorInfo().getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        receiveRequest.setSealBoxCode(Constants.EMPTY_FILL);
+        receiveRequest.setTurnoverBoxCode(Constants.EMPTY_FILL);
+
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(receiveRequest) + Constants.PUNCTUATION_CLOSE_BRACKET;
+
+        TaskRequest taskRequest = new TaskRequest();
+        taskRequest.setType(Task.TASK_TYPE_RECEIVE);
+        taskRequest.setSiteCode(entity.getCreateSiteId());
+        taskRequest.setSiteName(entity.getCreateSiteName());
+        taskRequest.setReceiveSiteCode(entity.getOperatorInfo().getOperateSiteId());
+        taskRequest.setKeyword1(String.valueOf(entity.getOperatorInfo().getOperateSiteId()));
+        taskRequest.setKeyword2(entity.getBarcode());
+        taskRequest.setBoxCode(boxCode);
+        final Task task = this.taskService.toTask(taskRequest, eachJson);
+        if (log.isDebugEnabled()) {
+            log.debug("JYOpenCargoOperateServiceImpl.addReceiveTask {}", JsonHelper.toJson(task));
+        }
+
+        this.taskService.add(task);
     }
 
     @Override
@@ -119,7 +185,6 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             request.setFeatureType(0);
             request.setIsCancel(0);
             request.setIsLoss(0);
-            request.setPackageCode(entity.getPackageCode());
             request.setReceiveSiteCode(entity.getReceiveSiteId());
             request.setReceiveSiteName(entity.getReceiveSiteName());
             request.setWaybillCode(entity.getWaybillCode());
