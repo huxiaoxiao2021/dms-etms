@@ -1501,8 +1501,12 @@ public class JyUnloadVehicleCheckTysService {
         initCollectDto.setTaskNullScanCode(unloadScanCollectDealDto.getScanCode());
         initCollectDto.setTaskNullScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
         initCollectDto.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
-        //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
-        String businessId = String.format("%:%s", initCollectDto.getBizId(), initCollectDto.getTaskNullScanCode());
+        //自建任务扫描初始化businessId是bizId + 扫描单号+ 扫描类型；  封车初始化businessId是bizId
+        StringBuilder sb = new StringBuilder();
+        sb.append(initCollectDto.getBizId()).append(":")
+                .append(initCollectDto.getTaskNullScanCode()).append(":")
+                .append(initCollectDto.getTaskNullScanCodeType()).append(":");
+        String businessId = sb.toString();
         String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);
         if(log.isInfoEnabled()) {
             log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
