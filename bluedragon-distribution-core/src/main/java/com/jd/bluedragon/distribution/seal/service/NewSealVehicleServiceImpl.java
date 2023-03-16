@@ -40,8 +40,10 @@ import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationServi
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
@@ -962,6 +964,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_UNSEAL_SUCCESS;
                 saveDeSealData(paramList);
+                saveUnsealOrder(sealCars);
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -1626,6 +1629,28 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             sealVehiclesService.updateDeSealBySealDataCode(convert2SealVehicles(sealist));
         }catch (Exception e){
             log.error("保存解封车业务数据异常，解封车数据：{}" , JsonHelper.toJson(sealist), e);
+        }
+    }
+
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    private void saveUnsealOrder(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealist){
+        // 如果是作业APP，则更新解封车顺序
+        final com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDtoSample = sealist.get(0);
+        if(StringUtils.isBlank(sealCarDtoSample.getBizId())){
+            return;
+        }
+        for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto : sealist) {
+            JyBizTaskUnloadVehicleEntity RealUnSealRankingUpdateParam = new JyBizTaskUnloadVehicleEntity();
+            RealUnSealRankingUpdateParam.setBizId(sealCarDto.getBizId());
+            RealUnSealRankingUpdateParam.setRealRanking(sealCarDto.getUnsealOrderIndex());
+            if(jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(RealUnSealRankingUpdateParam)){
+                if(log.isInfoEnabled()){
+                    log.info("saveUnsealOrder success!, bizId:{},unsealOrderIndex:{}",sealCarDto.getBizId(),sealCarDto.getUnsealOrderIndex());
+                }
+            }else{
+                log.error("saveUnsealOrder fail!, bizId:{},unsealOrderIndex:{}",sealCarDto.getBizId(),sealCarDto.getUnsealOrderIndex());
+            }
         }
     }
 
