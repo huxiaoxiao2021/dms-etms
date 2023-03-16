@@ -782,7 +782,7 @@
     </bean>
 
     <!--装车评价报表最终结果信息 -->
-    <bean id="evaluateTargetResultProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="evaluateTargetResultProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.evaluate.target.result}" />
         <property name="timeout" value="1000" />
     </bean>
