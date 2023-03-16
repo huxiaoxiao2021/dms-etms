@@ -628,7 +628,9 @@ public class JyCollectServiceImpl implements JyCollectService{
 //        CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectType);
 //        CollectReportStatisticsDto collectReportStatisticsDto = collectStatisticsService.collectStatistics(queryParamDto);
         List<CollectionCodeEntity> collectionCodeEntities = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
-        Integer waybillBuQiNum = collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities);
+        Integer waybillBuQiNum =
+            collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities,
+                CollectionAggCodeTypeEnum.waybill_code, reqDto.getBizId());
         if(waybillBuQiNum == null) {
             log.warn("JyCollectServiceImpl.collectWaitWaybillNum：查不齐运单数量返回空,服务req={}，查询参数={}", JsonHelper.toJson(reqDto), JsonHelper.toJson(collectionCodeEntities));
             waybillBuQiNum = 0;

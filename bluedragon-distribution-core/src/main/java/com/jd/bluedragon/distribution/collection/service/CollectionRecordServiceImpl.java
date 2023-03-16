@@ -451,7 +451,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String collectedMark = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectedMark();
         Map<CollectionAggCodeTypeEnum, String> element = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectionAggCodeMaps();
         /* 根据condition去business_code_attribute表中查询所有的集合ID,使用kv_index做查询 */
-        collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
+        List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
             .flatMap((Function<CollectionCodeEntity, Stream<CollectionCodeEntity>>)collectionCodeEntity -> {
                 List<String> JQCodes = kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition());
@@ -462,7 +462,19 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     codeEntity.buildCollectionCondition();
                     return codeEntity;
                 });
-            }).forEach(collectionCodeEntity -> {
+            })
+            .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
+            .collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(codeEntities)) {
+                codeEntities = collectionCodeEntities.parallelStream()
+                    .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
+                    .peek(collectionCodeEntity ->
+                        collectionCodeEntity.setCollectionCode(getJQCodeByBusinessType(collectionCodeEntity, "none"))
+                    ).collect(Collectors.toList());
+            }
+
+            codeEntities.forEach(collectionCodeEntity -> {
                 /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
                 List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
                                                                 .collectionCode(collectionCodeEntity.getCollectionCode())
@@ -623,16 +635,14 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
+    public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             return 0;
         }
 
-        return collectionCodeEntities.parallelStream().filter(
-            collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode())
-        ).mapToInt(
-            collectionCodeEntity -> collectionRecordDao.countNoneCollectedAggCodeByCollectionCode(collectionCodeEntity.getCollectionCode())
-        ).sum();
+        return collectionRecordDao.countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(
+            collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(Collectors.toList()),
+            aggCodeTypeEnum, collectedMark);
 
     }
 

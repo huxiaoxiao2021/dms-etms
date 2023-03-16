@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -34,7 +33,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     static {
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.date_time,"2023-03-15");
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.site_code,"910");
-        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23010143333786");
+        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23031600000013");
     }
     private static final CollectionCodeEntity collectionCodeEntitySite1 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
     static {
@@ -178,9 +177,9 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         collectionCollectorEntity.setCollectElements(collectionCodeEntityUnload.getCollectElements());
 
         CollectionScanCodeEntity collectionScanCodeEntity2 = new CollectionScanCodeEntity();
-        collectionScanCodeEntity2.setScanCode("JD0093356842901-3-3-");
+        collectionScanCodeEntity2.setScanCode("JD0003419474704-1-22-");
         collectionScanCodeEntity2.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-        collectionScanCodeEntity2.setCollectedMark("SC2412341231231");
+        collectionScanCodeEntity2.setCollectedMark("XCZJ23031600000013");
         collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
 
         collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity2);
@@ -189,10 +188,6 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     /**
      * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
-     * @param collectionCodeEntities 带有集齐ID的查询条件，
-     * @param aggCode 聚合统计号，例如JDVA0000000100101
-     * @param aggCodeTypeEnum 聚合统计号类型，例如：CollectionAggCodeTypeEnum#waybill_code 表示按运单号聚合
-     * @param collectedMark 集齐时的标示，用于统计或排序
      * @return
      */
     @Test
@@ -210,14 +205,14 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     /**
      * 通过查询元素定位到所有的满足该元素下的所有的集合的未集齐aggCode数量
-     * @param collectionCodeEntities 查询元素 内包含待集齐集合ID
      * @return 返回不齐数量
      */
     @Test
     public void countNoneCollectedAggCodeNumByCollectionCode() {
         System.out.println(
             JsonHelper.toJson(collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(
-                collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null)
+                collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
+                CollectionAggCodeTypeEnum.waybill_code, String.valueOf(collectionCodeEntityUnload.getCollectElements().get(CollectionConditionKeyEnum.seal_car_code))
                 )
             )
         );
@@ -225,11 +220,13 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     /**
      * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
-     * @param collectionCodeEntities
      * @return
      */
-    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
-        return null;
+    @Test
+    public void sumCollectionByCollectionCode() {
+        System.out.println(JsonHelper.toJson(
+            collectionRecordService.sumCollectionByCollectionCode(Arrays.asList(collectionCodeEntityUnload, collectionCodeEntitySite1, collectionCodeEntitySite2)
+        )));
     }
 
     /**

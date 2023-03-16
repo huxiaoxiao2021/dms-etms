@@ -70,8 +70,12 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectionRecordByCollectionCode"), collectionCode);
     }
 
-    public Integer countNoneCollectedAggCodeByCollectionCode(String collectionCode) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCode"), collectionCode);
+    public Integer countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("collectedMark", collectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
     }
 
     public List<CollectionScanMarkCounter> sumCollectedByCollectionCodesWithCollectedMark(List<String> collectionCodes, String collectedMark) {
