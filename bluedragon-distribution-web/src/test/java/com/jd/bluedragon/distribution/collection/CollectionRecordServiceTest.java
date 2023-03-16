@@ -33,7 +33,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     static {
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.date_time,"2023-03-15");
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.site_code,"910");
-        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23031600000013");
+        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23010143333786");
     }
     private static final CollectionCodeEntity collectionCodeEntitySite1 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
     static {
@@ -225,30 +225,38 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     @Test
     public void sumCollectionByCollectionCode() {
         System.out.println(JsonHelper.toJson(
-            collectionRecordService.sumCollectionByCollectionCode(Arrays.asList(collectionCodeEntityUnload, collectionCodeEntitySite1, collectionCodeEntitySite2)
+            collectionRecordService.sumCollectionByCollectionCode(
+                collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
+                ,CollectionAggCodeTypeEnum.waybill_code
         )));
     }
 
     /**
      * 根据待集齐集合和状态查询aggCode统计情况
-     * @param collectionCodeEntities
-     * @param collectionStatusEnum
-     * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum
-    collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset) {
-        return null;
+    @Test
+    public void sumCollectionByCollectionCodeAndStatus() {
+        System.out.println(collectionRecordService.sumCollectionByCollectionCodeAndStatus(
+            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null),
+            CollectionStatusEnum.none_collected,CollectionAggCodeTypeEnum.waybill_code,null, "SC23010143333786",10,0
+        ));
+
+        System.out.println(collectionRecordService.sumCollectionByCollectionCodeAndStatus(
+            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null),
+            CollectionStatusEnum.collected,CollectionAggCodeTypeEnum.waybill_code,null, "SC23010143333786",10,0
+        ));
     }
 
     /**
      * 根据集合ID和aggCode查询统计明细信息
-     * @param collectionCodeEntities
-     * @param aggCode
-     * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset) {
-        return null;
+    @Test
+    public void queryCollectionScanDetailByAggCode() {
+        System.out.println(collectionRecordService.queryCollectionScanDetailByAggCode(
+            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null),
+            "JD0093356842901", CollectionAggCodeTypeEnum.waybill_code, "SC23010143333786", 10, 0
+        ));
     }
 }

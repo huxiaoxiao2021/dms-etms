@@ -647,7 +647,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities) {
+    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             log.info("待查询的集合ID不存在，查询失败");
             return Collections.emptyList();
@@ -656,7 +656,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCounter> collectionCounters = collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodeEntities.parallelStream()
             .map(CollectionCodeEntity::getCollectionCode)
             .filter(StringUtils::isNotEmpty)
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList()), aggCodeTypeEnum);
 
         return collectionCounters.parallelStream()
             .peek(

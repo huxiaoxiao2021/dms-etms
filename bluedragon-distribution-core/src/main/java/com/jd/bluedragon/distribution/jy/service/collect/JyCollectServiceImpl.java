@@ -130,7 +130,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         //查询所有统计数据
         List<CollectionCounter> allCounter = new ArrayList<>(
-            collectionRecordService.sumCollectionByCollectionCode(collectionCodeEntities));
+            collectionRecordService.sumCollectionByCollectionCode(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code));
 
         Map<String, List<CollectionCodeEntity>> collectionCodeMap = collectionCodeEntities.parallelStream()
             .collect(Collectors.groupingBy(CollectionCodeEntity::getCollectionCode));

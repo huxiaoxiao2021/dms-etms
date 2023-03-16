@@ -190,8 +190,8 @@
 		</where>
 	</select>
 
-	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" resultType="java.util.Map"
-			parameterType="java.lang.String">
+	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
+			resultType="java.lang.Integer">
 		SELECT
 			count(distinct agg_code)
 		FROM
@@ -265,19 +265,20 @@
 		group by agg_code, agg_code_type, collection_code
 	</select>
 
-	<select id="sumCollectionRecordByCollectionCode" parameterType="java.lang.String"
+	<select id="sumCollectionRecordByCollectionCode" parameterType="java.util.Map"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCounter">
 
 		select
-			collection_code, count(agg_code) as sumScanNum, sum(is_collected) as collectedNum,
+			collection_code as collectionCode, count(agg_code) as sumScanNum, sum(is_collected) as collectedNum,
 		sum(is_extra_collected) as extraCollectedNum, max(ts) as ts
 		FROM
 			collection_record
 		where
 			collection_code in
-			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 				#{collectionCode, jdbcType=VARCHAR}
 			</foreach>
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		group by
 			collection_code
@@ -289,7 +290,7 @@
 
 		select
 			crd.collection_code as collectionCode, crd.agg_code as aggCode, crd.agg_code_type as aggCodeType,
-			crd.collected_mark as collectedMark,
+			crd.collected_mark as collectedMark, cr.agg_mark as aggMark,
 			crd.collected_status as collectedStatus, count(1)
 			as number, max(crd.ts) as ts
 		from

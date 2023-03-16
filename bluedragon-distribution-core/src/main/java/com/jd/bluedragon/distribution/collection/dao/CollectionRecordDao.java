@@ -101,8 +101,11 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCollectedByAggCode"), collectionRecordDetailPo);
     }
 
-    public List<CollectionCounter> sumCollectionRecordByCollectionCode(List<String> collectionCodes) {
-        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionRecordByCollectionCode"), collectionCodes);
+    public List<CollectionCounter> sumCollectionRecordByCollectionCode(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionRecordByCollectionCode"), param);
     }
 
     public List<CollectionCollectedMarkCounter> sumCollectionAggCodeByCollectionCode(List<String> collectionCodes,

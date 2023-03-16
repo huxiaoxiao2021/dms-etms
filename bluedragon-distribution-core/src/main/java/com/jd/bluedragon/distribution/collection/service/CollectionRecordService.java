@@ -95,7 +95,7 @@ public interface CollectionRecordService {
      * @param collectionCodeEntities
      * @return
      */
-    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
+    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum);
 
     /**
      * 根据待集齐集合和状态查询aggCode统计情况
