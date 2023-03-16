@@ -190,7 +190,7 @@
 		</where>
 	</select>
 
-	<select id="countNoneCollectedAggCodeByCollectionCode" resultType="java.lang.Integer"
+	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" resultType="java.util.Map"
 			parameterType="java.lang.String">
 		SELECT
 			count(distinct agg_code)
@@ -198,11 +198,14 @@
 			collection_record_detail
 		<where>
 			collection_code in
-			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 				#{collectionCode, jdbcType=VARCHAR}
 			</foreach>
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			and is_collected = 0
+			<if test="collectedMark != null">
+				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			</if>
+			and collected_status = 0
 			and yn = 1
 		</where>
 	</select>

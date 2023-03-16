@@ -87,7 +87,8 @@ public interface CollectionRecordService {
      * @param collectionCodeEntities 查询元素 内包含待集齐集合ID
      * @return 返回不齐数量
      */
-    Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities);
+    Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
