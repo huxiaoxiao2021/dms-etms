@@ -398,6 +398,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         collectionScanCodeEntity.setScanCode(unloadScanCollectDealDto.getScanCode());
         collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
         collectionScanCodeEntity.setCollectedMark(unloadScanCollectDealDto.getBizId());
+        collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode())));
         //
         CollectionCollectorEntity collectionCollectorEntity = new CollectionCollectorEntity();
         collectionCollectorEntity.setCollectElements(collectElements);

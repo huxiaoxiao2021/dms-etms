@@ -15,6 +15,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -450,6 +451,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String scanCode = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode();
         String collectedMark = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectedMark();
         Map<CollectionAggCodeTypeEnum, String> element = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectionAggCodeMaps();
+        if (MapUtils.isEmpty(element)) {
+            element = new HashMap<>();
+        }
         /* 根据condition去business_code_attribute表中查询所有的集合ID,使用kv_index做查询 */
         List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
@@ -474,6 +478,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     ).collect(Collectors.toList());
             }
 
+            Map<CollectionAggCodeTypeEnum, String> finalElement = element;
             codeEntities.forEach(collectionCodeEntity -> {
                 /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
                 List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
@@ -497,7 +502,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             .collectionCode(collectionCodeEntity.getCollectionCode())
                             .scanCode(scanCode)
                             .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
-                            .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))
+                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
                             .aggCodeType(aggCodeTypeEnum.name())
                             .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
                             .collectedMark(collectedMark)
@@ -529,15 +534,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
                     /* 检查是否有根据appCodeType重置aggCode的行为 */
                     List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                        .parallelStream().filter(element::containsKey).collect(Collectors.toList());
+                        .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());
                     List<CollectionAggCodeTypeEnum> notExistAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                        .parallelStream().filter(aggCodeTypeEnum -> !element.containsKey(aggCodeTypeEnum)).collect(Collectors.toList());
+                        .parallelStream().filter(aggCodeTypeEnum -> !finalElement.containsKey(aggCodeTypeEnum)).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(existAggCodeTypeEnums)) {
                         existAggCodeTypeEnums.forEach(aggCodeTypeEnum ->
                             collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
                                 .collectionCode(collectionCodeEntity.getCollectionCode())
                                 .scanCode(scanCode)
-                                .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
+                                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
                                 .aggCodeType(aggCodeTypeEnum.name())
                                 .collectedStatus(CollectionStatusEnum.collected.getStatus())
                                 .collectedMark(collectedMark)
@@ -550,7 +555,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 .collectionCode(collectionCodeEntity.getCollectionCode())
                                 .scanCode(scanCode)
                                 .aggCodeType(aggCodeTypeEnum.name())
-                                .aggCode(element.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
+                                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
                                 .collectedStatus(CollectionStatusEnum.collected.getStatus())
                                 .collectedMark(collectedMark)
                                 .collectedTime(new Date())
