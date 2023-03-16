@@ -183,21 +183,23 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         targetInitDto.setOperateUserName(request.getUser().getUserName());
         // 评价来源bizId
         targetInitDto.setSourceBizId(request.getSourceBizId());
+        // 本次新增评价明细
+        targetInitDto.setDimensionList(request.getDimensionList());
         String businessId = request.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY
                 + Constants.UNDER_LINE + targetInitDto.getOperateTime();
         evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
     }
 
     private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
+        // 查询评价状态列表
+        List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
+        // 如果记录为空，代表首次评价
+        if (CollectionUtils.isEmpty(statusList)) {
+            targetInitDto.setFirstEvaluate(Boolean.TRUE);
+            return;
+        }
         // 如果本次评价满意
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-            // 查询评价状态列表
-            List<Integer> statusList = jyEvaluateRecordDao.findStatusListBySourceBizId(request.getSourceBizId());
-            // 如果记录为空，代表首次评价
-            if (CollectionUtils.isEmpty(statusList)) {
-                targetInitDto.setFirstEvaluate(Boolean.TRUE);
-                return;
-            }
             // 如果之前已经评价过满意
             if (statusList.contains(EVALUATE_STATUS_SATISFIED)) {
                 throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
@@ -217,22 +219,21 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
             // 根据运输封车编码查询对应的发货任务
             JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByTransWorkItemCode(transWorkItemCode);
-            request.setTargetBizId(sendVehicleDetail.getBizId());
-            targetInitDto.setTargetBizId(sendVehicleDetail.getBizId());
+            request.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
+            targetInitDto.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
             targetInitDto.setTargetStartTime(sendVehicleDetail.getCreateTime());
             targetInitDto.setTargetFinishTime(sendVehicleDetail.getUpdateTime());
             targetInitDto.setTargetSiteCode(sendVehicleDetail.getStartSiteId().intValue());
             targetInitDto.setTargetSiteName(sendVehicleDetail.getStartSiteName());
             targetInitDto.setSealTime(sendVehicleDetail.getSealCarTime());
-            targetInitDto.setSourceBizId(request.getSourceBizId());
             targetInitDto.setSourceSiteCode(unloadVehicle.getEndSiteId().intValue());
             targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
             targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
             targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
         } else {
             request.setTargetBizId(evaluateRecord.getTargetBizId());
+            targetInitDto.setTargetBizId(evaluateRecord.getTargetBizId());
         }
-        targetInitDto.setDimensionList(request.getDimensionList());
     }
 
     private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request) {
