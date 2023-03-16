@@ -557,7 +557,7 @@
         <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
     </jmq:consumer>
     <!-- 集齐初始化拆分批消费  -->
-    <jmq:consumer id="jmq.jyCollectDataInitSplitConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyCollectDataInitSplitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.data.init.split}" listener="jyCollectDataInitSplitConsumer"/>
     </jmq:consumer>
     <!-- 集齐数据批量修改 -->

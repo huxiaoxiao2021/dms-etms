@@ -421,13 +421,13 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
                 collectionCodeEntityList, waybillCode, typeEnum, reqDto.getBizId());
         if(log.isInfoEnabled()) {
-            log.info("{}查询集齐服务,param1={},param1={},param1={},param1={},res={}",
+            log.info("{}查询集齐服务,param1={},param2={},param3={},param4={},res={}",
                     methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, typeEnum, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
         }
         CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
         if(collectionAggCodeCounter == null) {
             log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(resDto));
-            return resDto;
+            return null;
         }
         //本车实际扫
         resDto.setActualScanNum(
