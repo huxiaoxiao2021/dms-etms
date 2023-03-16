@@ -226,4 +226,21 @@ public class DockInfoJsfServiceImpl implements DockService{
 
         return response;
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.DockInfoJsfServiceImpl.queryDockListBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<String>> queryDockListBySiteId(DockInfoEntity dockInfoEntity) {
+        Response<List<String>> response = new Response<>();
+        response.toSucceed();
+
+        if (Objects.isNull(dockInfoEntity) || Objects.isNull(dockInfoEntity.getSiteCode())) {
+            response.toError("缺少必要查询参数");
+            return response;
+        }
+
+        List<String> dockCodeList = dockBaseInfoDao.findAllDockCodeBySiteCode(dockInfoEntity.getSiteCode());
+        response.setData(dockCodeList);
+
+        return response;
+    }
 }
