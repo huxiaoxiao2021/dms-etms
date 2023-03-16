@@ -195,19 +195,25 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
                 mqDto.setOperateNode(initCollectDto.getOperateNode());
                 mqDto.setSealSiteCode(sealCarDto.getSealSiteId());
                 mqDto.setShouldUnSealSiteCode(sealCarDto.getEndSiteId());
-                String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
                 String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
                     log.info("CollectSealCarBatchInItSplitServiceImpl.splitSendMq:封车节点集齐数据初始化按批次号拆分producer, msg={}", msgText);
                 }
                 //todo 批量发JMQ
-                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,businessId));
+                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,getBusinessId(mqDto)));
             }
             jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
             offset =  offset + limitSize;
         }
     }
 
+    private String getBusinessId(InitCollectSplitDto mqDto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(mqDto.getSealBatchCode()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getPageNo()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getPageSize());
+        return sb.toString();
+    }
 
     private List<String> getPageNoPackageCodeListFromTms(InitCollectSplitDto initCollectSplitDto) {
         CargoDetailDto cargoDetailDto = new CargoDetailDto();

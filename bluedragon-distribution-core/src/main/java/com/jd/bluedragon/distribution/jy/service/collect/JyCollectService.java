@@ -80,6 +80,12 @@ public interface JyCollectService {
      * @return
      */
     boolean waybillBatchUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto);
+    /**
+     * 批量更新集齐状态按运单维度拆分批次
+     * @param paramDto
+     * @return
+     */
+    boolean batchUpdateCollectStatusWaybillSplit(BatchUpdateCollectStatusDto paramDto);
 
     /**
      * 不齐运单统计数量查询

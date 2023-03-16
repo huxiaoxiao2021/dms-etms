@@ -68,7 +68,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     @Qualifier(value = "jyCollectDataPageInitProducer")
     private DefaultJMQProducer jyCollectDataPageInitProducer;
     @Autowired
-    WaybillPackageManager waybillPackageManager;
+    private WaybillPackageManager waybillPackageManager;
     @Autowired
     private WaybillService waybillService;
     @Autowired
@@ -122,13 +122,12 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 mqDto.setWaybillCode(waybillCode);
                 mqDto.setTaskNullScanCodeType(initCollectDto.getTaskNullScanCodeType());
                 mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
-                String businessId = String.format("%:%s", mqDto.getSealBatchCode(), mqDto.getPageNo());
                 String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
                     log.info("{}.splitSendMq, msg={}", msgText);
                 }
                 //todo 批量发jmq
-                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,businessId));
+                messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,getBusinessId(mqDto)));
 
             }
             jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
@@ -140,6 +139,16 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         }finally {
             jyCollectCacheService.lockDelTaskNullWaybillCollectSplitBeforeInit(initCollectDto);
         }
+    }
+
+    private String getBusinessId(InitCollectSplitDto mqDto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(mqDto.getBizId()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getWaybillCode()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getTaskNullScanCodeType()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getPageNo()).append(Constants.SEPARATOR_COLON)
+                .append(mqDto.getPageSize());
+        return sb.toString();
     }
 
     @Override

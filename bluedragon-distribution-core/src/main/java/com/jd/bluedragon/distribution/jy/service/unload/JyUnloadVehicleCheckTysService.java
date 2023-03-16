@@ -164,8 +164,8 @@ public class JyUnloadVehicleCheckTysService {
     @Qualifier(value = "jyCollectDataInitSplitProducer")
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
     @Autowired
-    @Qualifier(value = "jyCollectBatchUpdateProducer")
-    private DefaultJMQProducer jyCollectBatchUpdateProducer;
+    @Qualifier(value = "jyCollectStatusBatchUpdateWaybillSplitProducer")
+    private DefaultJMQProducer jyCollectStatusBatchUpdateWaybillSplitProducer;
 
 
     /**
@@ -1349,13 +1349,23 @@ public class JyUnloadVehicleCheckTysService {
      * 转运卸车处理集齐逻辑
      */
     public void collectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        if(invokeResult == null) {
+            invokeResult = new InvokeResult<>();
+        }
+        ScanPackageRespDto resData = invokeResult.getData();
+        if(resData == null) {
+            resData = new ScanPackageRespDto();
+        }
         if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
             //默认关闭开关，手动开启降级 true
             if(log.isInfoEnabled()) {
                 log.info("JyUnloadVehicleCheckTysService.collectDeal：转运集齐功能降级处理中");
             }
+            resData.setCollectDemoteSwitch(true);
             return;
         }
+        resData.setCollectDemoteSwitch(false);
+
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.collectDeal", false, true);
         try{
             if (!ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())
@@ -1383,6 +1393,8 @@ public class JyUnloadVehicleCheckTysService {
         }catch (Exception e) {
             log.error("JyUnloadVehicleCheckTysService.collectDeal--转运卸车运单集齐服务异常，该异常存在于卸车主流程，异常报错处理，不卡流程，参数请求对象={}，参数返回对象={}",
                     JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult));
+            resData.setUnloadCollectErrWarn("集齐服务处理异常：" + e.getMessage());
+            resData.setUnloadCollectDto(null);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -1480,12 +1492,13 @@ public class JyUnloadVehicleCheckTysService {
         mqDto.setBatchType(CollectBatchUpdateTypeEnum.WAYBILL_BATCH.getCode());
         mqDto.setScanCode(unloadScanCollectDealDto.getScanCode());
         mqDto.setScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        String businessId = mqDto.getBizId() + ":" + mqDto.getScanCode();
         String msg = com.jd.bluedragon.utils.JsonHelper.toJson(mqDto);
         if(log.isInfoEnabled()) {
             log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
         }
         //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
-        jyCollectBatchUpdateProducer.sendOnFailPersistent(mqDto.getScanCode(), msg);
+        jyCollectStatusBatchUpdateWaybillSplitProducer.sendOnFailPersistent(businessId, msg);
     }
 
     /**

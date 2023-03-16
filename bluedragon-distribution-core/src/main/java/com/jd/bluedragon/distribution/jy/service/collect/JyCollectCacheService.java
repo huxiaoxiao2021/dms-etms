@@ -61,8 +61,48 @@ public class JyCollectCacheService {
             sb.append(CollectCacheConstant.CACHE_TASK_NULL_WAYBILL_UPDATE_COLLECT_STATUS)
                     .append(paramDto.getBizId())
                     .append(Constants.SEPARATOR_COLON)
-                    .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()));
+                    .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()))
+                    .append(Constants.SEPARATOR_COLON)
+                    .append(paramDto.getPageNo())
+                    .append(Constants.SEPARATOR_COLON)
+                    .append(paramDto.getPageSize());
             return sb.toString();
+    }
+
+
+    /**
+     * 空任务扫描运单，按运单批修改集齐状态: cache 保存
+     */
+    public void cacheSaveTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        String methodDesc = "cacheSaveTaskNullWaybillSplitUpdateCollectStatus：集齐批量修改状态按单拆分添加redis防重缓存:";
+
+        try {
+            String cacheKey = getCacheKeyTaskNullWaybillSplitUpdateCollectStatus(paramDto);
+            redisClientCache.setEx(cacheKey, StringUtils.EMPTY, CollectCacheConstant.CACHE_TASK_NULL_WAYBILL_SPLIT_UPDATE_COLLECT_STATUS_TIMEOUT, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("集齐批量修改状态按单拆分redis防重缓存添加失败");
+        }
+    }
+    //空任务扫描运单，按运单批修改集齐状态: cache 是否存在
+    public Boolean cacheExistTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        String methodDesc = "cacheExistTaskNullWaybillSplitUpdateCollectStatus：集齐批量修改状态按单拆分redis防重缓存校验是否存在:";
+        try {
+            String cacheKey = getCacheKeyTaskNullWaybillSplitUpdateCollectStatus(paramDto);
+            return redisClientCache.exists(cacheKey);
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("集齐批量修改状态按单拆分redis防重缓存校验是否存在失败");
+        }
+    }
+    //空任务扫描运单，按运单批修改集齐状态: get cache key
+    public String getCacheKeyTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        StringBuilder sb = new StringBuilder();
+        sb.append(CollectCacheConstant.CACHE_TASK_NULL_WAYBILL_SPLIT_UPDATE_COLLECT_STATUS)
+                .append(paramDto.getBizId())
+                .append(Constants.SEPARATOR_COLON)
+                .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()));
+        return sb.toString();
     }
 
     /**
@@ -94,8 +134,46 @@ public class JyCollectCacheService {
             sb.append(CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_UPDATE_COLLECT_STATUS)
                     .append(paramDto.getBizId())
                     .append(Constants.SEPARATOR_COLON)
-                    .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()));
+                    .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()))
+                    .append(Constants.SEPARATOR_COLON)
+                    .append(paramDto.getPageNo())
+                    .append(Constants.SEPARATOR_COLON)
+                    .append(paramDto.getPageSize());
             return sb.toString();
+    }
+
+
+    /**
+     * 空任务扫描运单，按运单批修改集齐状态: lock 保存
+     */
+    public Boolean lockSaveTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        String methodDesc = "lockSaveTaskNullWaybillSplitUpdateCollectStatus：集齐批量修改状态按单拆分添加redis并发锁:";
+        try {
+            String lockKey = getLockKeyTaskNullWaybillSplitUpdateCollectStatus(paramDto);
+            return redisClientCache.set(lockKey,StringUtils.EMPTY,CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_SPLIT_UPDATE_COLLECT_STATUS_TIMEOUT, TimeUnit.MINUTES,false);
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("集齐按单批量修改状态并发锁添加失败");
+        }
+    }
+    //空任务扫描运单，按运单批修改集齐状态: lock 删除
+    public void lockDelTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        String methodDesc = "lockDelTaskNullWaybillSplitUpdateCollectStatus：集齐批量修改状态按单拆分删除redis并发锁:";
+        try {
+            redisClientCache.del(getLockKeyTaskNullWaybillSplitUpdateCollectStatus(paramDto));
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("集齐按单批量修改状态并发锁删除失败");
+        }
+    }
+    //空任务扫描运单，按运单批修改集齐状态: get lock key
+    public String getLockKeyTaskNullWaybillSplitUpdateCollectStatus(BatchUpdateCollectStatusDto paramDto){
+        StringBuilder sb = new StringBuilder();
+        sb.append(CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_SPLIT_UPDATE_COLLECT_STATUS)
+                .append(paramDto.getBizId())
+                .append(Constants.SEPARATOR_COLON)
+                .append(WaybillUtil.getWaybillCode(paramDto.getScanCode()));
+        return sb.toString();
     }
 
 
