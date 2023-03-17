@@ -19,8 +19,6 @@ public interface JyExceptionService {
      */
     JdCResponse<Object> uploadScan(ExpUploadScanReq req);
 
-
-    void recordLog(JyBizTaskExceptionCycleTypeEnum cycle, JyBizTaskExceptionEntity entity);
     /**
      * 按取件状态统计
      */

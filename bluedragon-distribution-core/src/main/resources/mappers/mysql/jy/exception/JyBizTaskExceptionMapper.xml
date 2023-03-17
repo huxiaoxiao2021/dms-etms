@@ -377,12 +377,13 @@
         <if test="handlerErp !=null">
             AND handler_erp = #{handlerErp}
         </if>
-        <if test="status == 2">
-            order by process_end_time desc
-        </if>
-        <if test="status != 2">
-            order by id desc
-        </if>
+<!--        <if test="status == 2">-->
+<!--            order by process_end_time desc-->
+<!--        </if>-->
+<!--        <if test="status != 2">-->
+<!--            order by id desc-->
+<!--        </if>-->
+        order by id desc
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>

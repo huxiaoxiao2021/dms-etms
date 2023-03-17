@@ -38,11 +38,14 @@ public class JyExceptionServiceTest {
 
         req.setUserErp("wuyoude");
         req.setSiteId(910);
-        //req.setBarCode("sw000001");
-        //req.setBarCode("SW1111112223");
-        req.setBarCode("JDVA19408919504");
         req.setSource(0);
         req.setPositionCode("GW00003001");
+
+//        req.setBarCode("SW1111112225");
+//        req.setType(0);
+
+
+        req.setBarCode("JDVA00255154794");
         req.setType(1);
 
         JdCResponse<Object> response = jyExceptionService.uploadScan(req);
@@ -90,10 +93,11 @@ public class JyExceptionServiceTest {
 
         ExpReceiveReq req = new ExpReceiveReq();
         req.setUserErp("wuyoude");
-        req.setBarCode("SW1234567891");
+        req.setBarCode("SANWU_111111");
         req.setPositionCode("GW00003001");
-        req.setType(0);
-        jyExceptionService.receive(req);
+        //req.setType(0);
+        JdCResponse<Object> receive = jyExceptionService.receive(req);
+        System.out.println(JSON.toJSONString(receive));
     }
 
     @Test

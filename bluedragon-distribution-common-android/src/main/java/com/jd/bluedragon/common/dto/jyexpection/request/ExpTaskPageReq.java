@@ -7,7 +7,7 @@ public class ExpTaskPageReq extends ExpBaseReq {
     // 网格号
     private String gridCode;
 
-    // 处理状态0:待录入 1：待匹配 2：暂存 3: 处理完成
+    // 处理状态 processing_status 0:待录入 1：匹配中    2：上架     3: 处理完成     4：待打印 、   5：审批中、  6、审批通过  、7：审批驳回、8：客服介入
     private Integer processingStatus;
 
     // 处理人erp

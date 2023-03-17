@@ -139,7 +139,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private DefaultJMQProducer bdBlockerCompleteMQ;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
+    private JyExceptionStrategyFactory jyExceptionStrategyFactory;
     
     /**
      * 通用异常上报入口-扫描
@@ -151,13 +151,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(req.getSource());
         if (source == null) {
             return JdCResponse.fail("异常提报source有误!");
-        }
-        if(req.getType() == null){
-            return JdCResponse.fail("异常提报type不能为空!");
-        }
-        JyBizTaskExceptionTypeEnum exceptionType = JyBizTaskExceptionTypeEnum.getEnumByCode(req.getType());
-        if(exceptionType == null){
-            return JdCResponse.fail("异常提报type有误!");
         }
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
@@ -173,23 +166,65 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
         String bizId = getBizId(req.getType(), req.getBarCode());
-        JyExceptionStrategy exceptionService = JyExceptionStrategyFactory.getJyExceptionServiceStrategy(req.getType());
-        JdCResponse<Object> response = exceptionService.uploadScan(req, position, source, baseStaffByErp, bizId);
-        if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
-            return response;
+        String existKey = "DMS.EXCEPTION.UPLOAD_SCAN:" + bizId;
+        if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
+            return JdCResponse.fail("该异常上报正在提交,请稍后再试!");
         }
-        // 发送 mq 通知调度系统
-        JyExpTaskMessage taskMessage = new JyExpTaskMessage();
-        taskMessage.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
-        taskMessage.setTaskStatus(JyScheduleTaskStatusEnum.INIT.getCode());
-        taskMessage.setBizId(bizId);
-        taskMessage.setOpeUser(req.getUserErp());
-        taskMessage.setOpeUserName(baseStaffByErp.getStaffName());
-        taskMessage.setOpeTime(new Date().getTime());
 
-        String body = JSON.toJSONString(taskMessage);
-        scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
-        logger.info("异常岗-写入任务发送mq完成:body={}", body);
+        try{
+
+            JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
+            if (byBizId != null) {
+                return JdCResponse.fail("该异常已上报!");
+            }
+            JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
+            JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
+            JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
+            if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+                return response;
+            }
+
+            taskEntity.setBizId(bizId);
+            //taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
+            taskEntity.setSource(source.getCode());
+            //taskEntity.setBarCode(waybillCode);
+            //taskEntity.setTags(JyBizTaskExceptionTagEnum.SCRAPPED.getCode());
+            taskEntity.setSiteCode(new Long(position.getSiteCode()));
+            taskEntity.setSiteName(position.getSiteName());
+            taskEntity.setFloor(position.getFloor());
+            taskEntity.setAreaCode(position.getAreaCode());
+            taskEntity.setAreaName(position.getAreaName());
+            taskEntity.setGridCode(position.getGridCode());
+            taskEntity.setGridNo(position.getGridNo());
+            taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+            //taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+            taskEntity.setCreateUserErp(req.getUserErp());
+            taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
+            taskEntity.setCreateTime(new Date());
+            taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
+            taskEntity.setYn(1);
+            jyBizTaskExceptionDao.insertSelective(taskEntity);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
+
+            // 发送 mq 通知调度系统
+            JyExpTaskMessage taskMessage = new JyExpTaskMessage();
+            taskMessage.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
+            taskMessage.setTaskStatus(JyScheduleTaskStatusEnum.INIT.getCode());
+            taskMessage.setBizId(bizId);
+            taskMessage.setOpeUser(req.getUserErp());
+            taskMessage.setOpeUserName(baseStaffByErp.getStaffName());
+            taskMessage.setOpeTime(new Date().getTime());
+
+            String body = JSON.toJSONString(taskMessage);
+            scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
+            logger.info("异常岗-写入任务发送mq完成:body={}", body);
+
+        }catch (Exception e) {
+            logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
+            return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
+        } finally {
+            redisClient.del(existKey);
+        }
 
         return JdCResponse.ok();
     }
@@ -199,8 +234,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param cycle
      * @param entity
      */
-    @Override
-    public void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
         JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
         JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
         bizLog.setBizId(task.getBizId());
@@ -526,20 +560,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("条码不能为空!");
         }
-        JyBizTaskExceptionTypeEnum exceptionType = JyBizTaskExceptionTypeEnum.getEnumByCode(req.getType());
-        if(exceptionType == null){
-            return JdCResponse.fail("异常类型有误!");
-        }
         // 三无系统只处理大写字母
-        if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(req.getType())){
-            req.setBarCode(req.getBarCode().toUpperCase());
-        }
+        req.setBarCode(req.getBarCode().toUpperCase());
+
         String positionCode = req.getPositionCode();
         PositionDetailRecord position = getPosition(positionCode);
         if (position == null) {
             return JdCResponse.fail("岗位码有误!" + positionCode);
         }
-
 
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaffByErp == null) {
@@ -1347,12 +1375,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private String getBizId(Integer type, String barCode) {
-        if(JyBizTaskExceptionTypeEnum.SANWU.getCode().equals(type)){
-            return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
-        }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(type)){
+        if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(type)){
             return JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
         }
-        return "";
+        return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
     }
 
 

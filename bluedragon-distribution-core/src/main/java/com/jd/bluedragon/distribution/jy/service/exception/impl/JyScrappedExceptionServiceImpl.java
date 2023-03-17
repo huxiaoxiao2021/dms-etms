@@ -94,12 +94,16 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private DefaultJMQProducer dmsScrapNoticeKFProducer;
 
     @Override
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public Integer getExceptionType() {
+        return JyBizTaskExceptionTypeEnum.SCRAPPED.getCode();
+    }
+
+    @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
-    public JdCResponse<Object> uploadScan(ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, BaseStaffSiteOrgDto baseStaffByErp, String bizId) {
+    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity,ExpUploadScanReq req, PositionDetailRecord position
+            , JyExpSourceEnum source, String bizId) {
 
         logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
-
         if (!checkBarCode(req.getBarCode())) {
             return JdCResponse.fail("请扫描正确的运单号或包裹号!");
         }
@@ -108,57 +112,21 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         if (!checkFresh(waybillCode)) {
             return JdCResponse.fail("非生鲜运单，请检查后再操作!");
         }
-        String existKey = "DMS.SCRAPPED.UPLOAD_SCAN:" + bizId;
-        if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
-            return JdCResponse.fail("该异常上报正在提交,请稍后再试!");
-        }
-        try {
-            JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
-            if (byBizId != null) {
-                return JdCResponse.fail("该异常已上报!");
-            }
-            JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
-            taskEntity.setBizId(bizId);
-            taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
-            taskEntity.setSource(source.getCode());
-            taskEntity.setBarCode(waybillCode);
-            taskEntity.setTags(JyBizTaskExceptionTagEnum.SCRAPPED.getCode());
+        taskEntity.setBarCode(waybillCode);
+        taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
+        //taskEntity.setTags(JyBizTaskExceptionTagEnum.SCRAPPED.getCode());
 
-            taskEntity.setSiteCode(new Long(position.getSiteCode()));
-            taskEntity.setSiteName(position.getSiteName());
-            taskEntity.setFloor(position.getFloor());
-            taskEntity.setAreaCode(position.getAreaCode());
-            taskEntity.setAreaName(position.getAreaName());
-            taskEntity.setGridCode(position.getGridCode());
-            taskEntity.setGridNo(position.getGridNo());
+        JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
+        scrappedPo.setBizId(bizId);
+        scrappedPo.setWaybillCode(waybillCode);
+        scrappedPo.setSiteCode(position.getSiteCode());
+        scrappedPo.setSiteName(position.getSiteName());
+        scrappedPo.setCreateErp(req.getUserErp());
+        scrappedPo.setCreateTime(new Date());
+        logger.info("写入生鲜报废异常提报-taskEntity-{} -expEntity-{}",
+                JSON.toJSONString(scrappedPo));
+        jyExceptionScrappedDao.insertSelective(scrappedPo);
 
-            taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
-            //taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
-            taskEntity.setCreateUserErp(req.getUserErp());
-            taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
-            taskEntity.setCreateTime(new Date());
-            taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
-            taskEntity.setYn(1);
-
-            JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
-            scrappedPo.setBizId(bizId);
-            scrappedPo.setWaybillCode(waybillCode);
-            scrappedPo.setSiteCode(position.getSiteCode());
-            scrappedPo.setSiteName(position.getSiteName());
-            scrappedPo.setCreateErp(req.getUserErp());
-            scrappedPo.setCreateTime(new Date());
-            logger.info("写入生鲜报废异常提报-taskEntity-{} -expEntity-{}", JSON.toJSONString(taskEntity),
-                    JSON.toJSONString(scrappedPo));
-            jyBizTaskExceptionDao.insertSelective(taskEntity);
-            jyExceptionScrappedDao.insertSelective(scrappedPo);
-            jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD, taskEntity);
-
-        } catch (Exception e) {
-            logger.error("写入生鲜报废提报数据出错了,request=" + JSON.toJSONString(req), e);
-            return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
-        } finally {
-            redisClient.del(existKey);
-        }
         return JdCResponse.ok();
     }
 
@@ -512,10 +480,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             return JdCResponse.fail("业务ID不能为空!");
         }
         try {
-            JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
-            if (entity == null) {
-                return JdCResponse.fail("当前任务不存在!");
-            }
             JyExceptionScrappedPO PO = jyExceptionScrappedDao.selectOneByBizId(req.getBizId());
             if (PO == null) {
                 return JdCResponse.fail("当前报废信息不存在!");
