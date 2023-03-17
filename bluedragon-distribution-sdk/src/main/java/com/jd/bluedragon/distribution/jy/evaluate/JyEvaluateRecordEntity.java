@@ -15,7 +15,7 @@ public class JyEvaluateRecordEntity implements Serializable {
 
     private String sourceBizId;
 
-    private Integer status;
+    private Integer evaluateStatus;
 
     private Integer dimensionCode;
 
@@ -73,12 +73,12 @@ public class JyEvaluateRecordEntity implements Serializable {
         this.sourceBizId = sourceBizId;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getEvaluateStatus() {
+        return evaluateStatus;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setEvaluateStatus(Integer evaluateStatus) {
+        this.evaluateStatus = evaluateStatus;
     }
 
     public Integer getDimensionCode() {

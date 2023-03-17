@@ -12,17 +12,17 @@ public class JyEvaluateDimensionEntity implements Serializable {
     /**
      * 评价维度编码
      */
-    private Integer code;
+    private Integer dimensionCode;
 
     /**
      * 评价维度名称
      */
-    private String name;
+    private String dimensionName;
 
     /**
      * 评价维度状态
      */
-    private Integer status;
+    private Integer dimensionStatus;
 
     /**
      * 是否有文本框：0-无，1-有
@@ -58,28 +58,28 @@ public class JyEvaluateDimensionEntity implements Serializable {
         this.id = id;
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getDimensionCode() {
+        return dimensionCode;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public void setDimensionCode(Integer dimensionCode) {
+        this.dimensionCode = dimensionCode;
     }
 
-    public String getName() {
-        return name;
+    public String getDimensionName() {
+        return dimensionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDimensionName(String dimensionName) {
+        this.dimensionName = dimensionName;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getDimensionStatus() {
+        return dimensionStatus;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setDimensionStatus(Integer dimensionStatus) {
+        this.dimensionStatus = dimensionStatus;
     }
 
     public Integer getHasTextBox() {

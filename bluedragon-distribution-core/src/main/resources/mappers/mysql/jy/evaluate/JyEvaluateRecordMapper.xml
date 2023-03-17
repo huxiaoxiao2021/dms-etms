@@ -7,7 +7,7 @@
     <result column="evaluate_type" jdbcType="INTEGER" property="evaluateType" />
     <result column="target_biz_id" jdbcType="VARCHAR" property="targetBizId" />
     <result column="source_biz_id" jdbcType="VARCHAR" property="sourceBizId" />
-    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="evaluate_status" jdbcType="INTEGER" property="evaluateStatus" />
     <result column="dimension_code" jdbcType="INTEGER" property="dimensionCode" />
     <result column="img_count" jdbcType="INTEGER" property="imgCount" />
     <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
@@ -23,7 +23,7 @@
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, evaluate_type, target_biz_id, source_biz_id, status, dimension_code,
+    id, evaluate_type, target_biz_id, source_biz_id, evaluate_status, dimension_code,
     img_count, img_url, remark, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, ts
   </sql>
@@ -44,8 +44,8 @@
       <if test="sourceBizId != null">
         source_biz_id,
       </if>
-      <if test="status != null">
-        status,
+      <if test="evaluateStatus != null">
+        evaluate_status,
       </if>
       <if test="dimensionCode != null">
         dimension_code,
@@ -97,8 +97,8 @@
       <if test="sourceBizId != null">
         #{sourceBizId,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=INTEGER},
+      <if test="evaluateStatus != null">
+        #{evaluateStatus,jdbcType=INTEGER},
       </if>
       <if test="dimensionCode != null">
         #{dimensionCode,jdbcType=INTEGER},
@@ -140,14 +140,14 @@
   </insert>
 
   <insert id="batchInsert" parameterType="List">
-    insert into jy_evaluate_record (evaluate_type, target_biz_id,source_biz_id, status,dimension_code,img_count,img_url,remark,
+    insert into jy_evaluate_record (evaluate_type, target_biz_id,source_biz_id, evaluate_status,dimension_code,img_count,img_url,remark,
      create_user_erp, create_user_name, update_user_erp, update_user_name, create_time,
     update_time, yn, ts)  VALUES
     <foreach collection="list" item="item" index="index" separator=",">
      (#{item.evaluateType,jdbcType=INTEGER},
       #{item.targetBizId,jdbcType=VARCHAR},
       #{item.sourceBizId,jdbcType=VARCHAR},
-      #{item.status,jdbcType=INTEGER},
+      #{item.evaluateStatus,jdbcType=INTEGER},
       #{item.dimensionCode,jdbcType=INTEGER},
       #{item.imgCount,jdbcType=INTEGER},
       #{item.imgUrl,jdbcType=VARCHAR},

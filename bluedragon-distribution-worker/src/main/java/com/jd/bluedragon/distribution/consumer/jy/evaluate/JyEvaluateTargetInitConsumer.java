@@ -182,7 +182,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
             // 评价人erp
             String evaluateUserErp = evaluateRecord.getCreateUserErp();
             // 评价状态
-            Integer status = evaluateRecord.getStatus();
+            Integer status = evaluateRecord.getEvaluateStatus();
             if (!erpList.contains(evaluateUserErp)) {
                 erpList.add(evaluateUserErp);
             }

@@ -91,9 +91,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         List<DimensionOption> options = new ArrayList<>();
         for (JyEvaluateDimensionEntity dimension : list) {
             DimensionOption dimensionOption = new DimensionOption();
-            dimensionOption.setCode(dimension.getCode());
-            dimensionOption.setName(dimension.getName());
-            dimensionOption.setStatus(dimension.getStatus());
+            dimensionOption.setCode(dimension.getDimensionCode());
+            dimensionOption.setName(dimension.getDimensionName());
+            dimensionOption.setStatus(dimension.getDimensionStatus());
             dimensionOption.setHasTextBox(dimension.getHasTextBox());
             options.add(dimensionOption);
         }
@@ -229,7 +229,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private void checkOperateValidity(List<JyEvaluateRecordEntity> recordList) {
         for (JyEvaluateRecordEntity evaluateRecord : recordList) {
             // 如果之前已经评价过满意
-            if (EVALUATE_STATUS_SATISFIED.equals(evaluateRecord.getStatus())) {
+            if (EVALUATE_STATUS_SATISFIED.equals(evaluateRecord.getEvaluateStatus())) {
                 throw new JyBizException("该任务已经评价过满意，无需再次评价满意！");
                 // 如果之前评价不满意，则不能修改为满意
             } else {
@@ -247,7 +247,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 图片集合
             String imgUrls = evaluateRecord.getImgUrl();
             // 评价状态
-            Integer status = evaluateRecord.getStatus();
+            Integer status = evaluateRecord.getEvaluateStatus();
             if (!EVALUATE_STATUS_SATISFIED.equals(status)) {
                 // 该评价维度累计的图片数量
                 Integer imgCount = dimensionMap.get(dimensionCode);
@@ -323,7 +323,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         record.setEvaluateType(EVALUATE_TYPE_LOAD);
         record.setTargetBizId(request.getTargetBizId());
         record.setSourceBizId(request.getSourceBizId());
-        record.setStatus(request.getStatus());
+        record.setEvaluateStatus(request.getStatus());
         record.setCreateUserErp(request.getUser().getUserErp());
         record.setCreateUserName(request.getUser().getUserName());
         record.setUpdateUserErp(request.getUser().getUserErp());
@@ -361,7 +361,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private Map<Integer, JyEvaluateDimensionEntity> transformDataToMap(List<JyEvaluateDimensionEntity> list) {
         Map<Integer, JyEvaluateDimensionEntity> dimensionEnumMap = new HashMap<>();
         for (JyEvaluateDimensionEntity entity : list) {
-            dimensionEnumMap.put(entity.getCode(), entity);
+            dimensionEnumMap.put(entity.getDimensionCode(), entity);
         }
         return dimensionEnumMap;
     }
@@ -382,13 +382,13 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 评价维度详情
             JyEvaluateDimensionEntity dimensionEnum = dimensionEnumMap.get(dimensionCode);
             // 设置维度名称
-            evaluateDimensionDto.setDimensionName(dimensionEnum.getName());
+            evaluateDimensionDto.setDimensionName(dimensionEnum.getDimensionName());
             // 设置维度图片列表
             if (StringUtils.isNotBlank(imgUrl)) {
                 evaluateDimensionDto.setImgUrlList(new ArrayList<>(Arrays.asList(imgUrl.split(Constants.SEPARATOR_COMMA))));
             }
             // 设置维度是否重点关注
-            evaluateDimensionDto.setStatus(dimensionEnum.getStatus());
+            evaluateDimensionDto.setStatus(dimensionEnum.getDimensionStatus());
             // 设置维度是否携带文本框
             evaluateDimensionDto.setHasTextBox(dimensionEnum.getHasTextBox());
             // 设置维度文本框内容
