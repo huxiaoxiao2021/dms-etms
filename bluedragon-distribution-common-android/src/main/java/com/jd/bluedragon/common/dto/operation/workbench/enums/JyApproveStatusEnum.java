@@ -31,4 +31,13 @@ public enum JyApproveStatusEnum {
     public String getDesc() {
         return desc;
     }
+
+    public static JyApproveStatusEnum valueOf(Integer code){
+        for (JyApproveStatusEnum e:JyApproveStatusEnum.values()){
+            if (code.equals(e.getCode())){
+                return e;
+            }
+        }
+        return null;
+    }
 }
