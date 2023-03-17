@@ -152,9 +152,9 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private String getUserCodesStr(List<JyTaskGroupMemberEntity> taskGroupMembers) {
-        String userCodesStr = "";
+        StringBuilder userCodesStr = new StringBuilder();
         for (JyTaskGroupMemberEntity taskGroupMember : taskGroupMembers) {
-            userCodesStr = Constants.SEPARATOR_COMMA + taskGroupMember.getUserCode();
+            userCodesStr.append(Constants.SEPARATOR_COMMA).append(taskGroupMember.getUserCode());
         }
         return userCodesStr.substring(1);
     }
@@ -169,7 +169,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         // 评价人erp集合
         List<String> erpList = new ArrayList<>();
         // 备注汇总
-        String remarkStr = "";
+        StringBuilder remarkStr = new StringBuilder();
         // 图片汇总
         int imgCount = 0;
         for (JyEvaluateRecordEntity evaluateRecord : recordList) {
@@ -195,7 +195,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
                     imgCount = imgCount + imgUrls.split(Constants.SEPARATOR_COMMA).length;
                 }
                 if (StringUtils.isNotBlank(remark)) {
-                    remarkStr = remarkStr + Constants.LINE_NEXT_CHAR + remark;
+                    remarkStr.append(Constants.LINE_NEXT_CHAR).append(remark);
                 }
             }
         }
@@ -205,8 +205,8 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         }
         targetResultDto.setEvaluateUserErp(String.join(Constants.SEPARATOR_COMMA, erpList));
         targetResultDto.setImgCount(imgCount);
-        if (StringUtils.isNotBlank(remarkStr)) {
-            targetResultDto.setRemark(remarkStr);
+        if (StringUtils.isNotBlank(remarkStr.toString())) {
+            targetResultDto.setRemark(remarkStr.substring(2));
         }
     }
 
