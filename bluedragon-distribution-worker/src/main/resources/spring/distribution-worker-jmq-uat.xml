@@ -486,5 +486,10 @@
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
     </jmq:consumer>
 
+    <!--  装车评价报表加工消费  -->
+    <jmq:consumer id="jmq.jyEvaluateTargetInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.evaluate.target.init}" listener="jyEvaluateTargetInitConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

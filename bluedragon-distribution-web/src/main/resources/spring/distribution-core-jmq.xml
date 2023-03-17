@@ -778,4 +778,16 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--装车评价报表初始化信息 -->
+    <bean id="evaluateTargetInitProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.evaluate.target.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--装车评价报表最终结果信息 -->
+    <bean id="evaluateTargetResultProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.evaluate.target.result}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
 </beans>

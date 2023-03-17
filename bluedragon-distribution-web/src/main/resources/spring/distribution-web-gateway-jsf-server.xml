@@ -624,4 +624,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <!--  拣运评价服务  -->
+    <bean id="jyEvaluateGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyEvaluateGatewayServiceImpl" />
+    <jsf:provider id="jyEvaluateGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyEvaluateGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyEvaluateGatewayServiceImpl"
+                  server="dmsjsf" />
 </beans>
