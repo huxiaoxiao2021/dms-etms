@@ -90,9 +90,13 @@ public class JyCollectServiceImpl implements JyCollectService{
                 && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
             resData.setCollectReportStatisticsDtoList(null);
             resData.setCollectReportDtoList(null);
+            resData.setCollectDimension(null);
+            resData.setCollectType(null);
             resData.setManualCreateTaskFlag(true);
             return res;
         }
+        resData.setCollectType(collectReportReqDto.getCollectType());
+        resData.setManualCreateTaskFlag(false);
         res.setData(resData);
         //集齐统计数据
         resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
@@ -114,10 +118,13 @@ public class JyCollectServiceImpl implements JyCollectService{
             resData.setCollectReportStatisticsDtoList(null);
             resData.setCollectReportDto(null);
             resData.setCollectReportDetailPackageDtoList(null);
+            resData.setCollectDimension(null);
+            resData.setCollectType(null);
             resData.setManualCreateTaskFlag(true);
             return res;
         }
-
+        resData.setCollectType(collectReportReqDto.getCollectType());
+        resData.setManualCreateTaskFlag(false);
         //集齐类型运单统计
         resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
 
@@ -584,7 +591,7 @@ public class JyCollectServiceImpl implements JyCollectService{
                 return true;
             }
             //
-            BigWaybillDto bigWaybillDto = getWaybillPackage(paramDto.getScanCode());
+            BigWaybillDto bigWaybillDto = getWaybillPackage(WaybillUtil.getWaybillCode(paramDto.getScanCode()));
             if (bigWaybillDto == null || CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
                 log.warn("{}运单{}查询包裹为空, paramDto:[{}]，bigWaybillDto={}", methodDesc, paramDto.getScanCode(), JsonHelper.toJson(paramDto), JsonHelper.toJson(bigWaybillDto));
                 return false;
@@ -594,7 +601,7 @@ public class JyCollectServiceImpl implements JyCollectService{
             int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
 
             List<Message> messageList = new ArrayList<>();
-            for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
+            for (int pageNo = 1; pageNo <= collectBatchPageTotal; pageNo++) {
                 BatchUpdateCollectStatusDto mqDto = new BatchUpdateCollectStatusDto();
                 BeanUtils.copyProperties(paramDto, mqDto);
                 mqDto.setPageNo(pageNo);

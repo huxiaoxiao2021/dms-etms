@@ -147,7 +147,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             CollectDto collectDto = new CollectDto();
             collectDto.setCollectNodeSiteCode(initCollectSplitDto.getShouldUnSealSiteCode());
             collectDto.setBizId(initCollectSplitDto.getBizId());
-            collectDto.setWaybillCode(initCollectSplitDto.getWaybillCode());
+            collectDto.setWaybillCode(waybillCode);
             collectDto.setNextSiteCode(nextSiteId);
             collectDto.setOperatorErp(initCollectSplitDto.getOperatorErp());//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
 
@@ -169,7 +169,6 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
 
        int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
         //集齐处理页容量
-        int collectBatchPageTotal = collectOneBatchSize > limitSize ? limitSize : collectOneBatchSize;
 
         while(currentSize >= limitSize){
             CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
@@ -182,14 +181,14 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             }
             currentSize = cargoDetailReturn.getData().size();
             //发送集齐拆分的最大分页pageNo
-            int collectBatchMaxPageNo = currentSize / collectBatchPageTotal + (currentSize % collectBatchPageTotal > 0 ? 1 : 0);
+            int collectBatchMaxPageNo = currentSize / collectOneBatchSize + (currentSize % collectOneBatchSize > 0 ? 1 : 0);
 
             List<Message> messageList = new ArrayList<>();
             for(int pageNo = 1; pageNo <= collectBatchMaxPageNo; pageNo++ ) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
                 mqDto.setOperateTime(initCollectDto.getOperateTime());
-                mqDto.setPageSize(collectBatchPageTotal);
+                mqDto.setPageSize(collectOneBatchSize);
                 mqDto.setPageNo(pageNo);
                 mqDto.setSealBatchCode(batchCode);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());

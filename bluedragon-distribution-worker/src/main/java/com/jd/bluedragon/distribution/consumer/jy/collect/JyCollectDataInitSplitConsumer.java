@@ -56,15 +56,15 @@ public class JyCollectDataInitSplitConsumer extends MessageBaseConsumer {
             return;
         }
         if(logger.isInfoEnabled()){
-            logger.info("消费处理 jy_collect_data_init 开始，内容{}",message.getText());
+            logger.info("消费处理 jyCollectDataInitSplitConsumer 开始，内容{}",message.getText());
         }
         if(!deal(mqBody)){
             //处理失败 重试
-            logger.error("消费处理 jy_collect_data_init 失败，内容{}",message.getText());
-            throw new JyBizException("消费处理tms_seal_car_status失败");
+            logger.error("消费处理 jyCollectDataInitSplitConsumer 失败，内容{}",message.getText());
+            throw new JyBizException("jyCollectDataInitSplitConsumer消费处理失败" + message.getBusinessId());
         }else{
             if(logger.isInfoEnabled()) {
-                logger.info("消费处理 jy_collect_data_init 成功，内容{}", message.getText());
+                logger.info("消费处理 jyCollectDataInitSplitConsumer 成功，内容{}", message.getText());
             }
         }
     }

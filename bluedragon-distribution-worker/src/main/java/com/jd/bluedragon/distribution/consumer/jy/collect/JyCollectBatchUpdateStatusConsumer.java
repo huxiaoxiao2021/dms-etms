@@ -47,15 +47,15 @@ public class JyCollectBatchUpdateStatusConsumer extends MessageBaseConsumer {
             return;
         }
         if(log.isInfoEnabled()){
-            log.info("消费处理 jy_batch_update_collect_status 开始，内容{}",message.getText());
+            log.info("消费处理 jyCollectBatchUpdateStatusConsumer 开始，内容{}",message.getText());
         }
         if(!deal(mqBody)){
             //处理失败 重试
-            log.error("消费处理 jy_batch_update_collect_status 失败，内容{}",message.getText());
-            throw new JyBizException("消费处理 jy_batch_update_collect_status 失败");
+            log.error("消费处理 jyCollectBatchUpdateStatusConsumer 失败，内容{}",message.getText());
+            throw new JyBizException("jyCollectBatchUpdateStatusConsumer消费处理失败" + message.getBusinessId());
         }else{
             if(log.isInfoEnabled()) {
-                log.info("消费处理 jy_batch_update_collect_status 成功，内容{}", message.getText());
+                log.info("消费处理 jyCollectBatchUpdateStatusConsumer 成功，内容{}", message.getText());
             }
         }
     }

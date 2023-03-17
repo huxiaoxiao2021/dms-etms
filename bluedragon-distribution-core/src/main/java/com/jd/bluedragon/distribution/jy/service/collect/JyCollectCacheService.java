@@ -317,6 +317,8 @@ public class JyCollectCacheService {
         sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_INIT_AFTER_SPLIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
+                .append(paramDto.getSealBatchCode())
+                .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageNo())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageSize());

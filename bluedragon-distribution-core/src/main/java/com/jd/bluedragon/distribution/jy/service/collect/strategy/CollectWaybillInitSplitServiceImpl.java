@@ -85,7 +85,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         String methodDesc = "CollectWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
         String waybillCode = WaybillUtil.getWaybillCode(initCollectDto.getTaskNullScanCode());
 
-        if(jyCollectCacheService.lockSaveTaskNullWaybillCollectSplitBeforeInit(initCollectDto)) {
+        if(!jyCollectCacheService.lockSaveTaskNullWaybillCollectSplitBeforeInit(initCollectDto)) {
             if(log.isInfoEnabled()) {
                 log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
             }
@@ -109,11 +109,11 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             int collectBatchPageTotal = (totalPackageNum % collectOneBatchSize) == 0 ? (totalPackageNum / collectOneBatchSize) : (totalPackageNum / collectOneBatchSize) + 1;
 
             List<Message> messageList = new ArrayList<>();
-            for (int pageNo = 0; pageNo < collectBatchPageTotal; pageNo++) {
+            for (int pageNo = 1; pageNo <= collectBatchPageTotal; pageNo++) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
                 mqDto.setOperateTime(initCollectDto.getOperateTime());
-                mqDto.setPageSize(collectBatchPageTotal);
+                mqDto.setPageSize(collectOneBatchSize);
                 mqDto.setPageNo(pageNo);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());
                 mqDto.setOperatorErp(initCollectDto.getOperatorErp());
@@ -124,7 +124,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
                 String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
-                    log.info("{}.splitSendMq, msg={}", msgText);
+                    log.info("{}.splitSendMq, msg={}", methodDesc, msgText);
                 }
                 //todo 批量发jmq
                 messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,getBusinessId(mqDto)));
@@ -173,7 +173,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInit",Constants.UMP_APP_NAME_DMSWEB, false, true);
 
         String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.batchCollectInit:集齐数据按运单拆分批次后初始化：";
-        if (jyCollectCacheService.cacheExistSealCarCollectInitAfterSplit(request)) {
+        if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
             if (log.isInfoEnabled()) {
                 log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
             }
@@ -203,7 +203,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
 
         boolean res = jyCollectService.initCollect(collectDto, collectionScanCodeEntityList);
         if(res) {
-            jyCollectCacheService.cacheSaveSealCarCollectInitAfterSplit(request);
+            jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
         }
         Profiler.registerInfoEnd(info);
         return res;
