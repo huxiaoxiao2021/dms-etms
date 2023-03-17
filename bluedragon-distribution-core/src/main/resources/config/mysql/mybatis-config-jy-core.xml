@@ -64,6 +64,5 @@
 
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateDimensionMapper.xml" />
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateRecordMapper.xml" />
-		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateTargetInfoMapper.xml" />
 	</mappers>
 </configuration>

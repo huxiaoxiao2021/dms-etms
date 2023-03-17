@@ -892,9 +892,6 @@
     <bean id="jyEvaluateRecordDao" class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
-    <bean id="jyEvaluateTargetInfoDao" class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
 
     <!--################################## jy_core 相关DAO END ############################################ -->
 

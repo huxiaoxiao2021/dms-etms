@@ -9,7 +9,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.Evalua
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
-import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateTargetInfoDao;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
@@ -67,8 +66,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
-    @Autowired
-    private JyEvaluateTargetInfoDao jyEvaluateTargetInfoDao;
     @Autowired
     private JyEvaluateRecordDao jyEvaluateRecordDao;
     @Autowired
