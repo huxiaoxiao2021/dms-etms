@@ -29,16 +29,6 @@ public class EvaluateTargetInitDto implements Serializable {
     private String targetSiteName;
 
     /**
-     * 评价目标任务开始时间
-     */
-    private Date targetStartTime;
-
-    /**
-     * 评价目标任务完成时间
-     */
-    private Date targetFinishTime;
-
-    /**
      * 评价来源bizId
      */
     private String sourceBizId;
@@ -104,22 +94,6 @@ public class EvaluateTargetInitDto implements Serializable {
 
     public void setTargetBizId(String targetBizId) {
         this.targetBizId = targetBizId;
-    }
-
-    public Date getTargetStartTime() {
-        return targetStartTime;
-    }
-
-    public void setTargetStartTime(Date targetStartTime) {
-        this.targetStartTime = targetStartTime;
-    }
-
-    public Date getTargetFinishTime() {
-        return targetFinishTime;
-    }
-
-    public void setTargetFinishTime(Date targetFinishTime) {
-        this.targetFinishTime = targetFinishTime;
     }
 
     public String getSourceBizId() {

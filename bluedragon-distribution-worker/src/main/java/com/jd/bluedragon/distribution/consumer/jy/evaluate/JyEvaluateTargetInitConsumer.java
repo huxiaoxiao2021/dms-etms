@@ -13,6 +13,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -104,10 +105,12 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private EvaluateTargetResultDto createTargetInfo(EvaluateTargetInitDto targetInitDto) {
-        // 查询发货调度任务ID
-        String targetTaskId = jyEvaluateCommonService.getJyScheduleTaskId(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
-        // 查询卸车调度任务ID
-        String sourceTaskId = jyEvaluateCommonService.getJyScheduleTaskId(targetInitDto.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        // 查询发货调度任务
+        JyScheduleTaskResp targetScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        String targetTaskId = targetScheduleTask.getTaskId();
+        // 查询卸车调度任务
+        JyScheduleTaskResp sourceScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        String sourceTaskId = sourceScheduleTask.getTaskId();
         // 查询发货任务协助人
         List<JyTaskGroupMemberEntity> taskGroupMembers = jyEvaluateCommonService.queryMemberListByTaskId(targetTaskId);
         // 根据发货任务操作场地查询区域信息
@@ -115,11 +118,15 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         // 根据卸车任务操作场地查询区域信息
         BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
 
-        return createEvaluateTargetInfo(targetInitDto, sourceTaskId, targetTaskId, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
+        EvaluateTargetResultDto targetResultDto = createEvaluateTargetInfo(targetInitDto, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
+        targetResultDto.setTargetTaskId(targetTaskId);
+        targetResultDto.setSourceTaskId(sourceTaskId);
+        targetResultDto.setTargetStartTime(targetScheduleTask.getTaskStartTime());
+        targetResultDto.setTargetFinishTime(targetScheduleTask.getTaskEndTime());
+        return targetResultDto;
     }
 
     private EvaluateTargetResultDto createEvaluateTargetInfo(EvaluateTargetInitDto targetInitDto,
-                                                                String sourceTaskId, String targetTaskId,
                                                                 List<JyTaskGroupMemberEntity> taskGroupMembers,
                                                                 BaseStaffSiteOrgDto targetSiteOrgDto,
                                                                 BaseStaffSiteOrgDto sourceSiteOrgDto) {
@@ -129,9 +136,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
         targetInfo.setTargetSiteCode(targetInitDto.getTargetSiteCode());
         targetInfo.setTargetSiteName(targetInitDto.getTargetSiteName());
-        targetInfo.setTargetTaskId(targetTaskId);
-        targetInfo.setTargetStartTime(targetInitDto.getTargetStartTime());
-        targetInfo.setTargetFinishTime(targetInitDto.getTargetFinishTime());
+
         targetInfo.setTransWorkItemCode(targetInitDto.getTransWorkItemCode());
         targetInfo.setVehicleNumber(targetInitDto.getVehicleNumber());
         targetInfo.setSealTime(targetInitDto.getSealTime());
@@ -141,7 +146,6 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
         targetInfo.setSourceSiteCode(targetInitDto.getSourceSiteCode());
         targetInfo.setSourceSiteName(targetInitDto.getSourceSiteName());
-        targetInfo.setSourceTaskId(sourceTaskId);
         targetInfo.setUnsealTime(targetInitDto.getUnsealTime());
 
         return targetInfo;
@@ -160,30 +164,45 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (CollectionUtils.isEmpty(recordList)) {
             return;
         }
+        // 评价维度编码集合
         List<String> dimensionCodeList = new ArrayList<>();
+        // 评价人erp集合
         List<String> erpList = new ArrayList<>();
+        // 备注汇总
         String remarkStr = "";
+        // 图片汇总
         int imgCount = 0;
         for (JyEvaluateRecordEntity evaluateRecord : recordList) {
+            // 评价维度编码
             String dimensionCode = String.valueOf(evaluateRecord.getDimensionCode());
+            // 图片url集合
             String imgUrls = evaluateRecord.getImgUrl();
+            // 备注
             String remark = evaluateRecord.getRemark();
+            // 评价人erp
             String evaluateUserErp = evaluateRecord.getCreateUserErp();
-            if (!dimensionCodeList.contains(dimensionCode)) {
-                dimensionCodeList.add(dimensionCode);
-            }
-            if (StringUtils.isNotBlank(imgUrls)) {
-                imgCount = imgCount + imgUrls.split(Constants.SEPARATOR_COMMA).length;
-            }
+            // 评价状态
+            Integer status = evaluateRecord.getStatus();
             if (!erpList.contains(evaluateUserErp)) {
                 erpList.add(evaluateUserErp);
             }
-            if (StringUtils.isNotBlank(remark)) {
-                remarkStr = remarkStr + Constants.LINE_NEXT_CHAR + remark;
+            // 只有不满意的记录才需要统计以下三个指标
+            if (EVALUATE_STATUS_DISSATISFIED.equals(status)) {
+                if (!dimensionCodeList.contains(dimensionCode)) {
+                    dimensionCodeList.add(dimensionCode);
+                }
+                if (StringUtils.isNotBlank(imgUrls)) {
+                    imgCount = imgCount + imgUrls.split(Constants.SEPARATOR_COMMA).length;
+                }
+                if (StringUtils.isNotBlank(remark)) {
+                    remarkStr = remarkStr + Constants.LINE_NEXT_CHAR + remark;
+                }
             }
         }
-        targetResultDto.setStatus(EVALUATE_STATUS_DISSATISFIED);
-        targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+        if (CollectionUtils.isNotEmpty(dimensionCodeList)) {
+            targetResultDto.setStatus(EVALUATE_STATUS_DISSATISFIED);
+            targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+        }
         targetResultDto.setEvaluateUserErp(String.join(Constants.SEPARATOR_COMMA, erpList));
         targetResultDto.setImgCount(imgCount);
         if (StringUtils.isNotBlank(remarkStr)) {

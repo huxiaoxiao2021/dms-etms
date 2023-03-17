@@ -18,7 +18,7 @@
     <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="yn" jdbcType="INTEGER" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
 

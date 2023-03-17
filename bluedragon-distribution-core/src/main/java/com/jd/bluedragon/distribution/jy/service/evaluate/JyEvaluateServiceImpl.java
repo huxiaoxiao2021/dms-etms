@@ -207,8 +207,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByTransWorkItemCode(transWorkItemCode);
             request.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
             targetInitDto.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
-            targetInitDto.setTargetStartTime(sendVehicleDetail.getCreateTime());
-            targetInitDto.setTargetFinishTime(sendVehicleDetail.getUpdateTime());
             targetInitDto.setTargetSiteCode(sendVehicleDetail.getStartSiteId().intValue());
             targetInitDto.setTargetSiteName(sendVehicleDetail.getStartSiteName());
             targetInitDto.setSealTime(sendVehicleDetail.getSealCarTime());
@@ -262,10 +260,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 }
             }
         }
+        request.setTargetBizId(recordList.get(0).getTargetBizId());
+        targetInitDto.setTargetBizId(recordList.get(0).getTargetBizId());
         // 如果之前没有评价过不满意，则不需要校验
         if (dimensionMap.isEmpty()) {
-            request.setTargetBizId(recordList.get(0).getTargetBizId());
-            targetInitDto.setTargetBizId(recordList.get(0).getTargetBizId());
             return;
         }
         // 校验图片是否超过上限
