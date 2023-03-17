@@ -1153,6 +1153,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         request.setBizId(entity.getBizId());
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
+      addBoardBox.setOperatorTime(request.getCurrentOperate().getOperateTime());
       Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
