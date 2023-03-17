@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.external.gateway.service.JyEvaluateGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -65,7 +66,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             Boolean flag = jyEvaluateService.checkIsEvaluate(request);
             result.setData(flag);
         } catch (Exception e) {
-            LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常", e);
+            LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常:request={}", JsonHelper.toJson(request), e);
             result.toError("服务器异常");
         }
         return result;
@@ -89,7 +90,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             List<EvaluateDimensionDto> list = jyEvaluateService.findTargetEvaluateInfo(request);
             result.setData(list);
         } catch (Exception e) {
-            LOGGER.error("findTargetEvaluateInfo|查询目标评价详情接口出现异常", e);
+            LOGGER.error("findTargetEvaluateInfo|查询目标评价详情接口出现异常:request={}", JsonHelper.toJson(request), e);
             result.toError("服务器异常");
         }
         return result;
@@ -122,16 +123,16 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             }
             jyEvaluateService.saveTargetEvaluate(request);
         } catch (JyBizException e) {
-            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
+            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
-            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错,msg={}", e.getMessage());
+            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.setCode(REFRESH_CODE);
             result.setMessage(e.getMessage());
             return result;
         } catch (Exception e) {
-            LOGGER.error("saveTargetEvaluate|保存评价详情接口出现异常", e);
+            LOGGER.error("saveTargetEvaluate|保存评价详情接口出现异常:request={}", JsonHelper.toJson(request), e);
             result.toError("服务器异常");
         }
         return result;
@@ -166,16 +167,16 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             }
             jyEvaluateService.updateTargetEvaluate(request);
         } catch (JyBizException e) {
-            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错,msg={}", e.getMessage());
+            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
-            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错,msg={}", e.getMessage());
+            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.setCode(REFRESH_CODE);
             result.setMessage(e.getMessage());
             return result;
         } catch (Exception e) {
-            LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常", e);
+            LOGGER.error("updateTargetEvaluate|修改评价详情接口出现异常:request={}", JsonHelper.toJson(request), e);
             result.toError("服务器异常");
         }
         return result;
