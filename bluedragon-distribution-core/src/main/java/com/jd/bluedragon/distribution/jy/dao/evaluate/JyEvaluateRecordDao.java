@@ -25,4 +25,8 @@ public class JyEvaluateRecordDao extends BaseDao<JyEvaluateRecordEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".findRecordsBySourceBizId", sourceBizId);
     }
 
+    public List<JyEvaluateRecordEntity> findUnsatisfiedRecordsBySourceBizId(String sourceBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findUnsatisfiedRecordsBySourceBizId", sourceBizId);
+    }
+
 }

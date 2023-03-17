@@ -24,7 +24,7 @@
 
   <sql id="Base_Column_List">
     id, evaluate_type, target_biz_id, source_biz_id, status, dimension_code,
-    img_count, img_url, remark, create_user_name, update_user_erp,
+    img_count, img_url, remark, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, ts
   </sql>
 
@@ -175,8 +175,15 @@
     <include refid="Base_Column_List" />
     from jy_evaluate_record
     where source_biz_id = #{sourceBizId,jdbcType=VARCHAR}
-    and yn = 1 and status = 0
+    and yn = 1
   </select>
 
+  <select id="findUnsatisfiedRecordsBySourceBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_evaluate_record
+    where source_biz_id = #{sourceBizId,jdbcType=VARCHAR}
+    and yn = 1 and status = 0
+  </select>
 
 </mapper>

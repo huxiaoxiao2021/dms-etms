@@ -113,7 +113,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<EvaluateDimensionDto> findTargetEvaluateInfo(EvaluateTargetReq request) {
-        List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
+        List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findUnsatisfiedRecordsBySourceBizId(request.getSourceBizId());
         if (CollectionUtils.isEmpty(recordList)) {
             return new ArrayList<>();
         }
