@@ -183,7 +183,7 @@
     <include refid="Base_Column_List" />
     from jy_evaluate_record
     where source_biz_id = #{sourceBizId,jdbcType=VARCHAR}
-    and yn = 1 and status = 0
+    and yn = 1 and evaluate_status = 0
   </select>
 
 </mapper>
