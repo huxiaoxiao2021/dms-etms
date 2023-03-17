@@ -1416,7 +1416,7 @@ public class JyUnloadVehicleCheckTysService {
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
         //自建任务走默认末端在库集齐方式
-        collectDto.setCollectType(CollectSiteTypeEnum.WAYBILL.getCode());
+        collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
 
         //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
         taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
@@ -1458,7 +1458,7 @@ public class JyUnloadVehicleCheckTysService {
             //按运单修改集齐状态mq： 异步
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
-            collectDto.setCollectType(CollectSiteTypeEnum.WAYBILL.getCode());
+            collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
             collectDto.setCollectStatisticsNum(0);
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态： 同步

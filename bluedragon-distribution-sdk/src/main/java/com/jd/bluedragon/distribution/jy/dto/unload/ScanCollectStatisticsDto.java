@@ -17,6 +17,10 @@ public class ScanCollectStatisticsDto implements Serializable {
      */
     private Integer waybillBuQiNum;
 
+    /**
+     * 是否为空任务
+     */
+    private Boolean manualCreatedFlag;
 
     public Integer getCollectType() {
         return collectType;
@@ -32,5 +36,13 @@ public class ScanCollectStatisticsDto implements Serializable {
 
     public void setWaybillBuQiNum(Integer waybillBuQiNum) {
         this.waybillBuQiNum = waybillBuQiNum;
+    }
+
+    public Boolean getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Boolean manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 }

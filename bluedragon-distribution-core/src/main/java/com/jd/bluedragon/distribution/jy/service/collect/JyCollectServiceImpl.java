@@ -85,6 +85,14 @@ public class JyCollectServiceImpl implements JyCollectService{
     public InvokeResult<CollectReportResDto> findCollectInfo(CollectReportReqDto collectReportReqDto) {
         InvokeResult<CollectReportResDto> res = new InvokeResult<>();
         CollectReportResDto resData = new CollectReportResDto();
+        //空任务只有在库集齐
+        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
+                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
+            resData.setCollectReportStatisticsDtoList(null);
+            resData.setCollectReportDtoList(null);
+            resData.setManualCreateTaskFlag(true);
+            return res;
+        }
         res.setData(resData);
         //集齐统计数据
         resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
@@ -100,6 +108,15 @@ public class JyCollectServiceImpl implements JyCollectService{
         InvokeResult<CollectReportDetailResDto> res = new InvokeResult<>();
         CollectReportDetailResDto resData = new CollectReportDetailResDto();
         res.setData(resData);
+        //空任务只有在库集齐
+        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
+                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
+            resData.setCollectReportStatisticsDtoList(null);
+            resData.setCollectReportDto(null);
+            resData.setCollectReportDetailPackageDtoList(null);
+            resData.setManualCreateTaskFlag(true);
+            return res;
+        }
 
         //集齐类型运单统计
         resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
