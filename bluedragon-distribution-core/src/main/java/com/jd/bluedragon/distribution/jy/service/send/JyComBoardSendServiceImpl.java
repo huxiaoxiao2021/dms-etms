@@ -1389,10 +1389,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("已封车禁止继续扫描！");
       }
       if (ObjectHelper.isNotNull(entity.getBulkFlag()) && entity.getBulkFlag()){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE);
       }
       if (entity.getHaveScanCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE);
       }
       request.setBizId(entity.getBizId());
       request.setSendCode(entity.getSendCode());

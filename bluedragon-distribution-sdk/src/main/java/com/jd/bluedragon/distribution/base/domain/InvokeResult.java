@@ -253,6 +253,14 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int COMBOARD_SCAN_FORCE_SEND_WARNING = 3062;
 
+    public static final int BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_CODE = 3063;
+    public static final String BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_MESSAGE = "已达上限，不允许补扫！";
+
+    public static final int NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE = 3064;
+    public static final String NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE = "补扫不允许按单扫描！";
+    public static final String NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE = "大宗板号-一板一单，不允许继续扫描！";
+
+
 
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
