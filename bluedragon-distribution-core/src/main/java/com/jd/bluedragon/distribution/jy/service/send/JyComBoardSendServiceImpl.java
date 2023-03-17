@@ -1584,7 +1584,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
        */
       sortingCheck(request);
 
-      //comboardCheckChain(request);
     } else if (BusinessHelper.isBoxcode(barCode)) {
       final Box box = boxService.findBoxByCode(barCode);
       if (box == null) {
@@ -1655,6 +1654,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     sendStatusCheck(request, sendType, sendResult, sendM);
+    if (request.getForceSendFlag()){
+      return;
+    }
     sendInterceptChain(request, sendM, sendType);
   }
 
@@ -1734,6 +1736,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardEntity.setCreateTime(now);
     comboardEntity.setUpdateTime(now);
     comboardEntity.setGroupCode(request.getGroupCode());
+    if (request.getForceSendFlag()){
+      comboardEntity.setForceSendFlag(true);
+    }
     return comboardEntity;
   }
 
@@ -1827,6 +1832,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void comboardCheckChain(ComboardScanReq request) {
+    if (request.getForceSendFlag()){
+      return;
+    }
     if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
       final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
       pdaOperateRequest.setPackageCode(request.getBarCode());
