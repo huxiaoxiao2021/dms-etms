@@ -216,6 +216,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
             targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
             targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
+            targetInitDto.setTransWorkItemCode(transWorkItemCode);
             return;
         }
         // 如果本次评价满意
