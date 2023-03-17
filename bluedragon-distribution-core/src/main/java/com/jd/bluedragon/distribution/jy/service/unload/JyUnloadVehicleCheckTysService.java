@@ -1394,8 +1394,8 @@ public class JyUnloadVehicleCheckTysService {
                 log.info("JyUnloadVehicleCheckTysService.collectDeal:集齐服务处理后结果集数据为{}", JsonUtils.toJSONString(invokeResult));
             }
         }catch (Exception e) {
-            log.error("JyUnloadVehicleCheckTysService.collectDeal--转运卸车运单集齐服务异常，该异常存在于卸车主流程，异常报错处理，不卡流程，参数请求对象={}，参数返回对象={}",
-                    JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult));
+            log.error("JyUnloadVehicleCheckTysService.collectDeal--转运卸车运单集齐服务异常，该异常存在于卸车主流程，异常报错处理，不卡流程，参数请求对象={}，参数返回对象={},errMsg={}",
+                    JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult), e.getMessage(), e);
             resData.setUnloadCollectErrWarn("集齐服务处理异常：" + e.getMessage());
             resData.setUnloadCollectDto(null);
             Profiler.functionError(info);

@@ -45,7 +45,7 @@ public class JyTysUnloadTest {
     }
 
     @Test
-    public void collectDezalTest(){
+    public void collectDealTest(){
         while(true) {
 
             try{
@@ -73,14 +73,14 @@ public class JyTysUnloadTest {
                         "    \"bizId\": \"XCZJ23031600000013\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"groupCode\": \"G00000052005\",\n" +
-                        "        \"operateTime\": 1679063055309,\n" +
+                        "        \"operateTime\": 1679069152005,\n" +
                         "        \"positionCode\": \"GW00108005\",\n" +
                         "        \"siteCode\": 10186,\n" +
                         "        \"siteName\": \"北京凉水河快运中心\"\n" +
                         "    },\n" +
                         "    \"goodNumber\": 1,\n" +
                         "    \"manualCreateTaskFlag\": true,\n" +
-                        "    \"scanCode\": \"JD0003419484162-3-50-\",\n" +
+                        "    \"scanCode\": \"JD0003419484162-10-50-\",\n" +
                         "    \"scanCodeType\": 101,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 18225,\n" +
@@ -91,7 +91,9 @@ public class JyTysUnloadTest {
 
                 UnloadScanCollectDealDto param1 = JSONObject.parseObject(json, UnloadScanCollectDealDto.class);
                 String json2 = "{\n" +
-                        "        \"barCode\": \"JD0003419484162-3-50-\",\n" +
+                        "    \"code\": 200,\n" +
+                        "    \"data\": {\n" +
+                        "        \"barCode\": \"JD0003419484162-10-50-\",\n" +
                         "        \"bizId\": \"XCZJ23031600000013\",\n" +
                         "        \"collectDemoteSwitch\": false,\n" +
                         "        \"confirmMsg\": {},\n" +
@@ -101,7 +103,9 @@ public class JyTysUnloadTest {
                         "        \"stageFirstScan\": false,\n" +
                         "        \"supplementary\": false,\n" +
                         "        \"warnMsg\": {}\n" +
-                        "    }";
+                        "    },\n" +
+                        "    \"message\": \"OK\"\n" +
+                        "}";
                 ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json, ScanPackageRespDto.class);
                 InvokeResult<ScanPackageRespDto> param2 = new InvokeResult<>();
                 param2.success();
