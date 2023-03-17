@@ -807,6 +807,12 @@ public class UccPropertyConfiguration {
      */
     private Integer cttGroupSendFLowLimit;
 
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
+
     public boolean isAutoPackageSendInspectionSwitch() {
         return autoPackageSendInspectionSwitch;
     }
@@ -2895,5 +2901,13 @@ public class UccPropertyConfiguration {
 
     public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
         this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 }
