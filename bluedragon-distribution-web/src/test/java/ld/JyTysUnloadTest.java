@@ -73,16 +73,15 @@ public class JyTysUnloadTest {
                         "    \"bizId\": \"XCZJ23031600000013\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"groupCode\": \"G00000052005\",\n" +
-                        "        \"operateTime\": 1678959622178,\n" +
+                        "        \"operateTime\": 1679063055309,\n" +
                         "        \"positionCode\": \"GW00108005\",\n" +
                         "        \"siteCode\": 10186,\n" +
                         "        \"siteName\": \"北京凉水河快运中心\"\n" +
                         "    },\n" +
-                        "    \"goodNumber\": 22,\n" +
+                        "    \"goodNumber\": 1,\n" +
                         "    \"manualCreateTaskFlag\": true,\n" +
-                        "    \"scanCode\": \"JD0003419474704-1-22-\",\n" +
-//                        "    \"scanCodeType\": 101,\n" +
-                        "    \"scanCodeType\": 102,\n" +
+                        "    \"scanCode\": \"JD0003419484162-3-50-\",\n" +
+                        "    \"scanCodeType\": 101,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 18225,\n" +
                         "        \"userErp\": \"xumigen\",\n" +
@@ -92,7 +91,7 @@ public class JyTysUnloadTest {
 
                 UnloadScanCollectDealDto param1 = JSONObject.parseObject(json, UnloadScanCollectDealDto.class);
                 String json2 = "{\n" +
-                        "        \"barCode\": \"JD0003419474704-1-22-\",\n" +
+                        "        \"barCode\": \"JD0003419484162-3-50-\",\n" +
                         "        \"bizId\": \"XCZJ23031600000013\",\n" +
                         "        \"collectDemoteSwitch\": false,\n" +
                         "        \"confirmMsg\": {},\n" +
@@ -101,9 +100,6 @@ public class JyTysUnloadTest {
                         "        \"prevSiteName\": \"北京凉水河快运中心\",\n" +
                         "        \"stageFirstScan\": false,\n" +
                         "        \"supplementary\": false,\n" +
-                        "        \"unloadCollectDto\": {\n" +
-                        "            \"collectType\": 102\n" +
-                        "        },\n" +
                         "        \"warnMsg\": {}\n" +
                         "    }";
                 ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json, ScanPackageRespDto.class);

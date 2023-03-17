@@ -454,11 +454,11 @@ public class JyCollectServiceImpl implements JyCollectService{
             log.info("{}查询集齐服务,param1={},param2={},param3={},param4={},res={}",
                     methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, typeEnum, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
         }
-        CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
         if(collectionAggCodeCounter == null) {
-            log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(resDto));
+            log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(reqDto));
             return null;
         }
+        CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
         //本车实际扫
         resDto.setActualScanNum(
                 (Objects.isNull(collectionAggCodeCounter.getInnerMarkCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkCollectedNum())

@@ -1435,6 +1435,9 @@ public class JyUnloadVehicleCheckTysService {
             }
             //
             CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto);
+            if(collectReportStatisticsDto == null) {
+                throw new JyBizException("集齐数据查询为空");
+            }
             if(collectReportStatisticsDto.getCollectType() == null || collectReportStatisticsDto.getCollectType().equals(collectDto.getCollectType())) {
                 log.info("{} 自建任务一定是在库集齐类型{}, data={}", methodDesc, CollectTypeEnum.SITE_JIQI, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("无任务扫描集齐类型查询错误");
@@ -1471,6 +1474,9 @@ public class JyUnloadVehicleCheckTysService {
             }
             //查询集齐类型统计
             CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto);
+            if(collectReportStatisticsDto == null) {
+                throw new JyBizException("集齐数据查询为空");
+            }
             if(!collectReportStatisticsDto.getTaskExistInitFlag()) {
                 //todo 下发任务扫描的运单是多扫运单，没有被封车集齐初始化，走在库集齐逻辑
                 collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
