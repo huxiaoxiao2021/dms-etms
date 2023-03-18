@@ -606,6 +606,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         //记录封车失败次数
         int failCount=0;
+        int emptyCount =0;
         //循环调用运输封车同时生成车次任务的接口
         for (SealCarDto param : paramList) {
             String singleErrorMsg = "";
@@ -637,6 +638,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     log.warn("封车批次全部为空批次，不进行封车操作[{}]。",JsonHelper.toJson(param));
                     singleErrorMsg="运力编码封车批次全部没有发货数据：" + transportCode;
                     errorMsg += singleErrorMsg;
+                    emptyCount++;
                     continue;
                 }
             }
@@ -700,10 +702,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         }
 
+        if (emptyCount == paramList.size()){
+            sealVehicleResponse.setCode(NewSealVehicleResponse.ALL_SENDCODES_ARE_EMPTY_CODE);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.ALL_SENDCODES_ARE_EMPTY_MESSAGE);
+            return sealVehicleResponse;
+        }
 
         if(failCount<=0){
             sealVehicleResponse.setCode(JdResponse.CODE_OK);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+            sealVehicleResponse.setData(successSealCarList);
         }else{
             sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(errorMsg);
