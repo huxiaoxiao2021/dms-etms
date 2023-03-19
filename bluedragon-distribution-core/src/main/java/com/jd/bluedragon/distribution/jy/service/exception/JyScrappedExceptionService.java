@@ -35,4 +35,6 @@ public interface JyScrappedExceptionService {
      * @param historyApprove
      */
     void dealApproveResult(HistoryApprove historyApprove);
+
+    void dealApproveTest(ExpScrappedDetailReq req);
 }

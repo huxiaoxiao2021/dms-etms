@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.base.FlowServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
@@ -45,6 +46,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,8 +223,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public void dealApproveResult(HistoryApprove historyApprove) {
-        // 业务bizId（在审批提交时传入的工单号就是业务bizId）
-        String bizId = historyApprove.getProcessInstanceNo();
+        // 审批工单号
+        String processInstanceNo = historyApprove.getProcessInstanceNo();
         // 审批人ERP
         String approveErp = historyApprove.getApprover();
         // 当前审批节点编码
@@ -232,8 +234,16 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 : Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue()) ? JyApproveStatusEnum.REJECT.getCode()
                 : JyApproveStatusEnum.UNKNOWN.getCode();
 
+        // 查询审批数据:key-审批次数approveCount,value-业务主键bizId
+        ImmutablePair<Integer, String> pairResult = queryApproveData(processInstanceNo);
+        if(pairResult == null){
+            logger.warn("根据审批工单号:{}未查询到审批工单详情!", processInstanceNo);
+            return;
+        }
         // 审批次数
-        Integer approveCount = queryApproveCount(bizId);
+        Integer approveCount = pairResult.left;
+        // 生效报废业务主键bizId
+        String bizId = pairResult.right;
 
         // 审批流程最终结果
         boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());
@@ -312,19 +322,25 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         jyBizTaskExceptionDao.updateByBizId(entity);
     }
 
-    private Integer queryApproveCount(String bizId) {
-        ApproveRequestOrder approveRequestOrder = flowServiceManager.getRequestOrder(bizId);
+    private ImmutablePair<Integer, String> queryApproveData(String processInstanceNo) {
+        ApproveRequestOrder approveRequestOrder = flowServiceManager.getRequestOrder(processInstanceNo);
         if(approveRequestOrder == null || approveRequestOrder.getArgs() == null){
-            logger.warn("根据审批工单号{}未查询到生鲜报废的审批流程!", bizId);
+            logger.warn("根据审批工单号{}未查询到生鲜报废的审批流程!", processInstanceNo);
             return null;
         }
         Map<String, Object> argsMap = approveRequestOrder.getArgs();
         Map<String, Object> flowControlMap = JsonHelper.json2MapNormal(JsonHelper.toJson(argsMap.get(FlowConstants.FLOW_DATA_MAP_KEY_FLOW_CONTROL)));
         if(flowControlMap == null){
-            logger.warn("根据申请单号{}未查询到设置的流程对象!", bizId);
+            logger.warn("根据申请单号{}未查询到设置的流程对象!", processInstanceNo);
             return null;
         }
-        return Integer.valueOf(String.valueOf(flowControlMap.get(FlowConstants.FLOW_DATA_MAP_SCRAP_COUNT)));
+        Map<String, Object> businessMap = JsonHelper.json2MapNormal(JsonHelper.toJson(argsMap.get(FlowConstants.FLOW_DATA_MAP_KEY_BUSINESS_DATA)));
+        if(businessMap == null){
+            logger.warn("根据申请单号{}未查询到设置的业务数据对象!", processInstanceNo);
+            return null;
+        }
+        return ImmutablePair.of(Integer.valueOf(String.valueOf(flowControlMap.get(FlowConstants.FLOW_DATA_MAP_SCRAP_COUNT))),
+                String.valueOf(flowControlMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
     }
 
     /**
@@ -361,6 +377,11 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             po.setThirdCheckTime(now);
         }
         jyExceptionScrappedDao.updateByBizId(po);
+    }
+
+    @Override
+    public void dealApproveTest(ExpScrappedDetailReq req){
+        dealApprove(req);
     }
 
     /**
