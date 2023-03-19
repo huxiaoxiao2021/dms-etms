@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.base.FlowServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
@@ -59,8 +60,6 @@ import java.util.concurrent.TimeUnit;
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
-    //提交
-    private static final String SAVE_TYPE_1 = "1";
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -119,6 +118,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
         scrappedPo.setBizId(bizId);
         scrappedPo.setWaybillCode(waybillCode);
+        scrappedPo.setExceptionType(JyExceptionScrappedTypeEnum.SCRAPPED_FRESH.getCode());
         scrappedPo.setSiteCode(position.getSiteCode());
         scrappedPo.setSiteName(position.getSiteName());
         scrappedPo.setCreateErp(req.getUserErp());
@@ -162,6 +162,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         if (position == null) {
             return JdCResponse.fail("岗位码有误!");
         }
+        if(req.getSaveType() == null){
+            return JdCResponse.fail("保存状态有误!");
+        }
         try {
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
             if (baseStaffByErp == null) {
@@ -182,11 +185,16 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             po.setCertifyImageUrl(req.getCertifyImageUrl());
             po.setUpdateErp(req.getUserErp());
             po.setUpdateTime(new Date());
-            if (SAVE_TYPE_1.equals(req.getSaveType())) {
+            po.setSaveType(req.getSaveType());
+            if (JyExpSaveTypeEnum.SAVE.getCode().equals(req.getSaveType())) {
                 po.setSubmitTime(new Date());
             }
-            logger.info("报废业务数据更新数据--{}",JSON.toJSONString(po));
-            jyExceptionScrappedDao.updateByBizId(po);
+            //暂存的话，直接返回
+            if(JyExpSaveTypeEnum.TEMP_SAVE.getCode().equals(req.getSaveType())){
+                logger.info("报废业务数据暂存更新数据--{}",JSON.toJSONString(po));
+                jyExceptionScrappedDao.updateByBizId(po);
+                return JdCResponse.ok();
+            }
 
             //修改状态为处理中、审批中
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();

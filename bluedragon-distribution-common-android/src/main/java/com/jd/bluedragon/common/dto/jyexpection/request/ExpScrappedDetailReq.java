@@ -11,7 +11,7 @@ public class ExpScrappedDetailReq extends  ExpBaseReq{
     private String bizId;
 
     // 存储类型 0暂存 1提交
-    private String saveType;
+    private Integer saveType;
 
     /**
      * 报废类型code 值
@@ -39,11 +39,11 @@ public class ExpScrappedDetailReq extends  ExpBaseReq{
         this.bizId = bizId;
     }
 
-    public String getSaveType() {
+    public Integer getSaveType() {
         return saveType;
     }
 
-    public void setSaveType(String saveType) {
+    public void setSaveType(Integer saveType) {
         this.saveType = saveType;
     }
 

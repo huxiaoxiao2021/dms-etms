@@ -39,6 +39,11 @@ public class JyExceptionScrappedPO {
     private Integer exceptionType;
 
     /**
+     * 保存状态 0：暂存 1: 保存
+     */
+    private Integer saveType;
+
+    /**
      * 物品照片 多个逗号分割
      */
     private String goodsImageUrl;
@@ -299,5 +304,13 @@ public class JyExceptionScrappedPO {
 
     public void setSubmitTime(Date submitTime) {
         this.submitTime = submitTime;
+    }
+
+    public Integer getSaveType() {
+        return saveType;
+    }
+
+    public void setSaveType(Integer saveType) {
+        this.saveType = saveType;
     }
 }

@@ -4,12 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,6 +29,8 @@ public class JyExceptionServiceTest {
     @Autowired
     private DmsTimingHandlerService dmsTimingHandlerService;
 
+    @Autowired
+    private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
 
     @Test
     public void uploadScanTest() {
@@ -127,6 +127,33 @@ public class JyExceptionServiceTest {
     public void queryProductNameTest() {
         //JdCResponse<List<DmsBarCode>> listJdCResponse = jyExceptionGatewayService.queryProductName("a,aa,4");
         //System.out.println(JSONObject.toJSON(listJdCResponse));
+    }
+
+    @Test
+    public void getJyExceptionScrappedTypeListTest(){
+        JdCResponse<List<JyExceptionScrappedTypeDto>> list = jyScrappedExceptionService.getJyExceptionScrappedTypeList();
+        Assert.assertEquals(list.isSucceed(),true);
+    }
+
+    @Test
+    public void processTaskOfscrappedTest(){
+        ExpScrappedDetailReq req = new ExpScrappedDetailReq();
+        req.setUserErp("wuyoude");
+        req.setPositionCode("GW00003001");
+        req.setBizId("SANWU_sw000001");
+        req.setSaveType(1);
+
+        JdCResponse<Boolean> response = jyScrappedExceptionService.processTaskOfscrapped(req);
+        Assert.assertEquals(response.isSucceed(),true);
+    }
+
+    @Test
+    public void getTaskDetailOfscrappedTest(){
+        ExpTaskByIdReq req=new ExpTaskByIdReq();
+        req.setBizId("SANWU_sw000001");
+        JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(req);
+        Assert.assertEquals(response.isSucceed(),true);
+
     }
 
     @Test

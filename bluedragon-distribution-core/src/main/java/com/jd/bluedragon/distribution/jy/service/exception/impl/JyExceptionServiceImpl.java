@@ -500,6 +500,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             dto.setCheckerErp(data.getFirstChecker());
                             dto.setCheckTime(data.getFirstCheckTime());
                         }
+                        dto.setSaved(Objects.equals(JyExpSaveTypeEnum.SAVE.getCode(),data.getSaveType()));
                     }
                 }
                 list.add(dto);
@@ -1457,6 +1458,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setStatus(entity.getStatus());
         dto.setProcessingStatus(entity.getProcessingStatus());
 
+        if(Objects.nonNull(entity.getType())
+                && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
+            ExpTaskByIdReq req = new ExpTaskByIdReq();
+            req.setBizId(entity.getBizId());
+            JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(req);
+            if(response.isSucceed() && response.getData()!= null && response.getData().getSaveType() != null){
+                dto.setSaved(Objects.equals(response.getData().getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE));
+            }
+            return dto;
+        }
         String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
         boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
         dto.setSaved(saved);
