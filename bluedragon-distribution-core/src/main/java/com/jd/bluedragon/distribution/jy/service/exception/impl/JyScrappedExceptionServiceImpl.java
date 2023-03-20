@@ -542,6 +542,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         dto.setScrappedTypCode(po.getExceptionType());
         JyExceptionScrappedTypeEnum scrappedTypeEnum = JyExceptionScrappedTypeEnum.valueOf(po.getExceptionType());
         dto.setScrappedTypName(scrappedTypeEnum.getName());
+        dto.setSaveType(po.getSaveType());
         dto.setSubmitTime(po.getSubmitTime());
         dto.setGoodsImageUrl(po.getGoodsImageUrl());
         dto.setCertifyImageUrl(po.getCertifyImageUrl());
