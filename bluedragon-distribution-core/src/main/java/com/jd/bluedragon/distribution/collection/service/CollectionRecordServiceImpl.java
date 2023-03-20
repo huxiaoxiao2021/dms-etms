@@ -238,6 +238,24 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExistItemList)
                     );
 
+                    /* 过滤状态已经存在的情况，但collectedMark不同的情况 */
+                    List<CollectionRecordDetailPo> collectionRecordDetailPosExistWithOutMark = collectionRecordDetailPos.parallelStream().filter(
+                        collectionRecordDetailPo ->
+                            collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
+                                && collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode())
+                                .parallelStream().anyMatch(item -> !Objects.equals(item.getCollectedMark(), collectionRecordDetailPo.getCollectedMark()))
+                    ).collect(Collectors.toList());
+                    /* 更新到数据库中 */
+                    collectionRecordDetailPosExistWithOutMark.forEach(
+                        collectionRecordDetailPo -> collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo)
+                    );
+
+                    /* 新增到数据库中 */
+                    Lists.partition(collectionRecordDetailPosNotExist, Constants.DEFAULT_PAGE_SIZE).forEach(
+                        collectionRecordDetailPosNotExistItemList ->
+                            collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExistItemList)
+                    );
+
                     /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
                     List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = collectionRecordDetailPos.parallelStream().filter(
                         /* 首选过滤出存在且标注多扫的状态 */
