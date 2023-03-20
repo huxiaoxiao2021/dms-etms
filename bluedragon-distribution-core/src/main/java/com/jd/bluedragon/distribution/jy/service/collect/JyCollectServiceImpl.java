@@ -302,7 +302,20 @@ public class JyCollectServiceImpl implements JyCollectService{
         String methodDesc = "JyCollectServiceImpl.initCollect:集齐初始化:";
         CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
 
-        //根据中转和末端的场景决定是否需要从运单获取全量包裹数据
+        Result<Boolean> errMsgRes = new Result<>();
+        if(!collectionRecordService.initPartCollection(collectionCreatorEntity, errMsgRes)) {
+            log.error("{}集齐初始化错误，req={},res={}", methodDesc, JsonHelper.toJson(collectionCreatorEntity), JsonHelper.toJson(errMsgRes));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.sealCarInitCollect",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean sealCarInitCollect(CollectDto collectDto, List<CollectionScanCodeEntity> packageCodeList) {
+        String methodDesc = "JyCollectServiceImpl.sealCarInitCollect:集齐初始化:";
+        CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList);
+
         if (CollectionBusinessTypeEnum.all_site_collection.equals(collectionCreatorEntity.getCollectionCodeEntity().getBusinessType())) {
             sealCarWaybillCollectInitSendMq(collectDto);
         }

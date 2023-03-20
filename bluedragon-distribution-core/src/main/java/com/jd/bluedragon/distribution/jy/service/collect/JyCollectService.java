@@ -44,11 +44,19 @@ public interface JyCollectService {
 
 
     /**
-     * 初始化保存集齐数据（封车、无任务扫描）
+     * 初始化保存集齐数据（封车运单补偿初始化、无任务扫描初始化）
      * @param collectDto
      * @return
      */
     boolean initCollect(CollectDto collectDto, List<CollectionScanCodeEntity> detailList);
+
+    /**
+     * 封车初始化单独逻辑
+     * @param collectDto
+     * @param detailList
+     * @return
+     */
+    boolean sealCarInitCollect(CollectDto collectDto, List<CollectionScanCodeEntity> detailList);
 
     /**
      * 集齐初始化 & 修改集齐状态

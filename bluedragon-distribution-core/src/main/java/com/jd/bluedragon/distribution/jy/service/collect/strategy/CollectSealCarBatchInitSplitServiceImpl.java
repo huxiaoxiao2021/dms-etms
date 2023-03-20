@@ -151,7 +151,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             collectDto.setNextSiteCode(nextSiteId);
             collectDto.setOperatorErp(initCollectSplitDto.getOperatorErp());//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
             collectDto.setSealBatchCode(initCollectSplitDto.getSealBatchCode());
-            jyCollectService.initCollect(collectDto, collectionScanCodeEntities);
+            jyCollectService.sealCarInitCollect(collectDto, collectionScanCodeEntities);
         });
 
         jyCollectCacheService.cacheSaveSealCarCollectInitAfterSplit(initCollectSplitDto);
