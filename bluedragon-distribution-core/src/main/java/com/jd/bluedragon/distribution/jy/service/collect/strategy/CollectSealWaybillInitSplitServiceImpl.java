@@ -45,7 +45,10 @@ import java.util.List;
 
 /**
  * @Author zhengchengfa
- * @Description //集齐初始化： 无任务扫描，按运单号分页拆分
+ * @Description //集齐初始化：封车节点，判断是末端时，除了封车运单的包裹数据，还要初始化运单内没有封车的数据
+ * 末端走运单维度在库集齐，处理未到数据，全量初始化
+ *
+ * 封车运单未到的补偿逻辑
  * @date
  **/
 @Service
