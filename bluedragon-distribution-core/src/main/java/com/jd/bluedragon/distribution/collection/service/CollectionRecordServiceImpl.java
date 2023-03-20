@@ -635,7 +635,22 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 this.sumCollectionByCollectionCodeAndStatus(collectionCodeEntities, null, CollectionAggCodeTypeEnum.waybill_code, aggCode, collectedMark, 10, 0)
             );
 
-        return aggCodeCounters.parallelStream().findAny().orElse(null);
+        if (CollectionUtils.isEmpty(aggCodeCounters)) {
+            return null;
+        }
+
+        if (aggCodeCounters.size() == 1) {
+             return aggCodeCounters.get(0);
+        }
+
+        if (aggCodeCounters.parallelStream().allMatch(collectionAggCodeCounter ->
+            collectionAggCodeCounter.getCollectedNum() == 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0)) {
+            return aggCodeCounters.parallelStream().findAny().orElse(null);
+        } else {
+            return aggCodeCounters.parallelStream().filter(collectionAggCodeCounter ->
+                collectionAggCodeCounter.getCollectedNum() > 0 || collectionAggCodeCounter.getNoneCollectedNum() > 0).findFirst().orElse(null);
+        }
+
 
     }
 
@@ -715,24 +730,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 .concat(",")
                 .concat(collectionCollectedMarkCounter.getAggCodeType())));
 
-        Map<String, List<CollectionCollectedMarkCounter>> effectiveMarkCounterMap = collectionCollectedMarkCounters.parallelStream()
-            .filter(collectionCollectedMarkCounter -> {
-
-                String key = collectionCollectedMarkCounter.getCollectionCode()
-                    .concat(",")
-                    .concat(collectionCollectedMarkCounter.getAggCode())
-                    .concat(",")
-                    .concat(collectionCollectedMarkCounter.getAggCodeType());
-
-                return markCounterMap.get(key).parallelStream().anyMatch(
-                    collectionCollectedMarkCounter1 -> !CollectionStatusEnum.extra_collected.getStatus().equals(
-                        collectionCollectedMarkCounter1.getCollectedStatus()));
-            }).collect(Collectors.groupingBy(
-                collectionCollectedMarkCounter -> collectionCollectedMarkCounter.getCollectionCode()
-                    .concat(",")
-                    .concat(collectionCollectedMarkCounter.getAggCode())
-                    .concat(",")
-                    .concat(collectionCollectedMarkCounter.getAggCodeType())));
+        Map<String, List<CollectionCollectedMarkCounter>> effectiveMarkCounterMap = markCounterMap;
 
         List<CollectionAggCodeCounter> collectionAggCodeCounters = new Vector<>();
         effectiveMarkCounterMap.forEach((key, itemMarkCounters) -> {
