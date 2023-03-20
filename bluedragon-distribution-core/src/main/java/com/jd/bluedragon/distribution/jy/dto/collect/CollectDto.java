@@ -21,6 +21,8 @@ public class CollectDto implements Serializable {
 
     private String BizId;
 
+    private String sealBatchCode;
+
 
     public String getWaybillCode() {
         return waybillCode;
@@ -60,5 +62,13 @@ public class CollectDto implements Serializable {
 
     public void setBizId(String bizId) {
         BizId = bizId;
+    }
+
+    public String getSealBatchCode() {
+        return sealBatchCode;
+    }
+
+    public void setSealBatchCode(String sealBatchCode) {
+        this.sealBatchCode = sealBatchCode;
     }
 }

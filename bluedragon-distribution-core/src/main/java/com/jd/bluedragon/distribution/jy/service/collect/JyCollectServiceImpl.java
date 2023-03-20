@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectServiceConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectSiteTypeServiceFactory;
@@ -83,6 +84,9 @@ public class JyCollectServiceImpl implements JyCollectService{
     private WaybillPackageManager waybillPackageManager;
     @Autowired
     JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
 
 
     @Override
@@ -300,22 +304,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         //根据中转和末端的场景决定是否需要从运单获取全量包裹数据
         if (CollectionBusinessTypeEnum.all_site_collection.equals(collectionCreatorEntity.getCollectionCodeEntity().getBusinessType())) {
-            List<DeliveryPackageD> packageDList = waybillQueryManager.findWaybillPackList(collectDto.getWaybillCode());
-            if (CollectionUtils.isNotEmpty(packageDList)) {
-                Map<String, List<CollectionScanCodeEntity>> scanCodeMap = packageCodeList.parallelStream().collect(Collectors.groupingBy(CollectionScanCodeEntity::getScanCode));
-
-                packageCodeList.addAll(packageDList.parallelStream()
-                    .filter(packageD -> !scanCodeMap.containsKey(packageD.getPackageBarcode()))
-                    .map(packageD -> {
-                        CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
-                        collectionScanCodeEntity.setScanCode(packageD.getPackageBarcode());
-                        collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-                        collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, collectDto.getWaybillCode()));
-                        return collectionScanCodeEntity;
-                    }).collect(Collectors.toList())
-                );
-
-            }
+            sealCarWaybillCollectInitSendMq(collectDto);
         }
         Result<Boolean> errMsgRes = new Result<>();
         if(!collectionRecordService.initPartCollection(collectionCreatorEntity, errMsgRes)) {
@@ -323,6 +312,29 @@ public class JyCollectServiceImpl implements JyCollectService{
             return false;
         }
         return true;
+    }
+
+
+    /**
+     * 生成任务初始化集齐对象，发送初始化jmq
+     */
+    private void sealCarWaybillCollectInitSendMq(CollectDto collectDto) {
+
+        InitCollectDto initCollectDto = new InitCollectDto();
+        initCollectDto.setOperateTime(System.currentTimeMillis());
+        initCollectDto.setBizId(collectDto.getBizId());
+        initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_WAYBILL_INIT.getCode());
+        initCollectDto.setCollectNodeSiteCode(collectDto.getCollectNodeSiteCode());
+        initCollectDto.setWaybillCode(collectDto.getWaybillCode());
+        initCollectDto.setSealBatchCode(collectDto.getSealBatchCode());
+        //自建任务扫描初始化businessId是bizId + 扫描单号+ 扫描类型；  封车初始化businessId是bizId
+        StringBuilder sb = new StringBuilder();
+        String businessId = sb.append(initCollectDto.getBizId()).append(":").append(initCollectDto.getWaybillCode()).toString();
+        String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.sealCarWaybillCollectInitSendMq：封车时末端场地运单走按运单维度拆分集齐初始化逻辑，补偿末端未到数据集齐，发送JMQ, msg={}", msg);
+        }
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(businessId, msg);
     }
 
     /**

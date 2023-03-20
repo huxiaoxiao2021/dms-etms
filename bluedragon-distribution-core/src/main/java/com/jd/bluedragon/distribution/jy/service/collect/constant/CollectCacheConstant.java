@@ -52,11 +52,11 @@ public class CollectCacheConstant {
      * 防重
      * Value: StringUtils.EMPTY
      */
-    public static final String CACHE_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT = "cache:scan:waybill:collect:split:";
-    public static final int CACHE_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT_TIMEOUT = 7;//单位 天
+    public static final String CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT = "cache:waybill:collect:split:";
+    public static final int CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT = 7;//单位 天
     //并发锁
-    public static final String LOCK_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT = "lock:scan:waybill:collect:split:";
-    public static final int LOCK_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT_TIMEOUT = 10;//单位 min
+    public static final String LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT = "lock:waybill:collect:split:";
+    public static final int LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT = 10;//单位 min
 
     /**
      * 空任务扫描节点按运单 集齐拆分之后 初始化
@@ -65,4 +65,12 @@ public class CollectCacheConstant {
      */
     public static final String CACHE_TASK_NULL_WAYBILL_INIT_AFTER_SPLIT = "cache:scan:waybill:collect:init:";
     public static final int CACHE_TASK_NULL_WAYBILL_INIT_AFTER_SPLIT_TIMEOUT = 7;//单位 天
+
+    /**
+     * 封车运单末端场地按运单 集齐拆分之后 初始化
+     * 防重
+     * Value: StringUtils.EMPTY
+     */
+    public static final String CACHE_SEAL_WAYBILL_COLLECT_INIT_AFTER_SPLIT = "cache:seal:waybill:collect:init:";
+    public static final int CACHE_SEAL_WAYBILL_COLLECT_INIT_AFTER_SPLIT_TIMEOUT = 7;//单位 天
 }

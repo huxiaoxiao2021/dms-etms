@@ -178,70 +178,70 @@ public class JyCollectCacheService {
 
 
     /**
-     * 空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: cache 保存
+     * 按运单进行集齐初始化前的拆分逻辑: cache 保存
      */
-    public void cacheSaveTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
-        String methodDesc = "cacheSaveTaskNullWaybillSplitBeforeInit：空任务扫描节点:按运单进行集齐初始化前的拆分逻辑:添加redis防重缓存:";
+    public void cacheSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+        String methodDesc = "cacheSaveWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:添加redis防重缓存:";
 
         try {
-            String cacheKey = getCacheKeyTaskNullWaybillCollectSplitBeforeInit(paramDto);
-            redisClientCache.setEx(cacheKey, StringUtils.EMPTY, CollectCacheConstant.CACHE_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.DAYS);
+            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto);
+            redisClientCache.setEx(cacheKey, StringUtils.EMPTY, CollectCacheConstant.CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.DAYS);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
             throw new JyBizException("按运单进行集齐初始化前拆分逻辑防重缓存添加异常");
         }
     }
-    //空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: cache 是否存在
-    public Boolean cacheExistTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
-        String methodDesc = "cacheExistTaskNullWaybillSplitBeforeInit：空任务扫描节点:按运单进行集齐初始化前的拆分逻辑:防重缓存校验是否存在:";
+    //按运单进行集齐初始化前的拆分逻辑: cache 是否存在
+    public Boolean cacheExistWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+        String methodDesc = "cacheExistWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:防重缓存校验是否存在:";
         try {
-            String cacheKey = getCacheKeyTaskNullWaybillCollectSplitBeforeInit(paramDto);
+            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto);
             return redisClientCache.exists(cacheKey);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
             throw new JyBizException("按运单进行集齐初始化前拆分逻辑防重缓存校验是否存在异常");
         }
     }
-    //空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: get cache key
-    public String getCacheKeyTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    //按运单进行集齐初始化前的拆分逻辑: get cache key
+    public String getCacheKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
         StringBuilder sb = new StringBuilder();
-        sb.append(CollectCacheConstant.CACHE_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT)
+        sb.append(CollectCacheConstant.CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
-                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()));
+                .append(paramDto.getWaybillCode());
         return sb.toString();
     }
 
     /**
-     * 空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: lock 保存
+     * 按运单进行集齐初始化前的拆分逻辑: lock 保存
      */
-    public Boolean lockSaveTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
-        String methodDesc = "lockSaveTaskNullWaybillSplitBeforeInit：空任务扫描节点:按运单进行集齐初始化前的拆分逻辑:添加redis并发锁:";
+    public Boolean lockSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+        String methodDesc = "lockSaveWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:添加redis并发锁:";
         try {
-            String lockKey = getLockKeyTaskNullWaybillCollectSplitBeforeInit(paramDto);
-            return redisClientCache.set(lockKey,StringUtils.EMPTY,CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.MINUTES,false);
+            String lockKey = getLockKeyWaybillCollectSplitBeforeInit(paramDto);
+            return redisClientCache.set(lockKey,StringUtils.EMPTY,CollectCacheConstant.LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.MINUTES,false);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
             throw new JyBizException("按运单进行集齐初始化前的拆分逻辑并发锁添加异常");
         }
     }
-    //空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: lock 删除
-    public void lockDelTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
-        String methodDesc = "lockDelTaskNullWaybillSplitBeforeInit：空任务扫描节点:按运单进行集齐初始化前的拆分逻辑:删除redis并发锁:";
+    //按运单进行集齐初始化前的拆分逻辑: lock 删除
+    public void lockDelWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+        String methodDesc = "lockDelWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:删除redis并发锁:";
         try {
-            redisClientCache.del(getLockKeyTaskNullWaybillCollectSplitBeforeInit(paramDto));
+            redisClientCache.del(getLockKeyWaybillCollectSplitBeforeInit(paramDto));
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
             throw new JyBizException("按运单进行集齐初始化前的拆分逻辑并发锁删除异常");
         }
     }
-    //空任务扫描节点:按运单进行集齐初始化前的拆分逻辑: get lock key
-    public String getLockKeyTaskNullWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    //按运单进行集齐初始化前的拆分逻辑: get lock key
+    public String getLockKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
         StringBuilder sb = new StringBuilder();
-        sb.append(CollectCacheConstant.LOCK_TASK_NULL_WAYBILL_SPLIT_BEFORE_INIT)
+        sb.append(CollectCacheConstant.LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
-                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()));
+                .append(paramDto.getWaybillCode());
         return sb.toString();
     }
 
@@ -355,6 +355,49 @@ public class JyCollectCacheService {
         StringBuilder sb = new StringBuilder();
         sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_SPLIT_BEFORE_INIT)
                 .append(paramDto.getBizId());
+        return sb.toString();
+    }
+
+
+
+
+
+    /**
+     * 按运单进行集齐拆分后的初始化逻辑: cache 保存
+     */
+    public void cacheSaveSealWaybillCollectInitAfterSplit(InitCollectSplitDto paramDto){
+        String methodDesc = "cacheSaveSealWaybillCollectInitAfterSplit：按运单进行集齐拆分后的初始化逻辑:添加redis防重缓存:";
+
+        try {
+            String cacheKey = getCacheKeySealWaybillCollectInitAfterSplit(paramDto);
+            redisClientCache.setEx(cacheKey, StringUtils.EMPTY, CollectCacheConstant.CACHE_SEAL_WAYBILL_COLLECT_INIT_AFTER_SPLIT_TIMEOUT, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("按运单进行集齐拆分后的初始化逻辑防重缓存添加异常");
+        }
+    }
+    //按运单进行集齐拆分后的初始化逻辑: cache 是否存在
+    public Boolean cacheExistSealWaybillCollectInitAfterSplit(InitCollectSplitDto paramDto){
+        String methodDesc = "cacheExistSealWaybillCollectInitAfterSplit：按运单进行集齐拆分后的初始化逻辑:防重缓存校验是否存在:";
+        try {
+            String cacheKey = getCacheKeySealWaybillCollectInitAfterSplit(paramDto);
+            return redisClientCache.exists(cacheKey);
+        } catch (Exception e) {
+            log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
+            throw new JyBizException("按运单进行集齐拆分后的初始化逻辑防重缓存校验是否存在异常");
+        }
+    }
+    //按运单进行集齐拆分后的初始化逻辑: get cache key
+    public String getCacheKeySealWaybillCollectInitAfterSplit(InitCollectSplitDto paramDto){
+        StringBuilder sb = new StringBuilder();
+        sb.append(CollectCacheConstant.CACHE_SEAL_WAYBILL_COLLECT_INIT_AFTER_SPLIT)
+                .append(paramDto.getBizId())
+                .append(Constants.SEPARATOR_COLON)
+                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()))
+                .append(Constants.SEPARATOR_COLON)
+                .append(paramDto.getPageNo())
+                .append(Constants.SEPARATOR_COLON)
+                .append(paramDto.getPageSize());
         return sb.toString();
     }
 }

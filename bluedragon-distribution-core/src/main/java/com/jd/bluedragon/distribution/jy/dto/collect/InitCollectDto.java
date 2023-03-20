@@ -40,7 +40,13 @@ public class InitCollectDto implements Serializable {
 
     private String operatorErp;
 
+    /**
+     * 集齐场地
+     */
+    private Integer collectNodeSiteCode;
 
+    private String waybillCode;
+    private String sealBatchCode;
 
     public String getBizId() {
         return bizId;
@@ -96,6 +102,30 @@ public class InitCollectDto implements Serializable {
 
     public void setOperatorErp(String operatorErp) {
         this.operatorErp = operatorErp;
+    }
+
+    public Integer getCollectNodeSiteCode() {
+        return collectNodeSiteCode;
+    }
+
+    public void setCollectNodeSiteCode(Integer collectNodeSiteCode) {
+        this.collectNodeSiteCode = collectNodeSiteCode;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getSealBatchCode() {
+        return sealBatchCode;
+    }
+
+    public void setSealBatchCode(String sealBatchCode) {
+        this.sealBatchCode = sealBatchCode;
     }
 }
 

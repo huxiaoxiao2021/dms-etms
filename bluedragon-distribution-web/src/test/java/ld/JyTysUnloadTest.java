@@ -1,6 +1,7 @@
 package ld;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
@@ -242,6 +243,17 @@ public class JyTysUnloadTest {
                 sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_SPLIT_BEFORE_INIT)
                         .append(initCollectDto.getBizId());
                 redisClientCache.del(sb.toString());
+
+                StringBuilder sb1 = new StringBuilder();
+                sb1.append(CollectCacheConstant.CACHE_SEAL_COLLECT_INIT_AFTER_SPLIT)
+                        .append("SC23032000029149")
+                        .append(Constants.SEPARATOR_COLON)
+                        .append("40240-10186-20230320043403193")
+                        .append(Constants.SEPARATOR_COLON)
+                        .append(1)
+                        .append(Constants.SEPARATOR_COLON)
+                        .append(100);
+                redisClientCache.del(sb.toString());
 //                jyCollectCacheService.cacheSaveSealCarCollectSplitBeforeInit(initCollectDto);
 //                if (jyCollectCacheService.cacheExistSealCarCollectSplitBeforeInit(initCollectDto)) {
 //                    log.info("end");
@@ -254,5 +266,6 @@ public class JyTysUnloadTest {
             }
         }
     }
+
 
 }

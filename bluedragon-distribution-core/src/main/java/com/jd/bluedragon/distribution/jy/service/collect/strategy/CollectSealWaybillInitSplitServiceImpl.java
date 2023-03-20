@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnu
 import com.jd.bluedragon.distribution.jy.dto.collect.CollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
-import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
@@ -43,7 +42,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author zhengchengfa
@@ -51,17 +49,11 @@ import java.util.stream.Collectors;
  * @date
  **/
 @Service
-public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitService, InitializingBean {
-    private Logger log = LoggerFactory.getLogger(CollectWaybillInitSplitServiceImpl.class);
+public class CollectSealWaybillInitSplitServiceImpl implements CollectInitSplitService, InitializingBean {
+    private Logger log = LoggerFactory.getLogger(CollectSealWaybillInitSplitServiceImpl.class);
 
-//    @Autowired
-//    private CargoDetailServiceManager cargoDetailServiceManager;
     @Autowired
     private JyCollectService jyCollectService;
-//    @Autowired
-//    private VosManager vosManager;
-//    @Autowired
-//    private BaseMajorManager baseMajorManager;
     @Autowired
     WaybillQueryManager waybillQueryManager;
     @Autowired
@@ -76,17 +68,15 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        CollectInitSplitServiceFactory.registerCollectInitSplitService(CollectInitNodeEnum.NULL_TASK_INIT.getCode(), this);
+        CollectInitSplitServiceFactory.registerCollectInitSplitService(CollectInitNodeEnum.SEAL_WAYBILL_INIT.getCode(), this);
     }
 
     @Override
-    @JProfiler(jKey = "CollectWaybillInitSplitServiceImpl.splitBeforeInit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "CollectSealWaybillInitSplitServiceImpl.splitBeforeInit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean splitBeforeInit(InitCollectDto initCollectDto) {
-        String methodDesc = "CollectWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
-        String waybillCode = WaybillUtil.getWaybillCode(initCollectDto.getTaskNullScanCode());
-        if(org.apache.commons.lang3.StringUtils.isBlank(initCollectDto.getWaybillCode())) {
-            initCollectDto.setWaybillCode(waybillCode);
-        }
+        String methodDesc = "CollectSealWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
+        String waybillCode = initCollectDto.getWaybillCode();
+
         if(!jyCollectCacheService.lockSaveWaybillCollectSplitBeforeInit(initCollectDto)) {
             if(log.isInfoEnabled()) {
                 log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
@@ -118,12 +108,8 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 mqDto.setPageSize(collectOneBatchSize);
                 mqDto.setPageNo(pageNo);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());
-                mqDto.setOperatorErp(initCollectDto.getOperatorErp());
-
-                mqDto.setTaskNullScanCode(initCollectDto.getTaskNullScanCode());
                 mqDto.setWaybillCode(waybillCode);
-                mqDto.setTaskNullScanCodeType(initCollectDto.getTaskNullScanCodeType());
-                mqDto.setTaskNullScanSiteCode(initCollectDto.getTaskNullScanSiteCode());
+                mqDto.setShouldUnSealSiteCode(initCollectDto.getCollectNodeSiteCode());
                 String msgText = JsonUtils.toJSONString(mqDto);
                 if(log.isInfoEnabled()) {
                     log.info("{}.splitSendMq, msg={}", methodDesc, msgText);
@@ -137,7 +123,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             return true;
         }catch (Exception e) {
             log.error("{},服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(initCollectDto), e.getMessage(), e);
-            throw new JyBizException("空任务扫描按运单处理集齐初始化前的拆分逻辑异常" + e.getMessage());
+            throw new JyBizException("封车节点按运单处理集齐初始化前的拆分逻辑异常" + e.getMessage());
         }finally {
             jyCollectCacheService.lockDelWaybillCollectSplitBeforeInit(initCollectDto);
         }
@@ -147,35 +133,19 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         StringBuilder sb = new StringBuilder();
         sb.append(mqDto.getBizId()).append(Constants.SEPARATOR_COLON)
                 .append(mqDto.getWaybillCode()).append(Constants.SEPARATOR_COLON)
-                .append(mqDto.getTaskNullScanCodeType()).append(Constants.SEPARATOR_COLON)
                 .append(mqDto.getPageNo()).append(Constants.SEPARATOR_COLON)
                 .append(mqDto.getPageSize());
         return sb.toString();
     }
 
     @Override
-    @JProfiler(jKey = "CollectWaybillInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "CollectSealWaybillInitSplitServiceImpl.initAfterSplit",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAfterSplit(InitCollectSplitDto request) {
-        if(ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(request.getTaskNullScanCodeType())) {
-            return batchCollectInitAndUpdateStatus(request);
-        }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(request.getTaskNullScanCodeType())) {
-            return batchCollectInit(request);
-        }else {
-            log.warn("CollectWaybillInitSplitServiceImpl.initAfterSplit:不做集齐初始化动作,req={}", JsonUtils.toJSONString(request));
-            return true;
-        }
-    }
 
-    /**
-     * 按包裹验货仅做集齐初始化
-     * @param request
-     * @return
-     */
-    private boolean batchCollectInit(InitCollectSplitDto request) {
-        CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInit",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.CollectSealWaybillInitSplitServiceImpl.batchCollectInit",Constants.UMP_APP_NAME_DMSWEB, false, true);
 
-        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.batchCollectInit:集齐数据按运单拆分批次后初始化：";
-        if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
+        String methodDesc = "CollectSealWaybillInitSplitServiceImpl.batchCollectInit:集齐数据按运单拆分批次后初始化：";
+        if (jyCollectCacheService.cacheExistSealWaybillCollectInitAfterSplit(request)) {
             if (log.isInfoEnabled()) {
                 log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
             }
@@ -183,7 +153,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         }
         String waybillCode = getWaybillCode(request);
         List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, request.getPageNo(), request.getPageSize());
-        Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getTaskNullScanSiteCode());
+        Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getShouldUnSealSiteCode());
         if(nextSiteId == null) {
             log.warn("{}运单{}查询下游流向为空，reqDto={}", methodDesc, waybillCode, JsonHelper.toJson(request));
         }
@@ -197,7 +167,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             collectionScanCodeEntityList.add(collectionScanCodeEntity);
         }
         CollectDto collectDto = new CollectDto();
-        collectDto.setCollectNodeSiteCode(request.getTaskNullScanSiteCode());
+        collectDto.setCollectNodeSiteCode(request.getShouldUnSealSiteCode());
         collectDto.setBizId(request.getBizId());
         collectDto.setWaybillCode(request.getWaybillCode());
         collectDto.setNextSiteCode(nextSiteId);
@@ -205,56 +175,13 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
 
         boolean res = jyCollectService.initCollect(collectDto, collectionScanCodeEntityList);
         if(res) {
-            jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
+            jyCollectCacheService.cacheSaveSealWaybillCollectInitAfterSplit(request);
         }
         Profiler.registerInfoEnd(info);
         return res;
     }
 
-    /**
-     * 按运单扫描做集齐初始化并修改集齐状态
-     * @param request
-     * @return
-     */
-    private boolean batchCollectInitAndUpdateStatus(InitCollectSplitDto request) {
-        CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus",Constants.UMP_APP_NAME_DMSWEB, false, true);
 
-        String methodDesc = "CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus:集齐数据按运单拆分批次后初始化并修改集齐状态：";
-        if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
-            if (log.isInfoEnabled()) {
-                log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
-            }
-            return true;
-        }
-        String waybillCode = getWaybillCode(request);
-        List<String> packageCodeList = getPageNoPackageCodeListFromWaybill(waybillCode, request.getPageNo(), request.getPageSize());
-        Integer nextSiteId = waybillService.getRouterFromMasterDb(waybillCode, request.getTaskNullScanSiteCode());
-        if(nextSiteId == null) {
-            log.warn("{}运单{}查询下游流向为空，reqDto={}", methodDesc, waybillCode, JsonHelper.toJson(request));
-        }
-        CollectDto collectDto = new CollectDto();
-        collectDto.setCollectNodeSiteCode(request.getTaskNullScanSiteCode());
-        collectDto.setBizId(request.getBizId());
-        collectDto.setWaybillCode(waybillCode);
-        collectDto.setNextSiteCode(nextSiteId);
-        collectDto.setOperatorErp(request.getOperatorErp());
-
-        boolean res = jyCollectService.initAndCollectedPartCollection(collectDto,
-            packageCodeList.parallelStream().map(packageCode -> {
-                CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
-                collectionScanCodeEntity.setScanCode(packageCode);
-                collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-                collectionScanCodeEntity.setCollectedMark(request.getBizId());
-                collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, waybillCode));
-                return collectionScanCodeEntity;
-            }).collect(Collectors.toList()));
-
-        if(res) {
-            jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
-        }
-        Profiler.registerInfoEnd(info);
-        return res;
-    }
 
     private List<String> getPageNoPackageCodeListFromWaybill(String waybillCode, int pageNo, int pageSize) {
         // 分页查询包裹数据

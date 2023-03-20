@@ -112,12 +112,12 @@ public class JyTysUnloadCollectTest {
 
     private void sealCarSplitInitCollect() throws Exception {
         String body1 = "{\n" +
-                "    \"bizId\": \"SC23031700029108\",\n" +
+                "    \"bizId\": \"SC23032000029149\",\n" +
                 "    \"operateNode\": 101,\n" +
                 "    \"operateTime\": 1679055682628,\n" +
                 "    \"pageNo\": 1,\n" +
-                "    \"pageSize\": 10,\n" +
-                "    \"sealBatchCode\": \"40240-10186-20230317173374331\",\n" +
+                "    \"pageSize\": 90,\n" +
+                "    \"sealBatchCode\": \"40240-10186-20230320043403193\",\n" +
                 "    \"sealSiteCode\": 40240,\n" +
                 "    \"shouldUnSealSiteCode\": 10186\n" +
                 "}";
