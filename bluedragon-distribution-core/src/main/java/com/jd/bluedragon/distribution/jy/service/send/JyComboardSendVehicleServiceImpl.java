@@ -13,6 +13,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskItemDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
@@ -188,6 +190,29 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return queryStatus;
   }
 
+  @Override
+  public void assembleSendTaskStatus(SendTaskInfo sendTaskInfo,
+      JyBizTaskSendVehicleEntity sendVehicleEntity) {
+    if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(sendVehicleEntity.getVehicleStatus())){
+      sendTaskInfo.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
+    }
+    else {
+      sendTaskInfo.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+    }
+    sendTaskInfo.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendTaskInfo.getVehicleStatus()));
+  }
+
+  @Override
+  public void assembleSendTaskDetailStatus(JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity,
+      SendTaskItemDetail sendTaskItemDetail) {
+    if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(sendVehicleDetailEntity.getVehicleStatus())){
+      sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
+    }
+    else {
+      sendTaskItemDetail.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+    }
+    sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendTaskItemDetail.getVehicleStatus()));
+  }
 
   @Override
   public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(

@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
@@ -292,6 +293,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jySendSealCodeService.addBatch(entityList);
                 }
                 updateTaskStatus(sealVehicleReq, sealCarDto);
+                saveSealSendCode(sealVehicleReq.getBatchCodes(),sealVehicleReq);
                 jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealVehicleReq.getBatchCodes(),
                     sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
@@ -300,6 +302,30 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         } finally {
             jimDbLock.releaseLock(sealLockKey, sealVehicleReq.getRequestId());
         }
+    }
+
+    private void saveSealSendCode(List<String> batchCodes, SealVehicleReq sealVehicleReq) {
+        try {
+            Date now =new Date();
+            List<JySendCodeEntity> jySendCodeEntityList =new ArrayList<>();
+            for (String batchCode :batchCodes){
+                JySendCodeEntity entity =new JySendCodeEntity();
+                entity.setSendCode(batchCode);
+                entity.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
+                entity.setSendDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
+                entity.setCreateTime(now);
+                entity.setUpdateTime(now);
+                entity.setCreateUserErp(sealVehicleReq.getUser().getUserErp());
+                entity.setCreateUserName(sealVehicleReq.getUser().getUserName());
+                entity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+                entity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+                jySendCodeEntityList.add(entity);
+            }
+            jyVehicleSendRelationService.saveSealSendCode(jySendCodeEntityList);
+        } catch (Exception e) {
+            log.error("传站封车存储批次号异常",e);
+        }
+
     }
 
     @Override
