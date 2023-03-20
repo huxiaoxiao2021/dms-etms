@@ -317,7 +317,7 @@
             limit #{offset}, #{limit}
         </if>		
 	</select>
-	<select id="queryDataCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="long">
+	<select id="queryDataCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
 		select
 			count(1)
         from user_sign_record_flow r
