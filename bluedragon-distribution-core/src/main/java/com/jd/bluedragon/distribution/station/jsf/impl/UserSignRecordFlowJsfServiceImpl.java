@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-@Service("userSignRecordJsfFlowService")
+@Service("userSignRecordFlowJsfService")
 public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfService {
 
 	@Autowired
