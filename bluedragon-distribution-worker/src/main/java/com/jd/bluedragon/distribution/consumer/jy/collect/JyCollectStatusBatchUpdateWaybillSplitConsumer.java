@@ -46,15 +46,24 @@ public class JyCollectStatusBatchUpdateWaybillSplitConsumer extends MessageBaseC
             return;
         }
         if(log.isInfoEnabled()){
-            log.info("消费处理 jyCollectStatusBatchUpdateWaybillSplitConsumer 开始，内容{}",message.getText());
+            log.info("消费处理jyCollectStatusBatchUpdateWaybillSplitConsumer开始，内容{}",message.getText());
         }
-        if(!deal(mqBody)){
+
+        boolean consumeRes = true;
+        try {
+            consumeRes = deal(mqBody);
+        }catch (Exception e) {
+            log.error("jyCollectStatusBatchUpdateWaybillSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            throw new JyBizException("jyCollectStatusBatchUpdateWaybillSplitConsumer集齐状态批量修改拆分服务消费处理异常：" + message.getBusinessId());
+        }
+
+        if(!consumeRes){
             //处理失败 重试
-            log.error("消费处理 jyCollectStatusBatchUpdateWaybillSplitConsumer 失败，内容{}",message.getText());
-            throw new JyBizException("jyCollectStatusBatchUpdateWaybillSplitConsumer消费处理失败" + message.getBusinessId());
+            log.error("消费处理jyCollectStatusBatchUpdateWaybillSplitConsumer失败，内容{}",message.getText());
+            throw new JyBizException("jyCollectStatusBatchUpdateWaybillSplitConsumer集齐状态批量修改拆分服务消费处理失败" + message.getBusinessId());
         }else{
             if(log.isInfoEnabled()) {
-                log.info("消费处理 jyCollectStatusBatchUpdateWaybillSplitConsumer 成功，内容{}", message.getText());
+                log.info("消费处理jyCollectStatusBatchUpdateWaybillSplitConsumer成功，内容{}", message.getText());
             }
         }
     }
