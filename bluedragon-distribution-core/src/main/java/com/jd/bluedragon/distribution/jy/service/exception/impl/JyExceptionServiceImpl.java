@@ -499,7 +499,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         }
                         //提交时间
                         dto.setCheckTime(data.getSubmitTime());
-                        dto.setSaved(Objects.equals(JyExpSaveTypeEnum.SAVE.getCode(),data.getSaveType()));
                         dto.setImageUrls(data.getGoodsImageUrl());
                     }
                 }
@@ -1465,7 +1464,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             req.setBizId(entity.getBizId());
             JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(req);
             if(response.isSucceed() && response.getData()!= null && response.getData().getSaveType() != null){
-                dto.setSaved(Objects.equals(response.getData().getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE));
+                dto.setSaved(Objects.equals(response.getData().getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
             }
             return dto;
         }
