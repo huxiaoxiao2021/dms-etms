@@ -197,7 +197,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 jyExceptionScrappedDao.updateByBizId(po);
                 return JdCResponse.ok();
             }
-
+            logger.info("报废业务数据提交数据--{}",JSON.toJSONString(po));
+            jyExceptionScrappedDao.updateByBizId(po);
             //修改状态为处理中、审批中
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
             update.setBizId(req.getBizId());
