@@ -492,14 +492,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         ExpScrappedDetailDto data = response.getData();
                         if(StringUtils.isNotBlank(data.getThirdChecker())){
                             dto.setCheckerErp(data.getThirdChecker());
-                            dto.setCheckTime(data.getThirdCheckTime());
                         }else if(StringUtils.isNotBlank(data.getSecondChecker())){
                             dto.setCheckerErp(data.getSecondChecker());
-                            dto.setCheckTime(data.getThirdCheckTime());
                         }else {
                             dto.setCheckerErp(data.getFirstChecker());
-                            dto.setCheckTime(data.getFirstCheckTime());
                         }
+                        //提交时间
+                        dto.setCheckTime(data.getSubmitTime());
                         dto.setSaved(Objects.equals(JyExpSaveTypeEnum.SAVE.getCode(),data.getSaveType()));
                         dto.setImageUrls(data.getGoodsImageUrl());
                     }
