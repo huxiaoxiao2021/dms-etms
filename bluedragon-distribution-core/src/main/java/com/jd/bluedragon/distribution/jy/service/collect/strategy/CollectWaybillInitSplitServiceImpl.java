@@ -243,7 +243,6 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 collectionScanCodeEntity.setScanCode(packageCode);
                 collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
                 collectionScanCodeEntity.setCollectedMark(request.getBizId());
-                //            collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(packageCode)));
                 collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, waybillCode));
                 return collectionScanCodeEntity;
             }).collect(Collectors.toList()));

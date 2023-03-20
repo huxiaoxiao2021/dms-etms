@@ -69,7 +69,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return JQCode;
         }
         return jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
-            BusinessCodeFromSourceEnum.DMS_WORKER_SYS, userErp);
+            BusinessCodeFromSourceEnum.DMS_WORKER_SYS, null == userErp? "none" : userErp);
 
     }
 
