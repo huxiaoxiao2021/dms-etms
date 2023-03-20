@@ -18,15 +18,14 @@ import com.jd.bluedragon.core.base.FlowServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExNoticeCustomerMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyBizTaskExceptionLogService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
@@ -56,12 +55,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @Service("jyScrappedExceptionService")
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
+    private String msg ="任务状态由于%s操作,状态变更为%s";
+
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -77,8 +77,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Autowired
     private JyExceptionScrappedDao jyExceptionScrappedDao;
     @Autowired
-    private JyBizTaskExceptionLogService jyBizTaskExceptionLogService;
-    @Autowired
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
@@ -93,6 +91,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Autowired
     @Qualifier("dmsScrapNoticeKFProducer")
     private DefaultJMQProducer dmsScrapNoticeKFProducer;
+
+    @Autowired
+    private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
 
     @Override
     public Integer getExceptionType() {
@@ -211,7 +212,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyBizTaskExceptionDao.updateByBizId(update);
             // 审批处理
             dealApprove(req);
-            jyBizTaskExceptionLogService.recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS, update);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS, update);
         } catch (Exception e) {
             logger.error("报废处理任务接口异常-{}", e.getMessage(), e);
             return JdCResponse.fail("报废处理任务接口异常!");
@@ -601,5 +602,23 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      */
     private boolean checkBarCode(String barCode){
         return WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode);
+    }
+
+    /**
+     * 操作日志记录
+     * @param cycle
+     * @param entity
+     */
+    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+        JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+        JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+        bizLog.setBizId(task.getBizId());
+        bizLog.setCycleType(cycle.getCode());
+        bizLog.setType(task.getType());
+        bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
+        bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
+        bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
+        String.format(msg,cycle.getName(),task.getStatus()+"-"+task.getProcessingStatus());
+        jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 }
