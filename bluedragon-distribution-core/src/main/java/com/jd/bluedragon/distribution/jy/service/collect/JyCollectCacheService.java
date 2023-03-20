@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectSplitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectCacheConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
@@ -215,10 +216,10 @@ public class JyCollectCacheService {
     /**
      * 按运单进行集齐初始化前的拆分逻辑: lock 保存
      */
-    public Boolean lockSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public Boolean lockSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         String methodDesc = "lockSaveWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:添加redis并发锁:";
         try {
-            String lockKey = getLockKeyWaybillCollectSplitBeforeInit(paramDto);
+            String lockKey = getLockKeyWaybillCollectSplitBeforeInit(paramDto, nodeType);
             return redisClientCache.set(lockKey,StringUtils.EMPTY,CollectCacheConstant.LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.MINUTES,false);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
@@ -226,22 +227,26 @@ public class JyCollectCacheService {
         }
     }
     //按运单进行集齐初始化前的拆分逻辑: lock 删除
-    public void lockDelWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public void lockDelWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         String methodDesc = "lockDelWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:删除redis并发锁:";
         try {
-            redisClientCache.del(getLockKeyWaybillCollectSplitBeforeInit(paramDto));
+            redisClientCache.del(getLockKeyWaybillCollectSplitBeforeInit(paramDto, nodeType));
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
             throw new JyBizException("按运单进行集齐初始化前的拆分逻辑并发锁删除异常");
         }
     }
     //按运单进行集齐初始化前的拆分逻辑: get lock key
-    public String getLockKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public String getLockKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         StringBuilder sb = new StringBuilder();
         sb.append(CollectCacheConstant.LOCK_WAYBILL_COLLECT_SPLIT_BEFORE_INIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getWaybillCode());
+        if(CollectInitNodeEnum.NULL_TASK_INIT.getCode() == nodeType) {
+            //无任务扫描运单初始化分两种，扫包裹运单只做初始化，扫运单该运单初始化同时更改集齐状态
+            sb.append(Constants.SEPARATOR_COLON).append(paramDto.getTaskNullScanCodeType());
+        }
         return sb.toString();
     }
 

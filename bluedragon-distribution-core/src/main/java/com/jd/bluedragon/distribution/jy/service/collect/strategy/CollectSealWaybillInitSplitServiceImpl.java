@@ -80,7 +80,7 @@ public class CollectSealWaybillInitSplitServiceImpl implements CollectInitSplitS
         String methodDesc = "CollectSealWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
         String waybillCode = initCollectDto.getWaybillCode();
 
-        if(!jyCollectCacheService.lockSaveWaybillCollectSplitBeforeInit(initCollectDto)) {
+        if(!jyCollectCacheService.lockSaveWaybillCollectSplitBeforeInit(initCollectDto, CollectInitNodeEnum.SEAL_WAYBILL_INIT.getCode())) {
             if(log.isInfoEnabled()) {
                 log.info("{}未获取到锁，说明程序已经处理中，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
             }
@@ -128,7 +128,7 @@ public class CollectSealWaybillInitSplitServiceImpl implements CollectInitSplitS
             log.error("{},服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(initCollectDto), e.getMessage(), e);
             throw new JyBizException("封车节点按运单处理集齐初始化前的拆分逻辑异常" + e.getMessage());
         }finally {
-            jyCollectCacheService.lockDelWaybillCollectSplitBeforeInit(initCollectDto);
+            jyCollectCacheService.lockDelWaybillCollectSplitBeforeInit(initCollectDto, CollectInitNodeEnum.SEAL_WAYBILL_INIT.getCode());
         }
     }
 
