@@ -39,6 +39,7 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
 	</resultMap>
 	
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
@@ -144,7 +145,7 @@
         r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
-        r.create_time,r.update_time,r.yn,r.ts
+        r.create_time,r.update_time,r.yn,r.ts,r.biz_source
     </sql>	
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
@@ -227,6 +228,9 @@
 			 	<if test="modeType != null">
 					mode_type,
 				</if>
+                <if test="bizSource != null">
+                    biz_source,
+                </if>				
 			</trim>
 			)
 			values
@@ -308,6 +312,9 @@
 			 	<if test="modeType != null">
 					#{modeType,jdbcType=TINYINT},
 				</if>
+                <if test="bizSource != null" >
+                    #{bizSource,jdbcType=INTEGER},
+                </if>				
 			</trim>
 			)
 	</insert>
@@ -388,6 +395,9 @@
 		    	<if test="modeType != null">
 					mode_type = #{modeType,jdbcType=TINYINT},
 				</if>
+                <if test="bizSource != null">
+                    biz_source = #{bizSource,jdbcType=INTEGER},
+                </if>				
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>

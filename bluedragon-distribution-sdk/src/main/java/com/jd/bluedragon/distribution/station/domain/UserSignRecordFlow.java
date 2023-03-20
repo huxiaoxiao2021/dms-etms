@@ -4,13 +4,13 @@ import java.util.Date;
 import java.io.Serializable;
 
 /**
- * @ClassName: UserSignRecord
- * @Description: 人员签到表-实体类
+ * @ClassName: UserSignRecordFlow
+ * @Description: 人员签到流程-实体类
  * @author wuyoude
- * @date 2022年02月23日 11:01:53
+ * @date 2023年03月10日 11:01:53
  *
  */
-public class UserSignRecord implements Serializable {
+public class UserSignRecordFlow implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -18,7 +18,53 @@ public class UserSignRecord implements Serializable {
 	 * 主键ID
 	 */
 	private Long id;
+	/**
+	 * 关联签到表id
+	 */
+	private Long refRecordId;
+	
+	/**
+	 * 流程-单号
+	 */
+	private String refFlowBizCode;
+	/**
+	 * 流程操作类型
+	 */
+	private Integer flowType;
+	/**
+	 * 流程状态
+	 */
+	private Integer flowStatus;
+	/**
+	 * 流程-审批|驳回信息
+	 */
+	private String flowRemark;
+	/**
+	 * 流程创建人ERP
+	 */
+	private String flowCreateUser;
+	/**
+	 * 流程创建时间
+	 */
+	private Date flowCreateTime;
+	/**
+	 * 流程修改人ERP（最后一次审批通过操作人）
+	 */
+	private String flowUpdateUser;
+	/**
+	 * 流程更新时间（最后一次审批通过时间）
+	 */
+	private Date flowUpdateTime;
+	/**
+	 * 修改后-签到时间
+	 */
+	private Date signInTimeNew;
 
+	/**
+	 * 修改后-签退时间
+	 */
+	private Date signOutTimeNew;
+	
 	/**
 	 * 机构编码
 	 */
@@ -205,7 +251,8 @@ public class UserSignRecord implements Serializable {
 	/**
 	 * 签到模式
 	 */
-	private Integer bizSource;
+	private Integer bizSource;	
+
 	/**
 	 *
 	 * @param id
@@ -772,5 +819,93 @@ public class UserSignRecord implements Serializable {
 
 	public void setBizSource(Integer bizSource) {
 		this.bizSource = bizSource;
+	}
+
+	public Long getRefRecordId() {
+		return refRecordId;
+	}
+
+	public void setRefRecordId(Long refRecordId) {
+		this.refRecordId = refRecordId;
+	}
+
+	public Integer getFlowType() {
+		return flowType;
+	}
+
+	public void setFlowType(Integer flowType) {
+		this.flowType = flowType;
+	}
+
+	public Date getSignInTimeNew() {
+		return signInTimeNew;
+	}
+
+	public void setSignInTimeNew(Date signInTimeNew) {
+		this.signInTimeNew = signInTimeNew;
+	}
+
+	public Date getSignOutTimeNew() {
+		return signOutTimeNew;
+	}
+
+	public void setSignOutTimeNew(Date signOutTimeNew) {
+		this.signOutTimeNew = signOutTimeNew;
+	}
+
+	public String getRefFlowBizCode() {
+		return refFlowBizCode;
+	}
+
+	public void setRefFlowBizCode(String refFlowBizCode) {
+		this.refFlowBizCode = refFlowBizCode;
+	}
+
+	public Integer getFlowStatus() {
+		return flowStatus;
+	}
+
+	public void setFlowStatus(Integer flowStatus) {
+		this.flowStatus = flowStatus;
+	}
+
+	public String getFlowRemark() {
+		return flowRemark;
+	}
+
+	public void setFlowRemark(String flowRemark) {
+		this.flowRemark = flowRemark;
+	}
+
+	public String getFlowCreateUser() {
+		return flowCreateUser;
+	}
+
+	public void setFlowCreateUser(String flowCreateUser) {
+		this.flowCreateUser = flowCreateUser;
+	}
+
+	public Date getFlowCreateTime() {
+		return flowCreateTime;
+	}
+
+	public void setFlowCreateTime(Date flowCreateTime) {
+		this.flowCreateTime = flowCreateTime;
+	}
+
+	public String getFlowUpdateUser() {
+		return flowUpdateUser;
+	}
+
+	public void setFlowUpdateUser(String flowUpdateUser) {
+		this.flowUpdateUser = flowUpdateUser;
+	}
+
+	public Date getFlowUpdateTime() {
+		return flowUpdateTime;
+	}
+
+	public void setFlowUpdateTime(Date flowUpdateTime) {
+		this.flowUpdateTime = flowUpdateTime;
 	}
 }
