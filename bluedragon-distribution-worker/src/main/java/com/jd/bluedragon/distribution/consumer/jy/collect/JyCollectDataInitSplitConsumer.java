@@ -56,15 +56,22 @@ public class JyCollectDataInitSplitConsumer extends MessageBaseConsumer {
             return;
         }
         if(logger.isInfoEnabled()){
-            logger.info("消费处理 jyCollectDataInitSplitConsumer 开始，内容{}",message.getText());
+            logger.info("消费处理jyCollectDataInitSplitConsumer开始，内容{}",message.getText());
         }
-        if(!deal(mqBody)){
+        boolean consumeRes = true;
+        try {
+            consumeRes = deal(mqBody);
+        }catch (Exception e) {
+            logger.error("jyCollectDataInitSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            throw new JyBizException("jyCollectDataInitSplitConsumer集齐初始化拆分服务消费处理异常：" + message.getBusinessId());
+        }
+        if(!consumeRes){
             //处理失败 重试
-            logger.error("消费处理 jyCollectDataInitSplitConsumer 失败，内容{}",message.getText());
-            throw new JyBizException("jyCollectDataInitSplitConsumer消费处理失败" + message.getBusinessId());
+            logger.error("消费处理jyCollectDataInitSplitConsumer失败，内容{}",message.getText());
+            throw new JyBizException("jyCollectDataInitSplitConsumer集齐初始化拆分服务消费处理失败" + message.getBusinessId());
         }else{
             if(logger.isInfoEnabled()) {
-                logger.info("消费处理 jyCollectDataInitSplitConsumer 成功，内容{}", message.getText());
+                logger.info("消费处理jyCollectDataInitSplitConsumer成功，内容{}", message.getText());
             }
         }
     }
