@@ -94,7 +94,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             return true;
         }
         try {
-            if (jyCollectCacheService.cacheExistWaybillCollectSplitBeforeInit(initCollectDto)) {
+            if (jyCollectCacheService.cacheExistWaybillCollectSplitBeforeInit(initCollectDto, CollectInitNodeEnum.NULL_TASK_INIT.getCode())) {
                 if (log.isInfoEnabled()) {
                     log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(initCollectDto));
                 }
@@ -133,7 +133,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
 
             }
             jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
-            jyCollectCacheService.cacheSaveWaybillCollectSplitBeforeInit(initCollectDto);
+            jyCollectCacheService.cacheSaveWaybillCollectSplitBeforeInit(initCollectDto, CollectInitNodeEnum.NULL_TASK_INIT.getCode());
             return true;
         }catch (Exception e) {
             log.error("{},服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(initCollectDto), e.getMessage(), e);

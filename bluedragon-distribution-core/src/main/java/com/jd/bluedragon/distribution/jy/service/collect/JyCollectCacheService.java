@@ -181,11 +181,11 @@ public class JyCollectCacheService {
     /**
      * 按运单进行集齐初始化前的拆分逻辑: cache 保存
      */
-    public void cacheSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public void cacheSaveWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         String methodDesc = "cacheSaveWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:添加redis防重缓存:";
 
         try {
-            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto);
+            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto, nodeType);
             redisClientCache.setEx(cacheKey, StringUtils.EMPTY, CollectCacheConstant.CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT_TIMEOUT, TimeUnit.DAYS);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
@@ -193,10 +193,10 @@ public class JyCollectCacheService {
         }
     }
     //按运单进行集齐初始化前的拆分逻辑: cache 是否存在
-    public Boolean cacheExistWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public Boolean cacheExistWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         String methodDesc = "cacheExistWaybillCollectSplitBeforeInit：按运单进行集齐初始化前的拆分逻辑:防重缓存校验是否存在:";
         try {
-            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto);
+            String cacheKey = getCacheKeyWaybillCollectSplitBeforeInit(paramDto, nodeType);
             return redisClientCache.exists(cacheKey);
         } catch (Exception e) {
             log.error("{}异常,参数bizId={}, errMsg={}", methodDesc, JsonHelper.toJson(paramDto), e.getMessage(), e);
@@ -204,12 +204,16 @@ public class JyCollectCacheService {
         }
     }
     //按运单进行集齐初始化前的拆分逻辑: get cache key
-    public String getCacheKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto){
+    public String getCacheKeyWaybillCollectSplitBeforeInit(InitCollectDto paramDto, Integer nodeType){
         StringBuilder sb = new StringBuilder();
         sb.append(CollectCacheConstant.CACHE_WAYBILL_COLLECT_SPLIT_BEFORE_INIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getWaybillCode());
+        if(CollectInitNodeEnum.NULL_TASK_INIT.getCode() == nodeType) {
+            //无任务扫描运单初始化分两种，扫包裹运单只做初始化，扫运单该运单初始化同时更改集齐状态
+            sb.append(Constants.SEPARATOR_COLON).append(paramDto.getTaskNullScanCodeType());
+        }
         return sb.toString();
     }
 
