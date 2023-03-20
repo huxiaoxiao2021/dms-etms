@@ -501,6 +501,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             dto.setCheckTime(data.getFirstCheckTime());
                         }
                         dto.setSaved(Objects.equals(JyExpSaveTypeEnum.SAVE.getCode(),data.getSaveType()));
+                        dto.setImageUrls(data.getGoodsImageUrl());
                     }
                 }
                 list.add(dto);
