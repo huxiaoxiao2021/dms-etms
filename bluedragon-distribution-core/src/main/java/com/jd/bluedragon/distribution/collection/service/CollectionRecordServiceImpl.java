@@ -243,17 +243,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordDetailPo ->
                             collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
                                 && collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode())
-                                .parallelStream().anyMatch(item -> !Objects.equals(item.getCollectedMark(), collectionRecordDetailPo.getCollectedMark()))
+                                .parallelStream().anyMatch(item -> !Objects.equals(item.getCollectedMark(), collectionRecordDetailPo.getCollectedMark())
+                                    && !CollectionStatusEnum.extra_collected.getStatus().equals(item.getCollectedStatus()))
                     ).collect(Collectors.toList());
                     /* 更新到数据库中 */
                     collectionRecordDetailPosExistWithOutMark.forEach(
                         collectionRecordDetailPo -> collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo)
-                    );
-
-                    /* 新增到数据库中 */
-                    Lists.partition(collectionRecordDetailPosNotExist, Constants.DEFAULT_PAGE_SIZE).forEach(
-                        collectionRecordDetailPosNotExistItemList ->
-                            collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExistItemList)
                     );
 
                     /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
