@@ -54,7 +54,7 @@
     </sql>	
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow" useGeneratedKeys="true" keyProperty="id">
-		insert into user_sign_record
+		insert into user_sign_record_flow
 			(
 			<trim suffixOverrides=",">
 				<if test="id != null" >
