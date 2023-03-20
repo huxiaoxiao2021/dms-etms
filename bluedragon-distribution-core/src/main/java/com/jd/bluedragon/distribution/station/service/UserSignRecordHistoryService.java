@@ -17,4 +17,6 @@ public interface UserSignRecordHistoryService {
 	Integer querySignCount(UserSignRecordFlowQuery query);
 
 	List<UserSignRecordFlow> querySignList(UserSignRecordFlowQuery query);
+	
+	UserSignRecordFlow queryById(Long recordId);
 }

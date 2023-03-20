@@ -192,4 +192,8 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
+	
+	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
+	
+	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
 }

@@ -1545,4 +1545,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 	}
+	@Override
+	public Integer queryCountForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryCountForFlow(historyQuery);
+	}
+	@Override
+	public List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryDataListForFlow(historyQuery);
+	}
 }

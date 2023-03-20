@@ -982,4 +982,40 @@
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
 			and sign_out_time is null
 	</select>
+    <select id="queryDataListForFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+        select
+            <include refid="Main_Column_List"/>
+        from user_sign_record r
+        <include refid="queryForFlowCondition"/>
+        order by r.ts desc
+        <if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>       
+    </select>
+    <select id="queryCountForFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from user_sign_record r
+        <include refid="queryForFlowCondition"/>
+    </select>
+    <sql id="queryForFlowCondition">
+        <where>
+            r.yn = 1 
+        <if test="signDate != null" >
+            and r.sign_date = #{signDate,jdbcType=DATE}
+        </if>       
+        <if test="siteCode != null" >
+            and r.site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="signDateStart != null" >
+            and r.sign_date >= #{signDateStart,jdbcType=DATE}
+        </if>
+        <if test="signDateEnd != null" >
+            and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+        </if> 
+        <if test="userCode != null and userCode != '' " >
+            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle} 
+        </if>
+        </where>
+    </sql>	
 </mapper>

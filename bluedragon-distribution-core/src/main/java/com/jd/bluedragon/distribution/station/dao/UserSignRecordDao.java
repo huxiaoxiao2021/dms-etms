@@ -173,4 +173,8 @@ public interface UserSignRecordDao {
 	List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(UserSignQueryRequest query);
 
 	Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey);
+	
+	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
+	
+	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
 }

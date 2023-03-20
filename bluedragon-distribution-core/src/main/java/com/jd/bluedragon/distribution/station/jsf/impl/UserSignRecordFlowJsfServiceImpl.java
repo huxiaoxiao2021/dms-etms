@@ -138,17 +138,39 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			result.toFail("操作人Erp不能为空！");
 			return result;
 		}
-		UserSignRecordFlow signData = addRequest.getUserSignRecordFlow();
-		if(signData == null) {
-			result.toFail("操作的签到数据不能为空！");
-			return result;
-		}
-		Integer flowType = signData.getFlowType();
+		Integer flowType = addRequest.getFlowType();
+		UserSignRecordFlow signData = null;
 		if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)
 				|| SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
-			
+			if(addRequest.getRecordId() == null) {
+				result.toFail("请选择要操作的数据！");
+				return result;
+			}
+			signData = userSignRecordHistoryService.queryById(addRequest.getRecordId());
+			if(signData == null) {
+				result.toFail("无效的签到数据！");
+				return result;
+			}
 		}
-		
+		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
+			signData = new UserSignRecordFlow();
+		}
+		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)
+				|| SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
+			Date signInTimeNew = DateHelper.parseDateTime(addRequest.getSignInTimeNewStr());
+			Date signOutTimeNew = DateHelper.parseDateTime(addRequest.getSignOutTimeNewStr());
+			if(signInTimeNew == null || signOutTimeNew == null) {
+				result.toFail("签到、签退时间不能为空！");
+				return result;
+			}
+			if(signOutTimeNew.before(signInTimeNew)) {
+				result.toFail("签到时间需要小于签退时间！");
+				return result;
+			}
+		}		
+		signData.setFlowCreateTime(new Date());
+		signData.setFlowCreateUser(addRequest.getOperateUserCode());
+		addRequest.setUserSignRecordFlow(signData);
 		return result;
 	}
 	

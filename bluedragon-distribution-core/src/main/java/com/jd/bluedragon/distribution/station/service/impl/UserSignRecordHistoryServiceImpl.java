@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
 import com.jd.bluedragon.distribution.station.enums.SignBIzSourceEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordHistoryService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -55,42 +57,43 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
 	
 	@Value("${beans.userSignRecordService.queryByPositionRangeDays:2}")
 	private int queryByPositionRangeDays;
-
-	@Autowired
-	@Qualifier("workStationService")
-	WorkStationService workStationService;
-	
-	@Autowired
-	@Qualifier("workStationGridService")
-	WorkStationGridService workStationGridService;
-	
-	@Autowired
-	private WorkStationAttendPlanManager workStationAttendPlanManager;
-
-	@Autowired
-	@Qualifier("workStationAttendPlanService")
-	WorkStationAttendPlanService workStationAttendPlanService;
-	
-	@Autowired
-	@Qualifier("jyGroupMemberService")
-	private JyGroupMemberService jyGroupMemberService;
-	
-	@Autowired
-	@Qualifier("jyGroupService")
-	private JyGroupService jyGroupService;
-	
-	/**
-	 * 签到作废-小时数限制
-	 */
-	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
-	private double deleteCheckHours;
 	
 	@Override
 	public Integer querySignCount(UserSignRecordFlowQuery query) {
-		return 0;
+		UserSignRecordQuery historyQuery = new UserSignRecordQuery();
+		BeanUtils.copyProperties(query, historyQuery);
+		return userSignRecordService.queryCountForFlow(historyQuery);
 	}
 	@Override
 	public List<UserSignRecordFlow> querySignList(UserSignRecordFlowQuery query) {
-		return new ArrayList<>();
+		List<UserSignRecordFlow> flowList = new ArrayList<>();
+		UserSignRecordQuery historyQuery = new UserSignRecordQuery();
+		BeanUtils.copyProperties(query, historyQuery);
+		List<UserSignRecord> historyList = userSignRecordService.queryDataListForFlow(historyQuery);
+		if(!CollectionUtils.isEmpty(historyList)) {
+			for(UserSignRecord signData : historyList) {
+				flowList.add(toUserSignRecordFlow(signData));
+			}
+		}
+		return flowList;
 	}
+	@Override
+	public UserSignRecordFlow queryById(Long recordId) {
+		Result<UserSignRecord> queryResult  = userSignRecordService.queryById(recordId);
+		if(queryResult != null) {
+			return toUserSignRecordFlow(queryResult.getData());
+		}
+		return null;
+	}
+	private UserSignRecordFlow toUserSignRecordFlow(UserSignRecord signData) {
+		if(signData == null) {
+			return null;
+		}
+		UserSignRecordFlow flowData = new UserSignRecordFlow();
+		BeanUtils.copyProperties(signData, flowData);
+		flowData.setId(null);
+		flowData.setRefRecordId(signData.getId());
+		return flowData;
+	}
+	
 }

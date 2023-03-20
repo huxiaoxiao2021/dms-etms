@@ -12,6 +12,35 @@ public class UserSignFlowRequest implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 流程操作类型
+	 */
+	private Integer flowType;
+	/**
+	 * 关联签到表id
+	 */
+	private Long recordId;
+	/**
+	 * 工种:1-正式工 2-派遣工 3-外包工 4-临时工5-小时工
+	 */
+	private Integer jobCode;
+	/**
+	 * 员工ERP|拼音|身份证号
+	 */
+	private String userCode;	
+	/**
+	 * 岗位码
+	 */
+	private String positionCode;
+	/**
+	 * 修改后-签到时间
+	 */
+	private String signInTimeNewStr;
+
+	/**
+	 * 修改后-签退时间
+	 */
+	private String signOutTimeNewStr;
+	/**
 	 * 操作人站点
 	 */
 	private Integer operateSiteCode;
@@ -32,6 +61,42 @@ public class UserSignFlowRequest implements Serializable{
 	 */
 	private UserSignRecordFlow userSignRecordFlow;
 	
+	public Long getRecordId() {
+		return recordId;
+	}
+	public void setRecordId(Long recordId) {
+		this.recordId = recordId;
+	}
+	public Integer getJobCode() {
+		return jobCode;
+	}
+	public void setJobCode(Integer jobCode) {
+		this.jobCode = jobCode;
+	}
+	public String getUserCode() {
+		return userCode;
+	}
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
+	}
+	public String getPositionCode() {
+		return positionCode;
+	}
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
+	}
+	public String getSignInTimeNewStr() {
+		return signInTimeNewStr;
+	}
+	public void setSignInTimeNewStr(String signInTimeNewStr) {
+		this.signInTimeNewStr = signInTimeNewStr;
+	}
+	public String getSignOutTimeNewStr() {
+		return signOutTimeNewStr;
+	}
+	public void setSignOutTimeNewStr(String signOutTimeNewStr) {
+		this.signOutTimeNewStr = signOutTimeNewStr;
+	}
 	public Integer getOperateSiteCode() {
 		return operateSiteCode;
 	}
@@ -61,5 +126,11 @@ public class UserSignFlowRequest implements Serializable{
 	}
 	public void setUserSignRecordFlow(UserSignRecordFlow userSignRecordFlow) {
 		this.userSignRecordFlow = userSignRecordFlow;
+	}
+	public Integer getFlowType() {
+		return flowType;
+	}
+	public void setFlowType(Integer flowType) {
+		this.flowType = flowType;
 	}
 }

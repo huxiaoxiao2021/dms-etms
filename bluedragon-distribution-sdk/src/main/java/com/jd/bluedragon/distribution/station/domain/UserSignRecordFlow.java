@@ -249,10 +249,24 @@ public class UserSignRecordFlow implements Serializable {
 	 */
 	private Integer modeType;
 	/**
-	 * 签到模式
+	 * 签到来源
 	 */
 	private Integer bizSource;	
-
+	/**
+	 * 岗位码
+	 */
+	private String positionCode;
+	
+	/**
+	 * 操作类型-名称
+	 */
+	private String flowTypeName;
+	
+	/**
+	 * 审批状态-名称
+	 */
+	private String flowStatusName;
+	
 	/**
 	 *
 	 * @param id
@@ -907,5 +921,29 @@ public class UserSignRecordFlow implements Serializable {
 
 	public void setFlowUpdateTime(Date flowUpdateTime) {
 		this.flowUpdateTime = flowUpdateTime;
+	}
+
+	public String getPositionCode() {
+		return positionCode;
+	}
+
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
+	}
+
+	public String getFlowTypeName() {
+		return flowTypeName;
+	}
+
+	public void setFlowTypeName(String flowTypeName) {
+		this.flowTypeName = flowTypeName;
+	}
+
+	public String getFlowStatusName() {
+		return flowStatusName;
+	}
+
+	public void setFlowStatusName(String flowStatusName) {
+		this.flowStatusName = flowStatusName;
 	}
 }
