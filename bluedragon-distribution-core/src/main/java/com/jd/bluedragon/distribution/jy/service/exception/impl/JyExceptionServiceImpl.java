@@ -593,6 +593,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(bizId);
         update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
         update.setHandlerErp(req.getUserErp());
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());
