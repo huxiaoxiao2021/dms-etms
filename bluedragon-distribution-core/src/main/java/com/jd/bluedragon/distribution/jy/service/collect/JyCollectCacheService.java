@@ -393,7 +393,7 @@ public class JyCollectCacheService {
         sb.append(CollectCacheConstant.CACHE_SEAL_WAYBILL_COLLECT_INIT_AFTER_SPLIT)
                 .append(paramDto.getBizId())
                 .append(Constants.SEPARATOR_COLON)
-                .append(WaybillUtil.getWaybillCode(paramDto.getTaskNullScanCode()))
+                .append(paramDto.getWaybillCode())
                 .append(Constants.SEPARATOR_COLON)
                 .append(paramDto.getPageNo())
                 .append(Constants.SEPARATOR_COLON)
