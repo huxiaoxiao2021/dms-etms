@@ -23,6 +23,8 @@ import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectSiteType
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTypeService;
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -79,6 +81,9 @@ public class JyCollectServiceImpl implements JyCollectService{
     private DefaultJMQProducer jyCollectBatchUpdateProducer;
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+    @Autowired
+    JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.findCollectInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -387,12 +392,25 @@ public class JyCollectServiceImpl implements JyCollectService{
         collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
 
         CollectionBusinessTypeEnum collectionBusinessTypeEnum = CollectionBusinessTypeEnum.unload_collection;
-        if(this.isEndSite(req.getWaybillCode(), req.getCollectNodeSiteCode())) {
+        if(isUnloadCarTaskNull(req.getBizId()) || this.isEndSite(req.getWaybillCode(), req.getCollectNodeSiteCode())) {
             collectionBusinessTypeEnum = CollectionBusinessTypeEnum.all_site_collection;
         }
         CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(collectionBusinessTypeEnum);
         collectionCodeEntity.addAllKey(collectElements);
         return collectionCodeEntity;
+    }
+
+    /**
+     * 判断是否卸车无任务
+     * @param bizId
+     */
+    private boolean isUnloadCarTaskNull(String bizId){
+        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(bizId);
+        if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+            return true;
+        }else {
+            return false;
+        }
     }
 
     @Override

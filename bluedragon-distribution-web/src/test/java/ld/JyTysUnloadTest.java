@@ -1,6 +1,7 @@
 package ld;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
@@ -10,15 +11,22 @@ import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
+import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectCacheConstant;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadVehicleCheckTysService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.annotation.Resource;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -36,6 +44,13 @@ public class JyTysUnloadTest {
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
     @Autowired
     private JyUnloadVehicleTysService jyUnloadVehicleTysService;
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
+    @Autowired
+    private JyCollectCacheService jyCollectCacheService;
+    @Resource
+    private Cluster redisClientCache;
 
     @Test
     public void test(){
@@ -213,5 +228,31 @@ public class JyTysUnloadTest {
         }
     }
 
+
+    @Test
+    public void testSendJmq(){
+        while(true) {
+            try {
+                InitCollectDto initCollectDto = new InitCollectDto();
+                initCollectDto.setBizId("SC23032000029149");
+                initCollectDto.setOperateTime(System.currentTimeMillis());
+                initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
+                String msgText = JsonHelper.toJson(initCollectDto);
+                StringBuilder sb = new StringBuilder();
+                sb.append(CollectCacheConstant.CACHE_SEAL_COLLECT_SPLIT_BEFORE_INIT)
+                        .append(initCollectDto.getBizId());
+                redisClientCache.del(sb.toString());
+//                jyCollectCacheService.cacheSaveSealCarCollectSplitBeforeInit(initCollectDto);
+//                if (jyCollectCacheService.cacheExistSealCarCollectSplitBeforeInit(initCollectDto)) {
+//                    log.info("end");
+//                }
+                jyCollectDataInitSplitProducer.sendOnFailPersistent(initCollectDto.getBizId(),msgText);
+                System.out.println("end");
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

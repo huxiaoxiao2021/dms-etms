@@ -184,7 +184,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         initCollectDto.setBizId(tmsSealCarStatus.getSealCarCode());
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
-        String msgText = JsonHelper.toJson(tmsSealCarStatus);
+        String msgText = JsonHelper.toJson(initCollectDto);
         if(logger.isInfoEnabled()) {
             logger.info("TmsSealCarStatusConsumer.sendInitCollectMq-封车节点触发集齐初始化，businessId={}， msg={}", tmsSealCarStatus.getSealCarCode(), msgText);
         }

@@ -195,7 +195,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
             collectionScanCodeEntityList.add(collectionScanCodeEntity);
         }
         CollectDto collectDto = new CollectDto();
-        collectDto.setCollectNodeSiteCode(request.getShouldUnSealSiteCode());
+        collectDto.setCollectNodeSiteCode(request.getTaskNullScanSiteCode());
         collectDto.setBizId(request.getBizId());
         collectDto.setWaybillCode(request.getWaybillCode());
         collectDto.setNextSiteCode(nextSiteId);
