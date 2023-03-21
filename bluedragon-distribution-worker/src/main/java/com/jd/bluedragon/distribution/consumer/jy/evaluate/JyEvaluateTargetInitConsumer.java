@@ -142,8 +142,9 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         targetInfo.setTransWorkItemCode(targetInitDto.getTransWorkItemCode());
         targetInfo.setVehicleNumber(targetInitDto.getVehicleNumber());
         targetInfo.setSealTime(targetInitDto.getSealTime());
-        targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
-
+        if (CollectionUtils.isNotEmpty(taskGroupMembers)) {
+            targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
+        }
         targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
         targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
         targetInfo.setSourceSiteCode(targetInitDto.getSourceSiteCode());
