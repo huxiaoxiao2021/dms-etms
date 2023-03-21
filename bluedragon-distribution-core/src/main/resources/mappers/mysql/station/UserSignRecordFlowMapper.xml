@@ -300,7 +300,7 @@
     <update id="updateFlowStatusById" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow">
         update user_sign_record_flow
             set 
-                flow_status = #{flowStatus,jdbcType=Integer},
+                flow_status = #{flowStatus,jdbcType=INTEGER},
                 flow_remark = #{flowRemark,jdbcType=VARCHAR},
                 flow_update_user = #{flowUpdateUser,jdbcType=VARCHAR},
                 flow_update_time = #{flowUpdateTime,jdbcType=TIMESTAMP}
