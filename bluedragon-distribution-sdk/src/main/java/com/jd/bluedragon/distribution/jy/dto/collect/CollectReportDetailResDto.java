@@ -16,7 +16,7 @@ public class CollectReportDetailResDto implements Serializable {
      * 集齐维度
      * CollectSiteTypeEnum
      */
-    private String collectDimension;
+    private Integer collectDimension;
     /**
      * 集齐类型
      * CollectTypeEnum
@@ -42,11 +42,16 @@ public class CollectReportDetailResDto implements Serializable {
      */
     private List<CollectReportDetailPackageDto> collectReportDetailPackageDtoList;
 
-    public String getCollectDimension() {
+    /**
+     * 时间戳，类似token 用于比较是否最新数据
+     */
+    private Long timeStamp;
+
+    public Integer getCollectDimension() {
         return collectDimension;
     }
 
-    public void setCollectDimension(String collectDimension) {
+    public void setCollectDimension(Integer collectDimension) {
         this.collectDimension = collectDimension;
     }
 
@@ -88,5 +93,13 @@ public class CollectReportDetailResDto implements Serializable {
 
     public void setCollectReportDetailPackageDtoList(List<CollectReportDetailPackageDto> collectReportDetailPackageDtoList) {
         this.collectReportDetailPackageDtoList = collectReportDetailPackageDtoList;
+    }
+
+    public Long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(Long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }

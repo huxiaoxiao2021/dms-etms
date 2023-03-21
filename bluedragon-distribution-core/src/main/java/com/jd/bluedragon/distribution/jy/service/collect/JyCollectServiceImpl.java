@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -94,21 +95,25 @@ public class JyCollectServiceImpl implements JyCollectService{
     public InvokeResult<CollectReportResDto> findCollectInfo(CollectReportReqDto collectReportReqDto) {
         InvokeResult<CollectReportResDto> res = new InvokeResult<>();
         CollectReportResDto resData = new CollectReportResDto();
+        res.setData(resData);
         //空任务只有在库集齐
         if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
                 && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
             resData.setCollectReportStatisticsDtoList(null);
             resData.setCollectReportDtoList(null);
-            resData.setCollectDimension(null);
-            resData.setCollectType(null);
+            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
+            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
             resData.setManualCreateTaskFlag(true);
             return res;
         }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
-        res.setData(resData);
+        Timestamp ts = new Timestamp(0);
         //集齐统计数据
-        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
+        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto, ts));
+        if(ts != null && ts.getTime() > 0) {
+            resData.setTimeStamp(ts.getTime());
+        }
         //集齐运单列表
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
         resData.setCollectReportDtoList(collectStatisticsService.queryCollectListPage(collectReportReqDto));
@@ -127,16 +132,19 @@ public class JyCollectServiceImpl implements JyCollectService{
             resData.setCollectReportStatisticsDtoList(null);
             resData.setCollectReportDto(null);
             resData.setCollectReportDetailPackageDtoList(null);
-            resData.setCollectDimension(null);
-            resData.setCollectType(null);
+            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
+            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
             resData.setManualCreateTaskFlag(true);
             return res;
         }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
+        Timestamp ts = new Timestamp(0);
         //集齐类型运单统计
-        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
-
+        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto, ts));
+        if(ts != null && ts.getTime() > 0) {
+            resData.setTimeStamp(ts.getTime());
+        }
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
         //当前运单统计
         List<CollectReportDto> collectReportDtoList = collectStatisticsService.queryCollectListPage(collectReportReqDto);
@@ -155,7 +163,7 @@ public class JyCollectServiceImpl implements JyCollectService{
      * @param collectReportReqDto
      * @return
      */
-    private List<CollectReportStatisticsDto> getCollectReportDetailPackageDtoList(CollectReportReqDto collectReportReqDto) {
+    private List<CollectReportStatisticsDto> getCollectReportDetailPackageDtoList(CollectReportReqDto collectReportReqDto, Timestamp ts) {
         List<CollectReportStatisticsDto> res = new ArrayList<>();
 
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
@@ -219,6 +227,9 @@ public class JyCollectServiceImpl implements JyCollectService{
         );
         res.add(siteCollected);
 
+        if(CollectionUtils.isNotEmpty(collectedCounters) && collectedCounters.get(0) != null && collectedCounters.get(0).getTs() != null) {
+            ts.setTime(collectedCounters.get(0).getTs().getTime());
+        }
         return res;
 
     }

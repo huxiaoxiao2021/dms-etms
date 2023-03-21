@@ -20,7 +20,7 @@ public class InitCollectDto implements Serializable {
      */
     private Long operateTime;
     /**
-     * 初始化时机： InitCollectNodeEnum
+     * 初始化时机： CollectInitNodeEnum
      */
     private Integer operateNode;
 

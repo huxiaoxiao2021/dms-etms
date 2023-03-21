@@ -16,7 +16,7 @@ public class CollectReportResDto implements Serializable {
      * 集齐维度
      * CollectSiteTypeEnum
      */
-    private String collectDimension;
+    private Integer collectDimension;
     /**
      * 集齐类型
      * CollectTypeEnum
@@ -41,11 +41,11 @@ public class CollectReportResDto implements Serializable {
     private Long timeStamp;
 
 
-    public String getCollectDimension() {
+    public Integer getCollectDimension() {
         return collectDimension;
     }
 
-    public void setCollectDimension(String collectDimension) {
+    public void setCollectDimension(Integer collectDimension) {
         this.collectDimension = collectDimension;
     }
 
