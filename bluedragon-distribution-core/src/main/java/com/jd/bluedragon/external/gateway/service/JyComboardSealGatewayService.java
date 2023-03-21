@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
@@ -117,6 +118,12 @@ public interface JyComboardSealGatewayService {
 
   /**
    * 查询板货物分类统计
-   */ 
+   */
   JdCResponse<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq);
+
+
+  /**
+   * 查询派车任务详情
+   */
+  JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
 }

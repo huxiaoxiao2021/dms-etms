@@ -268,7 +268,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
                 for (String sendCode:sealVehicleReq.getBatchCodes()){
                     if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
-                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复");
+                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
                     }
                 }
             }

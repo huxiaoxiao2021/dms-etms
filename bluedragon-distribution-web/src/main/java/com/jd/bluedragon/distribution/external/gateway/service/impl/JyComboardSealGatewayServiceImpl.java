@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
@@ -125,5 +126,10 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Override
   public JdCResponse<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq) {
     return retJdCResponse(jyComBoardSendService.queryGoodsCategoryByBoardCode(boardReq));
+  }
+
+  @Override
+  public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+    return retJdCResponse(jyComboardSendVehicleService.sendTaskDetail(request));
   }
 }
