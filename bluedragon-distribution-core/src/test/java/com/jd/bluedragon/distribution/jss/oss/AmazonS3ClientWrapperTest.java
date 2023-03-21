@@ -146,7 +146,7 @@ public class AmazonS3ClientWrapperTest {
     public void testgeneratePresignedOuterNetUrl() throws Exception {
         // Setup
         // Run the test
-        final String result = amazonS3ClientWrapperUnderTest.generatePresignedOuterNetUrl( 1, "dms-abnormal","00000cd3-2b79-4945-91bd-88b3e869624c.jpg");
+        final String result = amazonS3ClientWrapperUnderTest.generatePresignedOuterNetUrl( 1, "*","00000cd3-2b79-4945-91bd-88b3e869624c.jpg");
         System.out.println(result);
         // Verify the results
         assertNotNull(result);
