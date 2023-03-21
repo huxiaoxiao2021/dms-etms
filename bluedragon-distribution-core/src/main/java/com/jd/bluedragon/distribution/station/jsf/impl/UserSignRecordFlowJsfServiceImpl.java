@@ -223,6 +223,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setFlowType(flowType);
 		signData.setFlowCreateTime(new Date());
 		signData.setFlowCreateUser(addRequest.getOperateUserCode());
+		loadGridData(signData,new HashMap<>());
 		addRequest.setUserSignRecordFlow(signData);
 		return result;
 	}
