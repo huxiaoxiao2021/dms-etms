@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
@@ -58,6 +59,11 @@ public class AmazonS3ClientWrapper implements InitializingBean {
     private String endpoint;
 
     private String bucketName;
+
+    /**
+     * 外网地址
+     */
+    private String outerNetEndpoint;
 
     private int socketTimeout;
     private int connectionTimeout;
@@ -107,6 +113,9 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @return
      */
     private String spliceFolderFileName(String folder,String fileName){
+        if(StringUtils.isEmpty(folder)){
+            return fileName;
+        }
         return folder+"/"+fileName;
     }
 
@@ -144,6 +153,37 @@ public class AmazonS3ClientWrapper implements InitializingBean {
        this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
        return this.generatePresignedUrl(urlExpirationDay,folder,fileName).toString();
     }
+
+    /**
+     * 上传文件并且获取外网url
+     * @param inputStream
+     * @param folder
+     * @param fileName
+     * @param contentLength
+     * @param urlExpirationDay
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectThenGetOutNetUrl")
+    public String putObjectThenGetOutNetUrl(InputStream inputStream,String folder,String fileName,long contentLength,int urlExpirationDay){
+        this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
+        return this.generatePresignedOuterNetUrl(urlExpirationDay,folder,fileName);
+    }
+
+    /**
+     * 获取外网url
+     * @param folder
+     * @param fileName
+     * @param urlExpirationDay
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.generatePresignedOuterNetUrl")
+    public String generatePresignedOuterNetUrl(int urlExpirationDay,String folder,String fileName){
+        URL url = this.generatePresignedUrl(urlExpirationDay,folder,fileName);
+        String outUrl = outerNetEndpoint.concat(url.getPath()).concat("?").concat(url.getQuery());
+        log.info("外网地址转换oldurl[{}]oururl[{}]folder[{}]fileName[{}]",url,outUrl,folder,fileName);
+        return outUrl;
+    }
+
 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObject")
     public void putObject(InputStream inputStream,String folder, String fileName,long contentLength){
@@ -317,5 +357,9 @@ public class AmazonS3ClientWrapper implements InitializingBean {
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
+    }
+
+    public void setOuterNetEndpoint(String outerNetEndpoint) {
+        this.outerNetEndpoint = outerNetEndpoint;
     }
 }
