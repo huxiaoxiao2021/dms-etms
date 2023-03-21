@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -80,6 +81,10 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Autowired
     private JssService jssService;
+
+    @Autowired
+    @Qualifier("dmswebAmazonS3ClientWrapper")
+    private AmazonS3ClientWrapper dmswebAmazonS3ClientWrapper;
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
@@ -152,7 +157,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             byte[] in2b = swapStream.toByteArray();
             inStream.close();
             swapStream.close();
-            url = jssService.uploadFile(bucket, in2b, extName);
+            url = jssService.uploadFileAndGetOutUrl(bucket, in2b, extName);
             log.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[{}]", url);
         } catch (Exception e) {
             log.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);

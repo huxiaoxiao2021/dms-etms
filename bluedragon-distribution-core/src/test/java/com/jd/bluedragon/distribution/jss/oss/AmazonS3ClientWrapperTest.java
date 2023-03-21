@@ -27,10 +27,11 @@ public class AmazonS3ClientWrapperTest {
         amazonS3ClientWrapperUnderTest.setAccessKey("JDC_D7F39DBD95C716540108BD9333F4");
         amazonS3ClientWrapperUnderTest.setSecretKey("0AB20B66892C2A4374094F360F912C0A");
         amazonS3ClientWrapperUnderTest.setSigningRegion("cn-north-1");
-        amazonS3ClientWrapperUnderTest.setEndpoint("http://s3.cn-north-1.jdcloud-oss.com");
+        amazonS3ClientWrapperUnderTest.setEndpoint("http://s3-internal-office.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
         amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
         amazonS3ClientWrapperUnderTest.setBucketName("dmsweb");
+        amazonS3ClientWrapperUnderTest.setOuterNetEndpoint("http://s3.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
 
     }
@@ -140,6 +141,17 @@ public class AmazonS3ClientWrapperTest {
         assertNotNull(result);
     }
 
+
+    @Test
+    public void testgeneratePresignedOuterNetUrl() throws Exception {
+        // Setup
+        // Run the test
+        final String result = amazonS3ClientWrapperUnderTest.generatePresignedOuterNetUrl( 1, "dms-abnormal","00000cd3-2b79-4945-91bd-88b3e869624c.jpg");
+        System.out.println(result);
+        // Verify the results
+        assertNotNull(result);
+    }
+
     @Test
     public void testGetUrl() throws Exception {
         // Setup
@@ -194,5 +206,11 @@ public class AmazonS3ClientWrapperTest {
         // Setup
         // Run the test
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
+    }
+
+    @Test
+    public void testPutObjectThenGetOutNetUrl() throws Exception{
+        FileInputStream fileInputStream = new FileInputStream("/Users/xumigen/Downloads/BlueDragonPrintService.zip");
+        amazonS3ClientWrapperUnderTest.putObjectThenGetOutNetUrl(fileInputStream,"test","BlueDragonPrintService.zip",0,365);
     }
 }
