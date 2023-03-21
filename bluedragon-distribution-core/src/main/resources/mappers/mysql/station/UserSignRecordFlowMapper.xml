@@ -310,7 +310,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from user_sign_record_flow r
-          where ref_flow_biz_code = #{refFlowBizCode,jdbcType=VARCHAR}
+          where r.yn = 1 and r.ref_flow_biz_code = #{refFlowBizCode,jdbcType=VARCHAR}
 		limit 1
 	</select>
 

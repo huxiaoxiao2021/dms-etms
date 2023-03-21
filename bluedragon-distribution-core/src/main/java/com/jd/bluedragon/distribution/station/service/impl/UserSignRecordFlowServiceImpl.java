@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
@@ -105,6 +106,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			log.warn("根据流程单号{}查询签到流程数据失败！",processInstanceNo);
 			return;
 		}
+		if(log.isDebugEnabled()) {
+			log.debug("开始处理流程单号-pass:{},流程数据{}",processInstanceNo,JsonHelper.toJson(flowData));
+		}
 		Integer flowType = flowData.getFlowType();
 		UserSignRecordFlow updateData = new UserSignRecordFlow();
 		updateData.setId(flowData.getId());
@@ -118,8 +122,10 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		updateData.setFlowUpdateUser(flowUser);
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
-		userSignRecordFlowDao.updateFlowStatusById(updateData);
-		
+		int updateCount = userSignRecordFlowDao.updateFlowStatusById(updateData);
+		if(log.isDebugEnabled()) {
+			log.debug("更新流程状态：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
+		}
 		UserSignRecord signData = toUserSignRecord(flowData);
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			signData.setId(null);
@@ -127,6 +133,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setSignOutTime(flowData.getSignOutTimeNew());
 			signData.setBizSource(SignBIzSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
+			if(log.isDebugEnabled()) {
+				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
+			}
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
 			deleteSignData(signData,flowData,flowUser);
 			//插入新记录
@@ -136,6 +145,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setYn(Constants.YN_YES);
 			signData.setBizSource(SignBIzSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
+			if(log.isDebugEnabled()) {
+				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
+			}
 		}else if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)) {
 			deleteSignData(signData,flowData,flowUser);
 		}
@@ -153,6 +165,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setUpdateUserName(flowData.getFlowCreateUser());			
 			signData.setUpdateTime(new Date());			
 			userSignRecordService.deleteById(deleteData);
+			if(log.isDebugEnabled()) {
+				log.debug("作废签到数据-deleteById：流程单号{},签到数据{}",flowData.getRefFlowBizCode(),JsonHelper.toJson(oldData));
+			}			
 		}else {
 			signData.setId(flowData.getRefRecordId());
 			signData.setYn(Constants.YN_NO);
@@ -160,6 +175,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setUpdateUserName(flowData.getFlowCreateUser());
 			signData.setUpdateTime(new Date());
 			userSignRecordService.insert(signData);
+			if(log.isDebugEnabled()) {
+				log.debug("作废签到数据-insert：流程单号{},签到数据{}",flowData.getRefFlowBizCode(),JsonHelper.toJson(signData));
+			}			
 		}
 	}
 	/**
@@ -178,13 +196,19 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			log.warn("根据流程单号{}查询签到流程数据失败！",processInstanceNo);
 			return;
 		}
+		if(log.isDebugEnabled()) {
+			log.debug("开始处理流程单号-unpass:{},流程数据{}",processInstanceNo,JsonHelper.toJson(flowData));
+		}		
 		UserSignRecordFlow updateData = new UserSignRecordFlow();
 		updateData.setId(flowData.getId());
 		updateData.setFlowStatus(state);
 		updateData.setUpdateUser(flowUser);
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
-		userSignRecordFlowDao.updateFlowStatusById(updateData);
+		int updateCount = userSignRecordFlowDao.updateFlowStatusById(updateData);
+		if(log.isDebugEnabled()) {
+			log.debug("更新流程状态：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
+		}		
 	}
 	@Override
 	public void dealFlowResult(HistoryApprove historyApprove) {
