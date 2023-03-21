@@ -137,16 +137,16 @@ public class CommonOperateInterceptHandler extends NeedPrepareDataInterceptHandl
                 }
             }
 
-            boolean isTerminalNeedIntercept = isTerminalNeedIntercept(context, waybillSign);
-            if (isTerminalNeedIntercept) {
-                //揽收交接完成（-1300）全程跟踪结果
-                List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
-                //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
-                if (! (context.getCollectComplete() || collectHandoverCompleteResult.size() != 0)) {
-                    interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_PACKAGE_UNCOLLECTED);
-                    return interceptResult;
-                }
-            }
+//            boolean isTerminalNeedIntercept = isTerminalNeedIntercept(context, waybillSign);
+//            if (isTerminalNeedIntercept) {
+//                //揽收交接完成（-1300）全程跟踪结果
+//                List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
+//                //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
+//                if (! (context.getCollectComplete() || collectHandoverCompleteResult.size() != 0)) {
+//                    interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_PACKAGE_UNCOLLECTED);
+//                    return interceptResult;
+//                }
+//            }
 
             log.debug("commonOperateInterceptHandler-校验运单是否已经妥投");
             if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
