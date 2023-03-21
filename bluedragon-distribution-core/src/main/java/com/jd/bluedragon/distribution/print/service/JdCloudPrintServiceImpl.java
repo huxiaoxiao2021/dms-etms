@@ -210,7 +210,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
 			outputStream = new FileOutputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
-			dmswebAmazonS3ClientWrapper.putObject(new FileInputStream(pdfFile),ossFolder,jssPdfPath,0);
+			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
 			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
 			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
 			List<String> outputMsg = new ArrayList<String>();
