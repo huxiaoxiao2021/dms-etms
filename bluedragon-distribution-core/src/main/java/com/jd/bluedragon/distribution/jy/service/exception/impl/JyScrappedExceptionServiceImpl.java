@@ -44,6 +44,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ import java.util.*;
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
-    private String msg ="任务状态由于%s操作,状态变更为%s";
+    private String msg ="任务状态由于%s操作,状态变更为%s-%s";
 
 
     @Autowired
@@ -116,7 +117,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         taskEntity.setBarCode(waybillCode);
         taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
-        //taskEntity.setTags(JyBizTaskExceptionTagEnum.SCRAPPED.getCode());
 
         JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
         scrappedPo.setBizId(bizId);
@@ -386,6 +386,23 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         dealApprove(req);
     }
 
+    @Override
+    public JdCResponse<List<ExpScrappedDetailDto>> getTaskListOfscrapped(List<String> bizIds) {
+        if(CollectionUtils.isEmpty(bizIds)){
+            return JdCResponse.fail("bizIds 不能为空!");
+        }
+        List<JyExceptionScrappedPO> list = jyExceptionScrappedDao.getTaskListOfscrapped(bizIds);
+        if(CollectionUtils.isEmpty(list)){
+            return JdCResponse.fail("获取报废列表数据为空!");
+        }
+        List<ExpScrappedDetailDto> dtos = new ArrayList<>();
+        list.stream().forEach(item->{
+            dtos.add(coverToScrappedDetailDto(item));
+        });
+        return JdCResponse.ok(dtos);
+    }
+
+
     /**
      * 审批处理
      *
@@ -618,7 +635,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
         bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
         bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
-        String.format(msg,cycle.getName(),task.getStatus()+"-"+task.getProcessingStatus());
+        bizLog.setRemark(String.format(msg,cycle.getName(),JyExpStatusEnum.getEnumByCode(task.getStatus()).getText(),
+                JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName()));
         jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 }

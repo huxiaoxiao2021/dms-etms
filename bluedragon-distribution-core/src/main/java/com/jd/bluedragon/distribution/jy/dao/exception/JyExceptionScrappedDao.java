@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
+
+import java.util.List;
 
 public class JyExceptionScrappedDao  extends BaseDao<JyExceptionScrappedPO> {
 
@@ -21,6 +24,10 @@ public class JyExceptionScrappedDao  extends BaseDao<JyExceptionScrappedPO> {
 
     public int updateByBizId(JyExceptionScrappedPO entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
+    }
+
+    public List<JyExceptionScrappedPO> getTaskListOfscrapped(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getTaskListOfscrapped", bizIds);
     }
 
 

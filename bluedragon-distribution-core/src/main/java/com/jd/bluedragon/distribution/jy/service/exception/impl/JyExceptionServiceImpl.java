@@ -67,6 +67,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class JyExceptionServiceImpl implements JyExceptionService {
@@ -76,7 +77,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
     private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
-    private String msg ="任务状态由于%s操作,状态变更为%s";
+    private String msg ="任务状态由于%s操作,状态变更为%s-%s";
 
     // 统计数据缓存时间：半小时
     private static final int COUNT_CACHE_SECOND = 30 * 60;
@@ -189,10 +190,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
 
             taskEntity.setBizId(bizId);
-            //taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
             taskEntity.setSource(source.getCode());
-            //taskEntity.setBarCode(waybillCode);
-            //taskEntity.setTags(JyBizTaskExceptionTagEnum.SCRAPPED.getCode());
             taskEntity.setSiteCode(new Long(position.getSiteCode()));
             taskEntity.setSiteName(position.getSiteName());
             taskEntity.setFloor(position.getFloor());
@@ -201,7 +199,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             taskEntity.setGridCode(position.getGridCode());
             taskEntity.setGridNo(position.getGridNo());
             taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
-            //taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             taskEntity.setCreateUserErp(req.getUserErp());
             taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
             taskEntity.setCreateTime(new Date());
@@ -247,7 +244,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
         bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
         bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
-        String.format(msg,cycle.getName(),task.getStatus()+"-"+task.getProcessingStatus());
+        bizLog.setRemark(String.format(msg,cycle.getName(),task.getStatus(),task.getProcessingStatus()));
         jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 
@@ -470,14 +467,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
+            //获取所有要查询的bizId 集合
+            List<String> bizIds = taskList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+            JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
+            logger.info("listOfscrappedResponse -{}",JSON.toJSONString(listOfscrappedResponse));
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
                 ExpTaskDto dto = getTaskDto(entity);
 
                 // 待打印特殊处理
-                if (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())
-                        && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus()) ) {
+                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus()))
+                        ||(Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())))) {
                     // 待打印时间
                     dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
@@ -492,21 +493,22 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     }
                 }
                 if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(dto.getType())){
-                    ExpTaskByIdReq request = new ExpTaskByIdReq();
-                    request.setBizId(dto.getBizId());
-                    JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(request);
-                    if(JdCResponse.CODE_SUCCESS.equals(response.getCode()) && response.getData() != null){
-                        ExpScrappedDetailDto data = response.getData();
-                        if(StringUtils.isNotBlank(data.getThirdChecker())){
-                            dto.setCheckerErp(data.getThirdChecker());
-                        }else if(StringUtils.isNotBlank(data.getSecondChecker())){
-                            dto.setCheckerErp(data.getSecondChecker());
-                        }else {
-                            dto.setCheckerErp(data.getFirstChecker());
+                    if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
+                        continue;
+                    }
+                    for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
+                        if(entity.getBizId().equals(detailDto.getBizId())){
+                            if(StringUtils.isNotBlank(detailDto.getThirdChecker())){
+                                dto.setCheckerErp(detailDto.getThirdChecker());
+                            }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())){
+                                dto.setCheckerErp(detailDto.getSecondChecker());
+                            }else {
+                                dto.setCheckerErp(detailDto.getFirstChecker());
+                            }
+                            //提交时间
+                            dto.setCheckTime(detailDto.getSubmitTime());
+                            dto.setImageUrls(detailDto.getGoodsImageUrl());
                         }
-                        //提交时间
-                        dto.setCheckTime(data.getSubmitTime());
-                        dto.setImageUrls(data.getGoodsImageUrl());
                     }
                 }
                 list.add(dto);
@@ -681,8 +683,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         // 设置 上架日期
-        if (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())
-                && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus())) {
+        if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus()))
+                ||(Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())))){
             JyExceptionEntity query = new JyExceptionEntity();
             query.setSiteCode(entity.getSiteCode());
             query.setBizId(entity.getBizId());
@@ -1464,7 +1466,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setTags(getTags(entity.getTags()));
         dto.setStatus(entity.getStatus());
         dto.setProcessingStatus(entity.getProcessingStatus());
-
         if(Objects.nonNull(entity.getType())
                 && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
             ExpTaskByIdReq req = new ExpTaskByIdReq();
@@ -1473,11 +1474,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if(response.isSucceed() && response.getData()!= null && response.getData().getSaveType() != null){
                 dto.setSaved(Objects.equals(response.getData().getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
             }
-            return dto;
+        }else{
+            String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
+            boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
+            dto.setSaved(saved);
         }
-        String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
-        boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
-        dto.setSaved(saved);
         return dto;
     }
 

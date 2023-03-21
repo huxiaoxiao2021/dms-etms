@@ -37,4 +37,12 @@ public interface JyScrappedExceptionService {
     void dealApproveResult(HistoryApprove historyApprove);
 
     void dealApproveTest(ExpScrappedDetailReq req);
+
+    /**
+     * 根据bizID 集合获取报废列表信息
+     * @param bizIds
+     * @return
+     */
+    JdCResponse<List<ExpScrappedDetailDto>> getTaskListOfscrapped(List<String> bizIds);
+
 }

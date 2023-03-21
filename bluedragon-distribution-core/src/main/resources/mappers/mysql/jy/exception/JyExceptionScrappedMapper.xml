@@ -44,7 +44,7 @@
     select
     <include refid="Base_Column_List" />
     from jy_exception_scrapped
-    where biz_id = #{bizId,jdbcType=VARCHAR}
+    where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1
   </select>
 
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO" >
@@ -283,6 +283,16 @@
         yn = #{yn,jdbcType=BIT},
       </if>
     </set>
-    where biz_id = #{bizId}
+    where biz_id = #{bizId} and  yn =1
   </update>
+
+  <select id="getTaskListOfscrapped" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_exception_scrapped
+    where biz_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>
