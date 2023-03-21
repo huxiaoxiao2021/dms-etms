@@ -193,4 +193,22 @@ public class JssServiceImpl implements JssService {
         return null;
     }
 
+
+    @Override
+    public String uploadFileAndGetOutUrl(String bucket, byte[] bytes, String extName) {
+        if (bytes == null||bytes.length==0) {
+            log.info("上传的数据为空");
+            return null;
+        }
+        ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+        try {
+            String key = UUID.randomUUID().toString() + "." + extName;
+            return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
+
+        } catch (Exception e) {
+            log.error("异常上行处理异常:", e);
+        }
+        return null;
+    }
+
 }

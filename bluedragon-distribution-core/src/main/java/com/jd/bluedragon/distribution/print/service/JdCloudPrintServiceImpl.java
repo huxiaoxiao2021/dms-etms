@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.jss.http.Scheme;
 import org.apache.commons.httpclient.HttpClient;
@@ -81,6 +80,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
     @Autowired
     @Qualifier("pdfOutJssStorage")
     private JingdongStorageService pdfOutJssStorage;
+
+	@Autowired
+	@Qualifier("dmswebAmazonS3ClientWrapper")
+	private AmazonS3ClientWrapper dmswebAmazonS3ClientWrapper;
+
+	@Value("${ossFolder:dms-print-pdfs}")
+	private String ossFolder;
 
 	/**
 	 * 需要进行过滤的https域名
