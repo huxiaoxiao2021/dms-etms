@@ -1418,13 +1418,13 @@ public class JyUnloadVehicleCheckTysService {
         }
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
-        //自建任务走默认末端在库集齐方式
-        collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
 
         //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
         taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
         //修改集齐状态 + 处理返回集齐结果 （按单验初始化时直接修改集齐状态）
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            //自建任务走默认末端在库集齐方式
+            collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
             collectDto.setCollectStatisticsNum(0);
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
@@ -1438,15 +1438,20 @@ public class JyUnloadVehicleCheckTysService {
             if(collectReportStatisticsDto == null) {
                 throw new JyBizException("集齐数据查询为空");
             }
-            if(collectReportStatisticsDto.getCollectType() == null || collectReportStatisticsDto.getCollectType().equals(collectDto.getCollectType())) {
-                log.warn("{}自建任务一定是在库集齐类型{}, 此处查到的集齐类型为空或者非在库类型：data={}，res={}",
+            if(collectReportStatisticsDto.getCollectType() == null) {
+                log.warn("{}自建任务查到的集齐类型空：req={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(collectReportStatisticsDto));
+                int needNum = unloadScanCollectDealDto.getGoodNumber() - collectReportStatisticsDto.getActualScanNum();
+                collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+                collectDto.setCollectStatisticsNum(needNum <= 0 ? 0 : needNum);
+                collectDto.setCollectType(collectDto.getCollectStatisticsNum() == 0 ? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.WAYBILL_BUQI.getCode());
+            }else if(collectReportStatisticsDto.getCollectType().equals(CollectTypeEnum.TASK_JIQI.getCode())) {
+                log.warn("{}自建任务是在库集齐类型CollectType={}, 此处查到的集齐类型为本车集齐类型：req={}，res={}",
                         methodDesc, CollectTypeEnum.SITE_JIQI, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(collectReportStatisticsDto));
 //                throw new JyBizException("无任务扫描集齐类型查询错误");
             }
-            //todo 还差数量
-            int needNum = unloadScanCollectDealDto.getGoodNumber() - collectReportStatisticsDto.getActualScanNum();
-            collectDto.setCollectStatisticsNum(needNum >= 0 ? needNum : 0);
+            collectDto.setCollectStatisticsNum(collectReportStatisticsDto.getStatisticsNum());
             collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+            collectDto.setCollectType(collectReportStatisticsDto.getCollectType());
         }
         Profiler.registerInfoEnd(info);
     }
