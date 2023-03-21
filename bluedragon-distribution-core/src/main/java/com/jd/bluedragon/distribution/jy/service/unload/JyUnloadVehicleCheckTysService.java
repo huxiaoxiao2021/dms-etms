@@ -1418,35 +1418,21 @@ public class JyUnloadVehicleCheckTysService {
         }
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
-        //自建任务走默认末端在库集齐方式
-        collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
 
         //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
         taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
         //修改集齐状态 + 处理返回集齐结果 （按单验初始化时直接修改集齐状态）
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
             collectDto.setCollectStatisticsNum(0);
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态、
             if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {//todo update要支持上面init-consumer没处理时的场景
-                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
+                log.error("{} 按包裹扫描修改集齐状态失败，param={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }
-            //
-            CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto);
-            if(collectReportStatisticsDto == null) {
-                throw new JyBizException("集齐数据查询为空");
-            }
-            if(collectReportStatisticsDto.getCollectType() == null || collectReportStatisticsDto.getCollectType().equals(collectDto.getCollectType())) {
-                log.warn("{}自建任务一定是在库集齐类型{}, 此处查到的集齐类型为空或者非在库类型：data={}，res={}",
-                        methodDesc, CollectTypeEnum.SITE_JIQI, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(collectReportStatisticsDto));
-//                throw new JyBizException("无任务扫描集齐类型查询错误");
-            }
-            //todo 还差数量
-            int needNum = unloadScanCollectDealDto.getGoodNumber() - collectReportStatisticsDto.getActualScanNum();
-            collectDto.setCollectStatisticsNum(needNum >= 0 ? needNum : 0);
-            collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+            resData.setUnloadCollectDto(jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto));
         }
         Profiler.registerInfoEnd(info);
     }
@@ -1465,7 +1451,7 @@ public class JyUnloadVehicleCheckTysService {
             //按运单修改集齐状态mq： 异步
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
-            collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+            collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
             collectDto.setCollectStatisticsNum(0);
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态： 同步
@@ -1474,20 +1460,7 @@ public class JyUnloadVehicleCheckTysService {
                 throw new JyBizException("修改集齐状态失败");
             }
             //查询集齐类型统计
-            CollectReportStatisticsDto collectReportStatisticsDto = jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto);
-            if(collectReportStatisticsDto == null) {
-                throw new JyBizException("集齐数据查询为空");
-            }
-            if(Boolean.FALSE.equals(collectReportStatisticsDto.getTaskExistInitFlag())) {
-                //todo 下发任务扫描的运单是多扫运单，没有被封车集齐初始化，走在库集齐逻辑
-                collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-                int needNum = unloadScanCollectDealDto.getGoodNumber() - collectReportStatisticsDto.getActualScanNum();
-                collectDto.setCollectStatisticsNum(needNum >= 0 ? needNum : 0);
-            }else {
-                collectDto.setCollectType(collectReportStatisticsDto.getCollectType());
-                collectDto.setCollectStatisticsNum(collectReportStatisticsDto.getStatisticsNum());
-            }
-            collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+            resData.setUnloadCollectDto(jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto));
         }
         Profiler.registerInfoEnd(info);
     }

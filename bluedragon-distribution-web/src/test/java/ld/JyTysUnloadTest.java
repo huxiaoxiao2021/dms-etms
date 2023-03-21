@@ -140,7 +140,7 @@ public class JyTysUnloadTest {
         while(true) {
             try {
                 CollectStatisticsQueryDto param = new CollectStatisticsQueryDto();
-                param.setBizId("XCZJ23031600000013");
+                param.setBizId("SC23032100029225");
                 User user = new User();
                 user.setUserErp("xumigen");
                 param.setUser(user);
@@ -148,7 +148,7 @@ public class JyTysUnloadTest {
                 currentOperate.setSiteCode(10186);
                 param.setCurrentOperate(currentOperate);
                 InvokeResult<ScanCollectStatisticsDto> res = jyUnloadVehicleTysService.queryCollectStatisticsByDiffDimension(param);
-                System.out.println("end");
+                System.out.println(JsonHelper.toJson(res));
             }catch (Exception e) {
                 e.printStackTrace();
             }

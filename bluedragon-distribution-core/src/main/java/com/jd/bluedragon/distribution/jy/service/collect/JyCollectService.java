@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnu
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCollectDto;
 
 import java.util.List;
 
@@ -80,7 +81,7 @@ public interface JyCollectService {
     /**
      * 扫描查询集齐统计数据
      */
-    CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
+    UnloadCollectDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto unloadScanCollectDealDto);
 
     /**
      * 按运单维度批量更新集齐状态

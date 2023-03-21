@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.collection.service.CollectionRecordService
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanCollectStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCollectDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collect.constant.CollectServiceConstant;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
@@ -29,6 +30,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -502,7 +504,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public CollectReportStatisticsDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto reqDto) {
+    public UnloadCollectDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto reqDto) {
         String methodDesc = "JyCollectServiceImpl.scanQueryCollectTypeStatistics：实操扫描查询统计：";
         List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
         String waybillCode = WaybillUtil.getWaybillCode(reqDto.getScanCode());
@@ -517,29 +519,40 @@ public class JyCollectServiceImpl implements JyCollectService{
             log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(reqDto));
             return null;
         }
-        CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
-        //本车实际扫
-        resDto.setActualScanNum(
-                (Objects.isNull(collectionAggCodeCounter.getInnerMarkCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkCollectedNum())
-                + (Objects.isNull(collectionAggCodeCounter.getInnerMarkExtraCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkExtraCollectedNum()));
-        //是否被初始化过：没有被初始化过，说明是多扫，走在库集齐逻辑
-        boolean taskExistInitFlag = Objects.isNull(collectionAggCodeCounter.getSumScanNum()) || collectionAggCodeCounter.getSumScanNum() <= 0;
-        if(taskExistInitFlag) {
-            resDto.setTaskExistInitFlag(false);
-            resDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-            return resDto;
+//        CollectReportStatisticsDto resDto = new CollectReportStatisticsDto();
+        UnloadCollectDto unloadCollectDto = new UnloadCollectDto();
+        unloadCollectDto.setWaybillCode(waybillCode);
+
+        if(!NumberHelper.isPositiveNumber(collectionAggCodeCounter.getSumScanNum())
+            && NumberHelper.gt(reqDto.getGoodNumber(), collectionAggCodeCounter.getExtraCollectedNum())) {
+            //初始化数据未进来 且 运单包裹数量大于多扫数量，则表示运单不齐
+            unloadCollectDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+            unloadCollectDto.setCollectStatisticsNum(reqDto.getGoodNumber() - collectionAggCodeCounter.getExtraCollectedNum());
+        } else if (!NumberHelper.isPositiveNumber(collectionAggCodeCounter.getSumScanNum())
+            && NumberHelper.lte(reqDto.getGoodNumber(), collectionAggCodeCounter.getExtraCollectedNum())){
+            //初始化数据未进来 且 运单包裹数量小于等于多扫数量，则表示运单集齐
+            //运单集齐分为本车集齐和在库集齐
+            if (NumberHelper.isPositiveNumber(collectionAggCodeCounter.getOutMarkExtraCollectedNum())) {
+                unloadCollectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+                unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getOutMarkExtraCollectedNum());
+            } else {
+                unloadCollectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+                unloadCollectDto.setCollectStatisticsNum(reqDto.getGoodNumber());
+            }
+        } else if(collectionAggCodeCounter.getNoneCollectedNum() > 0) {
+            //已经初始化 未集数量大于0表述不齐
+            unloadCollectDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+            unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getNoneCollectedNum());
+        } else if(collectionAggCodeCounter.getOutMarkCollectedNum() > 0 ) {
+            //已经初始化，且未集数量=0 表述集齐，其余其余车集齐大于0表示在库集齐
+            unloadCollectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+            unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getExtraCollectedNum());
+        } else {
+            //已经初始化，且未集数量=0 表述集齐，其余其余车集齐大于0表示在库集齐
+            unloadCollectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+            unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getSumScanNum() + collectionAggCodeCounter.getExtraCollectedNum());
         }
-        if(collectionAggCodeCounter.getNoneCollectedNum() > 0) {
-            resDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-            resDto.setStatisticsNum(collectionAggCodeCounter.getNoneCollectedNum());
-        }else if(collectionAggCodeCounter.getOutMarkCollectedNum() > 0 ) {
-            resDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-            resDto.setStatisticsNum(collectionAggCodeCounter.getOutMarkCollectedNum());
-        }else {
-            resDto.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-            resDto.setStatisticsNum(collectionAggCodeCounter.getInnerMarkCollectedNum());
-        }
-        return resDto;
+        return unloadCollectDto;
     }
 
     @Override

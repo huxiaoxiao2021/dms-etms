@@ -33,7 +33,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     static {
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.date_time,"2023-03-21");
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.site_code,"10186");
-        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23032100029221");
+        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23032100029225");
     }
     private static final CollectionCodeEntity collectionCodeEntitySite1 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
     static {
@@ -199,7 +199,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
         System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
             collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
-            "JD0003419500930", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029221"
+            "JDX000233100307", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029225"
         )));
     }
 
