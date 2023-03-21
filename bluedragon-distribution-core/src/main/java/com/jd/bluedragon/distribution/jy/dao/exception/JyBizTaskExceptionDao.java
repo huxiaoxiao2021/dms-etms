@@ -44,6 +44,13 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".getSpecialStatusStatistic", params);
     }
 
+    public List<StatisticsByStatusDto> getCompleteStatusStatistic(String gridRefId,int limitDay){
+        Map<String,Object> params = new HashMap<>();
+        params.put("gridRefId",gridRefId);
+        params.put("limitDay",limitDay);
+        return this.getSqlSession().selectList(NAMESPACE + ".getCommonStatusStatistic", params);
+    }
+
     /**
      * 按网格统计带取件数量
      */

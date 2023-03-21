@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -140,6 +141,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private JyExceptionStrategyFactory jyExceptionStrategyFactory;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     
     /**
      * 通用异常上报入口-扫描
@@ -262,10 +266,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("网格码有误!");
         }
         String gridRid = getGridRid(position);
-        List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
-        //List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
-        //statisticStatusResps.addAll(specialStatusStatistic);
 
+        int completeExpDayNumLimit = uccPropertyConfiguration.getCompleteExpDayNumLimit();
+        List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
+        List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
+        List<StatisticsByStatusDto> completeStatusStatistic = jyBizTaskExceptionDao.getCompleteStatusStatistic(gridRid,completeExpDayNumLimit);
+        statisticStatusResps.addAll(specialStatusStatistic);
+        statisticStatusResps.addAll(completeStatusStatistic);
         HashMap<Integer, Integer> countMap = new HashMap<>();
         for (StatisticsByStatusDto s : statisticStatusResps) {
             countMap.put(s.getStatus(), s.getCount());

@@ -480,6 +480,11 @@ public class UccPropertyConfiguration {
      */
     private boolean printCompeteAllPackageUpdateCancel;
 
+    /**
+     * 获取异常完结数据范围限制天数
+     */
+    private int completeExpDayNumLimit;
+
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
     }
@@ -2843,5 +2848,13 @@ public class UccPropertyConfiguration {
 
     public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
         this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
+    }
+
+    public int getCompleteExpDayNumLimit() {
+        return completeExpDayNumLimit;
+    }
+
+    public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
+        this.completeExpDayNumLimit = completeExpDayNumLimit;
     }
 }

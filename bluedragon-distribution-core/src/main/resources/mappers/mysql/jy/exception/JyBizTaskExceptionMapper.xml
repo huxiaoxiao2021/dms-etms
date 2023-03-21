@@ -256,7 +256,7 @@
         select status,count(*) as `count`
         FROM jy_biz_task_exception
         WHERE
-            yn = 1 and status in (0,1,2,3)
+            yn = 1 and status in (0,2)
             and distribution_target = #{gridRefId}
         group by status
     </select>
@@ -268,6 +268,14 @@
           AND processing_status = 0
           AND handler_erp = #{handleErp}
           and distribution_target = #{gridRefId}
+    </select>
+    <select id="getCompleteStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 AND STATUS = 3
+        and distribution_target = #{gridRefId}
+        and ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY)
     </select>
     <update id="updateByBizId">
         UPDATE jy_biz_task_exception

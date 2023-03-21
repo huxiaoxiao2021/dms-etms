@@ -243,6 +243,7 @@
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -476,7 +477,7 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
-
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 			</list>
 		</property>
 	</bean>
