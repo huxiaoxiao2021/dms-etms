@@ -102,6 +102,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         // 发送报表消息
         String businessId = targetResultDto.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_RESULT_BUSINESS_KEY
                 + Constants.UNDER_LINE + targetResultDto.getOperateTime();
+        LOGGER.info("JyEvaluateTargetInitConsumer|开始发送:init={},result={}", message.getText(), JsonHelper.toJson(targetResultDto));
         evaluateTargetResultProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetResultDto));
     }
 

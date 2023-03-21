@@ -119,10 +119,10 @@ public class JyEvaluateCommonService {
         JyTaskGroupMemberQuery query = new JyTaskGroupMemberQuery();
         query.setRefTaskId(refTaskId);
         List<JyTaskGroupMemberEntity> taskGroupMembers = jyTaskGroupMemberDao.queryMemberListByTaskId(query);
-        if (CollectionUtils.isEmpty(taskGroupMembers)) {
-            LOGGER.warn("JyEvaluateCommonService|查询发货任务协助人返回空,targetTaskId={}", refTaskId);
-            throw new JyBizException("查询发货任务协助人返回空");
-        }
+//        if (CollectionUtils.isEmpty(taskGroupMembers)) {
+//            LOGGER.warn("JyEvaluateCommonService|查询发货任务协助人返回空,targetTaskId={}", refTaskId);
+//            throw new JyBizException("查询发货任务协助人返回空");
+//        }
         return taskGroupMembers;
     }
 
