@@ -334,7 +334,7 @@
         <where>
             r.yn = 1 
         <if test="signDate != null" >
-            and (r.sign_date = #{signDate,jdbcType=DATE} or and r.sign_date_new = #{signDate,jdbcType=DATE})
+            and (r.sign_date = #{signDate,jdbcType=DATE} or r.sign_date_new = #{signDate,jdbcType=DATE})
         </if>
         <if test="flowType != null" >
             and r.flow_type = #{flowType,jdbcType=INTEGER}
