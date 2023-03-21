@@ -2079,12 +2079,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if(log.isInfoEnabled()) {
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }
-            if(getManualCreateTaskFlag(reqDto.getBizId())) {
-                ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
-                resData.setManualCreatedFlag(true);
-                res.setData(resData);
-                return res;
-            }
+//            if(getManualCreateTaskFlag(reqDto.getBizId())) {
+//                ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
+//                resData.setManualCreatedFlag(true);
+//                res.setData(resData);
+//                return res;
+//            }
             //不齐运单数量
             InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNumRes = jyCollectService.collectWaitWaybillNum(reqDto);
             if(!collectWaitWaybillNumRes.codeSuccess()) {
@@ -2114,9 +2114,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if(log.isInfoEnabled()) {
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }
-            if(reqDto.getManualCreateTaskFlag() == null) {
-                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
-            }
+//            if(reqDto.getManualCreateTaskFlag() == null) {
+//                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+//            }
             return jyCollectService.findCollectInfo(reqDto);
         }catch (Exception ex) {
             log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
@@ -2139,9 +2139,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if(log.isInfoEnabled()) {
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }
-            if(reqDto.getManualCreateTaskFlag() == null) {
-                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
-            }
+//            if(reqDto.getManualCreateTaskFlag() == null) {
+//                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+//            }
             return jyCollectService.findCollectDetail(reqDto);
         }catch (Exception ex) {
             log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
@@ -2169,9 +2169,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 res.error("扫描数据为空");
                 return res;
             }
-            if(reqDto.getManualCreateTaskFlag() == null) {
-                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
-            }
+//            if(reqDto.getManualCreateTaskFlag() == null) {
+//                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+//            }
             return jyCollectService.findCollectReportByScanCode(reqDto);
         }catch (Exception ex) {
             log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);

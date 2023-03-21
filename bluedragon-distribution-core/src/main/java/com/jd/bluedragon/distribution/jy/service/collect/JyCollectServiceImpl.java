@@ -97,15 +97,15 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectReportResDto resData = new CollectReportResDto();
         res.setData(resData);
         //空任务只有在库集齐
-        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
-                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
-            resData.setCollectReportStatisticsDtoList(null);
-            resData.setCollectReportDtoList(null);
-            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
-            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-            resData.setManualCreateTaskFlag(true);
-            return res;
-        }
+//        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
+//                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
+//            resData.setCollectReportStatisticsDtoList(null);
+//            resData.setCollectReportDtoList(null);
+//            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
+//            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+//            resData.setManualCreateTaskFlag(true);
+//            return res;
+//        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
         Timestamp ts = new Timestamp(0);
@@ -127,16 +127,16 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectReportDetailResDto resData = new CollectReportDetailResDto();
         res.setData(resData);
         //空任务只有在库集齐
-        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
-                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
-            resData.setCollectReportStatisticsDtoList(null);
-            resData.setCollectReportDto(null);
-            resData.setCollectReportDetailPackageDtoList(null);
-            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
-            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-            resData.setManualCreateTaskFlag(true);
-            return res;
-        }
+//        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
+//                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
+//            resData.setCollectReportStatisticsDtoList(null);
+//            resData.setCollectReportDto(null);
+//            resData.setCollectReportDetailPackageDtoList(null);
+//            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
+//            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
+//            resData.setManualCreateTaskFlag(true);
+//            return res;
+//        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
         Timestamp ts = new Timestamp(0);
@@ -738,7 +738,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectReportReqDto param = new CollectReportReqDto();
         param.setWaybillCode(WaybillUtil.getWaybillCode(reqDto.getScanCode()));
         param.setCollectType(reqDto.getCollectType());
-        param.setManualCreateTaskFlag(reqDto.getManualCreateTaskFlag());
+//        param.setManualCreateTaskFlag(reqDto.getManualCreateTaskFlag());
         param.setUser(reqDto.getUser());
         param.setCurrentOperate(reqDto.getCurrentOperate());
         param.setBizId(reqDto.getBizId());
