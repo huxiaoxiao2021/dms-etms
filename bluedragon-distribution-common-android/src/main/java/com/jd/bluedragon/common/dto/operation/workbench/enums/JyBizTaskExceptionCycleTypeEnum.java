@@ -11,13 +11,13 @@ public enum JyBizTaskExceptionCycleTypeEnum {
     UPLOAD(0, "上报"),
     DISTRIBUTION(1, "分配"),
     RECEIVE(2, "领取"),
-    PROCESS(3, "处理"),
+    PROCESS_SUBMIT(3, "处理-提交"),
+    PROCESS_APPROVE(8,"处理-审批"),
+    PROCESS_CUSTOMER(9,"处理-客服介入"),
     PROCESSED(4, "处理成功"),
     UP_SHELF(5, "暂存上架"),
     DOWN_SHELF(6, "暂存上架"),
     CLOSE(7, "完成"),
-    APPROVE(8,"审批"),
-    CUSTOMER(9,"客服介入"),
     ;
 
     private Integer code;

@@ -813,7 +813,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setUpdateUserName(baseStaffByErp.getStaffName());
         update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
-        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS,update);
+        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_SUBMIT,update);
         return JdCResponse.ok();
     }
 
@@ -1108,7 +1108,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try {
             jyBizTaskExceptionDao.insertSelective(taskEntity);
             jyExceptionDao.insertSelective(expEntity);
-            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS,taskEntity);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_SUBMIT,taskEntity);
             //发送 mq 通知调度系统
             sendToSchedule(mqDto, bizId, baseStaffByErp);
         } catch (Exception e) {

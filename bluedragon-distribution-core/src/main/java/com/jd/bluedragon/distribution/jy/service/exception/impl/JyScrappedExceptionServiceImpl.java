@@ -26,7 +26,6 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExNoticeCustomerMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -34,7 +33,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.jim.cli.Cluster;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
 import com.jd.lsb.flow.domain.HistoryApprove;
@@ -70,9 +68,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private BaseMajorManager baseMajorManager;
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
-    @Autowired
-    @Qualifier("redisClientCache")
-    private Cluster redisClient;
     @Autowired
     private JyExceptionScrappedDao jyExceptionScrappedDao;
     @Autowired
@@ -214,7 +209,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyBizTaskExceptionDao.updateByBizId(update);
             // 异步处理审批任务
             syncSendApproveTask(req);
-            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS, update);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_SUBMIT, update);
         } catch (Exception e) {
             logger.error("报废处理任务接口异常-{}", e.getMessage(), e);
             return JdCResponse.fail("报废处理任务接口异常!");
@@ -325,6 +320,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 logger.info("生鲜报废单号:{}审批通过,异步通知客服系统!", bizId);
             }
             dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
+            // add log
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_CUSTOMER, exScrapTaskEntity);
         }
     }
 
@@ -435,6 +432,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         if (logger.isInfoEnabled()) {
             logger.info("提交审批完成，审批工单号:{}", approveOrderCode);
         }
+        // add log
+        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_APPROVE, entity);
     }
 
     /**
