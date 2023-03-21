@@ -45,4 +45,9 @@ public interface JyScrappedExceptionService {
      */
     JdCResponse<List<ExpScrappedDetailDto>> getTaskListOfscrapped(List<String> bizIds);
 
+    /**
+     * 提交审批
+     * @param req
+     */
+    void dealApprove(ExpScrappedDetailReq req);
 }

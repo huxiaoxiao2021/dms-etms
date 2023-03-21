@@ -111,4 +111,14 @@ public interface JyExceptionService {
      * @param jyExCustomerNotifyMQ
      */
     void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ);
+
+    /**
+     * 更新异常任务结果
+     * 
+     * @param barCode 单号
+     * @param operateErp 操作人
+     * @param dateTime 时间
+     * @param precessComplete 是否处理完成
+     */
+    void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete);
 }

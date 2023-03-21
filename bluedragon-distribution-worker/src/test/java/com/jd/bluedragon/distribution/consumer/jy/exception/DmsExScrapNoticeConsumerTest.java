@@ -125,7 +125,7 @@ public class DmsExScrapNoticeConsumerTest {
             req.setBizId("SCRAPPED_JDVA19408919512");
             req.setGoodsImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
             req.setCertifyImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
-            jyScrappedExceptionService.dealApproveTest(req);
+            jyScrappedExceptionService.dealApprove(req);
             Assert.assertTrue(true);
             
             String handlerErp = "wuyoude";

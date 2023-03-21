@@ -74,8 +74,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Qualifier("redisClientCache")
     private Cluster redisClient;
     @Autowired
-    private JyExceptionService jyExceptionService;
-    @Autowired
     private JyExceptionScrappedDao jyExceptionScrappedDao;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -92,6 +90,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Autowired
     @Qualifier("dmsScrapNoticeKFProducer")
     private DefaultJMQProducer dmsScrapNoticeKFProducer;
+
+    @Autowired
+    @Qualifier("scrapApproveProducer")
+    private DefaultJMQProducer scrapApproveProducer;
 
     @Autowired
     private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
@@ -210,8 +212,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             update.setUpdateTime(new Date());
             logger.info("报废任务更新数据--{}",JSON.toJSONString(update));
             jyBizTaskExceptionDao.updateByBizId(update);
-            // 审批处理
-            dealApprove(req);
+            // 异步处理审批任务
+            syncSendApproveTask(req);
             recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS, update);
         } catch (Exception e) {
             logger.error("报废处理任务接口异常-{}", e.getMessage(), e);
@@ -220,6 +222,13 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         response.toSucceed("请求成功");
         response.setData(Boolean.TRUE);
         return response;
+    }
+
+    private void syncSendApproveTask(ExpScrappedDetailReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("生鲜报废单:{}的审批异步消息发送!", req.getBizId());
+        }
+        scrapApproveProducer.sendOnFailPersistent(req.getBizId(), JsonHelper.toJson(req));
     }
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -250,7 +259,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         // 审批流程是否完结标识
         boolean flowEndFlag;
         // 审批流程最终结果
-        boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());
+        boolean approveFinalResult = !Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());
         
         switch (JyExScrapApproveStageEnum.convertApproveEnum(nodeName)) {
             case FIRST:
@@ -390,11 +399,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     }
 
     @Override
-    public void dealApproveTest(ExpScrappedDetailReq req){
-        dealApprove(req);
-    }
-
-    @Override
     public JdCResponse<List<ExpScrappedDetailDto>> getTaskListOfscrapped(List<String> bizIds) {
         if(CollectionUtils.isEmpty(bizIds)){
             return JdCResponse.fail("bizIds 不能为空!");
@@ -409,14 +413,14 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         });
         return JdCResponse.ok(dtos);
     }
-
-
+    
     /**
      * 审批处理
      *
      * @param req
      */
-    private void dealApprove(ExpScrappedDetailReq req) {
+    @Override
+    public void dealApprove(ExpScrappedDetailReq req) {
         JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
         if (entity == null || StringUtils.isEmpty(entity.getCreateUserErp())) {
             logger.warn("未查询到:{}的报废任务!", req.getBizId());

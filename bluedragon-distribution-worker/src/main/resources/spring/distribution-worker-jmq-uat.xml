@@ -475,6 +475,11 @@
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
     </jmq:consumer>
 
+    <!--  异常-报废审批处理自消费  -->
+    <jmq:consumer id="jmq.dmsExScrapApproveSelfConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>
+    </jmq:consumer>
+    
     <!--  异常-报废通知消费  -->
     <jmq:consumer id="jmq.dmsExScrapNoticeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExScrapNoticeConsumer"/>

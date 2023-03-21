@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
     @Autowired
     private JyExceptionService jyExceptionService;
 
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerOverTimeException",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public void timingHandlerOverTimeException() {
         if(logger.isInfoEnabled()){
@@ -30,6 +35,8 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
         jyExceptionService.queryOverTimeExceptionAndNotice();
     }
 
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFreshScrapNotice",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public void timingHandlerFreshScrapNotice() {
         if(logger.isInfoEnabled()){

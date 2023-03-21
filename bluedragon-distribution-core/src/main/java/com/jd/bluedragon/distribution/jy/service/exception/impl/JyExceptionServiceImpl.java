@@ -612,7 +612,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyBizTaskExceptionDao.updateByBizId(update);
         recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
         //发送修改状态消息
-        sendScheduleTaskStatusMsg(bizId, baseStaffByErp,JyScheduleTaskStatusEnum.STARTED,scheduleTaskChangeStatusProducer);
+        sendScheduleTaskStatusMsg(bizId, baseStaffByErp.getAccountNumber(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
 
 
         // 拼装已领取的任务
@@ -865,7 +865,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     return;
                 }
                 for (JyExceptionEntity entity:jyExceptionEntities){
-                    printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+                    updateExceptionResult(entity.getBizId(),printDto.getUserErp(),printDto.getOperateTime(),false);
                 }
             }
 
@@ -885,7 +885,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return;
             }
             for (JyExceptionEntity entity:jyExceptionEntities){
-                printComplate(entity.getBarCode(),printDto.getUserErp(),printDto.getOperateTime(),false);
+                updateExceptionResult(entity.getBizId(),printDto.getUserErp(),printDto.getOperateTime(),false);
             }
         }
 
@@ -917,12 +917,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
         }
         // 异步推送咚咚
+        int count = 0;
         for (Integer siteCode : map.keySet()) {
             if(logger.isInfoEnabled()){
                 logger.info("未领取的超时任务异步咚咚通知场地:{}的负责人!", siteCode);
             }
+            // 防止大批量处理任务，设置休眠降低发送频率
+            trySleep(count ++);
             String businessId = siteCode + Constants.SEPARATOR_HYPHEN + DateHelper.formatDate(new Date());
             dmsUnCollectOverTimeNoticeProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(map.get(siteCode)));
+        }
+    }
+
+    private void trySleep(int count) {
+        if(count % 5 == Constants.NUMBER_ZERO){
+            try {
+                Thread.sleep(100);
+            }catch (Exception e){
+                logger.error("休眠异常!", e);
+            }
         }
     }
 
@@ -993,8 +1006,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 logger.info("客服回传其他状态不做处理!");
                 return;
         }
-        // 更新异常任务表状态
-        updateExTaskStatus(jyExCustomerNotifyMQ.getBusinessId());
+        // 更新异常任务表状态 TODO erp不确定，待客服
+        updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), Constants.SYS_CODE_DMS, new Date(), true);
     }
 
     private void kfNotifyCancelDeal(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
@@ -1045,17 +1058,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         tTask.setFingerprint(Md5Helper.encode(status.getCreateSiteCode() + "_"
                 + status.getWaybillCode() + "-" + status.getOperateType() + "-" + status.getOperateTime().getTime()));
         taskService.add(tTask);
-    }
-
-    private void updateExTaskStatus(String bizId) {
-        // 异常任务更新为'已完成'
-        JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
-        entity.setBizId(bizId);
-        entity.setStatus(JyExpStatusEnum.COMPLETE.getCode());
-        entity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
-        entity.setUpdateTime(new Date());
-        entity.setProcessEndTime(new Date());
-        jyBizTaskExceptionDao.updateByBizId(entity);
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
@@ -1127,11 +1129,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param
      */
     private void sanwuComplate(ExpefNotify mqDto) {
-        printComplate(mqDto.getBarCode(),mqDto.getNotifyErp(),mqDto.getNotifyTime(),true);
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
+        updateExceptionResult(bizId,mqDto.getNotifyErp(),mqDto.getNotifyTime(),true);
     }
 
-    private void printComplate(String barCode,String operateErp,Date dateTime,boolean isPc) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), barCode);
+    @Override
+    public void updateExceptionResult(String bizId, String operateErp, Date dateTime, boolean precessComplete) {
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -1139,25 +1142,21 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         JyExceptionEntity jyExceptionEntity = new JyExceptionEntity();
         jyExceptionEntity.setBizId(bizId);
-        jyExceptionEntity.setSiteCode(Long.valueOf(bizTaskException.getSiteCode()));
+        jyExceptionEntity.setSiteCode(bizTaskException.getSiteCode());
         JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(jyExceptionEntity);
         if (entity == null){
             logger.error("获取异常业务数据失败！");
             return;
         }
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operateErp);
-        if (baseStaffByErp == null){
-            logger.error("获取操作人信息失败！");
-            return;
-        }
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
+        conditon.setBizId(bizTaskException.getBizId());
         conditon.setStatus(JyExpStatusEnum.COMPLETE.getCode());
         conditon.setUpdateTime(dateTime);
-        conditon.setUpdateUserErp(baseStaffByErp.getAccountNumber());
-        conditon.setBizId(bizTaskException.getBizId());
-        conditon.setUpdateUserName(baseStaffByErp.getStaffName());
-        if (isPc){
+        conditon.setUpdateUserErp(baseStaffByErp == null ? operateErp : baseStaffByErp.getAccountNumber());
+        conditon.setUpdateUserName(baseStaffByErp == null ? null : baseStaffByErp.getStaffName());
+        if (precessComplete){
             conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
             conditon.setProcessEndTime(dateTime);
             recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESSED,conditon);
@@ -1165,17 +1164,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyBizTaskExceptionDao.updateByBizId(conditon);
         recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE,conditon);
         //发送修改状态消息
-        sendScheduleTaskStatusMsg(bizTaskException.getBizId(), baseStaffByErp,JyScheduleTaskStatusEnum.CLOSED,scheduleTaskChangeStatusWorkerProducer);
+        sendScheduleTaskStatusMsg(bizTaskException.getBizId(), operateErp, JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
     }
 
-    private void sendScheduleTaskStatusMsg(String bizId, BaseStaffSiteOrgDto baseStaffByErp,JyScheduleTaskStatusEnum status,DefaultJMQProducer producer) {
+    private void sendScheduleTaskStatusMsg(String bizId, String userErp,
+                                           JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
         //通知任务调度系统状态修改
         JyScheduleTaskChangeStatusReq req = new JyScheduleTaskChangeStatusReq();
         try{
             req.setBizId(bizId);
             req.setChangeTime(new Date());
-            req.setOpeUser(baseStaffByErp.getAccountNumber());
-            req.setOpeUserName(baseStaffByErp.getStaffName());
+            req.setOpeUser(userErp);
             req.setTaskStatus(status);
             req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION);
             producer.sendOnFailPersistent(bizId, JsonHelper.toJson(req));
