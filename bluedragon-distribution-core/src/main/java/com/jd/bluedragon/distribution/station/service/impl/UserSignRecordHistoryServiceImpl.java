@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
 import com.jd.bluedragon.distribution.station.enums.SignBIzSourceEnum;
+import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
@@ -93,6 +94,7 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
 		BeanUtils.copyProperties(signData, flowData);
 		flowData.setId(null);
 		flowData.setRefRecordId(signData.getId());
+		flowData.setFlowStatus(SignFlowStatusEnum.DEFALUT.getCode());
 		return flowData;
 	}
 	

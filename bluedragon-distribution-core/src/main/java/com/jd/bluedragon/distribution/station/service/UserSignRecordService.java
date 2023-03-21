@@ -192,6 +192,12 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
+	/**
+	 * 校验并生成新的签到数据
+	 * @param signInRequest
+	 * @return
+	 */
+	Result<UserSignRecord> checkAndCreateSignInDataForFlowAdd(UserSignRequest signInRequest);
 	
 	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
 	

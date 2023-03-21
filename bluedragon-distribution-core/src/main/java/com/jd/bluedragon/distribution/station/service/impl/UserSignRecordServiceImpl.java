@@ -1546,6 +1546,32 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 	}
 	@Override
+	public Result<UserSignRecord> checkAndCreateSignInDataForFlowAdd(UserSignRequest signInRequest) {
+		Result<UserSignRecord> result = new Result<UserSignRecord>();
+		result.toSuccess();
+		JdCResponse<UserSignRecordData> checkResult = checkAndFillUserInfo(signInRequest);
+		if(!checkResult.isSucceed()) {
+			result.toFail(checkResult.getMessage());
+			return result;
+		}
+		//校验岗位码,并获取网格信息
+		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
+		if(!gridResult.isSucceed()) {
+			result.toFail(gridResult.getMessage());
+			return result;
+		}
+		WorkStationGrid gridInfo = gridResult.getData();
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        JdCResponse<UserSignRecordData> fillResult = this.checkAndFillSignInInfo(signInRequest,signInData,gridInfo);
+        if(!fillResult.isSucceed()) {
+        	result.toFail(fillResult.getMessage());
+        	return result;
+        }
+        result.setData(signInData);
+		return result;
+	}	
+	@Override
 	public Integer queryCountForFlow(UserSignRecordQuery historyQuery) {
 		return userSignRecordDao.queryCountForFlow(historyQuery);
 	}

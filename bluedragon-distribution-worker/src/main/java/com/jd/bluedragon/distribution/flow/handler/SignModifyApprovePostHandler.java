@@ -62,13 +62,6 @@ public class SignModifyApprovePostHandler implements ApprovePostHandler {
             logger.warn("签到数据修改流程审批结果!审批结果【{}】", JsonHelper.toJson(historyApprove));
             return;
         }
-        if(!Objects.equals(historyApprove.getState(), ApprovalResult.COMPLETE_AGREE.getValue())){
-            logger.warn("申请人【{}】提交的打印交接清单导出流程未通过！审批结果【{}】、审批意见【{}】、审批工单号【{}】、审批节点编码【{}】",
-                    historyApprove.getApplicant(), historyApprove.getState(), historyApprove.getComment(), historyApprove.getProcessInstanceNo(), historyApprove.getNodeName());
-            userSignRecordFlowService.dealFlowUnPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
-            return;
-        }else {
-        	userSignRecordFlowService.dealFlowPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
-        }
+        userSignRecordFlowService.dealFlowResult(historyApprove);
     }
 }

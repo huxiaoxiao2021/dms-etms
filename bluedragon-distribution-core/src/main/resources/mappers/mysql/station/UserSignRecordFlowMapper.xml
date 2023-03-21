@@ -13,6 +13,7 @@
         <result column="flow_create_time" property="flowCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="flow_update_user" property="flowUpdateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="flow_update_time" property="flowUpdateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="sign_date_new" property="signDateNew" javaType="java.util.Date" jdbcType="DATE" />        
         <result column="sign_in_time_new" property="signInTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="sign_out_time_new" property="signOutTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -44,7 +45,7 @@
 		
     <sql id="Base_Column_List" >
         r.id,r.ref_record_id,r.ref_flow_biz_code,r.flow_type,r.flow_status,r.flow_remark,
-        r.flow_create_user,r.flow_create_time,r.flow_update_user,r.flow_update_time,r.sign_in_time_new,
+        r.flow_create_user,r.flow_create_time,r.flow_update_user,r.flow_update_time,sign_date_new,r.sign_in_time_new,
         r.sign_out_time_new,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,
         r.user_code_index,r.user_name,r.user_name_encrypt,r.user_name_index,r.wave_code,
         r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,
@@ -87,6 +88,9 @@
                 <if test="flowUpdateTime != null" >
                     flow_update_time,
                 </if>
+                <if test="signDateNew != null" >
+                    sign_date_new,
+                </if>                
                 <if test="signInTimeNew != null" >
                     sign_in_time_new,
                 </if>
@@ -204,6 +208,9 @@
                 <if test="flowUpdateTime != null" >
                     #{flowUpdateTime,jdbcType=TIMESTAMP},
                 </if>
+                <if test="signDateNew != null" >
+                    #{signDateNew,jdbcType=DATE},
+                </if>                
                 <if test="signInTimeNew != null" >
                     #{signInTimeNew,jdbcType=TIMESTAMP},
                 </if>
@@ -327,8 +334,11 @@
         <where>
             r.yn = 1 
         <if test="signDate != null" >
-            and r.sign_date = #{signDate,jdbcType=DATE}
-        </if>       
+            (and r.sign_date = #{signDate,jdbcType=DATE} or and r.sign_date_new = #{signDate,jdbcType=DATE})
+        </if>
+        <if test="flowType != null" >
+            and r.flow_type = #{flowType,jdbcType=INTEGER}
+        </if>                
         <if test="siteCode != null" >
             and r.site_code = #{siteCode,jdbcType=INTEGER}
         </if>

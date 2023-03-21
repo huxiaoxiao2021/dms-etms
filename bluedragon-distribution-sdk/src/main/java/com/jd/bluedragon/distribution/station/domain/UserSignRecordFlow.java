@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.station.domain;
 
 import java.util.Date;
+
+import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
+
 import java.io.Serializable;
 
 /**
@@ -34,7 +37,7 @@ public class UserSignRecordFlow implements Serializable {
 	/**
 	 * 流程状态
 	 */
-	private Integer flowStatus;
+	private Integer flowStatus = SignFlowStatusEnum.DEFALUT.getCode();
 	/**
 	 * 流程-审批|驳回信息
 	 */
@@ -55,6 +58,10 @@ public class UserSignRecordFlow implements Serializable {
 	 * 流程更新时间（最后一次审批通过时间）
 	 */
 	private Date flowUpdateTime;
+	/**
+	 * 签到日期：根据签到时间，计算归属日期
+	 */
+	private Date signDateNew;	
 	/**
 	 * 修改后-签到时间
 	 */
@@ -945,5 +952,13 @@ public class UserSignRecordFlow implements Serializable {
 
 	public void setFlowStatusName(String flowStatusName) {
 		this.flowStatusName = flowStatusName;
+	}
+
+	public Date getSignDateNew() {
+		return signDateNew;
+	}
+
+	public void setSignDateNew(Date signDateNew) {
+		this.signDateNew = signDateNew;
 	}
 }

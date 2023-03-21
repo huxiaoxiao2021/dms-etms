@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
 import com.jd.bluedragon.distribution.station.enums.SignBIzSourceEnum;
+import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
@@ -26,6 +28,8 @@ import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanServi
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.lsb.flow.domain.ApprovalResult;
+import com.jd.lsb.flow.domain.HistoryApprove;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -95,23 +99,28 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	public List<UserSignRecordFlow> queryFlowList(UserSignRecordFlowQuery query) {
 		return userSignRecordFlowDao.queryDataList(query);
 	}
-	@Override
 	public void dealFlowPassResult(String processInstanceNo, Integer state, String flowUser, String comment) {
 		UserSignRecordFlow flowData = userSignRecordFlowDao.queryByFlowBizCode(processInstanceNo);
 		if(flowData == null) {
 			log.warn("根据流程单号{}查询签到流程数据失败！",processInstanceNo);
 			return;
 		}
+		Integer flowType = flowData.getFlowType();
 		UserSignRecordFlow updateData = new UserSignRecordFlow();
 		updateData.setId(flowData.getId());
-		updateData.setFlowStatus(state);
+		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
+			updateData.setFlowStatus(SignFlowStatusEnum.ADD_COMPLETE.getCode());
+		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
+			updateData.setFlowStatus(SignFlowStatusEnum.MODIFY_COMPLETE.getCode());
+		}else if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)) {
+			updateData.setFlowStatus(SignFlowStatusEnum.DELETE_COMPLETE.getCode());
+		}
 		updateData.setFlowUpdateUser(flowUser);
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
 		userSignRecordFlowDao.updateFlowStatusById(updateData);
 		
 		UserSignRecord signData = toUserSignRecord(flowData);
-		Integer flowType = flowData.getFlowType();
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			signData.setId(null);
 			signData.setSignInTime(flowData.getSignInTimeNew());
@@ -163,7 +172,6 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		BeanUtils.copyProperties(flowData, signData);
 		return signData;
 	}
-	@Override
 	public void dealFlowUnPassResult(String processInstanceNo, Integer state, String flowUser, String comment) {
 		UserSignRecordFlow flowData = userSignRecordFlowDao.queryByFlowBizCode(processInstanceNo);
 		if(flowData == null) {
@@ -177,5 +185,16 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
 		userSignRecordFlowDao.updateFlowStatusById(updateData);
+	}
+	@Override
+	public void dealFlowResult(HistoryApprove historyApprove) {
+        if(!Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())
+        		&& !Objects.equals(historyApprove.getState(), ApprovalResult.COMPLETE_AGREE.getValue())){
+            log.warn("申请人【{}】提交的签到修改审批流程未通过！审批结果【{}】、审批意见【{}】、审批工单号【{}】、审批节点编码【{}】",
+                    historyApprove.getApplicant(), historyApprove.getState(), historyApprove.getComment(), historyApprove.getProcessInstanceNo(), historyApprove.getNodeName());
+            dealFlowUnPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
+        }else {
+        	dealFlowPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
+        }
 	}
 }

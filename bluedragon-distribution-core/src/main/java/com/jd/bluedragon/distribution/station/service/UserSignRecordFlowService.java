@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.lsb.flow.domain.HistoryApprove;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -43,20 +44,8 @@ public interface UserSignRecordFlowService {
 	 */
 	List<UserSignRecordFlow> queryFlowList(UserSignRecordFlowQuery query);
 	/**
-	 * 处理-审批通过流程
-	 * @param processInstanceNo
-	 * @param state
-	 * @param flowUser
-	 * @param comment
+	 * 处理-审批流程结果
+	 * @param historyApprove
 	 */
-	void dealFlowPassResult(String processInstanceNo, Integer state, String flowUser, String comment);
-	/**
-	 * 处理-审批失败、驳回、取消等流程
-	 * @param processInstanceNo
-	 * @param state
-	 * @param flowUser
-	 * @param comment
-	 */
-	void dealFlowUnPassResult(String processInstanceNo, Integer state, String flowUser, String comment);
-
+	void dealFlowResult(HistoryApprove historyApprove);
 }
