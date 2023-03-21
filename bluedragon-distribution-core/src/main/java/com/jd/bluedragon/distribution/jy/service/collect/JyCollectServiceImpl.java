@@ -524,7 +524,7 @@ public class JyCollectServiceImpl implements JyCollectService{
                 + (Objects.isNull(collectionAggCodeCounter.getInnerMarkExtraCollectedNum()) ? 0 : collectionAggCodeCounter.getInnerMarkExtraCollectedNum()));
         //是否被初始化过：没有被初始化过，说明是多扫，走在库集齐逻辑
         boolean taskExistInitFlag = Objects.isNull(collectionAggCodeCounter.getSumScanNum()) || collectionAggCodeCounter.getSumScanNum() <= 0;
-        if(!taskExistInitFlag) {
+        if(taskExistInitFlag) {
             resDto.setTaskExistInitFlag(false);
             resDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
             return resDto;

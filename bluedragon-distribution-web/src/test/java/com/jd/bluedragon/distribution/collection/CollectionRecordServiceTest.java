@@ -31,9 +31,9 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     private static final CollectionCodeEntity collectionCodeEntityUnload = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
     static {
-        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.date_time,"2023-03-20");
+        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.date_time,"2023-03-21");
         collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.site_code,"10186");
-        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23032000000029");
+        collectionCodeEntityUnload.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23032100029221");
     }
     private static final CollectionCodeEntity collectionCodeEntitySite1 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
     static {
@@ -192,14 +192,14 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      */
     @Test
     public void countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark() {
-        System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
-            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
-            null, CollectionAggCodeTypeEnum.waybill_code, "XCZJ23032000000029"
-        )));
+//        System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+//            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
+//            null, CollectionAggCodeTypeEnum.waybill_code, "SC23032100029221"
+//        )));
 
         System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
             collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
-            "JD0003419490589", CollectionAggCodeTypeEnum.waybill_code, "XCZJ23032000000029"
+            "JD0003419500930", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029221"
         )));
     }
 
