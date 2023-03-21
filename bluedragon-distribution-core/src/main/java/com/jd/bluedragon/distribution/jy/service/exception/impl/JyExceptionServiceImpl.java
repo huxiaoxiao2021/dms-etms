@@ -77,8 +77,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
     private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
-    private String msg ="任务状态由于%s操作,状态变更为%s-%s";
-
     // 统计数据缓存时间：半小时
     private static final int COUNT_CACHE_SECOND = 30 * 60;
 
@@ -236,6 +234,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param entity
      */
     private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+        String msg ="%s操作,状态变更为%s-%s";
         JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
         JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
         bizLog.setBizId(task.getBizId());

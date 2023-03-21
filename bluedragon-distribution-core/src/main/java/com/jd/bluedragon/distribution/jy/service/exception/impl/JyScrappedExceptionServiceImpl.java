@@ -59,8 +59,6 @@ import java.util.*;
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
-    private String msg ="任务状态由于%s操作,状态变更为%s-%s";
-
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -638,6 +636,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param entity
      */
     private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+         String msg ="%s操作,状态变更为%s-%s";
         JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
         JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
         bizLog.setBizId(task.getBizId());
