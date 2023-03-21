@@ -1230,6 +1230,9 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList;
+
     /**
      * 传站拦截-- 场地黑名单
      */
@@ -1268,9 +1271,6 @@ public class UccPropertyConfiguration {
     public void setCzOrgForbiddenList(String czOrgForbiddenList) {
         this.czOrgForbiddenList = czOrgForbiddenList;
     }
-
-    private String dpSpringSiteCode;
-    private List<Integer> dpSpringSiteCodeList;
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
