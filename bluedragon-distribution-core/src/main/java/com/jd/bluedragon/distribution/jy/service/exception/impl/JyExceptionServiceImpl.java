@@ -244,7 +244,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
         bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
         bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
-        bizLog.setRemark(String.format(msg,cycle.getName(),task.getStatus(),task.getProcessingStatus()));
+        bizLog.setRemark(String.format(msg,cycle.getName(),JyExpStatusEnum.getEnumByCode(task.getStatus()).getText(),
+                JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName()));
         jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 
