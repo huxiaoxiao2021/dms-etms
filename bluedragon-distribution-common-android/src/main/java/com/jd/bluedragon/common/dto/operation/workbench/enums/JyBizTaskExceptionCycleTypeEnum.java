@@ -16,6 +16,8 @@ public enum JyBizTaskExceptionCycleTypeEnum {
     UP_SHELF(5, "暂存上架"),
     DOWN_SHELF(6, "暂存上架"),
     CLOSE(7, "完成"),
+    APPROVE(8,"审批"),
+    CUSTOMER(9,"客服介入"),
     ;
 
     private Integer code;

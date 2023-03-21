@@ -477,38 +477,41 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 // 拼装dto
                 ExpTaskDto dto = getTaskDto(entity);
 
-                // 待打印特殊处理
-                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus()))
-                        ||(Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()) && (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())))) {
-                    // 待打印时间
-                    dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+                // 待处理状态数据
+                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))) {
+                    //处理三无待打印状态  待打印特殊处理
+                    if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus())
+                            && (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType()))){
+                        // 待打印时间
+                        dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
-                    // 查询照片地址
-                    String key = TASK_CACHE_PRE + entity.getBizId();
-                    String taskCache = redisClient.get(key);
-                    if (StringUtils.isNotBlank(taskCache)) {
-                        ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
-                        if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
-                            dto.setImageUrls(cacheDto.getImageUrls());
-                        }
-                    }
-                }
-                if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(dto.getType())){
-                    if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
-                        continue;
-                    }
-                    for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
-                        if(entity.getBizId().equals(detailDto.getBizId())){
-                            if(StringUtils.isNotBlank(detailDto.getThirdChecker())){
-                                dto.setCheckerErp(detailDto.getThirdChecker());
-                            }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())){
-                                dto.setCheckerErp(detailDto.getSecondChecker());
-                            }else {
-                                dto.setCheckerErp(detailDto.getFirstChecker());
+                        // 查询照片地址
+                        String key = TASK_CACHE_PRE + entity.getBizId();
+                        String taskCache = redisClient.get(key);
+                        if (StringUtils.isNotBlank(taskCache)) {
+                            ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
+                            if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
+                                dto.setImageUrls(cacheDto.getImageUrls());
                             }
-                            //提交时间
-                            dto.setCheckTime(detailDto.getSubmitTime());
-                            dto.setImageUrls(detailDto.getGoodsImageUrl());
+                        }
+                    }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(dto.getType())){
+                        //生鲜报废的特殊处理
+                        if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
+                            continue;
+                        }
+                        for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
+                            if(entity.getBizId().equals(detailDto.getBizId())){
+                                if(StringUtils.isNotBlank(detailDto.getThirdChecker())){
+                                    dto.setCheckerErp(detailDto.getThirdChecker());
+                                }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())){
+                                    dto.setCheckerErp(detailDto.getSecondChecker());
+                                }else {
+                                    dto.setCheckerErp(detailDto.getFirstChecker());
+                                }
+                                //提交时间
+                                dto.setCheckTime(detailDto.getSubmitTime());
+                                dto.setImageUrls(detailDto.getGoodsImageUrl());
+                            }
                         }
                     }
                 }
