@@ -140,6 +140,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.AbnormalReportingGatewayServiceImpl.uploadExceptionMedia", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public String uploadExceptionMedia(InputStream inStream, String originalFileName) {
         String extName = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
 
