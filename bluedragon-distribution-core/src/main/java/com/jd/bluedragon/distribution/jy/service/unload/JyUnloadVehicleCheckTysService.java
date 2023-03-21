@@ -1470,7 +1470,7 @@ public class JyUnloadVehicleCheckTysService {
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态： 同步
             if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
-                log.error("{} 按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
+                log.error("按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }
             //查询集齐类型统计
@@ -1478,7 +1478,7 @@ public class JyUnloadVehicleCheckTysService {
             if(collectReportStatisticsDto == null) {
                 throw new JyBizException("集齐数据查询为空");
             }
-            if(!collectReportStatisticsDto.getTaskExistInitFlag()) {
+            if(Boolean.FALSE.equals(collectReportStatisticsDto.getTaskExistInitFlag())) {
                 //todo 下发任务扫描的运单是多扫运单，没有被封车集齐初始化，走在库集齐逻辑
                 collectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
                 int needNum = unloadScanCollectDealDto.getGoodNumber() - collectReportStatisticsDto.getActualScanNum();

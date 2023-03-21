@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.collection.builder.CollectionEntityConverter;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
@@ -82,19 +83,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 businessTypeEnum -> null == businessType || businessTypeEnum.equals(businessType)
             )
             .flatMap((Function<CollectionBusinessTypeEnum, Stream<CollectionCodeEntity>>)businessTypeEnum -> {
-                CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(businessTypeEnum);
-                collectionCodeEntity.addAllKey(elements);
-                collectionCodeEntity.buildCollectionCondition();
+                CollectionCodeEntity collectionCodeEntity = CollectionEntityConverter.buildCollectionCodeEntity(elements, businessTypeEnum, null);
                 List<String> jqCodes =
                     new ArrayList<>(kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition()));
                 //fixme 查询多个列表的时候，给错的处理，不要
                 return jqCodes.stream().map(jqCode -> {
                     log.info("根据condition:{}命中了待集齐集合ID:{}",collectionCodeEntity.getCollectionCondition(), jqCode);
-                    CollectionCodeEntity collectionCodeEntity1 = new CollectionCodeEntity(businessTypeEnum);
-                    collectionCodeEntity1.addAllKey(elements);
-                    collectionCodeEntity1.buildCollectionCondition();
-                    collectionCodeEntity1.setCollectionCode(jqCode);
-                    return collectionCodeEntity1;
+                    return CollectionEntityConverter.buildCollectionCodeEntity(elements, businessTypeEnum, jqCode);
                 });
             }).collect(Collectors.toList());
     }
