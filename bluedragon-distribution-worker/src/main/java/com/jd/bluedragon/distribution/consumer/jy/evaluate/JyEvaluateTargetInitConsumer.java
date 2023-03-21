@@ -58,10 +58,7 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     private DefaultJMQProducer evaluateTargetResultProducer;
 
 
-    @Override
-    public void setUat(String uat) {
-        super.setUat(Boolean.TRUE.toString());
-    }
+
 
     @Override
     public void consume(Message message) throws Exception {
