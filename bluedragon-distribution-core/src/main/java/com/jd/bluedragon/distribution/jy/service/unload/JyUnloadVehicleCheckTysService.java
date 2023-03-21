@@ -1444,6 +1444,7 @@ public class JyUnloadVehicleCheckTysService {
                 collectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
                 collectDto.setCollectStatisticsNum(needNum <= 0 ? 0 : needNum);
                 collectDto.setCollectType(collectDto.getCollectStatisticsNum() == 0 ? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.WAYBILL_BUQI.getCode());
+                return;
             }else if(collectReportStatisticsDto.getCollectType().equals(CollectTypeEnum.TASK_JIQI.getCode())) {
                 log.warn("{}自建任务是在库集齐类型CollectType={}, 此处查到的集齐类型为本车集齐类型：req={}，res={}",
                         methodDesc, CollectTypeEnum.SITE_JIQI, JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(collectReportStatisticsDto));
