@@ -278,7 +278,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 
 	private URI getUri(String pdfPath) {
 		URI uri;
-		URL url = dmswebAmazonS3ClientWrapper.generatePresignedUrl(365, ossFolder, pdfPath);
+		String url = dmswebAmazonS3ClientWrapper.generatePresignedOuterNetUrl(365, ossFolder, pdfPath);
 		if(url != null){
 			log.info("获取云oss地址成功url[{}]",url);
 			return URI.create(url.toString());
