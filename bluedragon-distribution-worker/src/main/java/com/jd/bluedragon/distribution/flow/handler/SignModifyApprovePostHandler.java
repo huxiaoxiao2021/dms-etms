@@ -58,7 +58,7 @@ public class SignModifyApprovePostHandler implements ApprovePostHandler {
                 // 应用不一致
                 || !Objects.equals(historyApprove.getAppName(),Constants.SYS_DMS)
                 // 流程编码不一致
-                || !Objects.equals(historyApprove.getFlowName(), FlowConstants.FLOW_CODE_PRINT_HANDOVER)){
+                || !Objects.equals(historyApprove.getFlowName(), FlowConstants.FLOW_CODE_SIGN_MODIFY)){
             logger.warn("签到数据修改流程审批结果!审批结果【{}】", JsonHelper.toJson(historyApprove));
             return;
         }
