@@ -230,6 +230,11 @@ public class JyCollectServiceImpl implements JyCollectService{
         if(CollectionUtils.isNotEmpty(collectedCounters) && collectedCounters.get(0) != null && collectedCounters.get(0).getTs() != null) {
             ts.setTime(collectedCounters.get(0).getTs().getTime());
         }
+
+        if(log.isInfoEnabled()) {
+            log.info("JyCollectServiceImpl.getCollectReportDetailPackageDtoList--PDA查询集齐报表三种集齐类型的统计数据，req={},res={}",
+                    JsonUtils.toJSONString(collectReportReqDto), JsonUtils.toJSONString(res));
+        }
         return res;
 
     }

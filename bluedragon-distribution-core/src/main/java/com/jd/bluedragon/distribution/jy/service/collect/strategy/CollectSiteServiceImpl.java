@@ -15,8 +15,12 @@ import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,7 @@ import java.util.stream.Collectors;
  **/
 @Service("collectSiteServiceImpl")
 public class CollectSiteServiceImpl implements CollectStatisticsDimensionService, InitializingBean {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JyCollectService jyCollectService;
@@ -58,7 +63,7 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
-        return collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
+        List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
             CollectReportDto collectReportDto = new CollectReportDto();
             if(collectionAggCodeCounter.getAggMark() != null) {
                 String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(collectReportReqDto.getCurrentOperate().getSiteCode(), Integer.valueOf(collectionAggCodeCounter.getAggMark()));
@@ -71,6 +76,11 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
 
             return collectReportDto;
         }).collect(Collectors.toList());
+        if(log.isInfoEnabled()) {
+            log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，返回列表数量为={}",
+                    JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
+        }
+        return res;
     }
 
     @Override
@@ -87,7 +97,7 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getWaybillCode(), CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
-        return collectionScanCodeDetails.parallelStream().map(
+        List<CollectReportDetailPackageDto> res = collectionScanCodeDetails.parallelStream().map(
             (Function<CollectionScanCodeDetail, CollectReportDetailPackageDto>)collectionScanCodeDetail -> {
                 CollectReportDetailPackageDto packageDto = new CollectReportDetailPackageDto();
                 packageDto.setPackageCode(collectionScanCodeDetail.getScanCode());
@@ -108,7 +118,11 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
                 }
                 return null;
             }).collect(Collectors.toList());
-
+        if(log.isInfoEnabled()) {
+            log.info("CollectSiteServiceImpl.queryCollectDetail 查询在库集齐运单明细列表，参数={}，返回列表数量为={}",
+                    JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
+        }
+        return res;
     }
 
     @Override
