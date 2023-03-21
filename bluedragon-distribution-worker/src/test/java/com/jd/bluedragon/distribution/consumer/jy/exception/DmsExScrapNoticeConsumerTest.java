@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionSe
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.lsb.flow.domain.HistoryApprove;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,9 +52,77 @@ public class DmsExScrapNoticeConsumerTest {
     @Test
     public void consume() {
         try {
-
+            String content = "{\n" +
+                    "  \"id\" : 1082373,\n" +
+                    "  \"businessCode\" : \"dms.etms\",\n" +
+                    "  \"flowId\" : 2721,\n" +
+                    "  \"processInstanceNo\" : \"fresh_scrap_approve-1-20230321103905-1638007288868376576\",\n" +
+                    "  \"nodeName\" : \"thirdApprove\",\n" +
+                    "  \"nodeDisplayName\" : \"三级审批\",\n" +
+                    "  \"performType\" : \"ANY\",\n" +
+                    "  \"applicant\" : \"hujiping1\",\n" +
+                    "  \"createTime\" : 1679366699000,\n" +
+                    "  \"system\" : \"QLFJZXJT\",\n" +
+                    "  \"appName\" : \"dms.etms\",\n" +
+                    "  \"flowName\" : \"fresh_scrap_approve\",\n" +
+                    "  \"flowVersion\" : 1,\n" +
+                    "  \"state\" : 1,\n" +
+                    "  \"approver\" : \"tim.he\",\n" +
+                    "  \"approverName\" : \"何田\",\n" +
+                    "  \"comment\" : \"\",\n" +
+                    "  \"finishTime\" : 1679366751449,\n" +
+                    "  \"dataMap\" : {\n" +
+                    "    \"oa\" : {\n" +
+                    "      \"jmeMainColList\" : [ \"生鲜报废单号:JDVA19408919512\", \"生鲜报废场地:北京马驹桥分拣中心最多20个字试试行不行\", \"生鲜报废提交人:hujiping1\", \"生鲜报废网格:CLLQ-07\" ],\n" +
+                    "      \"jmeFiles\" : [ {\n" +
+                    "        \"fileName\" : \"物品照片1\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      }, {\n" +
+                    "        \"fileName\" : \"物品照片2\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      }, {\n" +
+                    "        \"fileName\" : \"物品照片3\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      }, {\n" +
+                    "        \"fileName\" : \"证明照片1\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      }, {\n" +
+                    "        \"fileName\" : \"证明照片2\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      }, {\n" +
+                    "        \"fileName\" : \"证明照片3\",\n" +
+                    "        \"fileUrl\" : \"http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D\"\n" +
+                    "      } ],\n" +
+                    "      \"jmeReqComments\" : \"生鲜报废申请\",\n" +
+                    "      \"jmeReqName\" : \"生鲜报废申请单\"\n" +
+                    "    },\n" +
+                    "    \"bussinessData\" : {\n" +
+                    "      \"businessNoKey\" : \"SCRAPPED_JDVA19408919512\"\n" +
+                    "    },\n" +
+                    "    \"flowControl\" : {\n" +
+                    "      \"secondTriggerErp\" : \"bjgyzhi\",\n" +
+                    "      \"firstTriggerErp\" : \"hujiping1\",\n" +
+                    "      \"approveCount\" : 3,\n" +
+                    "      \"preApprover\" : \"tim.he\",\n" +
+                    "      \"preApproveNodeState\" : 1,\n" +
+                    "      \"thirdTriggerErp\" : \"zhangjunjun19\"\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"historyApprove\" : true\n" +
+                    "}";
+            HistoryApprove historyApprove = JsonHelper.fromJson(content, HistoryApprove.class);
+            historyApprove.setNodeName("firstApprove");
+            historyApprove.setApprover("bjgyzhi");
+            jyScrappedExceptionService.dealApproveResult(historyApprove);
+            historyApprove.setNodeName("secondApprove");
+            historyApprove.setApprover("zhangjunjun19");
+            jyScrappedExceptionService.dealApproveResult(historyApprove);
+            historyApprove.setNodeName("thirdApprove");
+            historyApprove.setApprover("tim.he");
+            jyScrappedExceptionService.dealApproveResult(historyApprove);
+            
             ExpScrappedDetailReq req = new ExpScrappedDetailReq();
-            req.setBizId("SANWU_SW0000326");
+            req.setBizId("SCRAPPED_JDVA19408919512");
             req.setGoodsImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
             req.setCertifyImageUrl("http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D,http://storage.jd.local/volumepicture/JDVA15097578817-1-1-_695114_20220724235616.jpg?Expires=3806162170&AccessKey=6KBoeA1WKY6qcw10&Signature=bKn98ICaVsgqR67tRAh2Gxofulo%3D");
             jyScrappedExceptionService.dealApproveTest(req);

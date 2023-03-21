@@ -247,6 +247,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         // 生效报废业务主键bizId
         String bizId = pairResult.right;
 
+        // 审批流程是否完结标识
+        boolean flowEndFlag;
         // 审批流程最终结果
         boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());
         
@@ -258,6 +260,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
                     approveFinalResult = true;
                 }
+                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount());
                 break;
             case SECOND:
                 logger.info("生鲜报废工单号:{}的二级审批结果:{}", bizId, historyApprove.getState());
@@ -266,6 +269,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
                     approveFinalResult = true;
                 }
+                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount());
                 break;
             case THIRD:
                 logger.info("生鲜报废工单号:{}的三级审批结果:{}", bizId, historyApprove.getState());
@@ -274,13 +278,14 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
                     approveFinalResult = true;
                 }
+                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount());
                 break;
             default:
                 logger.warn("未知节点编码:{}", bizId);
                 return;
         }
         // 更新异常任务表审批状态
-        updateTaskApproveResult(bizId, approveFinalResult);
+        updateTaskApproveResult(bizId, flowEndFlag, approveFinalResult);
         // 审批通过异步通知客服
         noticeKF(bizId, approveFinalResult);
     }
@@ -314,7 +319,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
     }
 
-    private void updateTaskApproveResult(String bizId, boolean approveFinalResult) {
+    private void updateTaskApproveResult(String bizId, boolean flowEndFlag, boolean approveFinalResult) {
+        if(!flowEndFlag){
+            return;
+        }
         JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
         entity.setBizId(bizId);
         int processStatus = approveFinalResult
@@ -342,7 +350,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             return null;
         }
         return ImmutablePair.of(Integer.valueOf(String.valueOf(flowControlMap.get(FlowConstants.FLOW_DATA_MAP_SCRAP_COUNT))),
-                String.valueOf(flowControlMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+                String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
     }
 
     /**
