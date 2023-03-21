@@ -505,8 +505,8 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
                 collectionCodeEntityList, waybillCode, typeEnum, reqDto.getBizId());
         if(log.isInfoEnabled()) {
-            log.info("{}查询集齐服务,param1={},param2={},param3={},param4={},res={}",
-                    methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, typeEnum, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
+            log.info("{}查询集齐服务,参数={},运单号={},bizId={},集齐服务返回统计结果res={}",
+                    methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
         }
         if(collectionAggCodeCounter == null) {
             log.warn("{}查询集齐服务为空,reqDto={}", methodDesc, JsonHelper.toJson(reqDto));
