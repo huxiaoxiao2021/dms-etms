@@ -12,11 +12,12 @@ public enum SignFlowStatusEnum {
 	ADD_COMPLETE(21,"补签完成"),
 	MODIFY_COMPLETE(22,"修改完成"),
 	DELETE_COMPLETE(23,"作废完成"),
-	REFUSE(2,"驳回"),	
+	REFUSE(2,"驳回"),
+	REJECT(3,"驳回"),
 	CANCEL(4,"取消"),
 	COMPLETE_REJECT(6,"驳回"),
 	COMPLETE_CANCEL(7,"取消"),
-	COMPLETE_SKIP(8,"取消"),
+	COMPLETE_SKIP(8,"流程结束(未审批)"),
 	ABNORMAL(9,"异常"),
 	FAIL(10,"失败")
     ;

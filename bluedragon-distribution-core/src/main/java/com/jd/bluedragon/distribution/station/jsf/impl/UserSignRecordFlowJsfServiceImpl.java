@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -15,6 +14,7 @@ import java.util.Set;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.station.api.UserSignRecordFlowJsfService;
 import com.jd.bluedragon.distribution.station.domain.UserSignFlowRequest;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
@@ -38,17 +37,13 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
 import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
-import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordHistoryService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
-import com.jd.lsb.flow.exception.FlowException;
-import com.jd.lsb.flow.service.FlowManageService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 
@@ -76,6 +71,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	@Autowired
 	@Qualifier("userSignRecordFlowService")
 	private UserSignRecordFlowService userSignRecordFlowService;
+	/**
+	 * 最大签到时间
+	 */
+	@Value("${beans.userSignRecordFlowJsfService.maxSignRangeHours:18}")
+	private int maxSignRangeHours;
 	
 	@Autowired
 	FlowServiceManager flowServiceManager;
@@ -92,8 +92,18 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	
 	@Autowired
 	@Qualifier("jyGroupService")
-	private JyGroupService jyGroupService;	
+	private JyGroupService jyGroupService;
+	/**
+	 * 流程状态-不显示历史数据
+	 */
+	private static Set<Integer> hiddenHistoryStatus = new HashSet<Integer>();
 	
+	static {
+		hiddenHistoryStatus.add(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
+		hiddenHistoryStatus.add(SignFlowStatusEnum.ADD_COMPLETE.getCode());
+		hiddenHistoryStatus.add(SignFlowStatusEnum.MODIFY_COMPLETE.getCode());
+		hiddenHistoryStatus.add(SignFlowStatusEnum.DELETE_COMPLETE.getCode());
+	}
 	@Override
 	public Result<Boolean> addSignFlow(UserSignFlowRequest addRequest) {
 		Result<Boolean> result = this.checkParamForAddSignFlow(addRequest);
@@ -168,6 +178,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		UserSignRecordFlow signData = null;
 		Date signInTimeNew = null;
 		Date signOutTimeNew = null;
+		Date signDateNew = null;
 		if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)
 				|| SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
 			if(addRequest.getRecordId() == null) {
@@ -189,9 +200,31 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				return result;
 			}
 			if(signOutTimeNew.before(signInTimeNew)) {
-				result.toFail("签到时间需要小于签退时间！");
+				result.toFail("签到时间不能大于签退时间！");
 				return result;
 			}
+			if(signOutTimeNew.before(signInTimeNew)) {
+				result.toFail("签到时间不能大于签退时间！");
+				return result;
+			}
+			if(DateHelper.betweenHours(signInTimeNew, signOutTimeNew) > maxSignRangeHours) {
+				result.toFail("签到时长不能大于"+maxSignRangeHours+"小时！");
+				return result;
+			}
+			signDateNew = DateHelper.parseDate(DateHelper.formatDate(signInTimeNew));
+			//修改-签到时间范围限制
+			if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
+				Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
+				Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
+				if(signInTimeNew.before(signInStart)|| signInTimeNew.after(signInEnd)) {
+					result.toFail("签到时间修改只能是【"+DateHelper.formatDateTime(signInStart) +"~" +DateHelper.formatDateTime(signInEnd)+"】！");
+					return result;
+				}
+			}
+			//3天内未审批完成的流程，不允许发起新流程
+			
+			//查询history签到时长是否重合
+//			userSignRecordHistoryService.checkSignTime(query)
 		}
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			UserSignRequest signInRequest = new UserSignRequest();
@@ -217,7 +250,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)){
 			signData.setSignInTimeNew(signInTimeNew);
 			signData.setSignOutTimeNew(signOutTimeNew);
-			signData.setSignDateNew(DateHelper.parseDate(DateHelper.formatDate(signInTimeNew)));
+			signData.setSignDateNew(signDateNew);
 		}
 		signData.setFlowStatus(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 		signData.setFlowType(flowType);
@@ -260,15 +293,16 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		boolean hasHistoryData = (historyCount != null && historyCount > 0);
 		List<UserSignRecordFlow> dataList = new ArrayList<UserSignRecordFlow>();
 		if(hasFlowData || hasHistoryData){
-			Set<Long> recordIds = new HashSet<>();
+			Set<Long> hiddenHistoryIds = new HashSet<>();
 			if(hasFlowData) {
 				totalCount += flowCount;
 				List<UserSignRecordFlow> flowList = userSignRecordFlowService.queryFlowList(query);
 				if(!CollectionUtils.isEmpty(flowList)) {
 					for(UserSignRecordFlow flowData: flowList) {
 						dataList.add(flowData);
-						if(flowData.getRefRecordId() != null) {
-							recordIds.add(flowData.getRefRecordId());
+						if(flowData.getRefRecordId() != null
+								&& hiddenHistoryStatus.contains(flowData.getFlowStatus())) {
+							hiddenHistoryIds.add(flowData.getRefRecordId());
 						}
 					}
 				}
@@ -280,13 +314,22 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 					dataList.addAll(historyList);
 					for(UserSignRecordFlow flowData: historyList) {
 						//存在流程的数据，只展示流程数据
-						if(recordIds.contains(flowData.getRefRecordId())) {
+						if(hiddenHistoryIds.contains(flowData.getRefRecordId())) {
 							totalCount --;
 							continue;
 						}
 					}					
 				}
 			}
+			Collections.sort(dataList, new Comparator<UserSignRecordFlow>(){
+				@Override
+				public int compare(UserSignRecordFlow o1, UserSignRecordFlow o2) {
+					if(o1.getRefRecordId() != null && o2.getRefRecordId() != null) {
+						return o1.getRefRecordId().compareTo(o2.getRefRecordId());
+					}
+					return 0;
+				}
+			});
 			Map<String,UserSignRecordFlow> gridPositionCacheMap = new HashMap<>();
 			for(UserSignRecordFlow flowData: dataList) {
 				loadGridData(flowData,gridPositionCacheMap);
