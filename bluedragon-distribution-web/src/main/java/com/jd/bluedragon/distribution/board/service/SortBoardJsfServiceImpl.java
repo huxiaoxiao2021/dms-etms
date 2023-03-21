@@ -505,6 +505,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         addBoardBox.setOperatorErp(operatorInfo.getUserErp());
         addBoardBox.setOperatorName(operatorInfo.getUserName());
         addBoardBox.setBizSource(request.getBizSource());
+        addBoardBox.setOperatorTime(request.getOperatorInfo().getOperateTime());
         return addBoardBox;
     }
 
