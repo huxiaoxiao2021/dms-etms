@@ -210,6 +210,61 @@
 		</where>
 	</select>
 
+	<select id="countCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
+			resultType="java.lang.Integer">
+		select
+			count(1)
+		from
+		(
+			select
+				crd.collection_code, crd.agg_code, count(distinct crd.collected_mark) as c
+			from
+				`collection_record_detail` crd
+			inner join
+			(
+				select
+					crd.collection_code, crd.agg_code, crd.agg_code_type
+				from
+					collection_record_detail crd
+				inner join
+					collection_record cr
+				on
+					crd.collection_code = cr.collection_code and crd.agg_code = cr.agg_code	and crd.agg_code_type = cr.agg_code_type
+				where
+					crd.collection_code in
+					<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+						#{collectionCode, jdbcType=VARCHAR}
+					</foreach>
+					<if test="aggCodeType != null">
+						and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+					</if>
+					<if test="collectedMark != null">
+						and crd.`collected_mark` = #{collectedMark, jdbcType=VARCHAR}
+					</if>
+					and crd.collected_status = 1
+					and cr.is_collected = 1
+					and crd.yn = 1 and cr.yn = 1
+				group by
+					crd.collection_code, crd.agg_code, crd.agg_code_type
+			) t
+			on
+				crd.collection_code = t.collection_code
+				and crd.agg_code = t.agg_code
+				and crd.agg_code_type =t.agg_code_type
+			where
+				crd.collected_status = 1
+			group by
+				crd.collection_code, crd.agg_code
+			<if test="innerMark != null and innerMark == true">
+				having	c = 1
+			</if>
+			<if test="innerMark != null and innerMark == true">
+				having	c > 1
+			</if>
+
+		) a
+	</select>
+
 	<select id="countCollectionRecordDetailByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
 		SELECT
 			count(1)

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -50,7 +51,7 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
 
     @Override
     @JProfiler(jKey = "CollectTaskServiceImpl.queryCollectListPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto) {
+    public List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto,ITSSetter tsSetter) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
         }
@@ -79,6 +80,8 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
             log.info("CollectTaskServiceImpl.queryCollectListPage 查询任务本车集齐运单列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
+        tsSetter.setTimeStamp(collectionAggCodeCounters.parallelStream().map(CollectionAggCodeCounter::getTs).max(
+            Timestamp::compareTo).orElse(new Timestamp(0)).getTime());
         return res;
     }
 

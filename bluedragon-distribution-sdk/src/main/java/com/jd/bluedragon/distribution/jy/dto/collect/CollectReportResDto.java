@@ -8,7 +8,7 @@ import java.util.List;
  * @Description //
  * @date
  **/
-public class CollectReportResDto implements Serializable {
+public class CollectReportResDto implements ITSSetter, Serializable {
 
     private static final long serialVersionUID = -6963372061306635997L;
 

@@ -90,12 +90,19 @@ public interface CollectionRecordService {
     Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
+    Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+
+    Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+
     /**
      * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
      * @param collectionCodeEntities
      * @return
      */
-    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum);
+    @Deprecated
+    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 根据待集齐集合和状态查询aggCode统计情况

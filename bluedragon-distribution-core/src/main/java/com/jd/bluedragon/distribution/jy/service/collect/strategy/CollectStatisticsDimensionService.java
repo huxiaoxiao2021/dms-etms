@@ -15,7 +15,7 @@ public interface CollectStatisticsDimensionService {
     /**
      * 查询集齐列表（分页）
      */
-    List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto);
+    List<CollectReportDto> queryCollectListPage(CollectReportReqDto collectReportReqDto,ITSSetter tsSetter);
 
     /**
      * 查询集齐明细

@@ -39,6 +39,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.erp.util.BeanUtils;
@@ -57,6 +58,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,15 +112,26 @@ public class JyCollectServiceImpl implements JyCollectService{
 //        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
-        Timestamp ts = new Timestamp(0);
-        //集齐统计数据
-        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto, ts));
-        if(ts != null && ts.getTime() > 0) {
-            resData.setTimeStamp(ts.getTime());
-        }
         //集齐运单列表
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
-        resData.setCollectReportDtoList(collectStatisticsService.queryCollectListPage(collectReportReqDto));
+        resData.setCollectReportDtoList(collectStatisticsService.queryCollectListPage(collectReportReqDto, resData));
+        //集齐统计数据
+        if (StringUtils.isEmpty(collectReportReqDto.getWaybillCode())) {
+            resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
+        } else {
+            resData.setCollectReportStatisticsDtoList(
+                resData.getCollectReportDtoList().parallelStream().filter(
+                    collectReportDto -> Objects.equals(collectReportDto.getWaybillCode(), collectReportReqDto.getWaybillCode()))
+                    .map(collectReportDto -> {
+                        CollectReportStatisticsDto collectReportStatisticsDto = new CollectReportStatisticsDto();
+                        collectReportStatisticsDto.setCollectType(collectReportDto.getScanWaitNum() > 0? CollectTypeEnum.WAYBILL_BUQI
+                            .getCode() : collectReportDto.getOtherInventoryNum() > 0? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.TASK_JIQI
+                            .getCode());
+                        collectReportStatisticsDto.setStatisticsNum(1);
+                        return collectReportStatisticsDto;
+                    }).collect(Collectors.toList())
+            );
+        }
         return res;
     }
 
@@ -141,20 +154,34 @@ public class JyCollectServiceImpl implements JyCollectService{
 //        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
-        Timestamp ts = new Timestamp(0);
-        //集齐类型运单统计
-        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto, ts));
-        if(ts != null && ts.getTime() > 0) {
-            resData.setTimeStamp(ts.getTime());
-        }
+
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
         //当前运单统计
-        List<CollectReportDto> collectReportDtoList = collectStatisticsService.queryCollectListPage(collectReportReqDto);
+        List<CollectReportDto> collectReportDtoList = collectStatisticsService.queryCollectListPage(collectReportReqDto, resData);
         if(CollectionUtils.isEmpty(collectReportDtoList)) {
             res.setMessage("未查到当前集齐类型的运单数据");
             return res;
         }
         resData.setCollectReportDto(collectReportDtoList.get(0));
+
+        //集齐类型运单统计
+        if (StringUtils.isEmpty(collectReportReqDto.getWaybillCode())) {
+            resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
+        } else {
+            resData.setCollectReportStatisticsDtoList(
+                collectReportDtoList.parallelStream().filter(
+                    collectReportDto -> Objects.equals(collectReportDto.getWaybillCode(), collectReportReqDto.getWaybillCode()))
+                    .map(collectReportDto -> {
+                        CollectReportStatisticsDto collectReportStatisticsDto = new CollectReportStatisticsDto();
+                        collectReportStatisticsDto.setCollectType(collectReportDto.getScanWaitNum() > 0? CollectTypeEnum.WAYBILL_BUQI
+                            .getCode() : collectReportDto.getOtherInventoryNum() > 0? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.TASK_JIQI
+                            .getCode());
+                        collectReportStatisticsDto.setStatisticsNum(1);
+                        return collectReportStatisticsDto;
+                    }).collect(Collectors.toList())
+            );
+        }
+
         //明细分页查询
         resData.setCollectReportDetailPackageDtoList(collectStatisticsService.queryCollectDetail(collectReportReqDto));
         return res;
@@ -165,7 +192,7 @@ public class JyCollectServiceImpl implements JyCollectService{
      * @param collectReportReqDto
      * @return
      */
-    private List<CollectReportStatisticsDto> getCollectReportDetailPackageDtoList(CollectReportReqDto collectReportReqDto, Timestamp ts) {
+    private List<CollectReportStatisticsDto> getCollectReportDetailPackageDtoList(CollectReportReqDto collectReportReqDto) {
         List<CollectReportStatisticsDto> res = new ArrayList<>();
 
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
@@ -176,42 +203,21 @@ public class JyCollectServiceImpl implements JyCollectService{
         List<CollectionCodeEntity> collectionCodeEntities = new ArrayList<>(
             getCollectionCodeEntityByElement(collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null));
 
-        //查询所有统计数据
-        List<CollectionCounter> allCounter = new ArrayList<>(
-            collectionRecordService.sumCollectionByCollectionCode(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code));
-
-        Map<String, List<CollectionCodeEntity>> collectionCodeMap = collectionCodeEntities.parallelStream()
-            .collect(Collectors.groupingBy(CollectionCodeEntity::getCollectionCode));
-
-        //处理集齐集合的类型字段
-        List<CollectionCounter> collectedCounters = allCounter.parallelStream()
-                    .peek(
-                        collectionCounter ->
-                            collectionCounter.setBusinessType(
-                                collectionCodeMap.get(collectionCounter.getCollectionCode()).get(0).getBusinessType())
-                    )
-                    .collect(Collectors.toList());
-
         //不齐数量
         CollectReportStatisticsDto noneCollected = new CollectReportStatisticsDto();
         noneCollected.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
         noneCollected.setStatisticsNum(
-            allCounter.parallelStream().mapToInt(CollectionCounter::getNoneCollectedNum).sum()
+            collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
+                collectReportReqDto.getBizId())
         );
         res.add(noneCollected);
-
 
         //本车集齐数量
         CollectReportStatisticsDto taskCollected = new CollectReportStatisticsDto();
         taskCollected.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
         taskCollected.setStatisticsNum(
-            collectedCounters.parallelStream()
-                .filter(
-                    collectionCounter ->
-                        CollectionBusinessTypeEnum.unload_collection.equals(collectionCounter.getBusinessType())
-                )
-                .mapToInt(CollectionCounter::getCollectedNum)
-                .sum()
+            collectionRecordService.countCollectionAggCodeNumByCollectionCodeInnerMark(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
+                collectReportReqDto.getBizId())
         );
         res.add(taskCollected);
 
@@ -219,19 +225,10 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectReportStatisticsDto siteCollected = new CollectReportStatisticsDto();
         siteCollected.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
         siteCollected.setStatisticsNum(
-            collectedCounters.parallelStream()
-                .filter(
-                    collectionCounter ->
-                        CollectionBusinessTypeEnum.all_site_collection.equals(collectionCounter.getBusinessType())
-                )
-                .mapToInt(CollectionCounter::getCollectedNum)
-                .sum()
+            collectionRecordService.countCollectionAggCodeNumByCollectionCodeOutMark(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
+                collectReportReqDto.getBizId())
         );
         res.add(siteCollected);
-
-        if(CollectionUtils.isNotEmpty(collectedCounters) && collectedCounters.get(0) != null && collectedCounters.get(0).getTs() != null) {
-            ts.setTime(collectedCounters.get(0).getTs().getTime());
-        }
 
         if(log.isInfoEnabled()) {
             log.info("JyCollectServiceImpl.getCollectReportDetailPackageDtoList--PDA查询集齐报表三种集齐类型的统计数据，req={},res={}",

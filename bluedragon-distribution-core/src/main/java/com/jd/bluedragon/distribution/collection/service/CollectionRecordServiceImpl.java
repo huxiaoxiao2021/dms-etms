@@ -679,7 +679,28 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+    public Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
+
+        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, collectedMark, true);
+
+
+    }
+
+    @Override
+    public Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
+
+        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, collectedMark, false);
+    }
+
+    @Override
+    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             log.info("待查询的集合ID不存在，查询失败");
             return Collections.emptyList();

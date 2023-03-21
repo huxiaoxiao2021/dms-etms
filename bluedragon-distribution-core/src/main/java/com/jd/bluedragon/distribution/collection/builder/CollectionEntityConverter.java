@@ -3,8 +3,12 @@ package com.jd.bluedragon.distribution.collection.builder;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -27,6 +31,16 @@ public class CollectionEntityConverter {
         collectionCodeEntity.buildCollectionCondition();
         collectionCodeEntity.setCollectionCode(jqCode);
         return collectionCodeEntity;
+    }
+
+    public static List<String> getCollectionCodesFromCollectionCodeEntity(List<CollectionCodeEntity> collectionCodeEntities) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
+            return Collections.emptyList();
+        }
+        return collectionCodeEntities.parallelStream().map(CollectionCodeEntity::getCollectionCode).collect(
+            Collectors.toList());
+
+
     }
 
 

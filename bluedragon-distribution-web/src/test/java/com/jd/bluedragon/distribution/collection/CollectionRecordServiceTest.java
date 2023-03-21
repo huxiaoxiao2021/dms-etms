@@ -227,7 +227,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         System.out.println(JsonHelper.toJson(
             collectionRecordService.sumCollectionByCollectionCode(
                 collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
-                ,CollectionAggCodeTypeEnum.waybill_code
+                ,CollectionAggCodeTypeEnum.waybill_code, ""
         )));
     }
 

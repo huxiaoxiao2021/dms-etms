@@ -78,6 +78,16 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
     }
 
+    public Integer countCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Boolean innerMark) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("collectedMark", collectedMark);
+        param.put("innerMark", innerMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
+    }
+
     public List<CollectionScanMarkCounter> sumCollectedByCollectionCodesWithCollectedMark(List<String> collectionCodes, String collectedMark) {
         Map<String, Object> param = new HashMap<>();
         param.put("collectionCodes", collectionCodes);
