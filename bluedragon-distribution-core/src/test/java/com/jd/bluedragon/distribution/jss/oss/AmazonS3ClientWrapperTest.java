@@ -27,7 +27,7 @@ public class AmazonS3ClientWrapperTest {
         amazonS3ClientWrapperUnderTest.setAccessKey("JDC_D7F39DBD95C716540108BD9333F4");
         amazonS3ClientWrapperUnderTest.setSecretKey("0AB20B66892C2A4374094F360F912C0A");
         amazonS3ClientWrapperUnderTest.setSigningRegion("cn-north-1");
-        amazonS3ClientWrapperUnderTest.setEndpoint("http://s3-internal-office.cn-north-1.jdcloud-oss.com");
+        amazonS3ClientWrapperUnderTest.setEndpoint("http://s3.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
         amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
         amazonS3ClientWrapperUnderTest.setBucketName("dmsweb");
@@ -89,12 +89,12 @@ public class AmazonS3ClientWrapperTest {
     }
 
     @Test
-    public void testPutObject() {
+    public void testPutObject() throws Exception{
         // Setup
-        final InputStream inputStream = new ByteArrayInputStream("content".getBytes());
+        FileInputStream fileInputStream = new FileInputStream("/Users/xumigen/Downloads/1-PDA通用安装包.rar");
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObject(inputStream, "","fileName", 0L);
+        amazonS3ClientWrapperUnderTest.putObject(fileInputStream, "test","anzhaung/tt/1-PDA通用安装包.rar", 0L);
 
         // Verify the results
     }
@@ -134,8 +134,8 @@ public class AmazonS3ClientWrapperTest {
     public void testGeneratePresignedUrl() throws Exception {
         // Setup
         // Run the test
-        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test2","北京开放大学形考3.pdf");
-
+        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test","anzhaung/tt/1-PDA通用安装包.rar");
+        System.out.println(result);
         // Verify the results
         assertNotNull(result);
     }
