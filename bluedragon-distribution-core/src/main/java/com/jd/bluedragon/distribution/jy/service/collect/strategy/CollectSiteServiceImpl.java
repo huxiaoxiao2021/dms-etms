@@ -15,10 +15,12 @@ import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -67,7 +69,7 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
             CollectReportDto collectReportDto = new CollectReportDto();
-            if(collectionAggCodeCounter.getAggMark() != null) {
+            if(NumberUtils.isCreatable(collectionAggCodeCounter.getAggMark())) {
                 String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(collectReportReqDto.getCurrentOperate().getSiteCode(), Integer.valueOf(collectionAggCodeCounter.getAggMark()));
                 collectReportDto.setGoodsAreaCode(goodsAreaCode);
                 collectReportDto.setNextSiteCode(Integer.valueOf(collectionAggCodeCounter.getAggMark()));

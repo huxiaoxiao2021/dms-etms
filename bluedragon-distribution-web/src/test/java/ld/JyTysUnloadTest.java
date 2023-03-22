@@ -192,32 +192,18 @@ public class JyTysUnloadTest {
                         "        }";
                 User userInfo = JSONObject.parseObject(jsonUser, User.class);
 
-                String json = "{\n" +
-                        "        \"bizId\": \"XCZJ23032100000026\",\n" +
-                        "        \"collectType\": 202,\n" +
-                        "        \"currentOperate\": {\n" +
-                        "            \"dmsCode\": \"010K001\",\n" +
-                        "            \"groupCode\": \"G00000052005\",\n" +
-                        "            \"operateTime\": 1679365075203,\n" +
-                        "            \"orgId\": 6,\n" +
-                        "            \"orgName\": \"华北\",\n" +
-                        "            \"positionCode\": \"GW00108005\",\n" +
-                        "            \"siteCode\": 10186,\n" +
-                        "            \"siteName\": \"北京凉水河快运中心\"\n" +
-                        "        },\n" +
-                        "        \"manualCreateTaskFlag\": true,\n" +
-                        "        \"pageNo\": 1,\n" +
-                        "        \"pageSize\": 30,\n" +
-                        "        \"user\": {\n" +
-                        "            \"userCode\": 18225,\n" +
-                        "            \"userErp\": \"xumigen\",\n" +
-                        "            \"userName\": \"徐迷根\"\n" +
-                        "        }\n" +
-                        "    }";
-
+                String json = "{\n" + "    \"bizId\":\"SC23032200029252\",\n" + "    \"collectType\":201,\n"
+                    + "    \"currentOperate\":{\n" + "        \"dmsCode\":\"010F002\",\n"
+                    + "        \"groupCode\":\"G00000048001\",\n" + "        \"operateTime\":1679482964420,\n"
+                    + "        \"orgId\":6,\n" + "        \"orgName\":\"华北\",\n"
+                    + "        \"positionCode\":\"GW00002001\",\n" + "        \"siteCode\":10186,\n"
+                    + "        \"siteName\":\"北京凉水河快运中心\"\n" + "    },\n" + "    \"manualCreateTaskFlag\":false,\n"
+                    + "    \"pageNo\":1,\n" + "    \"pageSize\":30,\n" + "    \"user\":{\n"
+                    + "        \"userCode\":17331,\n" + "        \"userErp\":\"wuyoude\",\n"
+                    + "        \"userName\":\"吴有德\"\n" + "    }\n" + "}";
                 CollectReportReqDto param2 = JSONObject.parseObject(json, CollectReportReqDto.class);
-                param2.setUser(user);
-                param2.setCurrentOperate(currentOperate);
+//                param2.setUser(user);
+//                param2.setCurrentOperate(currentOperate);
                 InvokeResult<CollectReportResDto>  res = jyUnloadVehicleTysService.findCollectReportPage(param2);
                 System.out.println("end");
             }catch (Exception e) {
