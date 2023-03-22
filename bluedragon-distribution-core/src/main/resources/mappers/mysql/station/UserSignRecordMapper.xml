@@ -1020,7 +1020,7 @@
 	         and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
 	         and  (<![CDATA[ r.sign_in_time > #{signOutTime,jdbcType=TIMESTAMP} or r.sign_out_time < #{signInTime,jdbcType=TIMESTAMP}]]>)
 	         <if test="refRecordId != null" >
-	            and t.id != #{refRecordId,jdbcType=BIGINT}  
+	            and r.id != #{refRecordId,jdbcType=BIGINT}  
 	         </if>
     </select>    
 </mapper>
