@@ -186,6 +186,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			result.toFail("操作人Erp不能为空！");
 			return result;
 		}
+		Date currentTime = new Date();
 		Integer flowType = addRequest.getFlowType();
 		UserSignRecordFlow signData = null;
 		Date signInTimeNew = null;
@@ -215,6 +216,10 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				result.toFail("签退时间需要大于签到时间！");
 				return result;
 			}
+			if(signOutTimeNew.after(currentTime)) {
+				result.toFail("签退时间不能大于当前时间！");
+				return result;
+			}
 			if(DateHelper.betweenHours(signInTimeNew, signOutTimeNew) > maxSignRangeHours) {
 				result.toFail("签到时长不能大于"+maxSignRangeHours+"小时！");
 				return result;
@@ -223,6 +228,10 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			
 			Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
 			Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
+			//签到时间不能大于当前时间
+			if(signInEnd.after(currentTime)) {
+				signInEnd = currentTime;
+			}
 			
 			//修改-签到时间范围限制
 			if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
