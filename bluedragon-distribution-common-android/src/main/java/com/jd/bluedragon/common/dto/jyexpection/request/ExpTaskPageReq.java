@@ -24,6 +24,11 @@ public class ExpTaskPageReq extends ExpBaseReq {
 
     private String gridRid;
 
+    /**
+     * 获取异常完结数据范围限制天数
+     */
+    private Integer limitDay;
+
     public String getGridRid() {
         return gridRid;
     }
@@ -102,5 +107,13 @@ public class ExpTaskPageReq extends ExpBaseReq {
 
     public void setHandlerErp(String handlerErp) {
         this.handlerErp = handlerErp;
+    }
+
+    public Integer getLimitDay() {
+        return limitDay;
+    }
+
+    public void setLimitDay(Integer limitDay) {
+        this.limitDay = limitDay;
     }
 }

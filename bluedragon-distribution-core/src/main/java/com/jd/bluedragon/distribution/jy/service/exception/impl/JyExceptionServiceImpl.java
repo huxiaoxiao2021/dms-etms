@@ -267,7 +267,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         int completeExpDayNumLimit = uccPropertyConfiguration.getCompleteExpDayNumLimit();
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
         List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
+        logger.info("getCompleteStatusStatistic-入参gridRid-{} limit-{}",gridRid,completeExpDayNumLimit);
         List<StatisticsByStatusDto> completeStatusStatistic = jyBizTaskExceptionDao.getCompleteStatusStatistic(gridRid,completeExpDayNumLimit);
+        logger.info("getCompleteStatusStatistic-出参-{}",JSON.toJSONString(completeStatusStatistic));
         statisticStatusResps.addAll(specialStatusStatistic);
         statisticStatusResps.addAll(completeStatusStatistic);
         HashMap<Integer, Integer> countMap = new HashMap<>();
@@ -462,8 +464,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PROCESS.getCode())) {
             req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             req.setHandlerErp(req.getUserErp());
+        }else if(Objects.equals(req.getStatus(), JyExpStatusEnum.COMPLETE.getCode())){
+            int completeExpDayNumLimit = uccPropertyConfiguration.getCompleteExpDayNumLimit();
+            req.setLimitDay(completeExpDayNumLimit);
         }
-
+        logger.info("queryExceptionTaskList 查询条件-{}",JSON.toJSONString(req));
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
