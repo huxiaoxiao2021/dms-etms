@@ -70,9 +70,9 @@ public class CollectionEntityConverter {
                 .aggCode(aggCode1)
                 .aggCodeType(aggCodeType)
                 .aggMark(
-                    itemMarkCounters.parallelStream().map(CollectionCollectedMarkCounter::getAggMark).findAny().orElse("")
+                    itemMarkCounters.parallelStream().map(CollectionCollectedMarkCounter::getAggMark).filter(StringUtils::isNotEmpty).findAny().orElse("")
                 )
-                .ts(itemMarkCounters.parallelStream().map(CollectionCollectedMarkCounter::getTs).max(Timestamp::compareTo).orElse(new Timestamp(0)))
+                .ts(itemMarkCounters.parallelStream().map(CollectionCollectedMarkCounter::getTs).filter(Objects::nonNull).max(Timestamp::compareTo).orElse(new Timestamp(0)))
                 .sumScanNum(
                     itemMarkCounters.parallelStream()
                         .filter(

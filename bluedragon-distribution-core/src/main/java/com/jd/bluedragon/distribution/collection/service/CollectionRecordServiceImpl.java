@@ -567,38 +567,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
-
-
-        List<CollectionAggCodeCounter> aggCodeCounters =
-            new ArrayList<>(
-                this.sumCollectionByCollectionCodeAndStatus(collectionCodeEntities, null, CollectionAggCodeTypeEnum.waybill_code, aggCode, collectedMark, 10, 0)
-            );
-
-        if (CollectionUtils.isEmpty(aggCodeCounters)) {
-            return null;
-        }
-
-        if (aggCodeCounters.size() == 1) {
-             return aggCodeCounters.get(0);
-        }
-
-        if (aggCodeCounters.parallelStream().allMatch(collectionAggCodeCounter ->
-            collectionAggCodeCounter.getCollectedNum() == 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0)) {
-            return aggCodeCounters.parallelStream().findAny().orElse(null);
-        } else {
-            return aggCodeCounters.parallelStream().filter(collectionAggCodeCounter ->
-                collectionAggCodeCounter.getCollectedNum() > 0 || collectionAggCodeCounter.getNoneCollectedNum() > 0).findFirst().orElse(null);
-        }
-
-
-    }
-
-    @Override
-    public CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(
-        List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum,
-        String collectedMark) {
+    public CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
         if (CollectionUtils.isEmpty(collectionCodes) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null || StringUtils.isEmpty(collectedMark)) {
             log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntities), aggCode, aggCodeTypeEnum, collectedMark);
@@ -610,6 +580,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.error("根据aggCode查询集齐统计情况失败，参数为：{}-{}-{}",JSON.toJSONString(collectionCodes),aggCode, aggCodeTypeEnum);
             return null;
         }
+
+        collectionCollectedMarkCounters.forEach(collectionCollectedMarkCounter -> {
+            collectionCollectedMarkCounter.setAggCode(aggCode);
+            collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
+        });
 
         List<CollectionAggCodeCounter> collectionAggCodeCounters = CollectionEntityConverter
             .convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionCollectedMarkCounters, collectedMark);
@@ -651,34 +626,6 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
         return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, collectedMark, false);
-    }
-
-    @Override
-    public List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
-        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
-            log.info("待查询的集合ID不存在，查询失败");
-            return Collections.emptyList();
-        }
-
-        List<String> collectionCodes = collectionCodeEntities.parallelStream()
-            .map(CollectionCodeEntity::getCollectionCode)
-            .filter(StringUtils::isNotEmpty)
-            .collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(collectionCodes)) {
-            return Collections.emptyList();
-        }
-
-        List<CollectionCounter> collectionCounters = collectionRecordDao.sumCollectionRecordByCollectionCode(collectionCodes, aggCodeTypeEnum);
-
-        return collectionCounters.parallelStream()
-            .peek(
-                collectionCounter ->
-                    collectionCounter.setNoneCollectedNum(collectionCounter.getSumScanNum() - collectionCounter.getCollectedNum())
-            )
-            .collect(Collectors.toList());
-
     }
 
     @Override

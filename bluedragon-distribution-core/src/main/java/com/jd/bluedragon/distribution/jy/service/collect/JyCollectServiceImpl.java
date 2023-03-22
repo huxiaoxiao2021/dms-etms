@@ -506,7 +506,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
         String waybillCode = WaybillUtil.getWaybillCode(reqDto.getScanCode());
         CollectionAggCodeTypeEnum typeEnum = CollectionAggCodeTypeEnum.waybill_code;
-        CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+        CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
                 collectionCodeEntityList, waybillCode, typeEnum, reqDto.getBizId());
         if(log.isInfoEnabled()) {
             log.info("{}查询集齐服务,参数={},运单号={},bizId={},集齐服务返回统计结果res={}",

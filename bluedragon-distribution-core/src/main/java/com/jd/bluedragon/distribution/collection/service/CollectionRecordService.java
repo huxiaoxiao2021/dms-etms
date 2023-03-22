@@ -71,16 +71,6 @@ public interface CollectionRecordService {
      * @param collectedMark 集齐时的标示，用于统计或排序
      * @return
      */
-    CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
-
-    /**
-     * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
-     * @param collectionCodeEntities 带有集齐ID的查询条件，
-     * @param aggCode 聚合统计号，例如JDVA0000000100101
-     * @param aggCodeTypeEnum 聚合统计号类型，例如：CollectionAggCodeTypeEnum#waybill_code 表示按运单号聚合
-     * @param collectedMark 集齐时的标示，用于统计或排序
-     * @return
-     */
     CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
@@ -97,14 +87,6 @@ public interface CollectionRecordService {
 
     Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
-
-    /**
-     * 根据待集齐集合ID查询待集齐集合ID的待集齐情况
-     * @param collectionCodeEntities
-     * @return
-     */
-    @Deprecated
-    List<CollectionCounter> sumCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 根据待集齐集合和状态查询aggCode统计情况

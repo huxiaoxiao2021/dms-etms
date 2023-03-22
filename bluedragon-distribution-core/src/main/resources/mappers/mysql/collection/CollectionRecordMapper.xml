@@ -203,11 +203,10 @@
 
 	</select>
 
-<!-- fixme -->
 	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
 			resultType="java.lang.Integer">
 		SELECT
-			count(distinct agg_code)
+			count(1)
 		FROM
 			collection_record_detail
 		<where>
@@ -222,6 +221,7 @@
 			and collected_status = 0
 			and yn = 1
 		</where>
+		group by agg_code
 	</select>
 
 	<select id="countCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
@@ -306,26 +306,6 @@
 		</where>
 		group by
 			collected_status,collected_mark
-	</select>
-
-	<select id="sumCollectionRecordByCollectionCode" parameterType="java.util.Map"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCounter">
-
-		select
-			collection_code as collectionCode, count(agg_code) as sumScanNum, sum(is_collected) as collectedNum,
-		sum(is_extra_collected) as extraCollectedNum, max(ts) as ts
-		FROM
-			collection_record
-		where
-			collection_code in
-			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-				#{collectionCode, jdbcType=VARCHAR}
-			</foreach>
-			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			and yn = 1
-		group by
-			collection_code
-
 	</select>
 
 	<select id="sumCollectionAggCodeByCollectionCode" parameterType="java.util.Map"

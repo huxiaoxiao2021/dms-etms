@@ -197,7 +197,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 //            null, CollectionAggCodeTypeEnum.waybill_code, "SC23032100029221"
 //        )));
 
-        System.out.println(JsonHelper.toJson(collectionRecordService.countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(
+        System.out.println(JsonHelper.toJson(collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
             collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
             "JDX000233100307", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029225"
         )));
@@ -225,10 +225,15 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     @Test
     public void sumCollectionByCollectionCode() {
         System.out.println(JsonHelper.toJson(
-            collectionRecordService.sumCollectionByCollectionCode(
+            collectionRecordService.countCollectionAggCodeNumByCollectionCodeInnerMark(
                 collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
                 ,CollectionAggCodeTypeEnum.waybill_code, ""
         )));
+        System.out.println(JsonHelper.toJson(
+            collectionRecordService.countCollectionAggCodeNumByCollectionCodeOutMark(
+                collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
+                ,CollectionAggCodeTypeEnum.waybill_code, ""
+            )));
     }
 
     /**
