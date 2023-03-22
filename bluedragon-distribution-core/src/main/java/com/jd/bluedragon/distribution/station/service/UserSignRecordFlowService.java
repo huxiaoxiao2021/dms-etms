@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -25,7 +26,13 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
  *
  */
 public interface UserSignRecordFlowService {
-
+	/**
+	 * 签到日期-不能小于上个计提日期
+	 * @param signInTime
+	 * @param signInTimeNew
+	 * @return
+	 */
+	boolean checkSignInTime(Date signInTime,Date signInTimeNew);
 	/**
 	 * 新增一条记录
 	 * @param userSignRecordFlow

@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -77,11 +76,6 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	 */
 	@Value("${beans.userSignRecordFlowJsfService.maxSignRangeHours:18}")
 	private int maxSignRangeHours;
-	/**
-	 * 计提日
-	 */
-	@Value("${beans.userSignRecordFlowJsfService.accrualDay:21}")
-	private int accrualDay;
 	
 	@Autowired
 	FlowServiceManager flowServiceManager;
@@ -226,15 +220,14 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			}
 			signDateNew = DateHelper.parseDate(DateHelper.formatDate(signInTimeNew));
 			
-			Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
-			Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
-			//签到时间不能大于当前时间
-			if(signInEnd.after(currentTime)) {
-				signInEnd = currentTime;
-			}
-			
 			//修改-签到时间范围限制
 			if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
+				Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
+				Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
+				//签到时间不能大于当前时间
+				if(signInEnd.after(currentTime)) {
+					signInEnd = currentTime;
+				}
 				if(signInTimeNew.before(signInStart)|| signInTimeNew.after(signInEnd)) {
 					result.toFail("签到时间修改只能是【"+DateHelper.formatDateTime(signInStart) +"~" +DateHelper.formatDateTime(signInEnd)+"】！");
 					return result;
@@ -280,7 +273,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			signData.setSignDateNew(signDateNew);
 		}
 		
-		if(!checkSignDate(signData.getSignDate(),signDateNew)) {
+		if(!userSignRecordFlowService.checkSignInTime(signData.getSignInTime(),signInTimeNew)) {
 			result.toFail("提交失败，修改时间为上一个计提周期，无法修改！");
 			return result;
 		}
@@ -302,22 +295,6 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		loadGridData(signData,new HashMap<>());
 		addRequest.setUserSignRecordFlow(signData);
 		return result;
-	}
-	/**
-	 * 签到日期-不能小于上个计提日期
-	 * @param signDate
-	 * @param signDateNew
-	 * @return
-	 */
-	private boolean checkSignDate(Date signDate,Date signDateNew) {
-        Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay);
-		if(signDate != null && !signDate.after(lastAccrualDate)) {
-			return false;
-		}
-		if(signDateNew != null && !signDateNew.after(lastAccrualDate)) {
-			return false;
-		}
-		return true;
 	}
 	private UserSignRecordFlow toUserSignRecordFlow(UserSignRecord signData) {
 		if(signData == null) {

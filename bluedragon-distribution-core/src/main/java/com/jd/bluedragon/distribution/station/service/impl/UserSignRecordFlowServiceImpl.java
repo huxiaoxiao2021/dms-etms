@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanServi
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.HistoryApprove;
 
@@ -76,11 +77,32 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	private JyGroupService jyGroupService;
 	
 	/**
-	 * 签到作废-小时数限制
+	 * 计提日-日期
 	 */
-	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
-	private double deleteCheckHours;
+	@Value("${beans.userSignRecordFlowService.accrualDay:21}")
+	private int accrualDay;
+	/**
+	 * 计提时间-小时
+	 */
+	@Value("${beans.userSignRecordFlowService.accrualHour:7}")
+	private int accrualHour;
 	
+	/**
+	 * 签到日期-不能小于上个计提日期
+	 * @param signInTime
+	 * @param signInTimeNew
+	 * @return
+	 */
+	public boolean checkSignInTime(Date signInTime,Date signInTimeNew) {
+        Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay,accrualHour,0);
+		if(signInTime != null && !signInTime.after(lastAccrualDate)) {
+			return false;
+		}
+		if(signInTimeNew != null && !signInTimeNew.after(lastAccrualDate)) {
+			return false;
+		}
+		return true;
+	}
 	@Override
 	public boolean addData(UserSignRecordFlow userSignRecordFlow) {
 		return userSignRecordFlowDao.insert(userSignRecordFlow) == 1;
@@ -102,6 +124,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(log.isDebugEnabled()) {
 			log.debug("开始处理流程单号-pass:{},流程数据{}",processInstanceNo,JsonHelper.toJson(flowData));
 		}
+		boolean checkSignInTime = this.checkSignInTime(flowData.getSignInTime(), flowData.getSignInTimeNew());
 		Integer flowType = flowData.getFlowType();
 		UserSignRecordFlow updateData = new UserSignRecordFlow();
 		updateData.setId(flowData.getId());
@@ -112,6 +135,10 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		}else if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)) {
 			updateData.setFlowStatus(SignFlowStatusEnum.DELETE_COMPLETE.getCode());
 		}
+		//校验签到时间是否上个计提周期
+		if(!checkSignInTime) {
+			updateData.setFlowStatus(SignFlowStatusEnum.TIMEOUT_CANCEL.getCode());
+		}
 		updateData.setFlowUpdateUser(flowUser);
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
@@ -119,6 +146,10 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(log.isDebugEnabled()) {
 			log.debug("更新流程状态：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
 		}
+		if(!checkSignInTime) {
+			log.warn("审批超时，审批通过时间在当前计提周期({}号{}点)结束之前：流程单号{},更新数据{},更新结果{}",accrualDay,accrualHour,processInstanceNo,JsonHelper.toJson(updateData),updateCount);
+			return;
+		}		
 		UserSignRecord signData = toUserSignRecord(flowData);
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			signData.setId(null);

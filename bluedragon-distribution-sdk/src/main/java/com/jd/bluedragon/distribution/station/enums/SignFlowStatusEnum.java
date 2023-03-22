@@ -19,7 +19,8 @@ public enum SignFlowStatusEnum {
 	COMPLETE_CANCEL(7,"取消"),
 	COMPLETE_SKIP(8,"流程结束(未审批)"),
 	ABNORMAL(9,"异常"),
-	FAIL(10,"失败")
+	FAIL(10,"失败"),
+	TIMEOUT_CANCEL(41,"取消（审批超时）")
     ;
 	
 	private SignFlowStatusEnum(Integer code, String name) {

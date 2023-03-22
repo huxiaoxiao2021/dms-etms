@@ -227,10 +227,10 @@ public class DateHelper {
      * @param accrualDay 计提日
      * @return
      */
-    public static Date getLastAccrualDate(int accrualDay) {
+    public static Date getLastAccrualDate(int accrualDay,int accrualHour,int accrualMinute) {
     	Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, accrualHour);
+        calendar.set(Calendar.MINUTE, accrualMinute);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
@@ -248,7 +248,7 @@ public class DateHelper {
     public static void main(String[] args) {
 
         for(int i=1;i<=28;i++) {
-        	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i))));
+        	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
         }
         
         Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
