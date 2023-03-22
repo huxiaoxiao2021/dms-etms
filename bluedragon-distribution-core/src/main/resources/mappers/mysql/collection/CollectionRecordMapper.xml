@@ -112,6 +112,7 @@
 		<where>
 			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
 	</update>
@@ -142,10 +143,8 @@
 			collection_record
 		<where>
 			collection_code = #{collectionCode, jdbcType=VARCHAR}
-			<if test="aggCode != null and aggCodeType != null">
-				and agg_code = #{aggCode, jdbcType=VARCHAR}
-				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			</if>
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			<if test="isCollected != null">
 				and is_collected = #{isCollected, jdbcType=INTEGER}
 			</if>
@@ -167,7 +166,8 @@
 			collection_code = #{collectionCode, jdbcType=VARCHAR}
 			<if test="scanCode != null">
 				and scan_code = #{scanCode, jdbcType=VARCHAR}
-			</if>
+			</if >
+<!--			// todo else -->
 			<if test="aggCode != null and aggCodeType != null">
 				and agg_code = #{aggCode, jdbcType=VARCHAR}
 				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
@@ -179,17 +179,31 @@
 		</where>
 	</select>
 
-	<select id="countCollectionRecordByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
-		SELECT
-			count(1)
-		FROM
-			collection_record
+	<select id="countCollectionByAggCodeAndCollectionCodes" parameterType="java.util.Map"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
+		select
+			collection_code as collectionCode,
+			collected_status as collectedStatus,
+			collected_mark as collectedMark,
+			count(1) as number,
+			max(ts) as ts
+		from
+			collection_record_detail
 		<where>
-			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			collection_code in
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
+		group by
+			collection_code, collected_status, collected_mark
+
 	</select>
 
+<!-- fixme -->
 	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
 			resultType="java.lang.Integer">
 		SELECT
@@ -265,17 +279,7 @@
 		) a
 	</select>
 
-	<select id="countCollectionRecordDetailByCollectionCode" resultType="java.lang.Integer" parameterType="java.lang.String">
-		SELECT
-			count(1)
-		FROM
-			collection_record_detail
-		<where>
-			collection_code = #{collectionCode, jdbcType=VARCHAR}
-			and yn = 1
-		</where>
-	</select>
-
+<!-- todo what	-->
 	<select id="findAggCodeByScanCode" parameterType="CollectionRecordDetailPo" resultMap="collectionRecordDetailMap">
 		SELECT
 			collection_code, agg_code, agg_code_type
@@ -291,7 +295,7 @@
 	<select id="sumAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
 		SELECT
-			collection_code, agg_code, agg_code_type, collected_status, count(collected_status) as num
+			collection_code, agg_code, agg_code_type, collected_status, collect_mark, count(collected_status) as num
 		FROM
 			collection_record_detail
 		<where>
@@ -301,23 +305,7 @@
 			and yn = 1
 		</where>
 		group by
-			agg_code, agg_code_type, collection_code, collected_status
-	</select>
-
-	<select id="countAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter">
-		SELECT
-			collection_code, agg_code, agg_code_type, count(scan_code) as sumScanNum, sum(is_collected) as collectedNum,
-		sum(is_extra_collected) as extraCollectedNum, max(ts) as ts
-		FROM
-			collection_record_detail
-		<where>
-			collection_code = #{collectionCode, jdbcType=VARCHAR}
-			and agg_code = #{aggCode, jdbcType=VARCHAR}
-			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			and yn = 1
-		</where>
-		group by agg_code, agg_code_type, collection_code
+			collected_status,collected_mark
 	</select>
 
 	<select id="sumCollectionRecordByCollectionCode" parameterType="java.util.Map"
@@ -375,28 +363,6 @@
 		order by cr.agg_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
-	</select>
-
-	<select id="sumCollectedByCollectionCodesWithCollectedMark" parameterType="java.util.Map"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
-
-		SELECT
-			collection_code as collectionCode, agg_code as aggCode, agg_code_type as aggCodeType, collected_status as
-			collectedStatus, collected_mark as collectedMark, count(1) as num , max(ts) as ts,
-		FROM
-			collection_record_detail
-		<where>
-			collection_code in
-			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-				#{collectionCode, jdbcType=VARCHAR}
-			</foreach>
-			<if test="collectedMark != null">
-				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
-			</if>
-			and yn = 1
-		</where>
-		group by
-			collection_code, agg_code, agg_code_type, collected_status, collected_mark
 	</select>
 
 	<select id="queryCollectedDetailByCollectionAndAggCode" parameterType="CollectionRecordPo"

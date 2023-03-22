@@ -38,15 +38,6 @@ public interface CollectionRecordService {
 
     /**
      * 初始化待集齐集合对象，包括collection_record统计主表和collection_record_detail统计明细表
-     * 全量模式，按照整个待集齐集合进行初始化
-     * @param collectionCreatorEntity 待集齐集合的创建对象
-     * @return 返回是否创建成功
-     */
-    boolean initFullCollection(CollectionCreatorEntity collectionCreatorEntity, Result<Boolean> result);
-
-
-    /**
-     * 初始化待集齐集合对象，包括collection_record统计主表和collection_record_detail统计明细表
      * 增量模式，按照待集齐集合下某个aggCode进行增量初始化
      * 重要约束，为了保证增量模式下的操作效率，一次增量初始化时，只能保证一个aggCodeType下，最多只有一个aggCode。
      * 简而言之，如果按照运单(aggCodeType==运单号)，那么最多只能包含一个运单(aggCode==&{waybillCode0})
@@ -81,6 +72,17 @@ public interface CollectionRecordService {
      * @return
      */
     CollectionAggCodeCounter countCollectionStatusByAggCodeAndCollectionCodeWithCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+
+    /**
+     * 查询某一个待集齐集合下的aggCode的集齐情况，以及collectedMark相同的数量
+     * @param collectionCodeEntities 带有集齐ID的查询条件，
+     * @param aggCode 聚合统计号，例如JDVA0000000100101
+     * @param aggCodeTypeEnum 聚合统计号类型，例如：CollectionAggCodeTypeEnum#waybill_code 表示按运单号聚合
+     * @param collectedMark 集齐时的标示，用于统计或排序
+     * @return
+     */
+    CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 通过查询元素定位到所有的满足该元素下的所有的集合的未集齐aggCode数量

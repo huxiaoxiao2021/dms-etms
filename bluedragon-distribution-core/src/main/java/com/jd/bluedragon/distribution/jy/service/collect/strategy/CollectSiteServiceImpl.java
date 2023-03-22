@@ -82,8 +82,9 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
-        tsSetter.setTimeStamp(collectionAggCodeCounters.parallelStream().map(CollectionAggCodeCounter::getTs).max(
-            Timestamp::compareTo).orElse(new Timestamp(0)).getTime());
+        tsSetter.setTimeStamp(collectionAggCodeCounters.parallelStream().map(
+            collectionAggCodeCounter -> collectionAggCodeCounter.getTs() != null? collectionAggCodeCounter.getTs().getTime() : 0).max(
+            Long::compareTo).orElse(0L));
         return res;
     }
 

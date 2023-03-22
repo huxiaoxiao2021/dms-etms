@@ -66,10 +66,6 @@ public class CollectionRecordDao {
         return this.sqlSession.update(NAMESPACE.concat(".updateCollectionRecordDetail"), collectionRecordDetailPo);
     }
 
-    public Integer countCollectionRecordByCollectionCode(String collectionCode) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectionRecordByCollectionCode"), collectionCode);
-    }
-
     public Integer countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         Map<String,Object> param = new HashMap<>();
         param.put("collectionCodes", collectionCodes);
@@ -88,27 +84,12 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
     }
 
-    public List<CollectionScanMarkCounter> sumCollectedByCollectionCodesWithCollectedMark(List<String> collectionCodes, String collectedMark) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("collectionCodes", collectionCodes);
-        param.put("collectedMark", collectedMark);
-        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectedByCollectionCodesWithCollectedMark"), param);
-    }
-
-    public Integer countCollectionRecordDetailByCollectionCode(String collectionCode) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectionRecordDetailByCollectionCode"), collectionCode);
-    }
-
     public List<CollectionRecordDetailPo> findAggCodeByScanCode(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByScanCode"), collectionRecordDetailPo);
     }
 
     public List<CollectionScanMarkCounter> sumAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectList(NAMESPACE.concat(".sumAggCollectedByAggCode"), collectionRecordDetailPo);
-    }
-
-    public CollectionAggCodeCounter countAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCollectedByAggCode"), collectionRecordDetailPo);
     }
 
     public List<CollectionCounter> sumCollectionRecordByCollectionCode(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
@@ -138,6 +119,14 @@ public class CollectionRecordDao {
         param.put("limit", limit);
         param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".queryCollectedDetailByCollectionAndAggCode"), param);
+    }
+
+    public List<CollectionCollectedMarkCounter> countCollectionByAggCodeAndCollectionCodes(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCode", aggCode);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        return this.sqlSession.selectList(NAMESPACE.concat(".countCollectionByAggCodeAndCollectionCodes"), param);
     }
 
     public void setSqlSession(SqlSession sqlSession) {
