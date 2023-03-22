@@ -272,7 +272,7 @@
 			<if test="innerMark != null and innerMark == true">
 				having	c = 1
 			</if>
-			<if test="innerMark != null and innerMark == true">
+			<if test="innerMark != null and innerMark == false">
 				having	c > 1
 			</if>
 
