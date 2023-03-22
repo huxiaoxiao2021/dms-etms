@@ -28,6 +28,11 @@ public class JyExCustomerNotifyMQ implements Serializable {
     private String waybillCode;
 
     /**
+     * 操作人ERP
+     */
+    private String operateErp;
+
+    /**
      * 客户回传状态
      */
     private Integer notifyStatus;
@@ -54,6 +59,14 @@ public class JyExCustomerNotifyMQ implements Serializable {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public String getOperateErp() {
+        return operateErp;
+    }
+
+    public void setOperateErp(String operateErp) {
+        this.operateErp = operateErp;
     }
 
     public Integer getNotifyStatus() {

@@ -1025,8 +1025,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 logger.info("客服回传其他状态不做处理!");
                 return;
         }
-        // 更新异常任务表状态 TODO erp不确定，待客服
-        updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), Constants.SYS_CODE_DMS, new Date(), true);
+        // 更新异常任务表状态
+        updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), jyExCustomerNotifyMQ.getOperateErp(), new Date(), true);
     }
 
     private void kfNotifyCancelDeal(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
