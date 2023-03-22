@@ -211,12 +211,8 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				result.toFail("签到、签退时间不能为空！");
 				return result;
 			}
-			if(signOutTimeNew.before(signInTimeNew)) {
-				result.toFail("签到时间不能大于签退时间！");
-				return result;
-			}
-			if(signOutTimeNew.before(signInTimeNew)) {
-				result.toFail("签到时间不能大于签退时间！");
+			if(!signOutTimeNew.after(signInTimeNew)) {
+				result.toFail("签退时间需要大于签到时间！");
 				return result;
 			}
 			if(DateHelper.betweenHours(signInTimeNew, signOutTimeNew) > maxSignRangeHours) {
