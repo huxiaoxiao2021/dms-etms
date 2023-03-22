@@ -295,7 +295,7 @@
 	<select id="sumAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
 		SELECT
-			collection_code, agg_code, agg_code_type, collected_status, collect_mark, count(collected_status) as num
+			collection_code, agg_code, agg_code_type, collected_status, collected_mark, count(collected_status) as num
 		FROM
 			collection_record_detail
 		<where>

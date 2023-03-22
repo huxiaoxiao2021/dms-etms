@@ -100,16 +100,6 @@ public class JyCollectServiceImpl implements JyCollectService{
         InvokeResult<CollectReportResDto> res = new InvokeResult<>();
         CollectReportResDto resData = new CollectReportResDto();
         res.setData(resData);
-        //空任务只有在库集齐
-//        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
-//                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
-//            resData.setCollectReportStatisticsDtoList(null);
-//            resData.setCollectReportDtoList(null);
-//            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
-//            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-//            resData.setManualCreateTaskFlag(true);
-//            return res;
-//        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
         //集齐运单列表
