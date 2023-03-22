@@ -775,6 +775,12 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  异常-报废审批异步处理  -->
+    <bean id="scrapApproveProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.syncScrapApprove}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
     <!--  异常-报废详情通知  -->
     <bean id="dmsScrapNoticeProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.exception.scrapNotice}" />
