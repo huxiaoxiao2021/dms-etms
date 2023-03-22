@@ -12,23 +12,29 @@ import java.io.Serializable;
 public class AutoCloseJyBizTaskConfig implements Serializable {
     private static final long serialVersionUID = -1336367837141577207L;
 
-    private Integer waitUnloadNotFinish;
+    /**
+     * 延迟时间，单位分钟
+     */
+    private Integer waitUnloadNotFinishLazyTime;
 
-    private Integer unloadingNotFinish;
+    /**
+     * 延迟时间，单位分钟
+     */
+    private Integer unloadingNotFinishLazyTime;
 
-    public Integer getWaitUnloadNotFinish() {
-        return waitUnloadNotFinish;
+    public Integer getWaitUnloadNotFinishLazyTime() {
+        return waitUnloadNotFinishLazyTime;
     }
 
-    public void setWaitUnloadNotFinish(Integer waitUnloadNotFinish) {
-        this.waitUnloadNotFinish = waitUnloadNotFinish;
+    public void setWaitUnloadNotFinishLazyTime(Integer waitUnloadNotFinishLazyTime) {
+        this.waitUnloadNotFinishLazyTime = waitUnloadNotFinishLazyTime;
     }
 
-    public Integer getUnloadingNotFinish() {
-        return unloadingNotFinish;
+    public Integer getUnloadingNotFinishLazyTime() {
+        return unloadingNotFinishLazyTime;
     }
 
-    public void setUnloadingNotFinish(Integer unloadingNotFinish) {
-        this.unloadingNotFinish = unloadingNotFinish;
+    public void setUnloadingNotFinishLazyTime(Integer unloadingNotFinishLazyTime) {
+        this.unloadingNotFinishLazyTime = unloadingNotFinishLazyTime;
     }
 }

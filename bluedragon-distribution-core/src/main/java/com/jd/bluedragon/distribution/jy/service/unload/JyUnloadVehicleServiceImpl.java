@@ -1052,7 +1052,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
             // 以解封车时间为准
             final Date operateTime = new Date();
-            final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getWaitUnloadNotFinish() * 60 * 60 * 1000L;
+            final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getWaitUnloadNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
 
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));

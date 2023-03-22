@@ -38,7 +38,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -433,7 +431,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             }
             // 计算卸车时间推后的执行时间
             final Date operateTime = unloadScanDto.getOperateTime();
-            final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinish() * 60 * 60 * 1000L;
+            final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
             logger.info("pushBizTaskAutoCloseTask 作业工作台自动关闭任务 bizId={}", autoCloseTaskPo.getBizId());

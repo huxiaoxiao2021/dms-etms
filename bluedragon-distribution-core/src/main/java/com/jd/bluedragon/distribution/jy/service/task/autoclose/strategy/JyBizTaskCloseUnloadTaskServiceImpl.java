@@ -118,9 +118,9 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
                         AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
                         if(autoCloseJyBizTaskConfig == null){
                             autoCloseJyBizTaskConfig = new AutoCloseJyBizTaskConfig();
-                            autoCloseJyBizTaskConfig.setUnloadingNotFinish(4);
+                            autoCloseJyBizTaskConfig.setUnloadingNotFinishLazyTime(4);
                         }
-                        final long executeTimeMillSeconds = unloadBizLastScanTimeVal + autoCloseJyBizTaskConfig.getUnloadingNotFinish() * 60 * 60 * 1000L;
+                        final long executeTimeMillSeconds = unloadBizLastScanTimeVal + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
                         Task taskUpdate = new Task();
                         taskUpdate.setExecuteTime(new Date(executeTimeMillSeconds));
                         taskUpdate.setId(autoCloseTaskPo.getTask().getId());
