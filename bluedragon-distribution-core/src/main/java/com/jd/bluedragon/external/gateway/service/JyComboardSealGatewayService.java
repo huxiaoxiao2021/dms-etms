@@ -21,7 +21,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
+import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
@@ -126,4 +128,11 @@ public interface JyComboardSealGatewayService {
    * 查询派车任务详情
    */
   JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+  /**
+   * 取消封车
+   * @param request
+   * @return
+   */
+  JdCResponse cancelSeal(JyCancelSealRequest request);
 }

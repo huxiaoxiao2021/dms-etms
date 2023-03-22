@@ -1483,6 +1483,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     record.setCreateUserName(request.getUser().getUserName());
     record.setUpdateUserErp(request.getUser().getUserErp());
     record.setUpdateUserName(request.getUser().getUserName());
+    record.setGroupCode(request.getGroupCode());
     return record;
   }
 

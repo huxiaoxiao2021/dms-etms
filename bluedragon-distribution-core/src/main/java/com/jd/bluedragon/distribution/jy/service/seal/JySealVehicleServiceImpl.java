@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
@@ -43,7 +45,10 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
@@ -134,6 +139,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     GroupBoardManager groupBoardManager;
     @Autowired
     BasicQueryWSManager basicQueryWSManager;
+    @Autowired
+    SendMService sendMService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -716,6 +723,49 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
     }
 
+    @Override
+    public InvokeResult cancelSeal(JyCancelSealRequest request) {
+        barCodeCheck(request);
+        cancelSealRequest cancelParams = assembleCancelParams(request);
+        NewSealVehicleResponse response= newsealVehicleService.cancelSeal(cancelParams);
+        if (Objects.equals(response.getCode(), JdResponse.CODE_OK)) {
+            return new InvokeResult(RESULT_SUCCESS_CODE,response.getMessage());
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,response.getMessage());
+    }
+
+    private void barCodeCheck(JyCancelSealRequest request) {
+        if (!ObjectHelper.isNotNull(request.getBarCode())){
+            throw new JyBizException("条形码不能为空！");
+        }
+        if (WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isBoxcode(request.getBarCode())){
+            SendM queryParams =new SendM();
+            queryParams.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            queryParams.setBoxCode(request.getBarCode());
+            queryParams.setOperateTime(DateHelper.addHoursByDay(new Date(),-Constants.DOUBLE_ONE));
+            List<SendM> sendMList =sendMService.findByParams(queryParams);
+            if (CollectionUtils.isEmpty(sendMList)){
+                throw new JyBizException("未找到该包裹/箱号的发货记录！");
+            }
+            request.setBatchCode(sendMList.get(0).getSendCode());
+
+        }
+        else if (BusinessUtil.isSendCode(request.getBarCode())){
+
+        }
+        else {
+            throw new JyBizException("暂不支持该类型条码，请扫描包裹号、箱号！");
+        }
+    }
+
+    private cancelSealRequest assembleCancelParams(JyCancelSealRequest request) {
+        cancelSealRequest cancelParams = new cancelSealRequest();
+        cancelParams.setBatchCode(request.getBatchCode());
+        cancelParams.setOperateTime(request.getOperateTime());
+        cancelParams.setOperateType(request.getOperateType());
+        cancelParams.setOperateUserCode(request.getOperateUserCode());
+        return cancelParams;
+    }
 
 
     public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {
