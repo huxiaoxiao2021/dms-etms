@@ -164,9 +164,6 @@
 				<if test="yn != null" >
 					yn,
 				</if>
-				<if test="ts != null" >
-					ts,
-				</if>
 			 	<if test="modeType != null">
 					mode_type,
 				</if>
@@ -284,9 +281,6 @@
 				<if test="yn != null" >
 					#{yn,jdbcType=TINYINT},
 				</if>
-				<if test="ts != null" >
-					#{ts,jdbcType=TIMESTAMP},
-				</if>
 			 	<if test="modeType != null">
 					#{modeType,jdbcType=TINYINT},
 				</if>
@@ -354,4 +348,15 @@
                      
         </where>
     </sql>
+    <select id="queryCountForCheckUnCompletedFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from user_sign_record_flow r
+        where r.yn = 1
+          and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+          and r.flow_status in 
+        <foreach collection="flowStatusList" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=INTEGER}
+        </foreach>          
+    </select>    
 </mapper>

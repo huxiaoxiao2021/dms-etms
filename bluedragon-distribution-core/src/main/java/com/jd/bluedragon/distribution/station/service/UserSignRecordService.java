@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -202,4 +203,10 @@ public interface UserSignRecordService {
 	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
 	
 	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
+	/**
+	 * 查询数量
+	 * @param checkQuery
+	 * @return
+	 */
+	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
 }

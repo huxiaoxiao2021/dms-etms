@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.query;
 
 import java.util.Date;
+import java.util.List;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -14,6 +15,10 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 public class UserSignRecordFlowQuery extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
+	/**
+	 * 关联签到表id
+	 */
+	private Long refRecordId;
 	/**
 	 * 机构编码
 	 */
@@ -68,6 +73,19 @@ public class UserSignRecordFlowQuery extends BasePagerCondition {
 	 * 签到日期-结束
 	 */
 	private Date signDateEnd;
+	/**
+	 * 签到时间
+	 */
+	private Date signInTime;
+
+	/**
+	 * 签退时间
+	 */
+	private Date signOutTime;
+	/**
+	 * 流程状态列表
+	 */
+	private List<Integer> flowStatusList;
 	/**
 	 * 分页-pageSize
 	 */
@@ -150,5 +168,29 @@ public class UserSignRecordFlowQuery extends BasePagerCondition {
 	}
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+	public Date getSignInTime() {
+		return signInTime;
+	}
+	public void setSignInTime(Date signInTime) {
+		this.signInTime = signInTime;
+	}
+	public Date getSignOutTime() {
+		return signOutTime;
+	}
+	public void setSignOutTime(Date signOutTime) {
+		this.signOutTime = signOutTime;
+	}
+	public List<Integer> getFlowStatusList() {
+		return flowStatusList;
+	}
+	public void setFlowStatusList(List<Integer> flowStatusList) {
+		this.flowStatusList = flowStatusList;
+	}
+	public Long getRefRecordId() {
+		return refRecordId;
+	}
+	public void setRefRecordId(Long refRecordId) {
+		this.refRecordId = refRecordId;
 	}
 }

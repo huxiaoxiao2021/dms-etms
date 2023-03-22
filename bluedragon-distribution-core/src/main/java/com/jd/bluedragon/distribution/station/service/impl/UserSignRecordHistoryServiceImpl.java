@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -11,26 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
-import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
-import com.jd.bluedragon.distribution.station.enums.SignBIzSourceEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
-import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordHistoryService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
-import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
-import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
-import com.jd.bluedragon.distribution.station.service.WorkStationService;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -97,5 +85,8 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
 		flowData.setFlowStatus(SignFlowStatusEnum.DEFALUT.getCode());
 		return flowData;
 	}
-	
+	@Override
+	public boolean checkSignTimeForFlow(UserSignRecordFlowQuery checkQuery) {
+		return userSignRecordService.queryCountForCheckSignTime(checkQuery)==0;
+	}
 }

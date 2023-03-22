@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
@@ -1578,5 +1579,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery) {
 		return userSignRecordDao.queryDataListForFlow(historyQuery);
+	}
+	@Override
+	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
+		return userSignRecordDao.queryCountForCheckSignTime(checkQuery);
 	}
 }

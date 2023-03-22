@@ -54,4 +54,6 @@ public interface UserSignRecordFlowDao {
 	 * @return
 	 */
 	Integer queryDataCount(UserSignRecordFlowQuery query);
+	
+	Integer queryCountForCheckUnCompletedFlow(UserSignRecordFlowQuery checkFlowQuery);
 }

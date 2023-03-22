@@ -18,7 +18,7 @@ import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
  *
  */
 @Repository("userSignRecordFlowDao")
-public class UserSignRecordFlowDaoImpl extends BaseDao<UserSignRecord> implements UserSignRecordFlowDao {
+public class UserSignRecordFlowDaoImpl extends BaseDao<UserSignRecordFlow> implements UserSignRecordFlowDao {
 
     private final static String NAMESPACE = UserSignRecordFlowDao.class.getName();
 	@Override
@@ -40,5 +40,9 @@ public class UserSignRecordFlowDaoImpl extends BaseDao<UserSignRecord> implement
 	@Override
 	public Integer queryDataCount(UserSignRecordFlowQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryDataCount",query);
+	}
+	@Override
+	public Integer queryCountForCheckUnCompletedFlow(UserSignRecordFlowQuery checkFlowQuery) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryCountForCheckUnCompletedFlow",checkFlowQuery);
 	}
 }

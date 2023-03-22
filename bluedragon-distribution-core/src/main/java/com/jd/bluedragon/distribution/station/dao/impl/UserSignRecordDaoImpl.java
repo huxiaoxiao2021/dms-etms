@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
 /**
@@ -189,5 +190,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@Override
 	public List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListForFlow",historyQuery);
+	}
+	@Override
+	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryCountForCheckSignTime",checkQuery);
 	}
 }

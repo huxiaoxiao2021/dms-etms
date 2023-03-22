@@ -48,4 +48,10 @@ public interface UserSignRecordFlowService {
 	 * @param historyApprove
 	 */
 	void dealFlowResult(HistoryApprove historyApprove);
+	/**
+	 * 校验-是否存在未完结的审批流程
+	 * @param checkFlowQuery
+	 * @return
+	 */
+	boolean checkUnCompletedFlow(UserSignRecordFlowQuery checkFlowQuery);
 }

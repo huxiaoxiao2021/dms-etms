@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -76,6 +77,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	 */
 	@Value("${beans.userSignRecordFlowJsfService.maxSignRangeHours:18}")
 	private int maxSignRangeHours;
+	/**
+	 * 计提日
+	 */
+	@Value("${beans.userSignRecordFlowJsfService.accrualDay:21}")
+	private int accrualDay;
 	
 	@Autowired
 	FlowServiceManager flowServiceManager;
@@ -96,13 +102,19 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	/**
 	 * 流程状态-不显示历史数据
 	 */
-	private static Set<Integer> hiddenHistoryStatus = new HashSet<Integer>();
+	private static List<Integer> hiddenHistoryStatus = new ArrayList<Integer>();
+	/**
+	 * 流程状态-未完成状态
+	 */
+	private static List<Integer> unCompletedStatus = new ArrayList<Integer>();
 	
 	static {
 		hiddenHistoryStatus.add(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.ADD_COMPLETE.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.MODIFY_COMPLETE.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.DELETE_COMPLETE.getCode());
+		
+		unCompletedStatus.add(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 	}
 	@Override
 	public Result<Boolean> addSignFlow(UserSignFlowRequest addRequest) {
@@ -212,19 +224,29 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				return result;
 			}
 			signDateNew = DateHelper.parseDate(DateHelper.formatDate(signInTimeNew));
+			
+			Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
+			Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
+			
 			//修改-签到时间范围限制
 			if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
-				Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
-				Date signInEnd = DateHelper.addHours(signData.getSignInTime(), DateHelper.ONE_DAY_HOURS);
 				if(signInTimeNew.before(signInStart)|| signInTimeNew.after(signInEnd)) {
 					result.toFail("签到时间修改只能是【"+DateHelper.formatDateTime(signInStart) +"~" +DateHelper.formatDateTime(signInEnd)+"】！");
 					return result;
 				}
 			}
-			//3天内未审批完成的流程，不允许发起新流程
 			
 			//查询history签到时长是否重合
-//			userSignRecordHistoryService.checkSignTime(query)
+			UserSignRecordFlowQuery checkQuery = new UserSignRecordFlowQuery();
+			checkQuery.setUserCode(addRequest.getUserCode());
+			checkQuery.setSignInTime(signInTimeNew);
+			checkQuery.setSignOutTime(signOutTimeNew);
+			checkQuery.setRefRecordId(addRequest.getRecordId());
+			boolean checkTimeFlag = userSignRecordHistoryService.checkSignTimeForFlow(checkQuery);
+			if(!checkTimeFlag) {
+				result.toFail("提交失败，修改后的在岗时间段与已有时间段重叠，不能同时出勤在两段时间！");
+				return result;
+			}
 		}
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			UserSignRequest signInRequest = new UserSignRequest();
@@ -252,6 +274,22 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			signData.setSignOutTimeNew(signOutTimeNew);
 			signData.setSignDateNew(signDateNew);
 		}
+		
+		if(!checkSignDate(signData.getSignDate(),signDateNew)) {
+			result.toFail("提交失败，修改时间为上一个计提周期，无法修改！");
+			return result;
+		}
+		
+		//存在未审批完成的流程，不允许发起新流程
+		UserSignRecordFlowQuery checkFlowQuery = new UserSignRecordFlowQuery();
+		checkFlowQuery.setUserCode(signData.getUserCode());
+		checkFlowQuery.setFlowStatusList(unCompletedStatus);
+		
+		boolean checkFlowFlag = userSignRecordFlowService.checkUnCompletedFlow(checkFlowQuery);
+		if(!checkFlowFlag) {
+			result.toFail("该ERP/身份证号存在未审批的签到流程，审批完成后再提交！");
+			return result;
+		}
 		signData.setFlowStatus(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 		signData.setFlowType(flowType);
 		signData.setFlowCreateTime(new Date());
@@ -259,6 +297,22 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		loadGridData(signData,new HashMap<>());
 		addRequest.setUserSignRecordFlow(signData);
 		return result;
+	}
+	/**
+	 * 签到日期-不能小于上个计提日期
+	 * @param signDate
+	 * @param signDateNew
+	 * @return
+	 */
+	private boolean checkSignDate(Date signDate,Date signDateNew) {
+        Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay);
+		if(signDate != null && !signDate.after(lastAccrualDate)) {
+			return false;
+		}
+		if(signDateNew != null && !signDateNew.after(lastAccrualDate)) {
+			return false;
+		}
+		return true;
 	}
 	private UserSignRecordFlow toUserSignRecordFlow(UserSignRecord signData) {
 		if(signData == null) {
@@ -383,11 +437,12 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				signData.setAreaName(gridData.getData().getAreaName());
 				signData.setWorkCode(gridData.getData().getWorkCode());
 				signData.setWorkName(gridData.getData().getWorkName());
+				signData.setFloor(gridData.getData().getFloor());
 			}
 		}
 		if(signData.getPositionCode() == null) {
 			//查询组员信息
-			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getId());
+			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getRefRecordId());
 			if(memberData != null) {
 				GroupMemberData groupData = new GroupMemberData();
 				groupData.setGroupCode(memberData.getRefGroupCode());
@@ -408,6 +463,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setAreaName(cacheData.getAreaName());
 		signData.setWorkCode(cacheData.getWorkCode());
 		signData.setWorkName(cacheData.getWorkName());
+		signData.setFloor(cacheData.getFloor());
 		signData.setPositionCode(cacheData.getPositionCode());
 	}
 	/**

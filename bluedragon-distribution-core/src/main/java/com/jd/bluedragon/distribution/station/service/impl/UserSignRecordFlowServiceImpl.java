@@ -68,13 +68,6 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	WorkStationGridService workStationGridService;
 	
 	@Autowired
-	private WorkStationAttendPlanManager workStationAttendPlanManager;
-
-	@Autowired
-	@Qualifier("workStationAttendPlanService")
-	WorkStationAttendPlanService workStationAttendPlanService;
-	
-	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
 	
@@ -129,8 +122,8 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		UserSignRecord signData = toUserSignRecord(flowData);
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			signData.setId(null);
-			signData.setSignInTime(flowData.getSignInTimeNew());
-			signData.setSignOutTime(flowData.getSignOutTimeNew());
+			signData.setCreateTime(new Date());
+			signData.setTs(null);
 			signData.setBizSource(SignBIzSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
 			if(log.isDebugEnabled()) {
@@ -218,7 +211,11 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
                     historyApprove.getApplicant(), historyApprove.getState(), historyApprove.getComment(), historyApprove.getProcessInstanceNo(), historyApprove.getNodeName());
             dealFlowUnPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
         }else {
-        	dealFlowPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),"",historyApprove.getComment());
+        	dealFlowPassResult(historyApprove.getProcessInstanceNo(),historyApprove.getState(),historyApprove.getApprover(),historyApprove.getComment());
         }
+	}
+	@Override
+	public boolean checkUnCompletedFlow(UserSignRecordFlowQuery checkFlowQuery) {
+		return userSignRecordFlowDao.queryCountForCheckUnCompletedFlow(checkFlowQuery) == 0;
 	}
 }

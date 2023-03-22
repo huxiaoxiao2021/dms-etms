@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
 /**
@@ -177,4 +178,6 @@ public interface UserSignRecordDao {
 	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
 	
 	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
+	
+	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
 }

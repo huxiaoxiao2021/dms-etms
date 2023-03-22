@@ -19,4 +19,6 @@ public interface UserSignRecordHistoryService {
 	List<UserSignRecordFlow> querySignList(UserSignRecordFlowQuery query);
 	
 	UserSignRecordFlow queryById(Long recordId);
+
+	boolean checkSignTimeForFlow(UserSignRecordFlowQuery checkQuery);
 }
