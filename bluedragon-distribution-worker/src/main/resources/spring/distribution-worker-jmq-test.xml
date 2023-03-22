@@ -563,8 +563,8 @@
     </jmq:consumer>
 
     <!--  异常-报废审批处理自消费  -->
-    <jmq:consumer id="jmq.dmsExScrapApproveConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveConsumer"/>
+    <jmq:consumer id="jmq.dmsExScrapApproveSelfConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>
     </jmq:consumer>
     
     <!--  异常-报废通知消费  -->
