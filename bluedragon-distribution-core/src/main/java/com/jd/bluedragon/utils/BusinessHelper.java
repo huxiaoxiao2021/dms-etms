@@ -5,8 +5,10 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.waybillVas.VasSourceEnum;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
@@ -1073,5 +1075,16 @@ public class BusinessHelper {
      */
     public static boolean isFragile(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
+    }
+
+    /**
+     * 是否是分批配送
+     * @return true | false
+     */
+    public static boolean checkIsDeliveryManyBatch(WaybillVasDto waybillVasDto) {
+        if(Objects.equals(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH, waybillVasDto.getVasNo()) && Objects.equals(VasSourceEnum.PRODUCT_CENTER.getCode(), waybillVasDto.getValueAddedSource())){
+            return true;
+        }
+        return false;
     }
 }

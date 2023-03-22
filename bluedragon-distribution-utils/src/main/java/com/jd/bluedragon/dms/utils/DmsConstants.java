@@ -400,6 +400,12 @@ public class DmsConstants {
     public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
     public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
     public static final String WHITE_SPACE = "\\s*";
+
+    /**
+     * 增值服务编码-分批派送（ed-a-0075）
+     */
+    public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH  = "ed-a-0075";
+
     /**
      * 暂存类型枚举值
      */

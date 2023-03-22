@@ -12,13 +12,18 @@ import com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
+import com.jd.bluedragon.distribution.waybillVas.VasSourceEnum;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,8 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @ClassName: ReceiveWeightCheckServiceImpl
@@ -261,7 +268,8 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         result.toSuccess();//初始状态成功
 
         /* 非签单返还 符合包裹半收，则必须进行称重和量方 */
-        if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage) {
+        final boolean isDeliveryManyBatch = this.checkIsDeliveryManyBatch(oldWaybillCode);
+        if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage && !isDeliveryManyBatch) {
             if (weightVolumeOperEnable != Constants.WEIGHT_VOLUME_ENABLE){
                 log.warn("ReverseChangeInterceptHandler.handle-->此包裹{}为半收包裹，必须启用包裹称重，并进行量方",
                         oldWaybillCode);
@@ -372,5 +380,27 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         }
 
         return result;
+    }
+
+    /**
+     * 是否是分批配送
+     * @return true | false
+     */
+    private boolean checkIsDeliveryManyBatch(String waybillCode) {
+        BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH);
+        if (waybillVasJXD != null && waybillVasJXD.getData() != null){
+            /*Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
+            if (extendMap == null || !extendMap.containsKey(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_STATUS)){
+                return false;
+            }
+            final String executeStatusValStr = extendMap.get(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_STATUS);
+            if(Objects.equals(executeStatusValStr, "true")){
+                return true;
+            }*/
+            if(BusinessHelper.checkIsDeliveryManyBatch(waybillVasJXD.getData())){
+                return true;
+            }
+        }
+        return false;
     }
 }
