@@ -48,7 +48,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         Map<String,Object> params = new HashMap<>();
         params.put("gridRefId",gridRefId);
         params.put("limitDay",limitDay);
-        return this.getSqlSession().selectList(NAMESPACE + ".getCommonStatusStatistic", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".getCompleteStatusStatistic", params);
     }
 
     /**

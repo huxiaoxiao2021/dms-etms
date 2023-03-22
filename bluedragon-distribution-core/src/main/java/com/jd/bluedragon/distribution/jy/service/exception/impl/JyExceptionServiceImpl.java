@@ -455,7 +455,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             req.setPageNumber(1);
         }
         if (req.getPageSize() == null || req.getPageSize() <= 0) {
-            req.setPageNumber(10);
+            req.setPageSize(10);
         }
 
         req.setSiteId(position.getSiteCode());

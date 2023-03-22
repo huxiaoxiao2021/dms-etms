@@ -564,7 +564,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     private ExpScrappedDetailDto coverToScrappedDetailDto(JyExceptionScrappedPO po) {
         ExpScrappedDetailDto dto = new ExpScrappedDetailDto();
-        dto.setBizId(dto.getBizId());
+        dto.setBizId(po.getBizId());
         dto.setSiteId(po.getSiteCode());
         dto.setScrappedTypCode(po.getExceptionType());
         JyExceptionScrappedTypeEnum scrappedTypeEnum = JyExceptionScrappedTypeEnum.valueOf(po.getExceptionType());
