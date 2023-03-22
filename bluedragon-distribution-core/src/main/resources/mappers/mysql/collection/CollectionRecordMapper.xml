@@ -10,6 +10,7 @@
 		<result column="sum" property="sum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="is_collected" property="isCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="is_extra_collected" property="isExtraCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_more_collected_mark" property="isMoreCollectedMark" javaType="java.lang.Integer" jdbcType="INTEGER"/>
 		<result column="agg_mark" property="aggMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
@@ -36,7 +37,7 @@
 	<insert id="insertCollectionRecord" parameterType="CollectionRecordPo">
 		INSERT INTO collection_record
 		(
-			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`,
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`, `is_more_collected_mark`
 			`agg_mark`, `create_time`, `yn`
 		)
 		VALUES (
@@ -47,6 +48,7 @@
 			#{sum, jdbcType=INTEGER},
 			#{isCollected, jdbcType=INTEGER},
 			#{isExtraCollected, jdbcType=INTEGER},
+			#{isMoreCollectedMark, jdbcType=INTEGER},
 			#{aggMark, jdbcType=VARCHAR},
 			NOW(),1
 		)
@@ -67,6 +69,7 @@
 			#{item.sum, jdbcType=INTEGER},
 			#{item.isCollected, jdbcType=INTEGER},
 			#{item.isExtraCollected, jdbcType=INTEGER},
+			#{item.isMoreCollectedMark, jdbcType=INTEGER},
 			#{item.aggMark, jdbcType=VARCHAR},
 			NOW(),1
 		</foreach>
@@ -104,6 +107,9 @@
 			<if test="isExtraCollected != null">
 				is_extra_collected = #{isExtraCollected, jdbcType=INTEGER},
 			</if>
+			<if test="isMoreCollectedMark != null">
+				is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER},
+			</if>
 			<if test="aggMark != null">
 				agg_mark = #{aggMark, jdbcType=VARCHAR},
 			</if>
@@ -138,7 +144,7 @@
 
 	<select id="findCollectionRecord" parameterType="CollectionRecordPo" resultMap="collectionRecordMap">
 		SELECT
-			collection_code, agg_code, agg_code_type, sum, is_collected, is_extra_collected, agg_mark
+			collection_code, agg_code, agg_code_type, sum, is_collected, is_extra_collected, is_more_collected_mark, agg_mark
 		FROM
 			collection_record
 		<where>
@@ -167,7 +173,6 @@
 			<if test="scanCode != null">
 				and scan_code = #{scanCode, jdbcType=VARCHAR}
 			</if >
-<!--			// todo else -->
 			<if test="aggCode != null and aggCodeType != null">
 				and agg_code = #{aggCode, jdbcType=VARCHAR}
 				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
@@ -205,23 +210,27 @@
 
 	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
 			resultType="java.lang.Integer">
-		SELECT
-			count(1)
-		FROM
-			collection_record_detail
-		<where>
-			collection_code in
-			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-				#{collectionCode, jdbcType=VARCHAR}
-			</foreach>
-			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			<if test="collectedMark != null">
-				and collected_mark = #{collectedMark, jdbcType=VARCHAR}
-			</if>
-			and collected_status = 0
-			and yn = 1
-		</where>
-		group by agg_code
+		select count(1) from
+		(
+			SELECT
+				agg_code
+			FROM
+				collection_record_detail
+			<where>
+				collection_code in
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
+				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				<if test="collectedMark != null">
+					and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+				</if>
+				and collected_status = 0
+				and yn = 1
+			</where>
+			group by agg_code
+		) t
+
 	</select>
 
 	<select id="countCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"

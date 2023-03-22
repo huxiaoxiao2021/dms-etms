@@ -56,7 +56,7 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
             return Collections.emptyList();
         }
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
-            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.unload_collection
+            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
         );
         List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectionByCollectionCodeAndStatus(
             collectionCodeEntities, CollectionStatusEnum.collected, CollectionAggCodeTypeEnum.waybill_code,

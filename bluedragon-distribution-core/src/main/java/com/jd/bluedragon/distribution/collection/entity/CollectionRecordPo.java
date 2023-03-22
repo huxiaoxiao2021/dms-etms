@@ -69,6 +69,12 @@ public class CollectionRecordPo {
     private Integer isExtraCollected;
 
     /**
+     * 是否存在多collectedMark的任务
+     * 在卸车场景中，使用该字段表示是否在库集齐
+     */
+    private Integer isMoreCollectedMark;
+
+    /**
      * 聚合统计号aggCode的特殊标识
      * 主要用于分类和排序
      */
