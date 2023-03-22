@@ -247,6 +247,7 @@
 		<property name="czSiteForbiddenList" value="${czSiteForbiddenList:''}"/>
 		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
 		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -485,6 +486,7 @@
 				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
 				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
+				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 			</list>
 		</property>
 	</bean>

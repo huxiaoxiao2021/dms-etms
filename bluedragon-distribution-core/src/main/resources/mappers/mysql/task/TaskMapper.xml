@@ -476,4 +476,46 @@
 		</if>
 		LIMIT #{fetchNum}
 	</select>
+
+    <select id="findJyBizAutoCloseTask" resultMap="task" parameterType="map">
+        <![CDATA[
+        SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+        FROM ${tableName}
+        WHERE yn = 1 AND execute_count < 300
+            AND (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+        <if test="type != null">
+            AND task_type = #{type}
+        </if>
+        <if test="ownSign != null">
+            AND own_sign = #{ownSign,jdbcType=VARCHAR}
+        </if>
+        <if test="keyword1 != null and keyword1 != ''">
+            AND keyword2 = #{keyword2}
+        </if>
+        <if test="keyword2 != null and keyword2 != ''">
+            AND keyword2 = #{keyword2}
+        </if>
+        LIMIT #{fetchNum}
+    </select>
+
+    <select id="findJyBizAutoCloseTasks" resultMap="task" parameterType="map">
+        <![CDATA[
+        SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+        FROM ${tableName}
+        WHERE yn = 1 AND execute_count < 300
+            AND (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+        <if test="type != null">
+            AND task_type = #{type}
+        </if>
+        <if test="ownSign != null">
+            AND own_sign = #{ownSign,jdbcType=VARCHAR}
+        </if>
+        <if test="queueIds != null">
+            AND queue_id in
+            <foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+                #{queueId}
+            </foreach>
+        </if>
+        LIMIT #{fetchNum}
+    </select>
 </mapper>

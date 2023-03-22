@@ -284,4 +284,19 @@ public class TaskDao extends BaseDao<Task> {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findVirtualBoardTasks", request);
 	}
 
+	/**
+	 * 查找作业工作台自动关闭任务，一个封车编码只有一条
+	 * @author fanggang7
+	 * @time 2023-03-21 16:34:55 周二
+	 */
+	public List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findJyBizAutoCloseTasks", request);
+	}
+
 }
