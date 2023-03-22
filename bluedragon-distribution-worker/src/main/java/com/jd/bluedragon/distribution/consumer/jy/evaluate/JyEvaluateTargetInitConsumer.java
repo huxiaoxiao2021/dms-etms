@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateCommonService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
@@ -119,6 +120,12 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
         // 根据卸车任务操作场地查询区域信息
         BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
+
+        if (targetInitDto.getUnsealTime() == null || targetInitDto.getSealTime() == null) {
+            SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(targetInitDto.getSourceBizId());
+            targetInitDto.setUnsealTime(sealCarDto.getDesealCarTime());
+            targetInitDto.setSealTime(sealCarDto.getSealCarTime());
+        }
 
         EvaluateTargetResultDto targetResultDto = createEvaluateTargetInfo(targetInitDto, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
         targetResultDto.setTargetTaskId(targetTaskId);
