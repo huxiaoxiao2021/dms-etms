@@ -235,17 +235,29 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
         String msg ="%s操作,状态变更为%s-%s";
-        JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
-        JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
-        bizLog.setBizId(task.getBizId());
-        bizLog.setCycleType(cycle.getCode());
-        bizLog.setType(task.getType());
-        bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
-        bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
-        bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
-        bizLog.setRemark(String.format(msg,cycle.getName(),JyExpStatusEnum.getEnumByCode(task.getStatus()).getText(),
-                JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName()));
-        jyBizTaskExceptionLogDao.insertSelective(bizLog);
+        try{
+            JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+            JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+            bizLog.setBizId(task.getBizId());
+            bizLog.setCycleType(cycle.getCode());
+            bizLog.setType(task.getType());
+            bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
+            bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
+            bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
+
+            String status ="";
+            String processStatus="";
+            if(task.getStatus() != null && JyExpStatusEnum.getEnumByCode(task.getStatus()) != null){
+                status=JyExpStatusEnum.getEnumByCode(task.getStatus()).getText();
+            }
+            if(task.getProcessingStatus() != null && JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()) != null){
+                processStatus = JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName();
+            }
+            bizLog.setRemark(String.format(msg,cycle.getName(),status,processStatus));
+            jyBizTaskExceptionLogDao.insertSelective(bizLog);
+        }catch (Exception e){
+            logger.error("保存日志信息出错 req-{}-{}",JSON.toJSONString(entity),e.getMessage(),e);
+        }
     }
 
     /**
