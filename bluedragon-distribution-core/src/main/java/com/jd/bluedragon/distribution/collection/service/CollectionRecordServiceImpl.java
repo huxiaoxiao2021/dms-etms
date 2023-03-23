@@ -159,7 +159,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDetailPo -> !collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
                         ).collect(Collectors.toList());
                         /* 新增到数据库中 */
-                        collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                        if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
+                            collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                        }
 
                         /* 过滤状态已经存在的情况，但collectedMark不同的情况? */
 //                        List<CollectionRecordDetailPo> collectionRecordDetailPosExistWithOutMark = partitionDetailPos.parallelStream().filter(
