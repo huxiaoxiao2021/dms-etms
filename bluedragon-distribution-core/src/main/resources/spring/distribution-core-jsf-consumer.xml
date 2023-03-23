@@ -1269,5 +1269,14 @@
                   retries="${jsf.retries}"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!--  积分排名服务  -->
+    <jsf:consumer id="jyFlatIntegralRankingJSFService"
+                  interface="com.jdl.jy.flat.api.integral.IJyFlatIntegralRankingJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
 </beans>
