@@ -27,6 +27,7 @@ import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -135,4 +136,11 @@ public interface JyComboardSealGatewayService {
    * @return
    */
   JdCResponse cancelSeal(JyCancelSealRequest request);
+
+  /***
+   * 根据扫描单号获取 取消的场地和批次信息
+   * @param request
+   * @return
+   */
+  JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
 }

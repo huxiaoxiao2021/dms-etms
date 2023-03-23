@@ -27,6 +27,7 @@ import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -138,5 +139,10 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Override
   public JdCResponse cancelSeal(JyCancelSealRequest request) {
     return retJdCResponse(jySealVehicleService.cancelSeal(request));
+  }
+
+  @Override
+  public JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
+    return retJdCResponse(jySealVehicleService.getCancelSealInfo(request));
   }
 }

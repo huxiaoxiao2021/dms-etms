@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -96,4 +97,6 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult cancelSeal(JyCancelSealRequest request);
+
+    InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
 }

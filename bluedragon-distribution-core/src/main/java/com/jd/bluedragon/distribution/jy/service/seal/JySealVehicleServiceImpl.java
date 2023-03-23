@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
@@ -141,6 +143,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     BasicQueryWSManager basicQueryWSManager;
     @Autowired
     SendMService sendMService;
+    @Autowired
+    private SiteService siteService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -751,7 +755,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
         }
         else if (BusinessUtil.isSendCode(request.getBarCode())){
-
+            request.setBatchCode(request.getBarCode());
         }
         else {
             throw new JyBizException("暂不支持该类型条码，请扫描包裹号、箱号！");
@@ -767,6 +771,54 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return cancelParams;
     }
 
+    @Override
+    public InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
+        if (!ObjectHelper.isNotNull(request.getBarCode())){
+            throw new JyBizException("条形码不能为空！");
+        }
+        JyCancelSealInfoResp resp =new JyCancelSealInfoResp();
+        if (WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isBoxcode(request.getBarCode())){
+            SendM queryParams =new SendM();
+            queryParams.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            queryParams.setBoxCode(request.getBarCode());
+            queryParams.setOperateTime(DateHelper.addHoursByDay(new Date(),-Constants.DOUBLE_ONE));
+            List<SendM> sendMList =sendMService.findByParams(queryParams);
+            if (CollectionUtils.isEmpty(sendMList)){
+                throw new JyBizException("未找到该包裹/箱号的发货记录！");
+            }
+            resp.setSendCode(sendMList.get(0).getSendCode());
+            resp.setCreateTime(sendMList.get(0).getOperateTime());
+        }
+        else if (BusinessUtil.isSendCode(request.getBarCode())){
+            resp.setSendCode(request.getBarCode());
+        }
+        else {
+            throw new JyBizException("暂不支持该类型条码，请扫描包裹号、箱号！");
+        }
+        if (ObjectHelper.isNotNull(resp.getSendCode())){
+            Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(resp.getSendCode());
+            if (siteCodes[0] == -1 || siteCodes[1] == -1) {
+                throw new JyBizException("根据批次号获取始发和目的分拣信息失败，批次号：" + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
+            }
+            BaseStaffSiteOrgDto createSite = siteService.getSite(siteCodes[0]);
+            BaseStaffSiteOrgDto receiveSite = siteService.getSite(siteCodes[1]);
+            //始发站点信息的映射
+            if(createSite != null){
+                resp.setCreateSiteCode(createSite.getSiteCode());
+                resp.setCreateSiteName(createSite.getSiteName());
+                resp.setCreateSiteType(createSite.getSiteType());
+                resp.setCreateSiteSubType(createSite.getSubType());
+            }
+            //目的站点信息的映射
+            if(receiveSite != null){
+                resp.setReceiveSiteCode(receiveSite.getSiteCode());
+                resp.setReceiveSiteName(receiveSite.getSiteName());
+                resp.setReceiveSiteType(receiveSite.getSiteType());
+                resp.setReceiveSiteSubType(receiveSite.getSubType());
+            }
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+    }
 
     public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {
         if(StringUtils.isNotEmpty(parentCode) && StringUtils.isNotEmpty(dictGroup)){
