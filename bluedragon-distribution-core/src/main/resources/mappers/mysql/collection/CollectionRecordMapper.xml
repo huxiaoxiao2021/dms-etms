@@ -37,8 +37,8 @@
 	<insert id="insertCollectionRecord" parameterType="CollectionRecordPo">
 		INSERT INTO collection_record
 		(
-			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`, `is_more_collected_mark`
-			`agg_mark`, `create_time`, `yn`
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `sum`, `is_collected`, `is_extra_collected`,
+		`is_more_collected_mark`, `agg_mark`, `create_time`, `yn`
 		)
 		VALUES (
 			#{id, jdbcType=BIGINT},
