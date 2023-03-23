@@ -84,23 +84,18 @@ public class CrossDistributionFilter implements Filter {
             return;
         }
 
-        //德邦-春季模式项目判断提示
-        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
-            // 德邦春节项目的错发校验跳过
-            if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
-                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
-                        .queryMatchConditionRecord(request.getCreateSiteCode(), request.getWaybillSite().getCode());
+        // 德邦判断提示
+        if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+            if (!BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
+                throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
+                        HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule()));
+            }
+            if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
+                // 德邦春节项目的错发校验跳过
+                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(request.getCreateSiteCode(), request.getWaybillSite().getCode());
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
-                    if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
-                        chain.doFilter(request, chain);
-                        return;
-                    }
-                    if (!BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
-                        Map<String, String> hintParams = new HashMap<String, String>();
-                        hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
-                        throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
-                                HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
-                    }
+                    chain.doFilter(request, chain);
+                    return;
                 } else {
                     if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
                         Map<String, String> hintParams = new HashMap<String, String>();
@@ -109,9 +104,6 @@ public class CrossDistributionFilter implements Filter {
                                 HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
                     }
                 }
-            } else if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
-                throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
-                        HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule()));
             }
         }
 
