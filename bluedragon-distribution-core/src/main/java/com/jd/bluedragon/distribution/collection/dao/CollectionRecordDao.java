@@ -89,7 +89,7 @@ public class CollectionRecordDao {
         param.put("scanCodes", scanCodes);
         param.put("collectedStatus", statusEnum.getStatus());
         param.put("collectedMark", collectedMark);
-        return this.sqlSession.selectOne(NAMESPACE.concat(".updateDetailInfoByScanCodes"), param);
+        return this.sqlSession.update(NAMESPACE.concat(".updateDetailInfoByScanCodes"), param);
     }
 
     public Integer countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {

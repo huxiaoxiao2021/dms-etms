@@ -185,43 +185,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                     )
                         ).collect(Collectors.toList());
                         /* 更新到数据库中 */
-                        collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
-                            collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-                                                            .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
-
-                        /* 更新主表aggCode维度的统计信息 */
-                        Integer sum = collectionRecordDetailPosExist.size() + collectionRecordDetailPosNotExist.size();
-
-                        /* 计算是否集齐 */
-                        Integer isCollected = collectionRecordDetailPosExist.parallelStream().anyMatch(
-                            collectionRecordDetailPo ->
-                                CollectionStatusEnum.none_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
-                        ) || collectionRecordDetailPosNotExist.size() > 0? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
-
-                        /* 计算是否多集 */
-                        Integer isExtraCollected = collectionRecordDetailPosNotExist.parallelStream().filter(
-                            collectionRecordDetailPo ->
-                                CollectionStatusEnum.extra_collected.getStatus().equals(collectionRecordDetailPo.getCollectedStatus())
-                        ).anyMatch(
-                            collectionRecordDetailPo ->
-                                collectionRecordDetailPos.parallelStream().noneMatch(
-                                    collectionRecordDetailPo1 ->
-                                        Objects.equals(collectionRecordDetailPo1.getScanCode(), collectionRecordDetailPo.getScanCode())
-                                )
-                        )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
-
-                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                        collectionRecordPo.setCollectionCode(collectionCode);
-                        collectionRecordPo.setAggCode(aggCode);
-                        collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                        collectionRecordPo.setIsCollected(isCollected);
-                        collectionRecordPo.setIsExtraCollected(isExtraCollected);
-                        collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-                        collectionRecordPo.setSum(sum);
-                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
-
-
-
+                        if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
+                            collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                                collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
+                                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
+                        }
                     });
 
                     CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(

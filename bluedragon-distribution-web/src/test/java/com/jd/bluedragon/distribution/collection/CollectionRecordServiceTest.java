@@ -113,22 +113,22 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         collectionCreatorEntity.setCollectionAggMarks(Collections.singletonMap("JD0093356842901", "39"));
 
         CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
-        collectionScanCodeEntity.setScanCode("JD0093356842901-1-3-");
+        collectionScanCodeEntity.setScanCode("JD0093356832910-1-3-");
         collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
         collectionScanCodeEntity.setCollectedMark("SC2412341231231");
         collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
 
         CollectionScanCodeEntity collectionScanCodeEntity1 = new CollectionScanCodeEntity();
-        collectionScanCodeEntity1.setScanCode("JD0093356842901-2-3-");
+        collectionScanCodeEntity1.setScanCode("JD0093356842902-2-3-");
         collectionScanCodeEntity1.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
         collectionScanCodeEntity1.setCollectedMark("SC2412341231231");
-        collectionScanCodeEntity1.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
+        collectionScanCodeEntity1.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842902"));
 
         CollectionScanCodeEntity collectionScanCodeEntity2 = new CollectionScanCodeEntity();
-        collectionScanCodeEntity2.setScanCode("JD0093356842901-3-3-");
+        collectionScanCodeEntity2.setScanCode("JD0093356842902-3-3-");
         collectionScanCodeEntity2.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
         collectionScanCodeEntity2.setCollectedMark("SC2412341231231");
-        collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
+        collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842902"));
 
         collectionCreatorEntity.setCollectionScanCodeEntities(Arrays.asList(collectionScanCodeEntity, collectionScanCodeEntity1, collectionScanCodeEntity2));
 
