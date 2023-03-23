@@ -385,177 +385,162 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         /* 根据condition去business_code_attribute表中查询所有的集合ID,使用kv_index做查询 */
         List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
-            .flatMap((Function<CollectionCodeEntity, Stream<CollectionCodeEntity>>)collectionCodeEntity -> {
-                List<String> JQCodes = kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition());
-                return JQCodes.parallelStream().map(jqCode -> {
-                    CollectionCodeEntity codeEntity = new CollectionCodeEntity(collectionCodeEntity.getBusinessType());
-                    codeEntity.setCollectionCode(jqCode);
-                    codeEntity.addAllKey(collectionCollectorEntity.getCollectElements());
-                    codeEntity.buildCollectionCondition();
-                    return codeEntity;
-                });
-            })
+            .peek(codeEntity ->
+                codeEntity.setCollectionCode(this.getJQCodeByBusinessType(codeEntity,"NONE"))
+            )
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
             .collect(Collectors.toList());
 
-            if (CollectionUtils.isEmpty(codeEntities)) {
-                codeEntities = collectionCodeEntities.parallelStream()
-                    .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
-                    .peek(collectionCodeEntity ->
-                        collectionCodeEntity.setCollectionCode(getJQCodeByBusinessType(collectionCodeEntity, "none"))
-                    ).collect(Collectors.toList());
+        Map<CollectionAggCodeTypeEnum, String> finalElement = element;
+        codeEntities.forEach(collectionCodeEntity -> {
+            /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
+            List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
+                                                            .collectionCode(collectionCodeEntity.getCollectionCode())
+                                                            .scanCode(scanCode)
+                                                            .build());
+            /* 取第一条，如果是已经集齐或者是多集状态则不进行操作直接退出 */
+            if (CollectionUtils.isNotEmpty(scanDetailPos)
+                && (
+                    CollectionStatusEnum.collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())
+                        || CollectionStatusEnum.extra_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus()))) {
+                log.info("该单号【{}】在该待集齐集合【{}】中已经是集齐状态，无需重复收集", scanCode, collectionCodeEntity.getCollectionCode());
+                return;
             }
 
-            Map<CollectionAggCodeTypeEnum, String> finalElement = element;
-            codeEntities.forEach(collectionCodeEntity -> {
-                /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
-                List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                                                                .collectionCode(collectionCodeEntity.getCollectionCode())
-                                                                .scanCode(scanCode)
-                                                                .build());
-                /* 取第一条，如果是已经集齐或者是多集状态则不进行操作直接退出 */
-                if (CollectionUtils.isNotEmpty(scanDetailPos)
-                    && (
-                        CollectionStatusEnum.collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())
-                            || CollectionStatusEnum.extra_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus()))) {
-                    log.info("该单号【{}】在该待集齐集合【{}】中已经是集齐状态，无需重复收集", scanCode, collectionCodeEntity.getCollectionCode());
+            /* 如果是不存在的情况，那么需要创建为多集齐的状态 */
+            if (CollectionUtils.isEmpty(scanDetailPos)) {
+                /* 根据businessType和element创建多个待插入的明细表数据 */
+                List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().parallelStream()
+                    .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
+                        .collectionCode(collectionCodeEntity.getCollectionCode())
+                        .scanCode(scanCode)
+                        .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
+                        .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
+                        .aggCodeType(aggCodeTypeEnum.name())
+                        .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
+                        .collectedMark(collectedMark)
+                        .createTime(new Date())
+                        .build())
+                    .collect(Collectors.toList());
+
+                collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
+
+                collectionRecordDetailPos.forEach(collectionRecordDetailPo -> {
+                    /* 检查主表，是否需要进行插入 */
+                    CollectionRecordPo condition = new CollectionRecordPo();
+                    condition.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                    condition.setAggCode(collectionRecordDetailPo.getAggCode());
+                    condition.setAggCodeType(collectionRecordDetailPo.getAggCodeType());
+                    List<CollectionRecordPo> collectionRecordPo = collectionRecordDao.findCollectionRecord(condition);
+                    if (CollectionUtils.isEmpty(collectionRecordPo)) {
+                        condition.setIsCollected(Constants.NUMBER_ZERO);
+                        condition.setSum(Constants.NUMBER_ZERO);
+                        condition.setIsExtraCollected(Constants.NUMBER_ONE);
+                        condition.setAggMark("");
+                        collectionRecordDao.insertCollectionRecord(condition);
+                    } else {
+                        condition.setIsExtraCollected(Constants.NUMBER_ONE);
+                        collectionRecordDao.updateCollectionRecord(condition);
+                    }
+                });
+            }
+            if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
+                /* 检查是否有根据appCodeType重置aggCode的行为 */
+                List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
+                    .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());
+                List<CollectionAggCodeTypeEnum> notExistAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
+                    .parallelStream().filter(aggCodeTypeEnum -> !finalElement.containsKey(aggCodeTypeEnum)).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(existAggCodeTypeEnums)) {
+                    existAggCodeTypeEnums.forEach(aggCodeTypeEnum ->
+                        collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
+                            .collectionCode(collectionCodeEntity.getCollectionCode())
+                            .scanCode(scanCode)
+                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
+                            .aggCodeType(aggCodeTypeEnum.name())
+                            .collectedStatus(CollectionStatusEnum.collected.getStatus())
+                            .collectedMark(collectedMark)
+                            .collectedTime(new Date())
+                            .build()));
+                }
+                if (CollectionUtils.isNotEmpty(notExistAggCodeTypeEnums)) {
+                    notExistAggCodeTypeEnums.forEach(aggCodeTypeEnum -> {
+                        collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
+                            .collectionCode(collectionCodeEntity.getCollectionCode())
+                            .scanCode(scanCode)
+                            .aggCodeType(aggCodeTypeEnum.name())
+                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
+                            .collectedStatus(CollectionStatusEnum.collected.getStatus())
+                            .collectedMark(collectedMark)
+                            .collectedTime(new Date())
+                            .build());
+                    });
+                }
+                /* 更新主表 */
+                List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
+                    CollectionRecordDetailPo.builder()
+                        .collectionCode(collectionCodeEntity.getCollectionCode())
+                        .scanCode(scanCode)
+                        .build()
+                );
+                if (CollectionUtils.isEmpty(aggCodeDetailPos)) {
+                    log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}", collectionCodeEntity.getCollectionCode());
                     return;
                 }
-
-                /* 如果是不存在的情况，那么需要创建为多集齐的状态 */
-                if (CollectionUtils.isEmpty(scanDetailPos)) {
-                    /* 根据businessType和element创建多个待插入的明细表数据 */
-                    List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().parallelStream()
-                        .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
-                            .collectionCode(collectionCodeEntity.getCollectionCode())
-                            .scanCode(scanCode)
-                            .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
-                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
-                            .aggCodeType(aggCodeTypeEnum.name())
-                            .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
-                            .collectedMark(collectedMark)
-                            .createTime(new Date())
-                            .build())
-                        .collect(Collectors.toList());
-
-                    collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
-
-                    collectionRecordDetailPos.forEach(collectionRecordDetailPo -> {
-                        /* 检查主表，是否需要进行插入 */
-                        CollectionRecordPo condition = new CollectionRecordPo();
-                        condition.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                        condition.setAggCode(collectionRecordDetailPo.getAggCode());
-                        condition.setAggCodeType(collectionRecordDetailPo.getAggCodeType());
-                        List<CollectionRecordPo> collectionRecordPo = collectionRecordDao.findCollectionRecord(condition);
-                        if (CollectionUtils.isEmpty(collectionRecordPo)) {
-                            condition.setIsCollected(Constants.NUMBER_ZERO);
-                            condition.setSum(Constants.NUMBER_ZERO);
-                            condition.setIsExtraCollected(Constants.NUMBER_ONE);
-                            condition.setAggMark("");
-                            collectionRecordDao.insertCollectionRecord(condition);
-                        } else {
-                            condition.setIsExtraCollected(Constants.NUMBER_ONE);
-                            collectionRecordDao.updateCollectionRecord(condition);
-                        }
-                    });
-                }
-                if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
-                    /* 检查是否有根据appCodeType重置aggCode的行为 */
-                    List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                        .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());
-                    List<CollectionAggCodeTypeEnum> notExistAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                        .parallelStream().filter(aggCodeTypeEnum -> !finalElement.containsKey(aggCodeTypeEnum)).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(existAggCodeTypeEnums)) {
-                        existAggCodeTypeEnums.forEach(aggCodeTypeEnum ->
-                            collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                                .collectionCode(collectionCodeEntity.getCollectionCode())
-                                .scanCode(scanCode)
-                                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
-                                .aggCodeType(aggCodeTypeEnum.name())
-                                .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                                .collectedMark(collectedMark)
-                                .collectedTime(new Date())
-                                .build()));
-                    }
-                    if (CollectionUtils.isNotEmpty(notExistAggCodeTypeEnums)) {
-                        notExistAggCodeTypeEnums.forEach(aggCodeTypeEnum -> {
-                            collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                                .collectionCode(collectionCodeEntity.getCollectionCode())
-                                .scanCode(scanCode)
-                                .aggCodeType(aggCodeTypeEnum.name())
-                                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
-                                .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                                .collectedMark(collectedMark)
-                                .collectedTime(new Date())
-                                .build());
-                        });
-                    }
-                    /* 更新主表 */
-                    List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
+                aggCodeDetailPos.forEach(aggCodeDetailPo -> {
+                    /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 todo 使用redis的hSet，缓存不存在则进行查库*/
+                    List<CollectionScanMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectedByAggCode(
                         CollectionRecordDetailPo.builder()
                             .collectionCode(collectionCodeEntity.getCollectionCode())
-                            .scanCode(scanCode)
-                            .build()
-                    );
-                    if (CollectionUtils.isEmpty(aggCodeDetailPos)) {
-                        log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}", collectionCodeEntity.getCollectionCode());
+                            .aggCode(aggCodeDetailPo.getAggCode())
+                            .aggCodeType(aggCodeDetailPo.getAggCodeType())
+                            .build());
+                    /* 如果是已经集齐的aggCode的话，需要更新主标的aggCode的信息 */
+                    if (null == collectionScanMarkCounters) {
+                        log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}，聚合号为：{}", collectionCodeEntity.getCollectionCode(), aggCodeDetailPo.getAggCode());
                         return;
                     }
-                    aggCodeDetailPos.forEach(aggCodeDetailPo -> {
-                        /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 todo 使用redis的hSet，缓存不存在则进行查库*/
-                        List<CollectionScanMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectedByAggCode(
-                            CollectionRecordDetailPo.builder()
-                                .collectionCode(collectionCodeEntity.getCollectionCode())
-                                .aggCode(aggCodeDetailPo.getAggCode())
-                                .aggCodeType(aggCodeDetailPo.getAggCodeType())
-                                .build());
-                        /* 如果是已经集齐的aggCode的话，需要更新主标的aggCode的信息 */
-                        if (null == collectionScanMarkCounters) {
-                            log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}，聚合号为：{}", collectionCodeEntity.getCollectionCode(), aggCodeDetailPo.getAggCode());
-                            return;
-                        }
 
-                        //计算总数
-                        Integer sum = collectionScanMarkCounters.parallelStream()
-                            .filter(
-                                collectionScanMarkCounter ->
-                                    CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
-                                        || CollectionStatusEnum.collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
-                            ).mapToInt(CollectionScanMarkCounter::getNum).sum();
+                    //计算总数
+                    Integer sum = collectionScanMarkCounters.parallelStream()
+                        .filter(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                                    || CollectionStatusEnum.collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        ).mapToInt(CollectionScanMarkCounter::getNum).sum();
 
-                        /* 计算是否集齐 */
-                        Integer isCollected = collectionScanMarkCounters.parallelStream()
-                            .anyMatch(
-                                collectionScanMarkCounter ->
-                                    CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
-                            )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
+                    /* 计算是否集齐 */
+                    Integer isCollected = collectionScanMarkCounters.parallelStream()
+                        .anyMatch(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.none_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        )? Constants.NUMBER_ZERO : Constants.NUMBER_ONE;
 
-                        /* 计算是否多集 */
-                        Integer isExtraCollected = collectionScanMarkCounters.parallelStream()
-                            .anyMatch(
-                                collectionScanMarkCounter ->
-                                    CollectionStatusEnum.extra_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
-                            )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
+                    /* 计算是否多集 */
+                    Integer isExtraCollected = collectionScanMarkCounters.parallelStream()
+                        .anyMatch(
+                            collectionScanMarkCounter ->
+                                CollectionStatusEnum.extra_collected.getStatus().equals(collectionScanMarkCounter.getCollectedStatus())
+                        )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
 
-                        Integer isMoreCollected = collectionScanMarkCounters.parallelStream()
-                            .anyMatch(
-                                collectionScanMarkCounter ->
-                                    !collectedMark.equals(collectionScanMarkCounter.getCollectedMark())
-                            )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
+                    Integer isMoreCollected = collectionScanMarkCounters.parallelStream()
+                        .anyMatch(
+                            collectionScanMarkCounter ->
+                                !collectedMark.equals(collectionScanMarkCounter.getCollectedMark())
+                        )? Constants.NUMBER_ONE  : Constants.NUMBER_ZERO;
 
-                        CollectionRecordPo recordCondition = new CollectionRecordPo();
-                        recordCondition.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                        recordCondition.setAggCode(aggCodeDetailPo.getAggCode());
-                        recordCondition.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                        recordCondition.setIsCollected(isCollected);
-                        recordCondition.setIsExtraCollected(isExtraCollected);
-                        recordCondition.setIsMoreCollectedMark(isMoreCollected);
-                        recordCondition.setSum(sum);
-                        collectionRecordDao.updateCollectionRecord(recordCondition);
+                    CollectionRecordPo recordCondition = new CollectionRecordPo();
+                    recordCondition.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                    recordCondition.setAggCode(aggCodeDetailPo.getAggCode());
+                    recordCondition.setAggCodeType(aggCodeDetailPo.getAggCodeType());
+                    recordCondition.setIsCollected(isCollected);
+                    recordCondition.setIsExtraCollected(isExtraCollected);
+                    recordCondition.setIsMoreCollectedMark(isMoreCollected);
+                    recordCondition.setSum(sum);
+                    collectionRecordDao.updateCollectionRecord(recordCondition);
 
-                    });
-                }
-            });
+                });
+            }
+        });
 
         return true;
     }
