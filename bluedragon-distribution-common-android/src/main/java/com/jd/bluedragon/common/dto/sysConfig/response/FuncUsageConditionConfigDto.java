@@ -29,6 +29,16 @@ public class FuncUsageConditionConfigDto implements Serializable {
      */
     private List<Integer> orgCodes;
 
+    /**
+     * 生效时间
+     */
+    private String effectiveTime;
+
+    /**
+     * 生效时间格式化
+     */
+    private String effectiveTimeFormatStr;
+
     public List<Integer> getSiteType() {
         return siteType;
     }
@@ -83,5 +93,21 @@ public class FuncUsageConditionConfigDto implements Serializable {
 
     public void setOrgCodes(List<Integer> orgCodes) {
         this.orgCodes = orgCodes;
+    }
+
+    public String getEffectiveTime() {
+        return effectiveTime;
+    }
+
+    public void setEffectiveTime(String effectiveTime) {
+        this.effectiveTime = effectiveTime;
+    }
+
+    public String getEffectiveTimeFormatStr() {
+        return effectiveTimeFormatStr;
+    }
+
+    public void setEffectiveTimeFormatStr(String effectiveTimeFormatStr) {
+        this.effectiveTimeFormatStr = effectiveTimeFormatStr;
     }
 }

@@ -37,6 +37,7 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
@@ -1075,6 +1076,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      * 获取指定具体场地或区域的配置
      */
     public FuncUsageProcessDto getFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+
         final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE + funcUsageConfigRequestDto.getFuncCode());
         // 如果配置都为空，则直接返回空
         if (sysConfigByCode == null) {
@@ -1088,13 +1090,15 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         final OperateUser operateUser = funcUsageConfigRequestDto.getOperateUser();
         final int siteCode = operateUser.getSiteCode();
 
+        final long currentTimeMillis = System.currentTimeMillis();
         for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
             final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
             if (conditionConfig == null) {
                 return funcUsageConfigDto.getProcess();
             }
 
-            if(CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)){
+            if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)
+            && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis))){
                 return funcUsageConfigDto.getProcess();
             }
         }
@@ -1114,6 +1118,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
         final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
 
+        final long currentTimeMillis = System.currentTimeMillis();
         for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
             final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
             if (conditionConfig == null) {
@@ -1121,18 +1126,41 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             }
 
             if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
-                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
+                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
+                    && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis)){
                 return funcUsageConfigDto.getProcess();
             }
             if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))){
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
+                    && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis)){
                 return funcUsageConfigDto.getProcess();
             }
         }
         return null;
+    }
+
+    /**
+     * 比较生效时间
+     * @param conditionConfig 配置
+     * @param compareTimeMillis 比较时间
+     * @return 是否生效
+     */
+    private boolean checkEffectiveTimeIsEffective(FuncUsageConditionConfigDto conditionConfig, long compareTimeMillis){
+        if (conditionConfig.getEffectiveTime() == null) {
+            return true;
+        }
+        // 计算生效时间
+        if(conditionConfig.getEffectiveTimeFormatStr() == null){
+            conditionConfig.setEffectiveTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
+        }
+        final Date effectiveDate = DateUtil.parse(conditionConfig.getEffectiveTime(), conditionConfig.getEffectiveTimeFormatStr());
+        if(effectiveDate.getTime() < compareTimeMillis){
+            return true;
+        }
+        return false;
     }
 
     /**
