@@ -142,6 +142,31 @@
 		</where>
 	</update>
 
+	<update id="updateDetailInfoByScanCodes" parameterType="java.util.Map">
+		UPDATE
+			collection_record_detail
+		<set>
+			<if test="collectedStatus != null">
+				collected_status = #{collectedStatus, jdbcType=INTEGER},
+				collected_time = NOW(),
+			</if>
+			<if test="collectedMark != null">
+				collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			</if>
+		</set>
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code in
+			<foreach collection="scanCodes" open="(" item="scanCode" separator="," close=")">
+				#{scanCode, jdbcType=VARCHAR}
+			</foreach>
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+
+	</update>
+
 	<select id="findCollectionRecord" parameterType="CollectionRecordPo" resultMap="collectionRecordMap">
 		SELECT
 			collection_code, agg_code, agg_code_type, sum, is_collected, is_extra_collected, is_more_collected_mark, agg_mark
@@ -161,7 +186,6 @@
 		</where>
 	</select>
 
-<!--	todo limit 还是做分页 -->
 	<select id="findCollectionRecordDetail" parameterType="CollectionRecordDetailPo"
 			resultMap="collectionRecordDetailMap">
 		SELECT
@@ -182,6 +206,24 @@
 			</if>
 			and yn = 1
 		</where>
+	</select>
+
+	<select id="findExistDetails" parameterType="java.util.Map" resultMap="collectionRecordDetailMap">
+		SELECT
+			collection_code, scan_code, scan_code_type, agg_code, agg_code_type, collected_status, collected_mark
+		FROM
+			collection_record_detail
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and scan_code in
+			<foreach collection="scanCodes" open="(" item="scanCode" separator="," close=")">
+				#{scanCode, jdbcType=VARCHAR}
+			</foreach>
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+
 	</select>
 
 	<select id="countCollectionByAggCodeAndCollectionCodes" parameterType="java.util.Map"

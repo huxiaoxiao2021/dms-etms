@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.collection.dao;
 
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.ibatis.session.SqlSession;
 
@@ -58,12 +59,37 @@ public class CollectionRecordDao {
         return this.sqlSession.selectList(NAMESPACE.concat(".findCollectionRecordDetail"), collectionRecordDetailPo);
     }
 
+    public List<CollectionRecordDetailPo> findExistDetails(String collectionCode, List<String> scanCodes,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeType){
+
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCode", collectionCode);
+        param.put("aggCode", aggCode);
+        param.put("aggCodeType", aggCodeType.name());
+        param.put("scanCodes", scanCodes);
+        return this.sqlSession.selectList(NAMESPACE.concat(".findExistDetails"), param);
+
+    }
+
     public Integer updateCollectionRecord(CollectionRecordPo collectionRecordPo) {
         return this.sqlSession.update(NAMESPACE.concat(".updateCollectionRecord"), collectionRecordPo);
     }
 
     public Integer updateCollectionRecordDetail(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.update(NAMESPACE.concat(".updateCollectionRecordDetail"), collectionRecordDetailPo);
+    }
+
+    public Integer updateDetailInfoByScanCodes(String collectionCode, List<String> scanCodes,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeType, CollectionStatusEnum statusEnum, String collectedMark) {
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("collectionCode", collectionCode);
+        param.put("aggCode", aggCode);
+        param.put("aggCodeType", aggCodeType.name());
+        param.put("scanCodes", scanCodes);
+        param.put("collectedStatus", statusEnum.getStatus());
+        param.put("collectedMark", collectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".updateDetailInfoByScanCodes"), param);
     }
 
     public Integer countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
