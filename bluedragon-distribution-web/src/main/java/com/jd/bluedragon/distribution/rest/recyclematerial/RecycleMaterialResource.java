@@ -30,6 +30,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Objects;
 
 /**
  * 循环物资实操装态更新
@@ -82,7 +83,13 @@ public class RecycleMaterialResource {
             if(!response.isSucceed()){
                 return response;
             }
-            response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
+            // 作废周转筐条码
+            if (Objects.equals(PrintTypeEnum.DISABLE_AKBOX.getCode(), recycleBasketEntity.getPrintType())) {
+                response = recycleMaterialService.disableAkBox(recycleBasketEntity);
+            }else {
+                // 打印/补打
+                response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
+            }
         }catch (Exception e){
             log.error("周转筐获取打印信息异常,请求参数:{}", JsonHelper.toJson(recycleBasketEntity),e);
             response.toError("周转筐获取打印信息异常");
@@ -97,7 +104,8 @@ public class RecycleMaterialResource {
              response.toFail("获取用户信息失败，请重新登录");
              return response;
         }
-        if(PrintTypeEnum.REPRINT.getCode() == recycleBasketEntity.getPrintType()){
+        if(PrintTypeEnum.REPRINT.getCode() == recycleBasketEntity.getPrintType()
+            ||PrintTypeEnum.DISABLE_AKBOX.getCode() == recycleBasketEntity.getPrintType()){
             if(StringUtils.isBlank(recycleBasketEntity.getRecycleBasketCode())){
                 response.toFail("请输入周转筐编码");
                 return response;

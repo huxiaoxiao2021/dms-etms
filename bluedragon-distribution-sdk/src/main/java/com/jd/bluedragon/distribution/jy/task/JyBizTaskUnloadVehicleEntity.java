@@ -80,6 +80,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer ranking;
     /**
+     * 实际操作时排名（积分模式）
+     */
+    private Integer realRanking;
+    /**
      * 预计到达时间
      */
     private Date predictionArriveTime;
@@ -306,6 +310,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public void setRanking(Integer ranking) {
         this.ranking = ranking;
+    }
+
+    public Integer getRealRanking() {
+        return realRanking;
+    }
+
+    public void setRealRanking(Integer realRanking) {
+        this.realRanking = realRanking;
     }
 
     public Date setPredictionArriveTime(Date predictionArriveTime) {

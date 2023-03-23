@@ -86,6 +86,8 @@ import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.*;
 
 import com.jdl.jy.realtime.base.Pager;
@@ -1113,7 +1115,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request) {
     if (!Objects.equals(request.getBizSource(),BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       throw new JyBizException("非自动化系统调用");
@@ -1121,16 +1122,23 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (WaybillUtil.isWaybillCode(request.getBarCode())){
       throw new JyBizException("自动化系统不支持按运单组板发货");
     }
+    CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, true);
+    try{
+      execSortMachineComboard(request);
+      execSend(request);
 
-    execSortMachineComboard(request);
-    execSend(request);
-
-    ComboardScanResp resp = new ComboardScanResp();
-    resp.setEndSiteId(request.getDestinationId());
-    resp.setBarCode(request.getBarCode());
-    resp.setBarCodeType(request.getBarCodeType());
-    resp.setScanDetailCount(request.getScanDetailCount());
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+      ComboardScanResp resp = new ComboardScanResp();
+      resp.setEndSiteId(request.getDestinationId());
+      resp.setBarCode(request.getBarCode());
+      resp.setBarCodeType(request.getBarCodeType());
+      resp.setScanDetailCount(request.getScanDetailCount());
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+    }catch (Exception e){
+      Profiler.functionError(info);
+      throw e;
+    } finally {
+      Profiler.registerInfoEnd(info);
+    }
   }
 
   private void execSortMachineComboard(ComboardScanReq request) {
@@ -1153,6 +1161,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         request.setBizId(entity.getBizId());
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
+      addBoardBox.setOperatorTime(request.getCurrentOperate().getOperateTime());
       Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
@@ -2601,7 +2610,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
     	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
-    } 
+    }
     for (int i = 0; i < pageTotal; i++) {
       taskDto.setPageNo(i + 1);
       taskDto.setPageSize(onePageSize);

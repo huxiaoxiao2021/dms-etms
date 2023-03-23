@@ -270,9 +270,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
             //车上已经封了的封签号
             List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
-            if (sealCarDto.getSealCodes() != null) {
-                sealCarDto.getSealCodes().addAll(sealCodes);
-            } else {
+            if (sealCarDto.getSealCodes() != null && sealCarDto.getSealCodes().size()>0
+                && sealCodes!=null && sealCodes.size()>0) {
+                List mergeList =new ArrayList();
+                mergeList.addAll(sealCarDto.getSealCodes());
+                mergeList.addAll(sealCodes);
+                sealCarDto.setSealCodes(mergeList);
+            } else if (sealCodes!=null && sealCodes.size()>0){
                 sealCarDto.setSealCodes(sealCodes);
             }
             //封装提交封车请求的dto
@@ -287,8 +291,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jySendSealCodeService.addBatch(entityList);
                 }
                 updateTaskStatus(sealVehicleReq, sealCarDto);
-                jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealVehicleReq.getBatchCodes(),
-                    sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                if (ObjectHelper.isNotNull(sealResp.getData())){
+                    List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
+                    jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
+                        sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                }
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }
             return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
@@ -376,14 +383,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return sealCarDto;
     }
 
-    public static void main(String[] args) {
-            Integer a =668402;
-            System.out.println(DmsJddlUtils.getDbInstanceIndex(a.longValue()));
-            System.out.println(DmsJddlUtils.getDbPartitionIndex(a.longValue()));
-
-
-        //System.out.println(sealCarDto.getSealCodes());
-    }
 
     /**
      * 校验运力编码和发货批次的目的地是否一致
