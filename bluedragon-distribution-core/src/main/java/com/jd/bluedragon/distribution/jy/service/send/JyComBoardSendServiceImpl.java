@@ -1122,7 +1122,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (WaybillUtil.isWaybillCode(request.getBarCode())){
       throw new JyBizException("自动化系统不支持按运单组板发货");
     }
-    CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, false);
+    CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, true);
     try{
       execSortMachineComboard(request);
       execSend(request);
