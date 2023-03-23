@@ -52,6 +52,7 @@ public class PartnerSiteFilter implements Filter {
 
         //德邦-春季模式项目判断提示
         if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
+            logger.info("PartnerSiteFilter {}", JsonHelper.toJson(request));
             // 德邦春节项目的错发校验跳过
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
                 ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
