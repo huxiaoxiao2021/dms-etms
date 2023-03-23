@@ -402,6 +402,12 @@
 			<if test="updateUser != null" >
 				update_user = #{updateUser,jdbcType=VARCHAR},
 			</if>
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="bizSource != null" >
+                biz_source = #{bizSource,jdbcType=INTEGER},
+            </if>   			
 			<if test="updateTime != null" >
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
 			</if>

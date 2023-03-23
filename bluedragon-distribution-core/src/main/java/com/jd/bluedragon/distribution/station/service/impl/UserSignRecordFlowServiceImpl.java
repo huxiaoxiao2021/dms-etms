@@ -19,7 +19,7 @@ import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
-import com.jd.bluedragon.distribution.station.enums.SignBIzSourceEnum;
+import com.jd.bluedragon.distribution.station.enums.SignBizSourceEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
@@ -155,7 +155,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setId(null);
 			signData.setCreateTime(new Date());
 			signData.setTs(null);
-			signData.setBizSource(SignBIzSourceEnum.PC.getCode());
+			signData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
 			if(log.isDebugEnabled()) {
 				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
@@ -167,7 +167,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setSignInTime(flowData.getSignInTimeNew());
 			signData.setSignOutTime(flowData.getSignOutTimeNew());
 			signData.setYn(Constants.YN_YES);
-			signData.setBizSource(SignBIzSourceEnum.PC.getCode());
+			signData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
 			if(log.isDebugEnabled()) {
 				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
@@ -185,9 +185,10 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(oldData != null) {
 			UserSignRecord deleteData = new UserSignRecord();
 			deleteData.setId(flowData.getRefRecordId());
-			signData.setUpdateUser(flowData.getFlowCreateUser());
-			signData.setUpdateUserName(flowData.getFlowCreateUser());			
-			signData.setUpdateTime(new Date());			
+			deleteData.setUpdateUser(flowData.getFlowCreateUser());
+			deleteData.setUpdateUserName(flowData.getFlowCreateUser());			
+			deleteData.setUpdateTime(new Date());		
+			deleteData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.deleteById(deleteData);
 			if(log.isDebugEnabled()) {
 				log.debug("作废签到数据-deleteById：流程单号{},签到数据{}",flowData.getRefFlowBizCode(),JsonHelper.toJson(oldData));
@@ -198,6 +199,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setUpdateUser(flowData.getFlowCreateUser());
 			signData.setUpdateUserName(flowData.getFlowCreateUser());
 			signData.setUpdateTime(new Date());
+			signData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
 			if(log.isDebugEnabled()) {
 				log.debug("作废签到数据-insert：流程单号{},签到数据{}",flowData.getRefFlowBizCode(),JsonHelper.toJson(signData));

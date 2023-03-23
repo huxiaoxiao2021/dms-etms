@@ -1,17 +1,17 @@
 package com.jd.bluedragon.distribution.station.enums;
 
 /**
- * @ClassName SignBIzSourceEnum
+ * @ClassName SignBizSourceEnum
  * @Description 签到流程操作来源
  * @Author wyd
  * @Date 2023/03/10 16:49
  **/
-public enum SignBIzSourceEnum {
+public enum SignBizSourceEnum {
 	PDA(1,"PDA端"),
 	PC(2,"PC端"),
     ;
 	
-	private SignBIzSourceEnum(Integer code, String name) {
+	private SignBizSourceEnum(Integer code, String name) {
 		this.code = code;
 		this.name = name;
 	}
@@ -24,7 +24,7 @@ public enum SignBIzSourceEnum {
 	 * @return
 	 */
     public static String getNameByCode(Integer code) {
-    	SignBIzSourceEnum data = getEnum(code);
+    	SignBizSourceEnum data = getEnum(code);
     	if(data != null) {
     		return data.getName();
     	}
@@ -35,8 +35,8 @@ public enum SignBIzSourceEnum {
 	 * @param code
 	 * @return
 	 */
-    public static SignBIzSourceEnum getEnum(Integer code) {
-        for (SignBIzSourceEnum value : SignBIzSourceEnum.values()) {
+    public static SignBizSourceEnum getEnum(Integer code) {
+        for (SignBizSourceEnum value : SignBizSourceEnum.values()) {
             if (value.code.equals(code)) {
                 return value;
             }
