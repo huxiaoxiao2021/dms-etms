@@ -1098,7 +1098,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             }
 
             if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)
-            && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis))){
+            && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis))){
                 return funcUsageConfigDto.getProcess();
             }
         }
@@ -1127,7 +1127,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
             if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
                     && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
-                    && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis)){
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
                 return funcUsageConfigDto.getProcess();
             }
             if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
@@ -1135,7 +1135,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
                     && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
-                    && this.checkEffectiveTimeIsEffective(conditionConfig, currentTimeMillis)){
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
                 return funcUsageConfigDto.getProcess();
             }
         }
@@ -1144,19 +1144,19 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
     /**
      * 比较生效时间
-     * @param conditionConfig 配置
+     * @param funcUsageConfigDto 配置
      * @param compareTimeMillis 比较时间
      * @return 是否生效
      */
-    private boolean checkEffectiveTimeIsEffective(FuncUsageConditionConfigDto conditionConfig, long compareTimeMillis){
-        if (conditionConfig.getEffectiveTime() == null) {
+    private boolean checkEffectiveTimeIsEffective(FuncUsageConfigDto funcUsageConfigDto, long compareTimeMillis){
+        if (funcUsageConfigDto.getEffectiveTime() == null) {
             return true;
         }
         // 计算生效时间
-        if(conditionConfig.getEffectiveTimeFormatStr() == null){
-            conditionConfig.setEffectiveTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
+        if(funcUsageConfigDto.getEffectiveTimeFormatStr() == null){
+            funcUsageConfigDto.setEffectiveTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
         }
-        final Date effectiveDate = DateUtil.parse(conditionConfig.getEffectiveTime(), conditionConfig.getEffectiveTimeFormatStr());
+        final Date effectiveDate = DateUtil.parse(funcUsageConfigDto.getEffectiveTime(), funcUsageConfigDto.getEffectiveTimeFormatStr());
         if(effectiveDate.getTime() < compareTimeMillis){
             return true;
         }

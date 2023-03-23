@@ -16,6 +16,16 @@ public class FuncUsageConfigDto implements Serializable {
 
     private FuncUsageProcessDto process;
 
+    /**
+     * 生效时间
+     */
+    private String effectiveTime;
+
+    /**
+     * 生效时间格式化
+     */
+    private String effectiveTimeFormatStr;
+
     public FuncUsageConditionConfigDto getCondition() {
         return condition;
     }
@@ -30,5 +40,21 @@ public class FuncUsageConfigDto implements Serializable {
 
     public void setProcess(FuncUsageProcessDto process) {
         this.process = process;
+    }
+
+    public String getEffectiveTime() {
+        return effectiveTime;
+    }
+
+    public void setEffectiveTime(String effectiveTime) {
+        this.effectiveTime = effectiveTime;
+    }
+
+    public String getEffectiveTimeFormatStr() {
+        return effectiveTimeFormatStr;
+    }
+
+    public void setEffectiveTimeFormatStr(String effectiveTimeFormatStr) {
+        this.effectiveTimeFormatStr = effectiveTimeFormatStr;
     }
 }
