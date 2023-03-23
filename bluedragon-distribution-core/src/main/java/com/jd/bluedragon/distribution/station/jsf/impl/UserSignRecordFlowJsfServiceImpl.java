@@ -45,6 +45,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 
 import lombok.extern.slf4j.Slf4j;
@@ -331,7 +332,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		if(hasFlowData || hasHistoryData){
 			Set<Long> hiddenHistoryIds = new HashSet<>();
 			if(hasFlowData) {
-				totalCount += flowCount;
+				totalCount = flowCount;
 				List<UserSignRecordFlow> flowList = userSignRecordFlowService.queryFlowList(query);
 				if(!CollectionUtils.isEmpty(flowList)) {
 					for(UserSignRecordFlow flowData: flowList) {
@@ -344,16 +345,17 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				}
 			}
 			if(hasHistoryData) {
-				totalCount += historyCount;
+				if(historyCount > totalCount) {
+					totalCount = historyCount;
+				}
 				List<UserSignRecordFlow> historyList = userSignRecordHistoryService.querySignList(query);
 				if(!CollectionUtils.isEmpty(historyList)) {
-					dataList.addAll(historyList);
 					for(UserSignRecordFlow flowData: historyList) {
 						//存在流程的数据，只展示流程数据
 						if(hiddenHistoryIds.contains(flowData.getRefRecordId())) {
-							totalCount --;
 							continue;
 						}
+						dataList.add(flowData);
 					}					
 				}
 			}
@@ -424,15 +426,10 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		}
 		if(signData.getPositionCode() == null) {
 			//查询组员信息
-			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getRefRecordId());
-			if(memberData != null) {
-				GroupMemberData groupData = new GroupMemberData();
-				groupData.setGroupCode(memberData.getRefGroupCode());
-				//查询分组信息
-				JyGroupEntity group = this.jyGroupService.queryGroupByGroupCode(memberData.getRefGroupCode());
-				if(group != null) {
-					signData.setPositionCode(group.getPositionCode());
-				}
+			com.jdl.basic.common.utils.Result<PositionData>  positionResult= this.positionManager.queryPositionByGridKey(signData.getRefGridKey());
+			if(positionResult != null
+					&& positionResult.getData() != null) {
+				signData.setPositionCode(positionResult.getData().getPositionCode());
 			}
 		}
 		gridPositionCacheMap.put(signData.getRefGridKey(), signData);
