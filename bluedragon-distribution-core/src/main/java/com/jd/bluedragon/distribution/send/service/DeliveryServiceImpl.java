@@ -5035,6 +5035,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
         log.debug("checkRouterForKY->根据包裹号或箱号获取目的分拣中心/站点：{}",destinationSiteCode);
         if(destinationSiteCode == null){
+            log.warn("checkRouterForKY,{}未查询到目的分拣中心/站点",sendM.getBoxCode());
             response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
             response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
             return response;
@@ -5066,9 +5067,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     log.debug("checkRouterForKY->路由下一节点查询结果：{}",JsonHelper.toJson(routeNextDto));
                 }
                 if(routeNextDto == null){
+                    log.warn("checkRouterForKY,{}未查询到下一路由",boxCode);
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
                 }else if(!Objects.equals(receiveSiteCode,routeNextDto.getFirstNextSiteId())){
+                    log.warn("checkRouterForKY,{},目的场地：{},下一路由：{}",boxCode,receiveSiteCode,routeNextDto.getFirstNextSiteId());
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(HintService.getHint(HintCodeConstants.NEXT_ROUTER_AND_DESTINATION_DIFFERENCE));
                 }
