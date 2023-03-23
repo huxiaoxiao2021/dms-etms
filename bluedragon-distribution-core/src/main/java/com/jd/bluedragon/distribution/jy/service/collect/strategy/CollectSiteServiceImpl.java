@@ -62,10 +62,9 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.all_site_collection
         );
-        List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectionByCollectionCodeAndStatus(
-            collectionCodeEntities, CollectionStatusEnum.collected, CollectionAggCodeTypeEnum.waybill_code,
-            collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
-            collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
+        List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectedAggCodeByCollectionCodeOutMark(
+            collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
+            collectReportReqDto.getPageSize(),(collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
             CollectReportDto collectReportDto = new CollectReportDto();

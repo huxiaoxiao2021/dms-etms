@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
-import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
@@ -91,11 +90,27 @@ public interface CollectionRecordService {
     /**
      * 根据待集齐集合和状态查询aggCode统计情况
      * @param collectionCodeEntities
-     * @param collectionStatusEnum
      * @param aggCodeTypeEnum
      * @return
      */
-    List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
+    List<CollectionAggCodeCounter> sumNoneCollectedAggCodeByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
+
+    List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
+
+    List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset);
+
+    /**
+     * 根据aggCode统计这几个aggCode的集齐情况
+     * @param collectionCodeEntities
+     * @param aggCodeTypeEnum
+     * @param collectedMark
+     * @return
+     */
+    List<CollectionAggCodeCounter> sumAggCollectionByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, List<String> aggCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**
      * 根据集合ID和aggCode查询统计明细信息

@@ -1424,7 +1424,7 @@ public class JyUnloadVehicleCheckTysService {
         //修改集齐状态 + 处理返回集齐结果 （按单验初始化时直接修改集齐状态）
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
-            collectDto.setCollectStatisticsNum(0);
+            collectDto.setCollectStatisticsNum(unloadScanCollectDealDto.getGoodNumber());
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态、
@@ -1452,7 +1452,7 @@ public class JyUnloadVehicleCheckTysService {
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
             collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
-            collectDto.setCollectStatisticsNum(0);
+            collectDto.setCollectStatisticsNum(unloadScanCollectDealDto.getGoodNumber());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态： 同步
             if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {

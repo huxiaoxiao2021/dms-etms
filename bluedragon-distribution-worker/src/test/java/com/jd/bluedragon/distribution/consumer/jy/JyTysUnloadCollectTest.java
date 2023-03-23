@@ -4,11 +4,15 @@ import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectBatchUpdateSt
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectDataInitSplitConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectDataSplitBatchInitConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectStatusBatchUpdateWaybillSplitConsumer;
+import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.collect.BatchUpdateCollectStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.UnloadScanCollectDealDto;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectBatchUpdateTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
@@ -47,6 +51,9 @@ public class JyTysUnloadCollectTest {
     private JyCollectCacheService jyCollectCacheService;
     @Resource
     private Cluster redisClientCache;
+
+    @Autowired
+    private JyCollectService jyCollectService;
 
 
     @Test
@@ -218,6 +225,30 @@ public class JyTysUnloadCollectTest {
                 logger.error("服务异常!", e);
             }
         }
+    }
+
+    @Test
+    public void test1() {
+        UnloadScanCollectDealDto re = new UnloadScanCollectDealDto();
+        re.setBizId("XCZJ23032300000019");
+        re.setScanCode("JDX000233365982-3-3-");
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(10186);
+        re.setCurrentOperate(currentOperate);
+        re.setGoodNumber(3);
+        System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re)));
+
+        UnloadScanCollectDealDto re1 = new UnloadScanCollectDealDto();
+        re1.setBizId("XCZJ23032300000019");
+        re1.setScanCode("JDX000233366667-10-10-");
+        re1.setCurrentOperate(currentOperate);
+        re1.setGoodNumber(10);
+        System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re1)));
+    }
+
+    @Test
+    public void test2() {
+
     }
 
 }

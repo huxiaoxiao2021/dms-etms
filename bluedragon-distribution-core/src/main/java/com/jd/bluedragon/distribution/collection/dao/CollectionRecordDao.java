@@ -118,16 +118,29 @@ public class CollectionRecordDao {
         return this.sqlSession.selectList(NAMESPACE.concat(".sumAggCollectedByAggCode"), collectionRecordDetailPo);
     }
 
-    public List<CollectionCollectedMarkCounter> sumCollectionAggCodeByCollectionCode(List<String> collectionCodes,
-        Integer isCollected, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("list", collectionCodes);
-        param.put("isCollected", isCollected);
-        param.put("aggCode", aggCode);
+    public List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected,
+        Integer isMoreCollectedMark, Integer limit, Integer offset) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("collectedMark", collectedMark);
         param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("aggCode", aggCode);
+        param.put("isCollected", isCollected);
+        param.put("isExtraCollected", isExtraCollected);
+        param.put("isMoreCollectedMark", isMoreCollectedMark);
         param.put("limit", limit);
         param.put("offset", offset);
-        return this.sqlSession.selectList(NAMESPACE.concat(".sumCollectionAggCodeByCollectionCode"), param);
+        return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
+    }
+
+    public List<CollectionCollectedMarkCounter> sumAggCollectionByCollectionCode(List<String> collectionCodes, List<String> aggCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodes", aggCodes);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        return this.sqlSession.selectList(NAMESPACE.concat(".sumAggCollectionByCollectionCode"), param);
     }
 
     public List<CollectionRecordDetailPo> queryCollectedDetailByCollectionAndAggCode(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset){

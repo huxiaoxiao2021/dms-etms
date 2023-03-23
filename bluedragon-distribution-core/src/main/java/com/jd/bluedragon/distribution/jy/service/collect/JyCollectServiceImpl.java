@@ -106,22 +106,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
         resData.setCollectReportDtoList(collectStatisticsService.queryCollectListPage(collectReportReqDto, resData));
         //集齐统计数据
-        if (StringUtils.isEmpty(collectReportReqDto.getWaybillCode())) {
-            resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
-        } else {
-            resData.setCollectReportStatisticsDtoList(
-                resData.getCollectReportDtoList().parallelStream().filter(
-                    collectReportDto -> Objects.equals(collectReportDto.getWaybillCode(), collectReportReqDto.getWaybillCode()))
-                    .map(collectReportDto -> {
-                        CollectReportStatisticsDto collectReportStatisticsDto = new CollectReportStatisticsDto();
-                        collectReportStatisticsDto.setCollectType(collectReportDto.getScanWaitNum() > 0? CollectTypeEnum.WAYBILL_BUQI
-                            .getCode() : collectReportDto.getOtherInventoryNum() > 0? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.TASK_JIQI
-                            .getCode());
-                        collectReportStatisticsDto.setStatisticsNum(1);
-                        return collectReportStatisticsDto;
-                    }).collect(Collectors.toList())
-            );
-        }
+        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
         return res;
     }
 
@@ -131,17 +116,6 @@ public class JyCollectServiceImpl implements JyCollectService{
         InvokeResult<CollectReportDetailResDto> res = new InvokeResult<>();
         CollectReportDetailResDto resData = new CollectReportDetailResDto();
         res.setData(resData);
-        //空任务只有在库集齐
-//        if(collectReportReqDto.getManualCreateTaskFlag() != null && collectReportReqDto.getManualCreateTaskFlag()
-//                && CollectTypeEnum.SITE_JIQI.getCode() != collectReportReqDto.getCollectType()) {
-//            resData.setCollectReportStatisticsDtoList(null);
-//            resData.setCollectReportDto(null);
-//            resData.setCollectReportDetailPackageDtoList(null);
-//            resData.setCollectDimension(CollectSiteTypeEnum.WAYBILL.getCode());
-//            resData.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-//            resData.setManualCreateTaskFlag(true);
-//            return res;
-//        }
         resData.setCollectType(collectReportReqDto.getCollectType());
         resData.setManualCreateTaskFlag(false);
 
@@ -155,22 +129,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         resData.setCollectReportDto(collectReportDtoList.get(0));
 
         //集齐类型运单统计
-        if (StringUtils.isEmpty(collectReportReqDto.getWaybillCode())) {
-            resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
-        } else {
-            resData.setCollectReportStatisticsDtoList(
-                collectReportDtoList.parallelStream().filter(
-                    collectReportDto -> Objects.equals(collectReportDto.getWaybillCode(), collectReportReqDto.getWaybillCode()))
-                    .map(collectReportDto -> {
-                        CollectReportStatisticsDto collectReportStatisticsDto = new CollectReportStatisticsDto();
-                        collectReportStatisticsDto.setCollectType(collectReportDto.getScanWaitNum() > 0? CollectTypeEnum.WAYBILL_BUQI
-                            .getCode() : collectReportDto.getOtherInventoryNum() > 0? CollectTypeEnum.SITE_JIQI.getCode() : CollectTypeEnum.TASK_JIQI
-                            .getCode());
-                        collectReportStatisticsDto.setStatisticsNum(1);
-                        return collectReportStatisticsDto;
-                    }).collect(Collectors.toList())
-            );
-        }
+//        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
 
         //明细分页查询
         resData.setCollectReportDetailPackageDtoList(collectStatisticsService.queryCollectDetail(collectReportReqDto));
@@ -533,7 +492,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         } else if(collectionAggCodeCounter.getOutMarkCollectedNum() > 0 ) {
             //已经初始化，且未集数量=0 表述集齐，其余其余车集齐大于0表示在库集齐
             unloadCollectDto.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
-            unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getExtraCollectedNum());
+            unloadCollectDto.setCollectStatisticsNum(collectionAggCodeCounter.getOutMarkCollectedNum());
         } else {
             //已经初始化，且未集数量=0 表述集齐，其余其余车集齐大于0表示在库集齐
             unloadCollectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());

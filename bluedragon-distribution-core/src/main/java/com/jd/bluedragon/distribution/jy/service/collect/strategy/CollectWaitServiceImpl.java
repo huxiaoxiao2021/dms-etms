@@ -59,9 +59,8 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
         );
-        List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectionByCollectionCodeAndStatus(
-            collectionCodeEntities, CollectionStatusEnum.none_collected, CollectionAggCodeTypeEnum.waybill_code,
-            collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
+        List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumNoneCollectedAggCodeByCollectionCode(
+            collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {

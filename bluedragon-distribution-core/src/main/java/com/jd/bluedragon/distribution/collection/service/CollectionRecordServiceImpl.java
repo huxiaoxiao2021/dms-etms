@@ -608,28 +608,92 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public List<CollectionAggCodeCounter> sumCollectionByCollectionCodeAndStatus(
-        List<CollectionCodeEntity> collectionCodeEntities, CollectionStatusEnum collectionStatusEnum,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Integer limit, Integer offset) {
-        if (CollectionUtils.isEmpty(collectionCodeEntities)) {
+    public List<CollectionAggCodeCounter> sumNoneCollectedAggCodeByCollectionCode(
+        List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
+        String collectedMark, Integer limit, Integer offset) {
+
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
             return Collections.emptyList();
         }
-
-        List<String> collectionCodes = collectionCodeEntities.parallelStream()
-            .map(CollectionCodeEntity::getCollectionCode)
-            .filter(StringUtils::isNotEmpty)
-            .collect(Collectors.toList());
-
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
         if (CollectionUtils.isEmpty(collectionCodes)) {
             return Collections.emptyList();
         }
 
-        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters =
-            collectionRecordDao.sumCollectionAggCodeByCollectionCode(collectionCodes,
-                CollectionStatusEnum.collected.equals(collectionStatusEnum)? Constants.NUMBER_ONE : null,
-                aggCode, aggCodeTypeEnum, limit, offset);
+        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+            0, null, null, limit, offset);
 
-        return CollectionEntityConverter.convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionCollectedMarkCounters, collectedMark);
+        if (CollectionUtils.isEmpty(collectionRecordPos)) {
+            return Collections.emptyList();
+        }
+        List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
+            .collect(Collectors.toList());
+        return this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+
+    }
+
+    @Override
+    public List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeInnerMark(
+        List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
+        String collectedMark, Integer limit, Integer offset) {
+
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+            return Collections.emptyList();
+        }
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+            1, null, 0, limit, offset);
+
+        if (CollectionUtils.isEmpty(collectionRecordPos)) {
+            return Collections.emptyList();
+        }
+        List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
+            .collect(Collectors.toList());
+        return this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+    }
+
+    @Override
+    public List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeOutMark(
+        List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
+        String collectedMark, Integer limit, Integer offset) {
+
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+            return Collections.emptyList();
+        }
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+            1, null, 1, limit, offset);
+
+        if (CollectionUtils.isEmpty(collectionRecordPos)) {
+            return Collections.emptyList();
+        }
+        List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
+            .collect(Collectors.toList());
+        return this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+    }
+
+    @Override
+    public List<CollectionAggCodeCounter> sumAggCollectionByCollectionCode(
+        List<CollectionCodeEntity> collectionCodeEntities, List<String> aggCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || CollectionUtils.isEmpty(aggCodes) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+            return Collections.emptyList();
+        }
+        List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            return Collections.emptyList();
+        }
+
+        List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
+        return CollectionEntityConverter.convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionScanMarkCounters, collectedMark);
     }
 
     @Override
