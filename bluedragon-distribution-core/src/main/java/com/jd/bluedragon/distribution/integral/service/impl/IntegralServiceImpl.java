@@ -413,7 +413,7 @@ public class IntegralServiceImpl implements IntegralService {
 
     private JyFlatIntegralRankingQuery setRankingQueryParam(IntegralRankingRequest req) {
         JyFlatIntegralRankingQuery query = new JyFlatIntegralRankingQuery();
-        query.setDimensionType(req.getRegionScope().getType());
+        query.setDimensionType(req.getTimeRangeScope().getType());
         query.setScopeType(req.getRegionScope().getType());
         if (RankingTimeRangeScopeEnum.RANGE_TODAY.equals(req.getTimeRangeScope())) {
             if (StringUtils.isBlank(req.getDate())) {
