@@ -497,7 +497,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))) {
                     //处理三无待打印状态  待打印特殊处理
                     if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus())
-                            && (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType()))){
+                            || (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType()))){
                         // 待打印时间
                         dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
