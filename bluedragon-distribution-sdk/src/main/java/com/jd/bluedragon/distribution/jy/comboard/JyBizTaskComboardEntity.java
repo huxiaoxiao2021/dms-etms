@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class JyBizTaskComboardEntity implements Serializable {
+public class JyBizTaskComboardEntity implements Serializable{
+
+    private static final long serialVersionUID = 3425750661636440534L;
 
     public static final String BIZ_PREFIX = "CB%s";
     private Long id;
@@ -60,9 +62,9 @@ public class JyBizTaskComboardEntity implements Serializable {
      * 已封车状态
      */
     private transient List<Integer> sealStatusList;
-    
+
     private transient List<String> sendCodeList;
-    
+
     private transient List<Integer> comboardSourceList;
 
     public Date getSealTime() {
@@ -224,7 +226,7 @@ public class JyBizTaskComboardEntity implements Serializable {
     public void setBulkFlag(Boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
     }
-    
+
 
     public List<Integer> getStatusList() {
         return statusList;
