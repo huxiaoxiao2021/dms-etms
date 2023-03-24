@@ -314,8 +314,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
                         sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 }
-                jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealVehicleReq.getBatchCodes(),
-                    sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }
             return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
