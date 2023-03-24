@@ -257,6 +257,8 @@ public class JyCollectServiceImpl implements JyCollectService{
             log.warn("JyCollectServiceImpl.isEndSite:根据站点【{}】获取站点信息为空,site={}", oldSiteId, JsonHelper.toJson(baseSite));
             return false;
         }
+        log.info("JyCollectServiceImpl.isEndSite:运单【{}】的预分拣站点为【{}】，预分拣站点所书分拣中心为【{}】，是否中转：【{}】"
+            , waybillCode, oldSiteId, siteCode, baseSite.getDmsId().equals(siteCode));
         return  baseSite.getDmsId().equals(siteCode);
     }
 
