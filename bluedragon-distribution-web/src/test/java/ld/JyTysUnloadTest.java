@@ -192,9 +192,9 @@ public class JyTysUnloadTest {
                         "        }";
                 User userInfo = JSONObject.parseObject(jsonUser, User.class);
 
-                String json = "{\n" + "    \"bizId\":\"SC23032400029388\",\n" + "    \"collectType\":101,\n"
+                String json = "{\n" + "    \"bizId\":\"SC23032400029409\",\n" + "    \"collectType\":101,\n"
                     + "    \"currentOperate\":{\n" + "        \"dmsCode\":\"010F002\",\n"
-                    + "        \"groupCode\":\"G00000048001\",\n" + "        \"operateTime\":1679640485165,\n"
+                    + "        \"groupCode\":\"G00000048001\",\n" + "        \"operateTime\":1679653393470,\n"
                     + "        \"orgId\":6,\n" + "        \"orgName\":\"华北\",\n"
                     + "        \"positionCode\":\"GW00002001\",\n" + "        \"siteCode\":10186,\n"
                     + "        \"siteName\":\"北京凉水河快运中心\"\n" + "    },\n" + "    \"manualCreateTaskFlag\":false,\n"

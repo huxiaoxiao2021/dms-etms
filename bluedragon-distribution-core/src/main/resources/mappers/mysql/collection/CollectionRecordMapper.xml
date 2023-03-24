@@ -374,9 +374,9 @@
 				#{collectionCode, jdbcType=VARCHAR}
 			</foreach>
 			and crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-			and crd.agg_code_type = #{agg_code_type, jdbcType=VARCHAR}
+			and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			<if test="aggCode != null">
-				and cr.agg_code = #{agg_code, jdbcType=VARCHAR}
+				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
 			</if>
 			and cr.yn = 1 and crd.yn = 1
 			<if test="isMoreCollectedMark != null">
