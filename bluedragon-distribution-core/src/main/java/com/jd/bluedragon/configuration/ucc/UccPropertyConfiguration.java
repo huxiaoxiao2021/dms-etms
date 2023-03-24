@@ -1223,6 +1223,16 @@ public class UccPropertyConfiguration {
      */
     private String czSiteTypeForbiddenList;
 
+    private boolean batchSendForbiddenSwitch;
+
+    public boolean getBatchSendForbiddenSwitch() {
+        return batchSendForbiddenSwitch;
+    }
+
+    public void setBatchSendForbiddenSwitch(boolean batchSendForbiddenSwitch) {
+        this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
+    }
+
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
     }
