@@ -496,8 +496,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 // 待处理状态数据
                 if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))) {
                     //处理三无待打印状态  待打印特殊处理
-                    if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode(), entity.getProcessingStatus())
-                            || (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType()))){
+                    if(Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())){
                         // 待打印时间
                         dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
@@ -510,7 +509,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                                 dto.setImageUrls(cacheDto.getImageUrls());
                             }
                         }
-                    }else if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(dto.getType())){
+                    }else if(Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())){
                         //生鲜报废的特殊处理
                         if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
                             continue;
