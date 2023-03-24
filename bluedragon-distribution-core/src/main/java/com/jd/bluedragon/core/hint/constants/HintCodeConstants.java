@@ -1008,11 +1008,12 @@ public class HintCodeConstants {
     // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
     public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
     
+
+    public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
+
     /**
      *  40023-此人在【网格名称，工序名称】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
     public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";     
-
-    public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
 }
