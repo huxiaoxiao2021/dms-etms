@@ -170,6 +170,79 @@ public class SpwmsToolsController extends DmsBaseController {
         }
     }
 
+
+    /**
+     * 导入2
+     * 商品明细拍平的模板
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
+    @RequestMapping(value = "/toImport2", method = RequestMethod.POST)
+    @ResponseBody
+    public JdResponse toImport2(@RequestParam("importExcelFile") MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            if (!fileName.endsWith("xlsx")) {
+                return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
+            }
+            DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
+            List<SpwmsToolsTemplateVO> dataList = dataResolver.resolver(file.getInputStream(), SpwmsToolsTemplateVO.class, new PropertiesMetaDataFactory("/excel/spwmsTools2.properties"));
+
+            //转换对象
+            if(CollectionUtils.isEmpty(dataList)){
+                return new JdResponse(JdResponse.CODE_FAIL, "空内容,请检查文件");
+            }
+            List<SpWmsCreateInRequest> batchRequest = new ArrayList<>();
+
+            Map<String,SpWmsCreateInRequest> batchRequestOfOrderId = new HashMap<>();
+
+            Map<String,String> spwmsBatch = new HashMap<>();
+            for(SpwmsToolsTemplateVO spwmsToolsTemplateVO : dataList){
+                //按备件库散列 生成批次号
+                if(StringUtils.isBlank(spwmsBatch.get(spwmsToolsTemplateVO.getSpwmsId()))){
+                    spwmsBatch.put(spwmsToolsTemplateVO.getSpwmsId(),makeSendCode(spwmsToolsTemplateVO.getSpwmsId()));
+                }
+
+                //已处理订单直接获取
+                SpWmsCreateInRequest spWmsRequest = batchRequestOfOrderId.get(spwmsToolsTemplateVO.getOrderId());
+
+                SpWmsCreateInProduct spWmsCreateInProduct = new SpWmsCreateInProduct();
+                spWmsCreateInProduct.setSpareCode(spwmsToolsTemplateVO.getSpCode());
+                spWmsCreateInProduct.setProductCode(spwmsToolsTemplateVO.getWareId());
+                if(spWmsRequest == null){
+                    // 不存在则创建一个新的
+                    spWmsRequest =  new SpWmsCreateInRequest();
+
+                    spWmsRequest.setWaybillCode(spwmsToolsTemplateVO.getNewWaybillCode());
+                    spWmsRequest.setOpeTime(new Date());
+                    spWmsRequest.setSendCode(spwmsBatch.get(spwmsToolsTemplateVO.getSpwmsId()));
+                    spWmsRequest.setSpWmsCode(Integer.valueOf(spwmsToolsTemplateVO.getSpwmsId()));
+                    spWmsRequest.setSpareCodes(new ArrayList<>());
+
+                }
+                //追加商品
+                spWmsRequest.getSpareCodes().add(spWmsCreateInProduct);
+
+                batchRequestOfOrderId.put(spwmsToolsTemplateVO.getOrderId(),spWmsRequest);
+
+
+            }
+
+            for(String orderId : batchRequestOfOrderId.keySet()){
+                batchRequest.add(batchRequestOfOrderId.get(orderId));
+            }
+
+            InvokeResult<List<String>> invokeResult =  spWmsToolService.batchVirtualSpWmsCreateIn2(batchRequest);
+            if(!invokeResult.codeSuccess()){
+                log.error("SpwmsToolsController toImport fail, {}", JsonHelper.toJson(invokeResult));
+                return new JdResponse(JdResponse.CODE_FAIL, "失败"+invokeResult.getData().size()+"条！");
+            }
+            return new JdResponse();
+        } catch (Exception e) {
+            this.log.error("导入异常!",e);
+            return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
+        }
+    }
+
     private String makeSendCode(String endSiteCode){
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(733578));

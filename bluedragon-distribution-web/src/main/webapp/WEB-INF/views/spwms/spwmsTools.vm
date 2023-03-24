@@ -72,6 +72,23 @@
                 <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>上传
             </button>
         </div>
+
+    <!-- 主页面操作按钮 -->
+    <div id="toolbar2" class="btn-group">
+        <button id="btn_download2" type="button" class="btn btn-default" style="height: 35px;">
+            <a href="#springUrl('')/static/importFileModel/20230324_spwmstool.xlsx" type="application/vnd.ms-excel">
+                <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;下载导入模板
+            </a>
+        </button>
+        <button type="button" class="btn btn-default"class="btn btn-default" style="height: 35px;">
+            <form id="import_excel_file_form2" enctype="multipart/form-data" method="POST">
+                <input  type="file" id="importExcelFile2" name="importExcelFile">
+            </form>
+        </button>
+        <button id="btn_upload2" type="button" class="btn btn-default" style="height: 35px;">
+            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>上传(信任导入商品模式)
+        </button>
+    </div>
         <table id="dataTable"></table>
 </div>
 
