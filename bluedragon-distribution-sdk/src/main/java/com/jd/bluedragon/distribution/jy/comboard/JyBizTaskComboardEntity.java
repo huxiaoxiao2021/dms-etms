@@ -51,6 +51,16 @@ public class JyBizTaskComboardEntity implements Serializable {
 
     private Integer comboardSource;
 
+    private String groupCode;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
     /**
      * 未封车状态
      */
@@ -60,9 +70,9 @@ public class JyBizTaskComboardEntity implements Serializable {
      * 已封车状态
      */
     private transient List<Integer> sealStatusList;
-    
+
     private transient List<String> sendCodeList;
-    
+
     private transient List<Integer> comboardSourceList;
 
     public Date getSealTime() {
@@ -224,7 +234,7 @@ public class JyBizTaskComboardEntity implements Serializable {
     public void setBulkFlag(Boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
     }
-    
+
 
     public List<Integer> getStatusList() {
         return statusList;

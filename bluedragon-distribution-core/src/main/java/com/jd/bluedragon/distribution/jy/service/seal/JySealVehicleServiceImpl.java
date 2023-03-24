@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -19,8 +21,10 @@ import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
@@ -31,6 +35,7 @@ import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
@@ -42,7 +47,10 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
@@ -133,6 +141,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     GroupBoardManager groupBoardManager;
     @Autowired
     BasicQueryWSManager basicQueryWSManager;
+    @Autowired
+    SendMService sendMService;
+    @Autowired
+    private SiteService siteService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -255,17 +267,22 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (!jimDbLock.lock(sealLockKey, sealVehicleReq.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
+        if (!ObjectHelper.isNotNull(sealVehicleReq.getBatchCodes())){
+            throw new JyBizException("批次不能为空！");
+        }
         try {
             JyBizTaskSendVehicleDetailEntity entity =jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
             if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            /*for (String sendCode:sealVehicleReq.getBatchCodes()){
-                if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
-                    throw new JyBizException("该批次:"+sendCode+"已经封车");
+            if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                for (String sendCode:sealVehicleReq.getBatchCodes()){
+                    if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
+                    }
                 }
-            }*/
+            }
 
             SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
             //车上已经封了的封签号
@@ -293,15 +310,42 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 updateTaskStatus(sealVehicleReq, sealCarDto);
                 if (ObjectHelper.isNotNull(sealResp.getData())){
                     List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
+                    saveSealSendCode(successSealCarList.get(0).getBatchCodes(),sealVehicleReq);
                     jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
                         sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 }
+                jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealVehicleReq.getBatchCodes(),
+                    sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }
             return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
         } finally {
             jimDbLock.releaseLock(sealLockKey, sealVehicleReq.getRequestId());
         }
+    }
+
+    private void saveSealSendCode(List<String> batchCodes, SealVehicleReq sealVehicleReq) {
+        try {
+            Date now =new Date();
+            List<JySendCodeEntity> jySendCodeEntityList =new ArrayList<>();
+            for (String batchCode :batchCodes){
+                JySendCodeEntity entity =new JySendCodeEntity();
+                entity.setSendCode(batchCode);
+                entity.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
+                entity.setSendDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
+                entity.setCreateTime(now);
+                entity.setUpdateTime(now);
+                entity.setCreateUserErp(sealVehicleReq.getUser().getUserErp());
+                entity.setCreateUserName(sealVehicleReq.getUser().getUserName());
+                entity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+                entity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+                jySendCodeEntityList.add(entity);
+            }
+            jyVehicleSendRelationService.saveSealSendCode(jySendCodeEntityList);
+        } catch (Exception e) {
+            log.error("传站封车存储批次号异常",e);
+        }
+
     }
 
     @Override
@@ -684,7 +728,98 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
     }
 
+    @Override
+    public InvokeResult cancelSeal(JyCancelSealRequest request) {
+        barCodeCheck(request);
+        cancelSealRequest cancelParams = assembleCancelParams(request);
+        NewSealVehicleResponse response= newsealVehicleService.cancelSeal(cancelParams);
+        if (Objects.equals(response.getCode(), JdResponse.CODE_OK)) {
+            return new InvokeResult(RESULT_SUCCESS_CODE,response.getMessage());
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,response.getMessage());
+    }
 
+    private void barCodeCheck(JyCancelSealRequest request) {
+        if (!ObjectHelper.isNotNull(request.getBarCode())){
+            throw new JyBizException("条形码不能为空！");
+        }
+        if (WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isBoxcode(request.getBarCode())){
+            SendM queryParams =new SendM();
+            queryParams.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            queryParams.setBoxCode(request.getBarCode());
+            queryParams.setOperateTime(DateHelper.addHoursByDay(new Date(),-Constants.DOUBLE_ONE));
+            List<SendM> sendMList =sendMService.findByParams(queryParams);
+            if (CollectionUtils.isEmpty(sendMList)){
+                throw new JyBizException("未找到该包裹/箱号的发货记录！");
+            }
+            request.setBatchCode(sendMList.get(0).getSendCode());
+
+        }
+        else if (BusinessUtil.isSendCode(request.getBarCode())){
+            request.setBatchCode(request.getBarCode());
+        }
+        else {
+            throw new JyBizException("暂不支持该类型条码，请扫描包裹号、箱号！");
+        }
+    }
+
+    private cancelSealRequest assembleCancelParams(JyCancelSealRequest request) {
+        cancelSealRequest cancelParams = new cancelSealRequest();
+        cancelParams.setBatchCode(request.getBatchCode());
+        cancelParams.setOperateTime(request.getOperateTime());
+        cancelParams.setOperateType(request.getOperateType());
+        cancelParams.setOperateUserCode(request.getOperateUserCode());
+        return cancelParams;
+    }
+
+    @Override
+    public InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
+        if (!ObjectHelper.isNotNull(request.getBarCode())){
+            throw new JyBizException("条形码不能为空！");
+        }
+        JyCancelSealInfoResp resp =new JyCancelSealInfoResp();
+        if (WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isBoxcode(request.getBarCode())){
+            SendM queryParams =new SendM();
+            queryParams.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            queryParams.setBoxCode(request.getBarCode());
+            queryParams.setOperateTime(DateHelper.addHoursByDay(new Date(),-Constants.DOUBLE_ONE));
+            List<SendM> sendMList =sendMService.findByParams(queryParams);
+            if (CollectionUtils.isEmpty(sendMList)){
+                throw new JyBizException("未找到该包裹/箱号的发货记录！");
+            }
+            resp.setSendCode(sendMList.get(0).getSendCode());
+            resp.setCreateTime(sendMList.get(0).getOperateTime());
+        }
+        else if (BusinessUtil.isSendCode(request.getBarCode())){
+            resp.setSendCode(request.getBarCode());
+        }
+        else {
+            throw new JyBizException("暂不支持该类型条码，请扫描包裹号、箱号！");
+        }
+        if (ObjectHelper.isNotNull(resp.getSendCode())){
+            Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(resp.getSendCode());
+            if (siteCodes[0] == -1 || siteCodes[1] == -1) {
+                throw new JyBizException("根据批次号获取始发和目的分拣信息失败，批次号：" + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
+            }
+            BaseStaffSiteOrgDto createSite = siteService.getSite(siteCodes[0]);
+            BaseStaffSiteOrgDto receiveSite = siteService.getSite(siteCodes[1]);
+            //始发站点信息的映射
+            if(createSite != null){
+                resp.setCreateSiteCode(createSite.getSiteCode());
+                resp.setCreateSiteName(createSite.getSiteName());
+                resp.setCreateSiteType(createSite.getSiteType());
+                resp.setCreateSiteSubType(createSite.getSubType());
+            }
+            //目的站点信息的映射
+            if(receiveSite != null){
+                resp.setReceiveSiteCode(receiveSite.getSiteCode());
+                resp.setReceiveSiteName(receiveSite.getSiteName());
+                resp.setReceiveSiteType(receiveSite.getSiteType());
+                resp.setReceiveSiteSubType(receiveSite.getSubType());
+            }
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+    }
 
     public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {
         if(StringUtils.isNotEmpty(parentCode) && StringUtils.isNotEmpty(dictGroup)){

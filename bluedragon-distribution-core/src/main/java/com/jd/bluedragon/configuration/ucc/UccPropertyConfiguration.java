@@ -1233,6 +1233,26 @@ public class UccPropertyConfiguration {
         this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
     }
 
+    private boolean needValidateBatchCodeHasSealed;
+
+    private String forceSendSiteList;
+
+    public String getForceSendSiteList() {
+        return forceSendSiteList;
+    }
+
+    public void setForceSendSiteList(String forceSendSiteList) {
+        this.forceSendSiteList = forceSendSiteList;
+    }
+
+    public boolean getNeedValidateBatchCodeHasSealed() {
+        return needValidateBatchCodeHasSealed;
+    }
+
+    public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+        this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+    }
+
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
     }
