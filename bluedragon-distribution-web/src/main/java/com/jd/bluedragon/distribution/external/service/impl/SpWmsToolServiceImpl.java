@@ -637,7 +637,7 @@ public class SpWmsToolServiceImpl implements SpWmsToolService {
                 List<ReverseSendSpwmsOrder> spwmsOrders = new ArrayList<ReverseSendSpwmsOrder>();
                 List<String> usedSpareCode = new ArrayList<>();
 
-                Map<String,Product> productMap = waybill.getProList().stream().collect(Collectors.toMap(Product::getProductId, Function.identity()));
+                Map<String,Product> productMap = waybill.getProList().stream().collect(Collectors.toMap(Product::getProductId, Product -> Product,(o,n) -> n));
                 for(SpWmsCreateInProduct spWmsCreateInProduct : request.getSpareCodes()){
                     ReverseSendSpwmsOrder spwmsOrder = new ReverseSendSpwmsOrder();
                     spwmsOrder.setWaybillCode(waybillCode);
