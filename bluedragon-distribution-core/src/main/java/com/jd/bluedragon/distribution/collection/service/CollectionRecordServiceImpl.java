@@ -640,6 +640,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
 
         List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
+
+        collectionScanMarkCounters.forEach(collectionCollectedMarkCounter -> {
+            collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
+        });
+
         return CollectionEntityConverter.convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionScanMarkCounters, collectedMark);
     }
 
