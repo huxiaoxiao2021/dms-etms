@@ -153,7 +153,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-  @CacheMethod(key="JyBizTaskComboardServiceImpl.queryBizTaskByBoardCode-{0}-{1}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+  @CacheMethod(key="JyBizTaskComboardServiceImpl.queryBizTaskByBoardCodeNew-{0}-{1}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
   public JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode) {
     JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
     condition.setStartSiteId(Long.valueOf(siteCode));

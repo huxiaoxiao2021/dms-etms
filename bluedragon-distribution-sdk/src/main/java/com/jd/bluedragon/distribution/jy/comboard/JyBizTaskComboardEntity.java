@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class JyBizTaskComboardEntity implements Serializable {
+public class JyBizTaskComboardEntity implements Serializable{
+
+    private static final long serialVersionUID = 3425750661636440534L;
 
     public static final String BIZ_PREFIX = "CB%s";
     private Long id;
