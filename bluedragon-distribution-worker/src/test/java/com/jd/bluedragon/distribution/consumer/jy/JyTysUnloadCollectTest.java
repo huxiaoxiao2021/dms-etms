@@ -90,7 +90,7 @@ public class JyTysUnloadCollectTest {
     //封车集齐初始化
     private void sealCarInitCollect() throws Exception {
         InitCollectDto initCollectDto = new InitCollectDto();
-        initCollectDto.setBizId("SC23031700029108");
+        initCollectDto.setBizId("SC23032400029387");
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
         Message message1 = new Message();
@@ -230,12 +230,12 @@ public class JyTysUnloadCollectTest {
     @Test
     public void test1() {
         UnloadScanCollectDealDto re = new UnloadScanCollectDealDto();
-        re.setBizId("XCZJ23032300000019");
-        re.setScanCode("JDX000233365982-3-3-");
+        re.setBizId("JQ23032410452400032");
+        re.setScanCode("JDX000233472480-4-4-");
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(10186);
         re.setCurrentOperate(currentOperate);
-        re.setGoodNumber(3);
+        re.setGoodNumber(4);
         System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re)));
 
         UnloadScanCollectDealDto re1 = new UnloadScanCollectDealDto();
