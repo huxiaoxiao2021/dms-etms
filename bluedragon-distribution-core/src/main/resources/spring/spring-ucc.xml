@@ -247,6 +247,8 @@
 		<property name="czSiteForbiddenList" value="${czSiteForbiddenList:''}"/>
 		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
 		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
+		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
+		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -485,6 +487,8 @@
 				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
 				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
+				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
+				<value>uccPropertyConfiguration.forceSendSiteList</value>
 			</list>
 		</property>
 	</bean>
