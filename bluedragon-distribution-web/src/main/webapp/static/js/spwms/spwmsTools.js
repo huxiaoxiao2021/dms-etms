@@ -2,6 +2,7 @@ var queryUrl = '/spwmsTools/listData';
 var saveUrl = '/spwmsTools/save';
 var deleteUrl = '/spwmsTools/delete';
 var importUrl = '/spwmsTools/toImport';
+var importUrl2 = '/spwmsTools/toImport2'
 var siteNameUrl = '/spwmsTools/getSiteNameById';
 $(function () {
 
@@ -261,6 +262,49 @@ $(function () {
             error:function(err){
                 Jd.alert("网络连接失败,稍后重试");
                 $('#btn_upload').attr("disabled",false);
+            }
+        });
+
+    });
+
+    //上传按钮2 导入商品拍平的
+    $('#btn_upload2').on('click',function(e){
+        $('#btn_upload2').attr("disabled",true);
+
+        var inputValue = $('#importExcelFile2').val().trim();
+        var index1 = inputValue.lastIndexOf(".");
+        var index2 = inputValue.length;
+        var suffixName = inputValue.substring(index1+1,index2);
+        if(inputValue === ''){
+            Jd.alert('请先浏览文件在上传!');
+            $('#btn_upload2').attr("disabled",false);
+            return;
+        }
+        if(suffixName !== 'xlsx'){
+            Jd.alert('请上传指定Excel文件!');
+            $('#btn_upload2').attr("disabled",false);
+            return;
+        }
+
+        var form = document.getElementById('import_excel_file_form2'), formData = new FormData(form);
+        $.ajax({
+            url:importUrl2,
+            type:"post",
+            data:formData,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                if(res.succeed){
+                    Jd.alert("上传成功!");
+                    tableInit().refresh();
+                }else{
+                    Jd.alert("上传失败!" + res.message);
+                }
+                $('#btn_upload2').attr("disabled",false);
+            },
+            error:function(err){
+                Jd.alert("网络连接失败,稍后重试");
+                $('#btn_upload2').attr("disabled",false);
             }
         });
 
