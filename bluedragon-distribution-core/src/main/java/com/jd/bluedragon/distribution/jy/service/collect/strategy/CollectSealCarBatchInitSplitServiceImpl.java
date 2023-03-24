@@ -168,10 +168,9 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
         int currentSize  = limitSize ;
         int offset = 0;
 
-       int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
         //集齐处理页容量
+        int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
 
-        int sealPackageQueryPageNo = 1;
         while(currentSize >= limitSize){
             CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
             if(cargoDetailReturn == null || cargoDetailReturn.getCode() != com.jd.etms.vos.dto.CommonDto.CODE_SUCCESS ) {
@@ -181,20 +180,16 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             if(cargoDetailReturn.getData().isEmpty()) {
                 break;
             }
-            offset =  offset + limitSize;
+
             currentSize = cargoDetailReturn.getData().size();
-            //发送集齐拆分的最大分页pageNo
-            int collectBatchMaxPageNo = offset / collectOneBatchSize + (offset % collectOneBatchSize > 0 ? 1 : 0);
 
             List<Message> messageList = new ArrayList<>();
-            int collectPageCount = 0;
-            for(int collectPageNo = sealPackageQueryPageNo; collectPageNo <= collectBatchMaxPageNo; collectPageNo++ ) {
-                collectPageCount++;
+            for(int collectPageNo = offset / collectOneBatchSize; collectPageNo * collectOneBatchSize < (currentSize + offset);) {
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
                 mqDto.setOperateTime(initCollectDto.getOperateTime());
                 mqDto.setPageSize(collectOneBatchSize);
-                mqDto.setPageNo(collectPageNo);
+                mqDto.setPageNo(++collectPageNo);
                 mqDto.setSealBatchCode(batchCode);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());
                 mqDto.setSealSiteCode(sealCarDto.getSealSiteId());
@@ -203,11 +198,10 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
                 if(log.isInfoEnabled()) {
                     log.info("CollectSealCarBatchInItSplitServiceImpl.splitSendMq:封车节点集齐数据初始化按批次号拆分producer, msg={}", msgText);
                 }
-                //todo 批量发JMQ
                 messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,getBusinessId(mqDto)));
             }
             jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
-            sealPackageQueryPageNo += collectPageCount;
+            offset =  offset + limitSize;
         }
     }
 
