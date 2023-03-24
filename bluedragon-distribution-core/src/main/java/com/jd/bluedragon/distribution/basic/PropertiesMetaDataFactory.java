@@ -17,7 +17,7 @@ public class PropertiesMetaDataFactory implements MetaDataFactory {
 	private String path = null;
 	private static ObjectMapper mapper;
 	protected static Map<String, CellValidate> validateMap = new HashMap<String,CellValidate>();
-	public static final int ROW_NUMBER_LINE = 5000;
+	public static final int ROW_NUMBER_LINE = 50000;
 	
 	static {
 		mapper = new ObjectMapper();
