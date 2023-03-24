@@ -3,12 +3,12 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
-import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConditionConfigDto;
-import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConfigDto;
-import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.*;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
@@ -37,10 +37,10 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -58,7 +58,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -971,7 +970,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
     }
 
-	@Override
+    @Override
 	public ImmutablePair<Boolean, String> checkMenuIsAvailable(String menuCode, Integer siteCode) {
 		final MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
 		menuUsageConfigRequestDto.setMenuCode(menuCode);
@@ -1012,6 +1011,157 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         }
 
         return null;
+    }
+
+    /**
+     * 获取全局功能管控配置
+     *
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 功能可用性结果
+     * @author fanggang7
+     * @time 2023-03-22 19:59:20 周三
+     */
+    @Override
+    public GlobalFuncUsageControlDto getGlobalFuncUsageControlConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        log.info("BaseServiceImpl.getFuncUsageConfig param {}", JsonHelper.toJson(funcUsageConfigRequestDto));
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL + funcUsageConfigRequestDto.getSystemCode());
+        // 如果配置都为空，则直接返回空
+        if (sysConfig == null) {
+            return null;
+        }
+
+        GlobalFuncUsageControlDto globalFuncUsageControlDto = new GlobalFuncUsageControlDto();
+        final List<String> funcCodes = JSON.parseArray(sysConfig.getConfigContent(), String.class);
+        globalFuncUsageControlDto.setFuncCodes(funcCodes);
+
+        return globalFuncUsageControlDto;
+    }
+
+    /**
+     * 根据功能编码获取功能可用性配置结果
+     *
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 菜单可用性结果
+     * @author fanggang7
+     * @time 2022-04-11 16:47:33 周一
+     */
+    @Override
+    public FuncUsageProcessDto getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        log.info("BaseServiceImpl.getFuncUsageConfig param {}", JsonHelper.toJson(funcUsageConfigRequestDto));
+
+        FuncUsageProcessDto funcUsageProcessDto = null;
+
+        final OperateUser operateUser = funcUsageConfigRequestDto.getOperateUser();
+        final int siteCode = operateUser.getSiteCode();
+
+        final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+        if(siteInfo == null){
+            return null;
+        }
+
+        final FuncUsageProcessDto clientMenuUsageByCodeConfig = getFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
+        if (clientMenuUsageByCodeConfig != null) {
+            return clientMenuUsageByCodeConfig;
+        }
+
+        final FuncUsageProcessDto clientMenuUsageByCodeConfigBySiteType = getFuncUsageByCodeConfig4SiteType(funcUsageConfigRequestDto, siteInfo);
+        if (clientMenuUsageByCodeConfigBySiteType != null) {
+            return clientMenuUsageByCodeConfigBySiteType;
+        }
+
+
+        return funcUsageProcessDto;
+    }
+
+    /**
+     * 获取指定具体场地或区域的配置
+     */
+    public FuncUsageProcessDto getFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+
+        final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE + funcUsageConfigRequestDto.getFuncCode());
+        // 如果配置都为空，则直接返回空
+        if (sysConfigByCode == null) {
+            return null;
+        }
+
+        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfigByCode.getConfigContent(), FuncUsageConfigDto.class);
+        if (CollectionUtils.isEmpty(funcUsageConfigDtos)) {
+            return null;
+        }
+        final OperateUser operateUser = funcUsageConfigRequestDto.getOperateUser();
+        final int siteCode = operateUser.getSiteCode();
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
+            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            if (conditionConfig == null) {
+                return funcUsageConfigDto.getProcess();
+            }
+
+            if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)
+            && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis))){
+                return funcUsageConfigDto.getProcess();
+            }
+        }
+
+
+        return null;
+    }
+
+    /**
+     * 获取指定具体场地类型的配置
+     */
+    public FuncUsageProcessDto getFuncUsageByCodeConfig4SiteType(FuncUsageConfigRequestDto funcUsageConfigRequestDto, BaseSiteInfoDto siteInfo) {
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE + funcUsageConfigRequestDto.getFuncCode());
+        if (sysConfig == null) {
+            return null;
+        }
+
+        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
+            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            if (conditionConfig == null) {
+                return funcUsageConfigDto.getProcess();
+            }
+
+            if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
+                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
+                return funcUsageConfigDto.getProcess();
+            }
+            if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
+                return funcUsageConfigDto.getProcess();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 比较生效时间
+     * @param funcUsageConfigDto 配置
+     * @param compareTimeMillis 比较时间
+     * @return 是否生效
+     */
+    private boolean checkEffectiveTimeIsEffective(FuncUsageConfigDto funcUsageConfigDto, long compareTimeMillis){
+        if (funcUsageConfigDto.getEffectiveTime() == null) {
+            return true;
+        }
+        // 计算生效时间
+        if(funcUsageConfigDto.getEffectiveTimeFormatStr() == null){
+            funcUsageConfigDto.setEffectiveTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
+        }
+        final Date effectiveDate = DateUtil.parse(funcUsageConfigDto.getEffectiveTime(), funcUsageConfigDto.getEffectiveTimeFormatStr());
+        if(effectiveDate.getTime() < compareTimeMillis){
+            return true;
+        }
+        return false;
     }
 
     /**
