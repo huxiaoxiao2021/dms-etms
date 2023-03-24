@@ -422,16 +422,41 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             return;
         }
         // 提交审批
+        Map<String, Object> oaMap = buildOA(req, entity); // OA数据
+        Map<String, Object> businessMap = buildBusiness(entity); // 业务数据
+        Map<String, Object> flowMap = buildFlow(entity); // 流程数据
         String approveOrderCode = flowServiceManager.startFlow(
-                buildOA(req, entity), // OA数据
-                buildBusiness(entity), // 业务数据
-                buildFlow(entity), // 流程数据
-                FlowConstants.FLOW_CODE_FRESH_SCRAP, entity.getHandlerErp(), entity.getBizId());
+                oaMap, businessMap, flowMap, FlowConstants.FLOW_CODE_FRESH_SCRAP, entity.getHandlerErp(), entity.getBizId());
         if (logger.isInfoEnabled()) {
             logger.info("提交审批完成，审批工单号:{}", approveOrderCode);
         }
-        // add log
-        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_APPROVE, entity);
+        if(StringUtils.isNotEmpty(approveOrderCode)){
+            // update scrap approve info
+            updateScrapData(flowMap, entity.getBizId());
+            // add log
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_APPROVE, entity);
+        }
+    }
+
+    private void updateScrapData(Map<String, Object> flowMap, String bizId) {
+        JyExceptionScrappedPO entity = new JyExceptionScrappedPO();
+        entity.setBizId(bizId);
+        if(flowMap.get(FlowConstants.FLOW_DATA_MAP_FIRST_TRIGGER_ERP) != null){
+            String firstTrigger = String.valueOf(flowMap.get(FlowConstants.FLOW_DATA_MAP_FIRST_TRIGGER_ERP));
+            entity.setFirstChecker(hrUserManager.getSuperiorErp(firstTrigger));
+            entity.setFirstCheckStatus(JyApproveStatusEnum.TODO.getCode());
+        }
+        if(flowMap.get(FlowConstants.FLOW_DATA_MAP_SECOND_TRIGGER_ERP) != null){
+            String secondTrigger = String.valueOf(flowMap.get(FlowConstants.FLOW_DATA_MAP_SECOND_TRIGGER_ERP));
+            entity.setSecondChecker(hrUserManager.getSuperiorErp(secondTrigger));
+            entity.setSecondCheckStatus(JyApproveStatusEnum.TODO.getCode());
+        }
+        if(flowMap.get(FlowConstants.FLOW_DATA_MAP_THIRD_TRIGGER_ERP) != null){
+            String thirdTrigger = String.valueOf(flowMap.get(FlowConstants.FLOW_DATA_MAP_THIRD_TRIGGER_ERP));
+            entity.setThirdChecker(hrUserManager.getSuperiorErp(thirdTrigger));
+            entity.setThirdCheckStatus(JyApproveStatusEnum.TODO.getCode());
+        }
+        jyExceptionScrappedDao.updateByBizId(entity);
     }
 
     /**

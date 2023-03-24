@@ -1,9 +1,8 @@
 package com.jd.bluedragon.core.base;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONObject;
 import com.jd.official.omdm.is.hr.HrUserService;
@@ -40,6 +39,8 @@ public class HrUserManagerImpl implements HrUserManager{
     @Autowired
     private HrUserService hrUserService;
 
+    @Cache(key = "hrUserManager.getSuperiorErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 1000,
+            redisEnable = false)
     @Override
     public String getSuperiorErp(String userErp) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.HrUserManager.getSuperiorErp",
