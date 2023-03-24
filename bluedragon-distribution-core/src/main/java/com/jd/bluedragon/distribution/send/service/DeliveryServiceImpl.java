@@ -1934,7 +1934,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
         sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
-        sortDomain.setOperatorId(domain.getOperatorId());        
+        sortDomain.setOperatorId(domain.getOperatorId());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -3242,7 +3242,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
                     sendMItem.setOperatorId(tSendM.getOperatorId());
                     sendMItem.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-                    
+
                     //将板号添加到板号集合中
                     if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
                         boardSet.add(sendMItem.getBoardCode());
@@ -3740,13 +3740,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         operatorData.setOperatorId(tSendM.getOperatorId());
         operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
         status.setOperatorData(operatorData);
-        
+
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
         tTask.setBody(JsonHelper.toJson(status));
         log.info("取消发货 发全程跟踪work6666-3800：{} " ,sendDetail.getWaybillCode());
-        
+
         taskService.add(tTask);
     }
 
@@ -5955,7 +5955,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
         tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
-        tTask.setOperatorId(domain.getOperatorId());        
+        tTask.setOperatorId(domain.getOperatorId());
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -6797,11 +6797,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         /* 如果是分拣机原包发货的话，需要补上验货任务 */
         if (uploadData.getSource() != null && uploadData.getSource() == 2) {
-            long count = Arrays.stream(uccPropertyConfiguration.getAutoPackageSendInspectionDelSiteCodes()
+            long count = Arrays.stream(uccPropertyConfiguration.getAutoPackageSendInspectionSiteCodes()
                             .split(";"))
                     .filter(siteCode -> Objects.equals(domain.getCreateSiteCode()+"", siteCode))
                     .count();
-            if(uccPropertyConfiguration.isAutoPackageSendInspectionSwitch()&&count==0L){
+            if(count>0L){
                 if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
                     pushInspection(domain,null);
                 }
@@ -6894,7 +6894,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
         inspection.setOperatorId(domain.getOperatorId());
-        
+
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));
