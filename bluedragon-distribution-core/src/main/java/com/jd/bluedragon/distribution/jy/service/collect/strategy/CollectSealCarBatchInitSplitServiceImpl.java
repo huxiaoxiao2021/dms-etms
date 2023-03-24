@@ -29,6 +29,7 @@ import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.tms.data.dto.CommonDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -170,6 +171,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
        int collectOneBatchSize = CollectServiceConstant.COLLECT_INIT_BATCH_DEAL_SIZE;
         //集齐处理页容量
 
+        int sealPackageQueryPageNo = 1;
         while(currentSize >= limitSize){
             CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
             if(cargoDetailReturn == null || cargoDetailReturn.getCode() != com.jd.etms.vos.dto.CommonDto.CODE_SUCCESS ) {
@@ -179,17 +181,20 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             if(cargoDetailReturn.getData().isEmpty()) {
                 break;
             }
+            offset =  offset + limitSize;
             currentSize = cargoDetailReturn.getData().size();
             //发送集齐拆分的最大分页pageNo
-            int collectBatchMaxPageNo = currentSize / collectOneBatchSize + (currentSize % collectOneBatchSize > 0 ? 1 : 0);
+            int collectBatchMaxPageNo = offset / collectOneBatchSize + (offset % collectOneBatchSize > 0 ? 1 : 0);
 
             List<Message> messageList = new ArrayList<>();
-            for(int pageNo = 1; pageNo <= collectBatchMaxPageNo; pageNo++ ) {
+            int collectPageCount = 0;
+            for(int collectPageNo = sealPackageQueryPageNo; collectPageNo <= collectBatchMaxPageNo; collectPageNo++ ) {
+                collectPageCount++;
                 InitCollectSplitDto mqDto = new InitCollectSplitDto();
                 mqDto.setBizId(initCollectDto.getBizId());
                 mqDto.setOperateTime(initCollectDto.getOperateTime());
                 mqDto.setPageSize(collectOneBatchSize);
-                mqDto.setPageNo(pageNo);
+                mqDto.setPageNo(collectPageNo);
                 mqDto.setSealBatchCode(batchCode);
                 mqDto.setOperateNode(initCollectDto.getOperateNode());
                 mqDto.setSealSiteCode(sealCarDto.getSealSiteId());
@@ -202,7 +207,7 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
                 messageList.add(new Message(jyCollectDataPageInitProducer.getTopic(),msgText,getBusinessId(mqDto)));
             }
             jyCollectDataPageInitProducer.batchSendOnFailPersistent(messageList);
-            offset =  offset + limitSize;
+            sealPackageQueryPageNo += collectPageCount;
         }
     }
 
@@ -230,7 +235,12 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
         }
         List<CargoDetailDto> cargoDetailDtoList =  cargoDetailReturn.getData();
         List<String> packageCodeList = new ArrayList<>();
-        log.info("从运输系统获取批次【{}】包裹信息,offset={},dto={}", initCollectSplitDto.getSealBatchCode(), offset, JsonUtils.toJSONString(initCollectSplitDto));
+        if(CollectionUtils.isEmpty(cargoDetailDtoList)) {
+            log.info("从运输系统获取批次【{}】包裹信息为空,,offset={}， paramDto={}", initCollectSplitDto.getSealBatchCode(), offset, JsonUtils.toJSONString(initCollectSplitDto));
+            return packageCodeList;
+        }
+        log.info("从运输系统获取批次【{}】包裹信息,offset={},paramDto={},返回数量为={}",
+                initCollectSplitDto.getSealBatchCode(), offset, JsonUtils.toJSONString(initCollectSplitDto), cargoDetailDtoList.size());
         for(CargoDetailDto cargoDetailDtoTemp:cargoDetailDtoList){
             packageCodeList.add(cargoDetailDtoTemp.getPackageCode());
         }
