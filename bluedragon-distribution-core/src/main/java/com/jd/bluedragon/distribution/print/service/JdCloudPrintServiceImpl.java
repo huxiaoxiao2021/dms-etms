@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
+import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.jss.http.Scheme;
 import org.apache.commons.httpclient.HttpClient;

@@ -175,8 +175,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
 
-    private static final int TRANS_BILL_STATUS_CONFIRM = 15;
-    private static final int TRANS_BILL_WORK_STATUS = 20;
+    public static final int TRANS_BILL_STATUS_CONFIRM = 15;
+    public static final int TRANS_BILL_WORK_STATUS = 20;
 
     @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
     private String vehicleMapUrl;
@@ -708,7 +708,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param transWorkBillDto
      * @return
      */
-    private List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
+    public List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
         List<LabelOption> tagList = new ArrayList<>();
 
 
@@ -2693,7 +2693,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param sendVehicleEntity
      * @return
      */
-    private String setCarLength(JyBizTaskSendVehicleEntity sendVehicleEntity) {
+    public String setCarLength(JyBizTaskSendVehicleEntity sendVehicleEntity) {
         String carLengthStr = StringUtils.EMPTY;
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(sendVehicleEntity.getVehicleType());
         if (basicVehicleType != null && StringUtils.isNotBlank(basicVehicleType.getVehicleLength())) {
@@ -3512,8 +3512,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         sendTaskInfo.setLastPlanDepartTime(sendVehicleEntity.getLastPlanDepartTime());
         sendTaskInfo.setLastSealCarTime(sendVehicleEntity.getLastSealCarTime());
-        sendTaskInfo.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
-        sendTaskInfo.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleEntity.getVehicleStatus()));
+        assembleSendTaskStatus(sendTaskInfo, sendVehicleEntity);
         sendTaskInfo.setManualCreatedFlag(sendVehicleEntity.getManualCreatedFlag());
         sendTaskInfo.setAbnormalFlag(sendVehicleEntity.getAbnormalFlag());
         sendTaskInfo.setTransWay(sendVehicleEntity.getTransWay());
@@ -3530,12 +3529,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         sendTaskInfo.setLineTypeName(sendVehicleEntity.getLineTypeName());
     }
 
+    public void assembleSendTaskStatus(SendTaskInfo sendTaskInfo, JyBizTaskSendVehicleEntity sendVehicleEntity) {
+        sendTaskInfo.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
+        sendTaskInfo.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleEntity.getVehicleStatus()));
+    }
+
     private SendTaskItemDetail convertSendVehicleDetail2SendDestDetail(JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity) {
         final SendTaskItemDetail sendTaskItemDetail = new SendTaskItemDetail();
         sendTaskItemDetail.setBizId(sendVehicleDetailEntity.getBizId());
         sendTaskItemDetail.setSendVehicleBizId(sendVehicleDetailEntity.getSendVehicleBizId());
-        sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
-        sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleDetailEntity.getVehicleStatus()));
+        assembleSendTaskDetailStatus(sendVehicleDetailEntity, sendTaskItemDetail);
         sendTaskItemDetail.setTransWorkItemCode(sendVehicleDetailEntity.getTransWorkItemCode());
         sendTaskItemDetail.setStartSiteId(sendVehicleDetailEntity.getStartSiteId());
         sendTaskItemDetail.setStartSiteName(sendVehicleDetailEntity.getStartSiteName());
@@ -3545,5 +3548,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         sendTaskItemDetail.setSealCarTime(sendVehicleDetailEntity.getSealCarTime());
         sendTaskItemDetail.setExcepLabel(sendVehicleDetailEntity.getExcepLabel());
         return sendTaskItemDetail;
+    }
+
+    public void assembleSendTaskDetailStatus(JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity,
+        SendTaskItemDetail sendTaskItemDetail) {
+        sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
+        sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleDetailEntity.getVehicleStatus()));
     }
 }
