@@ -800,6 +800,8 @@ public class Constants {
      */
     public static final Double DOUBLE_ZERO = 0.0;
 
+    public static final Double DOUBLE_ONE = 1.0;
+
     /**
      * Long值-0
      */

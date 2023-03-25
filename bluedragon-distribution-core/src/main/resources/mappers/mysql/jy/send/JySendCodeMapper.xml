@@ -125,6 +125,15 @@
         where send_vehicle_biz_id = #{sendVehicleBizId}
     </update>
 
+    <update id="deleteVehicleSendRelationByVehicleDetailBizId" parameterType="com.jd.bluedragon.distribution.jy.send.JySendCodeEntity">
+        UPDATE jy_send_code
+        set yn               =0,
+            update_time      = now(),
+            update_user_erp  =#{updateUserErp},
+            update_user_name =#{updateUserName}
+        where send_detail_biz_id = #{sendDetailBizId}
+    </update>
+
     <update id="batchUpdateBySendCode" parameterType="com.jd.bluedragon.distribution.jy.dto.send.BatchTransferDto">
         UPDATE jy_send_code
         set send_vehicle_biz_id = #{toSendVehicleBizId},
@@ -189,4 +198,15 @@
         </foreach>
         group by send_detail_biz_id
     </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into jy_send_code (send_vehicle_biz_id, send_detail_biz_id,send_code,
+        create_user_erp, create_user_name,update_user_erp, update_user_name, create_time,update_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.sendVehicleBizId}, #{item.sendDetailBizId},#{item.sendCode},
+             #{item.createUserErp}, #{item.createUserName},#{item.updateUserErp}, #{item.updateUserName},
+             #{item.createTime},#{item.updateTime})
+        </foreach>
+    </insert>
 </mapper>

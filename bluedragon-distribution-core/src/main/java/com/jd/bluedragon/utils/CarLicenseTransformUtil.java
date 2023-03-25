@@ -36,7 +36,6 @@ public class CarLicenseTransformUtil {
     numToChinese.put("531","鲁");
     numToChinese.put("351","晋");
     numToChinese.put("029","陕");
-
     numToChinese.put("028","川");
     numToChinese.put("991","新");
     numToChinese.put("891","藏");

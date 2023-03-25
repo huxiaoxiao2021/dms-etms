@@ -16,14 +16,18 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
+import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -125,5 +129,20 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Override
   public JdCResponse<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq) {
     return retJdCResponse(jyComBoardSendService.queryGoodsCategoryByBoardCode(boardReq));
+  }
+
+  @Override
+  public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+    return retJdCResponse(jyComboardSendVehicleService.sendTaskDetail(request));
+  }
+
+  @Override
+  public JdCResponse cancelSeal(JyCancelSealRequest request) {
+    return retJdCResponse(jySealVehicleService.cancelSeal(request));
+  }
+
+  @Override
+  public JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
+    return retJdCResponse(jySealVehicleService.getCancelSealInfo(request));
   }
 }

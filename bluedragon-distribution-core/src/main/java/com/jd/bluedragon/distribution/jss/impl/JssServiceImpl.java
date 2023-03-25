@@ -203,10 +203,10 @@ public class JssServiceImpl implements JssService {
         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
         try {
             String key = UUID.randomUUID().toString() + "." + extName;
-            return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
+            return dmswebAmazonS3ClientWrapper.putObjectThenGetOutNetUrl(inStream,bucket,key,bytes.length,365);
 
         } catch (Exception e) {
-            log.error("异常上行处理异常:", e);
+            log.error("异常上行处理异常extName[{}]bucket[{}]",extName,bucket,e);
         }
         return null;
     }
