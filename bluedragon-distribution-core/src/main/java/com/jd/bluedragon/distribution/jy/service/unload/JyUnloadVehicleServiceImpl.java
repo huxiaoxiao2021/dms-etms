@@ -565,6 +565,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return;
         }
         final String routersStr = waybillService.getRouterByWaybillCode(waybillCode);
+        log.info("JyUnloadVehicleServiceImpl.handleDepponMergeCondition getRouterByWaybillCode {}", routersStr);
         if(StringUtils.isEmpty(routersStr)){
             return;
         }
