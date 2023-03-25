@@ -564,56 +564,62 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (!WaybillCodeRuleValidateUtil.isDpWaybillCode(waybillCode)) {
             return;
         }
-        final String routersStr = waybillService.getRouterByWaybillCode(waybillCode);
-        log.info("JyUnloadVehicleServiceImpl.handleDepponMergeCondition getRouterByWaybillCode {}", routersStr);
-        if(StringUtils.isEmpty(routersStr)){
-            return;
-        }
-        String[] routersArr = routersStr.split(Constants.WAYBILL_ROUTER_SPLIT);
-        final List<String> routerStrList = Arrays.asList(routersArr);
-        // 先判断是否有相同的路由节点，再判断是否为分拣中心
-        boolean hasSameRouteNode = false;
-        Map<String, Integer> routersCountMap = new HashMap<>();
-        for (String routerStr : routerStrList) {
-            Integer existCount = routersCountMap.get(routerStr);
-            if(existCount == null){
-                existCount = 0;
-            } else {
-                hasSameRouteNode = true;
-            }
-            routersCountMap.put(routerStr, existCount + 1);
-        }
-        // 找到第一个为大于1的节点，表名路由上有相同的节点
-        if(!hasSameRouteNode){
-            return;
-        }
         // 找到第一个分拣中心和最后一个分拣中心
         BaseSiteInfoDto firstSortingSite = null;
-        for (int i = 0; i < routerStrList.size(); i++) {
-            if(NumberHelper.isPositiveNumber(routerStrList.get(i))){
-                Integer siteCode = Integer.parseInt(routerStrList.get(i));
-                final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-                if(siteInfo == null){
-                    continue;
+        BaseSiteInfoDto lastSortingSite = null;
+        final String routersStr = waybillService.getRouterByWaybillCode(waybillCode);
+        log.info("JyUnloadVehicleServiceImpl.handleDepponMergeCondition getRouterByWaybillCode {}", routersStr);
+        if(StringUtils.isNotBlank(routersStr)){
+            String[] routersArr = routersStr.split(Constants.WAYBILL_ROUTER_SPLIT);
+            final List<String> routerStrList = Arrays.asList(routersArr);
+            // 先判断是否有相同的路由节点，再判断是否为分拣中心
+            boolean hasSameRouteNode = false;
+            Map<String, Integer> routersCountMap = new HashMap<>();
+            for (String routerStr : routerStrList) {
+                Integer existCount = routersCountMap.get(routerStr);
+                if(existCount == null){
+                    existCount = 0;
+                } else {
+                    hasSameRouteNode = true;
                 }
-                if(this.matchSortingSite(siteInfo.getSiteType(), siteInfo.getSortType(), siteInfo.getSortSubType(), siteInfo.getSortThirdType())){
-                    firstSortingSite = siteInfo;
-                    break;
+                routersCountMap.put(routerStr, existCount + 1);
+            }
+            // 找到第一个为大于1的节点，表名路由上有相同的节点
+            if(!hasSameRouteNode){
+                return;
+            }
+            for (int i = 0; i < routerStrList.size(); i++) {
+                if(NumberHelper.isPositiveNumber(routerStrList.get(i))){
+                    Integer siteCode = Integer.parseInt(routerStrList.get(i));
+                    final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+                    if(siteInfo == null){
+                        continue;
+                    }
+                    if(this.matchSortingSite(siteInfo.getSiteType(), siteInfo.getSortType(), siteInfo.getSortSubType(), siteInfo.getSortThirdType())){
+                        firstSortingSite = siteInfo;
+                        break;
+                    }
                 }
             }
-        }
-        BaseSiteInfoDto lastSortingSite = null;
-        for (int i = routerStrList.size() - 1; i >= 0; i--) {
-            if(NumberHelper.isPositiveNumber(routerStrList.get(i))){
-                Integer siteCode = Integer.parseInt(routerStrList.get(i));
-                final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-                if(siteInfo == null){
-                    continue;
+            for (int i = routerStrList.size() - 1; i >= 0; i--) {
+                if(NumberHelper.isPositiveNumber(routerStrList.get(i))){
+                    Integer siteCode = Integer.parseInt(routerStrList.get(i));
+                    final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+                    if(siteInfo == null){
+                        continue;
+                    }
+                    if(this.matchSortingSite(siteInfo.getSiteType(), siteInfo.getSortType(), siteInfo.getSortSubType(), siteInfo.getSortThirdType())){
+                        lastSortingSite = siteInfo;
+                        break;
+                    }
                 }
-                if(this.matchSortingSite(siteInfo.getSiteType(), siteInfo.getSortType(), siteInfo.getSortSubType(), siteInfo.getSortThirdType())){
-                    lastSortingSite = siteInfo;
-                    break;
-                }
+            }
+        } else {
+            // 取不到路由，则取操作场地和运单预分拣站点
+            final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+            if(waybill != null){
+                lastSortingSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
+                firstSortingSite = baseMajorManager.getBaseSiteInfoBySiteId(request.getCurrentOperate().getSiteCode());
             }
         }
         if(firstSortingSite == null && lastSortingSite == null){
@@ -628,6 +634,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 BaseEntity<BigWaybillDto> waybillDataForPrintResult = waybillQueryManager.getWaybillDataForPrint(waybillCode);
                 if(waybillDataForPrintResult == null || Constants.RESULT_SUCCESS != waybillDataForPrintResult.getResultCode()){
                     log.error("handleDepponMergeCondition getWaybillDataForPrint fail : {}, {}", waybillCode, JsonHelper.toJson(waybillDataForPrintResult));
+                    return;
                 }
                 final BigWaybillDto bigWaybillDto = waybillDataForPrintResult.getData();
                 WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
