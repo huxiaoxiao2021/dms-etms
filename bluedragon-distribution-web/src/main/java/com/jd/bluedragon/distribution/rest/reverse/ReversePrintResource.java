@@ -215,8 +215,8 @@ public class ReversePrintResource {
                     result.toFail(String.format("未查询到场地为%s的数据", request.getSiteCode()));
                     return result;
                 }
-                // 7. 分批配送运单，不允许在分拣场地操作换单
-                if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+                // 分批配送运单，不允许在非快运场地操作换单
+                if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
                     final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(request.getOldWaybillCode());
                     if(isDeliveryManyBatchResult.isFail()){
                         result.toFail(isDeliveryManyBatchResult.getMessage());

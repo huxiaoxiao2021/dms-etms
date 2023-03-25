@@ -841,9 +841,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         	}
 
         }
-        // 7. 分批配送运单，不允许在分拣场地操作换单
-        // 如果当前操作场地不是终端场地
-        if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+        // 7. 分批配送运单，不允许在非快运场地操作换单
+        if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
             final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(wayBillCode);
             if(isDeliveryManyBatchResult.isFail()){
                 result.setData(false);
