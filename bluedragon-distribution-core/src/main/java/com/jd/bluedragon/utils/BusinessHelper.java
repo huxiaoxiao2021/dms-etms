@@ -1082,7 +1082,15 @@ public class BusinessHelper {
      * @return true | false
      */
     public static boolean checkIsDeliveryManyBatch(WaybillVasDto waybillVasDto) {
-        if(Objects.equals(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH, waybillVasDto.getVasNo()) && Objects.equals(VasSourceEnum.PRODUCT_CENTER.getCode(), waybillVasDto.getValueAddedSource())){
+        if(Objects.equals(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH, waybillVasDto.getVasNo())){
+            Map<String, String> extendMap = waybillVasDto.getExtendMap();
+            if (extendMap == null) {
+                return false;
+            }
+            final String executeBatchDelivery = extendMap.get(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_BATCH_DELIVERY);
+            if(executeBatchDelivery != null && Objects.equals(executeBatchDelivery, Constants.STRING_FLG_TRUE)){
+                return true;
+            }
             return true;
         }
         return false;

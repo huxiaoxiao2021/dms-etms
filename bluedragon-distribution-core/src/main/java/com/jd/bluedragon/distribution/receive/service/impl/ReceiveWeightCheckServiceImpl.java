@@ -389,14 +389,6 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
     private boolean checkIsDeliveryManyBatch(String waybillCode) {
         BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH);
         if (waybillVasJXD != null && waybillVasJXD.getData() != null){
-            /*Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
-            if (extendMap == null || !extendMap.containsKey(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_STATUS)){
-                return false;
-            }
-            final String executeStatusValStr = extendMap.get(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_STATUS);
-            if(Objects.equals(executeStatusValStr, "true")){
-                return true;
-            }*/
             if(BusinessHelper.checkIsDeliveryManyBatch(waybillVasJXD.getData())){
                 return true;
             }

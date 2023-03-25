@@ -405,6 +405,7 @@ public class DmsConstants {
      * 增值服务编码-分批派送（ed-a-0075）
      */
     public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH  = "ed-a-0075";
+    public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_BATCH_DELIVERY  = "executeBatchDelivery";
 
     /**
      * 暂存类型枚举值
