@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -28,13 +29,17 @@ import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -84,6 +89,12 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillCancelService waybillCancelService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Autowired
     @Qualifier("changeWaybillPrintProducer")
@@ -196,6 +207,26 @@ public class ReversePrintResource {
             if (bool) {
                 result.toFail(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
                 return result;
+            }
+
+            if(request.getSiteCode() != null){
+                BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+                if (siteInfo == null) {
+                    result.toFail(String.format("未查询到场地为%s的数据", request.getSiteCode()));
+                    return result;
+                }
+                // 7. 分批配送运单，不允许在分拣场地操作换单
+                if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+                    final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(request.getOldWaybillCode());
+                    if(isDeliveryManyBatchResult.isFail()){
+                        result.toFail(isDeliveryManyBatchResult.getMessage());
+                        return result;
+                    }
+                    if (isDeliveryManyBatchResult.getData()) {
+                        result.toFail("先到先送运单禁止在分拣换单/换单打印");
+                        return result;
+                    }
+                }
             }
 
             InvokeResult<RepeatPrint> invokeResult = reversePrintService.getNewWaybillCode1(oldWaybillCode, true);

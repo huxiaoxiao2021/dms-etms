@@ -49,9 +49,11 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
@@ -1680,5 +1682,27 @@ public class WaybillServiceImpl implements WaybillService {
             log.error("matchTerminalSiteReSortDewuCondition exception ", e);
         }
         return false;
+    }
+
+    /**
+     * 是否是分批配送
+     * @return true | false
+     */
+    @Override
+    public Result<Boolean> checkIsDeliveryManyBatch(String waybillCode) {
+        Result<Boolean> result = Result.success();
+        result.setData(false);
+        try {
+            BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH);
+            if (waybillVasJXD != null && waybillVasJXD.getData() != null){
+                if(BusinessHelper.checkIsDeliveryManyBatch(waybillVasJXD.getData())){
+                    return result.setData(true);
+                }
+            }
+        } catch (Exception e) {
+            log.error("WaybillServiceImpl.checkIsDeliveryManyBatch exception {}", waybillCode, e);
+            result.toFail("检查是否是分批配送异常");
+        }
+        return result;
     }
 }

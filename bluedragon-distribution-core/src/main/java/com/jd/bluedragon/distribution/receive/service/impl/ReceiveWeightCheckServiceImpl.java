@@ -12,12 +12,14 @@ import com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.waybillVas.VasSourceEnum;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -54,6 +56,9 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     /**
      * 数据不存在就插入，存在就更新
@@ -268,8 +273,12 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         result.toSuccess();//初始状态成功
 
         /* 非签单返还 符合包裹半收，则必须进行称重和量方 */
-        final boolean isDeliveryManyBatch = this.checkIsDeliveryManyBatch(oldWaybillCode);
-        if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage && !isDeliveryManyBatch) {
+        final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(oldWaybillCode);
+        if(isDeliveryManyBatchResult.isFail()){
+            result.toError(JdResponse.CODE_SERVICE_ERROR, isDeliveryManyBatchResult.getMessage());
+            return result;
+        }
+        if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage && !isDeliveryManyBatchResult.getData()) {
             if (weightVolumeOperEnable != Constants.WEIGHT_VOLUME_ENABLE){
                 log.warn("ReverseChangeInterceptHandler.handle-->此包裹{}为半收包裹，必须启用包裹称重，并进行量方",
                         oldWaybillCode);

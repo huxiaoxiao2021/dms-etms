@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -61,6 +62,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
@@ -838,6 +840,20 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         		}
         	}
 
+        }
+        // 7. 分批配送运单，不允许在分拣场地操作换单
+        // 如果当前操作场地不是终端场地
+        if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+            final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(wayBillCode);
+            if(isDeliveryManyBatchResult.isFail()){
+                result.setData(false);
+                result.setMessage(isDeliveryManyBatchResult.getMessage());
+                return result;
+            }
+            if (isDeliveryManyBatchResult.getData()) {
+                result.setData(false);
+                result.setMessage("先到先送运单禁止在分拣换单/换单打印");
+            }
         }
         return result;
     }
