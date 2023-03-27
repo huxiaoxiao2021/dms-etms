@@ -248,7 +248,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             boolean matchGetCrossOfAir = waybillCommonService.isMatchGetCrossOfAir(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay(), tmsWaybill.getOldSiteId(), dmsCode,waybillCode);
             if(matchGetCrossOfAir){
-                log.info("符合航空航填面单的滑道信息逻辑");
+                log.info("符合航空航填面单的滑道信息逻辑1");
                 commonWaybill.setTempOriginalCrossType(Constants.ORIGINAL_CROSS_TYPE_GENERAL);
             }else {
                 log.info("原有的赋值滑道信息逻辑");
