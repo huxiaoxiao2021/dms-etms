@@ -521,6 +521,11 @@ public class BasePrintWaybill implements Serializable {
 	 * 返调度标识 1-返调度 0-其他打印
 	 */
 	private Integer localSchedule;
+
+	/**
+	 * 始发滑道号类型 (临时变量)
+	 */
+	private Integer tempOriginalCrossType;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1904,5 +1909,13 @@ public class BasePrintWaybill implements Serializable {
 	}
 	public void setLocalSchedule(Integer localSchedule) {
 		this.localSchedule = localSchedule;
+	}
+
+	public Integer getTempOriginalCrossType() {
+		return tempOriginalCrossType;
+	}
+
+	public void setTempOriginalCrossType(Integer tempOriginalCrossType) {
+		this.tempOriginalCrossType = tempOriginalCrossType;
 	}
 }
