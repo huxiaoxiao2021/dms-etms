@@ -151,7 +151,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     }
 
     @Override
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.processTaskOfscrapped", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req) {
         logger.info("任务处理processTaskOfscrapped-{}",JSON.toJSONString(req));
@@ -224,7 +223,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         scrapApproveProducer.sendOnFailPersistent(req.getBizId(), JsonHelper.toJson(req));
     }
 
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public void dealApproveResult(HistoryApprove historyApprove) {
         // 审批工单号
@@ -237,6 +235,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         int approveStatus = Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue()) ? JyApproveStatusEnum.PASS.getCode()
                 : Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue()) ? JyApproveStatusEnum.REJECT.getCode()
                 : JyApproveStatusEnum.UNKNOWN.getCode();
+        if(Objects.equals(approveStatus, JyApproveStatusEnum.UNKNOWN.getCode())){
+            logger.warn("当前节点:{}的审批状态为:{}不合法!", historyApprove.getNodeName(), historyApprove.getState());
+            return;
+        }
 
         // 查询审批数据:key-审批次数approveCount,value-业务主键bizId
         ImmutablePair<Integer, String> pairResult = queryApproveData(processInstanceNo);
@@ -250,37 +252,33 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         String bizId = pairResult.right;
 
         // 审批流程是否完结标识
-        boolean flowEndFlag;
-        // 审批流程最终结果
-        boolean approveFinalResult = !Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());
+        // 1、任一节点驳回则审批流程结束 
+        // 2、多个节点的审批则最终节点的审批通过为流程结束
+        boolean flowEndFlag = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());;
+        // 审批流程最终结果:true-审批通过,false-审批驳回
+        boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
         
         switch (JyExScrapApproveStageEnum.convertApproveEnum(nodeName)) {
             case FIRST:
                 logger.info("生鲜报废工单号:{}的一级审批结果:{}", bizId, historyApprove.getState());
+                approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount()) 
+                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
+                flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount());
                 updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.FIRST.getCode());
-                if(Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount()) 
-                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
-                    approveFinalResult = true;
-                }
-                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount());
                 break;
             case SECOND:
                 logger.info("生鲜报废工单号:{}的二级审批结果:{}", bizId, historyApprove.getState());
+                approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount())
+                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
+                flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount());
                 updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.SECOND.getCode());
-                if(Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount())
-                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
-                    approveFinalResult = true;
-                }
-                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount());
                 break;
             case THIRD:
                 logger.info("生鲜报废工单号:{}的三级审批结果:{}", bizId, historyApprove.getState());
+                approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount())
+                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
+                flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount());
                 updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.THIRD.getCode());
-                if(Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount())
-                        && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue())){
-                    approveFinalResult = true;
-                }
-                flowEndFlag = Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount());
                 break;
             default:
                 logger.warn("未知节点编码:{}", bizId);

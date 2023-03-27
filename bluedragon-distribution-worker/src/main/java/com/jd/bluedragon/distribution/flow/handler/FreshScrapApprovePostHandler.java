@@ -17,6 +17,7 @@ import java.util.Objects;
 
 /**
  * 生鲜报废审批回传处理handler
+ *  多级审批调用同一个方法处理
  *
  * @author hujiping
  * @date 2023/3/9 3:12 PM

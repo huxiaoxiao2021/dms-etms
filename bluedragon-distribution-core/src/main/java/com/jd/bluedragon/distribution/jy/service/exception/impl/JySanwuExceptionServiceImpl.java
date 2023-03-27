@@ -73,7 +73,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
      * 通用异常上报入口-扫描
      */
     @Override
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
     public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position,
                                           JyExpSourceEnum source,  String bizId) {
