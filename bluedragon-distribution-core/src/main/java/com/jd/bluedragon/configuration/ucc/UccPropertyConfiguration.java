@@ -798,29 +798,21 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardSealBoardListSelectLimit;
 
-    private boolean autoPackageSendInspectionSwitch;
 
-    private String autoPackageSendInspectionDelSiteCodes;
+    private String autoPackageSendInspectionSiteCodes;
 
     /**
      * 混扫任务流向限制
      */
     private Integer cttGroupSendFLowLimit;
 
-    public boolean isAutoPackageSendInspectionSwitch() {
-        return autoPackageSendInspectionSwitch;
+
+    public String getAutoPackageSendInspectionSiteCodes() {
+        return autoPackageSendInspectionSiteCodes;
     }
 
-    public void setAutoPackageSendInspectionSwitch(boolean autoPackageSendInspectionSwitch) {
-        this.autoPackageSendInspectionSwitch = autoPackageSendInspectionSwitch;
-    }
-
-    public String getAutoPackageSendInspectionDelSiteCodes() {
-        return autoPackageSendInspectionDelSiteCodes;
-    }
-
-    public void setAutoPackageSendInspectionDelSiteCodes(String autoPackageSendInspectionDelSiteCodes) {
-        this.autoPackageSendInspectionDelSiteCodes = autoPackageSendInspectionDelSiteCodes;
+    public void setAutoPackageSendInspectionSiteCodes(String autoPackageSendInspectionSiteCodes) {
+        this.autoPackageSendInspectionSiteCodes = autoPackageSendInspectionSiteCodes;
     }
 
     private Integer jyComboardSealBoardListLimit;
@@ -1222,6 +1214,36 @@ public class UccPropertyConfiguration {
      * 传站拦截-场地类型黑名单
      */
     private String czSiteTypeForbiddenList;
+
+    private boolean batchSendForbiddenSwitch;
+
+    public boolean getBatchSendForbiddenSwitch() {
+        return batchSendForbiddenSwitch;
+    }
+
+    public void setBatchSendForbiddenSwitch(boolean batchSendForbiddenSwitch) {
+        this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
+    }
+
+    private boolean needValidateBatchCodeHasSealed;
+
+    private String forceSendSiteList;
+
+    public String getForceSendSiteList() {
+        return forceSendSiteList;
+    }
+
+    public void setForceSendSiteList(String forceSendSiteList) {
+        this.forceSendSiteList = forceSendSiteList;
+    }
+
+    public boolean getNeedValidateBatchCodeHasSealed() {
+        return needValidateBatchCodeHasSealed;
+    }
+
+    public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+        this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+    }
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
