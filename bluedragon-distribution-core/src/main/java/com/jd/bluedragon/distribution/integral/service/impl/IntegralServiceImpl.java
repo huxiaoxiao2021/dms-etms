@@ -449,8 +449,11 @@ public class IntegralServiceImpl implements IntegralService {
             rankingDTO.setUserCode(flatDto.getUserCode());
             rankingDTO.setUserName(flatDto.getUserName());
             rankingDTO.setSiteCode(flatDto.getSiteCode().intValue());
+            rankingDTO.setSiteName(StringUtils.EMPTY);
             BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(rankingDTO.getSiteCode());
-            rankingDTO.setSiteName(operateSite.getSiteName());
+            if (operateSite != null) {
+                rankingDTO.setSiteName(operateSite.getSiteName());
+            }
             rankingDTO.setRanking(flatDto.getRanking());
             rankingDTO.setIntegral(flatDto.getIntegral());
             rankingDTO.setIntegralUpdateTime(flatDto.getRankingUpdateTime());
