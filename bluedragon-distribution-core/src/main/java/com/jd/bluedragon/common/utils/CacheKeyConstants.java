@@ -369,5 +369,8 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_CHANGE_ORDER_PRINT_KEY = JY_CACHE_PREFIX + "changeOrderPrintLock:%s";
 
-
+    /**
+     * 拣运-滞留扫描
+     */
+    public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";
 }

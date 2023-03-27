@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.strand.JyBizStrandReportDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity" id="jyBizTaskStrandReportDetailMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="scanBarCode" column="scan_bar_code"/>
+        <result property="containerCode" column="container_code"/>
+        <result property="containerInnerCount" column="container_inner_count"/>
+        <result property="scanType" column="scan_type"/>
+        <result property="isCancel" column="is_cancel"/>
+        <result property="gridCode" column="grid_code"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, biz_id, site_code, site_name, scan_bar_code, container_code, container_inner_count, scan_type, is_cancel, grid_code,
+        create_user_erp, update_user_erp, create_time, update_time, yn, ts
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO jy_strand_report_detail (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    id,
+                </if>
+                <if test="bizId != null">
+                    biz_id,
+                </if>
+                <if test="siteCode != null">
+                    site_code,
+                </if>
+                <if test="siteName != null">
+                    site_name,
+                </if>
+                <if test="scanBarCode != null">
+                    scan_bar_code,
+                </if>
+                <if test="containerCode != null">
+                    container_code,
+                </if>
+                <if test="containerInnerCount != null">
+                    container_inner_count,
+                </if>
+                <if test="scanType != null">
+                    scan_type,
+                </if>
+                <if test="isCancel != null">
+                    is_cancel,
+                </if>
+                <if test="gridCode != null">
+                    grid_code,
+                </if>
+                <if test="createUserErp != null">
+                    create_user_erp,
+                </if>
+                <if test="updateUserErp != null">
+                    update_user_erp,
+                </if>
+                    create_time,
+                    update_time,
+                    yn,
+                    ts
+            </trim>
+        ) VALUES (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    #{id},
+                </if>
+                <if test="bizId != null">
+                    #{bizId},
+                </if>
+                <if test="siteCode != null">
+                    #{siteCode},
+                </if>
+                <if test="siteName != null">
+                    #{siteName},
+                </if>
+                <if test="scanBarCode != null">
+                    #{scanBarCode},
+                </if>
+                <if test="containerCode != null">
+                    #{containerCode},
+                </if>
+                <if test="containerInnerCount != null">
+                    #{containerInnerCount},
+                </if>
+                <if test="scanType != null">
+                    #{scanType},
+                </if>
+                <if test="isCancel != null">
+                    #{isCancel},
+                </if>
+                <if test="gridCode != null">
+                    #{gridCode},
+                </if>
+                <if test="createUserErp != null">
+                    #{createUserErp},
+                </if>
+                <if test="updateUserErp != null">
+                    #{updateUserErp},
+                </if>
+                now(),
+                now(),
+                1,
+                now()
+            </trim>
+        )
+    </insert>
+
+    <update id="cancel" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity">
+        update jy_strand_report_detail
+        <set>
+            is_cancel = 1,
+            update_time = now(),
+            update_user_erp = #{updateUserErp}
+        </set>
+        <where>
+            yn = 1
+            and is_cancel = 0
+            and biz_id = #{bizId}
+            and scan_bar_code = #{scanBarCode}
+            and container_code = #{containerCode}
+        </where>
+    </update>
+    
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity">
+        update jy_strand_report_detail
+        <set>
+            yn = 0,
+            update_time = #{updateTime},
+            update_user_erp = #{updateUserErp}
+        </set>
+        <where>
+            yn = 1
+            and biz_id = #{bizId}
+            and scan_bar_code = #{scanBarCode}
+        </where>
+    </update>
+
+    <select id="queryOneByCondition" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity" resultMap="jyBizTaskStrandReportDetailMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_strand_report_detail
+        where yn = 1
+        and biz_id = #{bizId,jdbcType=VARCHAR}
+        <if test="scanBarCode != null and scanBarCode != ''">
+            and scan_bar_code = #{scanBarCode,jdbcType=VARCHAR}
+        </if>
+        <if test="containerCode != null and containerCode != ''">
+            and container_code = #{containerCode,jdbcType=VARCHAR}
+        </if>
+        limit 1
+    </select>
+    
+    <select id="queryPageListByCondition" parameterType="map" resultMap="jyBizTaskStrandReportDetailMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_strand_report_detail
+        where yn = 1
+        and is_cancel = 0
+        and biz_id = #{bizId,jdbcType=VARCHAR}
+        order by create_time desc
+        <if test="offset != null">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="queryTotalInnerScanNum" parameterType="string" resultType="int">
+        select
+            sum(container_inner_count)
+        from
+            jy_strand_report_detail
+        where yn = 1
+        and is_cancel = 0
+        and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="queryTotalScanNum" parameterType="string" resultType="int">
+        select
+            count(*)
+        from
+            jy_strand_report_detail
+        where yn = 1
+          and is_cancel = 0
+          and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>
+
+</mapper>

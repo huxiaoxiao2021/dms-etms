@@ -1860,4 +1860,9 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+
+    /**
+     * 拣运滞留任务biz前缀
+     */
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "JY_STRAND_";
 }

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.strand.JyBizTaskStrandReportDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity" id="jyBizTaskStrandReportMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transportRejectBiz" column="transport_reject_biz"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="strandCode" column="strand_code"/>
+        <result property="strandReason" column="strand_reason"/>
+        <result property="nextSiteCode" column="next_site_code"/>
+        <result property="nextSiteName" column="next_site_name"/>
+        <result property="waveTime" column="wave_time"/>
+        <result property="taskType" column="task_type"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="submitUserErp" column="submit_user_erp"/>
+        <result property="expectCloseTime" column="expect_close_time"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, biz_id, transport_reject_biz, site_code, site_name, strand_code, strand_reason, next_site_code, next_site_name, wave_time, task_type, task_status,
+        create_user_erp, create_user_name, update_user_erp, submit_user_erp, expect_close_time, submit_time, create_time, update_time, yn, ts
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO jy_biz_task_strand_report (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    id,
+                </if>
+                <if test="bizId != null">
+                    biz_id,
+                </if>
+                <if test="transportRejectBiz != null">
+                    transport_reject_biz,
+                </if>
+                <if test="siteCode != null">
+                    site_code,
+                </if>
+                <if test="siteName != null">
+                    site_name,
+                </if>
+                <if test="strandCode != null">
+                    strand_code,
+                </if>
+                <if test="strandReason != null">
+                    strand_reason,
+                </if>
+                <if test="nextSiteCode != null">
+                    next_site_code,
+                </if>
+                <if test="nextSiteName != null">
+                    next_site_name,
+                </if>
+                <if test="waveTime != null">
+                    wave_time,
+                </if>
+                <if test="taskType != null">
+                    task_type,
+                </if>
+                <if test="taskStatus != null">
+                    task_status,
+                </if>
+                <if test="createUserErp != null">
+                    create_user_erp,
+                </if>
+                <if test="createUserName != null">
+                    create_user_name,
+                </if>
+                <if test="updateUserErp != null">
+                    update_user_erp,
+                </if>
+                <if test="submitUserErp != null">
+                    submit_user_erp,
+                </if>
+                <if test="expectCloseTime != null">
+                    expect_close_time,
+                </if>
+                <if test="submitTime != null">
+                    submit_time,
+                </if>
+                    create_time,
+                    update_time,
+                    yn,
+                    ts
+            </trim>
+        ) VALUES (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    #{id},
+                </if>
+                <if test="bizId != null">
+                    #{bizId},
+                </if>
+                <if test="transportRejectBiz != null">
+                    #{transportRejectBiz},
+                </if>
+                <if test="siteCode != null">
+                    #{siteCode},
+                </if>
+                <if test="siteName != null">
+                    #{siteName},
+                </if>
+                <if test="strandCode != null">
+                    #{strandCode},
+                </if>
+                <if test="strandReason != null">
+                    #{strandReason},
+                </if>
+                <if test="nextSiteCode != null">
+                    #{nextSiteCode},
+                </if>
+                <if test="nextSiteName != null">
+                    #{nextSiteName},
+                </if>
+                <if test="waveTime != null">
+                    #{waveTime},
+                </if>
+                <if test="taskType != null">
+                    #{taskType},
+                </if>
+                <if test="taskStatus != null">
+                    #{taskStatus},
+                </if>
+                <if test="createUserErp != null">
+                    #{createUserErp},
+                </if>
+                <if test="createUserName != null">
+                    #{createUserName},
+                </if>
+                <if test="updateUserErp != null">
+                    #{updateUserErp},
+                </if>
+                <if test="submitUserErp != null">
+                    #{submitUserErp},
+                </if>
+                <if test="expectCloseTime != null">
+                    #{expectCloseTime},
+                </if>
+                <if test="submitTime != null">
+                    #{submitTime},
+                </if>
+                now(),
+                now(),
+                1,
+                now()
+            </trim>
+        )
+    </insert>
+
+    <update id="updateStatus" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity">
+        update jy_biz_task_strand_report
+        <set>
+            task_status = #{taskStatus},
+            update_time = now(),
+            update_user_erp = #{updateUserErp}
+        </set>
+        <where>
+            yn = 1
+            and biz_id = #{bizId}
+        </where>
+    </update>
+
+    <update id="overTimeBatchUpdate" parameterType="java.util.List">
+        update jy_biz_task_strand_report
+        set
+            task_status = 4,
+            update_time = now(),
+            update_user_erp = 'SYSTEM'
+        where
+            yn = 1
+        and biz_id in
+        <foreach item="bizId" index="index" collection="list" open="(" separator="," close=")">
+            #{bizId}
+        </foreach>
+    </update>
+
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity">
+        update jy_biz_task_strand_report
+        <set>
+            yn = 0,
+            update_time = now(),
+            update_user_erp = #{updateUserErp}
+        </set>
+        <where>
+            yn = 1
+            and biz_id = #{bizId}
+        </where>
+    </update>
+
+    <select id="queryOneByBiz" parameterType="string" resultMap="jyBizTaskStrandReportMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_strand_report
+        where yn = 1
+        and biz_id = #{bizId,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="queryPageListByCondition" parameterType="com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition" resultMap="jyBizTaskStrandReportMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_strand_report
+        where yn = 1
+        and site_code = #{siteCode}
+        <if test="taskType != null">
+            AND task_type = #{taskType}
+        </if>
+        <if test="taskStatus != null">
+            AND task_status = #{taskStatus}
+        </if>
+        <if test="taskStatusList != null">
+            AND task_status in
+            <foreach item="taskStatus" index="index" collection="taskStatusList"
+                     open="(" separator="," close=")">
+                #{taskStatus}
+            </foreach>
+        </if>
+        <if test="taskTypeList != null">
+            AND task_type in
+            <foreach item="taskType" index="index" collection="taskTypeList"
+                     open="(" separator="," close=")">
+                #{taskType}
+            </foreach>
+        </if>
+        order by task_status desc, create_time desc
+        <if test="pageNo > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="queryTotalCondition" parameterType="com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition" resultType="int">
+        select
+            count(*)
+        from
+            jy_biz_task_strand_report
+        where yn = 1
+        and site_code = #{siteCode}
+        <if test="taskType != null">
+            AND task_type = #{taskType}
+        </if>
+        <if test="taskStatus != null">
+            AND task_status = #{taskStatus}
+        </if>
+        <if test="taskStatusList != null">
+            AND task_status in
+            <foreach item="taskStatus" index="index" collection="taskStatusList"
+                     open="(" separator="," close=")">
+                #{taskStatus}
+            </foreach>
+        </if>
+        <if test="taskTypeList != null">
+            AND task_type in
+            <foreach item="taskType" index="index" collection="taskTypeList"
+                     open="(" separator="," close=")">
+                #{taskType}
+            </foreach>
+        </if>
+    </select>
+    
+    <select id="queryOneByTransportRejectBiz" parameterType="string" resultMap="jyBizTaskStrandReportMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_strand_report
+        where yn = 1
+        and transport_reject_biz = #{transportRejectBiz,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+</mapper>
