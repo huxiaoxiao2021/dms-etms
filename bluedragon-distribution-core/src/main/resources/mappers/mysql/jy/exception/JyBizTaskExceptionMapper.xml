@@ -408,7 +408,7 @@
         select handler_erp
         FROM jy_biz_task_exception
         WHERE
-            yn = 1 and type = 2
+            yn = 1 and type = 1
         and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
         and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
         group by handler_erp
@@ -418,7 +418,7 @@
         select <include refid="Base_Column_List"/>
         FROM jy_biz_task_exception
         WHERE
-            yn = 1 and type = 2
+            yn = 1 and type = 1
         and handler_erp = #{handlerErp}
         and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
         and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
@@ -428,7 +428,7 @@
         select count(*)
         FROM jy_biz_task_exception
         WHERE
-        yn = 1 and type = 2
+        yn = 1 and type = 1
         and site_code = #{siteCode}
         and  <![CDATA[   process_begin_time >= #{processBeginTime}  ]]>
     </select>
