@@ -52,6 +52,7 @@ import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.dbs.util.CollectionUtils;
@@ -788,6 +789,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             resp.setSendCode(sendMList.get(0).getSendCode());
             resp.setCreateTime(sendMList.get(0).getOperateTime());
+        }
+        else if (BusinessUtil.isBoardCode(request.getBarCode())){
+            SendM sendM =sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(),request.getBarCode(),SendStatusEnum.HAS_BEEN_SENDED.getCode());
+            if (!ObjectHelper.isNotNull(sendM)){
+                throw new JyBizException("未找到该板号的发货记录！");
+            }
+            resp.setSendCode(sendM.getSendCode());
+            resp.setCreateTime(sendM.getOperateTime());
         }
         else if (BusinessUtil.isSendCode(request.getBarCode())){
             resp.setSendCode(request.getBarCode());
