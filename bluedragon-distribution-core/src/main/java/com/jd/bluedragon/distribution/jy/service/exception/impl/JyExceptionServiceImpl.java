@@ -516,12 +516,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         }
                         for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
                             if(entity.getBizId().equals(detailDto.getBizId())){
-                                if(StringUtils.isNotBlank(detailDto.getThirdChecker())){
-                                    dto.setCheckerErp(detailDto.getThirdChecker());
-                                }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())){
+                                if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
+                                        ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                                            ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                                    dto.setCheckerErp(detailDto.getFirstChecker());
+                                }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
+                                        ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                                                ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
                                     dto.setCheckerErp(detailDto.getSecondChecker());
                                 }else {
-                                    dto.setCheckerErp(detailDto.getFirstChecker());
+                                    dto.setCheckerErp(detailDto.getThirdChecker());
                                 }
                                 //提交时间
                                 dto.setCheckTime(detailDto.getSubmitTime());
