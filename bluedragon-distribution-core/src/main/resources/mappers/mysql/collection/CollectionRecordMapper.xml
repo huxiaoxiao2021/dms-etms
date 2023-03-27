@@ -264,6 +264,9 @@
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				<if test="aggCode != null">
+					and agg_code = #{aggCode, jdbcType=VARCHAR}
+				</if>
 				<if test="collectedMark != null">
 					and collected_mark = #{collectedMark, jdbcType=VARCHAR}
 				</if>
@@ -302,6 +305,9 @@
 					</foreach>
 					<if test="aggCodeType != null">
 						and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+					</if>
+					<if test="aggCode != null">
+						and crd.agg_code = #{aggCode, jdbcType=VARCHAR}
 					</if>
 					<if test="collectedMark != null">
 						and crd.`collected_mark` = #{collectedMark, jdbcType=VARCHAR}
@@ -422,7 +428,7 @@
 	</select>
 
 	<select id="queryCollectedDetailByCollectionAndAggCode" parameterType="CollectionRecordPo"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo">
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
 
 		SELECT
 			collection_code, agg_code, agg_code_type, collected_mark, count(1) as number
@@ -437,7 +443,7 @@
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
-		order by collected_mark
+		group by collection_code, collected_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>

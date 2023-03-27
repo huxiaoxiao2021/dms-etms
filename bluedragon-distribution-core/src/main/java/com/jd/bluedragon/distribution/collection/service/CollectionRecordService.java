@@ -79,13 +79,13 @@ public interface CollectionRecordService {
      * @return 返回不齐数量
      */
     Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
     Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
     Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
     /**
      * 根据待集齐集合和状态查询aggCode统计情况

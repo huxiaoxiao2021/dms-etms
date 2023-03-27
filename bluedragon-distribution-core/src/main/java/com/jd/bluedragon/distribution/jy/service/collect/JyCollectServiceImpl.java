@@ -57,8 +57,8 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -157,7 +157,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         noneCollected.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
         noneCollected.setStatisticsNum(
             collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
-                collectReportReqDto.getBizId())
+                collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId())
         );
         res.add(noneCollected);
 
@@ -166,7 +166,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         taskCollected.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
         taskCollected.setStatisticsNum(
             collectionRecordService.countCollectionAggCodeNumByCollectionCodeInnerMark(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
-                collectReportReqDto.getBizId())
+                collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId())
         );
         res.add(taskCollected);
 
@@ -175,7 +175,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         siteCollected.setCollectType(CollectTypeEnum.SITE_JIQI.getCode());
         siteCollected.setStatisticsNum(
             collectionRecordService.countCollectionAggCodeNumByCollectionCodeOutMark(collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code,
-                collectReportReqDto.getBizId())
+                collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId())
         );
         res.add(siteCollected);
 
@@ -205,7 +205,12 @@ public class JyCollectServiceImpl implements JyCollectService{
             element.put(CollectionConditionKeyEnum.date_time, s);
 
             return collectionRecordService.queryAllCollectionCodesByElement(element, businessType).stream();
-        }).collect(Collectors.toList());
+        }).collect(
+            Collectors.collectingAndThen(
+                Collectors.toCollection(
+                    () -> new TreeSet<>(Comparator.comparing(CollectionCodeEntity::getCollectionCode))), ArrayList::new
+            )
+        );
     }
 
     /**
@@ -362,8 +367,8 @@ public class JyCollectServiceImpl implements JyCollectService{
     }
     //集齐初始化参数组装
     private Map<String, String> getNextSiteCodeMap(CollectDto collectDto) {
-        Integer nextSiteId = null;
-        if(collectDto.getNextSiteCode() == null) {
+        Integer nextSiteId = collectDto.getNextSiteCode();
+        if(nextSiteId == null) {
             nextSiteId = waybillService.getRouterFromMasterDb(collectDto.getWaybillCode(), collectDto.getCollectNodeSiteCode());
         }
         if(nextSiteId == null) {
@@ -429,7 +434,10 @@ public class JyCollectServiceImpl implements JyCollectService{
     public boolean updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto) {
         Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
         collectElements.put(CollectionConditionKeyEnum.site_code, unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
-        collectElements.put(CollectionConditionKeyEnum.seal_car_code, unloadScanCollectDealDto.getBizId());
+        if (Boolean.FALSE.equals(unloadScanCollectDealDto.getManualCreateTaskFlag())) {
+            //非自建任务只需要更新场地维度的集齐数据
+            collectElements.put(CollectionConditionKeyEnum.seal_car_code, unloadScanCollectDealDto.getBizId());
+        }
         collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
         //
         CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
@@ -681,7 +689,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         List<CollectionCodeEntity> collectionCodeEntities = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
         Integer waybillBuQiNum =
             collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities,
-                CollectionAggCodeTypeEnum.waybill_code, reqDto.getBizId());
+                CollectionAggCodeTypeEnum.waybill_code, null, reqDto.getBizId());
         if(waybillBuQiNum == null) {
             log.warn("JyCollectServiceImpl.collectWaitWaybillNum：查不齐运单数量返回空,服务req={}，查询参数={}", JsonHelper.toJson(reqDto), JsonHelper.toJson(collectionCodeEntities));
             waybillBuQiNum = 0;

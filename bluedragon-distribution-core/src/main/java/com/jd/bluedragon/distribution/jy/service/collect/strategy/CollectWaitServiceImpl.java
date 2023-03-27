@@ -94,7 +94,7 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             return Collections.emptyList();
         }
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
-            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.all_site_collection
+            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
         );
 
         List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(collectionCodeEntities,

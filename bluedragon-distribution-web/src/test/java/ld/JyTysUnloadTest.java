@@ -140,7 +140,7 @@ public class JyTysUnloadTest {
         while(true) {
             try {
                 CollectStatisticsQueryDto param = new CollectStatisticsQueryDto();
-                param.setBizId("SC23032100029225");
+                param.setBizId("SC23032400029409");
                 User user = new User();
                 user.setUserErp("xumigen");
                 param.setUser(user);
@@ -220,8 +220,8 @@ public class JyTysUnloadTest {
                 param1.setPageNo(1);
                 param1.setPageSize(100);
                 param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-                param1.setBizId("XCZJ23031600000013");
-                param1.setWaybillCode("JD0003419474704");
+                param1.setBizId("SC23032400029409");
+                param1.setWaybillCode("JD0003419520704");
 
                 User user = new User();
                 user.setUserErp("xumigen");
@@ -245,8 +245,8 @@ public class JyTysUnloadTest {
                 String json = "";
                 CollectReportQueryParamReqDto param1 = new CollectReportQueryParamReqDto();
                 param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-                param1.setBizId("XCZJ23031600000013");
-                param1.setScanCode("JD0003419474704");
+                param1.setBizId("SC23032400029409");
+                param1.setScanCode("JD0003419520704-1-5-");
 
                 User user = new User();
                 user.setUserErp("xumigen");

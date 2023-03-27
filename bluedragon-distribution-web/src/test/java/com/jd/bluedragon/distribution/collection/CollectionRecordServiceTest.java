@@ -214,7 +214,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         System.out.println(
             JsonHelper.toJson(collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(
                 collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null),
-                CollectionAggCodeTypeEnum.waybill_code, String.valueOf(collectionCodeEntityUnload.getCollectElements().get(CollectionConditionKeyEnum.seal_car_code))
+                CollectionAggCodeTypeEnum.waybill_code, "", String.valueOf(collectionCodeEntityUnload.getCollectElements().get(CollectionConditionKeyEnum.seal_car_code))
                 )
             )
         );
@@ -229,12 +229,12 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         System.out.println(JsonHelper.toJson(
             collectionRecordService.countCollectionAggCodeNumByCollectionCodeInnerMark(
                 collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
-                ,CollectionAggCodeTypeEnum.waybill_code, ""
+                ,CollectionAggCodeTypeEnum.waybill_code, "", ""
         )));
         System.out.println(JsonHelper.toJson(
             collectionRecordService.countCollectionAggCodeNumByCollectionCodeOutMark(
                 collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(),null)
-                ,CollectionAggCodeTypeEnum.waybill_code, ""
+                ,CollectionAggCodeTypeEnum.waybill_code, "", ""
             )));
     }
 

@@ -11,6 +11,11 @@ public class CollectReportDto implements Serializable {
 
     private static final long serialVersionUID = -6963372061306635997L;
 
+    /**
+     * 命中的待集齐集合ID
+     */
+    private String collectionCode;
+
     private String waybillCode;
     /**
      * 已卸
@@ -39,6 +44,13 @@ public class CollectReportDto implements Serializable {
     private String goodsAreaCode;
     private Integer nextSiteCode;
 
+    public String getCollectionCode() {
+        return collectionCode;
+    }
+
+    public void setCollectionCode(String collectionCode) {
+        this.collectionCode = collectionCode;
+    }
 
     public String getWaybillCode() {
         return waybillCode;

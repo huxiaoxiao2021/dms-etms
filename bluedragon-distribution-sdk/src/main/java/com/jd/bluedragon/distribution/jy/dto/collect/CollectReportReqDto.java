@@ -22,6 +22,11 @@ public class CollectReportReqDto extends JyReqBaseDto implements Serializable {
     private Integer collectType;
 
     /**
+     * 命中的待集齐集合ID
+     */
+    private String collectionCode;
+
+    /**
      * 是否自建任务标识： true
      */
     private Boolean manualCreateTaskFlag;
@@ -34,7 +39,13 @@ public class CollectReportReqDto extends JyReqBaseDto implements Serializable {
      */
     private int pageNo;
 
+    public String getCollectionCode() {
+        return collectionCode;
+    }
 
+    public void setCollectionCode(String collectionCode) {
+        this.collectionCode = collectionCode;
+    }
 
     public String getBizId() {
         return bizId;

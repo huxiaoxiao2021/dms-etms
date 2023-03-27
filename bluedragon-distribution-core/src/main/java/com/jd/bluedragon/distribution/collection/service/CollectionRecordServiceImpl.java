@@ -519,7 +519,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+    public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
             return 0;
         }
@@ -530,28 +531,28 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
 
         return collectionRecordDao.countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(
-            collectionCodes, aggCodeTypeEnum, collectedMark);
+            collectionCodes, aggCodeTypeEnum, aggCode, collectedMark);
 
     }
 
     @Override
     public Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, collectedMark, true);
+        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, aggCode, collectedMark, true);
 
 
     }
 
     @Override
     public Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, collectedMark, false);
+        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, aggCode, collectedMark, false);
     }
 
     @Override
