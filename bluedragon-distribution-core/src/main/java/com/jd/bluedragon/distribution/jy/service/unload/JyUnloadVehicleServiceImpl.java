@@ -569,7 +569,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         BaseSiteInfoDto lastSortingSite = null;
         final String routersStr = waybillService.getRouterByWaybillCode(waybillCode);
         log.info("JyUnloadVehicleServiceImpl.handleDepponMergeCondition getRouterByWaybillCode {}", routersStr);
-        if(StringUtils.isNotBlank(routersStr)){
+        final boolean hasRouter = StringUtils.isNotBlank(routersStr);
+        if(hasRouter){
             String[] routersArr = routersStr.split(Constants.WAYBILL_ROUTER_SPLIT);
             final List<String> routerStrList = Arrays.asList(routersArr);
             // 先判断是否有相同的路由节点，再判断是否为分拣中心
@@ -654,16 +655,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 }
             } else {
                 // 提醒最后一个分拣中心三位短码
-                message = this.getDepponAlarmSiteDmsCode(lastSortingSite);
+                if(hasRouter){
+                    log.info("handleDepponMergeCondition firstSortingSite or lastSortingSite not null and hasRouter");
+                    message = this.getDepponAlarmSiteDmsCode(lastSortingSite);
+                }
             }
         }
         if(firstSortingSite == null || lastSortingSite == null){
+            log.info("handleDepponMergeCondition firstSortingSite or lastSortingSite null");
             // 提醒第一个分拣中心三位短码
             BaseSiteInfoDto alarmSite = firstSortingSite != null ? firstSortingSite : lastSortingSite;
             message = getDepponAlarmSiteDmsCode(alarmSite);
         }
-        // 添加弹窗提示
-        result.customMessage(InvokeResult.CODE_CONFIRM, message);
+        // 添加toast提示
+        result.customMessage(InvokeResult.CODE_HINT, message);
     }
 
     private final Integer sorting_sortType = 12351;
