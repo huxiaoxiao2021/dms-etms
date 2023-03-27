@@ -73,6 +73,8 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
             CollectReportDto collectReportDto = new CollectReportDto();
+            collectReportDto.setWaybillCode(collectionAggCodeCounter.getAggCode());
+            collectReportDto.setCollectionCode(collectionAggCodeCounter.getCollectionCode());
             if(NumberUtils.isCreatable(collectionAggCodeCounter.getAggMark())) {
                 String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(collectReportReqDto.getCurrentOperate().getSiteCode(), Integer.valueOf(collectionAggCodeCounter.getAggMark()));
                 collectReportDto.setGoodsAreaCode(goodsAreaCode);
@@ -81,7 +83,6 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             collectReportDto.setScanDoNum(collectionAggCodeCounter.getInnerMarkCollectedNum());
             collectReportDto.setPackageNum(collectionAggCodeCounter.getSumScanNum());
             collectReportDto.setScanWaitNum(collectionAggCodeCounter.getInnerMarkNoneCollectedNum());
-            collectReportDto.setWaybillCode(collectionAggCodeCounter.getAggCode());
             collectReportDto.setScanNullNum(collectionAggCodeCounter.getNoneMarkNoneCollectedNum());
             return collectReportDto;
         }).collect(Collectors.toList());
