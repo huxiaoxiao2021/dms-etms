@@ -40,7 +40,7 @@
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
-		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
+		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
 	</properties>
 
