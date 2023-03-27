@@ -22,6 +22,10 @@ public class ExchangePrintRequest extends JdObject {
      * */
     private Integer packageNumber;
 
+    private Integer siteCode;
+
+    private String siteName;
+
     public String getOldWaybillCode() {
         return oldWaybillCode;
     }
@@ -36,5 +40,21 @@ public class ExchangePrintRequest extends JdObject {
 
     public void setPackageNumber(Integer packageNumber) {
         this.packageNumber = packageNumber;
+    }
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
     }
 }
