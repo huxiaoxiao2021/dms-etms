@@ -607,13 +607,4 @@
                   server="dmsjsf">
     </jsf:provider>
 
-
-    <!-- 四级地址 -->
-    <bean id="externalAddressToJDAddressServiceGateWayImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExternalAddressToJDAddressServiceGateWayImpl" />
-    <jsf:provider id="jsfExternalAddressToJDAddressServiceGateWay"
-                  interface="com.jd.bluedragon.external.gateway.service.ExternalAddressToJDAddressServiceGateWay"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="externalAddressToJDAddressServiceGateWayImpl"
-                  server="dmsjsf">
-    </jsf:provider>
 </beans>
