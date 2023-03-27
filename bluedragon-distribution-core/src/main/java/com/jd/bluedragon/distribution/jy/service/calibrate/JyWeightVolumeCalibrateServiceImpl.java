@@ -546,6 +546,30 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             taskDetail.setVolumeCalibrateStatus(dwsMachineCalibrateMQ.getCalibrateStatus());
             taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
         }
+        // 重量体积一起校验时  根据设备状态判断重量体积是否合格
+        // 1-都合格  2-体积不合格  3-重量不合格  4-都不合格
+        if (Objects.equals(JyBizTaskMachineCalibrateTypeEnum.CALIBRATE_TYPE_W_V.getCode(), dwsMachineCalibrateMQ.getCalibrateType())) {
+            switch (dwsMachineCalibrateMQ.getMachineStatus()) {
+                case 1:
+                    taskDetail.setWeightCalibrateStatus(JyBizTaskMachineWeightCalibrateStatusEnum.ELIGIBLE.getCode());
+                    taskDetail.setVolumeCalibrateStatus(JyBizTaskMachineVolumeCalibrateStatusEnum.ELIGIBLE.getCode());
+                    break;
+                case 2:
+                    taskDetail.setWeightCalibrateStatus(JyBizTaskMachineWeightCalibrateStatusEnum.ELIGIBLE.getCode());
+                    taskDetail.setVolumeCalibrateStatus(JyBizTaskMachineVolumeCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+                    break;
+                case 3:
+                    taskDetail.setWeightCalibrateStatus(JyBizTaskMachineWeightCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+                    taskDetail.setVolumeCalibrateStatus(JyBizTaskMachineVolumeCalibrateStatusEnum.ELIGIBLE.getCode());
+                    break;
+                case 4:
+                    taskDetail.setWeightCalibrateStatus(JyBizTaskMachineWeightCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+                    taskDetail.setVolumeCalibrateStatus(JyBizTaskMachineVolumeCalibrateStatusEnum.UN_ELIGIBLE.getCode());
+                    break;
+            }
+            taskDetail.setWeightCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+            taskDetail.setVolumeCalibrateTime(new Date(dwsMachineCalibrateMQ.getCalibrateTime()));
+        }
         // 重量、体积都操作校准了，校准任务结束
         boolean isFinished = !Objects.equals(taskDetail.getWeightCalibrateStatus(), JyBizTaskMachineWeightCalibrateStatusEnum.NO_CALIBRATE.getCode())
                 && !Objects.equals(taskDetail.getVolumeCalibrateStatus(), JyBizTaskMachineVolumeCalibrateStatusEnum.NO_CALIBRATE.getCode());
