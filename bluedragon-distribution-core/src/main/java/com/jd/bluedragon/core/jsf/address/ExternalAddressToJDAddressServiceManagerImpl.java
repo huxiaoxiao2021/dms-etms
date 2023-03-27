@@ -33,7 +33,7 @@ public class ExternalAddressToJDAddressServiceManagerImpl implements ExternalAdd
     /**
      * 秘钥
      */
-    @Value("${beans.gbDistrictJDDistrictMapServiceManager.appKey}")
+    @Value("${beans.externalAddressToJDAddressServiceManager.getJDDistrict.appKey}")
     private String appKey;
 
 
