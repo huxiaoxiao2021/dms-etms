@@ -1869,6 +1869,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否城配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isKySite(Integer siteType, Integer subType) {
+        if(subType == null || subType == null){
+            return false;
+        }
+        return SITE_TYPE_FLEET == subType && new ArrayList<Integer>(Arrays.asList(9605, 9607)).contains(subType);
+    }
+
+    /**
      * 是否外单自提点
      *  C网 waybillsign第40位=0
      *  订单类型 SOP Waybillsign第1位=2
