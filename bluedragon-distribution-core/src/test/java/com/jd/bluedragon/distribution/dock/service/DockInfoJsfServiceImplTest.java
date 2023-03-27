@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.dock.service;
 
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.entity.AllowedVehicleEntity;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.dock.enums.DockAttributeEnums;
 import com.jd.bluedragon.distribution.dock.enums.DockTypeEnums;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -128,4 +131,14 @@ public class DockInfoJsfServiceImplTest {
     public void findById() {
         System.out.println(JsonHelper.toJson(dockBaseInfoDao.findById(1L)));
     }
+
+    @Test
+    public void testQueryDockListBySiteId() {
+        Integer siteCode = 10186;
+        DockInfoEntity entity = new DockInfoEntity();
+        entity.setSiteCode(siteCode);
+        Response<List<String>> response = dockInfoJsfService.queryDockListBySiteId(entity);
+        Assert.assertNotNull(response);
+    }
+    
 }
