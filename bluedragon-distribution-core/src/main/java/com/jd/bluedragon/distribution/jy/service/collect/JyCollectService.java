@@ -108,4 +108,10 @@ public interface JyCollectService {
      * @return
      */
     InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto);
+
+    /**
+     * 封车末级运单 或者 封车扫描多扫末级运单  发送运单维度集齐初始化
+     * @param collectDto
+     */
+    public void sealCarWaybillCollectInitSendMq(CollectDto collectDto);
 }

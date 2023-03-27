@@ -302,7 +302,8 @@ public class JyCollectServiceImpl implements JyCollectService{
     /**
      * 生成任务初始化集齐对象，发送初始化jmq
      */
-    private void sealCarWaybillCollectInitSendMq(CollectDto collectDto) {
+    @Override
+    public void sealCarWaybillCollectInitSendMq(CollectDto collectDto) {
 
         InitCollectDto initCollectDto = new InitCollectDto();
         initCollectDto.setOperateTime(System.currentTimeMillis());
