@@ -683,6 +683,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         Objects.equals(collectionRecordDetailPo.getCollectedMark(), collectedMark)?
                             CollectionCollectedMarkTypeEnum.inner : CollectionCollectedMarkTypeEnum.outer
                 )
+                .ts(collectionRecordDetailPo.getTs())
                 .build()
             )
             .collect(Collectors.toList());

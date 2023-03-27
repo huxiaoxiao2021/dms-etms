@@ -349,22 +349,6 @@
 		</where>
 	</select>
 
-	<select id="sumAggCollectedByAggCode" parameterType="CollectionRecordDetailPo"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionScanMarkCounter">
-		SELECT
-			collection_code, agg_code, agg_code_type, collected_status, collected_mark, count(collected_status) as num
-		FROM
-			collection_record_detail
-		<where>
-			collection_code = #{collectionCode, jdbcType=VARCHAR}
-			and agg_code = #{aggCode, jdbcType=VARCHAR}
-			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			and yn = 1
-		</where>
-		group by
-			collected_status,collected_mark
-	</select>
-
 	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
 
@@ -427,23 +411,23 @@
 			collection_code, agg_code, collected_status, collected_mark
 	</select>
 
-	<select id="queryCollectedDetailByCollectionAndAggCode" parameterType="CollectionRecordPo"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
+	<select id="queryCollectedDetailByCollectionAndAggCode" parameterType="CollectionRecordPo" resultMap="collectionRecordDetailMap">
 
 		SELECT
-			collection_code, agg_code, agg_code_type, collected_mark, count(1) as number
+			collection_code, agg_code, agg_code_type, scan_code, scan_code_type, collected_status, collected_mark,
+		max(ts) as ts
 		FROM
 			collection_record_detail
 		<where>
 			collection_code in
-			<foreach collection="list" open="(" item="collectionCode" separator="," close=")">
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 				#{collectionCode, jdbcType=VARCHAR}
 			</foreach>
 			and agg_code = #{aggCode, jdbcType=VARCHAR}
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and yn = 1
 		</where>
-		group by collection_code, collected_mark
+		order by collected_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>

@@ -19,6 +19,7 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,8 +61,14 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
         );
+
         List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumNoneCollectedAggCodeByCollectionCode(
-            collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
+            collectionCodeEntities.parallelStream().filter(
+                collectionCodeEntity ->
+                    StringUtils.isEmpty(collectReportReqDto.getCollectionCode())
+                        || Objects.equals(collectionCodeEntity.getCollectionCode(), collectReportReqDto.getCollectionCode()))
+                .collect(Collectors.toList()),
+            CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
@@ -89,7 +97,7 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
 
     @Override
     @JProfiler(jKey = "CollectWaitServiceImpl.queryCollectDetail",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto) {
+    public List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto,ITSSetter tsSetter) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
         }
@@ -97,12 +105,17 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
         );
 
-        List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(collectionCodeEntities,
+        List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(
+            collectionCodeEntities.parallelStream().filter(
+                collectionCodeEntity ->
+                    StringUtils.isEmpty(collectReportReqDto.getCollectionCode())
+                        || Objects.equals(collectionCodeEntity.getCollectionCode(), collectReportReqDto.getCollectionCode()))
+                .collect(Collectors.toList()),
             collectReportReqDto.getWaybillCode(), CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDetailPackageDto> res = collectionScanCodeDetails.parallelStream().map(
-            (Function<CollectionScanCodeDetail, CollectReportDetailPackageDto>)collectionScanCodeDetail -> {
+            collectionScanCodeDetail -> {
                 CollectReportDetailPackageDto packageDto = new CollectReportDetailPackageDto();
                 packageDto.setPackageCode(collectionScanCodeDetail.getScanCode());
 
@@ -120,13 +133,16 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
                 } else if (CollectionStatusEnum.extra_collected.equals(collectionScanCodeDetail.getCollectedStatus())) {
                     packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_DO.getCode());
                 }
-                return null;
+                return packageDto;
             }).collect(Collectors.toList());
 
         if(log.isInfoEnabled()) {
             log.info("CollectWaitServiceImpl.queryCollectDetail 查询不齐类型运单明细列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
+        tsSetter.setTimeStamp(collectionScanCodeDetails.parallelStream().map(
+            collectionScanCodeDetail -> collectionScanCodeDetail.getTs() != null? collectionScanCodeDetail.getTs().getTime() : 0).max(
+            Long::compareTo).orElse(0L));
         return res;
     }
 

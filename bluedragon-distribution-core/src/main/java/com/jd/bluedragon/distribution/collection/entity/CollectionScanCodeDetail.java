@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.collection.entity
@@ -33,4 +35,6 @@ public class CollectionScanCodeDetail {
     private CollectionStatusEnum collectedStatus;
 
     private CollectionCollectedMarkTypeEnum collectedMarkType;
+
+    private Timestamp ts;
 }

@@ -20,6 +20,7 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,7 +65,12 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.all_site_collection
         );
         List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectedAggCodeByCollectionCodeOutMark(
-            collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
+            collectionCodeEntities.parallelStream().filter(
+                collectionCodeEntity ->
+                    StringUtils.isEmpty(collectReportReqDto.getCollectionCode())
+                        || Objects.equals(collectionCodeEntity.getCollectionCode(), collectReportReqDto.getCollectionCode()))
+                .collect(Collectors.toList()),
+            CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode(), collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(),(collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
@@ -91,7 +98,7 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
 
     @Override
     @JProfiler(jKey = "CollectSiteServiceImpl.queryCollectDetail",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto) {
+    public List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto,ITSSetter tsSetter) {
         if (null == collectReportReqDto || null == collectReportReqDto.getCurrentOperate()) {
             return Collections.emptyList();
         }
@@ -99,7 +106,12 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.all_site_collection
         );
 
-        List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(collectionCodeEntities,
+        List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(
+            collectionCodeEntities.parallelStream().filter(
+                collectionCodeEntity ->
+                    StringUtils.isEmpty(collectReportReqDto.getCollectionCode())
+                        || Objects.equals(collectionCodeEntity.getCollectionCode(), collectReportReqDto.getCollectionCode()))
+                .collect(Collectors.toList()),
             collectReportReqDto.getWaybillCode(), CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId(),
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
@@ -128,6 +140,10 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             log.info("CollectSiteServiceImpl.queryCollectDetail 查询在库集齐运单明细列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
+        tsSetter.setTimeStamp(collectionScanCodeDetails.parallelStream().map(
+            collectionScanCodeDetail -> collectionScanCodeDetail.getTs() != null? collectionScanCodeDetail.getTs().getTime() : 0).max(
+            Long::compareTo).orElse(0L));
+
         return res;
     }
 

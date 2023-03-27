@@ -117,10 +117,6 @@ public class CollectionRecordDao {
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByScanCode"), collectionRecordDetailPo);
     }
 
-    public List<CollectionScanMarkCounter> sumAggCollectedByAggCode(CollectionRecordDetailPo collectionRecordDetailPo) {
-        return this.sqlSession.selectList(NAMESPACE.concat(".sumAggCollectedByAggCode"), collectionRecordDetailPo);
-    }
-
     public List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected,
         Integer isMoreCollectedMark, Integer limit, Integer offset) {
@@ -148,7 +144,7 @@ public class CollectionRecordDao {
 
     public List<CollectionRecordDetailPo> queryCollectedDetailByCollectionAndAggCode(List<String> collectionCodes, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset){
         Map<String, Object> param = new HashMap<>();
-        param.put("list", collectionCodes);
+        param.put("collectionCodes", collectionCodes);
         param.put("aggCode", aggCode);
         param.put("aggCodeType", aggCodeTypeEnum.name());
         param.put("limit", limit);

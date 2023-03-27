@@ -132,7 +132,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 //        resData.setCollectReportStatisticsDtoList(getCollectReportDetailPackageDtoList(collectReportReqDto));
 
         //明细分页查询
-        resData.setCollectReportDetailPackageDtoList(collectStatisticsService.queryCollectDetail(collectReportReqDto));
+        resData.setCollectReportDetailPackageDtoList(collectStatisticsService.queryCollectDetail(collectReportReqDto, resData));
         return res;
     }
 

@@ -2136,6 +2136,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 res.error("参数为空");
                 return res;
             }
+            if (StringUtils.isEmpty(reqDto.getCollectionCode())) {
+                res.error("该运单所在待集齐列表不存在");
+                return res;
+            }
             if(log.isInfoEnabled()) {
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }

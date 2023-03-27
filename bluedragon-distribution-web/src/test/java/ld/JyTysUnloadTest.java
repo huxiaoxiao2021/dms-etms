@@ -222,6 +222,7 @@ public class JyTysUnloadTest {
                 param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
                 param1.setBizId("SC23032400029409");
                 param1.setWaybillCode("JD0003419520704");
+                param1.setCollectionCode("JQ23032418031400032");
 
                 User user = new User();
                 user.setUserErp("xumigen");

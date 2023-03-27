@@ -20,5 +20,5 @@ public interface CollectStatisticsDimensionService {
     /**
      * 查询集齐明细
      */
-    List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto);
+    List<CollectReportDetailPackageDto> queryCollectDetail(CollectReportReqDto collectReportReqDto,ITSSetter tsSetter);
 }
