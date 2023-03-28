@@ -81,6 +81,7 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
         JdCResponse<List<WaybillTrackResponse>> jdCResponse = new JdCResponse<>();
         WaybillTrackReqVO 
                 commonRequest = new WaybillTrackReqVO();
+        BeanUtils.copyProperties(waybillTrackReq, commonRequest);
         InvokeResult<List<WaybillTrackResVO>> commonResult = waybillTrackQueryService.queryWaybillTrack(commonRequest);
         if(commonResult == null){
             return null;
