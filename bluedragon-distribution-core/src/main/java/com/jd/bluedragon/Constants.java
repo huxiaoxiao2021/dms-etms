@@ -1845,6 +1845,11 @@ public class Constants {
      * 租板岗-流向锁前缀
      */
     public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX  = "jy_comboard_sendflow_group_lock_%s_%s_%s";
     /**
      * 租板岗-板锁前缀
      */

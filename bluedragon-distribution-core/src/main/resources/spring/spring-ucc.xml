@@ -249,6 +249,7 @@
 		<property name="batchSendForbiddenSwitch" value="${batchSendForbiddenSwitch:false}"/>
 		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
+		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -489,6 +490,7 @@
 				<value>uccPropertyConfiguration.batchSendForbiddenSwitch</value>
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
+				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 			</list>
 		</property>
 	</bean>

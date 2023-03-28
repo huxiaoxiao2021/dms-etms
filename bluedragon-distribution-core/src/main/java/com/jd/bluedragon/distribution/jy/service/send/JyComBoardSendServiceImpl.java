@@ -1412,7 +1412,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
      * 流向加锁
      */
     String sendFlowLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_LOCK_PREFIX, request.getDestinationId());
-    if (!jimDbLock.lock(sendFlowLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+    if (ucc.getCreateBoardBySendFlowSwitch() && !jimDbLock.lock(sendFlowLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+      throw new JyBizException("当前系统繁忙,请稍后再试！");
+    }
+
+    String sendFlowAndGroupLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX, request.getCurrentOperate().getSiteCode(),request.getDestinationId(),request.getGroupCode());
+    if (!jimDbLock.lock(sendFlowAndGroupLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
     try {
@@ -1444,7 +1449,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         jyBizTaskComboardService.save(record);
       }
     } finally {
-      jimDbLock.releaseLock(sendFlowLockKey, request.getRequestId());
+      if (ucc.getCreateBoardBySendFlowSwitch()){
+        jimDbLock.releaseLock(sendFlowLockKey, request.getRequestId());
+      }
+      jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
     }
   }
 
