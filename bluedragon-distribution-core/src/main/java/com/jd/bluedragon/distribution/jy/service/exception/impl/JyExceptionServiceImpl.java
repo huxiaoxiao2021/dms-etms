@@ -523,20 +523,34 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         }
                         for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
                             if(entity.getBizId().equals(detailDto.getBizId())){
-                                if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
-                                        ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                            ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                    dto.setCheckerErp(detailDto.getFirstChecker());
-                                }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
-                                        ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                                ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                    dto.setCheckerErp(detailDto.getSecondChecker());
-                                }else {
-                                    dto.setCheckerErp(detailDto.getThirdChecker());
+                                //处理中的报废任务
+                                if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
+                                    if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
+                                            ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                                                    ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                                        dto.setCheckerErp(detailDto.getFirstChecker());
+                                    }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
+                                            ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                                                    ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                                        dto.setCheckerErp(detailDto.getSecondChecker());
+                                    }else {
+                                        dto.setCheckerErp(detailDto.getThirdChecker());
+                                    }
+                                    //提交时间
+                                    dto.setCheckTime(detailDto.getSubmitTime());
+                                    dto.setImageUrls(detailDto.getGoodsImageUrl());
+                                }else { //完结的报废任务
+                                    if(Objects.nonNull(detailDto.getFirstCheckTime())){
+                                        dto.setCheckTime(detailDto.getFirstCheckTime());
+                                        dto.setCheckerErp(detailDto.getFirstChecker());
+                                    }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
+                                        dto.setCheckTime(detailDto.getSecondCheckTime());
+                                        dto.setCheckerErp(detailDto.getSecondChecker());
+                                    }else {
+                                        dto.setCheckTime(detailDto.getThirdCheckTime());
+                                        dto.setCheckerErp(detailDto.getThirdChecker());
+                                    }
                                 }
-                                //提交时间
-                                dto.setCheckTime(detailDto.getSubmitTime());
-                                dto.setImageUrls(detailDto.getGoodsImageUrl());
                             }
                         }
                     }
