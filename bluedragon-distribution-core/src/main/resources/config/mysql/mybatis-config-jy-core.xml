@@ -61,6 +61,7 @@
 		<mapper resource="mappers/mysql/jy/comboard/JyBizTaskComboardMapper.xml" />
 		<mapper resource="mappers/mysql/jy/comboard/JyComboardAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/comboard/JyGroupSortCrossDetailMapper.xml" />
+		<mapper resource="mappers/mysql/jy/exception/JyExceptionScrappedMapper.xml"/>
 
 	</mappers>
 </configuration>

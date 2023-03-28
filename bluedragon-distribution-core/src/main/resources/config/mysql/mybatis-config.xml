@@ -57,7 +57,6 @@
         <mapper resource="mappers/mysql/jy/send/JySendMapper.xml" />
         <mapper resource="mappers/mysql/jy/comboard/JyComboardMapper.xml" />
         <mapper resource="mappers/mysql/jy/exception/JyExceptionMapper.xml"/>
-        <mapper resource="mappers/mysql/jy/exception/JyExceptionScrappedMapper.xml"/>
     </mappers>
 
 </configuration>
