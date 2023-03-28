@@ -209,4 +209,10 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
+	/**
+	 * 根据Id查询，不过滤yn=1
+	 * @param recordId
+	 * @return
+	 */
+	UserSignRecord queryByIdForFlow(Long recordId);
 }

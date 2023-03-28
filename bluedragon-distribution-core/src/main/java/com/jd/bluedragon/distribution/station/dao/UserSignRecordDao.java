@@ -180,4 +180,10 @@ public interface UserSignRecordDao {
 	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
 	
 	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
+	/**
+	 * 根据id查询，不过滤yn=1
+	 * @param recordId
+	 * @return
+	 */
+	UserSignRecord queryByIdForFlow(Long recordId);
 }

@@ -42,6 +42,7 @@
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
+		<fusionds-lib.version>1.4.1</fusionds-lib.version>
 	</properties>
 
 	<dependencies>
@@ -2643,7 +2644,11 @@
 			<artifactId>block-presort-rpc-aoi-api</artifactId>
 			<version>${block-presort-rpc-aoi-api.version}</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.fds</groupId>
+            <artifactId>fusionds-lib</artifactId>
+            <version>${fusionds-lib.version}</version>
+        </dependency>
     </dependencies>
 
 	<profiles>

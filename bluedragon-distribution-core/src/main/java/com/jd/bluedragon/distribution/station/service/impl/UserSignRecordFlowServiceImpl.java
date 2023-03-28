@@ -11,9 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.group.GroupMemberData;
+import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
@@ -24,6 +29,7 @@ import com.jd.bluedragon.distribution.station.enums.SignFlowStatusEnum;
 import com.jd.bluedragon.distribution.station.enums.SignFlowTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordHistoryService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -32,6 +38,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.HistoryApprove;
+import com.jdl.basic.api.domain.position.PositionData;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,6 +61,11 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	@Qualifier("userSignRecordService")
 	private UserSignRecordService userSignRecordService;
 	
+	@Autowired
+	@Qualifier("userSignRecordHistoryService")
+	private UserSignRecordHistoryService userSignRecordHistoryService;
+	
+	
 	@Value("${beans.userSignRecordService.signDateRangeMaxDays:2}")
 	private int signDateRangeMaxDays;
 	
@@ -75,6 +87,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	@Autowired
 	@Qualifier("jyGroupService")
 	private JyGroupService jyGroupService;
+	
+	@Autowired
+	private PositionManager positionManager;	
 	
 	/**
 	 * 计提日-日期
@@ -121,10 +136,15 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			log.warn("根据流程单号{}查询签到流程数据失败！",processInstanceNo);
 			return;
 		}
+		if(!SignFlowStatusEnum.PENDING_APPROVAL.getCode().equals(flowData.getFlowStatus())) {
+			log.warn("流程单号{}流程状态为{},无需处理！",processInstanceNo,SignFlowStatusEnum.getNameByCode(flowData.getFlowStatus()));
+			return;
+		}
 		if(log.isDebugEnabled()) {
 			log.debug("开始处理流程单号-pass:{},流程数据{}",processInstanceNo,JsonHelper.toJson(flowData));
 		}
 		boolean checkSignInTime = this.checkSignInTime(flowData.getSignInTime(), flowData.getSignInTimeNew());
+		boolean checkOldData = true;
 		Integer flowType = flowData.getFlowType();
 		UserSignRecordFlow updateData = new UserSignRecordFlow();
 		updateData.setId(flowData.getId());
@@ -139,9 +159,21 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(!checkSignInTime) {
 			updateData.setFlowStatus(SignFlowStatusEnum.TIMEOUT_CANCEL.getCode());
 		}
+		//校验原始数据状态
+		if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)
+				|| SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
+			UserSignRecordFlow oldData = userSignRecordHistoryService.queryById(flowData.getRefRecordId());
+			if(oldData == null
+					|| Constants.YN_NO.equals(oldData.getYn())) {
+				updateData.setFlowStatus(SignFlowStatusEnum.HAS_DELETED_CANCEL.getCode());
+				checkOldData = false;
+			}
+		}
 		updateData.setFlowUpdateUser(flowUser);
 		updateData.setFlowUpdateTime(new Date());
 		updateData.setFlowRemark(comment);
+		
+
 		int updateCount = userSignRecordFlowDao.updateFlowStatusById(updateData);
 		if(log.isDebugEnabled()) {
 			log.debug("更新流程状态：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
@@ -149,7 +181,19 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(!checkSignInTime) {
 			log.warn("审批超时，审批通过时间在当前计提周期({}号{}点)结束之前：流程单号{},更新数据{},更新结果{}",accrualDay,accrualHour,processInstanceNo,JsonHelper.toJson(updateData),updateCount);
 			return;
-		}		
+		}
+		if(!checkOldData) {
+			log.warn("审批无效，原签到数据已作废：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
+			return;
+		}
+		if(flowData.getPositionCode() == null) {
+			//查询组员信息
+			com.jdl.basic.common.utils.Result<PositionData>  positionResult= this.positionManager.queryPositionByGridKey(flowData.getRefGridKey());
+			if(positionResult != null
+					&& positionResult.getData() != null) {
+				flowData.setPositionCode(positionResult.getData().getPositionCode());
+			}
+		}
 		UserSignRecord signData = toUserSignRecord(flowData);
 		if(SignFlowTypeEnum.ADD.getCode().equals(flowType)) {
 			signData.setId(null);
@@ -157,9 +201,12 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setTs(null);
 			signData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
+			//新增一条组员数据
 			if(log.isDebugEnabled()) {
 				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
 			}
+			
+			addGroupMember(signData,flowData);
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
 			deleteSignData(signData,flowData,flowUser);
 			//插入新记录
@@ -176,12 +223,24 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			deleteSignData(signData,flowData,flowUser);
 		}
 	}
+	private void addGroupMember(UserSignRecord signData, UserSignRecordFlow flowData) {
+		GroupMemberRequest addMemberRequest = new GroupMemberRequest();
+		addMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+		addMemberRequest.setSignInTime(signData.getSignInTime());
+		addMemberRequest.setSignRecordId(signData.getId());
+		addMemberRequest.setPositionCode(flowData.getPositionCode());
+		addMemberRequest.setJobCode(signData.getJobCode());
+		addMemberRequest.setUserCode(signData.getUserCode());
+		addMemberRequest.setUserName(signData.getUserName());
+		addMemberRequest.setOrgCode(signData.getOrgCode());
+		addMemberRequest.setSiteCode(signData.getSiteCode());
+		addMemberRequest.setOperateUserCode(flowData.getFlowCreateUser());
+		addMemberRequest.setOperateUserName(flowData.getFlowCreateUser());
+		jyGroupMemberService.addMemberForFlow(addMemberRequest);
+	}
 	private void deleteSignData(UserSignRecord signData,UserSignRecordFlow flowData, String flowUser) {
-		Result<UserSignRecord> oldDataResult = userSignRecordService.queryById(flowData.getRefRecordId());
-		UserSignRecord oldData = null;
-		if(oldDataResult != null) {
-			oldData = oldDataResult.getData();
-		}
+		UserSignRecord oldData = userSignRecordService.queryByIdForFlow(flowData.getRefRecordId());
+		
 		if(oldData != null) {
 			UserSignRecord deleteData = new UserSignRecord();
 			deleteData.setId(flowData.getRefRecordId());
@@ -205,6 +264,15 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 				log.debug("作废签到数据-insert：流程单号{},签到数据{}",flowData.getRefFlowBizCode(),JsonHelper.toJson(signData));
 			}			
 		}
+		deleteGroupMember(signData,flowData);
+	}
+	private void deleteGroupMember(UserSignRecord signData, UserSignRecordFlow flowData) {
+		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+		removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+		removeMemberRequest.setSignRecordId(signData.getId());
+		removeMemberRequest.setOperateUserCode(flowData.getFlowCreateUser());
+		removeMemberRequest.setOperateUserName(flowData.getFlowCreateUser());
+		jyGroupMemberService.deleteMemberForFlow(removeMemberRequest);
 	}
 	/**
 	 * 对象转换

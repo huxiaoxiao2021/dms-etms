@@ -1032,5 +1032,13 @@
 	         <if test="refRecordId != null" >
 	            and r.id != #{refRecordId,jdbcType=BIGINT}  
 	         </if>
-    </select>    
+    </select>   
+    <select id="queryByIdForFlow" parameterType="java.lang.Long" resultMap="UserSignRecord">
+        select
+            <include refid="Main_Column_List"/>
+        from
+            user_sign_record r
+            where r.id = #{refRecordId,jdbcType=BIGINT}           
+        limit 1
+    </select>     
 </mapper>

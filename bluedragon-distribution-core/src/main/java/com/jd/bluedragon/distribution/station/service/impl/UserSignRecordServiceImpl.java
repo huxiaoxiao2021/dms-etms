@@ -1584,4 +1584,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
 		return userSignRecordDao.queryCountForCheckSignTime(checkQuery);
 	}
+	@Override
+	public UserSignRecord queryByIdForFlow(Long recordId) {
+		return userSignRecordDao.queryByIdForFlow(recordId);
+	}
 }

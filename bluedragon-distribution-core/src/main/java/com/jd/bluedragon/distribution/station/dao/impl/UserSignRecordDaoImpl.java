@@ -195,4 +195,8 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryCountForCheckSignTime",checkQuery);
 	}
+	@Override
+	public UserSignRecord queryByIdForFlow(Long recordId) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByIdForFlow",recordId);
+	}
 }

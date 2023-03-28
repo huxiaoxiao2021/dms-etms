@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -172,5 +173,24 @@ public class JyScheduleTaskManagerImpl implements JyScheduleTaskManager {
             }
         }
         return null;
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMemberFlow", mState = {JProEnum.TP, JProEnum.FunctionError})	
+	public List<JyScheduleTaskResp> findStartedScheduleTasksForAddMemberFlow(JyScheduleTaskReq taskQuery) {
+        ServiceResult<List<JyScheduleTaskResp>> apiResult = null;
+        try{
+            apiResult = jyScheduleTaskApi.findStartedScheduleTasksForAddMemberFlow(taskQuery);
+            if(apiResult.getSuccess()){
+                return apiResult.getData();
+            }
+        }catch (Exception e){
+            logger.error("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember error req:{}",  JsonHelper.toJson(taskQuery),e);
+        }finally {
+            if(logger.isInfoEnabled()){
+                logger.info("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember req:{} resp:{}", JsonHelper.toJson(taskQuery),JsonHelper.toJson(apiResult));
+            }
+        }
+        return new ArrayList<JyScheduleTaskResp>();
 	}
 }

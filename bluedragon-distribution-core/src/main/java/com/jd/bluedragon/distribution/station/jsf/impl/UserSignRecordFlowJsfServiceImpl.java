@@ -194,7 +194,8 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				return result;
 			}
 			signData = userSignRecordHistoryService.queryById(addRequest.getRecordId());
-			if(signData == null) {
+			if(signData == null
+					|| Constants.YN_NO.equals(signData.getYn())) {
 				result.toFail("无效的签到数据！");
 				return result;
 			}
