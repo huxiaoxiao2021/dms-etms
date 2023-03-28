@@ -776,7 +776,7 @@
     </bean>
 
     <!--发送作业任务自动关闭消息 -->
-    <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="jyBizTaskAutoCloseProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}" />
         <property name="timeout" value="1000" />
     </bean>
