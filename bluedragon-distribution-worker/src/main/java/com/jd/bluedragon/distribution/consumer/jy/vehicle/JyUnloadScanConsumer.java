@@ -224,10 +224,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             if (autoCloseJyBizTaskConfig == null) {
                 logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
             } else {
-                // 以解封车时间为准
-                final Date operateTime = unloadScanDto.getOperateTime();
                 final String unloadBizLastScanTimeKey = this.getUnloadBizLastScanTimeKey(unloadScanDto.getBizId());
-                redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime() + "", 4, TimeUnit.HOURS);
+                redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime().getTime() + "", 4, TimeUnit.HOURS);
             }
             // 方案2，更新任务执行时间
             /*final List<Task> jyBizAutoCloseTask = taskService.findJyBizAutoCloseTask(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode(), 1, BusinessHelper.getOwnSign(), unloadScanDto.getBizId(), JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode().toString());
