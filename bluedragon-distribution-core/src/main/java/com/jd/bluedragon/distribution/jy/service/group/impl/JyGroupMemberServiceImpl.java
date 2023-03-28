@@ -594,6 +594,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateUser(addMemberRequest.getOperateUserCode());
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
+		memberData.setSignOutTime(addMemberRequest.getSignOutTime());
 		//校验组员是否存在
 		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
 		if(checkResult != null 
@@ -651,8 +652,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			JyScheduleTaskReq taskQuery = new JyScheduleTaskReq();
 			taskQuery.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
 			taskQuery.setDistributionTarget(groupCode);
-			taskQuery.setDistributionTimeOfStart(memberData.getSignInTime());
-			taskQuery.setDistributionTimeOfEnd(memberData.getSignOutTime());
+			taskQuery.setTaskStartTime(memberData.getSignInTime());
+			taskQuery.setTaskEndTime(memberData.getSignOutTime());
 			
 			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksForAddMemberFlow(taskQuery);
 			if(!CollectionUtils.isEmpty(taskList)) {

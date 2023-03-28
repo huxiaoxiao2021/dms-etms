@@ -227,6 +227,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		GroupMemberRequest addMemberRequest = new GroupMemberRequest();
 		addMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
 		addMemberRequest.setSignInTime(signData.getSignInTime());
+		addMemberRequest.setSignOutTime(signData.getSignOutTime());
 		addMemberRequest.setSignRecordId(signData.getId());
 		addMemberRequest.setPositionCode(flowData.getPositionCode());
 		addMemberRequest.setJobCode(signData.getJobCode());
@@ -269,7 +270,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	private void deleteGroupMember(UserSignRecord signData, UserSignRecordFlow flowData) {
 		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 		removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
-		removeMemberRequest.setSignRecordId(signData.getId());
+		removeMemberRequest.setSignRecordId(flowData.getRefRecordId());
 		removeMemberRequest.setOperateUserCode(flowData.getFlowCreateUser());
 		removeMemberRequest.setOperateUserName(flowData.getFlowCreateUser());
 		jyGroupMemberService.deleteMemberForFlow(removeMemberRequest);
