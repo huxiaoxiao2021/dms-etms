@@ -164,6 +164,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行解封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
+            //记录实际解封车顺序 不允许失败阻碍其他流程
+            jyUnSealVehicleService.saveRealUnSealRanking(tmsSealCarStatus.getSealCarCode()
+                    ,DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
+
             return jyUnloadVehicleService.createUnloadTask(convert4Load(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms)) != null;
         }else if(TMS_STATUS_IN_RAIL.equals(tmsSealCarStatus.getStatus())){
             //触碰围栏后更新任务状态
@@ -317,7 +321,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         }
         CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
         if(logger.isInfoEnabled()){
-            logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
+            logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarDtoCommonDto));
         }
         if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
             return null;

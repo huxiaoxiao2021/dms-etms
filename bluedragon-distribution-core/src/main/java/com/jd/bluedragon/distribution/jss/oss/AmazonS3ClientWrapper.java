@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.model.*;
 
 import com.jd.bluedragon.Constants;
 import com.jd.dms.wb.report.util.DateHelper;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
@@ -58,6 +60,11 @@ public class AmazonS3ClientWrapper implements InitializingBean {
     private String endpoint;
 
     private String bucketName;
+
+    /**
+     * 外网地址
+     */
+    private String outerNetEndpoint;
 
     private int socketTimeout;
     private int connectionTimeout;
@@ -107,6 +114,9 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @return
      */
     private String spliceFolderFileName(String folder,String fileName){
+        if(StringUtils.isEmpty(folder)){
+            return fileName;
+        }
         return folder+"/"+fileName;
     }
 
@@ -116,7 +126,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param inputStream
      * @param fileName
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectWithFlow")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectWithFlow",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public void putObjectWithFlow(InputStream inputStream,String contentType,String folder,String fileName)  {
         String fullFileName = spliceFolderFileName(folder,fileName);
         ObjectMetadata metadata = new ObjectMetadata();
@@ -139,13 +149,44 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param urlExpirationDay url多少天后过期时间
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectThenGetUrl")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectThenGetUrl",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public String putObjectThenGetUrl(InputStream inputStream,String folder,String fileName,long contentLength,int urlExpirationDay){
        this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
        return this.generatePresignedUrl(urlExpirationDay,folder,fileName).toString();
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObject")
+    /**
+     * 上传文件并且获取外网url
+     * @param inputStream
+     * @param folder
+     * @param fileName
+     * @param contentLength
+     * @param urlExpirationDay
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectThenGetOutNetUrl",mState =  {JProEnum.TP, JProEnum.FunctionError})
+    public String putObjectThenGetOutNetUrl(InputStream inputStream,String folder,String fileName,long contentLength,int urlExpirationDay){
+        this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
+        return this.generatePresignedOuterNetUrl(urlExpirationDay,folder,fileName);
+    }
+
+    /**
+     * 获取外网url
+     * @param folder
+     * @param fileName
+     * @param urlExpirationDay
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.generatePresignedOuterNetUrl",mState =  {JProEnum.TP, JProEnum.FunctionError})
+    public String generatePresignedOuterNetUrl(int urlExpirationDay,String folder,String fileName){
+        URL url = this.generatePresignedUrl(urlExpirationDay,folder,fileName);
+        String outUrl = outerNetEndpoint.concat(url.getPath()).concat("?").concat(url.getQuery());
+        log.info("外网地址转换oldurl[{}]oururl[{}]folder[{}]fileName[{}]",url,outUrl,folder,fileName);
+        return outUrl;
+    }
+
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObject",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public void putObject(InputStream inputStream,String folder, String fileName,long contentLength){
         this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
     }
@@ -170,7 +211,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param fileName
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.generatePresignedUrl")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.generatePresignedUrl",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public URL generatePresignedUrl(int urlExpirationDay,String folder, String fileName){
         if(urlExpirationDay <=0 ){
             urlExpirationDay = defaultUrlExpirationDay;
@@ -196,7 +237,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param fileName
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getUrl")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getUrl",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public URL getUrl(String folder, String fileName){
         log.info("云oss-getUrl查询图片链接[{}]",fileName);
         if (!isExists(folder,fileName)) {
@@ -214,7 +255,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param fileName 文件名称带扩展名
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.isExists")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.isExists",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public boolean isExists( String folder, String fileName) {
         String fullFileName = spliceFolderFileName(folder,fileName);
         try {
@@ -234,7 +275,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
      * @param marker 翻页使用 从哪个文件开始，不翻页或者第一页可以传null
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.listObjects")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.listObjects",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public List<String> listObjects(String folder, String fileNamePrefix,int maxKeys,String marker){
         if(StringUtils.isEmpty(folder)){
             log.error("listObjects-folder不能为空[{}]fileNamePrefix[{}]",folder,fileNamePrefix);
@@ -257,7 +298,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         return list;
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getObject")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getObject",mState =  {JProEnum.TP, JProEnum.FunctionError})
     public S3Object getObject(String folder, String keyName){
         if (!isExists(folder,keyName)) {
             return null;
@@ -317,5 +358,9 @@ public class AmazonS3ClientWrapper implements InitializingBean {
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
+    }
+
+    public void setOuterNetEndpoint(String outerNetEndpoint) {
+        this.outerNetEndpoint = outerNetEndpoint;
     }
 }

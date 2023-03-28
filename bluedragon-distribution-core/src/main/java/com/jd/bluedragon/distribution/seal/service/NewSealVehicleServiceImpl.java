@@ -40,8 +40,10 @@ import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationServi
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
@@ -579,6 +581,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         //记录封车失败次数
         int failCount=0;
+        int emptyCount =0;
         //循环调用运输封车同时生成车次任务的接口
         for (SealCarDto param : paramList) {
             String singleErrorMsg = "";
@@ -610,6 +613,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     log.warn("封车批次全部为空批次，不进行封车操作[{}]。",JsonHelper.toJson(param));
                     singleErrorMsg="运力编码封车批次全部没有发货数据：" + transportCode;
                     errorMsg += singleErrorMsg;
+                    emptyCount++;
                     continue;
                 }
             }
@@ -673,10 +677,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         }
 
+        if (emptyCount == paramList.size()){
+            sealVehicleResponse.setCode(NewSealVehicleResponse.ALL_SENDCODES_ARE_EMPTY_CODE);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.ALL_SENDCODES_ARE_EMPTY_MESSAGE);
+            return sealVehicleResponse;
+        }
 
         if(failCount<=0){
             sealVehicleResponse.setCode(JdResponse.CODE_OK);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+            sealVehicleResponse.setData(successSealCarList);
         }else{
             sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(errorMsg);
@@ -962,6 +972,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_UNSEAL_SUCCESS;
                 saveDeSealData(paramList);
+                saveUnsealOrder(sealCars);
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -1626,6 +1637,28 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             sealVehiclesService.updateDeSealBySealDataCode(convert2SealVehicles(sealist));
         }catch (Exception e){
             log.error("保存解封车业务数据异常，解封车数据：{}" , JsonHelper.toJson(sealist), e);
+        }
+    }
+
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    private void saveUnsealOrder(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealist){
+        // 如果是作业APP，则更新解封车顺序
+        final com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDtoSample = sealist.get(0);
+        if(StringUtils.isBlank(sealCarDtoSample.getBizId())){
+            return;
+        }
+        for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto : sealist) {
+            JyBizTaskUnloadVehicleEntity RealUnSealRankingUpdateParam = new JyBizTaskUnloadVehicleEntity();
+            RealUnSealRankingUpdateParam.setBizId(sealCarDto.getBizId());
+            RealUnSealRankingUpdateParam.setRealRanking(sealCarDto.getUnsealOrderIndex());
+            if(jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(RealUnSealRankingUpdateParam)){
+                if(log.isInfoEnabled()){
+                    log.info("saveUnsealOrder success!, bizId:{},unsealOrderIndex:{}",sealCarDto.getBizId(),sealCarDto.getUnsealOrderIndex());
+                }
+            }else{
+                log.error("saveUnsealOrder fail!, bizId:{},unsealOrderIndex:{}",sealCarDto.getBizId(),sealCarDto.getUnsealOrderIndex());
+            }
         }
     }
 

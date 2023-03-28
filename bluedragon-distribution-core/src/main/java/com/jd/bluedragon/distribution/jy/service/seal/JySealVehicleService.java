@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -88,4 +90,13 @@ public interface JySealVehicleService {
      * @return
      */
     String transformLicensePrefixToChinese(String carLicense);
+
+    /**
+     * 扫描包裹、箱号、批次号等条码取消封车
+     * @param request
+     * @return
+     */
+    InvokeResult cancelSeal(JyCancelSealRequest request);
+
+    InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
 }

@@ -86,6 +86,8 @@ import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.*;
 
 import com.jdl.jy.realtime.base.Pager;
@@ -1113,7 +1115,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request) {
     if (!Objects.equals(request.getBizSource(),BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       throw new JyBizException("非自动化系统调用");
@@ -1121,16 +1122,23 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (WaybillUtil.isWaybillCode(request.getBarCode())){
       throw new JyBizException("自动化系统不支持按运单组板发货");
     }
+    CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, true);
+    try{
+      execSortMachineComboard(request);
+      execSend(request);
 
-    execSortMachineComboard(request);
-    execSend(request);
-
-    ComboardScanResp resp = new ComboardScanResp();
-    resp.setEndSiteId(request.getDestinationId());
-    resp.setBarCode(request.getBarCode());
-    resp.setBarCodeType(request.getBarCodeType());
-    resp.setScanDetailCount(request.getScanDetailCount());
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+      ComboardScanResp resp = new ComboardScanResp();
+      resp.setEndSiteId(request.getDestinationId());
+      resp.setBarCode(request.getBarCode());
+      resp.setBarCodeType(request.getBarCodeType());
+      resp.setScanDetailCount(request.getScanDetailCount());
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+    }catch (Exception e){
+      Profiler.functionError(info);
+      throw e;
+    } finally {
+      Profiler.registerInfoEnd(info);
+    }
   }
 
   private void execSortMachineComboard(ComboardScanReq request) {
@@ -1153,6 +1161,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         request.setBizId(entity.getBizId());
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
+      addBoardBox.setOperatorTime(request.getCurrentOperate().getOperateTime());
       Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
@@ -1389,10 +1398,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("已封车禁止继续扫描！");
       }
       if (ObjectHelper.isNotNull(entity.getBulkFlag()) && entity.getBulkFlag()){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE);
       }
       if (entity.getHaveScanCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE);
       }
       request.setBizId(entity.getBizId());
       request.setSendCode(entity.getSendCode());
@@ -1483,6 +1492,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     record.setCreateUserName(request.getUser().getUserName());
     record.setUpdateUserErp(request.getUser().getUserErp());
     record.setUpdateUserName(request.getUser().getUserName());
+    record.setGroupCode(request.getGroupCode());
     return record;
   }
 
@@ -1584,7 +1594,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
        */
       sortingCheck(request);
 
-      //comboardCheckChain(request);
     } else if (BusinessHelper.isBoxcode(barCode)) {
       final Box box = boxService.findBoxByCode(barCode);
       if (box == null) {
@@ -1655,6 +1664,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     sendStatusCheck(request, sendType, sendResult, sendM);
+    if (request.getForceSendFlag()){
+      return;
+    }
     sendInterceptChain(request, sendM, sendType);
   }
 
@@ -1734,6 +1746,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardEntity.setCreateTime(now);
     comboardEntity.setUpdateTime(now);
     comboardEntity.setGroupCode(request.getGroupCode());
+    if (request.getForceSendFlag()){
+      comboardEntity.setForceSendFlag(true);
+    }
     return comboardEntity;
   }
 
@@ -1827,6 +1842,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void comboardCheckChain(ComboardScanReq request) {
+    if (request.getForceSendFlag()){
+      return;
+    }
     if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
       final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
       pdaOperateRequest.setPackageCode(request.getBarCode());
@@ -1848,6 +1866,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+
+  boolean needForceSend(Integer siteId){
+    if (ucc.getForceSendSiteList().equals(Constants.TOTAL_URL_INTERCEPTOR) || ucc.getForceSendSiteList().contains(String.valueOf(siteId))){
+      return true;
+    }
+    return false;
+  }
   /**
    * 校验当前barCode的流向 是否在当前混扫任务的流向范围内
    */
@@ -1856,6 +1881,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!request.getEndSiteId().equals(request.getDestinationId())){
         final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
         if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          if (request.getForceSendFlag()){
+            request.setDestinationId(request.getEndSiteId());
+            return;
+          }
+          if (needForceSend(request.getCurrentOperate().getSiteCode())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+            throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+          }
           throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
         }
         request.setDestinationId(parentSiteId);
@@ -1894,10 +1927,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
       }
     }
+    //不在混扫的流向内
     if (!hasMatchDestinationIdFlag) {
-      //throw new JyBizException("扫描包裹/箱号所属流向不在当前混扫任务范畴内！");
+      if (request.getForceSendFlag()){
+        request.setDestinationId(request.getEndSiteId());
+        return;
+      }
+      if (needForceSend(request.getCurrentOperate().getSiteCode())){
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+        throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本混扫任务流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+      }
       throw new JyBizException(NOT_BELONG_THIS_HUNSAO_TASK_CODE,NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE);
     }
+    //混扫切换流向
     if (!request.getEndSiteId().equals(request.getDestinationId()) && !request.getNeedSkipSendFlowCheck()){
       if (ucc.getSupportMutilScan()){
         request.setNeedSkipSendFlowCheck(true);
@@ -2601,7 +2643,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
     	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
-    } 
+    }
     for (int i = 0; i < pageTotal; i++) {
       taskDto.setPageNo(i + 1);
       taskDto.setPageSize(onePageSize);
