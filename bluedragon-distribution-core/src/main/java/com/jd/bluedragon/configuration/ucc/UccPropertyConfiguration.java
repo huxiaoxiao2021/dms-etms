@@ -835,6 +835,11 @@ public class UccPropertyConfiguration {
      */
     private Integer cttGroupSendFLowLimit;
 
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -3038,5 +3043,13 @@ public class UccPropertyConfiguration {
 
     public boolean isDpSpringSiteCode(Integer siteCode) {
         return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 }
