@@ -494,17 +494,24 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 ExpTaskDto dto = getTaskDto(entity);
 
                 // 待处理状态数据
-                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))) {
+                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())) || (Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), entity.getStatus()))) {
                     //处理三无待打印状态  待打印特殊处理
                     if(Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())){
-                        // 待打印时间
-                        dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+
+                        if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode(),entity.getProcessingStatus())){
+                            dto.setCreateTime(entity.getCreateTime() == null ? null : dateFormat.format(entity.getCreateTime()));
+                        }else{
+                            // 待打印时间
+                            dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+                        }
 
                         // 查询照片地址
                         String key = TASK_CACHE_PRE + entity.getBizId();
                         String taskCache = redisClient.get(key);
+                        logger.info("taskCache---{}",taskCache);
                         if (StringUtils.isNotBlank(taskCache)) {
                             ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
+                            logger.info("ExpTaskDetailCacheDto---{}",JSON.toJSONString(cacheDto));
                             if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
                                 dto.setImageUrls(cacheDto.getImageUrls());
                             }
