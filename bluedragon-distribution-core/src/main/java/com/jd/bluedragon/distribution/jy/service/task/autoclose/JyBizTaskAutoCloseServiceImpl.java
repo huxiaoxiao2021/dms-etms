@@ -92,7 +92,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             tTask.setKeyword1(String.valueOf(jyBizTaskUnloadVehicleExist.getBizId()));
             tTask.setKeyword2(autoCloseTaskPo.getTaskBusinessType().toString());
 
-            tTask.setType(autoCloseTaskPo.getTaskBusinessType());
+            tTask.setType(Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE);
             tTask.setTableName(Task.getTableName(Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE));
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
@@ -130,7 +130,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             tTask.setKeyword1(String.valueOf(jyBizTaskUnloadVehicleExist.getBizId()));
             tTask.setKeyword2(autoCloseTaskPo.getTaskBusinessType().toString());
 
-            tTask.setType(autoCloseTaskPo.getTaskBusinessType());
+            tTask.setType(Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE);
             tTask.setTableName(Task.getTableName(Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE));
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
