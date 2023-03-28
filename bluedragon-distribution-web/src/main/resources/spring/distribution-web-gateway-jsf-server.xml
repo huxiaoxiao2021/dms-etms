@@ -632,4 +632,5 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyEvaluateGatewayServiceImpl"
                   server="dmsjsf" />
+
 </beans>

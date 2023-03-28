@@ -806,7 +806,7 @@ public class Constants {
      * Long值-0
      */
     public static final Long LONG_ZERO = 0L;
-    
+
     /**
      * 配置信息-北京的分拣中心
      */
@@ -1795,7 +1795,7 @@ public class Constants {
     /**
      * sql拆分-最大分组数 10000
      */
-    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;    
+    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
 
 
     public static  final  int COMBOARD_LIMIT =100;
@@ -1878,4 +1878,5 @@ public class Constants {
      * 产品类型-医药专送
      */
     public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
+
 }
