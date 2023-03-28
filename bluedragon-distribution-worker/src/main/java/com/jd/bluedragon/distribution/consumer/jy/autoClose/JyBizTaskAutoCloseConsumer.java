@@ -53,7 +53,7 @@ public class JyBizTaskAutoCloseConsumer extends MessageBaseConsumer {
                 return;
             }
             final Result<Boolean> handleResult = jyBizTaskAutoCloseService.consumeJyBizTaskAutoCloseMq(autoCloseTaskMq);
-            if(handleResult.isSuccess()){
+            if(!handleResult.isSuccess()){
                 log.error("jyBizTaskAutoCloseConsumer consumeJyBizTaskAutoCloseMq fail {} {}",  JsonHelper.toJson(message), JsonHelper.toJson(handleResult));
                 throw new RuntimeException("jyBizTaskAutoCloseConsumer consumeJyBizTaskAutoCloseMq fail ");
             }
