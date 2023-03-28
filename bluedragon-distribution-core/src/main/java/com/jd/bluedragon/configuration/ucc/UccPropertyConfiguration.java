@@ -1136,11 +1136,6 @@ public class UccPropertyConfiguration {
      */
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
-
-
-
-
-
     /**
      * 设备校准任务时长
      *  单位：毫秒
@@ -1199,6 +1194,9 @@ public class UccPropertyConfiguration {
     private Boolean boardListQuerySwitch;
 
     private boolean  supportMutilScan;
+
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList;
 
     /**
      * 传站拦截-- 场地黑名单
@@ -2917,5 +2915,35 @@ public class UccPropertyConfiguration {
 
     public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
         this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getDpSpringSiteCode() {
+        return dpSpringSiteCode;
+    }
+
+    public void setDpSpringSiteCode(String dpSpringSiteCode) {
+        this.dpSpringSiteCode = dpSpringSiteCode;
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
+        if(dpSpringSiteCodeList != null){
+            return dpSpringSiteCodeList;
+        } else {
+            dpSpringSiteCodeList = new ArrayList<>();
+        }
+        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
+            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }
+        return this.dpSpringSiteCodeList;
+    }
+
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
     }
 }
