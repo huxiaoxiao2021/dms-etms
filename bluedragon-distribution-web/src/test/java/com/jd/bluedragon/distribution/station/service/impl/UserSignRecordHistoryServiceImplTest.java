@@ -66,7 +66,10 @@ public class UserSignRecordHistoryServiceImplTest {
     	easyDataClientUtil.setRestClient(new RestTemplate());
     	when(userSignRecordEasyDataConfig.getApiGroupName()).thenReturn("work_station_dim");
     	when(userSignRecordEasyDataConfig.getAppToken()).thenReturn("c2a2f5f245cf0e67558f04304606bffd");
-    	when(userSignRecordEasyDataConfig.getQuerySignCount()).thenReturn("querySignCount");
+    	when(userSignRecordEasyDataConfig.getQueryCountForFlow()).thenReturn("queryCountForFlow");
+    	when(userSignRecordEasyDataConfig.getQueryDataListForFlow()).thenReturn("queryDataListForFlow");
+    	when(userSignRecordEasyDataConfig.getQueryByIdForFlow()).thenReturn("queryByIdForFlow");
+    	when(userSignRecordEasyDataConfig.getQueryCountForCheckSignTime()).thenReturn("queryCountForCheckSignTime");
     }
 	/**
 	 * @throws Exception
