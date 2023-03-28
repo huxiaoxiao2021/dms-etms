@@ -2,10 +2,11 @@ package com.jd.bluedragon.distribution.consumer.jy.autoClose;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
-import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.JyBizTaskAutoCloseService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +31,12 @@ public class JyBizTaskAutoCloseConsumer extends MessageBaseConsumer {
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
+    @Autowired
+    private JyBizTaskAutoCloseService jyBizTaskAutoCloseService;
+
     @Override
     public void consume(Message message) throws Exception {
-        log.info("ChangeOrderPrintConsumer -message {}", message.getText());
+        log.info("jyBizTaskAutoCloseConsumer -message {}", message.getText());
         if (StringHelper.isEmpty(message.getText())) {
             log.warn("ChangeOrderPrintConsumer consume --> 消息为空");
             return;
@@ -41,14 +45,19 @@ public class JyBizTaskAutoCloseConsumer extends MessageBaseConsumer {
             log.warn("ChangeOrderPrintConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        ChangeOrderPrintMq changeOrderPrintMq = JsonHelper.fromJson(message.getText(), ChangeOrderPrintMq.class);
-        String lockKey =String.format(CacheKeyConstants.CACHE_KEY_CHANGE_ORDER_PRINT_KEY,changeOrderPrintMq.getWaybillCode());
-        try{
-            Boolean result = redisClientOfJy.set(lockKey, "1", 20, TimeUnit.SECONDS, false);
-            if(!result){
-                return ;
+        AutoCloseTaskMq autoCloseTaskMq = JsonHelper.fromJson(message.getText(), AutoCloseTaskMq.class);
+        String lockKey = String.format(CacheKeyConstants.CACHE_KEY_JY_BIZ_TASK_AUTO_CLOSE, autoCloseTaskMq.getTaskBusinessType(), autoCloseTaskMq.getBizId());
+        try {
+            Boolean lockFlag = redisClientOfJy.set(lockKey, "1", 30, TimeUnit.SECONDS, false);
+            if (!lockFlag) {
+                return;
             }
-        }finally {
+            final Result<Boolean> handleResult = jyBizTaskAutoCloseService.consumeJyBizTaskAutoCloseMq(autoCloseTaskMq);
+            if(handleResult.isSuccess()){
+                log.error("jyBizTaskAutoCloseConsumer consumeJyBizTaskAutoCloseMq fail {} {}",  JsonHelper.toJson(message), JsonHelper.toJson(handleResult));
+                throw new RuntimeException("jyBizTaskAutoCloseConsumer consumeJyBizTaskAutoCloseMq fail ");
+            }
+        } finally {
             redisClientOfJy.del(lockKey);
         }
 

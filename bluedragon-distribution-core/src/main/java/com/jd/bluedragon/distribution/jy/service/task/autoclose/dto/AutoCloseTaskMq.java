@@ -15,6 +15,8 @@ public class AutoCloseTaskMq implements Serializable {
 
     private static final long serialVersionUID = -4576318467164943434L;
 
+    private Integer taskBusinessType;
+
     /**
      * 任务bizId
      */
@@ -26,6 +28,14 @@ public class AutoCloseTaskMq implements Serializable {
      * 操作时间
      */
     private Long operateTime;
+
+    public Integer getTaskBusinessType() {
+        return taskBusinessType;
+    }
+
+    public void setTaskBusinessType(Integer taskBusinessType) {
+        this.taskBusinessType = taskBusinessType;
+    }
 
     public String getBizId() {
         return bizId;

@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -313,6 +314,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             autoCloseTaskMq.setBizId(bizId);
             autoCloseTaskMq.setChangeStatus(changeStatus);
             autoCloseTaskMq.setOperateTime(operateTime);
+            if (Objects.equals(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), changeStatus)) {
+                autoCloseTaskMq.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.WAIT_UNLOAD_NOT_FINISH.getCode());
+            }
+            if (Objects.equals(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode(), changeStatus)) {
+                autoCloseTaskMq.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode());
+            }
             jyBizTaskAutoCloseProducer.send(bizId, JsonHelper.toJson(autoCloseTaskMq));
         } catch (JMQException e) {
             logger.error("JyBizTaskUnloadVehicleServiceImpl.sendJyBizTaskAutoCloseMessage exception {}", bizId, e);
