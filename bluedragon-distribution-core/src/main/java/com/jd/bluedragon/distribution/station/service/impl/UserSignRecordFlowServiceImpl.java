@@ -219,6 +219,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			if(log.isDebugEnabled()) {
 				log.debug("新增签到数据：流程单号{},签到数据{}",processInstanceNo,JsonHelper.toJson(signData));
 			}
+			addGroupMember(signData,flowData);
 		}else if(SignFlowTypeEnum.DELETE.getCode().equals(flowType)) {
 			deleteSignData(signData,flowData,flowUser);
 		}

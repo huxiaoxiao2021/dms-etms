@@ -273,6 +273,14 @@ public class UserSignRecordFlow implements Serializable {
 	 * 审批状态-名称
 	 */
 	private String flowStatusName;
+	/**
+	 * 员工ERP|拼音|身份证号--隐藏
+	 */
+	private String userCodeHidden;	
+	/**
+	 * 员工名称-隐藏
+	 */
+	private String userNameHidden;	
 	
 	/**
 	 *
@@ -960,5 +968,21 @@ public class UserSignRecordFlow implements Serializable {
 
 	public void setSignDateNew(Date signDateNew) {
 		this.signDateNew = signDateNew;
+	}
+
+	public String getUserCodeHidden() {
+		return userCodeHidden;
+	}
+
+	public void setUserCodeHidden(String userCodeHidden) {
+		this.userCodeHidden = userCodeHidden;
+	}
+
+	public String getUserNameHidden() {
+		return userNameHidden;
+	}
+
+	public void setUserNameHidden(String userNameHidden) {
+		this.userNameHidden = userNameHidden;
 	}
 }

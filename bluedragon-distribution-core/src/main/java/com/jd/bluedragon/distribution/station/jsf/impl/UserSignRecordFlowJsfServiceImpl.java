@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordFlowService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordHistoryService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -395,6 +396,9 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		}
 		signData.setFlowTypeName(SignFlowTypeEnum.getNameByCode(signData.getFlowType()));
 		signData.setFlowStatusName(SignFlowStatusEnum.getNameByCode(signData.getFlowStatus()));
+		//身份证隐藏
+		signData.setUserCodeHidden(BusinessUtil.encryptIdCard(signData.getUserCode()));
+		signData.setUserNameHidden(BusinessUtil.encryptIdCard(signData.getUserName()));
 	}
 			
 	/**
