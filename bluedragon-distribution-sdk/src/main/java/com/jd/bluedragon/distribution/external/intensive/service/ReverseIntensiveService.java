@@ -2,13 +2,15 @@ package com.jd.bluedragon.distribution.external.intensive.service;
 
 import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
-import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
-import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
-import com.jd.bluedragon.distribution.api.request.WaybillTrackReqVO;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.request.material.recyclingbox.RecyclingBoxInOutboundRequest;
 import com.jd.bluedragon.distribution.api.response.StrandReportReasonsVO;
+import com.jd.bluedragon.distribution.api.response.WarmBoxInOutVO;
 import com.jd.bluedragon.distribution.api.response.WaybillTrackResVO;
+import com.jd.bluedragon.distribution.api.response.material.recyclingbox.RecyclingBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.domain.BaseDataDictVO;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import org.omg.CORBA.INV_FLAG;
 
 import java.util.List;
 
@@ -82,5 +84,32 @@ public interface ReverseIntensiveService {
      * @return
      */
     InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request);
-    
+
+    /**
+     * 获取板号已绑定的保温箱信息
+     * @param relationReqVO
+     * @return
+     */
+    InvokeResult<WarmBoxInOutVO> listBoxBoardRelations(WarmBoxBoardRelationReqVO relationReqVO);
+
+    /**
+     * 保温箱出库
+     * @param outboundReqVO
+     * @return
+     */
+    InvokeResult<Void> warmBoxOutbound(WarmBoxOutboundReqVO outboundReqVO);
+
+    /**
+     * 集包袋发空袋
+     * @param operationReqVO
+     * @return
+     */
+    InvokeResult<Void> sendCollectionBag(CollectionBagOperationReqVO operationReqVO);
+
+    /**
+     * 清流箱出库
+     * @param request
+     * @return
+     */
+    InvokeResult<RecyclingBoxInOutResponse> recyclingBoxOutbound(RecyclingBoxInOutboundRequest request);
 }
