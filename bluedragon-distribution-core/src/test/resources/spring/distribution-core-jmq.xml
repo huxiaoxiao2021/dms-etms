@@ -627,7 +627,7 @@
         <property name="timeout" value="1000"/>
     </bean>
 
-    <!-- 设备抽检下发处理MQ -->
+    <!-- 设备抽检图片下发AI处理MQ -->
     <bean id="dwsIssueDealProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.spotCheck.dwsIssueDeal}"/>
         <property name="timeout" value="1000"/>
