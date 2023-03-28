@@ -540,15 +540,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                                     dto.setCheckTime(detailDto.getSubmitTime());
                                     dto.setImageUrls(detailDto.getGoodsImageUrl());
                                 }else { //完结的报废任务
-                                    if(Objects.nonNull(detailDto.getFirstCheckTime())){
-                                        dto.setCheckTime(detailDto.getFirstCheckTime());
-                                        dto.setCheckerErp(detailDto.getFirstChecker());
+                                    if(Objects.nonNull(detailDto.getThirdCheckTime())){
+                                        dto.setCheckTime(detailDto.getThirdCheckTime());
+                                        dto.setCheckerErp(detailDto.getThirdChecker());
                                     }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
                                         dto.setCheckTime(detailDto.getSecondCheckTime());
                                         dto.setCheckerErp(detailDto.getSecondChecker());
                                     }else {
-                                        dto.setCheckTime(detailDto.getThirdCheckTime());
-                                        dto.setCheckerErp(detailDto.getThirdChecker());
+                                        dto.setCheckTime(detailDto.getFirstCheckTime());
+                                        dto.setCheckerErp(detailDto.getFirstChecker());
                                     }
                                 }
                             }
