@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.addresstranslation.api.base.ExternalAddressRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -8,6 +9,8 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jsf.address.DmsExternalJDAddressResponse;
+import com.jd.bluedragon.core.jsf.address.ExternalAddressToJDAddressServiceManager;
 import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
 import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
 import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
@@ -129,10 +132,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-    
+
     @Autowired
     @Qualifier("aoiServiceManager")
     private AoiServiceManager aoiServiceManager;
+
+    @Autowired
+    private ExternalAddressToJDAddressServiceManager externalAddressToJDAddressServiceManager;
 
     private static final String STORAGEWAYBILL_REDIS_KEY_PREFIX = "STORAGEWAY_KEY_";
 
@@ -1657,10 +1663,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     consignerCityId = waybillPickup.getConsignerCityId();
                     log.debug("运单号：{}在运单中获取的寄件城市为：{}" ,waybillCode, consignerCityId);
                 } else if (etmsWaybill != null && StringUtils.isNotBlank(etmsWaybill.getConsignerAddress())) {
-                    //调预分拣接口
-                    AnalysisAddressResult addressResult = preseparateWaybillManager.analysisAddress(etmsWaybill.getConsignerAddress());
+                    //调gis接口
+                    ExternalAddressRequest request = new ExternalAddressRequest();
+                    request.setFullAddress(etmsWaybill.getConsignerAddress());
+                    DmsExternalJDAddressResponse addressResult = externalAddressToJDAddressServiceManager.getJDDistrict(request);
                     if (addressResult != null) {
-                        consignerCityId = addressResult.getCityId();
+                        consignerCityId = addressResult.getCityCode();
                     }
                     log.debug("运单号：{} 根据寄件人地址获取到的寄件城市为:{} " ,waybillCode, consignerCityId);
                 }
