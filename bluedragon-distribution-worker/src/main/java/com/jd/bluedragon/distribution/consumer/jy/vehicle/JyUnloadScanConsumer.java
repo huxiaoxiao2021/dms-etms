@@ -217,7 +217,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             updateTaskBusinessInfo(unloadScanDto);
 
             // 创建或延后自动关闭任务执行时间
-            this.pushBizTaskAutoCloseTask(unloadScanDto);
+            // this.pushBizTaskAutoCloseTask(unloadScanDto);
         } else {
             // 更新最后扫描事件缓存，每次续期4小时
             final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();

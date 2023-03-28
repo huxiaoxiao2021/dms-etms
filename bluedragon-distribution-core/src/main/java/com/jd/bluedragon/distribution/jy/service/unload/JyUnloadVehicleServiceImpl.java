@@ -884,7 +884,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         result.setBizId(createScheduleTask.getBizId());
         result.setVehicleNumber(createScheduleTask.getVehicleNumber());
 
-        this.pushBizTaskAutoCloseTask(taskUnloadVehicleEntity, dto);
+        // this.pushBizTaskAutoCloseTask(taskUnloadVehicleEntity, dto);
         return result;
     }
 
