@@ -235,8 +235,7 @@
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
-		<property name="autoPackageSendInspectionSwitch" value="${autoPackageSendInspectionSwitch:true}"/>
-		<property name="autoPackageSendInspectionDelSiteCodes" value="${autoPackageSendInspectionDelSiteCodes:3}"/>
+		<property name="autoPackageSendInspectionSiteCodes" value="${autoPackageSendInspectionSiteCodes:3}"/>
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
@@ -248,6 +247,8 @@
 		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
 		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
 		<property name="batchSendForbiddenSwitch" value="${batchSendForbiddenSwitch:false}"/>
+		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
+		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -478,8 +479,7 @@
 				<value>uccPropertyConfiguration.boardListQuerySwitch</value>
 				<value>uccPropertyConfiguration.reComboardSwitch</value>
 				<value>uccPropertyConfiguration.supportMutilScan</value>
-				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
-				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSiteCodes</value>
 				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 
 				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
@@ -487,6 +487,8 @@
 				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
 				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
 				<value>uccPropertyConfiguration.batchSendForbiddenSwitch</value>
+				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
+				<value>uccPropertyConfiguration.forceSendSiteList</value>
 			</list>
 		</property>
 	</bean>
