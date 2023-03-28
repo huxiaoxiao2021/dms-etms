@@ -104,7 +104,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             }
             // 以解封车时间为准
             // final Date operateTime = new Date();
-            final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getWaitUnloadNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
+            final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getWaitUnloadNotFinishLazyTime() * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
 
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
@@ -142,7 +142,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             }
             // 计算卸车时间推后的执行时间
             // final Date operateTime = new Date(autoCloseTaskMq.getOperateTime());
-            final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
+            final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
             log.info("JyBizTaskAutoCloseServiceImpl.pushBizTaskAutoCloseTask4UnloadingNotFinish 作业工作台自动关闭任务 bizId={}", autoCloseTaskPo.getBizId());
