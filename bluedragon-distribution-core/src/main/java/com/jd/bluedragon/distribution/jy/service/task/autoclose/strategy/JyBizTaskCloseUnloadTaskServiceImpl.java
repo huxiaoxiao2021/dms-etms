@@ -90,7 +90,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
                 return result;
             }
             List<Integer> needHandleStatus = new ArrayList<>(Arrays.asList(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode(), JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode()));
-            if (needHandleStatus.contains(taskUnloadVehicleExist.getVehicleStatus())) {
+            if (!needHandleStatus.contains(taskUnloadVehicleExist.getVehicleStatus())) {
                 log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask task status has changed already {}, {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
                 return result;
             }
