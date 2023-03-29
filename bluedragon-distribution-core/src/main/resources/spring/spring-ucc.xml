@@ -249,6 +249,7 @@
 		<property name="batchSendForbiddenSwitch" value="${batchSendForbiddenSwitch:false}"/>
 		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
+		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 
 	</bean>
@@ -482,6 +483,7 @@
 				<value>uccPropertyConfiguration.supportMutilScan</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSiteCodes</value>
 				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
+				<value>uccPropertyConfiguration.dpSpringSiteCode</value>
 
 				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
 				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
