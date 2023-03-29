@@ -106,6 +106,8 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             // final Date operateTime = new Date();
             final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getWaitUnloadNotFinishLazyTime() * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
+            tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+            tTask.setExecuteCount(0);
 
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
             log.info("pushBizTaskAutoCloseTask4WaitUnloadNotFinish 作业工作台自动关闭任务 bizId={}", autoCloseTaskPo.getBizId());
@@ -144,6 +146,8 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             // final Date operateTime = new Date(autoCloseTaskMq.getOperateTime());
             final long executeTimeMillSeconds = autoCloseTaskMq.getOperateTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 1000L;
             tTask.setExecuteTime(new Date(executeTimeMillSeconds));
+            tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+            tTask.setExecuteCount(0);
 
             tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
             log.info("JyBizTaskAutoCloseServiceImpl.pushBizTaskAutoCloseTask4UnloadingNotFinish 作业工作台自动关闭任务 bizId={}", autoCloseTaskPo.getBizId());
