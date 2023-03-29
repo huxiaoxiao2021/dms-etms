@@ -1444,7 +1444,7 @@ public class JyUnloadVehicleCheckTysService {
 
         //判断为在末级别,则发送初始化的MQ，按运单集齐
         BaseStaffSiteOrgDto baseSite = Optional.of(baseMajorManager.getBaseSiteBySiteId(unloadScanCollectDealDto.getOldSiteId())).orElse(new BaseStaffSiteOrgDto());
-        if (Objects.equals(unloadScanCollectDealDto.getCurrentOperate().getSiteCode(), baseSite.getSiteCode())) {
+        if (Objects.equals(unloadScanCollectDealDto.getCurrentOperate().getSiteCode(), baseSite.getDmsId())) {
             CollectDto collectDto1 = new CollectDto();
             collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
             collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
