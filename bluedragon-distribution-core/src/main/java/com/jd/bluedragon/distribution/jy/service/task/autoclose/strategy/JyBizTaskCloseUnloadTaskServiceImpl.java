@@ -121,9 +121,11 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
                             autoCloseJyBizTaskConfig.setUnloadingNotFinishLazyTime(4);
                         }
                         final long executeTimeMillSeconds = unloadBizLastScanTimeVal + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
+                        final Task task = autoCloseTaskPo.getTask();
                         Task taskUpdate = new Task();
                         taskUpdate.setExecuteTime(new Date(executeTimeMillSeconds));
-                        taskUpdate.setId(autoCloseTaskPo.getTask().getId());
+                        taskUpdate.setId(task.getId());
+                        taskUpdate.setType(task.getType());
                         taskService.updateBySelective(taskUpdate);
                         log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask lazy execute param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
                         // 延迟执行，直接返回失败
