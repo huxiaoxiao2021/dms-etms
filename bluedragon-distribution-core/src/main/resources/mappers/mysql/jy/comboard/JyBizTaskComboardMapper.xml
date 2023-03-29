@@ -299,7 +299,10 @@
     <if test="boardCode!=null">
       AND board_code = #{boardCode}
     </if>
-    <if test="comboardSourceList!=null and comboardSourceList.size() >0">
+    <if test="groupCode!=null">
+      AND group_code = #{groupCode}
+    </if>
+      <if test="comboardSourceList!=null and comboardSourceList.size() >0">
       AND comboard_source in
       <foreach item="item" index="index" collection="comboardSourceList"
         open="(" separator="," close=")">

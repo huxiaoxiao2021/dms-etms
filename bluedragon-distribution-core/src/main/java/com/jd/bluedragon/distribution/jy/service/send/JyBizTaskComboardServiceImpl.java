@@ -49,6 +49,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
     condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
+    condition.setGroupCode(sendFlowDto.getGroupCode());
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
     if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
       BoardDto dto = new BoardDto();
