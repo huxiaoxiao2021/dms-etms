@@ -45,8 +45,8 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             AutoCloseTaskPo autoCloseTaskPo = new AutoCloseTaskPo();
             autoCloseTaskPo.setBizId(jyBizTaskUnloadVehicleExist.getBizId());
             autoCloseTaskPo.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.WAIT_UNLOAD_NOT_FINISH.getCode());
-            autoCloseTaskPo.setOperateTime(autoCloseTaskPo.getOperateTime());
-            autoCloseTaskPo.setChangeStatus(autoCloseTaskPo.getChangeStatus());
+            autoCloseTaskPo.setOperateTime(autoCloseTaskMq.getOperateTime());
+            autoCloseTaskPo.setChangeStatus(autoCloseTaskMq.getChangeStatus());
 
             Task tTask = new Task();
             tTask.setCreateSiteCode(jyBizTaskUnloadVehicleExist.getEndSiteId().intValue());
@@ -88,6 +88,8 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             AutoCloseTaskPo autoCloseTaskPo = new AutoCloseTaskPo();
             autoCloseTaskPo.setBizId(jyBizTaskUnloadVehicleExist.getBizId());
             autoCloseTaskPo.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode());
+            autoCloseTaskPo.setOperateTime(autoCloseTaskMq.getOperateTime());
+            autoCloseTaskPo.setChangeStatus(autoCloseTaskMq.getChangeStatus());
 
             Task tTask = new Task();
             tTask.setCreateSiteCode(jyBizTaskUnloadVehicleExist.getEndSiteId().intValue());
