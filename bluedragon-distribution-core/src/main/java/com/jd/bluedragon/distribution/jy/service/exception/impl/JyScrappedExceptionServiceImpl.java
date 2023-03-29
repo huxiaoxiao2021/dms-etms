@@ -533,7 +533,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         oaMap.put(FlowConstants.FLOW_OA_ANNEX, annexList);
         if (StringUtils.isNotEmpty(req.getGoodsImageUrl())) {
             int index = 0;
-            for (String goodsImageUrl : req.getGoodsImageUrl().split(Constants.SEPARATOR_COMMA)) {
+            for (String goodsImageUrl : req.getGoodsImageUrl().split(Constants.SEPARATOR_SEMICOLON)) {
                 index++;
                 JmeFile jmeFile = new JmeFile();
                 jmeFile.setFileName("物品照片" + index);
@@ -543,7 +543,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         if (StringUtils.isNotEmpty(req.getCertifyImageUrl())) {
             int index = 0;
-            for (String certifyImageUrl : req.getCertifyImageUrl().split(Constants.SEPARATOR_COMMA)) {
+            for (String certifyImageUrl : req.getCertifyImageUrl().split(Constants.SEPARATOR_SEMICOLON)) {
                 index++;
                 JmeFile jmeFile = new JmeFile();
                 jmeFile.setFileName("证明照片" + index);
