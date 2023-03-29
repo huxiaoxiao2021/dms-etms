@@ -308,10 +308,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     private void sendJyBizTaskAutoCloseMessage(String bizId, Integer changeStatus, Long operateTime) {
         try {
+            logger.info("sendJyBizTaskAutoCloseMessage {} {} {}", bizId, changeStatus, DateUtil.format(new Date(operateTime), DateUtil.FORMAT_DATE_TIME));
             if(!new ArrayList<>(Arrays.asList(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())).contains(changeStatus)){
                 return;
             }
-            logger.info("sendJyBizTaskAutoCloseMessage {} {} {}", bizId, changeStatus, DateUtil.format(new Date(operateTime), DateUtil.FORMAT_DATE_TIME));
             final AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
             autoCloseTaskMq.setBizId(bizId);
             autoCloseTaskMq.setChangeStatus(changeStatus);
