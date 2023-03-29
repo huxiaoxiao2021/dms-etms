@@ -214,6 +214,10 @@ public class TaskDao extends BaseDao<Task> {
 		return (Integer) super.getSqlSession().insert(TaskDao.namespace + ".addWithStatus", task);
 	}
 
+    public Integer addWithParam(Task task) {
+        return (Integer) super.getSqlSession().insert(TaskDao.namespace + ".addWithParam", task);
+    }
+
 	@SuppressWarnings("unchecked")
 	public List<Task> findPageTask(Map<String, Object> params) {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findPageTask", params);

@@ -531,6 +531,8 @@ public class TaskServiceImpl implements TaskService {
             }else{
                 log.warn(" Duplicate task: {}",task.getBody());
             }
+        } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(task.getType())) {
+            return routerDao.addWithParam(task);
         }else{
             return routerDao.add(TaskDao.namespace, task);
         }
