@@ -192,15 +192,7 @@ public class JyTysUnloadTest {
                         "        }";
                 User userInfo = JSONObject.parseObject(jsonUser, User.class);
 
-                String json = "{\n" + "    \"bizId\":\"SC23032400029409\",\n" + "    \"collectType\":101,\n"
-                    + "    \"currentOperate\":{\n" + "        \"dmsCode\":\"010F002\",\n"
-                    + "        \"groupCode\":\"G00000048001\",\n" + "        \"operateTime\":1679653393470,\n"
-                    + "        \"orgId\":6,\n" + "        \"orgName\":\"华北\",\n"
-                    + "        \"positionCode\":\"GW00002001\",\n" + "        \"siteCode\":10186,\n"
-                    + "        \"siteName\":\"北京凉水河快运中心\"\n" + "    },\n" + "    \"manualCreateTaskFlag\":false,\n"
-                    + "    \"pageNo\":1,\n" + "    \"pageSize\":30,\n" + "    \"user\":{\n"
-                    + "        \"userCode\":17331,\n" + "        \"userErp\":\"wuyoude\",\n"
-                    + "        \"userName\":\"吴有德\"\n" + "    }\n" + "}";
+                String json = "{\"bizId\":\"XCZJ23032900000049\",\"combinationTransfer\":false,\"currentOperate\":{\"dmsCode\":\"010F002\",\"groupCode\":\"G00000048001\",\"operateTime\":1680075658515,\"orgId\":6,\"orgName\":\"华北\",\"positionCode\":\"GW00002001\",\"siteCode\":10186,\"siteName\":\"北京凉水河快运中心\"},\"forceCombination\":false,\"groupCode\":\"G00000048001\",\"isForceCombination\":false,\"scanCode\":\"JDX000234142433-69-1000-\",\"taskId\":\"230329200000082\",\"type\":0,\"user\":{\"userCode\":17331,\"userErp\":\"wuyoude\",\"userName\":\"吴有德\"},\"vehicleNumber\":\"晋CDGGGDG\",\"workType\":0}";
                 CollectReportReqDto param2 = JSONObject.parseObject(json, CollectReportReqDto.class);
 //                param2.setUser(user);
 //                param2.setCurrentOperate(currentOperate);
@@ -221,7 +213,7 @@ public class JyTysUnloadTest {
                 param1.setPageSize(100);
                 param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
                 param1.setBizId("SC23032400029409");
-                param1.setWaybillCode("JD0003419520704");
+                param1.setWaybillCode("JDX000234142433");
                 param1.setCollectionCode("JQ23032418031400032");
 
                 User user = new User();

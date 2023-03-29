@@ -37,10 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -152,7 +149,12 @@ public class CollectSealCarBatchInitSplitServiceImpl implements CollectInitSplit
             collectDto.setNextSiteCode(nextSiteId);
             collectDto.setOperatorErp(initCollectSplitDto.getOperatorErp());//erp传集齐场地实操人，封车是上游场地操作节点，非集齐场地（下游解封车场地是集齐场地）无需记录操作人erp
             collectDto.setSealBatchCode(initCollectSplitDto.getSealBatchCode());
-            jyCollectService.sealCarInitCollect(collectDto, collectionScanCodeEntities);
+            jyCollectService.sealCarInitCollect(collectDto,
+                collectionScanCodeEntities.stream().collect(
+                    Collectors.collectingAndThen(
+                        Collectors.toCollection(()
+                            -> new TreeSet<>(Comparator.comparing(CollectionScanCodeEntity::getScanCode))), ArrayList::new)
+                ));
         });
 
         jyCollectCacheService.cacheSaveSealCarCollectInitAfterSplit(initCollectSplitDto);
