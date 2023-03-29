@@ -35,6 +35,11 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
      */
     private Integer goodNumber;
 
+    /**
+     * 预分拣站点
+     */
+    private Integer oldSiteId;
+
 
     public String getBizId() {
         return bizId;
@@ -82,5 +87,13 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
 
     public void setGoodNumber(Integer goodNumber) {
         this.goodNumber = goodNumber;
+    }
+
+    public Integer getOldSiteId() {
+        return oldSiteId;
+    }
+
+    public void setOldSiteId(Integer oldSiteId) {
+        this.oldSiteId = oldSiteId;
     }
 }

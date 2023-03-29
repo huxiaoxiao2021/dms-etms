@@ -19,10 +19,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.jy.config.WaybillConfig;
 import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
-import com.jd.bluedragon.distribution.jy.dto.collect.BatchUpdateCollectStatusDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportStatisticsDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.UnloadScanCollectDealDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCollectDto;
@@ -79,10 +76,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.common.utils.CacheKeyConstants.*;
@@ -346,6 +340,7 @@ public class JyUnloadVehicleCheckTysService {
             res.setManualCreateTaskFlag(false);
         }
         res.setGoodNumber((!Objects.isNull(waybill) && !Objects.isNull(waybill.getGoodNumber())) ? waybill.getGoodNumber() : 0);
+        res.setOldSiteId(waybill.getOldSiteId());
         return res;
     }
 
@@ -1447,6 +1442,18 @@ public class JyUnloadVehicleCheckTysService {
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
 
+        //判断为在末级别,则发送初始化的MQ，按运单集齐
+        BaseStaffSiteOrgDto baseSite = Optional.of(baseMajorManager.getBaseSiteBySiteId(unloadScanCollectDealDto.getOldSiteId())).orElse(new BaseStaffSiteOrgDto());
+        if (Objects.equals(unloadScanCollectDealDto.getCurrentOperate().getSiteCode(), baseSite.getSiteCode())) {
+            CollectDto collectDto1 = new CollectDto();
+            collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+            collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
+            collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+            collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+            jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
+            log.info("sealCarTaskCollectDeal:运单【{}】的预分拣站点为【{}】，预分拣站点所书分拣中心为【{}】，当前场地为末级场地"
+                , unloadScanCollectDealDto.getScanCode(), unloadScanCollectDealDto.getOldSiteId(), baseSite.getSiteCode());
+        }
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //按运单修改集齐状态mq： 异步
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
