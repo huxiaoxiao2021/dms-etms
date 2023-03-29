@@ -179,6 +179,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
             log.error("JyBizTaskAutoCloseServiceImpl.handleTimingCloseTask--fail taskType is null");
             return false;
         }
+        autoCloseTaskPo.setTask(task);
         final Result<Void> result = jyBizTaskCloseServiceStrategy.closeTask(autoCloseTaskPo);
         return result.isSuccess();
     }
