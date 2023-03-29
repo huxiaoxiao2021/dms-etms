@@ -157,24 +157,28 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
      */
     private boolean saveOrUpdateOfBusinessInfo(AutoCloseTaskContextDto autoCloseTaskContextDto, JyBizTaskUnloadVehicleEntity bizTaskUnloadVehicleExist) {
         JyBizTaskUnloadVehicleEntity updateData = new JyBizTaskUnloadVehicleEntity();
+        updateData.setId(bizTaskUnloadVehicleExist.getId());
         updateData.setBizId(bizTaskUnloadVehicleExist.getBizId());
         updateData.setUnloadFinishTime(new Date(autoCloseTaskContextDto.getOperateTime()));
+        updateData.setUpdateTime(updateData.getUnloadFinishTime());
 
-        // 查询是否异常
-        List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(bizTaskUnloadVehicleExist.getBizId()));
-        if (CollectionUtils.isEmpty(unloadAggList)) {
-            log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(bizTaskUnloadVehicleExist));
-            // return false;
+        boolean manualFlag = Objects.equals(Constants.YN_YES, bizTaskUnloadVehicleExist.getManualCreatedFlag());
+        if(!manualFlag){
+            // 查询是否异常
+            List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(bizTaskUnloadVehicleExist.getBizId()));
+            if (CollectionUtils.isEmpty(unloadAggList)) {
+                log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(bizTaskUnloadVehicleExist));
+            } else {
+                UnloadPreviewData previewData = new UnloadPreviewData();
+                final boolean unloadTaskNormalFlag = jyUnloadVehicleService.judgeUnloadTaskNormal(previewData, unloadAggList);
+
+                updateData.setAbnormalFlag(unloadTaskNormalFlag ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+                updateData.setUpdateUserErp(this.sysOperateUser);
+                updateData.setUpdateUserName(this.sysOperateUser);
+                updateData.setMoreCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount());
+                updateData.setLessCount(previewData.getToScanCount());
+            }
         }
-        UnloadPreviewData previewData = new UnloadPreviewData();
-        final boolean unloadTaskNormalFlag = jyUnloadVehicleService.judgeUnloadTaskNormal(previewData, unloadAggList);
-
-        updateData.setAbnormalFlag(unloadTaskNormalFlag ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
-        updateData.setUpdateUserErp(this.sysOperateUser);
-        updateData.setUpdateUserName(this.sysOperateUser);
-        updateData.setUpdateTime(new Date(autoCloseTaskContextDto.getOperateTime()));
-        updateData.setMoreCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount());
-        updateData.setLessCount(previewData.getToScanCount());
 
         return taskUnloadVehicleService.saveOrUpdateOfBusinessInfo(updateData);
     }
