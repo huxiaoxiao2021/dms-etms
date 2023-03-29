@@ -721,7 +721,7 @@ function initSelect() {
     $("#query-form #businessType").val(defualt);
     $("#query-form #businessTypeSelect").on('change', function (e) {
         var v = $("#query-form #businessTypeSelect").val();
-        if (v === '0' || v === '1' || v === '2') {
+        if (v === '0' || v === '1' || v === '2' || v === '3') {
             $("#query-form #businessType").val(v);
         } else {
             $("#query-form #businessType").val(null);
