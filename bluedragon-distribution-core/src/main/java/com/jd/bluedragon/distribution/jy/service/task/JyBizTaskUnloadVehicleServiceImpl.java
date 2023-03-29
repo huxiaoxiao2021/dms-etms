@@ -613,6 +613,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             logger.error("JyBizTaskUnloadVehicleService.initTaskByTms save fail! {},{}",JsonHelper.toJson(dto),
                     JsonHelper.toJson(initParams));
         }
+        this.sendJyBizTaskAutoCloseMessage(bizId, JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), initParams.getUpdateTime().getTime());
         return null;
     }
 
