@@ -14,6 +14,8 @@
         <result property="operateUserName" column="operate_user_name"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="remark" column="remark"/>
+
     </resultMap>
     <sql id="Base_Column_List">
         id,
@@ -24,7 +26,8 @@
         operate_user_name,
         operate_time,
         ts,
-        yn
+        yn,
+        remark
     </sql>
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity">
         INSERT INTO jy_biz_task_exception_log (
@@ -46,6 +49,9 @@
         <if test="operateUserName != null">
             operate_user_name,
         </if>
+        <if test="remark != null">
+            remark,
+        </if>
         yn )
         VALUES (
         <if test="bizId != null">
@@ -65,6 +71,9 @@
         </if>
         <if test="operateUserName != null">
             #{operateUserName},
+        </if>
+        <if test="remark != null">
+            #{remark},
         </if>
                    1)
     </insert>
