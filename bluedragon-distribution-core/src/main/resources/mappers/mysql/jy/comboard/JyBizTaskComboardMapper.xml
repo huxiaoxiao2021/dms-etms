@@ -526,4 +526,25 @@
     AND yn = 1
     order by id desc
   </select>
+  <select id="countBoardGroupBySendFlow" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto"
+    resultType="com.jd.bluedragon.common.dto.comboard.response.SendFlowDto">
+    SELECT
+      start_site_id startSiteId,
+      end_site_id endSiteId,
+      COUNT(id) boardCount
+    FROM
+      jy_biz_task_comboard
+    WHERE
+      start_site_id = #{startSiteId}
+    AND end_site_id in
+    <foreach item="item" index="index" collection="endSiteIdList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    GROUP BY
+      end_site_id;
+  </select>
 </mapper>

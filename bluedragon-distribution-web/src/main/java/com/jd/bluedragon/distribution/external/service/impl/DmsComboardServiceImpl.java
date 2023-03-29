@@ -10,22 +10,24 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.external.domain.*;
 import com.jd.bluedragon.distribution.external.service.DmsComboardService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
-import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
-import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.transboard.api.dto.BoardListRequest;
-import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +53,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
 
     @Autowired
     GroupBoardManager groupBoardManager;
-    
+
     @Autowired
     private SendMDao sendMDao;
 
@@ -198,7 +200,44 @@ public class DmsComboardServiceImpl implements DmsComboardService {
                 boardDto.setCreateUserName(board.getCreateUserName());
             }
         }
-        
+
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, belongBoardResp);
+    }
+
+    @Override
+    public InvokeResult<CountBoardResponse> countBoardGroupBySendFlow(CountBoardRequest request) {
+        checkCountBoardRequest(request);
+
+        CountBoardDto countBoardDto =assembleCountBoardDto(request);
+        List<SendFlowDto> sendFlowDtoList = jyBizTaskComboardService.countBoardGroupBySendFlow(countBoardDto);
+
+        List<ComboardFlowDto> comboardFlowDtoList = BeanUtils.copy(sendFlowDtoList,ComboardFlowDto.class);
+        CountBoardResponse response =new CountBoardResponse();
+        response.setComboardFlowDtoList(comboardFlowDtoList);
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,response);
+    }
+
+    private void checkCountBoardRequest(CountBoardRequest request) {
+        if (!ObjectHelper.isNotNull(request.getStartSiteId())){
+            throw new JyBizException("参数错误：始发场地不能为空！");
+        }
+        if (!CollectionUtils.isEmpty(request.getEndSiteIdList())){
+            throw new JyBizException("参数错误：目的场地不能为空！");
+        }
+    }
+
+    private CountBoardDto assembleCountBoardDto(CountBoardRequest request) {
+        CountBoardDto countBoardDto =new CountBoardDto();
+        countBoardDto.setStartSiteId(Long.valueOf(request.getStartSiteId()));
+        List<Long> endSiteIdList = request.getEndSiteIdList()
+            .stream().map(endSite->{ return Long.valueOf(endSite); })
+            .collect(Collectors.toList());
+        countBoardDto.setEndSiteIdList(endSiteIdList);
+        List<Integer> statusList =new ArrayList<>();
+        statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+        statusList.add(ComboardStatusEnum.FINISHED.getCode());
+        statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+        countBoardDto.setStatusList(statusList);
+        return countBoardDto;
     }
 }

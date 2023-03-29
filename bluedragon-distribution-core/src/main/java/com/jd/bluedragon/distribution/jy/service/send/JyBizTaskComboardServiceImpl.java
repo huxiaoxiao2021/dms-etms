@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
@@ -212,5 +213,10 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     boardStatusDto.setBoardStatus(comboardStatusEnum.getCode());
     boardStatusDto.setSealTime(new Date());
     return jyBizTaskComboardDao.updateBoardStatus(boardStatusDto) > 0;
+  }
+
+  @Override
+  public List<SendFlowDto> countBoardGroupBySendFlow(CountBoardDto countBoardDto) {
+    return jyBizTaskComboardDao.countBoardGroupBySendFlow(countBoardDto);
   }
 }
