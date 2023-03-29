@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -42,6 +43,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
 
 @Service("dmsComboardService")
 @Slf4j
+@UnifiedExceptionProcess
 public class DmsComboardServiceImpl implements DmsComboardService {
 
 
