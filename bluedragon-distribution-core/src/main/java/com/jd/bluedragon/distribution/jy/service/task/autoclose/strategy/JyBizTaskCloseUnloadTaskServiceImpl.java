@@ -135,6 +135,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
             final AutoCloseTaskContextDto autoCloseTaskContextDto = new AutoCloseTaskContextDto();
             BeanCopyUtil.copy(autoCloseTaskPo, autoCloseTaskContextDto);
             autoCloseTaskContextDto.setOperateUserErp(this.sysOperateUser);
+            autoCloseTaskContextDto.setOperateTime(System.currentTimeMillis());
             autoCloseTaskContextDto.setOperateUserName(this.sysOperateUserName);
             autoCloseTaskContextDto.setBizId(taskUnloadVehicleExist.getBizId());
 
