@@ -33,6 +33,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -310,6 +311,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             if(!new ArrayList<>(Arrays.asList(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())).contains(changeStatus)){
                 return;
             }
+            logger.info("sendJyBizTaskAutoCloseMessage {} {} {}", bizId, changeStatus, DateUtil.format(new Date(operateTime), DateUtil.FORMAT_DATE_TIME));
             final AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
             autoCloseTaskMq.setBizId(bizId);
             autoCloseTaskMq.setChangeStatus(changeStatus);
@@ -608,12 +610,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setTaskType(dto.getTaskType());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
+            this.sendJyBizTaskAutoCloseMessage(bizId, JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), initParams.getUpdateTime().getTime());
             return initParams;
         }else{
             logger.error("JyBizTaskUnloadVehicleService.initTaskByTms save fail! {},{}",JsonHelper.toJson(dto),
                     JsonHelper.toJson(initParams));
         }
-        this.sendJyBizTaskAutoCloseMessage(bizId, JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), initParams.getUpdateTime().getTime());
         return null;
     }
 
