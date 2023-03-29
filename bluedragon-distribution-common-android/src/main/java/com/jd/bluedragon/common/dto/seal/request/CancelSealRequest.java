@@ -28,6 +28,19 @@ public class CancelSealRequest  implements Serializable {
      */
     private  String operateTime;
 
+    /**
+     * 条码：包裹号、箱号、批次号等
+     */
+    private String barCode;
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
     public String getBatchCode() {
         return batchCode;
     }

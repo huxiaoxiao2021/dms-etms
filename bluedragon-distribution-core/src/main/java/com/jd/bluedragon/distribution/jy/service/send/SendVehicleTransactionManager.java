@@ -29,7 +29,9 @@ import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -90,7 +92,7 @@ public class SendVehicleTransactionManager {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
-    
+
     @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
     private int checkLineTypeDays;
 
@@ -422,7 +424,7 @@ public class SendVehicleTransactionManager {
     	}
     	//数据分组
     	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Constants.DB_SQL_IN_MAX_GROUP_NUM,Constants.DB_SQL_IN_LIMIT_NUM);
-    	
+
     	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
     	checkQuery.setStartSiteId(startSiteId);
     	checkQuery.setCreateTimeBegin(beginTime);
@@ -471,7 +473,7 @@ public class SendVehicleTransactionManager {
      */
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusToseal",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)    
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean resetSendStatusToseal(SealCarDto sealCarData, String operateUserCode, String operateUserName,
 			Long operateTime) {
     	this.logInfo("取消封车-发货任务状态回退sealCarData：{}",JsonHelper.toJson(sealCarData));
@@ -493,7 +495,7 @@ public class SendVehicleTransactionManager {
 		taskSend.setUpdateTime(currentDate);
 		taskSend.setUpdateUserErp(operateUserCode);
 		taskSend.setUpdateUserName(operateUserName);
-		
+
 		sendDetail.setBizId(taskDetail.getBizId());
 		sendDetail.setSendVehicleBizId(taskDetail.getSendVehicleBizId());
 		sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
@@ -502,9 +504,34 @@ public class SendVehicleTransactionManager {
 		sendDetail.setUpdateTime(currentDate);
 		sendDetail.setUpdateUserErp(operateUserCode);
 		sendDetail.setUpdateUserName(operateUserName);
-		
+
 		return this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
 	}
+
+    /**
+     * 传站功能拦截
+     * @param receiveSiteId
+     * @param currentOperate
+     * @return
+     */
+    public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate){
+        Integer orgId =currentOperate.getOrgId();
+        Integer siteId =currentOperate.getSiteCode();
+        if ((uccConfig.getCzOrgForbiddenList().contains(String.valueOf(orgId)) || uccConfig.getCzSiteForbiddenList().contains(String.valueOf(siteId)))
+            && checkIsCz(receiveSiteId)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkIsCz(Integer receiveSiteId) {
+        BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
+        if (ObjectHelper.isNotNull(baseSiteInfoDto) && uccConfig.getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 干支 拦截功能方法

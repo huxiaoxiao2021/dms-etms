@@ -84,6 +84,10 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_3 = 3;
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
+
+    //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
+    public static final int SYSTEM_SOURCE_4 = 4;
+
     /**
      * 计费-2-不计费
      */

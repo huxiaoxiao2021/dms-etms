@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jmq.version>2.3.2</jmq.version>
-		<etms.waybill.agent.version>4.2.259</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.284</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -40,7 +40,8 @@
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
-		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
+		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
+		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
 	</properties>
 
 	<dependencies>
@@ -94,6 +95,13 @@
 				</exclusion>
 			</exclusions>
         </dependency>
+
+		<!-- oss上传-->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.490</version>
+		</dependency>
 
 		<!--终端 返单审核校验  yukuidong -->
 		<dependency>
@@ -232,7 +240,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.6-SNAPSHOT</version>
+			<version>2.0.7-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -262,7 +270,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.3.3-SNAPSHOT</version>
+            <version>1.6.4-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -399,7 +407,7 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>3.1.16</version>
+			<version>3.5.5</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>asm</artifactId>
@@ -411,7 +419,7 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>3.1.16</version>
+			<version>3.5.5</version>
 		</dependency>
 
 
@@ -646,6 +654,10 @@
 				<exclusion>
 					<artifactId>aspectjweaver</artifactId>
 					<groupId>org.aspectj</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1176,27 +1188,6 @@
 			</exclusions>
         </dependency>
 
-
-        <dependency>
-			<groupId>com.jd.common</groupId>
-			<artifactId>sso-uim-spring</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
-                </exclusion>
-                <exclusion>
-                	<groupId>com.jd.jim.cli</groupId>
-                	<artifactId>jim-cli-jedis</artifactId>
-                </exclusion>
-                <exclusion>
-                	<groupId>com.jd.jim.cli</groupId>
-                	<artifactId>jim-cli-api</artifactId>
-                </exclusion>
-            </exclusions>
-		</dependency>
-
         <!--ioT 校验鸡毛信设备-->
         <dependency>
             <groupId>com.jd.tms.iot</groupId>
@@ -1324,8 +1315,14 @@
 		</dependency>
         <dependency>
             <artifactId>log4j-1.2-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-            <version>2.3</version>
+			<groupId>org.apache.logging.log4j</groupId>
+            <version>2.17.1-jdsec.rc1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j-core</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
 		<!-- TC -->
@@ -1886,7 +1883,29 @@
 					<artifactId>hibernate-validator</artifactId>
 					<groupId>org.hibernate</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>sso-uim-spring</artifactId>
+					<groupId>com.jd.common</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<!-- 单点登录    start-->
+		<dependency>
+			<groupId>com.jd.ssa</groupId>
+			<artifactId>oidc-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>uim1-client-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>sso-ssa-jsf-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ea</groupId>
+			<artifactId>sso-ssa-legacy</artifactId>
 		</dependency>
 
 		<dependency>
@@ -1914,14 +1933,22 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.jd.bdp</groupId>
-			<artifactId>jdq</artifactId>
+			<groupId>com.jd.jdq</groupId>
+			<artifactId>jdq4-clients</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackson-mapper-asl</artifactId>
 					<groupId>org.codehaus.jackson</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
 		</dependency>
 
 		<dependency>
@@ -2101,6 +2128,12 @@
 
 
 		<dependency>
+			<groupId>com.jd.bdp.jdq</groupId>
+			<artifactId>jdwdata</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
 			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
@@ -2126,6 +2159,10 @@
 			<artifactId>workbench-report-api</artifactId>
 			<version>1.0.8-SNAPSHOT</version>
 			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
@@ -2225,19 +2262,19 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.3-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.12.3</version>
+            <version>2.17.1-jdsec.rc1</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.12.3</version>
+            <version>2.17.1-jdsec.rc1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -2426,6 +2463,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<version>2.7.0</version>
+		</dependency>
         <dependency>
             <groupId>com.jdl.basic</groupId>
             <artifactId>jy-basic-common</artifactId>
@@ -2595,6 +2638,11 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
+		<dependency>
+			<groupId>com.jd.lbs.presort</groupId>
+			<artifactId>block-presort-rpc-aoi-api</artifactId>
+			<version>${block-presort-rpc-aoi-api.version}</version>
+		</dependency>
 
     </dependencies>
 
@@ -2662,13 +2710,13 @@
             </snapshots>
             <id>jd-central</id>
             <name>libs-releases</name>
-            <url>http://artifactory.jd.com/libs-releases</url>
+            <url>https://artifactory.jd.com/libs-releases</url>
         </repository>
         <repository>
             <snapshots />
             <id>jd-snapshots</id>
             <name>libs-snapshots</name>
-            <url>http://artifactory.jd.com/libs-snapshots</url>
+            <url>https://artifactory.jd.com/libs-snapshots</url>
         </repository>
     </repositories>
 
@@ -2679,13 +2727,13 @@
             </snapshots>
             <id>jd-central</id>
             <name>plugins-releases</name>
-            <url>http://artifactory.jd.com/plugins-releases</url>
+            <url>https://artifactory.jd.com/plugins-releases</url>
         </pluginRepository>
         <pluginRepository>
             <snapshots />
             <id>jd-snapshots</id>
             <name>plugins-snapshots</name>
-            <url>http://artifactory.jd.com/plugins-snapshots</url>
+            <url>https://artifactory.jd.com/plugins-snapshots</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

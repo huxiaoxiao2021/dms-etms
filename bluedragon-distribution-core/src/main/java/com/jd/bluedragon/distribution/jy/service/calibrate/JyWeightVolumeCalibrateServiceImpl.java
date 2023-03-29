@@ -148,8 +148,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
             // 设备任务维度记录
             JyBizTaskMachineCalibrateCondition machineTaskCondition = new JyBizTaskMachineCalibrateCondition();
             machineTaskCondition.setMachineCode(machineCode);
-            machineTaskCondition.setCreateUserErp(request.getUser().getUserErp());
-            JyBizTaskMachineCalibrateDetailEntity machineTaskEntity = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByCondition(machineTaskCondition);
+            JyBizTaskMachineCalibrateDetailEntity machineTaskEntity = jyBizTaskMachineCalibrateDetailService.selectLatelyOneByMachineCode(machineTaskCondition);
 
             boolean isCreateTaskFlag = false; // 是否创建任务标识
             if(Objects.equals(request.getForceCreateTask(), true)){
@@ -163,7 +162,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 // 设备维度记录不存在（第一次扫描设备编码）
                 isCreateTaskFlag = true;
             }else if(machineRecord.getCalibrateTaskCloseTime() != null){
-                // 设备任务已关闭
+                // 设备已关闭
                 Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
                 if(System.currentTimeMillis() - machineRecord.getCalibrateTaskCloseTime().getTime() < intervalTime){
                     // explain：如果设备抽检任务关闭后，在2h内继续扫描设备编码，则进行友好提示（客户端可强制确定来创建新任务）
@@ -172,7 +171,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 }
                 isCreateTaskFlag = true;
             }else {
-                // 设备任务未关闭
+                // 设备未关闭
                 if(machineTaskEntity == null){
                     String errorMessage = String.format(JyBizTaskMachineCalibrateMessage.MACHINE_CALIBRATE_TASK_NOT_FIND_HINT, machineCode);
                     logger.error(errorMessage);

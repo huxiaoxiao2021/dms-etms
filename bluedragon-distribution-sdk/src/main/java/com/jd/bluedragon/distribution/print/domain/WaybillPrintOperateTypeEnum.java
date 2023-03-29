@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.print.domain;
 
+import com.google.common.collect.Lists;
+
 import java.util.*;
 
 /**
  * 打印平台操作类型
+ *  hint：新增加的枚举需在addInnerOperateType添加
  * Created by shipeilin on 2018/2/5.
  */
 public enum WaybillPrintOperateTypeEnum {
@@ -85,6 +88,9 @@ public enum WaybillPrintOperateTypeEnum {
 
     public static List<Integer> ENUM_LIST;
 
+    // 内部打印类型
+    private static List<Integer> INNER_OPERATE_YPE_LIST = addInnerOperateType();
+
     static {
         //将所有枚举装载到map中
         ENUM_MAP = new HashMap<Integer, String>();
@@ -93,6 +99,26 @@ public enum WaybillPrintOperateTypeEnum {
             ENUM_MAP.put(enumItem.getType(), enumItem.getName());
             ENUM_LIST.add(enumItem.getType());
         }
+    }
+
+    /**
+     * 分拣打印类型需在此方法添加
+     * @return
+     */
+    private static List<Integer> addInnerOperateType() {
+        List<Integer> innerOperateTypes = Lists.newArrayList();
+        innerOperateTypes.add(PLATE_PRINT.getType());
+        innerOperateTypes.add(SITE_PLATE_PRINT.getType());
+        innerOperateTypes.add(PACKAGE_AGAIN_PRINT.getType());
+        innerOperateTypes.add(SWITCH_BILL_PRINT.getType());
+        innerOperateTypes.add(PACKAGE_WEIGH_PRINT.getType());
+        innerOperateTypes.add(FIELD_PRINT.getType());
+        innerOperateTypes.add(BATCH_SORT_WEIGH_PRINT.getType());
+        innerOperateTypes.add(FAST_TRANSPORT_PRINT.getType());
+        innerOperateTypes.add(BATCH_PACKAGE_AGAIN_PRINT.getType());
+        innerOperateTypes.add(RESCHEDULE_PRINT.getType());
+        innerOperateTypes.add(DMS_AUTO_DEVICE_PRINT.getType());
+        return innerOperateTypes;
     }
 
     /**
@@ -111,6 +137,16 @@ public enum WaybillPrintOperateTypeEnum {
      */
     public static boolean isExchangePrint(Integer type){
     	return type != null && SET_EXCHAGE_PRINT_TYPES.contains(type);
+    }
+
+    /**
+     * 是否内部打印
+     *
+     * @param type
+     * @return
+     */
+    public static boolean isInnerPrint(Integer type){
+        return INNER_OPERATE_YPE_LIST.contains(type);
     }
     /**
      * 判断是否补打

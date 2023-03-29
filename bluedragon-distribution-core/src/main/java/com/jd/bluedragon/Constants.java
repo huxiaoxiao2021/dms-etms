@@ -33,6 +33,10 @@ public class Constants {
     public static final String SYS_NAME = "sys.dms";
 
     public static final String SEPARATOR_COMMA = ",";
+    /**
+     * 中文-'，'
+     */
+    public static final String SEPARATOR_COMMA_CN = "，";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
@@ -795,6 +799,14 @@ public class Constants {
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
+
+    public static final Double DOUBLE_ONE = 1.0;
+
+    /**
+     * Long值-0
+     */
+    public static final Long LONG_ZERO = 0L;
+
     /**
      * 配置信息-北京的分拣中心
      */
@@ -845,6 +857,20 @@ public class Constants {
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE = "android_menu_usage_by_site_code_";
 
+    /**
+     * 全局功能管控配置，按系统
+     */
+    public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
+
+    /**
+     * 功能可用性配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 安卓菜单可用性配置，按场地id配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -1504,7 +1530,7 @@ public class Constants {
     /**
      * 操作标识|关闭-0
      */
-    public static final Integer FLAG_OPRATE_OFF = 0;    
+    public static final Integer FLAG_OPRATE_OFF = 0;
     /**
      * PDA无封车号任务前缀
      */
@@ -1765,6 +1791,9 @@ public class Constants {
      * sql拆分-最大分组数 10000
      */
     public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
+
+    public static  final  int COMBOARD_LIMIT =100;
+
     /**
      * 传摆发货功能编码：0203004-gz
      */
@@ -1806,4 +1835,33 @@ public class Constants {
     public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
 
 
+    /** 运力编码：飞机场网点类型 */
+    public static final Integer NODE_TYPE_AIRPORT = 7;
+    /** 运力编码：火车站网点类型 */
+    public static final Integer NODE_TYPE_RAILWAY = 9;
+
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_COMBOARD_BOARD_LOCK_PREFIX  = "jy_comboard_board_lock_%s";
+    /**
+     * 租板岗-混扫任务锁前缀
+     */
+    public static final String JY_COMBOARD_CTT_LOCK_PREFIX  = "jy_comboard_ctt_lock_%s";
+
+    public static final int  LOCK_EXPIRE  = 3;
+
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+    /**
+     * 产品类型-医药专送
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
 }

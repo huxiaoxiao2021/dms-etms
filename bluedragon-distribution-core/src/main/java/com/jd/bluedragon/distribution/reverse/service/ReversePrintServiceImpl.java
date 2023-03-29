@@ -11,6 +11,8 @@ import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -31,6 +33,7 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
@@ -71,6 +74,7 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.alibaba.fastjson.JSON;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
@@ -236,6 +240,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
+    @Autowired
+    @Qualifier("changeWaybillPrintProducer")
+    private DefaultJMQProducer changeWaybillPrintProducer;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -337,7 +345,33 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         this.sendDisposeAfterInterceptMsg(domain);
         waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
 
+        //发送换单打印消息
+        ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
+        try {
+            log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
+            changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
+        } catch (JMQException e) {
+            log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
+        }
+
         return true;
+    }
+
+    /**
+     * 转换打印记录dto
+     * @param request
+     * @return
+     */
+    private ChangeOrderPrintMq convert2PushPrintRecordDto(ReversePrintRequest request){
+        ChangeOrderPrintMq dto = new ChangeOrderPrintMq();
+        dto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
+        dto.setWaybillCode(request.getOldCode());
+        dto.setSiteCode(request.getSiteCode());
+        dto.setUserErp(request.getStaffErpCode());
+        dto.setUserCode(request.getStaffId());
+        dto.setUserName(request.getStaffRealName());
+        dto.setOperateTime(new Date());
+        return dto;
     }
     /**
      * 发送换单打印mq
@@ -738,6 +772,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if (waybillTraceManager.isWaybillWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+            return result;
+        }
+
+        boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(wayBillCode);
+        if (bool) {
+            result.setData(false);
+            result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
             return result;
         }
 

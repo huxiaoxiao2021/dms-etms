@@ -45,6 +45,13 @@ public interface JySealVehicleGatewayService {
     JdCResponse<SealTaskInfo> taskInfo(SealTaskInfoRequest request);
 
     /**
+     * 获取待解封车任务详情
+     * @param request
+     * @return
+     */
+    JdCResponse<SealTaskInfo> getUnSealTaskInfo(SealTaskInfoRequest request);
+
+    /**
      * 车辆状态枚举
      * @return
      */
@@ -109,6 +116,13 @@ public interface JySealVehicleGatewayService {
      */
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
 
+
+    /**
+     * 获取待解封车数据详情
+     * @param request
+     * @return
+     */
+    JdCResponse<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request);
 
 
 }

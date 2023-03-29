@@ -143,7 +143,9 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 			if (boxChargeDetail.getMaterialVolume() != null) {
 				relation.setVolume(BigDecimal.valueOf(boxChargeDetail.getMaterialVolume() * 100*100*100));
 			}
-			relation.setVolumeCoefficient(BigDecimal.valueOf(boxChargeDetail.getVolumeCoefficient()));
+			if (boxChargeDetail.getVolumeCoefficient() != null) {
+				relation.setVolumeCoefficient(BigDecimal.valueOf(boxChargeDetail.getVolumeCoefficient()));
+			}
 			relation.setPackingCharge(boxChargeDetail.getMaterialAmount());
 
 			if (boxChargeDetail.getMaterialNumber() != null) {

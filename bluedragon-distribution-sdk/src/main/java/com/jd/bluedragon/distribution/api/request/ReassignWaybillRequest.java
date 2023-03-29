@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import java.util.List;
+
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.enums.ScheduleAfterTypeEnum;
 
 public class ReassignWaybillRequest extends JdRequest {
 	private static final long serialVersionUID = -7910034488418807075L;
@@ -25,7 +28,12 @@ public class ReassignWaybillRequest extends JdRequest {
 
 	/*打印入口*/
 	private Integer interfaceType;
-
+	
+	private List<String>  packageCodeList;
+	
+	private String waybillCode;
+	
+	private Integer scheduleAfterType = ScheduleAfterTypeEnum.PACKAGE_CODE.getCode();
 
 	public String getPackageBarcode() {
   		return packageBarcode;
@@ -82,5 +90,29 @@ public class ReassignWaybillRequest extends JdRequest {
 
 	public void setInterfaceType(Integer interfaceType) {
 		this.interfaceType = interfaceType;
+	}
+
+	public List<String> getPackageCodeList() {
+		return packageCodeList;
+	}
+
+	public void setPackageCodeList(List<String> packageCodeList) {
+		this.packageCodeList = packageCodeList;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public Integer getScheduleAfterType() {
+		return scheduleAfterType;
+	}
+
+	public void setScheduleAfterType(Integer scheduleAfterType) {
+		this.scheduleAfterType = scheduleAfterType;
 	}
 }

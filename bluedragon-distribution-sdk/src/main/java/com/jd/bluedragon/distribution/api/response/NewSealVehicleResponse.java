@@ -20,6 +20,7 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
 	public static final String TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR = "该批次号没有发货信息，请操作发货后封车!";
 	public static final String TIPS_BATCHCODE_SEALED_ERROR = "该发货批次号已操作封车，无法重复操作!";
 	public static final String TIPS_RECEIVESITE_DIFF_ERROR = "批次号与运力编码目的地不一致，请核准后重新操作!";
+	public static final String TIPS_RECEIVE_DIFF_ERROR = "运力编码目的地和当前流向不一致，请核准后重新操作!";
 	public static final String TIPS_PRESEAL_PARAM_ERROR = "运力编码和车牌不能为空!";
 	public static final String TIPS_PRESEAL_NOEXIST_ERROR = "该目的地没有预封车数据，无法更新预封车信息!";
 	public static final String TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR = "当前运力和批次目的地不符将产生错发，运力编码目的地为:{0}";
@@ -35,6 +36,12 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
     public static final String MESSAGE_TRANSPORT_RANGE_ERROR = "运力编码始发地非当前分拣中心，是否强制操作？";
     public static final Integer CODE_PRESEAL_EXIST_ERROR = 30004;
     public static final String TIPS_PRESEAL_EXIST_ERROR = "该目的地已提交预封车数据，是否取消上次预封车？";
+
+	public static final Integer ALL_SENDCODES_ARE_EMPTY_CODE = 30005;
+	public static final String ALL_SENDCODES_ARE_EMPTY_MESSAGE = "封车批次全部为空批次，不允许操作封车！";
+
+
+	public static final String MESSAGE_TRANSPORT_START_END_RANGE_ERROR = "批次号始发地和目的地非当前分拣中心，无法进行封车";
 
 	public NewSealVehicleResponse(){
 

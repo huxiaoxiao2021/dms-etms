@@ -59,7 +59,8 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
             }
             //根据每个站点分别按状态清理数据
             for(Integer siteCode : sites){
-
+                //每个站点清理间隔3秒
+                suspendThreeS();
                 if(!cleanData(cleanRule,siteCode)){
                     //部分失败跳过，最后返回失败
                     cleanSucFlag = Boolean.FALSE;
@@ -70,6 +71,13 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         return cleanSucFlag;
     }
 
+    private void suspendThreeS(){
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+
+        }
+    }
 
     /**
      * 获取需要清理的站点数据
@@ -169,7 +177,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         //卸车
         JyBizTaskUnloadVehicleEntity unLoadingRule = new JyBizTaskUnloadVehicleEntity();
         unLoadingRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
-        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-5));
+        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-10));
         cleanRules.add(unLoadingRule);
         //完成
         JyBizTaskUnloadVehicleEntity doneRule = new JyBizTaskUnloadVehicleEntity();

@@ -203,14 +203,8 @@
         <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
     </jmq:consumer>
     -->
-    <!-- 消费发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.sendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="sendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
-    <!-- 消费取消发货明细MQ 用于托寄物品名打印 -->
-    <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailGoodsPrintConsumer"/>
-    </jmq:consumer>
+
+
     <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
     <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>
@@ -261,7 +255,7 @@
     <!--调度信息数据-->
     <jmq:consumer id="jmq.bdWaybillScheduleMqConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.bdWaybillScheduleMqListener}" listener="bdWaybillScheduleMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
@@ -471,6 +465,10 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
 
+    <!--  组板发货岗统计消息  -->
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
@@ -543,5 +541,26 @@
     <jmq:consumer id="jmq.repeatWaybillCodeCanceltConsumer" transport="jmq.dmsWorkAgainJm2.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板  -->
+    <jmq:consumer id="jmq.waybillCancelComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.cancel.comboard}" listener="waybillCancelComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步组板发货  -->
+    <jmq:consumer id="jmq.waybillComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.comboard}" listener="waybillComboardConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步取消组板发货  -->
+    <jmq:consumer id="jmq.cancelComboardSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.comboard.send}" listener="cancelComboardSendConsumer"/>
+    </jmq:consumer>
+
+    <!--  换单打印消费  -->
+    <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

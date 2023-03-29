@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
@@ -202,6 +203,18 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return null;
+    }
+
+    @Override
+    public JdCResponse<SealTaskInfo> getSealTaskInfo(SealTaskInfoRequest request) {
+        InvokeResult<SealTaskInfo> invokeResult = jyUnSealVehicleService.getSealTaskInfo(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    @Override
+    public JdCResponse<SealTaskInfo> getUnSealTaskInfo(SealTaskInfoRequest request) {
+        Result<SealTaskInfo> invokeResult = jyUnSealVehicleService.getUnSealTaskInfo(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

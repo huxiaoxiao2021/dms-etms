@@ -12,7 +12,7 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
-import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -21,16 +21,22 @@ import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +46,7 @@ import java.util.List;
 @Deprecated
 @Service("dmsDeliveryService")
 public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewayService {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("deliveryResource")
@@ -48,6 +55,9 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Autowired
     @Qualifier("deliveryVerifyService")
     private DeliveryVerifyService deliveryVerifyService;
+
+    @Autowired
+    private DeliveryService deliveryService;
 
     @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode) {
@@ -159,5 +169,29 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Deprecated
     public JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request){
         return null;
+    }
+
+    /**
+     * 查询箱内发货明细列表
+     *
+     * @param boxCode 箱号
+     * @return 列表明细
+     * @author fanggang7
+     * @time 2023-01-12 21:40:26 周四
+     */
+    @Override
+    public Result<List<SendDetail>> getCancelSendByBox(String boxCode) {
+        Result<List<SendDetail>> result = Result.success();
+        result.setData(new ArrayList<SendDetail>());
+        try {
+            final List<SendDetail> boxSendDetailList = deliveryService.getCancelSendByBox(boxCode);
+            if (CollectionUtils.isNotEmpty(boxSendDetailList)) {
+                result.setData(boxSendDetailList);
+            }
+        } catch (Exception e) {
+            log.error("DmsDeliveryServiceImpl.getCancelSendByBox exception {}", boxCode, e);
+            result.toFail("system exception");
+        }
+        return result;
     }
 }

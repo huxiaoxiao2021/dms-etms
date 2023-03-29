@@ -9,7 +9,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendPhotoRe
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
@@ -32,6 +34,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;
@@ -289,6 +292,18 @@ public class JySealVehicleServiceTest {
     @Test
     public void getSendVehicleProductTypeListTest(){
         List<JySendVehicleProductType> result = jySendProductAggsService.getSendVehicleProductTypeList("TEST002");
+        System.out.println(result);
+    }
+
+    @Test
+    public void getUnSealTaskInfoTest(){
+        SealTaskInfoRequest request = new SealTaskInfoRequest();
+        request.setBizId("SC23022800028276");
+        request.setQueryRankOrder(true);
+        request.setSealCarCode("SC23022800028276");
+        request.setUser(user);
+        request.setCurrentOperate(currentOperate);
+        final Result<SealTaskInfo> result = jySealVehicleService.getUnSealTaskInfo(request);
         System.out.println(result);
     }
 }

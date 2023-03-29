@@ -521,6 +521,11 @@ public class HintCodeConstants {
     public static String WAYBILL_ERROR_RE_PRINT = "20096";
 
     /**
+     * 运单异常差异禁止换单提示
+     */
+    public static String WAYBILL_ERROR_EXCHANGE_PRINT = "20097";
+
+    /**
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";
@@ -548,6 +553,11 @@ public class HintCodeConstants {
      * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
+
+    /**
+     * 异常运单逆向分拣、发货拦截
+     */
+    public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
 
     /*##############################################拦截相关END#########################################################*/
 
@@ -997,4 +1007,12 @@ public class HintCodeConstants {
 
     // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
     public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
+
+    public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
+
+    /**
+     *  40023-此人在【网格名称，工序名称】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？
+     */
+    public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
+    public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
 }

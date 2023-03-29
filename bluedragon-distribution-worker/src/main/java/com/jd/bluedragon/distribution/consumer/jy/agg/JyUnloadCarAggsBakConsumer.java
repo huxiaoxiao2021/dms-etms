@@ -45,6 +45,7 @@ public class JyUnloadCarAggsBakConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = ProfilerHelper.registerInfo("DMS.WORKER.JyUnloadCarAggsBakConsumer.consume");
+        logger.info("JyUnloadCarAggsBakConsumer consume -->{}",message.getText());
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JyUnloadCarAggsBakConsumer consume --> 消息为空");
             return;
@@ -71,6 +72,9 @@ public class JyUnloadCarAggsBakConsumer extends MessageBaseConsumer {
                         logger.warn("JyUnloadCarAggsBakConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
                         return;
                     }
+                }
+                if(StringUtils.isBlank(entity.getBoardCode())){
+                    entity.setBoardCode("");
                 }
                 Boolean result = jyUnloadAggsService.insertOrUpdateJyUnloadCarAggsBak(entity);
                 logger.info("JyUnloadCarAggsBakConsumer-执行结果-{}",result);

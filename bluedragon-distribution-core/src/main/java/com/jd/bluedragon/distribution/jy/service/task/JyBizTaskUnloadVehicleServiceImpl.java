@@ -6,9 +6,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoBak;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoMain;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
@@ -120,6 +117,18 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskUnloadVehicleEntity findByBizId(String bizId) {
         return jyBizTaskUnloadVehicleDao.findByBizId(bizId);
+    }
+
+    /**
+     * 获取6个小时内实际解封车顺序
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findRealRankingByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity){
+        return jyBizTaskUnloadVehicleDao.findRealRankingByBizId(entity);
     }
 
     /**
