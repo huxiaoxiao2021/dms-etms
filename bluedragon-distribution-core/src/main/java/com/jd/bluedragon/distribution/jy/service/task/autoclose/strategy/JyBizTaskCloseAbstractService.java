@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class JYBizTaskCloseAbstractService implements JYBizTaskCloseService {
+public class JyBizTaskCloseAbstractService implements JyBizTaskCloseService {
 
     protected String sysOperateUser = "sys";
     protected String sysOperateUserName = "sys";
@@ -30,14 +30,14 @@ public class JYBizTaskCloseAbstractService implements JYBizTaskCloseService {
      */
     @Override
     public Result<Void> closeTask(AutoCloseTaskPo autoCloseTaskPo) {
-        log.info("JYBizTaskCloseAbstractService.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
+        log.info("JyBizTaskCloseAbstractService.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         Result<Void> result = Result.success();
         try {
             // 关闭主任务
             // 关闭调度任务
             // 签退任务关联的签到记录
         } catch (Exception e) {
-            log.error("JYBizTaskCloseAbstractService.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);
+            log.error("JyBizTaskCloseAbstractService.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);
             result.toFail("系统异常");
         }
         return result;

@@ -19,7 +19,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Service
-public class JYBizTaskCloseServiceStrategy {
+public class JyBizTaskCloseServiceStrategy {
 
     @Resource
     @Qualifier("jyBizTaskCloseUnloadTaskService")
@@ -38,7 +38,7 @@ public class JYBizTaskCloseServiceStrategy {
      * @time 2023-01-31 17:00:46 周二
      */
     public Result<Void> closeTask(AutoCloseTaskPo autoCloseTaskPo) {
-        log.info("JYBizTaskCloseServiceStrategy.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
+        log.info("JyBizTaskCloseServiceStrategy.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         Result<Void> result = Result.success();
         try {
             // 解封车任务
@@ -50,7 +50,7 @@ public class JYBizTaskCloseServiceStrategy {
                 return jyBizTaskCloseUnloadTaskService.closeTask(autoCloseTaskPo);
             }
         } catch (Exception e) {
-            log.error("JYBizTaskCloseServiceStrategy.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);
+            log.error("JyBizTaskCloseServiceStrategy.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);
             result.toFail("系统异常");
         }
         return result;

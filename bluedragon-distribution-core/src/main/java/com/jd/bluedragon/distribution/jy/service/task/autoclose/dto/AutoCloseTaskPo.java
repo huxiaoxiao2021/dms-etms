@@ -24,6 +24,13 @@ public class AutoCloseTaskPo implements Serializable {
      */
     private String bizId;
 
+    private Integer changeStatus;
+
+    /**
+     * 操作时间
+     */
+    private Long operateTime;
+
     private Task task;
 
     public Integer getTaskBusinessType() {
@@ -40,6 +47,22 @@ public class AutoCloseTaskPo implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public Integer getChangeStatus() {
+        return changeStatus;
+    }
+
+    public void setChangeStatus(Integer changeStatus) {
+        this.changeStatus = changeStatus;
+    }
+
+    public Long getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Long operateTime) {
+        this.operateTime = operateTime;
     }
 
     public Task getTask() {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service("jyBizTaskCloseSendTaskService")
-public class JyBizTaskCloseSendTaskServiceImpl extends JYBizTaskCloseAbstractService {
+public class JyBizTaskCloseSendTaskServiceImpl extends JyBizTaskCloseAbstractService {
     /**
      * 关闭任务接口
      *

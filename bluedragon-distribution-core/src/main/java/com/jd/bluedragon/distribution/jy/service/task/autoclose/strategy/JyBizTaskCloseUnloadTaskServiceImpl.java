@@ -9,8 +9,10 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.JyBizTaskAutoCloseHelperService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskContextDto;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
@@ -42,7 +44,7 @@ import java.util.*;
  */
 @Slf4j
 @Service("jyBizTaskCloseUnloadTaskService")
-public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractService {
+public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractService {
 
     @Autowired
     private JyBizTaskUnloadVehicleService taskUnloadVehicleService;
@@ -69,6 +71,9 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
 
     /**
      * 关闭任务接口
@@ -115,21 +120,22 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JYBizTaskCloseAbstractS
                     final String unloadBizLastScanTimeValStr = redisClientOfJy.get(unloadBizLastScanTimeKey);
                     if (unloadBizLastScanTimeValStr != null) {
                         long unloadBizLastScanTimeVal = Long.parseLong(unloadBizLastScanTimeValStr);
-                        AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-                        if(autoCloseJyBizTaskConfig == null){
-                            autoCloseJyBizTaskConfig = new AutoCloseJyBizTaskConfig();
-                            autoCloseJyBizTaskConfig.setUnloadingNotFinishLazyTime(4);
+                        if(unloadBizLastScanTimeVal > autoCloseTaskPo.getOperateTime()){
+                            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+                            if(autoCloseJyBizTaskConfig == null){
+                                autoCloseJyBizTaskConfig = new AutoCloseJyBizTaskConfig();
+                                autoCloseJyBizTaskConfig.setUnloadingNotFinishLazyTime(4 * 60);
+                            }
+                            AutoCloseTaskMq autoCloseTaskMqNew = new AutoCloseTaskMq();
+                            autoCloseTaskMqNew.setTaskBusinessType(autoCloseTaskPo.getTaskBusinessType());
+                            autoCloseTaskMqNew.setBizId(autoCloseTaskPo.getBizId());
+                            autoCloseTaskMqNew.setChangeStatus(autoCloseTaskPo.getChangeStatus());
+                            autoCloseTaskMqNew.setOperateTime(unloadBizLastScanTimeVal);
+                            // 新下发一个延迟执行任务
+                            jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4UnloadingNotFinish(autoCloseTaskMqNew, taskUnloadVehicleExist);
+                            log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask lazy execute param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
+                            return result.toSuccess();
                         }
-                        final long executeTimeMillSeconds = unloadBizLastScanTimeVal + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
-                        final Task task = autoCloseTaskPo.getTask();
-                        Task taskUpdate = new Task();
-                        taskUpdate.setExecuteTime(new Date(executeTimeMillSeconds));
-                        taskUpdate.setId(task.getId());
-                        taskUpdate.setType(task.getType());
-                        taskService.updateBySelective(taskUpdate);
-                        log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask lazy execute param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
-                        // 延迟执行，直接返回失败
-                        return result.toFail();
                     }
                 }
             }

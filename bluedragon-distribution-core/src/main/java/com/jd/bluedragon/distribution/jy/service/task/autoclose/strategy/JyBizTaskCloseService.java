@@ -10,7 +10,7 @@ import com.jd.dms.java.utils.sdk.base.Result;
  * @copyright jd.com 京东物流JDL
  * @time 2023-01-31 15:45:27 周二
  */
-public interface JYBizTaskCloseService {
+public interface JyBizTaskCloseService {
 
     /**
      * 关闭任务接口
