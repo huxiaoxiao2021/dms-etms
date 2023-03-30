@@ -322,6 +322,9 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    <if test="groupCode!=null">
+      and group_code =#{groupCode}
+    </if>
     and comboard_source in
     <foreach item="item" index="index" collection="comboardSourceList"
              open="(" separator="," close=")">
@@ -361,6 +364,9 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    <if test="groupCode!=null">
+      and group_code = #{groupCode}
+    </if>
     and comboard_source in
     <foreach item="item" index="index" collection="comboardSourceList"
              open="(" separator="," close=")">

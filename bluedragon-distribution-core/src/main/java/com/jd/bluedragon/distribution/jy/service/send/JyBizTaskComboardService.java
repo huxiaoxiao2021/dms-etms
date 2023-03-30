@@ -30,7 +30,7 @@ public interface JyBizTaskComboardService {
    * @param endSiteCode
    * @return
    */
-  List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCode);
+  List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCode,String groupCode);
 
   boolean save(JyBizTaskComboardEntity entity);
 

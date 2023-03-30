@@ -538,7 +538,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       endSiteCodeList.add(tableTrolleyDto.getEndSiteId());
     }
     List<JyBizTaskComboardEntity> boardListBySendFlowList = jyBizTaskComboardService
-            .queryInProcessBoardListBySendFlowList(request.getCurrentOperate().getSiteCode(), endSiteCodeList);
+            .queryInProcessBoardListBySendFlowList(request.getCurrentOperate().getSiteCode(), endSiteCodeList,request.getGroupCode());
     if (!CollectionUtils.isEmpty(boardListBySendFlowList) && boardListBySendFlowList.size()>0) {
       return new InvokeResult(HAVE_IN_HAND_BOARD_CODE, HAVE_IN_HAND_BOARD_MESSAGE);
     }
@@ -630,7 +630,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
     entity.setGroupCode(request.getGroupCode());
     entity.setStartSiteId(Long.valueOf(startSiteCode));
-    entity.setStartSiteId(Long.valueOf(startSiteCode));
     // 获取当前场地扫描人员信息
     JyComboardEntity userQuery = new JyComboardEntity();
     userQuery.setGroupCode(request.getGroupCode());
@@ -655,7 +654,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request),e);
     }
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
-    //查询流向下7天内未封车的板
+    //查询多个流向下n天内未封车的板数量
     BoardCountReq boardCountReq = new BoardCountReq();
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(queryTime);
@@ -673,7 +672,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
     // 获取当前流向执行中的板号
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService
-            .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+            .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList,request.getGroupCode());
     List<String> boardCodeList = getBoardCodeList(boardList);
     // 获取当前板号的扫描信息
     List<JyComboardAggsEntity> boardScanInfoList = null;
@@ -1051,7 +1050,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 获取目的地
       List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
       List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
-              .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList);
+              .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList,request.getGroupCode());
       if (CollectionUtils.isEmpty(boardInProcess)){
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
       }
@@ -1064,12 +1063,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<Integer> comboardSourceList = new ArrayList<>();
       comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
       req.setComboardSourceList(comboardSourceList);
+      req.setGroupCode(request.getGroupCode());
       if (!jyBizTaskComboardService.batchFinishBoardBySendFLowList(req)) {
         log.info("完结板失败，混扫任务编号：{}", request.getTemplateCode());
         return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
       }
     } catch (Exception e) {
-      log.info("完结板异常，混扫任务编号：{}", request.getTemplateCode());
+      log.error("完结板异常，混扫任务编号：{}", request.getTemplateCode(),e);
       return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
     }
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);

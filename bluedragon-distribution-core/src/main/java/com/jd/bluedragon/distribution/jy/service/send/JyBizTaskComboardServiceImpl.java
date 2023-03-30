@@ -67,13 +67,14 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode,
-      List<Integer> endSiteCodeList) {
+      List<Integer> endSiteCodeList,String groupCode) {
     JyBizTaskComboardReq req = new JyBizTaskComboardReq();
     req.setStartSiteId(startSiteCode);
     req.setEndSiteCodeList(endSiteCodeList);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     req.setComboardSourceList(comboardSourceList);
+    req.setGroupCode(groupCode);
     return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
   }
 
