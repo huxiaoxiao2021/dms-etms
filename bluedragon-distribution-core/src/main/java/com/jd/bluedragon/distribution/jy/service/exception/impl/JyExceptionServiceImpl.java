@@ -234,7 +234,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param entity
      */
     private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
-        String msg ="%s操作,状态变更为%s-%s";
+        String msg ="%s%s操作,状态变更为%s-%s";
         try{
             JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
             JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
@@ -253,7 +253,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if(task.getProcessingStatus() != null && JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()) != null){
                 processStatus = JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName();
             }
-            bizLog.setRemark(String.format(msg,cycle.getName(),status,processStatus));
+            bizLog.setRemark(String.format(msg,entity.getUpdateUserErp(),cycle.getName(),status,processStatus));
             jyBizTaskExceptionLogDao.insertSelective(bizLog);
         }catch (Exception e){
             logger.error("保存日志信息出错 req-{}-{}",JSON.toJSONString(entity),e.getMessage(),e);
