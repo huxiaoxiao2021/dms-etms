@@ -25,12 +25,12 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     private JySendProductAggsSpecialDao jySendProductAggsSpecialDao;
 
     @Override
-    public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId) {
+    public List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query) {
 
         JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getSendVehicleProductTypeList");
-        List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
+        List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(query);
         Profiler.registerInfoEnd(info);
         return list;
     }

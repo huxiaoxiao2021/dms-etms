@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendAttachmentService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
@@ -291,7 +292,9 @@ public class JySealVehicleServiceTest {
 
     @Test
     public void getSendVehicleProductTypeListTest(){
-        List<JySendVehicleProductType> result = jySendProductAggsService.getSendVehicleProductTypeList("TEST002");
+        JySendProductAggsEntityQuery query = new JySendProductAggsEntityQuery();
+        query.setBizId("TEST002");
+        List<JySendVehicleProductType> result = jySendProductAggsService.getSendVehicleProductTypeList(query);
         System.out.println(result);
     }
 
