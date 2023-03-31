@@ -251,6 +251,7 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
+		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -493,6 +494,7 @@
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
+				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 			</list>
 		</property>
 	</bean>

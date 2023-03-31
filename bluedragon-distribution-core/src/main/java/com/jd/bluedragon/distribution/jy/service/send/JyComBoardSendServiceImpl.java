@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -2849,6 +2850,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
     sendFlow.setStatusList(statusList);
+    if (ObjectHelper.isNotNull(request.getGroupCode()) && needIsolateBoardByGroupCode(request.getCurrentOperate())){
+      sendFlow.setGroupCode(request.getGroupCode());
+    }
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
     if (com.jd.dbs.util.CollectionUtils.isEmpty(boardList)) {
@@ -2880,6 +2884,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       boardDto.setStatus(board.getBoardStatus());
       boardDto.setStatusDesc(ComboardStatusEnum.getStatusDesc(board.getBoardStatus()));
       boardDto.setBoardCreateTime(board.getCreateTime());
+      if (ObjectHelper.isNotNull(request.getGroupCode()) && !request.getGroupCode().equals(board.getGroupCode())){
+        boardDto.setNotMyGroup(true);
+      }
 
       if (boardScanCountMap.containsKey(board.getBoardCode())) {
         JyComboardAggsEntity aggsEntity = boardScanCountMap.get(board.getBoardCode());
@@ -2898,6 +2905,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     invokeResult.setCode(RESULT_SUCCESS_CODE);
     invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
     return invokeResult;
+  }
+
+  private boolean needIsolateBoardByGroupCode(CurrentOperate currentOperate) {
+    if (ucc.getNeedIsolateBoardByGroupCodeSiteList().contains(String.valueOf(currentOperate.getSiteCode()))){
+      return true;
+    }
+    return false;
   }
 
   @Override

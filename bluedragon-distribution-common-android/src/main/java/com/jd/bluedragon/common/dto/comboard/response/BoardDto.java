@@ -75,6 +75,19 @@ public class BoardDto implements Serializable {
      */
     private boolean extendFlag;
 
+    /**
+     * 非本岗位标识   true 非本岗位  false 本岗位
+     */
+    private boolean notMyGroup;
+
+    public boolean getNotMyGroup() {
+        return notMyGroup;
+    }
+
+    public void setNotMyGroup(boolean notMyGroup) {
+        this.notMyGroup = notMyGroup;
+    }
+
     public Date getBoardCreateTime() {
         return boardCreateTime;
     }
