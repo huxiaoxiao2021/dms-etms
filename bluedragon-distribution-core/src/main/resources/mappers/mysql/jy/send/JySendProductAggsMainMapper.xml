@@ -39,7 +39,7 @@
         yn = 1
         AND operate_site_id = #{operateSiteId}
         AND receive_site_id in
-        <foreach item="id" index="index" collection="ids"
+        <foreach item="id" index="index" collection="endSiteIds"
                  open="(" separator="," close=")">
             #{id}
         </foreach>
