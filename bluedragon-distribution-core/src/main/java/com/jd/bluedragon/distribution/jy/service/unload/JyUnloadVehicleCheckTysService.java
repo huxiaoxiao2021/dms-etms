@@ -1443,17 +1443,13 @@ public class JyUnloadVehicleCheckTysService {
         resData.setUnloadCollectDto(collectDto);
 
         //判断为在末级别,则发送初始化的MQ，按运单集齐
-        BaseStaffSiteOrgDto baseSite = Optional.of(baseMajorManager.getBaseSiteBySiteId(unloadScanCollectDealDto.getOldSiteId())).orElse(new BaseStaffSiteOrgDto());
-        if (Objects.equals(unloadScanCollectDealDto.getCurrentOperate().getSiteCode(), baseSite.getDmsId())) {
-            CollectDto collectDto1 = new CollectDto();
-            collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
-            collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
-            collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
-            collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
-            jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
-            log.info("sealCarTaskCollectDeal:运单【{}】的预分拣站点为【{}】，预分拣站点所书分拣中心为【{}】，当前场地为末级场地"
-                , unloadScanCollectDealDto.getScanCode(), unloadScanCollectDealDto.getOldSiteId(), baseSite.getSiteCode());
-        }
+        CollectDto collectDto1 = new CollectDto();
+        collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+        collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
+        collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+        jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
+
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //按运单修改集齐状态mq： 异步
             this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);

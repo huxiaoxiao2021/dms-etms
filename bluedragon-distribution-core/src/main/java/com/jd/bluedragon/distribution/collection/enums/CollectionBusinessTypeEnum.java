@@ -35,7 +35,7 @@ public enum CollectionBusinessTypeEnum {
      */
     all_site_collection("场地集齐业务",
         Collections.singletonList(CollectionAggCodeTypeEnum.waybill_code),
-        Arrays.asList(CollectionConditionKeyEnum.site_code, CollectionConditionKeyEnum.date_time)
+        Collections.singletonList(CollectionConditionKeyEnum.site_code)
     )
 
     ;
