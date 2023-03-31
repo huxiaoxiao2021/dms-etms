@@ -55,6 +55,11 @@ public class CollectionRecordPo {
     private Integer sum;
 
     /**
+     * 是否被初始化。也是统计数据是否有效的标示
+     */
+    private Integer isInit;
+
+    /**
      *  是否集齐
      *  0 未集齐
      *  1 集齐

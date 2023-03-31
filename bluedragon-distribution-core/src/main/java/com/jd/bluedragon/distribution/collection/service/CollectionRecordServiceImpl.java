@@ -163,19 +163,6 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                         }
 
-                        /* 过滤状态已经存在的情况，但collectedMark不同的情况? */
-//                        List<CollectionRecordDetailPo> collectionRecordDetailPosExistWithOutMark = partitionDetailPos.parallelStream().filter(
-//                            collectionRecordDetailPo ->
-//                                collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
-//                                    && collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode())
-//                                    .parallelStream().anyMatch(item -> !Objects.equals(item.getCollectedMark(), collectionRecordDetailPo.getCollectedMark())
-//                                        && CollectionStatusEnum.none_collected.getStatus().equals(item.getCollectedStatus()))
-//                        ).collect(Collectors.toList());
-//                        /* 更新到数据库中 */
-//                        collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
-//                            collectionRecordDetailPosExistWithOutMark.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-//                                .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, null, );
-
                         /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
                         List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = partitionDetailPos.parallelStream().filter(
                             /* 首选过滤出存在且标注多扫的状态 */
@@ -208,6 +195,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setAggCode(aggCode);
                     collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
                     collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                    collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
                     collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                     collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
@@ -215,7 +203,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                     collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-                    collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+
+                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    }
 
                 });
 
@@ -324,6 +315,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setAggCode(aggCode);
                     collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
                     collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                    collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
                     collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                     collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
@@ -331,7 +323,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                     collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-                    collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    }
 
                 });
 
@@ -413,8 +407,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     List<CollectionRecordPo> collectionRecordPo = collectionRecordDao.findCollectionRecord(condition);
                     if (CollectionUtils.isEmpty(collectionRecordPo)) {
                         condition.setIsCollected(Constants.NUMBER_ZERO);
+                        condition.setIsInit(Constants.NUMBER_ZERO);
                         condition.setSum(Constants.NUMBER_ZERO);
                         condition.setIsExtraCollected(Constants.NUMBER_ONE);
+                        condition.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                         condition.setAggMark("");
                         collectionRecordDao.insertCollectionRecord(condition);
                     } else {
