@@ -28,6 +28,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -62,41 +64,35 @@ public class JyTysUnloadTest {
 
     @Test
     public void collectDealTest(){
-        while(true) {
+        List<String> pcList = Arrays.asList(
+                "JDX000234596031-1-5-",
+                "JDX000234596040-1-5-",
+                "JDX000234596059-1-5-",
+                "JDX000234596067-1-5-",
+                "JDX000234596076-1-5-",
+                "JDX000234596085-1-5-",
+                "JDX000234596093-1-5-",
+                "JDX000234596104-1-5-",
+                "JDX000234596112-1-5-",
+                "JDX000234596121-1-5-");
+
+        for(int i = 0; i < pcList.size(); i++) {
+
 
             try{
-                String bizId = "XCZJ23031500000017";
-                String scanCode = "JD0003419465569-1-20-";
-
-                User user = new User();
-                user.setUserErp("xumigen");
-
-                CurrentOperate currentOperate = new CurrentOperate();
-                currentOperate.setSiteCode(10186);
-
-                InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
-                UnloadScanCollectDealDto collectDealDto = new UnloadScanCollectDealDto();
-                collectDealDto.setScanCode(scanCode);
-                collectDealDto.setUser(user);
-                collectDealDto.setCurrentOperate(currentOperate);
-                collectDealDto.setBizId(bizId);
-                collectDealDto.setScanCodeType(ScanCodeTypeEnum.SCAN_PACKAGE.getCode());
-//            collectDealDto.setScanCodeType(ScanCodeTypeEnum.SCAN_WAYBILL.getCode());
-                collectDealDto.setManualCreateTaskFlag(true);
-//            collectDealDto.setManualCreateTaskFlag(false);
-
-                String json = "{\n" +
-                        "    \"bizId\": \"XCZJ23031600000013\",\n" +
+                String json1 = "{\n" +
+                        "    \"bizId\": \"XCZJ23040100000001\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"groupCode\": \"G00000052005\",\n" +
-                        "        \"operateTime\": 1679069152005,\n" +
+                        "        \"operateTime\": 1680331698368,\n" +
                         "        \"positionCode\": \"GW00108005\",\n" +
                         "        \"siteCode\": 10186,\n" +
                         "        \"siteName\": \"北京凉水河快运中心\"\n" +
                         "    },\n" +
-                        "    \"goodNumber\": 1,\n" +
+                        "    \"goodNumber\": 5,\n" +
                         "    \"manualCreateTaskFlag\": true,\n" +
-                        "    \"scanCode\": \"JD0003419484162-10-50-\",\n" +
+                        "    \"oldSiteId\": 39,\n" +
+                        "    \"scanCode\": \"JDX000234586760-1-5-\",\n" +
                         "    \"scanCodeType\": 101,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 18225,\n" +
@@ -105,29 +101,29 @@ public class JyTysUnloadTest {
                         "    }\n" +
                         "}";
 
-                UnloadScanCollectDealDto param1 = JSONObject.parseObject(json, UnloadScanCollectDealDto.class);
+                UnloadScanCollectDealDto param1 = JSONObject.parseObject(json1, UnloadScanCollectDealDto.class);
+                param1.setScanCode(pcList.get(i));
+
                 String json2 = "{\n" +
-                        "    \"code\": 200,\n" +
-                        "    \"data\": {\n" +
-                        "        \"barCode\": \"JD0003419484162-10-50-\",\n" +
-                        "        \"bizId\": \"XCZJ23031600000013\",\n" +
+                        "        \"barCode\": \"JDX000234586760-1-5-\",\n" +
+                        "        \"bizId\": \"XCZJ23040100000001\",\n" +
                         "        \"collectDemoteSwitch\": false,\n" +
                         "        \"confirmMsg\": {},\n" +
                         "        \"firstScan\": false,\n" +
-                        "        \"prevSiteId\": 10186,\n" +
-                        "        \"prevSiteName\": \"北京凉水河快运中心\",\n" +
+                        "        \"prevSiteId\": 910,\n" +
+                        "        \"prevSiteName\": \"北京马驹桥分拣中心\",\n" +
                         "        \"stageFirstScan\": false,\n" +
                         "        \"supplementary\": false,\n" +
                         "        \"warnMsg\": {}\n" +
-                        "    },\n" +
-                        "    \"message\": \"OK\"\n" +
-                        "}";
-                ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json, ScanPackageRespDto.class);
+                        "    }";
+                ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json2, ScanPackageRespDto.class);
+                scanPackageRespDto.setBarCode(pcList.get(i));
                 InvokeResult<ScanPackageRespDto> param2 = new InvokeResult<>();
                 param2.success();
                 param2.setData(scanPackageRespDto);
+
                 jyUnloadVehicleCheckTysService.collectDeal(param1, param2);
-                log.info(JsonHelper.toJson(invokeResult));
+                log.info(JsonHelper.toJson(param2));
             }catch (Exception e) {
                 e.printStackTrace();
             }

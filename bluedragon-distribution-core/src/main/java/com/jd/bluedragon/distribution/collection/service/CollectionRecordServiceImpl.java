@@ -363,8 +363,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         /* 根据condition去business_code_attribute表中查询所有的集合ID,使用kv_index做查询 */
         List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
-            .peek(codeEntity ->
-                codeEntity.setCollectionCode(this.getJQCodeByBusinessType(codeEntity,"NONE"))
+            .peek(codeEntity -> setCollectionCode(codeEntity)
             )
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
             .collect(Collectors.toList());
@@ -389,18 +388,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             if (CollectionUtils.isEmpty(scanDetailPos)) {
                 /* 根据businessType和element创建多个待插入的明细表数据 */
                 List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().parallelStream()
-                    .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
-                        .collectionCode(collectionCodeEntity.getCollectionCode())
-                        .scanCode(scanCode)
-                        .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
-                        .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
-                        .aggCodeType(aggCodeTypeEnum.name())
-                        .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
-                        .collectedMark(collectedMark)
-                        .createTime(new Date())
-                        .build())
+                    .map(aggCodeTypeEnum ->
+                                    buildCollectionRecordDetailPo(collectionCodeEntity, scanCode,collectionCollectorEntity, finalElement, aggCodeTypeEnum, collectedMark)
+                            )
                     .collect(Collectors.toList());
-
+                //todo zcf 这个场景存在读写写产生写重复问题，异常场景：A读不到，B写入，A批量写入
                 collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
 
                 collectionRecordDetailPos.forEach(collectionRecordDetailPo -> {
@@ -491,6 +483,31 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         });
 
         return true;
+    }
+
+    private CollectionRecordDetailPo buildCollectionRecordDetailPo(CollectionCodeEntity collectionCodeEntity, String scanCode, CollectionCollectorEntity collectionCollectorEntity, Map<CollectionAggCodeTypeEnum, String> finalElement, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        CollectionRecordDetailPo res = CollectionRecordDetailPo.builder()
+                .collectionCode(collectionCodeEntity.getCollectionCode())
+                .scanCode(scanCode)
+                .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
+                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
+                .aggCodeType(aggCodeTypeEnum.name())
+                .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
+                .collectedMark(collectedMark)
+                .createTime(new Date())
+                .build();
+        if(log.isInfoEnabled()) {
+            log.info("buildCollectionRecordDetailPo不存在不齐创建多集齐对象={}", JsonHelper.toJson(res));
+        }
+        return res;
+    }
+
+    private void setCollectionCode(CollectionCodeEntity codeEntity) {
+        String collectionCode = this.getJQCodeByBusinessType(codeEntity,"NONE");
+        if(log.isInfoEnabled()) {
+            log.info("集齐collectionCode={},entity={}", collectionCode, JsonHelper.toJson(codeEntity));
+        }
+        codeEntity.setCollectionCode(collectionCode);
     }
 
     @Override

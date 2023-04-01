@@ -84,7 +84,7 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     public boolean splitBeforeInit(InitCollectDto initCollectDto) {
         String methodDesc = "CollectWaybillInitSplitServiceImpl.splitBeforeInit:集齐数据初始化前按运单拆分批次：";
         String waybillCode = WaybillUtil.getWaybillCode(initCollectDto.getTaskNullScanCode());
-        if(org.apache.commons.lang3.StringUtils.isBlank(initCollectDto.getWaybillCode())) {
+        if(StringUtils.isBlank(initCollectDto.getWaybillCode())) {
             initCollectDto.setWaybillCode(waybillCode);
         }
         if(!jyCollectCacheService.lockSaveWaybillCollectSplitBeforeInit(initCollectDto, CollectInitNodeEnum.NULL_TASK_INIT.getCode())) {
@@ -174,7 +174,9 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
     private boolean batchCollectInit(InitCollectSplitDto request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInit",Constants.UMP_APP_NAME_DMSWEB, false, true);
 
-        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.batchCollectInit:集齐数据按运单拆分批次后初始化：";
+        String methodDesc = "CollectSealCarBatchInitSplitServiceImpl.batchCollectInit:集齐数据扫描包裹按运单拆分批次后初始化：";
+        log.info("{}, start,request={}" , methodDesc, JsonHelper.toJson(request));
+
         if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
             if (log.isInfoEnabled()) {
                 log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
@@ -204,6 +206,9 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
         collectDto.setOperatorErp(request.getOperatorErp());
 
         boolean res = jyCollectService.initCollect(collectDto, collectionScanCodeEntityList);
+        if(log.isInfoEnabled()) {
+            log.info("{}, 调用初始化集齐服务结束,request={}，res={}" , methodDesc, JsonHelper.toJson(request), res);
+        }
         if(res) {
             jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
         }
@@ -218,8 +223,10 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
      */
     private boolean batchCollectInitAndUpdateStatus(InitCollectSplitDto request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus",Constants.UMP_APP_NAME_DMSWEB, false, true);
-
-        String methodDesc = "CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus:集齐数据按运单拆分批次后初始化并修改集齐状态：";
+        String methodDesc = "CollectWaybillInitSplitServiceImpl.batchCollectInitAndUpdateStatus:集齐数据扫描运单按运单拆分批次后初始化并修改集齐状态：";
+        if(log.isInfoEnabled()) {
+            log.info("{}, start,request={}" , methodDesc, JsonHelper.toJson(request));
+        }
         if (jyCollectCacheService.cacheExistTaskNullWaybillCollectInitAfterSplit(request)) {
             if (log.isInfoEnabled()) {
                 log.info("{}防重缓存已存在，不在处理，paramDto={}", methodDesc, JsonHelper.toJson(request));
@@ -248,7 +255,9 @@ public class CollectWaybillInitSplitServiceImpl implements CollectInitSplitServi
                 collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, waybillCode));
                 return collectionScanCodeEntity;
             }).collect(Collectors.toList()));
-
+        if(log.isInfoEnabled()) {
+            log.info("{}, 调用初始化集齐并修改状态服务结束,request={}，res={}" , methodDesc, JsonHelper.toJson(request), res);
+        }
         if(res) {
             jyCollectCacheService.cacheSaveTaskNullWaybillCollectInitAfterSplit(request);
         }
