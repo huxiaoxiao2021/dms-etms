@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.collection.builder.CollectionEntityConvert
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
 import com.jd.ump.annotation.JProEnum;
@@ -57,6 +58,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
     @Override
     public String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
+        String methodDesc =  "CollectionRecordServiceImpl.getJQCodeByBusinessType:获取collectionCode:";
         if (null == collectionCodeEntity || null == collectionCodeEntity.getBusinessType()) {
             log.error("获取待集齐集合ID失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
@@ -66,9 +68,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.error("获取待集齐集合ID的要素失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
         }
+        if(log.isInfoEnabled()) {
+            log.info("{},参数={},erp={},condition={}", methodDesc, JsonHelper.toJson(collectionCodeEntity), userErp, condition);
+        }
         String JQCode = kvIndexDao.queryRecentOneByKeyword(condition);
         if (StringUtils.isNotEmpty(JQCode)) {
-            log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}", JQCode, JSON.toJSONString(collectionCodeEntity));
+            log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}，condition={}", JQCode, JSON.toJSONString(collectionCodeEntity), condition);
             return JQCode;
         }
         return jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
@@ -413,13 +418,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         condition.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                         condition.setAggMark("");
                         collectionRecordDao.insertCollectionRecord(condition);
-                    } else {
+                    } else {//todo zcf 判断是否需要真的修改
                         condition.setIsExtraCollected(Constants.NUMBER_ONE);
                         collectionRecordDao.updateCollectionRecord(condition);
                     }
                 });
             }
-            if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
+            if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {// todo zcf 该场景还未测试到  初始化之后扫描场景
                 /* 检查是否有根据appCodeType重置aggCode的行为 */
                 List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
                     .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());

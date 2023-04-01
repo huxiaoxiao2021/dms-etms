@@ -1500,6 +1500,7 @@ public class JyUnloadVehicleCheckTysService {
         initCollectDto.setTaskNullScanCode(unloadScanCollectDealDto.getScanCode());
         initCollectDto.setTaskNullScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
         initCollectDto.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+        initCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
         //自建任务扫描初始化businessId是bizId + 扫描单号+ 扫描类型；  封车初始化businessId是bizId
         StringBuilder sb = new StringBuilder();
         sb.append(initCollectDto.getBizId()).append(":")
@@ -1508,7 +1509,7 @@ public class JyUnloadVehicleCheckTysService {
         String businessId = sb.toString();
         String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);
         if(log.isInfoEnabled()) {
-            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
+            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, businessId={}, msg={}", businessId, msg);
         }
         jyCollectDataInitSplitProducer.sendOnFailPersistent(businessId, msg);
     }
