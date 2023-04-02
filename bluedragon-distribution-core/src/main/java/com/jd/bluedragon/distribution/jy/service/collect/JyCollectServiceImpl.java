@@ -121,7 +121,11 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectReportReqDto.getCollectType());
         //当前运单统计
-        List<CollectReportDto> collectReportDtoList = collectStatisticsService.queryCollectListPage(collectReportReqDto, resData);
+        CollectReportReqDto collectReportReqDto1 = new CollectReportReqDto();
+        org.springframework.beans.BeanUtils.copyProperties(collectReportReqDto, collectReportReqDto1);
+        collectReportReqDto1.setPageNo(1);
+        collectReportReqDto1.setPageSize(30);
+        List<CollectReportDto> collectReportDtoList = collectStatisticsService.queryCollectListPage(collectReportReqDto1, resData);
         if(CollectionUtils.isEmpty(collectReportDtoList)) {
             res.setMessage("未查到当前集齐类型的运单数据");
             return res;

@@ -76,12 +76,13 @@ public class JyTysUnloadCollectTest {
         //空任务扫描初始化
         String taskNullScanInitJson = "{\n" +
                 "\"bizId\" : \"XCZJ23040100000001\",\n" +
-                "\"operateTime\" : 1680331698039,\n" +
+                "\"operateTime\" : 1680362352659,\n" +
                 "\"operateNode\" : 103,\n" +
                 "\"taskNullScanCodeType\" : 101,\n" +
-                "\"taskNullScanCode\" : \"JDX000234572048-1-5-\",\n" +
+                "\"taskNullScanCode\" : \"JDX000234603520-2-5--\",\n" +
                 "\"taskNullScanSiteCode\" : 10186,\n" +
-                "\"operatorErp\" : \"xumigen\"\n" +
+                "\"operatorErp\" : \"xumigen\",\n" +
+                "\"waybillCode\" : \"JDX000234603520-2-5--\"\n" +
                 "}";
         //空任务扫描初始化
         Message message1 = new Message();

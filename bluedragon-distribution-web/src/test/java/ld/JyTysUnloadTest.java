@@ -65,23 +65,18 @@ public class JyTysUnloadTest {
     @Test
     public void collectDealTest(){
         List<String> pcList = Arrays.asList(
-                "JDX000234596031-1-5-",
-                "JDX000234596040-1-5-",
-                "JDX000234596059-1-5-",
-                "JDX000234596067-1-5-",
-                "JDX000234596076-1-5-",
-                "JDX000234596085-1-5-",
-                "JDX000234596093-1-5-",
-                "JDX000234596104-1-5-",
-                "JDX000234596112-1-5-",
-                "JDX000234596121-1-5-");
+                "JDX000234615130-1-5-",
+                "JDX000234615130-2-5-",
+                "JDX000234615130-3-5-",
+                "JDX000234615130-4-5-",
+                "JDX000234615130-5-5-");
 
         for(int i = 0; i < pcList.size(); i++) {
 
 
             try{
                 String json1 = "{\n" +
-                        "    \"bizId\": \"XCZJ23040100000001\",\n" +
+                        "    \"bizId\": \"XCZJ23040200000004\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"groupCode\": \"G00000052005\",\n" +
                         "        \"operateTime\": 1680331698368,\n" +
@@ -106,7 +101,7 @@ public class JyTysUnloadTest {
 
                 String json2 = "{\n" +
                         "        \"barCode\": \"JDX000234586760-1-5-\",\n" +
-                        "        \"bizId\": \"XCZJ23040100000001\",\n" +
+                        "        \"bizId\": \"XCZJ23040200000004\",\n" +
                         "        \"collectDemoteSwitch\": false,\n" +
                         "        \"confirmMsg\": {},\n" +
                         "        \"firstScan\": false,\n" +
@@ -204,20 +199,31 @@ public class JyTysUnloadTest {
     public void findCollectReportDetailPageTest(){
         while(true) {
             try {
-                CollectReportReqDto param1 = new CollectReportReqDto();
-                param1.setPageNo(1);
-                param1.setPageSize(100);
-                param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-                param1.setBizId("SC23032900029737");
-                param1.setWaybillCode("JD0003419552536");
-                param1.setCollectionCode("JQ23032919450000032");
-
-                User user = new User();
-                user.setUserErp("xumigen");
-                param1.setUser(user);
-                CurrentOperate currentOperate = new CurrentOperate();
-                currentOperate.setSiteCode(10186);
-                param1.setCurrentOperate(currentOperate);
+                String json = "{\n" +
+                        "    \"bizId\": \"SC23040200030108\",\n" +
+                        "    \"collectType\": 101,\n" +
+                        "    \"collectionCode\": \"JQ23033122360300032\",\n" +
+                        "    \"currentOperate\": {\n" +
+                        "        \"dmsCode\": \"010F002\",\n" +
+                        "        \"groupCode\": \"G00000052005\",\n" +
+                        "        \"operateTime\": 1680437708513,\n" +
+                        "        \"orgId\": 6,\n" +
+                        "        \"orgName\": \"华北\",\n" +
+                        "        \"positionCode\": \"GW00108005\",\n" +
+                        "        \"siteCode\": 10186,\n" +
+                        "        \"siteName\": \"北京凉水河快运中心\"\n" +
+                        "    },\n" +
+                        "    \"manualCreateTaskFlag\": false,\n" +
+                        "    \"pageNo\": 3,\n" +
+                        "    \"pageSize\": 30,\n" +
+                        "    \"user\": {\n" +
+                        "        \"userCode\": 17331,\n" +
+                        "        \"userErp\": \"wuyoude\",\n" +
+                        "        \"userName\": \"吴有德\"\n" +
+                        "    },\n" +
+                        "    \"waybillCode\": \"JD0003419580301\"\n" +
+                        "}";
+                CollectReportReqDto param1 = JSONObject.parseObject(json, CollectReportReqDto.class);
                 InvokeResult<CollectReportDetailResDto> res = jyUnloadVehicleTysService.findCollectReportDetailPage(param1);
                 System.out.println("end");
             }catch (Exception e) {

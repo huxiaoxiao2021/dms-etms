@@ -365,7 +365,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
             .peek(codeEntity -> setCollectionCode(codeEntity)
             )
-            .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
+            .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))//todo zcf collection为空是什么场景
             .collect(Collectors.toList());
 
         Map<CollectionAggCodeTypeEnum, String> finalElement = element;
@@ -417,7 +417,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 });
             }
             if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {// todo zcf 该场景还未测试到  初始化之后扫描场景
-                /* 检查是否有根据appCodeType重置aggCode的行为 */
+                /* 检查是否有根据appCodeType重置aggCode的行为 */  //todo zcf 下面两个if实现什么逻辑？？？
                 List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
                     .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());
                 List<CollectionAggCodeTypeEnum> notExistAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
@@ -454,7 +454,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .scanCode(scanCode)
                         .build()
                 );
-                if (CollectionUtils.isEmpty(aggCodeDetailPos)) {
+                if (CollectionUtils.isEmpty(aggCodeDetailPos)) {//todo zcf 什么场景出现此处不一致
                     log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}", collectionCodeEntity.getCollectionCode());
                     return;
                 }
@@ -594,7 +594,18 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        return this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+        List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+        fillAggMark(collectionRecordPos, res) ;
+        return res;
+
+    }
+
+    private void fillAggMark(List<CollectionRecordPo> collectionRecordPos, List<CollectionAggCodeCounter> collectionAggCodeCounters) {
+        Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
+                .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
+
+        collectionAggCodeCounters.forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
+        System.out.println("11");
 
     }
 
