@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface JySendProductAggsService {
 
-    List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId);
+    List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query);
 
     Long getToScanCountSum(String sendVehicleBizId);
 

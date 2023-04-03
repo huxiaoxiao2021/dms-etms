@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
 import java.util.List;
@@ -17,8 +18,8 @@ class JySendProductAggsDaoBak extends BaseDao<JySendProductAggsEntity>  implemen
 
     private final static String NAMESPACE = JySendProductAggsDaoBak.class.getName();
 
-    public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
-        return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
+    public List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", query);
     }
 
     public Long getToScanCountSum(String sendVehicleBizId){
