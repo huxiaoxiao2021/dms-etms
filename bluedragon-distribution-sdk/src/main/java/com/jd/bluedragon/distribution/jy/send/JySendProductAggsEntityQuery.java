@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.send;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 发货数据统计表
@@ -38,6 +39,11 @@ public class JySendProductAggsEntityQuery implements Serializable {
      *  结束时间
      */
     private Date endTime;
+
+    /**
+     * 目的场地ids
+     */
+    private List<Long> endSiteIds;
 
     public String getBizId() {
         return bizId;
@@ -77,5 +83,13 @@ public class JySendProductAggsEntityQuery implements Serializable {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public List<Long> getEndSiteIds() {
+        return endSiteIds;
+    }
+
+    public void setEndSiteIds(List<Long> endSiteIds) {
+        this.endSiteIds = endSiteIds;
     }
 }
