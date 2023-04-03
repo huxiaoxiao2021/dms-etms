@@ -87,6 +87,10 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
      */
     private Byte isIssueDownstream;
 
+    private Integer excessType;
+    
+    private String pictureAIDistinguishReason;
+
     public Long getReviewOrgCode() {
         return reviewOrgCode;
     }
@@ -205,5 +209,21 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
 
     public void setIsIssueDownstream(Byte isIssueDownstream) {
         this.isIssueDownstream = isIssueDownstream;
+    }
+
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
+    }
+
+    public String getPictureAIDistinguishReason() {
+        return pictureAIDistinguishReason;
+    }
+
+    public void setPictureAIDistinguishReason(String pictureAIDistinguishReason) {
+        this.pictureAIDistinguishReason = pictureAIDistinguishReason;
     }
 }
