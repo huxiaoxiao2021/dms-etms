@@ -1011,6 +1011,11 @@ public class Constants {
     public static final int DELIVERY_DELAY_TIME = 5000;
 
     /**
+     * 组板即发货 延迟1s
+     */
+    public static final int COMBOARD_SEND_DELAY_TIME = 1000;
+
+    /**
      * 始发道口号类型-1-普通
      */
     public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
