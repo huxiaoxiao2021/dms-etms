@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.ibatis.session.SqlSession;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,25 +93,36 @@ public class CollectionRecordDao {
         return this.sqlSession.update(NAMESPACE.concat(".updateDetailInfoByScanCodes"), param);
     }
 
-    public Integer countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
+    public Integer countAggCodeByCollectionCodesAndStatus(List<String> collectionCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer isCollected, Integer isMoreCollectedMark) {
+
         Map<String,Object> param = new HashMap<>();
         param.put("collectionCodes", collectionCodes);
         param.put("aggCodeType", aggCodeTypeEnum.name());
-        param.put("aggCode", aggCode);
         param.put("collectedMark", collectedMark);
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countNoneCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
+        param.put("isCollected", isCollected);
+        param.put("isMoreCollectedMark", isMoreCollectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCodeByCollectionCodesAndStatus"), param);
     }
 
-    public Integer countCollectedAggCodeByCollectionCodeWithCollectedMark(List<String> collectionCodes,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark, Boolean innerMark) {
+    public Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<String> collectionCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("collectedMark", collectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".getMaxTimeStampByCollectionCodesAndCollectedMark"), param);
+    }
+
+    public Timestamp getMaxTimeStampByCollectionCodesAndAggCode(List<String> collectionCodes,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
+
         Map<String,Object> param = new HashMap<>();
         param.put("collectionCodes", collectionCodes);
         param.put("aggCodeType", aggCodeTypeEnum.name());
         param.put("aggCode", aggCode);
-        param.put("collectedMark", collectedMark);
-        param.put("innerMark", innerMark);
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countCollectedAggCodeByCollectionCodeWithCollectedMark"), param);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".getMaxTimeStampByCollectionCodesAndAggCode"), param);
     }
 
     public List<CollectionRecordDetailPo> findAggCodeByScanCode(CollectionRecordDetailPo collectionRecordDetailPo) {

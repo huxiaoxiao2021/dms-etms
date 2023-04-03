@@ -232,6 +232,73 @@
 
 	</select>
 
+	<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT
+			count(*)
+		FROM
+		(
+			SELECT cr.agg_code
+			FROM
+				collection_record_detail crd INNER JOIN collection_record cr
+			ON
+				crd.collection_code = cr.collection_code
+				AND crd.agg_code = cr.agg_code
+				AND crd.agg_code_type = cr.agg_code_type
+			WHERE
+				crd.yn = 1
+				AND cr.yn = 1
+				AND cr.is_init = 1
+				AND cr.is_collected = #{isCollected, jdbcType=VARCHAR}
+				<if test="isMoreCollectedMark != null">
+					AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=VARCHAR}
+				</if>
+				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
+				AND agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				AND crd.collection_code IN
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
+			GROUP BY cr.agg_code
+		) t
+
+	</select>
+
+	<select id="getMaxTimeStampByCollectionCodesAndCollectedMark" parameterType="java.util.Map"
+			resultType="java.sql.Timestamp">
+
+		SELECT
+		 	max(ts)
+		FROM
+			collection_record_detail
+		<where>
+			collection_code IN
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
+			and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+
+	</select>
+
+	<select id="getMaxTimeStampByCollectionCodesAndAggCode" parameterType="java.util.Map"
+			resultType="java.sql.Timestamp">
+		SELECT
+			max(ts)
+		FROM
+			collection_record_detail
+		<where>
+			collection_code IN
+			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+				#{collectionCode, jdbcType=VARCHAR}
+			</foreach>
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</select>
+
 	<select id="countCollectionByAggCodeAndCollectionCodes" parameterType="java.util.Map"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
 		select
@@ -254,92 +321,6 @@
 		group by
 			collection_code, collected_status, collected_mark
 
-	</select>
-
-	<select id="countNoneCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
-			resultType="java.lang.Integer">
-		select count(1) from
-		(
-			SELECT
-				agg_code
-			FROM
-				collection_record_detail
-			<where>
-				collection_code in
-				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType=VARCHAR}
-				</foreach>
-				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-				<if test="aggCode != null">
-					and agg_code = #{aggCode, jdbcType=VARCHAR}
-				</if>
-				<if test="collectedMark != null">
-					and collected_mark = #{collectedMark, jdbcType=VARCHAR}
-				</if>
-				and collected_status = 0
-				and yn = 1
-			</where>
-			group by agg_code
-		) t
-
-	</select>
-
-	<select id="countCollectedAggCodeByCollectionCodeWithCollectedMark" parameterType="java.util.Map"
-			resultType="java.lang.Integer">
-		select
-			count(1)
-		from
-		(
-			select
-				crd.collection_code, crd.agg_code, count(distinct crd.collected_mark) as c
-			from
-				`collection_record_detail` crd
-			inner join
-			(
-				select
-					crd.collection_code, crd.agg_code, crd.agg_code_type
-				from
-					collection_record_detail crd
-				inner join
-					collection_record cr
-				on
-					crd.collection_code = cr.collection_code and crd.agg_code = cr.agg_code	and crd.agg_code_type = cr.agg_code_type
-				where
-					crd.collection_code in
-					<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-						#{collectionCode, jdbcType=VARCHAR}
-					</foreach>
-					<if test="aggCodeType != null">
-						and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-					</if>
-					<if test="aggCode != null">
-						and crd.agg_code = #{aggCode, jdbcType=VARCHAR}
-					</if>
-					<if test="collectedMark != null">
-						and crd.`collected_mark` = #{collectedMark, jdbcType=VARCHAR}
-					</if>
-					and crd.collected_status = 1
-					and cr.is_collected = 1
-					and crd.yn = 1 and cr.yn = 1
-				group by
-					crd.collection_code, crd.agg_code, crd.agg_code_type
-			) t
-			on
-				crd.collection_code = t.collection_code
-				and crd.agg_code = t.agg_code
-				and crd.agg_code_type =t.agg_code_type
-			where
-				crd.collected_status = 1
-			group by
-				crd.collection_code, crd.agg_code
-			<if test="innerMark != null and innerMark == true">
-				having	c = 1
-			</if>
-			<if test="innerMark != null and innerMark == false">
-				having	c > 1
-			</if>
-
-		) a
 	</select>
 
 <!-- todo what	-->

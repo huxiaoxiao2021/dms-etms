@@ -93,9 +93,9 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
-        tsSetter.setTimeStamp(collectionAggCodeCounters.parallelStream().map(
-            collectionAggCodeCounter -> collectionAggCodeCounter.getTs() != null? collectionAggCodeCounter.getTs().getTime() : 0).max(
-            Long::compareTo).orElse(0L));
+        Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndCollectedMark
+            (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId());
+        tsSetter.setTimeStamp(timestamp.getTime());
         return res;
     }
 
@@ -138,15 +138,15 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
                 } else if (CollectionStatusEnum.extra_collected.equals(collectionScanCodeDetail.getCollectedStatus())) {
                     packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_DO.getCode());
                 }
-                return null;
+                return packageDto;
             }).collect(Collectors.toList());
         if(log.isInfoEnabled()) {
             log.info("CollectSiteServiceImpl.queryCollectDetail 查询在库集齐运单明细列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
-        tsSetter.setTimeStamp(collectionScanCodeDetails.parallelStream().map(
-            collectionScanCodeDetail -> collectionScanCodeDetail.getTs() != null? collectionScanCodeDetail.getTs().getTime() : 0).max(
-            Long::compareTo).orElse(0L));
+        Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndAggCode
+            (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode());
+        tsSetter.setTimeStamp(timestamp.getTime());
 
         return res;
     }

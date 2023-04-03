@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -433,9 +434,11 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                 collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
-                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
+                    collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
+                }
                 if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                    collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                     collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
                     collectionRecordDao.insertCollectionRecord(collectionRecordPo);
                 }
@@ -532,8 +535,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return 0;
         }
 
-        return collectionRecordDao.countNoneCollectedAggCodeByCollectionCodeWithCollectedMark(
-            collectionCodes, aggCodeTypeEnum, aggCode, collectedMark);
+        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+         collectedMark, Constants.NUMBER_ZERO, null);
 
     }
 
@@ -543,8 +546,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, aggCode, collectedMark, true);
-
+        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+            collectedMark, Constants.NUMBER_ONE, Constants.NUMBER_ZERO);
 
     }
 
@@ -554,7 +557,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countCollectedAggCodeByCollectionCodeWithCollectedMark(collectionCodes, aggCodeTypeEnum, aggCode, collectedMark, false);
+        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+            collectedMark, Constants.NUMBER_ONE, Constants.NUMBER_ONE);
     }
 
     @Override
@@ -696,5 +700,24 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             )
             .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public Timestamp getMaxTimeStampByCollectionCodesAndAggCode(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
+
+        return collectionRecordDao.getMaxTimeStampByCollectionCodesAndAggCode(
+            CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities),
+            aggCodeTypeEnum, aggCode
+            );
+    }
+
+    @Override
+    public Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<CollectionCodeEntity> collectionCodeEntities,
+        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+        return collectionRecordDao.getMaxTimeStampByCollectionCodesAndCollectedMark(
+            CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities),
+            aggCodeTypeEnum, collectedMark
+        );
     }
 }

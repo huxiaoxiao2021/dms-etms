@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnu
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -123,6 +124,24 @@ public interface CollectionRecordService {
      * @return
      */
     List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset);
+
+    /**
+     * 获取这个运单的最新时间戳
+     * @param collectionCodeEntities
+     * @param aggCodeTypeEnum
+     * @param aggCode
+     * @return
+     */
+    Timestamp getMaxTimeStampByCollectionCodesAndAggCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode);
+
+    /**
+     * 获取某个任务下的最大时间戳
+     * @param collectionCodeEntities
+     * @param aggCodeTypeEnum
+     * @param collectedMark
+     * @return
+     */
+    Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
 
 }
