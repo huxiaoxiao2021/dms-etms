@@ -165,7 +165,7 @@ public class CollectSealWaybillInitSplitServiceImpl implements CollectInitSplitS
             CollectionScanCodeEntity collectionScanCodeEntity = new CollectionScanCodeEntity();
             collectionScanCodeEntity.setScanCode(packageCode);
             collectionScanCodeEntity.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-            collectionScanCodeEntity.setCollectedMark(request.getBizId());
+//            collectionScanCodeEntity.setCollectedMark(request.getBizId());
             collectionScanCodeEntity.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code, WaybillUtil.getWaybillCode(packageCode)));
             collectionScanCodeEntityList.add(collectionScanCodeEntity);
         }

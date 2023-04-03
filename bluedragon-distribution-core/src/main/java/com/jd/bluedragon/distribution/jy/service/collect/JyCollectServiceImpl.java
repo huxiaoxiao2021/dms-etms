@@ -308,7 +308,15 @@ public class JyCollectServiceImpl implements JyCollectService{
     public boolean sealCarInitCollect(CollectDto collectDto, List<CollectionScanCodeEntity> packageCodeList) {
         String methodDesc = "JyCollectServiceImpl.sealCarInitCollect:集齐初始化:";
         if (isEndSite(collectDto.getWaybillCode(), collectDto.getCollectNodeSiteCode())) {
+
             sealCarWaybillCollectInitSendMq(collectDto);
+
+            Result<Boolean> errMsgRes = new Result<>();
+            CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList, CollectionBusinessTypeEnum.all_site_collection);
+            if(!collectionRecordService.initPartCollection(collectionCreatorEntity, errMsgRes)) {
+                log.error("{}集齐初始化错误，req={},res={}", methodDesc, JsonHelper.toJson(collectionCreatorEntity), JsonHelper.toJson(errMsgRes));
+                return false;
+            }
         } else {
             Result<Boolean> errMsgRes = new Result<>();
             CollectionCreatorEntity collectionCreatorEntity = getCollectionCreatorEntity(collectDto, packageCodeList, CollectionBusinessTypeEnum.unload_collection);
