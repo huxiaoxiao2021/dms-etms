@@ -28,7 +28,7 @@ public interface CollectionRecordService {
      * @param userErp
      * @return
      */
-    String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp);
+    String getOrGenJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp);
 
     /**
      * 根据当前的扫描要素查询所有可能得待集齐集合ID

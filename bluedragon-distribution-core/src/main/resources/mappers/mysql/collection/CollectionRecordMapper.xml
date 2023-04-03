@@ -104,6 +104,9 @@
 		UPDATE
 			collection_record
 		<set>
+			<if test="isInit != null">
+				is_init = #{isInit, jdbcType=INTEGER},
+			</if>
 			<if test="isCollected != null">
 				is_collected = #{isCollected, jdbcType=INTEGER},
 			</if>

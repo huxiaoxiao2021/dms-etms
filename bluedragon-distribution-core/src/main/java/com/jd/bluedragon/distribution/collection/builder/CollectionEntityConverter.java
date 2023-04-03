@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.collection.builder;
 
-import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
-import com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter;
+import com.jd.bluedragon.distribution.collection.entity.*;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionStatusEnum;
@@ -189,6 +188,25 @@ public class CollectionEntityConverter {
             });
 
         return result;
+    }
+
+    public static Map<String, List<CollectionRecordDetailPo>> getCollectedDetailPoFromCollectionCreatorByAggCode(
+        CollectionCreatorEntity collectionCreatorEntity, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+
+        return collectionCreatorEntity.getCollectionScanCodeEntities().parallelStream().map(
+            collectionScanCodeEntity -> CollectionRecordDetailPo.builder()
+                .collectionCode(collectionCreatorEntity.getCollectionCodeEntity().getCollectionCode())
+                .scanCode(collectionScanCodeEntity.getScanCode())
+                .scanCodeType(collectionScanCodeEntity.getScanCodeType().name())
+                .aggCode(
+                    collectionScanCodeEntity.getCollectionAggCodeMaps().getOrDefault(aggCodeTypeEnum, "null")
+                )
+                .aggCodeType(aggCodeTypeEnum.name())
+                .collectedStatus(CollectionStatusEnum.collected.getStatus())
+                .collectedMark(collectionScanCodeEntity.getCollectedMark())
+                .build())
+            .collect(Collectors.groupingBy(CollectionRecordDetailPo::getAggCode));
+
     }
 
 

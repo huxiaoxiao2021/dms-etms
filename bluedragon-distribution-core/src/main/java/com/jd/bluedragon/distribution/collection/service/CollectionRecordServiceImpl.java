@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,7 +54,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private JQCodeService jqCodeService;
 
     @Override
-    public String getJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
+    public String getOrGenJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
         if (null == collectionCodeEntity || null == collectionCodeEntity.getBusinessType()) {
             log.error("获取待集齐集合ID失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
@@ -86,14 +84,20 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             )
             .flatMap((Function<CollectionBusinessTypeEnum, Stream<CollectionCodeEntity>>)businessTypeEnum -> {
                 CollectionCodeEntity collectionCodeEntity = CollectionEntityConverter.buildCollectionCodeEntity(elements, businessTypeEnum, null);
-                List<String> jqCodes =
-                    new ArrayList<>(kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition()));
-                //fixme 查询多个列表的时候，给错的处理，不要
+                List<String> jqCodes = kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition());
+                if (CollectionUtils.isEmpty(jqCodes)) {
+                    return Stream.empty();
+                }
                 return jqCodes.stream().map(jqCode -> {
                     log.info("根据condition:{}命中了待集齐集合ID:{}",collectionCodeEntity.getCollectionCondition(), jqCode);
                     return CollectionEntityConverter.buildCollectionCodeEntity(elements, businessTypeEnum, jqCode);
                 });
-            }).collect(Collectors.toList());
+            }).collect(
+                Collectors.collectingAndThen(
+                    Collectors.toCollection(
+                        () -> new TreeSet<>(Comparator.comparing(CollectionCodeEntity::getCollectionCode))), ArrayList::new
+                )
+            );
     }
 
     @Override
@@ -235,19 +239,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             aggCodeTypeEnum -> {
                 /* 2.2 生成明细表的数，并按照aggCode进行分组 */
                 Map<String, List<CollectionRecordDetailPo>> collectionRecordDetailPoMaps =
-                    collectionCreatorEntity.getCollectionScanCodeEntities().parallelStream().map(
-                        collectionScanCodeEntity -> CollectionRecordDetailPo.builder()
-                            .collectionCode(collectionCode)
-                            .scanCode(collectionScanCodeEntity.getScanCode())
-                            .scanCodeType(collectionScanCodeEntity.getScanCodeType().name())
-                            .aggCode(
-                                collectionScanCodeEntity.getCollectionAggCodeMaps().getOrDefault(aggCodeTypeEnum, "null")
-                            )
-                            .aggCodeType(aggCodeTypeEnum.name())
-                            .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                            .collectedMark(collectionScanCodeEntity.getCollectedMark())
-                            .build())
-                        .collect(Collectors.groupingBy(CollectionRecordDetailPo::getAggCode));
+                    CollectionEntityConverter.getCollectedDetailPoFromCollectionCreatorByAggCode(collectionCreatorEntity, aggCodeTypeEnum);
 
                 /*
                     2.3
@@ -258,6 +250,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     log.warn("进行增量初始化待集齐集合时，检测到该聚合类型{}下有多个聚合值，请根据性能检查是否需要再次拆分。集合ID为{}",
                         aggCodeTypeEnum.name(), collectionCode);
                 }
+
                 collectionRecordDetailPoMaps.forEach((aggCode, collectionRecordDetailPos) -> {
 
                     /* 对包裹列表数进行分页处理 */
@@ -281,7 +274,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                         }
 
-                        /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
+                        /* 在过滤出已经存在的情况下，且状态是多扫或者未扫的状态下 */
                         partitionDetailPos.parallelStream()
                             .filter(
                                 /* 首选过滤出存在且标注多扫和未扫的状态 */
@@ -297,7 +290,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 /* 更新到数据库中 */
                                 collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
                                     itemCollectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-                                        .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
+                                        .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,collectedMark);
                             });
                     });
 
@@ -350,6 +343,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
 
         String scanCode = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode();
+        String scanCodeType = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name();
         String collectedMark = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectedMark();
         Map<CollectionAggCodeTypeEnum, String> element = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectionAggCodeMaps();
         if (MapUtils.isEmpty(element)) {
@@ -359,7 +353,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
             .peek(codeEntity ->
-                codeEntity.setCollectionCode(this.getJQCodeByBusinessType(codeEntity,"NONE"))
+                codeEntity.setCollectionCode(this.getOrGenJQCodeByBusinessType(codeEntity,"NONE"))
             )
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
             .collect(Collectors.toList());
@@ -387,7 +381,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
                         .collectionCode(collectionCodeEntity.getCollectionCode())
                         .scanCode(scanCode)
-                        .scanCodeType(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name())
+                        .scanCodeType(scanCodeType)
                         .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
                         .aggCodeType(aggCodeTypeEnum.name())
                         .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
@@ -397,92 +391,52 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     .collect(Collectors.toList());
 
                 collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
-
-                collectionRecordDetailPos.forEach(collectionRecordDetailPo -> {
-                    /* 检查主表，是否需要进行插入 */
-                    CollectionRecordPo condition = new CollectionRecordPo();
-                    condition.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                    condition.setAggCode(collectionRecordDetailPo.getAggCode());
-                    condition.setAggCodeType(collectionRecordDetailPo.getAggCodeType());
-                    List<CollectionRecordPo> collectionRecordPo = collectionRecordDao.findCollectionRecord(condition);
-                    if (CollectionUtils.isEmpty(collectionRecordPo)) {
-                        condition.setIsCollected(Constants.NUMBER_ZERO);
-                        condition.setIsInit(Constants.NUMBER_ZERO);
-                        condition.setSum(Constants.NUMBER_ZERO);
-                        condition.setIsExtraCollected(Constants.NUMBER_ONE);
-                        condition.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                        condition.setAggMark("");
-                        collectionRecordDao.insertCollectionRecord(condition);
-                    } else {
-                        condition.setIsExtraCollected(Constants.NUMBER_ONE);
-                        collectionRecordDao.updateCollectionRecord(condition);
-                    }
-                });
             }
             if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
-                /* 检查是否有根据appCodeType重置aggCode的行为 */
-                List<CollectionAggCodeTypeEnum> existAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                    .parallelStream().filter(finalElement::containsKey).collect(Collectors.toList());
-                List<CollectionAggCodeTypeEnum> notExistAggCodeTypeEnums = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes()
-                    .parallelStream().filter(aggCodeTypeEnum -> !finalElement.containsKey(aggCodeTypeEnum)).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(existAggCodeTypeEnums)) {
-                    existAggCodeTypeEnums.forEach(aggCodeTypeEnum ->
-                        collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                            .collectionCode(collectionCodeEntity.getCollectionCode())
-                            .scanCode(scanCode)
-                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
-                            .aggCodeType(aggCodeTypeEnum.name())
-                            .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                            .collectedMark(collectedMark)
-                            .collectedTime(new Date())
-                            .build()));
-                }
-                if (CollectionUtils.isNotEmpty(notExistAggCodeTypeEnums)) {
-                    notExistAggCodeTypeEnums.forEach(aggCodeTypeEnum -> {
-                        collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                            .collectionCode(collectionCodeEntity.getCollectionCode())
-                            .scanCode(scanCode)
-                            .aggCodeType(aggCodeTypeEnum.name())
-                            .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))//此处不会出现null值，因为之前已经进行过filter过滤
-                            .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                            .collectedMark(collectedMark)
-                            .collectedTime(new Date())
-                            .build());
-                    });
-                }
-                /* 更新主表 */
-                List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
-                    CollectionRecordDetailPo.builder()
-                        .collectionCode(collectionCodeEntity.getCollectionCode())
-                        .scanCode(scanCode)
-                        .build()
-                );
-                if (CollectionUtils.isEmpty(aggCodeDetailPos)) {
-                    log.error("数据查询严重不一致，需要检查逻辑，集齐单号为：{}", collectionCodeEntity.getCollectionCode());
-                    return;
-                }
-                aggCodeDetailPos.forEach(aggCodeDetailPo -> {
-                    /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
-                    CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        Collections.singletonList(collectionCodeEntity),aggCodeDetailPo.getAggCode(),
-                        CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
-                    );
 
-                    CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                    collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                    collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
-                    collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                    collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
-                    collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordDao.updateCollectionRecord(collectionRecordPo);
+                //更新为集齐状态
+                collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
+                    .collectionCode(collectionCodeEntity.getCollectionCode())
+                    .scanCode(scanCode)
+                    .collectedStatus(CollectionStatusEnum.collected.getStatus())
+                    .collectedMark(collectedMark)
+                    .collectedTime(new Date())
+                    .build());
 
-                });
             }
+
+            /* 更新主表 */
+            List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
+                CollectionRecordDetailPo.builder()
+                    .collectionCode(collectionCodeEntity.getCollectionCode())
+                    .scanCode(scanCode)
+                    .build()
+            );
+
+            aggCodeDetailPos.forEach(aggCodeDetailPo -> {
+                /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
+                CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                    Collections.singletonList(collectionCodeEntity),aggCodeDetailPo.getAggCode(),
+                    CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
+                );
+
+                CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
+                collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
+                collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
+                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
+                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
+                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) > 0) {
+                    collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
+                    collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                }
+
+            });
         });
 
         return true;

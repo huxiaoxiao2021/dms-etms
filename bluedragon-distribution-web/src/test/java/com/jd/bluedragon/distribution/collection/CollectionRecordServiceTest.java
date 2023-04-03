@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.collection;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
-import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.test.AbstractTestCase;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -85,9 +83,9 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      */
     @Test
     public void getJQCodeByBusinessType() {
-        System.out.println(collectionRecordService.getJQCodeByBusinessType(collectionCodeEntityUnload, "wzx"));
-        System.out.println(collectionRecordService.getJQCodeByBusinessType(collectionCodeEntitySite1, "wzx"));
-        System.out.println(collectionRecordService.getJQCodeByBusinessType(collectionCodeEntitySite2, "wzx"));
+        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntityUnload, "wzx"));
+        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite1, "wzx"));
+        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite2, "wzx"));
     }
 
     /**
@@ -134,7 +132,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
         collectionCreatorEntity.setCollectionScanCodeEntities(Arrays.asList(collectionScanCodeEntity, collectionScanCodeEntity1, collectionScanCodeEntity2));
 
-        collectionCodeEntityUnload.setCollectionCode(collectionRecordService.getJQCodeByBusinessType(collectionCodeEntityUnload, ""));
+        collectionCodeEntityUnload.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntityUnload, ""));
         System.out.println(collectionRecordService.initPartCollection(collectionCreatorEntity, new com.jd.dms.java.utils.sdk.base.Result<>()));
 
     }
@@ -166,7 +164,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
         collectionCreatorEntity.setCollectionScanCodeEntities(Arrays.asList(collectionScanCodeEntity, collectionScanCodeEntity1, collectionScanCodeEntity2));
 
-        collectionCodeEntityUnload.setCollectionCode(collectionRecordService.getJQCodeByBusinessType(collectionCodeEntityUnload, ""));
+        collectionCodeEntityUnload.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntityUnload, ""));
         System.out.println(collectionRecordService.initAndCollectedPartCollection(collectionCreatorEntity, new com.jd.dms.java.utils.sdk.base.Result<>()));
     }
 

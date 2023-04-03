@@ -39,7 +39,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
-import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.erp.util.BeanUtils;
@@ -52,13 +51,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -360,7 +357,7 @@ public class JyCollectServiceImpl implements JyCollectService{
     //集齐初始化参数组装
     private CollectionCodeEntity getCollectionCodeEntity(CollectDto collectDto, CollectionBusinessTypeEnum businessTypeEnum) {
         CollectionCodeEntity collectionCodeEntity = buildCollectionCodeEntity(collectDto, businessTypeEnum);
-        String collectionCode = collectionRecordService.getJQCodeByBusinessType(collectionCodeEntity, collectDto.getOperatorErp());
+        String collectionCode = collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, collectDto.getOperatorErp());
         if(log.isInfoEnabled()) {
             log.info("JyCollectServiceImpl.getCollectionCodeEntity获取collectionCode，参数collectionCodeEntity={},res={}", JsonHelper.toJson(collectionCodeEntity), collectionCode);
         }
