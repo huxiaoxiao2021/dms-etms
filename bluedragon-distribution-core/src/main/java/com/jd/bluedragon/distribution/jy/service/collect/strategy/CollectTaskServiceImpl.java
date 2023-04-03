@@ -60,7 +60,7 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
             return Collections.emptyList();
         }
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
-            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null
+            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(collectReportReqDto.getManualCreateTaskFlag())
         );
 
         List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectedAggCodeByCollectionCodeInnerMark(
@@ -104,7 +104,7 @@ public class CollectTaskServiceImpl implements CollectStatisticsDimensionService
             return Collections.emptyList();
         }
         List<CollectionCodeEntity> collectionCodeEntities = jyCollectService.getCollectionCodeEntityByElement(
-            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), CollectionBusinessTypeEnum.unload_collection
+            collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(collectReportReqDto.getManualCreateTaskFlag())
         );
 
         List<CollectionScanCodeDetail> collectionScanCodeDetails = collectionRecordService.queryCollectionScanDetailByAggCode(

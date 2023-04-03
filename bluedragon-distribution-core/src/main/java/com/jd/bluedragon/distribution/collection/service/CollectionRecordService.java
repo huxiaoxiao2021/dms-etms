@@ -70,7 +70,10 @@ public interface CollectionRecordService {
      * @param collectedMark 集齐时的标示，用于统计或排序
      * @return
      */
-    CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+    List<CollectionAggCodeCounter> sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,CollectionCodeEntity importCollectionCodeEntity,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
+
+    CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(CollectionCodeEntity collectionCodeEntity,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
     /**

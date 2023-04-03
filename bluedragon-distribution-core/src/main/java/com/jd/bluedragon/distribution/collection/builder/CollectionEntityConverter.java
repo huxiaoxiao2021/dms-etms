@@ -66,6 +66,9 @@ public class CollectionEntityConverter {
 
             CollectionAggCodeCounter aggCodeCounter = CollectionAggCodeCounter.builder()
                 .collectionCode(collectionCode)
+                .businessType(
+                    itemMarkCounters.parallelStream().map(CollectionCollectedMarkCounter::getBusinessType).filter(Objects::nonNull).findAny().orElse(null)
+                )
                 .aggCode(aggCode1)
                 .aggCodeType(aggCodeType)
                 .aggMark(
@@ -168,26 +171,7 @@ public class CollectionEntityConverter {
 
         });
 
-        List<CollectionAggCodeCounter> result = new Vector<>();
-
-        //过滤一些多扫冗余的数据   //todo zcf ???
-        collectionAggCodeCounters.parallelStream().collect(Collectors.groupingBy(
-            collectionAggCodeCounter -> collectionAggCodeCounter.getAggCode().concat("-").concat(collectionAggCodeCounter.getAggCodeType()))
-        ).forEach(
-            (key, itemList) -> {
-                if (itemList.size() == 1) {
-                    result.addAll(itemList);
-                } else {
-                    result.add(
-                        itemList.parallelStream()
-                            .filter(item -> item.getCollectedNum() > 0)
-                            .findAny()
-                            .orElse(itemList.get(0))
-                    );
-                }
-            });
-
-        return result;
+        return collectionAggCodeCounters;
     }
 
     public static Map<String, List<CollectionRecordDetailPo>> getCollectedDetailPoFromCollectionCreatorByAggCode(

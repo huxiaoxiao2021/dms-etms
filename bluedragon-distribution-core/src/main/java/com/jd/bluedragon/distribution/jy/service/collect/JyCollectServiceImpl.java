@@ -45,6 +45,7 @@ import com.jd.ql.erp.util.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,7 +152,8 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         //查询待集齐集合ID 列表
         List<CollectionCodeEntity> collectionCodeEntities = new ArrayList<>(
-            getCollectionCodeEntityByElement(collectReportReqDto.getBizId(), collectReportReqDto.getCurrentOperate().getSiteCode(), null));
+            getCollectionCodeEntityByElement(collectReportReqDto.getBizId(),
+                collectReportReqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(collectReportReqDto.getManualCreateTaskFlag())));
 
         //不齐数量
         CollectReportStatisticsDto noneCollected = new CollectReportStatisticsDto();
@@ -192,26 +194,45 @@ public class JyCollectServiceImpl implements JyCollectService{
      * 根据封车编码和站点查询待集齐集合的ID列表
      * @param bizCode
      * @param siteCode
-     * @param businessType
      * @return
      */
-    public List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType) {
-        String dateNow = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String dateNow_1 = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        List<String> dates = Arrays.asList(dateNow, dateNow_1);
-        return dates.parallelStream().flatMap((Function<String, Stream<CollectionCodeEntity>>)s -> {
-            Map<CollectionConditionKeyEnum, Object> element = new HashMap<>();
-            element.put(CollectionConditionKeyEnum.site_code, siteCode);
-            element.put(CollectionConditionKeyEnum.seal_car_code, bizCode);
-            element.put(CollectionConditionKeyEnum.date_time, s);
+    public List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, boolean isManualCreateTask) {
+        Map<CollectionConditionKeyEnum, Object> element = new HashMap<>();
+        element.put(CollectionConditionKeyEnum.site_code, siteCode);
+        element.put(CollectionConditionKeyEnum.seal_car_code, bizCode);
 
-            return collectionRecordService.queryAllCollectionCodesByElement(element, businessType).stream();
-        }).collect(
-            Collectors.collectingAndThen(
-                Collectors.toCollection(
-                    () -> new TreeSet<>(Comparator.comparing(CollectionCodeEntity::getCollectionCode))), ArrayList::new
-            )
-        );
+        //自建任务只会命中一个池子
+        CollectionBusinessTypeEnum businessType = isManualCreateTask? CollectionBusinessTypeEnum.all_site_collection : null;
+
+        List<CollectionCodeEntity> collectionCodeEntityList = collectionRecordService.queryAllCollectionCodesByElement(element, businessType);
+
+        boolean isNotExistAllSite = collectionCodeEntityList.parallelStream()
+            .noneMatch(collectionCodeEntity ->
+                CollectionBusinessTypeEnum.all_site_collection.equals(collectionCodeEntity.getBusinessType())
+                    && StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()));
+
+        if (CollectionUtils.isEmpty(collectionCodeEntityList)) {
+            collectionCodeEntityList = new ArrayList<>();
+        }
+
+        if (CollectionUtils.isEmpty(collectionCodeEntityList) || isNotExistAllSite) {
+            CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
+            collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
+            collectionCodeEntityList.add(collectionCodeEntity);
+        }
+
+        if (!isManualCreateTask) {
+            boolean isNotExistUnloadTask = collectionCodeEntityList.parallelStream()
+                .noneMatch(collectionCodeEntity ->
+                    CollectionBusinessTypeEnum.unload_collection.equals(collectionCodeEntity.getBusinessType())
+                        && StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()));
+            if (isNotExistUnloadTask) {
+                CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
+                collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
+                collectionCodeEntityList.add(collectionCodeEntity);
+            }
+        }
+        return collectionCodeEntityList;
     }
 
     /**
@@ -460,11 +481,39 @@ public class JyCollectServiceImpl implements JyCollectService{
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public UnloadCollectDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto reqDto) {
         String methodDesc = "JyCollectServiceImpl.scanQueryCollectTypeStatistics：实操扫描查询统计：";
-        List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
+
+        //自建任务只能命中一个池子，非自建任务可能命中两个池子
+        List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId()
+            , reqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(reqDto.getManualCreateTaskFlag()));
+
         String waybillCode = WaybillUtil.getWaybillCode(reqDto.getScanCode());
         CollectionAggCodeTypeEnum typeEnum = CollectionAggCodeTypeEnum.waybill_code;
-        CollectionAggCodeCounter collectionAggCodeCounter = collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
-                collectionCodeEntityList, waybillCode, typeEnum, reqDto.getBizId());
+
+        CollectionAggCodeCounter collectionAggCodeCounter = null;
+        if (Boolean.TRUE.equals(reqDto.getManualCreateTaskFlag())) {
+            //自建任务去一个场地的池子中查询
+            collectionAggCodeCounter = collectionRecordService.sumCollectionByAggCodeAndCollectionCode(collectionCodeEntityList.get(0),waybillCode, typeEnum, reqDto.getBizId());
+        } else {
+
+            CollectionCodeEntity allSiteCodeEntity = collectionCodeEntityList.parallelStream()
+                .filter(collectionCodeEntity -> CollectionBusinessTypeEnum.all_site_collection.equals(collectionCodeEntity.getBusinessType())).findAny().orElse(null);
+            //非自建任务去场地和任务的两个池子中查询
+            List<CollectionAggCodeCounter> collectionAggCodeCounters = collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
+                collectionCodeEntityList,allSiteCodeEntity, waybillCode, typeEnum, reqDto.getBizId());
+            //检查数据的有效性
+            if (CollectionUtils.isNotEmpty(collectionAggCodeCounters) && collectionAggCodeCounters.size() == 1) {
+                collectionAggCodeCounter = collectionAggCodeCounters.get(0);
+            } else if (CollectionUtils.isNotEmpty(collectionAggCodeCounters) && collectionAggCodeCounters.size() > 1) {
+                collectionAggCodeCounter = collectionAggCodeCounters.parallelStream()
+                    .filter(item -> CollectionBusinessTypeEnum.unload_collection.equals(item.getBusinessType())).findAny()
+                    .orElse(collectionAggCodeCounters.get(0));
+            }
+        }
+
+
+
+
+
         if(log.isInfoEnabled()) {
             log.info("{}查询集齐服务,参数={},运单号={},bizId={},集齐服务返回统计结果res={}",
                     methodDesc, JsonHelper.toJson(collectionCodeEntityList), waybillCode, reqDto.getBizId(), JsonHelper.toJson(collectionAggCodeCounter));
@@ -684,7 +733,7 @@ public class JyCollectServiceImpl implements JyCollectService{
 //        //
 //        CollectStatisticsDimensionService collectStatisticsService = CollectStatisticsDimensionFactory.getCollectStatisticsDimensionService(collectType);
 //        CollectReportStatisticsDto collectReportStatisticsDto = collectStatisticsService.collectStatistics(queryParamDto);
-        List<CollectionCodeEntity> collectionCodeEntities = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), null);
+        List<CollectionCodeEntity> collectionCodeEntities = this.getCollectionCodeEntityByElement(reqDto.getBizId(), reqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(reqDto.getManualCreateTaskFlag()));
         Integer waybillBuQiNum =
             collectionRecordService.countNoneCollectedAggCodeNumByCollectionCode(collectionCodeEntities,
                 CollectionAggCodeTypeEnum.waybill_code, null, reqDto.getBizId());

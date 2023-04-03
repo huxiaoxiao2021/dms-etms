@@ -7,6 +7,8 @@ public class CollectStatisticsQueryDto extends UnloadBaseDto implements Serializ
 
     private String bizId;//任务bizId
 
+    private Boolean manualCreateTaskFlag;
+
     public String getBizId() {
         return bizId;
     }
@@ -15,4 +17,11 @@ public class CollectStatisticsQueryDto extends UnloadBaseDto implements Serializ
         this.bizId = bizId;
     }
 
+    public Boolean getManualCreateTaskFlag() {
+        return manualCreateTaskFlag;
+    }
+
+    public void setManualCreateTaskFlag(Boolean manualCreateTaskFlag) {
+        this.manualCreateTaskFlag = manualCreateTaskFlag;
+    }
 }

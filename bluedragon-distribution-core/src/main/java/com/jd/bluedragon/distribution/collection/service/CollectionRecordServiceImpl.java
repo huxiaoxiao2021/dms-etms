@@ -190,7 +190,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     });
 
                     CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        Collections.singletonList(collectionCreatorEntity.getCollectionCodeEntity()),
+                        collectionCreatorEntity.getCollectionCodeEntity(),
                         aggCode, aggCodeTypeEnum,
                         collectionRecordDetailPos.parallelStream()
                             .map(CollectionRecordDetailPo::getCollectedMark)
@@ -299,7 +299,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     });
 
                     CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        Collections.singletonList(collectionCreatorEntity.getCollectionCodeEntity()),
+                        collectionCreatorEntity.getCollectionCodeEntity(),
                         aggCode, aggCodeTypeEnum,
                         collectionRecordDetailPos.parallelStream()
                             .map(CollectionRecordDetailPo::getCollectedMark)
@@ -420,7 +420,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             aggCodeDetailPos.forEach(aggCodeDetailPo -> {
                 /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
                 CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                    Collections.singletonList(collectionCodeEntity),aggCodeDetailPo.getAggCode(),
+                    collectionCodeEntity,aggCodeDetailPo.getAggCode(),
                     CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
                 );
 
@@ -435,7 +435,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                 collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) > 0) {
+                if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
                     collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
                     collectionRecordDao.insertCollectionRecord(collectionRecordPo);
                 }
@@ -447,7 +447,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
-    public CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
+    public List<CollectionAggCodeCounter> sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionCodeEntity importCollectionCodeEntity,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
         if (CollectionUtils.isEmpty(collectionCodes) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null || StringUtils.isEmpty(collectedMark)) {
@@ -455,13 +455,61 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return null;
         }
 
+        List<CollectionCodeEntity> codeEntities = collectionCodeEntities.parallelStream().filter(collectionCodeEntity -> {
+            List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findCollectionRecord(
+                CollectionRecordPo.builder()
+                    .collectionCode(collectionCodeEntity.getCollectionCode())
+                    .isInit(Constants.NUMBER_ONE)
+                    .aggCode(aggCode)
+                    .aggCodeType(aggCodeTypeEnum.name())
+                    .build());
+            return CollectionUtils.isNotEmpty(collectionRecordPos);
+        }).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(collectionCodes)) {
+            log.warn("本次在多个池子中查询的数据，都是未进行初始化的数据，数据将使用兜底的场地的数据进行查询");
+            codeEntities.add(importCollectionCodeEntity);
+        }
+        collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(codeEntities);
+
         List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDao.countCollectionByAggCodeAndCollectionCodes(collectionCodes, aggCode, aggCodeTypeEnum);
         if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
             log.error("根据aggCode查询集齐统计情况失败，参数为：{}-{}-{}",JSON.toJSONString(collectionCodes),aggCode, aggCodeTypeEnum);
             return null;
         }
+        Map<String, CollectionBusinessTypeEnum> map = codeEntities.parallelStream().collect(Collectors.toMap(CollectionCodeEntity::getCollectionCode, CollectionCodeEntity::getBusinessType));
 
         collectionCollectedMarkCounters.forEach(collectionCollectedMarkCounter -> {
+            collectionCollectedMarkCounter.setBusinessType(map.get(collectionCollectedMarkCounter.getCollectionCode()));
+            collectionCollectedMarkCounter.setAggCode(aggCode);
+            collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
+        });
+
+        return CollectionEntityConverter
+            .convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionCollectedMarkCounters, collectedMark);
+
+    }
+
+    @Override
+    public CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(CollectionCodeEntity collectionCodeEntity,
+        String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
+
+        String collectionCode = collectionCodeEntity.getCollectionCode();
+        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null || StringUtils.isEmpty(collectedMark)) {
+            log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntity), aggCode, aggCodeTypeEnum, collectedMark);
+            return null;
+        }
+
+        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDao
+            .countCollectionByAggCodeAndCollectionCodes(Collections.singletonList(collectionCode), aggCode, aggCodeTypeEnum);
+
+        if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
+            log.error("根据aggCode查询集齐统计情况失败，参数为：{}-{}-{}",JSON.toJSONString(collectionCode),aggCode, aggCodeTypeEnum);
+            return null;
+        }
+
+        collectionCollectedMarkCounters.forEach(collectionCollectedMarkCounter -> {
+            collectionCollectedMarkCounter.setBusinessType(collectionCodeEntity.getBusinessType());
             collectionCollectedMarkCounter.setAggCode(aggCode);
             collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
         });

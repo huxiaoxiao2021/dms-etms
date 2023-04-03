@@ -41,7 +41,7 @@ public interface JyCollectService {
      */
     Integer parseSiteType(String scanCode, Integer siteCode);
 
-    List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, CollectionBusinessTypeEnum businessType);
+    List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, boolean isManualCreateTask);
 
 
     /**

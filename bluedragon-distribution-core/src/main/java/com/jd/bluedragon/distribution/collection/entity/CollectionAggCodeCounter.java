@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collection.entity;
 
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,11 @@ public class CollectionAggCodeCounter {
      * 集合ID
      */
     private String collectionCode;
+
+    /**
+     * 待集齐数据所属业务类型
+     */
+    private CollectionBusinessTypeEnum businessType;
 
     /**
      * 聚合统计的标识字段
