@@ -51,7 +51,7 @@ public class SendFlowDto implements Serializable {
      * 已封车时间
      */
     private Date querySealTimeBegin;
-    
+
     private List<Integer> comboardSourceList;
 
     /**
@@ -59,6 +59,15 @@ public class SendFlowDto implements Serializable {
      */
     private transient List<Integer> statusList;
 
+    private String groupCode;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
 
     public Integer getEndSiteId() {
         return endSiteId;
