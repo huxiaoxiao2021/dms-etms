@@ -806,7 +806,7 @@ public class Constants {
      * Long值-0
      */
     public static final Long LONG_ZERO = 0L;
-    
+
     /**
      * 配置信息-北京的分拣中心
      */
@@ -1009,6 +1009,11 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+
+    /**
+     * 组板即发货 延迟1s
+     */
+    public static final int COMBOARD_SEND_DELAY_TIME = 1000;
 
     /**
      * 始发道口号类型-1-普通
@@ -1795,7 +1800,7 @@ public class Constants {
     /**
      * sql拆分-最大分组数 10000
      */
-    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;    
+    public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
 
 
     public static  final  int COMBOARD_LIMIT =100;
@@ -1868,6 +1873,11 @@ public class Constants {
     /** 运力编码：火车站网点类型 */
     public static final Integer NODE_TYPE_RAILWAY = 9;
 
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX  = "jy_comboard_sendflow_group_lock_%s_%s_%s";
 
 
     /**

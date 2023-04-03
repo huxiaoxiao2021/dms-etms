@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto;
 
@@ -95,4 +97,8 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     public List<JyBizTaskComboardEntity> listSealOrUnSealedBoardTaskBySendFlowUnionAll(JyBizTaskComboardEntity condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".listSealOrUnSealedBoardTaskBySendFlowUnionAll", condition);
     }
+
+  public List<SendFlowDto> countBoardGroupBySendFlow(CountBoardDto countBoardDto) {
+    return this.getSqlSession().selectList(NAMESPACE + ".countBoardGroupBySendFlow", countBoardDto);
+  }
 }
