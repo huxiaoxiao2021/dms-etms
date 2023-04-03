@@ -55,6 +55,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
     @Override
     public String getOrGenJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
+        String methodDesc =  "CollectionRecordServiceImpl.getJQCodeByBusinessType:获取collectionCode:";
         if (null == collectionCodeEntity || null == collectionCodeEntity.getBusinessType()) {
             log.error("获取待集齐集合ID失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
@@ -64,9 +65,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.error("获取待集齐集合ID的要素失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
         }
+        if(log.isInfoEnabled()) {
+            log.info("{},参数={},erp={},condition={}", methodDesc, JSON.toJSONString(collectionCodeEntity), userErp, condition);
+        }
         String JQCode = kvIndexDao.queryRecentOneByKeyword(condition);
         if (StringUtils.isNotEmpty(JQCode)) {
-            log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}", JQCode, JSON.toJSONString(collectionCodeEntity));
+            log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}，condition={}", JQCode, JSON.toJSONString(collectionCodeEntity), condition);
             return JQCode;
         }
         return jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
@@ -355,7 +359,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             .peek(codeEntity ->
                 codeEntity.setCollectionCode(this.getOrGenJQCodeByBusinessType(codeEntity,"NONE"))
             )
-            .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))
+            .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))//理论上collectionCode不会为空
             .collect(Collectors.toList());
 
         Map<CollectionAggCodeTypeEnum, String> finalElement = element;
@@ -526,8 +530,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        return this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+        List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+        fillAggMark(collectionRecordPos, res) ;
+        return res;
 
+    }
+
+    private void fillAggMark(List<CollectionRecordPo> collectionRecordPos, List<CollectionAggCodeCounter> collectionAggCodeCounters) {
+        Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
+                .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
+
+        collectionAggCodeCounters.forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
     }
 
     @Override

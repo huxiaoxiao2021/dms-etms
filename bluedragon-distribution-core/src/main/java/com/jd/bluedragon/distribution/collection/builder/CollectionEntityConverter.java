@@ -170,7 +170,7 @@ public class CollectionEntityConverter {
 
         List<CollectionAggCodeCounter> result = new Vector<>();
 
-        //过滤一些多扫冗余的数据
+        //过滤一些多扫冗余的数据   //todo zcf ???
         collectionAggCodeCounters.parallelStream().collect(Collectors.groupingBy(
             collectionAggCodeCounter -> collectionAggCodeCounter.getAggCode().concat("-").concat(collectionAggCodeCounter.getAggCodeType()))
         ).forEach(

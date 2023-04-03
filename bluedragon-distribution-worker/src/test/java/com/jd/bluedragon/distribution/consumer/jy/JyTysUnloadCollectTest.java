@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.JyCollectCacheService;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectBatchUpdateTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
@@ -61,9 +62,9 @@ public class JyTysUnloadCollectTest {
         while(true) {
             try {
                 //空任务扫描初始化
-//                taskNullScanInitCollect();
+                taskNullScanInitCollect();
                 //封车集齐初始化
-                sealCarInitCollect();
+//                sealCarInitCollect();
             } catch (Exception e) {
                 logger.error("服务异常!", e);
             }
@@ -74,17 +75,23 @@ public class JyTysUnloadCollectTest {
     private void taskNullScanInitCollect() throws Exception {
         //空任务扫描初始化
         String taskNullScanInitJson = "{\n" +
-                "\"bizId\" : \"XCZJ23031600000013\",\n" +
-                "\"operateTime\" : 1679035677055,\n" +
+                "\"bizId\" : \"XCZJ23040100000001\",\n" +
+                "\"operateTime\" : 1680362352659,\n" +
                 "\"operateNode\" : 103,\n" +
                 "\"taskNullScanCodeType\" : 101,\n" +
-                "\"taskNullScanCode\" : \"JD0003419483749-1-50-\",\n" +
+                "\"taskNullScanCode\" : \"JDX000234603520-2-5--\",\n" +
                 "\"taskNullScanSiteCode\" : 10186,\n" +
-                "\"operatorErp\" : \"xumigen\"\n" +
+                "\"operatorErp\" : \"xumigen\",\n" +
+                "\"waybillCode\" : \"JDX000234603520-2-5--\"\n" +
                 "}";
         //空任务扫描初始化
         Message message1 = new Message();
         message1.setText(taskNullScanInitJson);
+        InitCollectDto mqBody = JsonHelper.fromJson(taskNullScanInitJson,InitCollectDto.class);
+        mqBody.setWaybillCode(WaybillUtil.getWaybillCode(mqBody.getTaskNullScanCode()));
+        //防重缓存去除
+        String key = jyCollectCacheService.getCacheKeyWaybillCollectSplitBeforeInit(mqBody, CollectInitNodeEnum.NULL_TASK_INIT.getCode());
+        redisClientCache.del(key);
         jyCollectDataInitSplitConsumer.consume(message1);
     }
     //封车集齐初始化
