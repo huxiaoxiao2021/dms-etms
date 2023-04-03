@@ -55,6 +55,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private JQCodeService jqCodeService;
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getOrGenJQCodeByBusinessType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public String getOrGenJQCodeByBusinessType(CollectionCodeEntity collectionCodeEntity, String userErp) {
         String methodDesc =  "CollectionRecordServiceImpl.getJQCodeByBusinessType:获取collectionCode:";
         if (null == collectionCodeEntity || null == collectionCodeEntity.getBusinessType()) {
@@ -80,6 +81,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.queryAllCollectionCodesByElement", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionCodeEntity> queryAllCollectionCodesByElement(Map<CollectionConditionKeyEnum, Object> elements,
         CollectionBusinessTypeEnum businessType) {
 
@@ -225,6 +227,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.initAndCollectedPartCollection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean initAndCollectedPartCollection(CollectionCreatorEntity collectionCreatorEntity,
         Result<Boolean> result) {
         /* 1. 必要的参数检查 */
@@ -333,6 +336,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.collectTheScanCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result) {
         if (null == collectionCollectorEntity
             || StringUtils.isEmpty(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode())) {
@@ -450,6 +454,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumCollectionByAggCodeAndCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionAggCodeCounter> sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionCodeEntity importCollectionCodeEntity,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
@@ -494,6 +499,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumCollectionByAggCodeAndCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public CollectionAggCodeCounter sumCollectionByAggCodeAndCollectionCode(CollectionCodeEntity collectionCodeEntity,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
@@ -524,6 +530,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.countNoneCollectedAggCodeNumByCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
         if (CollectionUtils.isEmpty(collectionCodeEntities)) {
@@ -541,6 +548,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.countCollectionAggCodeNumByCollectionCodeInnerMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
 
@@ -552,6 +560,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.countCollectionAggCodeNumByCollectionCodeOutMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark) {
 
@@ -562,6 +571,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumNoneCollectedAggCodeByCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionAggCodeCounter> sumNoneCollectedAggCodeByCollectionCode(
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
@@ -593,6 +603,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumCollectedAggCodeByCollectionCodeInnerMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeInnerMark(
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
@@ -617,6 +628,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumCollectedAggCodeByCollectionCodeOutMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionAggCodeCounter> sumCollectedAggCodeByCollectionCodeOutMark(
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
@@ -641,6 +653,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumAggCollectionByCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionAggCodeCounter> sumAggCollectionByCollectionCode(
         List<CollectionCodeEntity> collectionCodeEntities, List<String> aggCodes,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
@@ -662,6 +675,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.queryCollectionScanDetailByAggCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(
         List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset) {
 
@@ -703,6 +717,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getMaxTimeStampByCollectionCodesAndAggCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Timestamp getMaxTimeStampByCollectionCodesAndAggCode(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
 
@@ -713,6 +728,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     }
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getMaxTimeStampByCollectionCodesAndCollectedMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         return collectionRecordDao.getMaxTimeStampByCollectionCodesAndCollectedMark(
