@@ -198,10 +198,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .findAny().orElse("");
 
                     CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        collectionCreatorEntity.getCollectionCodeEntity(),
-                        aggCode, aggCodeTypeEnum, collectedMark
-
-                    );
+                        collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
 
                     CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
                     collectionRecordPo.setCollectionCode(collectionCode);
