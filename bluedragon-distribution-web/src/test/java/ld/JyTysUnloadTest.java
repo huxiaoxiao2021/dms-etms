@@ -76,10 +76,10 @@ public class JyTysUnloadTest {
 
             try{
                 String json1 = "{\n" +
-                        "    \"bizId\": \"XCZJ23040200000004\",\n" +
+                        "    \"bizId\": \"XCZJ23040400000023\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"groupCode\": \"G00000052005\",\n" +
-                        "        \"operateTime\": 1680331698368,\n" +
+                        "        \"operateTime\": 1680600969956,\n" +
                         "        \"positionCode\": \"GW00108005\",\n" +
                         "        \"siteCode\": 10186,\n" +
                         "        \"siteName\": \"北京凉水河快运中心\"\n" +
@@ -87,7 +87,7 @@ public class JyTysUnloadTest {
                         "    \"goodNumber\": 5,\n" +
                         "    \"manualCreateTaskFlag\": true,\n" +
                         "    \"oldSiteId\": 39,\n" +
-                        "    \"scanCode\": \"JDX000234586760-1-5-\",\n" +
+                        "    \"scanCode\": \"JDVA00257543655-3-5-\",\n" +
                         "    \"scanCodeType\": 101,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 18225,\n" +
@@ -97,13 +97,15 @@ public class JyTysUnloadTest {
                         "}";
 
                 UnloadScanCollectDealDto param1 = JSONObject.parseObject(json1, UnloadScanCollectDealDto.class);
-                param1.setScanCode(pcList.get(i));
-
+//                param1.setScanCode(pcList.get(i));
+                param1.setNextSiteId(38);
                 String json2 = "{\n" +
-                        "        \"barCode\": \"JDX000234586760-1-5-\",\n" +
-                        "        \"bizId\": \"XCZJ23040200000004\",\n" +
+                        "        \"barCode\": \"JDVA00257543655-3-5-\",\n" +
+                        "        \"bizId\": \"XCZJ23040400000023\",\n" +
                         "        \"collectDemoteSwitch\": false,\n" +
                         "        \"confirmMsg\": {},\n" +
+                        "        \"endSiteId\": 39,\n" +
+                        "        \"endSiteName\": \"石景山营业部\",\n" +
                         "        \"firstScan\": false,\n" +
                         "        \"prevSiteId\": 910,\n" +
                         "        \"prevSiteName\": \"北京马驹桥分拣中心\",\n" +
@@ -112,7 +114,7 @@ public class JyTysUnloadTest {
                         "        \"warnMsg\": {}\n" +
                         "    }";
                 ScanPackageRespDto scanPackageRespDto = JSONObject.parseObject(json2, ScanPackageRespDto.class);
-                scanPackageRespDto.setBarCode(pcList.get(i));
+//                scanPackageRespDto.setBarCode(pcList.get(i));
                 InvokeResult<ScanPackageRespDto> param2 = new InvokeResult<>();
                 param2.success();
                 param2.setData(scanPackageRespDto);

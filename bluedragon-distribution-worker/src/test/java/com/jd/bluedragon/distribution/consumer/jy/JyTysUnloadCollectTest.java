@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectBatchUpdateSt
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectDataInitSplitConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectDataSplitBatchInitConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.collect.JyCollectStatusBatchUpdateWaybillSplitConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSealCarStatusConsumer;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.collect.BatchUpdateCollectStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
@@ -55,10 +56,13 @@ public class JyTysUnloadCollectTest {
 
     @Autowired
     private JyCollectService jyCollectService;
-
+//    @Autowired
+//    private TmsSealCarStatusConsumer tmsSealCarStatusConsumer;
 
     @Test
     public void consume2() {
+
+//        tmsSealCarStatusConsumer.sendInitCollectMq(null);
         while(true) {
             try {
                 //空任务扫描初始化

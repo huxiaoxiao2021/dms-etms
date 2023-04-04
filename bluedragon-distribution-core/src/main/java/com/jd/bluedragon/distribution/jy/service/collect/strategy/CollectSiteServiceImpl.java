@@ -89,13 +89,22 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
 
             return collectReportDto;
         }).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(res)) {
+            if(log.isInfoEnabled()) {
+                log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，未查到集齐运单列表数据", JsonUtils.toJSONString(collectReportReqDto));
+            }
+            return null;
+        }
         if(log.isInfoEnabled()) {
-            log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，返回列表数量为={}",
-                    JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
+            log.info("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}，返回列表数量为={}", JsonUtils.toJSONString(collectReportReqDto), res.size());
         }
         Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndCollectedMark
             (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId());
-        tsSetter.setTimeStamp(timestamp.getTime());
+        if(!Objects.isNull(timestamp)) {
+            tsSetter.setTimeStamp(timestamp.getTime());
+        }else {
+            log.warn("CollectSiteServiceImpl.queryCollectListPage 查询在库集齐运单列表，参数={}返回最新时间戳为空，理论上一定有最新更新时间", JsonUtils.toJSONString(collectReportReqDto));
+        }
         return res;
     }
 
