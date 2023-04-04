@@ -159,7 +159,9 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
         }
         Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndAggCode
             (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode());
-        tsSetter.setTimeStamp(timestamp.getTime());
+        if (Objects.nonNull(timestamp)) {
+            tsSetter.setTimeStamp(timestamp.getTime());
+        }
         return res;
     }
 

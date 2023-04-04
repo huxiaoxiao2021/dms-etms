@@ -46,7 +46,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     static {
         collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.date_time,"2023-03-14");
         collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.site_code,"10186");
-        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23040400000021");
+        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23040400000023");
     }
 
     @Test
@@ -202,9 +202,10 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 //            "JD0003419509821", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029183"
 //        )));
 
+        collectionCodeEntitySite2.setCollectionCode("JQ23033122360300032");
         System.out.println(JsonHelper.toJson(collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
             collectionCodeEntitySite2,
-            "JDVA00257500483", CollectionAggCodeTypeEnum.waybill_code, "XCZJ23040400000021"
+            "JDVA00257543655", CollectionAggCodeTypeEnum.waybill_code, "XCZJ23040400000023"
         )));
     }
 
