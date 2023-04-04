@@ -441,6 +441,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                 collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
                     Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                if(StringUtils.isNotBlank(collectionCollectorEntity.getAggMark())) {
+                    collectionRecordPo.setAggMark(collectionCollectorEntity.getAggMark());
+                }
                 if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
                     collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
                 }

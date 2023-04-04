@@ -341,6 +341,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         res.setGoodNumber((!Objects.isNull(waybill) && !Objects.isNull(waybill.getGoodNumber())) ? waybill.getGoodNumber() : 0);
         res.setOldSiteId(waybill.getOldSiteId());
+        res.setNextSiteId(scanPackageDto.getNextSiteCode());
         return res;
     }
 

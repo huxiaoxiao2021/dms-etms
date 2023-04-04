@@ -27,6 +27,8 @@ import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectSiteTyp
 import com.jd.bluedragon.distribution.jy.service.collect.strategy.CollectStatisticsDimensionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -90,7 +92,8 @@ public class JyCollectServiceImpl implements JyCollectService{
     @Autowired
     @Qualifier(value = "jyCollectDataInitSplitProducer")
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
-
+    @Autowired
+    private RouterService routerService;
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.findCollectInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -476,6 +479,9 @@ public class JyCollectServiceImpl implements JyCollectService{
         CollectionCollectorEntity collectionCollectorEntity = new CollectionCollectorEntity();
         collectionCollectorEntity.setCollectElements(collectElements);
         collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
+        if(!Objects.isNull(unloadScanCollectDealDto.getNextSiteId())) {
+            collectionCollectorEntity.setAggMark(unloadScanCollectDealDto.getNextSiteId().toString());
+        }
         //
         Result<Boolean> result = new Result<>();
         if(!collectionRecordService.collectTheScanCode(collectionCollectorEntity, result)) {
@@ -602,6 +608,10 @@ public class JyCollectServiceImpl implements JyCollectService{
                 CollectionCollectorEntity reqEntity = new CollectionCollectorEntity();
                 reqEntity.setCollectElements(collectElements);
                 reqEntity.setCollectionScanCodeEntity(collectionScanCodeEntity);
+                RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(paramDto.getScanSiteCode(), waybillCode, null);
+                if(!Objects.isNull(routeNextDto) && !Objects.isNull(routeNextDto.getFirstNextSiteId())) {
+                    reqEntity.setAggMark(routeNextDto.getFirstNextSiteId().toString());
+                }
                 Result<Boolean> errMsgRes = new Result<>();
                 if(!collectionRecordService.collectTheScanCode(reqEntity, errMsgRes)) {
                     log.error("{}, 运单循环调用修改包裹集齐数据异常，方法请求Dto={}, 异常包裹参数={}，errMsgRes={}",

@@ -40,6 +40,8 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
      */
     private Integer oldSiteId;
 
+    private Integer nextSiteId;
+
 
     public String getBizId() {
         return bizId;
@@ -95,5 +97,13 @@ public class UnloadScanCollectDealDto extends JyReqBaseDto implements Serializab
 
     public void setOldSiteId(Integer oldSiteId) {
         this.oldSiteId = oldSiteId;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
     }
 }
