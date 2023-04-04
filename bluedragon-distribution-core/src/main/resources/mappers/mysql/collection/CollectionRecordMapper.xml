@@ -321,7 +321,6 @@
 
 	</select>
 
-<!-- todo what	-->
 	<select id="findAggCodeByScanCode" parameterType="CollectionRecordDetailPo" resultMap="collectionRecordDetailMap">
 		SELECT
 			collection_code, agg_code, agg_code_type
@@ -353,6 +352,7 @@
 			<if test="aggCode != null">
 				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
 			</if>
+			and cr.is_init = 1
 			and cr.yn = 1 and crd.yn = 1
 			<if test="isMoreCollectedMark != null">
 				and cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
