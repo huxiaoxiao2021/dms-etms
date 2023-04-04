@@ -2807,7 +2807,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 invokeResult.hintMessage("发车任务不存在！");
                 return invokeResult;
             }
-
+            taskSend.setOperateSiteCode(new Long(request.getCurrentOperate().getSiteCode()));
             SendVehicleProgress progress = new SendVehicleProgress();
             invokeResult.setData(progress);
 
@@ -2859,8 +2859,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
             progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
         }
-        log.info("获取待扫数据入参--{}",taskSend.getBizId());
-        Long toScanCountSum = jySendProductAggsService.getToScanCountSum(taskSend.getBizId());
+        JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+        query.setSendVehicleBizId(taskSend.getBizId());
+        List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+        JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
+        aggsEntityQuery.setOperateSiteId(taskSend.getOperateSiteCode());
+        aggsEntityQuery.setEndSiteIds(receiveIds);
+        log.info("获取待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
+        Long toScanCountSum = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);
         log.info("获取待扫数据--{}",toScanCountSum);
         progress.setToScanCount(toScanCountSum);
 
@@ -3337,7 +3343,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return invokeResult;
             }
             this.fillSendTaskInfo(sendTaskInfo, sendVehicleEntity);
-
+            sendVehicleEntity.setOperateSiteCode(new Long(request.getCurrentOperate().getSiteCode()));
             // 查询明细列表
             List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
             if (CollectionUtils.isEmpty(vehicleDetailList)) {

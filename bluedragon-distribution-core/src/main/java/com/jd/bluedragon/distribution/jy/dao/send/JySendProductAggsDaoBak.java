@@ -22,8 +22,8 @@ class JySendProductAggsDaoBak extends BaseDao<JySendProductAggsEntity>  implemen
         return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", query);
     }
 
-    public Long getToScanCountSum(String sendVehicleBizId){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
+    public Long getToScanCountSum(JySendProductAggsEntityQuery query){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", query);
     }
 
     public int updateByBizProduct(JySendProductAggsEntity entity){
