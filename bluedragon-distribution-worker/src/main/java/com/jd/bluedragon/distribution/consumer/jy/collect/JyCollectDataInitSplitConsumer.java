@@ -62,7 +62,7 @@ public class JyCollectDataInitSplitConsumer extends MessageBaseConsumer {
         try {
             consumeRes = deal(mqBody);
         }catch (Exception e) {
-            logger.error("jyCollectDataInitSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            logger.error("jyCollectDataInitSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText(), e);
             throw new JyBizException("jyCollectDataInitSplitConsumer集齐初始化拆分服务消费处理异常：" + message.getBusinessId());
         }
         if(!consumeRes){

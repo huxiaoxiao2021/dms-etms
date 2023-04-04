@@ -150,43 +150,29 @@ public class JyTysUnloadTest {
     public void findCollectReportPageTest(){
         while(true) {
             try {
-                CollectReportReqDto param1 = new CollectReportReqDto();
-                param1.setPageNo(1);
-                param1.setPageSize(100);
-                param1.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
-                param1.setBizId("XCZJ23031600000013");
-
-                User user = new User();
-                user.setUserErp("xumigen");
-                param1.setUser(user);
-                CurrentOperate currentOperate = new CurrentOperate();
-                currentOperate.setSiteCode(10186);
-                param1.setCurrentOperate(currentOperate);
-
-                String jsonSite = "{\n" +
-                        "            \"dmsCode\": \"010K001\",\n" +
-                        "            \"groupCode\": \"G00000052005\",\n" +
-                        "            \"operateTime\": 1679365075203,\n" +
-                        "            \"orgId\": 6,\n" +
-                        "            \"orgName\": \"华北\",\n" +
-                        "            \"positionCode\": \"GW00108005\",\n" +
-                        "            \"siteCode\": 10186,\n" +
-                        "            \"siteName\": \"北京凉水河快运中心\"\n" +
-                        "        }";
-                CurrentOperate siteInfo = JSONObject.parseObject(jsonSite, CurrentOperate.class);
-
-
-                String jsonUser = "{\n" +
-                        "            \"userCode\": 18225,\n" +
-                        "            \"userErp\": \"xumigen\",\n" +
-                        "            \"userName\": \"徐迷根\"\n" +
-                        "        }";
-                User userInfo = JSONObject.parseObject(jsonUser, User.class);
-
-                String json = "{\"bizId\":\"XCZJ23032900000049\",\"combinationTransfer\":false,\"currentOperate\":{\"dmsCode\":\"010F002\",\"groupCode\":\"G00000048001\",\"operateTime\":1680075658515,\"orgId\":6,\"orgName\":\"华北\",\"positionCode\":\"GW00002001\",\"siteCode\":10186,\"siteName\":\"北京凉水河快运中心\"},\"forceCombination\":false,\"groupCode\":\"G00000048001\",\"isForceCombination\":false,\"scanCode\":\"JDX000234142433-69-1000-\",\"taskId\":\"230329200000082\",\"type\":0,\"user\":{\"userCode\":17331,\"userErp\":\"wuyoude\",\"userName\":\"吴有德\"},\"vehicleNumber\":\"晋CDGGGDG\",\"workType\":0}";
+                String json  = "{\n" +
+                        "    \"bizId\": \"XCZJ23040400000021\",\n" +
+                        "    \"collectType\": 101,\n" +
+                        "    \"currentOperate\": {\n" +
+                        "        \"dmsCode\": \"010F002\",\n" +
+                        "        \"groupCode\": \"G00000052005\",\n" +
+                        "        \"operateTime\": 1680577144440,\n" +
+                        "        \"orgId\": 6,\n" +
+                        "        \"orgName\": \"华北\",\n" +
+                        "        \"positionCode\": \"GW00108005\",\n" +
+                        "        \"siteCode\": 10186,\n" +
+                        "        \"siteName\": \"北京凉水河快运中心\"\n" +
+                        "    },\n" +
+                        "    \"manualCreateTaskFlag\": true,\n" +
+                        "    \"pageNo\": 1,\n" +
+                        "    \"pageSize\": 30,\n" +
+                        "    \"user\": {\n" +
+                        "        \"userCode\": 17331,\n" +
+                        "        \"userErp\": \"wuyoude\",\n" +
+                        "        \"userName\": \"吴有德\"\n" +
+                        "    }\n" +
+                        "}";
                 CollectReportReqDto param2 = JSONObject.parseObject(json, CollectReportReqDto.class);
-//                param2.setUser(user);
-//                param2.setCurrentOperate(currentOperate);
                 InvokeResult<CollectReportResDto>  res = jyUnloadVehicleTysService.findCollectReportPage(param2);
                 System.out.println("end");
             }catch (Exception e) {

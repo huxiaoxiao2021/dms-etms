@@ -668,10 +668,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
+        Map<String, CollectionBusinessTypeEnum> aggMarkMap = collectionCodeEntities.stream().collect(Collectors.toMap(CollectionCodeEntity::getCollectionCode, CollectionCodeEntity::getBusinessType));
+
         List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
 
         collectionScanMarkCounters.forEach(collectionCollectedMarkCounter -> {
             collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
+            collectionCollectedMarkCounter.setBusinessType(aggMarkMap.get(collectionCollectedMarkCounter.getCollectionCode()));
         });
 
         return CollectionEntityConverter.convertCollectionCollectedMarkCounterToCollectionAggCodeCounter(collectionScanMarkCounters, collectedMark);

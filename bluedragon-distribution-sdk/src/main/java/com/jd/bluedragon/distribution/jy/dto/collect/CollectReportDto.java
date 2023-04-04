@@ -43,6 +43,10 @@ public class CollectReportDto implements Serializable {
      */
     private String goodsAreaCode;
     private Integer nextSiteCode;
+    /**
+     * 在库标识 true: 在库
+     */
+    private Boolean inventoryFlag;
 
     public String getCollectionCode() {
         return collectionCode;
@@ -114,5 +118,13 @@ public class CollectReportDto implements Serializable {
 
     public void setOtherInventoryNum(Integer otherInventoryNum) {
         this.otherInventoryNum = otherInventoryNum;
+    }
+
+    public Boolean getInventoryFlag() {
+        return inventoryFlag;
+    }
+
+    public void setInventoryFlag(Boolean inventoryFlag) {
+        this.inventoryFlag = inventoryFlag;
     }
 }
