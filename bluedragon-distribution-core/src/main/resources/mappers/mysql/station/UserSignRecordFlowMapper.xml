@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao" >
+
+	<resultMap id="UserSignRecordFlow" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="ref_record_id" property="refRecordId" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="ref_flow_biz_code" property="refFlowBizCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="flow_type" property="flowType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="flow_status" property="flowStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="flow_remark" property="flowRemark" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="flow_create_user" property="flowCreateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="flow_create_time" property="flowCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="flow_update_user" property="flowUpdateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="flow_update_time" property="flowUpdateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="sign_date_new" property="signDateNew" javaType="java.util.Date" jdbcType="DATE" />        
+        <result column="sign_in_time_new" property="signInTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="sign_out_time_new" property="signOutTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
+		<result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="sign_out_time" property="signOutTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="ref_plan_key" property="refPlanKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="ref_grid_key" property="refGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="ref_station_key" property="refStationKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
+	</resultMap>
+		
+    <sql id="Base_Column_List" >
+        r.id,r.ref_record_id,r.ref_flow_biz_code,r.flow_type,r.flow_status,r.flow_remark,
+        r.flow_create_user,r.flow_create_time,r.flow_update_user,r.flow_update_time,sign_date_new,r.sign_in_time_new,
+        r.sign_out_time_new,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,
+        r.user_code_index,r.user_name,r.user_name_encrypt,r.user_name_index,r.wave_code,
+        r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,
+        r.ref_grid_key,r.ref_station_key,r.create_user,r.create_user_name,r.update_user,
+        r.update_user_name,r.create_time,r.update_time,r.yn,r.ts,
+        r.war_zone_code,r.war_zone_name,r.mode_type,r.biz_source
+    </sql>	
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow" useGeneratedKeys="true" keyProperty="id">
+		insert into user_sign_record_flow
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+                <if test="refRecordId != null" >
+                    ref_record_id,
+                </if>
+                <if test="refFlowBizCode != null" >
+                    ref_flow_biz_code,
+                </if>
+                <if test="flowType != null" >
+                    flow_type,
+                </if>
+                <if test="flowStatus != null" >
+                    flow_status,
+                </if>
+                <if test="flowRemark != null" >
+                    flow_remark,
+                </if>
+                <if test="flowCreateUser != null" >
+                    flow_create_user,
+                </if>
+                <if test="flowCreateTime != null" >
+                    flow_create_time,
+                </if>
+                <if test="flowUpdateUser != null" >
+                    flow_update_user,
+                </if>
+                <if test="flowUpdateTime != null" >
+                    flow_update_time,
+                </if>
+                <if test="signDateNew != null" >
+                    sign_date_new,
+                </if>                
+                <if test="signInTimeNew != null" >
+                    sign_in_time_new,
+                </if>
+                <if test="signOutTimeNew != null" >
+                    sign_out_time_new,
+                </if>				
+				<if test="orgCode != null" >
+					org_code,
+				</if>
+				<if test="warZoneCode != null" >
+					war_zone_code,
+				</if>
+				<if test="warZoneName != null" >
+					war_zone_name,
+				</if>
+				<if test="siteCode != null" >
+					site_code,
+				</if>
+				<if test="userCode != null" >
+					user_code,
+					user_code_encrypt,
+					user_code_index,
+				</if>
+				<if test="userName != null" >
+					user_name,
+					user_name_encrypt,
+					user_name_index,
+				</if>
+				<if test="waveCode != null" >
+					wave_code,
+				</if>
+				<if test="jobCode != null" >
+					job_code,
+				</if>
+				<if test="signDate != null" >
+					sign_date,
+				</if>
+				<if test="signInTime != null" >
+					sign_in_time,
+				</if>
+				<if test="signOutTime != null" >
+					sign_out_time,
+				</if>
+				<if test="refPlanKey != null" >
+					ref_plan_key,
+				</if>
+				<if test="refGridKey != null" >
+					ref_grid_key,
+				</if>
+				<if test="refStationKey != null" >
+					ref_station_key,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+			 	<if test="modeType != null">
+					mode_type,
+				</if>
+                <if test="bizSource != null">
+                    biz_source,
+                </if>				
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+                <if test="refRecordId != null" >
+                    #{refRecordId,jdbcType=BIGINT},
+                </if>
+                <if test="refFlowBizCode != null" >
+                    #{refFlowBizCode,jdbcType=VARCHAR},
+                </if>
+                <if test="flowType != null" >
+                    #{flowType,jdbcType=TINYINT},
+                </if>
+                <if test="flowStatus != null" >
+                    #{flowStatus,jdbcType=TINYINT},
+                </if>
+                <if test="flowRemark != null" >
+                    #{flowRemark,jdbcType=VARCHAR},
+                </if>
+                <if test="flowCreateUser != null" >
+                    #{flowCreateUser,jdbcType=VARCHAR},
+                </if>
+                <if test="flowCreateTime != null" >
+                    #{flowCreateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="flowUpdateUser != null" >
+                    #{flowUpdateUser,jdbcType=VARCHAR},
+                </if>
+                <if test="flowUpdateTime != null" >
+                    #{flowUpdateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="signDateNew != null" >
+                    #{signDateNew,jdbcType=DATE},
+                </if>                
+                <if test="signInTimeNew != null" >
+                    #{signInTimeNew,jdbcType=TIMESTAMP},
+                </if>
+                <if test="signOutTimeNew != null" >
+                    #{signOutTimeNew,jdbcType=TIMESTAMP},
+                </if>				
+				<if test="orgCode != null" >
+					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="warZoneCode != null" >
+					#{warZoneCode,jdbcType=VARCHAR},
+				</if>
+				<if test="warZoneName != null" >
+					#{warZoneName,jdbcType=VARCHAR},
+				</if>
+				<if test="siteCode != null" >
+					#{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="userCode != null" >
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
+				</if>
+				<if test="userName != null" >
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
+				</if>				
+				<if test="waveCode != null" >
+					#{waveCode,jdbcType=TINYINT},
+				</if>
+				<if test="jobCode != null" >
+					#{jobCode,jdbcType=TINYINT},
+				</if>
+				<if test="signDate != null" >
+					#{signDate,jdbcType=DATE},
+				</if>
+				<if test="signInTime != null" >
+					#{signInTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="signOutTime != null" >
+					#{signOutTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="refPlanKey != null" >
+					#{refPlanKey,jdbcType=VARCHAR},
+				</if>
+				<if test="refGridKey != null" >
+					#{refGridKey,jdbcType=VARCHAR},
+				</if>
+				<if test="refStationKey != null" >
+					#{refStationKey,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+			 	<if test="modeType != null">
+					#{modeType,jdbcType=TINYINT},
+				</if>
+                <if test="bizSource != null" >
+                    #{bizSource,jdbcType=INTEGER},
+                </if>				
+			</trim>
+			)
+	</insert>
+
+    <update id="updateFlowStatusById" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow">
+        update user_sign_record_flow
+            set 
+                flow_status = #{flowStatus,jdbcType=INTEGER},
+                flow_remark = #{flowRemark,jdbcType=VARCHAR},
+                flow_update_user = #{flowUpdateUser,jdbcType=VARCHAR},
+                flow_update_time = #{flowUpdateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+	<select id="queryByFlowBizCode" parameterType="java.lang.String" resultMap="UserSignRecordFlow">
+		select
+			<include refid="Base_Column_List"/>
+		from user_sign_record_flow r
+          where r.yn = 1 and r.ref_flow_biz_code = #{refFlowBizCode,jdbcType=VARCHAR}
+		limit 1
+	</select>
+
+	<select id="queryDataList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultMap="UserSignRecordFlow">
+		select
+			<include refid="Base_Column_List"/>
+		from user_sign_record_flow r
+		<include refid="queryCondition"/>
+		order by r.ts desc
+		<if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>		
+	</select>
+	<select id="queryDataCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
+		select
+			count(1)
+        from user_sign_record_flow r
+        <include refid="queryCondition"/>
+	</select>
+    <sql id="queryCondition">
+        <where>
+            r.yn = 1 
+        <if test="signDate != null" >
+            and (r.sign_date = #{signDate,jdbcType=DATE} or r.sign_date_new = #{signDate,jdbcType=DATE})
+        </if>
+        <if test="flowType != null" >
+            and r.flow_type = #{flowType,jdbcType=INTEGER}
+        </if>                
+        <if test="siteCode != null" >
+            and r.site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="signDateStart != null" >
+            and r.sign_date >= #{signDateStart,jdbcType=DATE}
+        </if>
+        <if test="signDateEnd != null" >
+            and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+        </if> 
+        <if test="userCode != null and userCode != '' " >
+            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle} 
+        </if>
+                     
+        </where>
+    </sql>
+    <select id="queryCountForCheckUnCompletedFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from user_sign_record_flow r
+        where r.yn = 1
+          and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+          and r.flow_status in 
+        <foreach collection="flowStatusList" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=INTEGER}
+        </foreach>          
+    </select>    
+</mapper>

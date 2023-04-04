@@ -54,5 +54,11 @@ public interface JyScheduleTaskManager {
      * @param req
      * @return
      */
-    List<JyScheduleTaskResp> findStartedScheduleTasksForAddMember(JyScheduleTaskReq req);    
+    List<JyScheduleTaskResp> findStartedScheduleTasksForAddMember(JyScheduleTaskReq req);
+    /**
+     * 根据分配目标获取指定时间段内的任务信息（流程审批-添加组员）
+     * @param taskQuery
+     * @return
+     */
+	List<JyScheduleTaskResp> findStartedScheduleTasksForAddMemberFlow(JyScheduleTaskReq taskQuery);    
 }

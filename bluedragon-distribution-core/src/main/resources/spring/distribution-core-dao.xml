@@ -721,7 +721,10 @@
     </bean>
     <bean id="userSignRecordDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
-    </bean>                
+    </bean>   
+    <bean id="userSignRecordFlowDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordFlowDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>                   
     <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>

@@ -39,6 +39,7 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
 	</resultMap>
 	
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
@@ -144,7 +145,7 @@
         r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
-        r.create_time,r.update_time,r.yn,r.ts
+        r.create_time,r.update_time,r.yn,r.ts,r.biz_source
     </sql>	
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
@@ -221,12 +222,12 @@
 				<if test="yn != null" >
 					yn,
 				</if>
-				<if test="ts != null" >
-					ts,
-				</if>
 			 	<if test="modeType != null">
 					mode_type,
 				</if>
+                <if test="bizSource != null">
+                    biz_source,
+                </if>				
 			</trim>
 			)
 			values
@@ -302,12 +303,12 @@
 				<if test="yn != null" >
 					#{yn,jdbcType=TINYINT},
 				</if>
-				<if test="ts != null" >
-					#{ts,jdbcType=TIMESTAMP},
-				</if>
 			 	<if test="modeType != null">
 					#{modeType,jdbcType=TINYINT},
 				</if>
+                <if test="bizSource != null" >
+                    #{bizSource,jdbcType=INTEGER},
+                </if>				
 			</trim>
 			)
 	</insert>
@@ -388,6 +389,9 @@
 		    	<if test="modeType != null">
 					mode_type = #{modeType,jdbcType=TINYINT},
 				</if>
+                <if test="bizSource != null">
+                    biz_source = #{bizSource,jdbcType=INTEGER},
+                </if>				
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -398,6 +402,12 @@
 			<if test="updateUser != null" >
 				update_user = #{updateUser,jdbcType=VARCHAR},
 			</if>
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="bizSource != null" >
+                biz_source = #{bizSource,jdbcType=INTEGER},
+            </if>   			
 			<if test="updateTime != null" >
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
 			</if>
@@ -972,4 +982,63 @@
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
 			and sign_out_time is null
 	</select>
+    <select id="queryDataListForFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+        select
+            <include refid="Main_Column_List"/>
+        from user_sign_record r
+        <include refid="queryForFlowCondition"/>
+        order by r.ts desc
+        <if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>       
+    </select>
+    <select id="queryCountForFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from user_sign_record r
+        <include refid="queryForFlowCondition"/>
+    </select>
+    <sql id="queryForFlowCondition">
+        <where>
+            r.yn = 1 
+        <if test="signDate != null" >
+            and r.sign_date = #{signDate,jdbcType=DATE}
+        </if>       
+        <if test="siteCode != null" >
+            and r.site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="signDateStart != null" >
+            and r.sign_date >= #{signDateStart,jdbcType=DATE}
+        </if>
+        <if test="signDateEnd != null" >
+            and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+        </if> 
+        <if test="userCode != null and userCode != '' " >
+            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle} 
+        </if>
+        </where>
+    </sql>
+    <select id="queryCountForCheckSignTime" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from user_sign_record r
+         where r.yn = 1
+	         and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+	         and  (<![CDATA[ 
+	           (r.sign_in_time > #{signInTime,jdbcType=TIMESTAMP} and r.sign_in_time < #{signOutTime,jdbcType=TIMESTAMP})
+	           or (r.sign_out_time > #{signInTime,jdbcType=TIMESTAMP} and r.sign_out_time < #{signOutTime,jdbcType=TIMESTAMP})
+	           or (r.sign_in_time <= #{signInTime,jdbcType=TIMESTAMP} and r.sign_out_time >= #{signOutTime,jdbcType=TIMESTAMP})
+	         ]]>)
+	         <if test="refRecordId != null" >
+	            and r.id != #{refRecordId,jdbcType=BIGINT}  
+	         </if>
+    </select>   
+    <select id="queryByIdForFlow" parameterType="java.lang.Long" resultMap="UserSignRecord">
+        select
+            <include refid="Main_Column_List"/>
+        from
+            user_sign_record r
+            where r.id = #{refRecordId,jdbcType=BIGINT}           
+        limit 1
+    </select>     
 </mapper>

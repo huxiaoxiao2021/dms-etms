@@ -24,6 +24,7 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.jy.dao.group.JyGroupMemberDao;
@@ -529,5 +530,201 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			return null;
 		}
 		return jyGroupMemberDao.queryBySignRecordId(signRecordId);
+	}
+	@Override
+	public JdResult<Boolean> addMemberForFlow(GroupMemberRequest addMemberRequest) {
+		JdResult<Boolean> result = new JdResult<>();
+		result.toSuccess();
+		if(addMemberRequest == null) {
+			result.toFail("请求参数不能为空！");
+		}
+		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
+			result.toFail("岗位码不能为空！");
+		}
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
+				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
+			return result;
+		}
+		if(addMemberRequest.getSignInTime() == null) {
+			addMemberRequest.setSignInTime(new Date());
+		}
+		String gridKey = positionData.getData().getRefGridKey();
+		//查询岗位码对应的小组信息
+		JyGroupQuery groupQuery = new JyGroupQuery();
+		groupQuery.setPositionCode(addMemberRequest.getPositionCode());
+		JyGroupEntity groupData = null;
+		Result<JyGroupEntity> groupResult = jyGroupService.queryGroupByPosition(groupQuery);
+		boolean isNewGroup = false;
+		Date currentDate = new Date();
+		if(groupResult != null 
+				&& groupResult.isSuccess()
+				&& groupResult.getData() != null) {
+			groupData = groupResult.getData();
+		}else {
+			groupData = new JyGroupEntity();
+			groupData.setPositionCode(addMemberRequest.getPositionCode());
+			groupData.setOrgCode(addMemberRequest.getOrgCode());
+			groupData.setSiteCode(addMemberRequest.getSiteCode());
+			groupData.setCreateTime(currentDate);
+			groupData.setCreateUser(addMemberRequest.getOperateUserCode());
+			groupData.setCreateUserName(addMemberRequest.getOperateUserName());
+			jyGroupService.addGroupData(groupData);
+			if(log.isDebugEnabled()) {
+				log.debug("流程审批-添加组：{}", JsonHelper.toJson(groupData));
+			}
+			isNewGroup = true;
+		}
+		String groupCode = groupData.getGroupCode();
+		JyGroupMemberEntity memberData = new JyGroupMemberEntity();
+		memberData.setMemberType(addMemberRequest.getMemberType());
+		memberData.setDeviceTypeCode(addMemberRequest.getDeviceTypeCode());
+		memberData.setDeviceTypeName(addMemberRequest.getDeviceTypeName());
+		memberData.setMachineCode(addMemberRequest.getMachineCode());
+		memberData.setRefGroupCode(groupCode);
+		memberData.setRefSignRecordId(addMemberRequest.getSignRecordId());
+		memberData.setStatus(JyGroupMemberStatusEnum.OUT.getCode());
+		memberData.setUserCode(addMemberRequest.getUserCode());
+		memberData.setUserName(addMemberRequest.getUserName());
+		memberData.setJobCode(addMemberRequest.getJobCode());
+		memberData.setOrgCode(addMemberRequest.getOrgCode());
+		memberData.setSiteCode(addMemberRequest.getSiteCode());
+		memberData.setCreateTime(currentDate);
+		memberData.setCreateUser(addMemberRequest.getOperateUserCode());
+		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
+		memberData.setSignInTime(addMemberRequest.getSignInTime());
+		memberData.setSignOutTime(addMemberRequest.getSignOutTime());
+		//校验组员是否存在
+		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
+		if(checkResult != null 
+				&& !checkResult.isSuccess()) {
+			result.toFail(checkResult.getMessage());
+			return result;
+		}
+		generateAndSetMemberCode(memberData);
+		//新小组，将已签未退人员加入到小组中，正常应该只有当前人员
+		if(isNewGroup) {
+			List<JyGroupMemberEntity> memberList = new ArrayList<JyGroupMemberEntity>();
+			memberList.add(memberData);
+			
+			UserSignQueryRequest query = new UserSignQueryRequest();
+			query.setRefGridKey(gridKey);
+			List<UserSignRecord> signList = userSignRecordService.queryUnSignOutListWithPosition(query);
+			if(!CollectionUtils.isEmpty(signList)) {
+				for(UserSignRecord signData: signList) {
+					//排除当前签到人员
+					if(JyGroupMemberTypeEnum.PERSON.getCode().equals(addMemberRequest.getMemberType())&&
+							signData.getId().equals(addMemberRequest.getSignRecordId())) {
+						continue;
+					}
+					JyGroupMemberEntity member = new JyGroupMemberEntity();
+					member.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+					generateAndSetMemberCode(member);
+					member.setRefGroupCode(groupCode);
+					member.setRefSignRecordId(signData.getId());
+                    member.setStatus(JyGroupMemberStatusEnum.OUT.getCode());
+					member.setUserCode(signData.getUserCode());
+					member.setUserName(signData.getUserName());
+					member.setJobCode(signData.getJobCode());
+					member.setOrgCode(signData.getOrgCode());
+					member.setSiteCode(signData.getSiteCode());
+					member.setCreateTime(currentDate);
+					member.setCreateUser(signData.getCreateUser());
+					member.setCreateUserName(signData.getCreateUserName());
+					member.setSignInTime(signData.getSignInTime());
+					member.setSignOutTime(signData.getSignOutTime());
+					memberList.add(member);
+				}
+			}
+			jyGroupMemberDao.batchInsert(memberList);
+			if(log.isDebugEnabled()) {
+				log.debug("流程审批-批量添加组员：{}", JsonHelper.toJson(memberList));
+			}
+		}else {
+			//添加小组成员信息
+			jyGroupMemberDao.insert(memberData);
+			if(log.isDebugEnabled()) {
+				log.debug("流程审批-添加组员：{}", JsonHelper.toJson(memberData));
+			}
+			//非新小组，将新加入组员加入到当前小组工作任务人员明细中
+			//查询当前小组工作任务
+			JyScheduleTaskReq taskQuery = new JyScheduleTaskReq();
+			taskQuery.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
+			taskQuery.setDistributionTarget(groupCode);
+			taskQuery.setTaskStartTime(memberData.getSignInTime());
+			taskQuery.setTaskEndTime(memberData.getSignOutTime());
+			
+			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksForAddMemberFlow(taskQuery);
+			if(!CollectionUtils.isEmpty(taskList)) {
+				for(JyScheduleTaskResp task : taskList) {
+					String taskId = task.getTaskId();
+					JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
+					taskMember.setMemberType(memberData.getMemberType());
+					taskMember.setDeviceTypeCode(memberData.getDeviceTypeCode());
+					taskMember.setDeviceTypeName(memberData.getDeviceTypeName());
+					taskMember.setMachineCode(memberData.getMachineCode());					
+					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
+					taskMember.setRefGroupCode(groupCode);
+					taskMember.setRefTaskId(taskId);
+					taskMember.setJobCode(memberData.getJobCode());
+					taskMember.setUserCode(memberData.getUserCode());
+					taskMember.setUserName(memberData.getUserName());
+					taskMember.setOrgCode(memberData.getOrgCode());
+					taskMember.setSiteCode(memberData.getSiteCode());
+					if(task.getTaskStartTime() != null && task.getTaskStartTime().after(memberData.getSignInTime())) {
+						taskMember.setStartTime(task.getTaskStartTime());
+					}else {
+						taskMember.setStartTime(memberData.getSignInTime());
+					}
+					if(task.getTaskEndTime() != null && task.getTaskEndTime().before(memberData.getSignOutTime())) {
+						taskMember.setEndTime(task.getTaskEndTime());
+					}else {
+						taskMember.setEndTime(memberData.getSignOutTime());
+					}
+					taskMember.setCreateTime(currentDate);
+					taskMember.setCreateUser(memberData.getCreateUser());
+					taskMember.setCreateUserName(memberData.getCreateUserName());	
+					jyTaskGroupMemberService.addTaskMember(taskMember);
+					if(log.isDebugEnabled()) {
+						log.debug("流程审批-添加任务组员：{}", JsonHelper.toJson(taskMember));
+					}
+				}
+			}
+		}
+		return result;
+	}
+	@Override
+	public JdResult<Boolean> deleteMemberForFlow(GroupMemberRequest deleteMemberRequest) {
+		JdResult<Boolean> result = new JdResult<>();
+		result.toSuccess();
+		//根据签到id查询小组成员
+		JyGroupMemberEntity memberData = null;
+		if(JyGroupMemberTypeEnum.PERSON.getCode().equals(deleteMemberRequest.getMemberType())) {
+			memberData = jyGroupMemberDao.queryBySignRecordId(deleteMemberRequest.getSignRecordId());
+		}else {
+			memberData = jyGroupMemberDao.queryByMemberCode(deleteMemberRequest.getMemberCode());
+		}
+		if(memberData == null) {
+			result.toFail("小组数据无效|已删除！");
+			return result;
+		}
+		JyGroupMemberEntity removeMemberData = new JyGroupMemberEntity();
+		Date currentDate = new Date();
+		//剔除小组成员
+		removeMemberData.setId(memberData.getId());
+		removeMemberData.setUpdateTime(currentDate);
+		removeMemberData.setUpdateUser(deleteMemberRequest.getOperateUserCode());
+		removeMemberData.setUpdateUserName(deleteMemberRequest.getOperateUserName());
+		jyGroupMemberDao.deleteMember(removeMemberData);
+		JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
+		taskGroupMember.setRefGroupMemberCode(memberData.getMemberCode());
+		taskGroupMember.setUpdateTime(currentDate);
+		taskGroupMember.setUpdateUser(deleteMemberRequest.getOperateUserCode());
+		taskGroupMember.setUpdateUserName(deleteMemberRequest.getOperateUserName());
+		//小组任务成员，设置结束时间
+		jyTaskGroupMemberService.deleteByMemberCode(taskGroupMember);
+		return result;
 	}
 }

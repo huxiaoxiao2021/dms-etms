@@ -326,7 +326,12 @@
                   ref="userSignRecordJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <jsf:provider id="userSignRecordFlowJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.UserSignRecordFlowJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="userSignRecordFlowJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!-- 上岗码查询JSF服务 -->
     <jsf:provider id="positionQueryJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
