@@ -17,6 +17,11 @@ public class FlowConstants {
      * 流程编码-打印交接清单流程编码
      */
     public static final String FLOW_CODE_PRINT_HANDOVER = "print_handover_list_export_apply";
+    
+    /**
+     * 流程编码-签到数据修改审批
+     */
+    public static final String FLOW_CODE_SIGN_MODIFY = "sign_modify_approve";
 
     /**
      * 流程业务数据唯一key

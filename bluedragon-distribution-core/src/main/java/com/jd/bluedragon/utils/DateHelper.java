@@ -224,9 +224,35 @@ public class DateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
-
+    /**
+     * 获取上个计提日期
+     * @param accrualDay 计提日
+     * @return
+     */
+    public static Date getLastAccrualDate(int accrualDay,int accrualHour,int accrualMinute) {
+    	Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, accrualHour);
+        calendar.set(Calendar.MINUTE, accrualMinute);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
+        
+        Date thisDate = calendar.getTime();
+        Date lastDate = thisDate;
+        Date currentDate = new Date();
+        if(currentDate.before(thisDate)) {
+        	calendar.setTime(DateHelper.addDate(thisDate, -accrualDay));
+        	calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
+        	lastDate = calendar.getTime();
+        }
+        return lastDate;
+    }
     public static void main(String[] args) {
 
+        for(int i=1;i<=28;i++) {
+        	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
+        }
+        
         Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
         System.out.println(date);
 
@@ -258,7 +284,6 @@ public class DateHelper {
         target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
         System.out.println(daysBetween(new Date(1570104779000L),new Date()));
-
     }
 
     /**
