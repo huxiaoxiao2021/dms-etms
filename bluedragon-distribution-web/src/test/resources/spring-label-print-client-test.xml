@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<context:annotation-config/>
+    <!--扫描对外发布的Jsf Beans-->
+    <context:component-scan base-package="com.jd.ql.dms.test.print" />
+	<!--属性配置-->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+                <value>classpath:authen.properties</value>
+                <value>classpath:aces.properties</value>
+                <value>classpath:configured/app.properties</value>
+                <value>classpath:configured/db.properties</value>
+                <value>classpath:configured/dms_ip_mapper.properties</value>
+                <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/mq.properties</value>
+                <value>classpath:configured/order_service_config.properties</value>
+                <value>classpath:configured/popabnormal.properties</value>
+                <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/ucc.properties</value>
+                <value>classpath:configured/print.properties</value>
+                <value>classpath:configured/dms_crossbow.properties</value>
+                <value>classpath:configured/kafka.properties</value>
+                <value>classpath:configured/sms.properties</value>
+			</list>
+		</property>
+	</bean>
+	<import resource="classpath:/spring/spring-oss.xml"/>
+    <!-- 引入打印引擎配置 -->
+    <import resource="classpath:/ql-dms-print-engine.xml"/>
+    <bean id="dmsAmazonS3LabelFileLoader" class="com.jd.bluedragon.core.print.DmsAmazonS3LabelFileLoader" parent="abstractLabelFileLoader" depends-on="labelFileLoaderFactory"/>	
+</beans>

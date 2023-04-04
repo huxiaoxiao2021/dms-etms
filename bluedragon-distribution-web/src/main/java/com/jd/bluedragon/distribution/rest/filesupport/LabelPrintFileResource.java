@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.FileRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -100,14 +101,18 @@ public class LabelPrintFileResource {
             secretKey = getElementValue(uploadForm,FORM_SECRETKEY_ELEMENT_NAME);
             sourceSysName = getElementValue(uploadForm,FORM_SOURCESYSNAME_ELEMENT_NAME);
             log.info("上传文件-folder[{}]fileName[{}]secretKey[{}]sourceSysName[{}]", folder,fileName,secretKey,sourceSysName);
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setSecretKey(secretKey);
+            fileRequest.setSourceSysName(sourceSysName);
+            InvokeResult<Boolean> result = this.checkParams(fileRequest);
+            if(!result.codeSuccess()) {
+                log.error("上传文件-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+                invokeResult.error(result.getMessage());
+                return invokeResult;
+            }
             if(StringUtils.isEmpty(secretKey)){
                 log.error("上传文件-secretKey不能为空");
                 invokeResult.error("上传文件secretKey不能为空");
-                return invokeResult;
-            }
-            if(!Objects.equals(secretKey,fileModifySecretKey)){
-                log.error("上传文件-secretKey错误");
-                invokeResult.error("上传文件secretKey错误："+secretKey);
                 return invokeResult;
             }
             if(StringUtils.isEmpty(folder)){
@@ -155,8 +160,14 @@ public class LabelPrintFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response downloadFile(FileRequest fileRequest) {
         log.info("下载文件-开始fileRequest[{}]", JsonHelper.toJson(fileRequest));
-        CallerInfo info = Profiler.registerInfo("DMS.WEB.FileResource.downloadFile", Constants.UMP_APP_NAME_DMSWEB, false, true);
         Response.ResponseBuilder response = null;
+        InvokeResult<Boolean> result = this.checkParams(fileRequest);
+        if(!result.codeSuccess()) {
+            log.error("下载文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
+            response = Response.status(Response.Status.BAD_REQUEST);
+            return response.build();
+        }
+        CallerInfo info = Profiler.registerInfo("DMS.WEB.FileResource.downloadFile", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             log.info("下载文件-fileRequest[{}]", JsonHelper.toJson(fileRequest));
             if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName())|| StringUtils.isEmpty(fileRequest.getSourceSysName())){
@@ -209,8 +220,11 @@ public class LabelPrintFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public InvokeResult<Boolean> deleteFile(FileRequest fileRequest){
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         log.info("删除文件-fileRequest[{}]", JsonHelper.toJson(fileRequest));
+        InvokeResult<Boolean> result = this.checkParams(fileRequest);
+        if(!result.codeSuccess()) {
+        	return result;
+        }
         if(StringUtils.isEmpty(fileRequest.getFolder()) || StringUtils.isEmpty(fileRequest.getFileName()) || StringUtils.isEmpty(fileRequest.getFileName())){
             log.warn("删除文件报错-参数校验不通过fileRequest[{}]", JsonHelper.toJson(fileRequest));
             result.error("删除文件报错-参数校验不通过fileName、folder、sourceSysName不能为空");
@@ -239,5 +253,52 @@ public class LabelPrintFileResource {
         }
         String value = inputPartList.get(0).getBodyAsString().trim().replace("\"", "");
         return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+    }
+    /**
+     * 密码生成
+     * @param fileRequest
+     * @return
+     */
+    @POST
+    @Path("/getSecretKey")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public InvokeResult<String> getSecretKey(FileRequest fileRequest) {
+        InvokeResult<String> result = new InvokeResult<>();
+        if(fileRequest == null) {
+        	result.error("请求参数不能为空！");
+        	return result;
+        }
+        if(StringUtils.isBlank(fileRequest.getSourceSysName())) {
+        	result.error("sourceSysName参数不能为空！");
+        	return result;
+        }
+        if(!Objects.equals(fileRequest.getSecretKey(),fileModifySecretKey)) {
+        	result.error("secretKey参数有误！");
+        	return result;
+        }
+        result.success();
+        result.setData(generateSecretKey(fileRequest));
+        return result;
+    }
+    private InvokeResult<Boolean> checkParams(FileRequest fileRequest) {
+    	InvokeResult<Boolean> result = new InvokeResult<>();
+        if(fileRequest == null) {
+        	result.error("请求参数不能为空！");
+        	return result;
+        }
+        if(StringUtils.isBlank(fileRequest.getSourceSysName())) {
+        	result.error("sourceSysName参数不能为空！");
+        	return result;
+        }
+        if(!Objects.equals(fileRequest.getSecretKey(),generateSecretKey(fileRequest))) {
+        	result.error("secretKey参数有误！");
+        	return result;
+        }
+        result.success();
+        return result;
+    }
+    private String generateSecretKey(FileRequest fileRequest) {
+    	return Md5Helper.getMd5(fileRequest.getSourceSysName()+fileModifySecretKey);
     }
 }

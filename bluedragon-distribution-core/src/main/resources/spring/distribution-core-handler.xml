@@ -6,7 +6,8 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd
 	    http://www.springframework.org/schema/util
 	    http://www.springframework.org/schema/util/spring-util.xsd">
-	<import resource="classpath:ql-dms-print-engine.xml"/>    
+	<import resource="classpath:ql-dms-print-engine.xml"/>
+    <bean id="dmsAmazonS3LabelFileLoader" class="com.jd.bluedragon.core.print.DmsAmazonS3LabelFileLoader" parent="abstractLabelFileLoader" depends-on="labelFileLoaderFactory"/>	    
 	<!-- 业务指令集配置 -->
 	<bean id="jsonCommandHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping">
 		<property name="handlerMap">
