@@ -120,7 +120,7 @@ public class CollectSiteServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDetailPackageDto> res = collectionScanCodeDetails.parallelStream().map(
-            (Function<CollectionScanCodeDetail, CollectReportDetailPackageDto>)collectionScanCodeDetail -> {
+            collectionScanCodeDetail -> {
                 CollectReportDetailPackageDto packageDto = new CollectReportDetailPackageDto();
                 packageDto.setPackageCode(collectionScanCodeDetail.getScanCode());
 

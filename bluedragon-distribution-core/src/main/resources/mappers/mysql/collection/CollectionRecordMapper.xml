@@ -253,7 +253,7 @@
 					AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=VARCHAR}
 				</if>
 				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-				AND agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				AND crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 				AND crd.collection_code IN
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}

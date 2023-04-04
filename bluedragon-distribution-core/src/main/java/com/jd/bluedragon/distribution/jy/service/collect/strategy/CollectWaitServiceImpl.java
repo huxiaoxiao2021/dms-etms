@@ -92,8 +92,8 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
 
-        Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndAggCode
-            (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode());
+        Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndCollectedMark
+            (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getBizId());
         tsSetter.setTimeStamp(timestamp.getTime());
 
         return res;
@@ -145,9 +145,9 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             log.info("CollectWaitServiceImpl.queryCollectDetail 查询不齐类型运单明细列表，参数={}，返回列表数量为={}",
                     JsonUtils.toJSONString(collectReportReqDto), CollectionUtils.isEmpty(res) ? 0 : res.size());
         }
-        tsSetter.setTimeStamp(collectionScanCodeDetails.parallelStream().map(
-            collectionScanCodeDetail -> collectionScanCodeDetail.getTs() != null? collectionScanCodeDetail.getTs().getTime() : 0).max(
-            Long::compareTo).orElse(0L));
+        Timestamp timestamp = collectionRecordService.getMaxTimeStampByCollectionCodesAndAggCode
+            (collectionCodeEntities, CollectionAggCodeTypeEnum.waybill_code, collectReportReqDto.getWaybillCode());
+        tsSetter.setTimeStamp(timestamp.getTime());
         return res;
     }
 
