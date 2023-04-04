@@ -32,6 +32,8 @@ public class CollectionCollectorEntity {
 
     private CollectionScanCodeEntity collectionScanCodeEntity;
 
+    private String aggMark;
+
     /**
      * 根据collectionElement创建所有的businessType和businessType下的condition
      * @return 返回所有命中的业务
