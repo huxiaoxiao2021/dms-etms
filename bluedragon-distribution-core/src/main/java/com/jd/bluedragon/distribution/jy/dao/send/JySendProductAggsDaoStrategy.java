@@ -17,6 +17,6 @@ public interface JySendProductAggsDaoStrategy {
 
     List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query);
 
-    Long getToScanCountSum(String sendVehicleBizId);
+    Long getToScanCountSum(JySendProductAggsEntityQuery query);
 
 }

@@ -38,22 +38,29 @@
         WHERE
         yn = 1
         AND operate_site_id = #{operateSiteId}
-        AND receive_site_id in
-        <foreach item="id" index="index" collection="endSiteIds"
-                 open="(" separator="," close=")">
-            #{id}
-        </foreach>
+        <if test="endSiteIds != null and endSiteIds.size() > 0">
+            AND receive_site_id in
+            <foreach item="id" index="index" collection="endSiteIds"
+                     open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
         GROUP BY product_type
     </select>
 
-    <select id="getToScanCountSum" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="getToScanCountSum" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery" resultType="java.lang.Long">
         select
                sum(should_scan_count) as productwaitScanCount
         from jy_send_product_aggs
         WHERE
-            yn = 1
-          AND send_vehicle_biz_id = #{sendVehicleBizId}
-
+        AND operate_site_id = #{operateSiteId}
+        <if test="endSiteIds != null and endSiteIds.size() > 0">
+            AND receive_site_id in
+            <foreach item="id" index="index" collection="endSiteIds"
+                     open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
     </select>
 
 

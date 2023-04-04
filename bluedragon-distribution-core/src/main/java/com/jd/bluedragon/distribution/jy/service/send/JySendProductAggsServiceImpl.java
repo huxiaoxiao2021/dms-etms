@@ -36,11 +36,11 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     }
 
     @Override
-    public Long getToScanCountSum(String sendVehicleBizId) {
+    public Long getToScanCountSum(JySendProductAggsEntityQuery query) {
         JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getToScanCountSum");
-        Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
+        Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(query);
         Profiler.registerInfoEnd(info);
         return toScanCountSum;
     }
