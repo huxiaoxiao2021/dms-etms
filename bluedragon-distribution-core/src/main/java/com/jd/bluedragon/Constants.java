@@ -1,5 +1,6 @@
 package com.jd.bluedragon;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1840,4 +1841,9 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+
+    /**
+     * 集齐加锁前缀
+     */
+    public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
 }

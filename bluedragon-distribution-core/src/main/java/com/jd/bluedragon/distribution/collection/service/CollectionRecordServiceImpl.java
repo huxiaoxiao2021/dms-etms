@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.collection.service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +48,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private CollectionRecordDao collectionRecordDao;
 
     @Autowired
-    private RedisCommonUtil redisCommonUtil;
+    private JimDbLock jimDbLock;
 
     @Autowired
     private KvIndexDao kvIndexDao;
@@ -197,33 +199,35 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .filter(StringUtils::isNotEmpty)
                         .findAny().orElse("");
 
-                    CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
+                    String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
+                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                            collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
 
-                    CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                    collectionRecordPo.setCollectionCode(collectionCode);
-                    collectionRecordPo.setAggCode(aggCode);
-                    collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                    collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
-                    collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
-                    collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-
-                    if (StringUtils.isNotEmpty(collectedMark)) {
-                        collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
+                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                        collectionRecordPo.setCollectionCode(collectionCode);
+                        collectionRecordPo.setAggCode(aggCode);
+                        collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
+                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
+                        collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                             Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    }
-                    collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
+                        collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
 
-                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                        collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
-                    }
+                        if (StringUtils.isNotEmpty(collectedMark)) {
+                            collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
+                                Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        }
+                        collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
 
+                        if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
+                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                        }
+                        jimDbLock.releaseLock(key, "1");
+                    }
                 });
-
             });
 
         return true;
@@ -305,30 +309,35 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             });
                     });
 
-                    CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                        collectionCreatorEntity.getCollectionCodeEntity(),
-                        aggCode, aggCodeTypeEnum,
-                        collectionRecordDetailPos.parallelStream()
-                            .map(CollectionRecordDetailPo::getCollectedMark)
-                            .filter(StringUtils::isNotEmpty)
-                            .findAny().orElse("")
-                    );
+                    String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
 
-                    CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                    collectionRecordPo.setCollectionCode(collectionCode);
-                    collectionRecordPo.setAggCode(aggCode);
-                    collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                    collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
-                    collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
-                    collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                        collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                            collectionCreatorEntity.getCollectionCodeEntity(),
+                            aggCode, aggCodeTypeEnum,
+                            collectionRecordDetailPos.parallelStream()
+                                .map(CollectionRecordDetailPo::getCollectedMark)
+                                .filter(StringUtils::isNotEmpty)
+                                .findAny().orElse("")
+                        );
+
+                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                        collectionRecordPo.setCollectionCode(collectionCode);
+                        collectionRecordPo.setAggCode(aggCode);
+                        collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
+                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
+                        collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
+                        if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                        }
+                        jimDbLock.releaseLock(key, "1");
                     }
 
                 });
@@ -426,33 +435,39 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             );
 
             aggCodeDetailPos.forEach(aggCodeDetailPo -> {
-                /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
-                CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                    collectionCodeEntity,aggCodeDetailPo.getAggCode(),
-                    CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
-                );
 
-                CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
-                collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
-                collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                    Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                if(StringUtils.isNotBlank(collectionCollectorEntity.getAggMark())) {
-                    collectionRecordPo.setAggMark(collectionCollectorEntity.getAggMark());
-                }
-                if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
-                    collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
-                }
-                if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                    collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
-                    collectionRecordDao.insertCollectionRecord(collectionRecordPo);
-                }
+                    String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCodeEntity.getCollectionCode(),aggCodeDetailPo.getAggCodeType(),aggCodeDetailPo.getAggCode());
+                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
 
+                        /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
+                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                            collectionCodeEntity,aggCodeDetailPo.getAggCode(),
+                            CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
+                        );
+
+                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                        collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                        collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
+                        collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
+                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                        if(StringUtils.isNotBlank(collectionCollectorEntity.getAggMark())) {
+                            collectionRecordPo.setAggMark(collectionCollectorEntity.getAggMark());
+                        }
+                        if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
+                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
+                        }
+                        if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
+                            collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
+                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                        }
+                        jimDbLock.releaseLock(key, "1");
+
+                    }
             });
         });
 
