@@ -798,29 +798,26 @@ public class UccPropertyConfiguration {
      */
     private Integer jyComboardSealBoardListSelectLimit;
 
-    private boolean autoPackageSendInspectionSwitch;
 
-    private String autoPackageSendInspectionDelSiteCodes;
+    private String autoPackageSendInspectionSiteCodes;
 
     /**
      * 混扫任务流向限制
      */
     private Integer cttGroupSendFLowLimit;
 
-    public boolean isAutoPackageSendInspectionSwitch() {
-        return autoPackageSendInspectionSwitch;
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
+
+    public String getAutoPackageSendInspectionSiteCodes() {
+        return autoPackageSendInspectionSiteCodes;
     }
 
-    public void setAutoPackageSendInspectionSwitch(boolean autoPackageSendInspectionSwitch) {
-        this.autoPackageSendInspectionSwitch = autoPackageSendInspectionSwitch;
-    }
-
-    public String getAutoPackageSendInspectionDelSiteCodes() {
-        return autoPackageSendInspectionDelSiteCodes;
-    }
-
-    public void setAutoPackageSendInspectionDelSiteCodes(String autoPackageSendInspectionDelSiteCodes) {
-        this.autoPackageSendInspectionDelSiteCodes = autoPackageSendInspectionDelSiteCodes;
+    public void setAutoPackageSendInspectionSiteCodes(String autoPackageSendInspectionSiteCodes) {
+        this.autoPackageSendInspectionSiteCodes = autoPackageSendInspectionSiteCodes;
     }
 
     private Integer jyComboardSealBoardListLimit;
@@ -1144,11 +1141,6 @@ public class UccPropertyConfiguration {
      */
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
-
-
-
-
-
     /**
      * 设备校准任务时长
      *  单位：毫秒
@@ -1208,6 +1200,9 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList;
+
     /**
      * 传站拦截-- 场地黑名单
      */
@@ -1222,6 +1217,36 @@ public class UccPropertyConfiguration {
      * 传站拦截-场地类型黑名单
      */
     private String czSiteTypeForbiddenList;
+
+    private boolean batchSendForbiddenSwitch;
+
+    public boolean getBatchSendForbiddenSwitch() {
+        return batchSendForbiddenSwitch;
+    }
+
+    public void setBatchSendForbiddenSwitch(boolean batchSendForbiddenSwitch) {
+        this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
+    }
+
+    private boolean needValidateBatchCodeHasSealed;
+
+    private String forceSendSiteList;
+
+    public String getForceSendSiteList() {
+        return forceSendSiteList;
+    }
+
+    public void setForceSendSiteList(String forceSendSiteList) {
+        this.forceSendSiteList = forceSendSiteList;
+    }
+
+    public boolean getNeedValidateBatchCodeHasSealed() {
+        return needValidateBatchCodeHasSealed;
+    }
+
+    public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+        this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+    }
 
     /**
      * 自动关闭任务配置，转换为对象
@@ -2900,6 +2925,44 @@ public class UccPropertyConfiguration {
 
     public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
         this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getDpSpringSiteCode() {
+        return dpSpringSiteCode;
+    }
+
+    public void setDpSpringSiteCode(String dpSpringSiteCode) {
+        this.dpSpringSiteCode = dpSpringSiteCode;
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
+        if(dpSpringSiteCodeList != null){
+            return dpSpringSiteCodeList;
+        } else {
+            dpSpringSiteCodeList = new ArrayList<>();
+        }
+        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
+            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }
+        return this.dpSpringSiteCodeList;
+    }
+
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
     public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {

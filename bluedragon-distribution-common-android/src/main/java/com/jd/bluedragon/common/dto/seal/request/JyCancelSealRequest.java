@@ -1,18 +1,17 @@
 package com.jd.bluedragon.common.dto.seal.request;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import java.io.Serializable;
 
 /**
- * @author : xumigen
- * @date : 2019/7/8
+ * @author weixiaofeng12
+ * @date 2023-03-21
  */
-public class CancelSealRequest  implements Serializable {
-    private static final long serialVersionUID = -1L;
+public class JyCancelSealRequest extends BaseReq implements Serializable {
     /**
-     * 批次号
+     * 条码：包裹号、箱号、批次号等
      */
-    private String batchCode;
-
+    private String barCode;
     /**
      * 操作类型 1.单个批次号取消封车 2.封车同批次下取消封车
      */
@@ -29,10 +28,9 @@ public class CancelSealRequest  implements Serializable {
     private  String operateTime;
 
     /**
-     * 条码：包裹号、箱号、批次号等
+     * 批次号
      */
-    private String barCode;
-
+    private String batchCode;
     public String getBarCode() {
         return barCode;
     }

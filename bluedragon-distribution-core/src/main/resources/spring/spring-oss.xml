@@ -16,6 +16,7 @@
        <property name="secretKey" value="${oss.dmsweb.secretKey}"/>
        <property name="signingRegion" value="${oss.dmsweb.signingRegion}"/>
        <property name="endpoint" value="${oss.dmsweb.endpoint}"/>
+       <property name="outerNetEndpoint" value="${oss.outerNetEndpoint}"/>
         <property name="bucketName" value="${oss.dmsweb.bucketName:dmsweb}"/>
        <property name="socketTimeout" value="${oss.dmsweb.socketTimeout:5000}"/>
        <property name="connectionTimeout" value="${oss.dmsweb.connectionTimeout:5000}"/>
@@ -28,6 +29,7 @@
         <property name="secretKey" value="${oss.labelprint.secretKey}"/>
         <property name="signingRegion" value="${oss.labelprint.signingRegion}"/>
         <property name="endpoint" value="${oss.labelprint.endpoint}"/>
+        <property name="outerNetEndpoint" value="${oss.outerNetEndpoint}"/>
         <property name="bucketName" value="${oss.labelprint.bucketName:labelprint}"/>
         <property name="socketTimeout" value="${oss.labelprint.socketTimeout:5000}"/>
         <property name="connectionTimeout" value="${oss.labelprint.connectionTimeout:5000}"/>

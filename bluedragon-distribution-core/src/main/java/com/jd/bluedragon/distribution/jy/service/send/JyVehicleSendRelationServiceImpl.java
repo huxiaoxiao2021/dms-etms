@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -60,6 +61,15 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     @Override
     public int add(JySendCodeEntity jySendCodeEntity) {
         return jySendCodeDao.insert(jySendCodeEntity);
+    }
+
+    @Override
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public int saveSealSendCode(List<JySendCodeEntity> jySendCodeEntityList) {
+        JySendCodeEntity entity =new JySendCodeEntity();
+        entity.setSendDetailBizId(jySendCodeEntityList.get(0).getSendDetailBizId());
+        jySendCodeDao.deleteVehicleSendRelationByVehicleDetailBizId(entity);
+        return jySendCodeDao.batchInsert(jySendCodeEntityList);
     }
 
     @Override

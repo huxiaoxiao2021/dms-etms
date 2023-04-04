@@ -31,6 +31,7 @@ public class AmazonS3ClientWrapperTest {
         amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
         amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
         amazonS3ClientWrapperUnderTest.setBucketName("dmsweb");
+        amazonS3ClientWrapperUnderTest.setOuterNetEndpoint("http://s3.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
 
     }
@@ -89,12 +90,12 @@ public class AmazonS3ClientWrapperTest {
     }
 
     @Test
-    public void testPutObject() {
+    public void testPutObject() throws Exception{
         // Setup
-        final InputStream inputStream = new ByteArrayInputStream("content".getBytes());
+        FileInputStream fileInputStream = new FileInputStream("/Users/xumigen/Downloads/1-PDA通用安装包.rar");
 
         // Run the test
-        amazonS3ClientWrapperUnderTest.putObject(inputStream, "","fileName", 0L);
+        amazonS3ClientWrapperUnderTest.putObject(fileInputStream, "test","anzhaung/tt/1-PDA通用安装包.rar", 0L);
 
         // Verify the results
     }
@@ -134,8 +135,19 @@ public class AmazonS3ClientWrapperTest {
     public void testGeneratePresignedUrl() throws Exception {
         // Setup
         // Run the test
-        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test2","北京开放大学形考3.pdf");
+        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test","anzhaung/tt/1-PDA通用安装包.rar");
+        System.out.println(result);
+        // Verify the results
+        assertNotNull(result);
+    }
 
+
+    @Test
+    public void testgeneratePresignedOuterNetUrl() throws Exception {
+        // Setup
+        // Run the test
+        final String result = amazonS3ClientWrapperUnderTest.generatePresignedOuterNetUrl( 1, "*","00000cd3-2b79-4945-91bd-88b3e869624c.jpg");
+        System.out.println(result);
         // Verify the results
         assertNotNull(result);
     }
@@ -194,5 +206,11 @@ public class AmazonS3ClientWrapperTest {
         // Setup
         // Run the test
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
+    }
+
+    @Test
+    public void testPutObjectThenGetOutNetUrl() throws Exception{
+        FileInputStream fileInputStream = new FileInputStream("/Users/xumigen/Downloads/BlueDragonPrintService.zip");
+        amazonS3ClientWrapperUnderTest.putObjectThenGetOutNetUrl(fileInputStream,"test","BlueDragonPrintService.zip",0,365);
     }
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -38,6 +39,9 @@ public class PartnerSiteFilter implements Filter {
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
@@ -45,32 +49,32 @@ public class PartnerSiteFilter implements Filter {
 
 
 
-        //德邦-驾驭项目项目，发往的嘉峪关场地不走下面的逻辑
-        if (!Objects.equals(request.getReceiveSiteCode(), 2078033)) {
+        // 德邦判断提示
+        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
             // 德邦春节项目的错发校验跳过
+            final boolean dpSiteCode1Flag = BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType());
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {
                 ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy
                         .queryMatchConditionRecord(request.getCreateSiteCode(),request.getWaybillSite().getCode());
                 if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, request.getWaybillCache().getWaybillSign())) {
-                    if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                    if (dpSiteCode1Flag) {
                         chain.doFilter(request, chain);
                         return;
-                    }
-                    if (!BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                    } else {
                         Map<String, String> hintParams = new HashMap<String, String>();
                         hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
                         throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE),
                                 HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE, request.getFuncModule(), hintParams));
                     }
                 } else {
-                    if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+                    if (dpSiteCode1Flag) {
                         Map<String, String> hintParams = new HashMap<String, String>();
                         hintParams.put(HintArgsConstants.ARG_FIRST, request.getWaybillCode());
                         throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1),
                                 HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_1, request.getFuncModule(), hintParams));
                     }
                 }
-            } else if (BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType())) {
+            } else if (dpSiteCode1Flag) {
                 throw new SortingCheckException(Integer.valueOf(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2),
                         HintService.getHintWithFuncModule(HintCodeConstants.JY_DP_TRANSFER_MESSAGE_2, request.getFuncModule()));
             }

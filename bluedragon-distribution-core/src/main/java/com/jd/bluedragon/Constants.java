@@ -800,6 +800,8 @@ public class Constants {
      */
     public static final Double DOUBLE_ZERO = 0.0;
 
+    public static final Double DOUBLE_ONE = 1.0;
+
     /**
      * Long值-0
      */
@@ -855,6 +857,20 @@ public class Constants {
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE = "android_menu_usage_by_site_code_";
 
+    /**
+     * 全局功能管控配置，按系统
+     */
+    public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
+
+    /**
+     * 功能可用性配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 安卓菜单可用性配置，按场地id配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -1844,4 +1860,8 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+    /**
+     * 产品类型-医药专送
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
 }

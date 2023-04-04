@@ -16,14 +16,18 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
+import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -117,6 +121,26 @@ public interface JyComboardSealGatewayService {
 
   /**
    * 查询板货物分类统计
-   */ 
+   */
   JdCResponse<List<GoodsCategoryDto>> queryGoodsCategoryByBoardCode(BoardReq boardReq);
+
+
+  /**
+   * 查询派车任务详情
+   */
+  JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+  /**
+   * 取消封车
+   * @param request
+   * @return
+   */
+  JdCResponse cancelSeal(JyCancelSealRequest request);
+
+  /***
+   * 根据扫描单号获取 取消的场地和批次信息
+   * @param request
+   * @return
+   */
+  JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
 }
