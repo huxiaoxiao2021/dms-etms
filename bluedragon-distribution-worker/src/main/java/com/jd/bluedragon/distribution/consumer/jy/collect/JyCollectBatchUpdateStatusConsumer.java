@@ -54,7 +54,7 @@ public class JyCollectBatchUpdateStatusConsumer extends MessageBaseConsumer {
         try{
             consumeRes = deal(mqBody);
         }catch (Exception e) {
-            log.error("jyCollectBatchUpdateStatusConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            log.error("jyCollectBatchUpdateStatusConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText(), e);
             throw new JyBizException("jyCollectBatchUpdateStatusConsumer集齐状态批量修改拆分后更新服务消费处理异常：" + message.getBusinessId());
         }
 

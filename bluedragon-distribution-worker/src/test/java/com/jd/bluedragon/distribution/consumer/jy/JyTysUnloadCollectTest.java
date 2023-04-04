@@ -115,9 +115,9 @@ public class JyTysUnloadCollectTest {
 
             try {
                 //空任务节点
-//                taskNullScanSplitInitCollect();
+                taskNullScanSplitInitCollect();
                 //封车节点
-                sealCarSplitInitCollect();
+//                sealCarSplitInitCollect();
             } catch (Exception e) {
                 logger.error("服务异常!", e);
             }
@@ -155,28 +155,16 @@ public class JyTysUnloadCollectTest {
 
     private void taskNullScanSplitInitCollect() throws Exception {
         String body1 = "{\n" +
-                "    \"bizId\": \"XCZJ23031600000013\",\n" +
+                "    \"bizId\": \"XCZJ23040400000020\",\n" +
                 "    \"operateNode\": 103,\n" +
-                "    \"operateTime\": 1679035677055,\n" +
-                "    \"operatorErp\": \"xumigen\",\n" +
+                "    \"operateTime\": 1680575759316,\n" +
+                "    \"operatorErp\": \"wuyoude\",\n" +
                 "    \"pageNo\": 1,\n" +
-                "    \"pageSize\": 30,\n" +
-                "    \"taskNullScanCode\": \"JD0003419483749-1-50-\",\n" +
+                "    \"pageSize\": 100,\n" +
+                "    \"taskNullScanCode\": \"JDVA00257498789-1-5-\",\n" +
                 "    \"taskNullScanCodeType\": 101,\n" +
                 "    \"taskNullScanSiteCode\": 10186,\n" +
-                "    \"waybillCode\": \"JD0003419483749\"\n" +
-                "}";
-        String body2 = "{\n" +
-                "    \"bizId\": \"XCZJ23031600000013\",\n" +
-                "    \"operateNode\": 103,\n" +
-                "    \"operateTime\": 1679035677055,\n" +
-                "    \"operatorErp\": \"xumigen\",\n" +
-                "    \"pageNo\": 2,\n" +
-                "    \"pageSize\": 30,\n" +
-                "    \"taskNullScanCode\": \"JD0003419483749-1-50-\",\n" +
-                "    \"taskNullScanCodeType\": 101,\n" +
-                "    \"taskNullScanSiteCode\": 10186,\n" +
-                "    \"waybillCode\": \"JD0003419483749\"\n" +
+                "    \"waybillCode\": \"JDVA00257498789\"\n" +
                 "}";
 
 
@@ -184,9 +172,6 @@ public class JyTysUnloadCollectTest {
         message1.setText(body1);
         jyCollectDataSplitBatchInitConsumer.consume(message1);
 
-        Message message2 = new Message();
-        message2.setText(body2);
-        jyCollectDataSplitBatchInitConsumer.consume(message2);
     }
 
     @Test

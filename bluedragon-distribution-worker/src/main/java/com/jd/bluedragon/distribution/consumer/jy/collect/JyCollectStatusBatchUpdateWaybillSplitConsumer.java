@@ -53,7 +53,7 @@ public class JyCollectStatusBatchUpdateWaybillSplitConsumer extends MessageBaseC
         try {
             consumeRes = deal(mqBody);
         }catch (Exception e) {
-            log.error("jyCollectStatusBatchUpdateWaybillSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            log.error("jyCollectStatusBatchUpdateWaybillSplitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText(), e);
             throw new JyBizException("jyCollectStatusBatchUpdateWaybillSplitConsumer集齐状态批量修改拆分服务消费处理异常：" + message.getBusinessId());
         }
 

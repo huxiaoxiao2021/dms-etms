@@ -85,6 +85,10 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             collectReportDto.setPackageNum(collectionAggCodeCounter.getSumScanNum());
             collectReportDto.setScanWaitNum(collectionAggCodeCounter.getInnerMarkNoneCollectedNum());
             collectReportDto.setScanNullNum(collectionAggCodeCounter.getNoneMarkNoneCollectedNum());
+            collectReportDto.setInventoryFlag(
+                            (!Objects.isNull(collectionAggCodeCounter.getBusinessType())
+                            && CollectionBusinessTypeEnum.all_site_collection.equals(collectionAggCodeCounter.getBusinessType()))
+                            ? true : false);
             return collectReportDto;
         }).collect(Collectors.toList());
         if(log.isInfoEnabled()) {

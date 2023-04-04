@@ -63,7 +63,7 @@ public class JyCollectDataSplitBatchInitConsumer extends MessageBaseConsumer {
         try {
             consumeRes = deal(mqBody);
         }catch (Exception e) {
-            logger.error("JyCollectDataSplitBatchInitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText());
+            logger.error("JyCollectDataSplitBatchInitConsumer.deal服务异常，businessId={}, errMsg={},内容{}", message.getBusinessId(), e.getMessage(), message.getText(), e);
             throw new JyBizException("JyCollectDataSplitBatchInitConsumer集齐拆分后初始化服务消费处理异常：" + message.getBusinessId());
         }
 
