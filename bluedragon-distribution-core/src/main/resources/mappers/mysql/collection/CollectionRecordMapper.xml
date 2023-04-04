@@ -200,9 +200,7 @@
 			collection_record_detail
 		<where>
 			collection_code = #{collectionCode, jdbcType=VARCHAR}
-			<if test="scanCode != null">
-				and scan_code = #{scanCode, jdbcType=VARCHAR}
-			</if >
+			and scan_code = #{scanCode, jdbcType=VARCHAR}
 			<if test="aggCode != null and aggCodeType != null">
 				and agg_code = #{aggCode, jdbcType=VARCHAR}
 				and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
