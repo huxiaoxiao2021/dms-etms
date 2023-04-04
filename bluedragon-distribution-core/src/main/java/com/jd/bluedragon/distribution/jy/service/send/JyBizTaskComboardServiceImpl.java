@@ -52,7 +52,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     condition.setGroupCode(sendFlowDto.getGroupCode());
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
-    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
+    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() >= 1) {
       BoardDto dto = new BoardDto();
       dto.setBoardCode(bizTaskList.get(0).getBoardCode());
       dto.setCount(bizTaskList.get(0).getHaveScanCount());
