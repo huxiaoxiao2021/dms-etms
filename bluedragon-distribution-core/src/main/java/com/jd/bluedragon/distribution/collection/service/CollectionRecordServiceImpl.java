@@ -192,13 +192,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         }
                     });
 
+                    String collectedMark = collectionRecordDetailPos.parallelStream()
+                        .map(CollectionRecordDetailPo::getCollectedMark)
+                        .filter(StringUtils::isNotEmpty)
+                        .findAny().orElse("");
+
                     CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
                         collectionCreatorEntity.getCollectionCodeEntity(),
-                        aggCode, aggCodeTypeEnum,
-                        collectionRecordDetailPos.parallelStream()
-                            .map(CollectionRecordDetailPo::getCollectedMark)
-                            .filter(StringUtils::isNotEmpty)
-                            .findAny().orElse("")
+                        aggCode, aggCodeTypeEnum, collectedMark
+
                     );
 
                     CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
@@ -211,11 +213,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                     collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
                         Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                    collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
-                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+
+                    if (StringUtils.isNotEmpty(collectedMark)) {
+                        collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                    }
                     collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
 
                     if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                        collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                         collectionRecordDao.insertCollectionRecord(collectionRecordPo);
                     }
 
@@ -504,7 +510,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
         String collectionCode = collectionCodeEntity.getCollectionCode();
-        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null || StringUtils.isEmpty(collectedMark)) {
+        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null) {
             log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntity), aggCode, aggCodeTypeEnum, collectedMark);
             return null;
         }

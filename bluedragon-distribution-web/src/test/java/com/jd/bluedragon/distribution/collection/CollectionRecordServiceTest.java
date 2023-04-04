@@ -45,8 +45,8 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     private static final CollectionCodeEntity collectionCodeEntitySite2 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
     static {
         collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.date_time,"2023-03-14");
-        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.site_code,"910");
-        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23010143333786");
+        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.site_code,"10186");
+        collectionCodeEntitySite2.addKey(CollectionConditionKeyEnum.seal_car_code,"XCZJ23040400000021");
     }
 
     @Test
@@ -177,10 +177,10 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         collectionCollectorEntity.setCollectElements(collectionCodeEntityUnload.getCollectElements());
 
         CollectionScanCodeEntity collectionScanCodeEntity2 = new CollectionScanCodeEntity();
-        collectionScanCodeEntity2.setScanCode("JD0003419474704-1-22-");
+        collectionScanCodeEntity2.setScanCode("JDVA00257390332-1-5-");
         collectionScanCodeEntity2.setScanCodeType(CollectionScanCodeTypeEnum.package_code);
-        collectionScanCodeEntity2.setCollectedMark("XCZJ23031600000013");
-        collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JD0093356842901"));
+        collectionScanCodeEntity2.setCollectedMark("SC23040300030204");
+        collectionScanCodeEntity2.setCollectionAggCodeMaps(Collections.singletonMap(CollectionAggCodeTypeEnum.waybill_code,"JDVA00257390332"));
 
         collectionCollectorEntity.setCollectionScanCodeEntity(collectionScanCodeEntity2);
         collectionRecordService.collectTheScanCode(collectionCollectorEntity, new Result<Boolean>());
@@ -197,9 +197,14 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 //            null, CollectionAggCodeTypeEnum.waybill_code, "SC23032100029221"
 //        )));
 
+//        System.out.println(JsonHelper.toJson(collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
+//            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null), null,
+//            "JD0003419509821", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029183"
+//        )));
+
         System.out.println(JsonHelper.toJson(collectionRecordService.sumCollectionByAggCodeAndCollectionCode(
-            collectionRecordService.queryAllCollectionCodesByElement(collectionCodeEntityUnload.getCollectElements(), null), null,
-            "JD0003419509821", CollectionAggCodeTypeEnum.waybill_code, "SC23032100029183"
+            collectionCodeEntitySite2,
+            "JDVA00257500483", CollectionAggCodeTypeEnum.waybill_code, "XCZJ23040400000021"
         )));
     }
 
