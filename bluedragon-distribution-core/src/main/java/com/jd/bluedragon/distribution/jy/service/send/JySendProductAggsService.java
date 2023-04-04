@@ -18,7 +18,7 @@ public interface JySendProductAggsService {
 
     List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query);
 
-    Long getToScanCountSum(String sendVehicleBizId);
+    Long getToScanCountSum(JySendProductAggsEntityQuery query);
 
     Boolean insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity);
 

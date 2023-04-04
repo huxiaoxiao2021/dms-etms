@@ -156,6 +156,8 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	private transient Date createTimeBegin;
 
+	private Long operateSiteCode;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -437,5 +439,13 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	public Long getOperateSiteCode() {
+		return operateSiteCode;
+	}
+
+	public void setOperateSiteCode(Long operateSiteCode) {
+		this.operateSiteCode = operateSiteCode;
 	}
 }
