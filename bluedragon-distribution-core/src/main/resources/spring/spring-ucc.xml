@@ -250,6 +250,7 @@
 		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
+		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 
@@ -493,6 +494,7 @@
 				<value>uccPropertyConfiguration.batchSendForbiddenSwitch</value>
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
+				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 			</list>
