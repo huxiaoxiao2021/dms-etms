@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -444,7 +445,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionCodeEntity,aggCodeDetailPo.getAggCode(),
                             CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
                         );
-
+                        if(log.isInfoEnabled()) {
+                            log.info("集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                                    collectionCodeEntity, aggCodeDetailPo.getAggCode(), CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark);
+                        }
                         CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
                         collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
                         collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
