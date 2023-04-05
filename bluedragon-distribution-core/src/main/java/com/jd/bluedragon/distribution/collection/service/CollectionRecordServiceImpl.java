@@ -204,7 +204,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
                         CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
                             collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
-
+                        if(log.isInfoEnabled()) {
+                            log.info("initPartCollection:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                                    collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
+                        }
                         CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
                         collectionRecordPo.setCollectionCode(collectionCode);
                         collectionRecordPo.setAggCode(aggCode);
@@ -313,15 +316,19 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
                     if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
 
-                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                            collectionCreatorEntity.getCollectionCodeEntity(),
-                            aggCode, aggCodeTypeEnum,
-                            collectionRecordDetailPos.parallelStream()
+                        String collectedMark = collectionRecordDetailPos.parallelStream()
                                 .map(CollectionRecordDetailPo::getCollectedMark)
                                 .filter(StringUtils::isNotEmpty)
-                                .findAny().orElse("")
-                        );
+                                .findAny().orElse("");
+                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                            collectionCreatorEntity.getCollectionCodeEntity(),
+                            aggCode, aggCodeTypeEnum,collectedMark
 
+                        );
+                        if(log.isInfoEnabled()) {
+                            log.info("initAndCollectedPartCollection:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                                    collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
+                        }
                         CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
                         collectionRecordPo.setCollectionCode(collectionCode);
                         collectionRecordPo.setAggCode(aggCode);
@@ -446,7 +453,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
                         );
                         if(log.isInfoEnabled()) {
-                            log.info("集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                            log.info("collectTheScanCode:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
                                     collectionCodeEntity, aggCodeDetailPo.getAggCode(), CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark);
                         }
                         CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
