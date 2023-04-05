@@ -119,6 +119,9 @@
 			<if test="aggMark != null">
 				agg_mark = #{aggMark, jdbcType=VARCHAR},
 			</if>
+			<if test="sum != null">
+				sum = #{sum, jdbcType=INTEGER},
+			</if>
 			update_time = NOW()
 		</set>
 		<where>
