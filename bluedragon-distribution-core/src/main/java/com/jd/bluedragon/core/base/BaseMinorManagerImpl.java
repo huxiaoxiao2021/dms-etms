@@ -380,6 +380,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			BaseDmsStore baseDmsStore, Integer targetSiteId,
 			Integer originalDmsId, Integer originalCrossType) {
 		//1、先获取正向
+		log.info("queryCrossPackageTagForPrint-targetSiteId {}-originalDmsId {}-originalCrossType {}",targetSiteId,originalDmsId,originalCrossType);
 		JdResult<CrossPackageTagNew> result = this.queryCrossPackageTag(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
 		//2、正向调用失败,或者返回数据为空，调用一次逆向接口
 		if(!result.isSucceed() || result.getData() == null){
