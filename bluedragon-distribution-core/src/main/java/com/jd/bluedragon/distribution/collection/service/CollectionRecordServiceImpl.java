@@ -212,7 +212,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordPo.setCollectionCode(collectionCode);
                         collectionRecordPo.setAggCode(aggCode);
                         collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
                         collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
                         collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                             Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
@@ -333,7 +333,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordPo.setCollectionCode(collectionCode);
                         collectionRecordPo.setAggCode(aggCode);
                         collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
                         collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
                         collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                             Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
@@ -460,7 +460,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
                         collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
                         collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                        collectionRecordPo.setSum(collectionAggCodeCounter.getSumScanNum());
+                        collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
                         collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
                             Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                         collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?

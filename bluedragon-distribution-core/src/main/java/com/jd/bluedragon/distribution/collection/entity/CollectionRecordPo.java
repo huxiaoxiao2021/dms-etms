@@ -52,7 +52,7 @@ public class CollectionRecordPo {
      * 在该待集齐集合下，该聚合下的总数
      * 例如：运单下共有多少个包裹数
      */
-    private Integer sum;
+    private Integer initNumber;
 
     /**
      * 是否被初始化。也是统计数据是否有效的标示

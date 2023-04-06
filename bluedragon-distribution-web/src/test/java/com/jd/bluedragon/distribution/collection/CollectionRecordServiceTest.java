@@ -254,6 +254,16 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
         ));
     }
 
+    @Test
+    public void some() {
+        collectionCodeEntitySite1.setCollectionCode("JQ23033122360300032");
+        System.out.println(
+            collectionRecordService.sumCollectedAggCodeByCollectionCodeOutMark(
+                Collections.singletonList(collectionCodeEntitySite1), CollectionAggCodeTypeEnum.waybill_code, "JDVA00257556435", "", 0, 10
+            )
+        );
+    }
+
     @Autowired
     private WaybillCacheService waybillCacheService;
 
