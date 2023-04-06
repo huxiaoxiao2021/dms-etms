@@ -39,7 +39,7 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
     static {
         collectionCodeEntitySite1.addKey(CollectionConditionKeyEnum.date_time,"2023-03-15");
         collectionCodeEntitySite1.addKey(CollectionConditionKeyEnum.site_code,"910");
-        collectionCodeEntitySite1.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23010143333786");
+        collectionCodeEntitySite1.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23040600030436");
     }
 
     private static final CollectionCodeEntity collectionCodeEntitySite2 = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
@@ -256,10 +256,27 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     @Test
     public void some() {
-        collectionCodeEntitySite1.setCollectionCode("JQ23033122360300032");
+
+        CollectionCodeEntity collectionCodeEntityUnload1 = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
+        collectionCodeEntityUnload1.addKey(CollectionConditionKeyEnum.site_code,"10186");
+        collectionCodeEntityUnload1.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23040600030409");
+        collectionCodeEntityUnload1.setCollectionCode("JQ23033122360300032");
+
+        CollectionCodeEntity collectionCodeEntityUnload2 = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
+        collectionCodeEntityUnload2.addKey(CollectionConditionKeyEnum.site_code,"10186");
+        collectionCodeEntityUnload2.addKey(CollectionConditionKeyEnum.seal_car_code,"SC23040600030409");
+        collectionCodeEntityUnload2.setCollectionCode("JQ23040610514700032");
+
+
+        System.out.println(
+            collectionRecordService.sumNoneCollectedAggCodeByCollectionCode(
+                Arrays.asList(collectionCodeEntityUnload1,collectionCodeEntityUnload2), CollectionAggCodeTypeEnum.waybill_code, null, "SC23040600030409", 10, 0
+            )
+        );
+
         System.out.println(
             collectionRecordService.sumCollectedAggCodeByCollectionCodeOutMark(
-                Collections.singletonList(collectionCodeEntitySite1), CollectionAggCodeTypeEnum.waybill_code, "JDVA00257556435", "", 0, 10
+                Arrays.asList(collectionCodeEntityUnload1,collectionCodeEntityUnload2), CollectionAggCodeTypeEnum.waybill_code, null, "SC23040600030409", 10, 0
             )
         );
     }

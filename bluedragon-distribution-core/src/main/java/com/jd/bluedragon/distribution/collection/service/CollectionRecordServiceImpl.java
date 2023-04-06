@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -624,17 +625,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
-            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
+            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark, (s, s2) -> s2));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
-        res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
-            .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
-
-        return res;
+        return res.parallelStream()
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
+            .peek(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())))
+            .collect(Collectors.toList());
 
     }
 
@@ -660,17 +661,18 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
-            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
+            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark, (s, s2) -> s2));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
-        res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
-            .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
+        return res.parallelStream()
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
+            .peek(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())))
+            .collect(Collectors.toList());
 
-        return res;
     }
 
     @Override
@@ -695,16 +697,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
-            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
+            .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark, (s, s2) -> s2));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
-        res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
-            .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
-        return res;
+        return res.parallelStream()
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
+            .peek(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -720,7 +723,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        Map<String, CollectionBusinessTypeEnum> aggMarkMap = collectionCodeEntities.stream().collect(Collectors.toMap(CollectionCodeEntity::getCollectionCode, CollectionCodeEntity::getBusinessType));
+        Map<String, CollectionBusinessTypeEnum> aggMarkMap =
+            collectionCodeEntities.stream().collect(Collectors.toMap(CollectionCodeEntity::getCollectionCode, CollectionCodeEntity::getBusinessType, (s, s2) -> s2));
 
         List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
 
