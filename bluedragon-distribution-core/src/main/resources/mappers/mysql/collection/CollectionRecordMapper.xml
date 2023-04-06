@@ -340,7 +340,7 @@
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
 
 		select
-			cr.agg_code as aggCode, cr.agg_mark as aggMark
+			cr.collection_code as collectionCode, cr.agg_code as aggCode, cr.agg_mark as aggMark
 		from
 			collection_record cr inner join collection_record_detail crd
 		on
@@ -367,7 +367,7 @@
 				and cr.is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
 		</where>
-		group BY cr.agg_code, cr.agg_mark
+		group BY cr.collection_code, cr.agg_code, cr.agg_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
