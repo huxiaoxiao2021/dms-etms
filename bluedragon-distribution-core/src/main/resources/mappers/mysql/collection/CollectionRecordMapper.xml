@@ -191,6 +191,9 @@
 			<if test="isExtraCollected != null">
 				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
+			<if test="isInit != null">
+				and is_init = #{isInit, jdbcType=INTEGER}
+			</if>
 			and yn = 1
 		</where>
 	</select>
