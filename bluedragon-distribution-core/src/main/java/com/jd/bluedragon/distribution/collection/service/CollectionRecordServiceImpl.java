@@ -624,14 +624,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
             .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
         res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
             .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
 
         return res;
@@ -660,14 +661,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
             .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
         res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
             .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
 
         return res;
@@ -695,14 +697,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         List<String> aggCodes = collectionRecordPos.parallelStream().map(CollectionRecordPo::getAggCode)
             .collect(Collectors.toList());
-        Map<String, String> aggCollectionMap =  collectionRecordPos.parallelStream().collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getCollectionCode));
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
             .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark));
 
         List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
         res.parallelStream()
-            .filter(collectionAggCodeCounter -> Objects.equals(aggCollectionMap.get(collectionAggCodeCounter.getAggCode()), collectionAggCodeCounter.getCollectionCode()))
+            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
+                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
+                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
             .forEach(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())));
         return res;
     }
