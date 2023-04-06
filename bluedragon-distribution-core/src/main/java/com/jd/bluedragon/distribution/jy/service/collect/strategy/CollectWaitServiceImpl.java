@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collect.strategy;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.collection.entity.CollectionAggCodeCounter;
 import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
 import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeDetail;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectStatusEnum
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.factory.CollectStatisticsDimensionFactory;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,6 +53,9 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
 
     @Autowired
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 
     @Override
     @JProfiler(jKey = "CollectWaitServiceImpl.queryCollectListPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -78,8 +83,14 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             collectReportDto.setCollectionCode(collectionAggCodeCounter.getCollectionCode());
             if(NumberUtils.isCreatable(collectionAggCodeCounter.getAggMark())) {
                 String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(collectReportReqDto.getCurrentOperate().getSiteCode(), Integer.valueOf(collectionAggCodeCounter.getAggMark()));
+                if(StringUtils.isEmpty(goodsAreaCode)) {
+                    BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(collectionAggCodeCounter.getAggMark()));
+                    goodsAreaCode = (baseSite != null) ? ("未知货区-流向" + baseSite.getSiteName()) : "未知货区-未知流向";
+                }
                 collectReportDto.setGoodsAreaCode(goodsAreaCode);
                 collectReportDto.setNextSiteCode(Integer.valueOf(collectionAggCodeCounter.getAggMark()));
+            }else {
+                collectReportDto.setGoodsAreaCode("未知货区");
             }
             collectReportDto.setScanDoNum(collectionAggCodeCounter.getInnerMarkCollectedNum());
             collectReportDto.setPackageNum(collectionAggCodeCounter.getSumScanNum());
