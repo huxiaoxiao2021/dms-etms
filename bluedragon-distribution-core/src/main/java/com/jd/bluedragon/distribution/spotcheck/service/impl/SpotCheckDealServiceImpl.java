@@ -13,13 +13,14 @@ import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.enums.*;
+import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckPicTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
@@ -55,7 +56,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -127,11 +127,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Autowired
     private SpotCheckServiceProxy spotCheckServiceProxy;
-
-    @Autowired
-    @Qualifier("dmsWeightVolumeExcess")
-    private DefaultJMQProducer dmsWeightVolumeExcess;
-
+    
     @Autowired
     @Qualifier("dwsCalibrateDealSpotCheckProducer")
     private DefaultJMQProducer dwsCalibrateDealSpotCheckProducer;
@@ -335,18 +331,17 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             totalRecord.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
             spotCheckServiceProxy.insertOrUpdateProxyReform(totalRecord);
             // 4.下发超标数据
-            if(isExecuteDwsAIDistinguish(siteCode)){
-                if(checkIsExcessFromRedis(waybillCode)){
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        logger.error("阻塞1s异常!", e);
-                    }
-                    totalRecord.setWaybillCode(waybillCode);
-                    totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                    totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
-                    dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
+            if(checkIsExcessFromRedis(waybillCode)){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    logger.error("阻塞1s异常!", e);
                 }
+                totalRecord.setWaybillCode(waybillCode);
+                totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+                totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
+                // 异步处理dws一单多件图片下发AI逻辑
+                dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
             }
         }else {
             // 一单一件
@@ -597,8 +592,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return;
         }
         // 设备抽检需校验图片是否合规
-        if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
-                && isExecuteDwsAIDistinguish(spotCheckDto.getReviewSiteCode())){
+        if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
             if(logger.isInfoEnabled()){
                 logger.info("设备抽检图片AI识别下发运单:{}站点:{}的数据!", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode());
             }
@@ -624,6 +618,15 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         executeIssue(spotCheckDto);
     }
 
+    /**
+     * 执行下发逻辑
+     *  scene：
+     *      1、人工抽检调用
+     *      2、设备抽检调用
+     *          1）、AI图片合格后调用
+     *          2）、设备状态合格后调用
+     * @param spotCheckDto
+     */
     @Override
     public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         // 校验运单是否已下发
@@ -646,6 +649,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             spotCheckIssueZDMQ.setReviewVolume(spotCheckDto.getReviewVolume());
             spotCheckIssueZDMQ.setReviewTime(spotCheckDto.getReviewDate());
             spotCheckIssueZDProducer.sendOnFailPersistent(spotCheckIssueZDMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueZDMQ));
+            // 体积超标是否下发判断
+            if(!checkVolumeExcessIsIssue(spotCheckDto)){
+                return;
+            }
         }
         // 下发超标数据至称重再造系统条件
         // 1、图片
@@ -658,10 +665,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
         }else if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 设备抽检
             if(spotCheckIssueIsRelyOnMachineStatus(spotCheckDto.getReviewSiteCode())
-                    && uccPropertyConfiguration.getSpotCheckIssueRelyOMachineStatus()
                     && !Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
                 // 设备抽检设备不合格不下发
                 logger.warn("单号:{}设备编码:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode(), spotCheckDto.getMachineCode());
+                return;
+            }
+            if(!Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
+                logger.warn("设备抽检的单号:{}的图片不合格,不执行下发!", spotCheckDto.getWaybillCode());
                 return;
             }
             if(!Objects.equals(spotCheckDto.getIsMultiPack(), Constants.CONSTANT_NUMBER_ONE)
@@ -673,23 +683,32 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 设置已下发缓存
         setIssueWaybillCache(spotCheckDto.getWaybillCode());
         // 构建超标消息并下发
-        buildAndIssue(spotCheckDto, false);
+        buildAndIssue(spotCheckDto);
+    }
+
+    private boolean checkVolumeExcessIsIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+        String volumeExcessIssueSites = uccPropertyConfiguration.getVolumeExcessIssueSites();
+        if(StringUtils.isEmpty(volumeExcessIssueSites)){
+            return false;
+        }
+        if(Objects.equals(volumeExcessIssueSites, Constants.STR_ALL)){
+            return true;
+        }
+        return Arrays.asList(volumeExcessIssueSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(spotCheckDto.getReviewSiteCode()));
     }
 
     /**
      * 构建并下发数据
      *
      * @param spotCheckDto
-     * @param isBrush 是否刷数
      */
-    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto, boolean isBrush) {
+    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
         spotCheckIssueMQ.setFlowSystem(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
         spotCheckIssueMQ.setInitiationLink(String.valueOf(SpotCheckConstants.DMS_SPOT_CHECK_ISSUE));
         spotCheckIssueMQ.setSysSource(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? String.valueOf(2) : String.valueOf(1)); // 1：设备抽检 2：人工抽检
-        spotCheckIssueMQ.setErrCode(isBrush ? "20220905update" : Constants.EMPTY_FILL);
         spotCheckIssueMQ.setFlowId(spotCheckIssueMQ.getFlowSystem() + Constants.UNDERLINE_FILL + spotCheckDto.getWaybillCode()
                 + Constants.UNDERLINE_FILL + spotCheckDto.getReviewSiteCode());
         spotCheckIssueMQ.setOperateType(Constants.CONSTANT_NUMBER_ONE);
@@ -843,92 +862,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         return null;
     }
-
-    @Override
-    public void brushSpotCheck(List<WeightVolumeSpotCheckDto> list, String userErp) {
-        try {
-            if(CollectionUtils.isEmpty(list)){
-                return;
-            }
-            if(Objects.equals(userErp, "liuduo8")){
-                for (WeightVolumeSpotCheckDto dto : list) {
-                    if(!WaybillUtil.isWaybillCode(dto.getWaybillCode())){
-                        continue;
-                    }
-                    WeightVolumeSpotCheckDto newSpotCheckDto = getSpotCheck(dto, true);
-                    if(newSpotCheckDto == null){
-                        continue;
-                    }
-                    // 调用超标服务并更新
-                    checkExcessAndUpdate(newSpotCheckDto);
-                    // 刷数并重新下发
-                    buildAndIssue(newSpotCheckDto, true);
-                }
-            }else if(Objects.equals(userErp, "hujiping1")) {
-                for (WeightVolumeSpotCheckDto dto : list) {
-                    if (!WaybillUtil.isWaybillCode(dto.getWaybillCode())) {
-                        continue;
-                    }
-                    if(dto.getReviewWeight() == null || dto.getReviewVolume() == null){
-                        logger.warn("自己填写重量体积不存在,单号:{}", dto.getWaybillCode());
-                        continue;
-                    }
-                    // 组装超标新es实体
-                    WeightVolumeSpotCheckDto newSpotCheckDto = getSpotCheck(dto, false);
-                    if(newSpotCheckDto == null){
-                        continue;
-                    }
-                    // 使用excel的重量体积下发
-                    newSpotCheckDto.setReviewWeight(MathUtils.keepScale(dto.getReviewWeight(),2));
-                    newSpotCheckDto.setReviewVolume(MathUtils.keepScale(dto.getReviewVolume(),2));
-                    if(logger.isInfoEnabled()){
-                        logger.info("自己填写重量体积下发fxm,单号:{}", newSpotCheckDto.getWaybillCode());
-                    }
-                    issueFxm(newSpotCheckDto);
-                }
-            }else {
-                for (WeightVolumeSpotCheckDto dto : list) {
-                    if (!WaybillUtil.isWaybillCode(dto.getWaybillCode())) {
-                        continue;
-                    }
-                    // 组装超标新es实体
-                    WeightVolumeSpotCheckDto newSpotCheckDto = null;
-
-                    if(Objects.equals(dto.getExcessType(), 1)){
-                        // 重量超标
-                        if(Objects.equals(dto.getContrastSource(), 1)){
-                            // 重量超标&&计费计费重量，推送分拣重量
-                            newSpotCheckDto = getSpotCheck(dto, true);
-                        }
-                    }else if(Objects.equals(dto.getExcessType(), 2)){
-                        // 体积超标
-                        if(Objects.equals(dto.getContrastSource(), 1)){
-                            // 重量超标&&计费计费重量，推送核对重量
-                            newSpotCheckDto = getSpotCheck(dto, false);
-                        }
-                    }else if(Objects.equals(dto.getExcessType(), 3)){
-                        // 未超标&&计费计费重量，推送核对重量
-                        if(Objects.equals(dto.getContrastSource(), 1)){
-                            newSpotCheckDto = getSpotCheck(dto, false);
-                        }
-                    }
-
-                    if(newSpotCheckDto == null){
-                        continue;
-                    }
-                    if(logger.isInfoEnabled()){
-                        logger.info("系统获取重量体积下发fxm,单号:{}", newSpotCheckDto.getWaybillCode());
-                    }
-                    // 下发fxm中转给计费来刷数
-                    issueFxm(newSpotCheckDto);
-                }
-            }
-
-        }catch (Exception e){
-            logger.error("修数异常!", e);
-        }
-    }
-
+    
     @Override
     public void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
         String key = String.format(CacheKeyConstants.CACHE_KEY_DWS_CALIBRATE_SPOT_DEAL, dwsMachineCalibrateMQ.getBusinessId());
@@ -1007,136 +941,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         return Arrays.asList(spotCheckIssueByMachineStatusSwitch.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
-
-    private WeightVolumeSpotCheckDto getSpotCheck(WeightVolumeSpotCheckDto dto, boolean isGetSummaryWeight) {
-        WeightVolumeSpotCheckDto newSpotCheckDto = null;
-        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setWaybillCode(dto.getWaybillCode());
-        condition.setReviewSiteCode(dto.getReviewSiteCode());
-        List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
-        if(CollectionUtils.isEmpty(spotCheckList)){
-            return null;
-        }
-        Double weight = Constants.DOUBLE_ZERO;
-        Double volume = Constants.DOUBLE_ZERO;
-        for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckList) {
-            if(Objects.equals(spotCheckDto.getRecordType(), SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode())){
-                newSpotCheckDto = spotCheckDto;
-            }else {
-                weight += spotCheckDto.getReviewWeight() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewWeight();
-                volume += spotCheckDto.getReviewVolume() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewVolume();
-            }
-        }
-        if(newSpotCheckDto == null){
-            return null;
-        }
-        if(isGetSummaryWeight){
-            newSpotCheckDto.setReviewWeight(MathUtils.keepScale(weight,2));
-            newSpotCheckDto.setReviewVolume(MathUtils.keepScale(volume,2));
-        }else {
-            newSpotCheckDto.setReviewWeight(MathUtils.keepScale(newSpotCheckDto.getContrastWeight(),2));
-            newSpotCheckDto.setReviewVolume(MathUtils.keepScale(newSpotCheckDto.getContrastVolume(),2));
-        }
-        return newSpotCheckDto;
-    }
-
-    private void issueFxm(WeightVolumeSpotCheckDto spotCheckDto) {
-
-        AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
-        abnormalResultMq.setId(spotCheckDto.getWaybillCode() + Constants.UNDERLINE_FILL + spotCheckDto.getReviewDate());
-        abnormalResultMq.setAbnormalId(spotCheckDto.getWaybillCode() + Constants.UNDERLINE_FILL + spotCheckDto.getReviewDate());
-        abnormalResultMq.setSource(2);
-        abnormalResultMq.setFrom("2");
-        abnormalResultMq.setBusinessType(1);
-        abnormalResultMq.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-        // 复核数据
-        abnormalResultMq.setBillCode(spotCheckDto.getWaybillCode());
-//        abnormalResultMq.setBusinessObjectId(spotCheckDto.getMerchantCode());
-        abnormalResultMq.setBusinessObject(spotCheckDto.getMerchantName());
-        abnormalResultMq.setOperateTime(new Date());
-        abnormalResultMq.setIsTrustMerchant(spotCheckDto.getIsTrustMerchant());
-        abnormalResultMq.setReviewWeight(spotCheckDto.getReviewWeight());
-        abnormalResultMq.setReviewVolume(spotCheckDto.getReviewVolume());
-        abnormalResultMq.setReviewErp(spotCheckDto.getReviewUserErp());
-        abnormalResultMq.setReviewFirstLevelId(spotCheckDto.getReviewOrgCode());
-        abnormalResultMq.setReviewFirstLevelName(spotCheckDto.getReviewOrgName());
-        abnormalResultMq.setReviewSecondLevelId(spotCheckDto.getReviewSiteCode());
-        abnormalResultMq.setReviewSecondLevelName(spotCheckDto.getReviewSiteName());
-        abnormalResultMq.setReviewDate(new Date(spotCheckDto.getReviewDate()));
-        abnormalResultMq.setReviewDutyErp(spotCheckDto.getReviewUserErp());
-        abnormalResultMq.setReviewDutyType(DutyTypeEnum.DMS.getCode());
-        // 核对数据
-        abnormalResultMq.setFirstLevelId(spotCheckDto.getContrastOrgCode() == null ? null : String.valueOf(spotCheckDto.getContrastOrgCode()));
-        abnormalResultMq.setFirstLevelName(spotCheckDto.getContrastOrgName());
-        abnormalResultMq.setSecondLevelId(spotCheckDto.getContrastAreaCode());
-        abnormalResultMq.setSecondLevelName(spotCheckDto.getContrastAreaName());
-        abnormalResultMq.setThreeLevelId(spotCheckDto.getContrastWarZoneCode());
-        abnormalResultMq.setThreeLevelName(spotCheckDto.getContrastWarZoneName());
-        abnormalResultMq.setWeight(spotCheckDto.getContrastWeight() == null
-                ? new BigDecimal(Constants.DOUBLE_ZERO) : BigDecimal.valueOf(spotCheckDto.getContrastWeight()));
-        abnormalResultMq.setVolume(spotCheckDto.getContrastVolume() == null
-                ? new BigDecimal(Constants.DOUBLE_ZERO) : BigDecimal.valueOf(spotCheckDto.getContrastVolume()));
-//        abnormalResultMq.setDutyType(weightVolumeCollectDto.getDutyType());
-//        abnormalResultMq.setDutyErp(weightVolumeCollectDto.getBillingErp());
-        // 差异数据
-        abnormalResultMq.setDiffStandard(spotCheckDto.getDiffStandard());
-        abnormalResultMq.setWeightDiff(spotCheckDto.getDiffWeight());
-        // 只给计费
-        abnormalResultMq.setTo("1");
-        if(logger.isInfoEnabled()){
-            logger.info("下发运单号:{}的抽检超标数据,明细如下:{}", abnormalResultMq.getBillCode(), JsonHelper.toJson(abnormalResultMq));
-        }
-        dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
-    }
-
-    private void checkExcessAndUpdate(WeightVolumeSpotCheckDto newSpotCheckDto) {
-        String waybillCode = newSpotCheckDto.getWaybillCode();
-        Double reviewWeight = newSpotCheckDto.getReviewWeight();
-        Double reviewVolume = newSpotCheckDto.getReviewVolume();
-
-        ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
-        reportInfoQuery.setWaybillCode(waybillCode);
-        reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(newSpotCheckDto.getReviewSource())
-                ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(reviewWeight));
-        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(reviewVolume));
-        CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
-        ReportInfoDTO reportInfo = (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS)) ? null : commonDTO.getData();
-        // 组装核对数据
-        newSpotCheckDto.setContrastSource(reportInfo == null ? null : reportInfo.getRecheckSource());
-        newSpotCheckDto.setContrastWeight((reportInfo == null || reportInfo.getRecheckWeight() == null)
-                ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckWeight()), 2));
-        newSpotCheckDto.setContrastVolume((reportInfo == null || reportInfo.getRecheckVolume() == null)
-                ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckVolume()), 2));
-        newSpotCheckDto.setContrastOrgCode(reportInfo == null ? null : reportInfo.getDutyOrgId());
-        newSpotCheckDto.setContrastOrgName(reportInfo == null ? null : reportInfo.getDutyOrgName());
-        newSpotCheckDto.setContrastWarZoneCode(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyCode());
-        newSpotCheckDto.setContrastWarZoneName(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyName());
-        newSpotCheckDto.setContrastAreaCode(reportInfo == null ? null : reportInfo.getDutyAreaCode());
-        newSpotCheckDto.setContrastAreaName(reportInfo == null ? null : reportInfo.getDutyAreaName());
-        newSpotCheckDto.setContrastSiteCode(reportInfo == null ? null : reportInfo.getDutySiteId());
-        newSpotCheckDto.setContrastSiteName(reportInfo == null ? null : reportInfo.getDutySiteName());
-        newSpotCheckDto.setContrastStaffAccount(reportInfo == null ? null : reportInfo.getDutyStaffAccount());
-        newSpotCheckDto.setContrastStaffName(reportInfo == null ? null : reportInfo.getDutyStaffName());
-        newSpotCheckDto.setContrastStaffType(reportInfo == null ? null : reportInfo.getDutyStaffType());
-        Integer dutyType = reportInfo == null ? null : reportInfo.getDutyType();
-        newSpotCheckDto.setContrastDutyType(dutyType != null ? dutyType : 99);
-        // 超标数据
-        int excessStatus = ExcessStatusEnum.EXCESS_ENUM_NO.getCode();
-        if(reportInfo != null && reportInfo.getExceedType() != null){
-            excessStatus = Objects.equals(reportInfo.getExceedType(), OUT_EXCESS_STATUS)
-                    ? ExcessStatusEnum.EXCESS_ENUM_NO.getCode() : ExcessStatusEnum.EXCESS_ENUM_YES.getCode();
-        }
-        newSpotCheckDto.setIsExcess(excessStatus);
-        newSpotCheckDto.setExcessType(reportInfo == null ? null : reportInfo.getExceedType());
-        newSpotCheckDto.setDiffWeight((reportInfo == null || reportInfo.getDiffWeight() == null) ? null : Double.parseDouble(reportInfo.getDiffWeight()));
-        newSpotCheckDto.setDiffStandard(reportInfo == null ? null : reportInfo.getDiffStandard());
-        newSpotCheckDto.setVolumeRate((reportInfo == null || reportInfo.getConvertCoefficient() == null)
-                ? null : Integer.valueOf(reportInfo.getConvertCoefficient()));
-
-        newSpotCheckDto.setSpotCheckStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode());
-    }
-
+    
     private boolean isMultiPack(Waybill waybill, String packageCode) {
         int packNum;
         if(WaybillUtil.isPackageCode(packageCode)){

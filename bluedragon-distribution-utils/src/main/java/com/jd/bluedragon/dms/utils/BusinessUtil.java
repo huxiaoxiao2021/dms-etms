@@ -267,6 +267,21 @@ public class BusinessUtil {
     }
 
     /**
+     * 获取标位指定位置的标位值
+     * @param signStr 标位
+     * @param position 位置
+     * @return 标位值
+     * @author fanggang7
+     * @time 2023-03-13 16:16:17 周一
+     */
+    public static Character getSignCharAtPosition(String signStr, int position) {
+        if (StringUtils.isNotEmpty(signStr) && signStr.length() >= position) {
+            return signStr.charAt(position - 1);
+        }
+        return null;
+    }
+
+    /**
      * 是否奢侈品
      * @param sendPay
      * @return
@@ -2575,6 +2590,7 @@ public class BusinessUtil {
         String sw = "67890";
         System.out.println(BusinessUtil.isSiteCode(sw));
         System.out.println(BusinessUtil.isSanWuCode(sw));
+        System.out.println(BusinessUtil.getBarCodeType("BC1001220222260019400709"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
