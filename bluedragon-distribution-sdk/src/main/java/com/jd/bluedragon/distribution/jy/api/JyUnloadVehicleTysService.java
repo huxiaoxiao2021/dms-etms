@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailResDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportQueryParamReqDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportReqDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportResDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 
 import java.util.List;
@@ -47,6 +51,14 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto);
+
+    /**
+     * 查询统计数据： 走集齐模型出统计,拆分库存储
+     * queryStatisticsByDiffDimension 接口走的是flink加工的ES
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<ScanCollectStatisticsDto> queryCollectStatisticsByDiffDimension(CollectStatisticsQueryDto reqDto);
 
     /**
      * 查询包裹和运单维度统计数据
@@ -239,5 +251,26 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode);
+
+    /**
+     * 查询运单集齐统计报表
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<CollectReportResDto> findCollectReportPage(CollectReportReqDto reqDto);
+
+    /**
+     * 查询运单集齐统计明细
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<CollectReportDetailResDto> findCollectReportDetailPage(CollectReportReqDto reqDto);
+
+    /**
+     * 按条件查集齐报表
+     * @param reqDto
+     * @return
+     */
+    InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto);
 
 }

@@ -4,13 +4,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -31,6 +34,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -91,6 +95,11 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
+
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsSealCarStatusConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -157,6 +166,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             //上游封车后创建任务 状态为在途
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
+            }
+            //发送集齐消息初始化MQ  todo  只做转运场地初始化
+            if (BusinessUtil.isTransferSite(siteInfo.getSubType())) {
+                sendInitCollectMq(tmsSealCarStatus);
             }
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
@@ -229,6 +242,20 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     }
 
 
+
+    private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
+        InitCollectDto initCollectDto = new InitCollectDto();
+        initCollectDto.setBizId(tmsSealCarStatus.getSealCarCode());
+        initCollectDto.setOperateTime(System.currentTimeMillis());
+        initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
+        String msgText = JsonHelper.toJson(initCollectDto);
+        if(logger.isInfoEnabled()) {
+            logger.info("TmsSealCarStatusConsumer.sendInitCollectMq-封车节点触发集齐初始化，businessId={}， msg={}", tmsSealCarStatus.getSealCarCode(), msgText);
+        }
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),msgText);
+
+
+    }
 
     /**
      * 类型转换 封车状态

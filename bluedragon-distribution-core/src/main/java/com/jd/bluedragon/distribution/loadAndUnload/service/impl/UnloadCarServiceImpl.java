@@ -2936,7 +2936,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 helperErpCacheList.add(helperUserErp);
                 jimdbCacheService.setEx(key, helperErpCacheList, 30, TimeUnit.DAYS);
             }
-            //todo zcf test log
             logger.info("test--log--创建人erp={}, 添加协助人erp={}, 已有协助人历史=【{}】", mainUserErp, helperUserErp,
                     JsonHelper.toJson(helperErpCacheList));
         }
@@ -2956,7 +2955,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             jdcResponse.setData(helperErpCacheList);
         }
         jdcResponse.toSucceed();
-        //todo zcf test log
         logger.info("test--log--根据ero查询历史协助人信息，返回{}", erp, JsonHelper.toJson(helperErpCacheList));
         return jdcResponse;
     }

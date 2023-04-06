@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vos.ws.VosVehicleJobBusinessWS;
@@ -141,5 +142,27 @@ public class VosManagerImpl implements VosManager{
 			log.warn("调用VOS获取封车信息接口失败,参数:{},返回值：{}" ,sealCarCode, e);
 		}
 		return commonDto;
+	}
+
+
+	/**
+	 * 通过封车编码获取封车信息
+	 * @param sealCarCode
+	 * @return
+	 */
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.VosManagerImpl.querySealCarInfoBySealCarCode",mState = {JProEnum.TP,JProEnum.FunctionError})
+	public SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode) {
+		if(log.isInfoEnabled()){
+			log.info("findSealCarInfoBySealCarCodeOfTms 获取封车信息开始 {}",sealCarCode);
+		}
+		CommonDto<SealCarDto> sealCarDtoCommonDto = this.querySealCarInfoBySealCarCode(sealCarCode);
+		if(log.isInfoEnabled()){
+			log.info("findSealCarInfoBySealCarCodeOfTms 获取封车信息返回数据 {},{}",sealCarCode, JsonHelper.toJson(sealCarCode));
+		}
+		if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
+			return null;
+		}
+		return sealCarDtoCommonDto.getData();
 	}
 }
