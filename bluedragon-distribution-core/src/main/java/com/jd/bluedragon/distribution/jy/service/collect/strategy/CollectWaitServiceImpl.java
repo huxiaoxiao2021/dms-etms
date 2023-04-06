@@ -158,6 +158,9 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
                 } else if (CollectionStatusEnum.collected.equals(collectionScanCodeDetail.getCollectedStatus())
                     && CollectionCollectedMarkTypeEnum.outer.equals(collectionScanCodeDetail.getCollectedMarkType())) {
                     packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_END.getCode());//在库
+                } else if (CollectionStatusEnum.none_collected.equals(collectionScanCodeDetail.getCollectedStatus())
+                    && CollectionCollectedMarkTypeEnum.outer.equals(collectionScanCodeDetail.getCollectedMarkType())) {
+                    packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_WAIT.getCode());//未扫
                 } else if (CollectionStatusEnum.extra_collected.equals(collectionScanCodeDetail.getCollectedStatus())) {
                     packageDto.setPackageCollectStatus(CollectStatusEnum.SCAN_DO.getCode());
                 }
