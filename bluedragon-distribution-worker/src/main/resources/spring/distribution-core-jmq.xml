@@ -791,4 +791,25 @@
         <property name="topic" value="${jmq.topic.evaluate.target.result}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--  拣运集齐初始化  -->
+    <bean id="jyCollectDataInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.data.init.split}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运集齐状态批量修改按运单拆分  -->
+    <bean id="jyCollectBatchUpdateProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运集齐初始化分批拆分  -->
+    <bean id="jyCollectDataPageInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.data.page.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!-- 拣运集齐按运单拆分后批量修改集齐状态  -->
+    <bean id="jyCollectStatusBatchUpdateWaybillSplitProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update.split}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

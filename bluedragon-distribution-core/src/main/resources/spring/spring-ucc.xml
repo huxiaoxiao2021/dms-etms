@@ -260,6 +260,7 @@
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 
+		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -505,6 +506,9 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSiteCodes</value>
 				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 				<value>uccPropertyConfiguration.dpSpringSiteCode</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.tysUnloadCarCollectDemoteSwitch</value>
 
 				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
 				<value>uccPropertyConfiguration.czSiteForbiddenList</value>

@@ -954,6 +954,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 转运中心
+     * @param subType
+     * @return
+     */
+    public static boolean isTransferSite(Integer subType){
+        return Integer.valueOf(6420).equals(subType);
+    }
+
+    /**
      *判断是否是冷链卡班
      */
     public static Boolean isColdChainKB(String waybillSign,String productType){

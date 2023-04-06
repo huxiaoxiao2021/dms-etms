@@ -1330,6 +1330,13 @@ public class UccPropertyConfiguration {
         this.supportMutilScan = supportMutilScan;
     }
 
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3074,5 +3081,13 @@ public class UccPropertyConfiguration {
 
     public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
         this.volumeExcessIssueSites = volumeExcessIssueSites;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
     }
 }

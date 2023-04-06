@@ -67,4 +67,6 @@ public interface VosManager {
      * @return
      */
     CommonDto<SealCarDto> querySealCarInfoBySealCarCode(String sealCarCode);
+
+    SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode);
 }

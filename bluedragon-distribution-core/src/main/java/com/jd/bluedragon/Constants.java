@@ -1,5 +1,6 @@
 package com.jd.bluedragon;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1802,7 +1803,6 @@ public class Constants {
      */
     public static final int DB_SQL_IN_MAX_GROUP_NUM = 10000;
 
-
     public static  final  int COMBOARD_LIMIT =100;
 
     /**
@@ -1889,4 +1889,9 @@ public class Constants {
      */
     public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
 
+
+    /**
+     * 集齐加锁前缀
+     */
+    public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
 }

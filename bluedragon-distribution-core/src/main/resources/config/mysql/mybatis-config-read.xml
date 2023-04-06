@@ -18,6 +18,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM"/>
         <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" alias="BusinessCodePo" />
         <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" alias="BusinessCodeAttributePo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" alias="CollectionRecordPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" alias="CollectionRecordDetailPo" />
     </typeAliases>
 
     <mappers>

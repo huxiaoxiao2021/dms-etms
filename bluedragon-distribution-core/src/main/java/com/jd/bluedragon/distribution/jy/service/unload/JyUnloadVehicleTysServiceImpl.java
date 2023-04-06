@@ -6,8 +6,6 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -21,14 +19,15 @@ import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.*;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
-import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
@@ -173,6 +172,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyGroupService")
     private JyGroupService jyGroupService;
+    @Autowired
+    private JyCollectService jyCollectService;
 
 
     @Override
@@ -760,7 +761,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto, unloadScanDto.getStageBizId());
             }
             // 加盟商余额校验 + 推验货任务
-            jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_PACKAGE.getCode());
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -901,7 +902,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
         // 验货校验
-        jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+        jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_WAYBILL.getCode());
         // 组装返回数据
         jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
         // 设置拦截缓存
@@ -2210,6 +2211,135 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     public BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode) {
         return jyUnloadVehicleCheckTysService.getBoardTypeCache(siteCode, boardCode);
+    }
+
+
+
+
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryCollectStatisticsByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<ScanCollectStatisticsDto> queryCollectStatisticsByDiffDimension(CollectStatisticsQueryDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.queryCollectStatisticsByDiffDimension--不齐维度统计数据查询：";
+        InvokeResult<ScanCollectStatisticsDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(getManualCreateTaskFlag(reqDto.getBizId())) {
+                reqDto.setManualCreateTaskFlag(Boolean.TRUE);
+            }
+            //不齐运单数量
+            InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNumRes = jyCollectService.collectWaitWaybillNum(reqDto);
+            if(!collectWaitWaybillNumRes.codeSuccess()) {
+                log.info("{}不齐运单数量查询错误，param={},res={}", methodDesc, reqDto, JsonUtils.toJSONString(collectWaitWaybillNumRes));
+                res.error(collectWaitWaybillNumRes.getMessage());
+                return res;
+            }
+            return collectWaitWaybillNumRes;
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("不齐维度统计数据查询服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportResDto> findCollectReportPage(CollectReportReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportPage--PDA查询不齐报表数据：";
+        InvokeResult<CollectReportResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectInfo(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA查询不齐报表数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportDetailPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportDetailResDto> findCollectReportDetailPage(CollectReportReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportDetailPage--PDA查询不齐报表明细数据：";
+        InvokeResult<CollectReportDetailResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if (StringUtils.isEmpty(reqDto.getCollectionCode())) {
+                res.error("该运单所在待集齐列表不存在");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectDetail(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA查询不齐报表明细数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportByScanCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportByScanCode--PDA按面单查询不齐报表数据：";
+        InvokeResult<CollectReportResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+
+            if(StringUtils.isBlank(reqDto.getScanCode())) {
+                res.error("扫描数据为空");
+                return res;
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectReportByScanCode(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA按面单查询不齐报表数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    private boolean getManualCreateTaskFlag(String bizId) {
+        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(bizId);
+        if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+            return true;
+        }else {
+            return false;
+        }
     }
 
 }

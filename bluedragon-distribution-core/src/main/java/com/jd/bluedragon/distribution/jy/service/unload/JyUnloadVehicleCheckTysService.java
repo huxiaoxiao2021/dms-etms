@@ -22,14 +22,22 @@ import com.jd.bluedragon.distribution.jy.config.WaybillConfig;
 import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.BoardScanTypeDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectBatchUpdateTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -59,6 +67,8 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -69,10 +79,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.common.utils.CacheKeyConstants.*;
@@ -151,6 +158,16 @@ public class JyUnloadVehicleCheckTysService {
     @Autowired
     @Qualifier("jyTysTaskBoardRelationGenerate")
     private DefaultJMQProducer jyTysTaskBoardRelationGenerate;
+
+    @Autowired
+    private JyCollectService jyCollectService;
+
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
+    @Autowired
+    @Qualifier(value = "jyCollectStatusBatchUpdateWaybillSplitProducer")
+    private DefaultJMQProducer jyCollectStatusBatchUpdateWaybillSplitProducer;
 
 
     /**
@@ -303,23 +320,55 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectAndCollectDeal", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void inspectionInterceptAndCollectDeal(String barCode, Waybill waybill, UnloadScanDto unloadScanDto, ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult, Integer scanCodeType) throws LoadIllegalException {
+        // 加盟商余额校验
+        this.allianceBusiDeliveryCheck(waybill);
+        //处理验货
+        this.inspection(barCode, unloadScanDto);
+        //验货后处理集齐逻辑
+        UnloadScanCollectDealDto unloadScanCollectDealDto = generateCollectParam(barCode, unloadScanDto, scanPackageDto, invokeResult, scanCodeType, waybill);
+        this.collectDeal(unloadScanCollectDealDto, invokeResult);
+    }
+
+    private UnloadScanCollectDealDto generateCollectParam(String barCode, UnloadScanDto unloadScanDto,
+                                                          ScanPackageDto scanPackageDto,
+                                                          InvokeResult<ScanPackageRespDto> invokeResult,
+                                                          Integer scanCodeType,
+                                                          Waybill waybill ) {
+        UnloadScanCollectDealDto res = new UnloadScanCollectDealDto();
+        res.setScanCode(barCode);
+        res.setScanCodeType(scanCodeType);
+        res.setUser(scanPackageDto.getUser());
+        res.setCurrentOperate(scanPackageDto.getCurrentOperate());
+        res.setBizId(unloadScanDto.getBizId());
+        if(unloadScanDto.getManualCreatedFlag() != null && unloadScanDto.getManualCreatedFlag() == 1) {
+            res.setManualCreateTaskFlag(true);
+        }else {
+            res.setManualCreateTaskFlag(false);
+        }
+        res.setGoodNumber((!Objects.isNull(waybill) && !Objects.isNull(waybill.getGoodNumber())) ? waybill.getGoodNumber() : 0);
+        res.setOldSiteId(waybill.getOldSiteId());
+        res.setNextSiteId(scanPackageDto.getNextSiteCode());
+        return res;
+    }
 
 
-    /**
-     * 验货拦截及验货处理
-     */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectionIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void inspectionIntercept(String barCode, Waybill waybill, UnloadScanDto unloadScanDto) throws LoadIllegalException {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.allianceBusiDeliveryCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void allianceBusiDeliveryCheck(Waybill waybill) throws LoadIllegalException {
         // 加盟商余额校验
         if (allianceBusiDeliveryDetailService.checkExist(waybill.getWaybillCode())
                 && !allianceBusiDeliveryDetailService.checkMoney(waybill.getWaybillCode())) {
             throw new LoadIllegalException(LoadIllegalException.ALLIANCE_INTERCEPT_MESSAGE);
         }
-        // 验货任务
-        unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
     }
 
+    /**
+     * 验货拦截及验货处理
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectionIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void inspection(String barCode, UnloadScanDto unloadScanDto) throws LoadIllegalException {
+        // 验货任务
         unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
     }
 
@@ -1390,5 +1439,181 @@ public class JyUnloadVehicleCheckTysService {
             log.info("checkScanBoardType校验扫描板类型不符：当前扫描code={},板类型为{}，开板数据为：{}", scanCode, boardScanTypeDto.getBoardType(), JsonUtils.toJSONString(boardScanTypeDto));
         }
         return res;
+    }
+
+
+
+    /**
+     * 转运卸车处理集齐逻辑
+     */
+    public void collectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        if(invokeResult == null) {
+            invokeResult = new InvokeResult<>();
+        }
+        ScanPackageRespDto resData = invokeResult.getData();
+        if(resData == null) {
+            resData = new ScanPackageRespDto();
+        }
+        if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+            //默认关闭开关，手动开启降级 true
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.collectDeal：转运集齐功能降级处理中");
+            }
+            resData.setCollectDemoteSwitch(true);
+            return;
+        }
+        resData.setCollectDemoteSwitch(false);
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.collectDeal", false, true);
+        try{
+            if (!ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())
+                    && !ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+                log.warn("{}非包裹或运单，暂不处理集齐逻辑 unloadScanDto={}", unloadScanCollectDealDto.getScanCode(), JsonUtils.toJSONString(unloadScanCollectDealDto));
+                return;
+            }
+            if(unloadScanCollectDealDto.getManualCreateTaskFlag() == null) {
+                JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(unloadScanCollectDealDto.getBizId());
+                if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+                    unloadScanCollectDealDto.setManualCreateTaskFlag(true);
+                }else {
+                    unloadScanCollectDealDto.setManualCreateTaskFlag(false);
+                }
+            }
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.collectDeal:转运卸车集齐处理下传参数：{}, 当前结果集数据为{}", JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult));
+            }
+            //自建任务
+            if(unloadScanCollectDealDto.getManualCreateTaskFlag()) {
+                taskNullCollectDeal(unloadScanCollectDealDto, invokeResult);
+            }else {
+                sealCarTaskCollectDeal(unloadScanCollectDealDto, invokeResult);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.collectDeal:集齐服务处理后结果集数据为{}", JsonUtils.toJSONString(invokeResult));
+            }
+        }catch (Exception e) {
+            log.error("JyUnloadVehicleCheckTysService.collectDeal--转运卸车运单集齐服务异常，该异常存在于卸车主流程，异常报错处理，不卡流程，参数请求对象={}，参数返回对象={},errMsg={}",
+                    JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult), e.getMessage(), e);
+            resData.setUnloadCollectErrWarn("集齐服务处理异常：" + e.getMessage());
+            resData.setUnloadCollectDto(null);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 自建任务集齐处理
+     */
+    private void taskNullCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.taskNullCollectDeal", false, true);
+        //
+        String methodDesc = "JyUnloadVehicleCheckTysService.taskNullCollectDeal--转运卸车无任务扫描处理集齐逻辑：";
+        ScanPackageRespDto resData = invokeResult.getData();
+        if(resData == null) {
+            resData = new ScanPackageRespDto();
+            invokeResult.setData(resData);
+        }
+        UnloadCollectDto collectDto = new UnloadCollectDto();
+        resData.setUnloadCollectDto(collectDto);
+
+        //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
+        taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
+        //修改集齐状态 + 处理返回集齐结果 （按单验初始化时直接修改集齐状态）
+        if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+            collectDto.setCollectStatisticsNum(unloadScanCollectDealDto.getGoodNumber());
+            collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
+        }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            //修改扫描code集齐状态、
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {//todo update要支持上面init-consumer没处理时的场景
+                log.error("{} 按包裹扫描修改集齐状态失败，param={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
+                throw new JyBizException("修改集齐状态失败");
+            }
+            resData.setUnloadCollectDto(jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto));
+        }
+        Profiler.registerInfoEnd(info);
+    }
+    /**
+     * 封车下发任务集齐处理
+     */
+    private void sealCarTaskCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.sealCarTaskCollectDeal", false, true);
+        String methodDesc = "JyUnloadVehicleCheckTysService.sealCarTaskCollectDeal--转运卸车下发任务扫描处理集齐逻辑：";
+
+        ScanPackageRespDto resData = invokeResult.getData();
+        UnloadCollectDto collectDto = new UnloadCollectDto();
+        resData.setUnloadCollectDto(collectDto);
+
+        //判断为在末级别,则发送初始化的MQ，按运单集齐
+        CollectDto collectDto1 = new CollectDto();
+        collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+        collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
+        collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+        jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
+
+        if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            //按运单修改集齐状态mq： 异步
+            this.updateWaybillCollectStatusSendMq(unloadScanCollectDealDto);
+            collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
+            collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
+            collectDto.setCollectStatisticsNum(unloadScanCollectDealDto.getGoodNumber());
+        }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            //修改扫描code集齐状态： 同步
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
+                log.error("按包裹扫描修改集齐状态失败，param={}，res={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
+                throw new JyBizException("修改集齐状态失败");
+            }
+            //查询集齐类型统计
+            resData.setUnloadCollectDto(jyCollectService.scanQueryCollectTypeStatistics(unloadScanCollectDealDto));
+        }
+        Profiler.registerInfoEnd(info);
+    }
+
+    /**
+     * 按运单修改集齐状态
+     */
+    private void updateWaybillCollectStatusSendMq(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        BatchUpdateCollectStatusDto mqDto = new BatchUpdateCollectStatusDto();
+        mqDto.setBizId(unloadScanCollectDealDto.getBizId());
+        mqDto.setOperateTime(System.currentTimeMillis());
+        mqDto.setBatchType(CollectBatchUpdateTypeEnum.WAYBILL_BATCH.getCode());
+        mqDto.setScanCode(unloadScanCollectDealDto.getScanCode());
+        mqDto.setScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        String businessId = mqDto.getBizId() + ":" + mqDto.getScanCode();
+        String msg = com.jd.bluedragon.utils.JsonHelper.toJson(mqDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, msg={}", msg);
+        }
+        //自建任务扫描初始化businessId是bizId + 扫描单号；  封车初始化businessId是bizId
+        jyCollectStatusBatchUpdateWaybillSplitProducer.sendOnFailPersistent(businessId, msg);
+    }
+
+    /**
+     * 生成任务初始化集齐对象，发送初始化jmq
+     */
+    private void taskNullScanInitCollectSendMq(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+
+        InitCollectDto initCollectDto = new InitCollectDto();
+        initCollectDto.setBizId(unloadScanCollectDealDto.getBizId());
+        initCollectDto.setOperateTime(System.currentTimeMillis());
+        initCollectDto.setOperateNode(CollectInitNodeEnum.NULL_TASK_INIT.getCode());
+        initCollectDto.setTaskNullScanCodeType(unloadScanCollectDealDto.getScanCodeType());
+        initCollectDto.setTaskNullScanCode(unloadScanCollectDealDto.getScanCode());
+        initCollectDto.setTaskNullScanSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+        initCollectDto.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+        initCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+        //自建任务扫描初始化businessId是bizId + 扫描单号+ 扫描类型；  封车初始化businessId是bizId
+        StringBuilder sb = new StringBuilder();
+        sb.append(initCollectDto.getBizId()).append(":")
+                .append(initCollectDto.getTaskNullScanCode()).append(":")
+                .append(initCollectDto.getTaskNullScanCodeType()).append(":");
+        String businessId = sb.toString();
+        String msg = com.jd.bluedragon.utils.JsonHelper.toJson(initCollectDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.taskNullScanInitCollectSendMq无任务扫描发送集齐数据初始化jmq, businessId={}, msg={}", businessId, msg);
+        }
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(businessId, msg);
     }
 }
