@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -56,6 +57,8 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 
   @Autowired
   private JySealVehicleService jySealVehicleService;
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
 
   @Override
   @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {
@@ -116,6 +119,12 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
       logger.error("jySealVehicleService.cancelSealCar error!内容为【{}】", message.getText(), e);
     }
   }
+        try {
+            jyBizTaskComboardService.updateBoardStatusBySendCode(mqBody.getBatchCode(), mqBody.getOperateUserCode(), mqBody.getOperateUserName());
+        } catch (Exception e) {
+            logger.error("传站取消封车释放批次信息异常",e);
+        }
+    }
 
   private JyBizTaskUnSealDto convert2Dto(TmsCancelSealCarBatchMQBody mqBody) {
     JyBizTaskUnSealDto dto = new JyBizTaskUnSealDto();
