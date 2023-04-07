@@ -242,6 +242,7 @@
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
 		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
+		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -473,6 +474,7 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
 				<value>uccPropertyConfiguration.tysUnloadCarCollectDemoteSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectSiteWhitelist</value>
 
 			</list>
 		</property>
