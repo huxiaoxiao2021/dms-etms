@@ -1360,6 +1360,7 @@ public class JyUnloadVehicleCheckTysService {
             resData.setCollectDemoteSwitch(true);
             return;
         }
+        resData.setCollectDemoteSwitch(false);
         String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
         if(StringUtils.isEmpty(siteWhitelist)) {
             if(log.isInfoEnabled()) {
@@ -1369,10 +1370,8 @@ public class JyUnloadVehicleCheckTysService {
             if(log.isInfoEnabled()) {
                 log.info("转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(unloadScanCollectDealDto), siteWhitelist);
             }
-            resData.setUnloadCollectDto(new UnloadCollectDto());
             return;
         }
-        resData.setCollectDemoteSwitch(false);
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.collectDeal", false, true);
         try{
