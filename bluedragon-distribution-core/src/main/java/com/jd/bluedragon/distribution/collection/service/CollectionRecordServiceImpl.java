@@ -628,15 +628,34 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         Map<String, String> aggMarkMap = collectionRecordPos.stream().filter(collectionRecordPo -> StringUtils.isNotBlank(collectionRecordPo.getAggMark()))
             .collect(Collectors.toMap(CollectionRecordPo::getAggCode, CollectionRecordPo::getAggMark, (s, s2) -> s2));
 
-        List<CollectionAggCodeCounter> res = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
+        List<CollectionAggCodeCounter> collectionAggCodeCounterList = this.sumAggCollectionByCollectionCode(collectionCodeEntities,aggCodes, aggCodeTypeEnum,collectedMark);
 
-        return res.parallelStream()
-            .filter(collectionAggCodeCounter -> collectionRecordPos.parallelStream().anyMatch(
-                collectionRecordPo -> Objects.equals(collectionAggCodeCounter.getAggCode(), collectionRecordPo.getAggCode())
-                    && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
-            .peek(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())))
-            .collect(Collectors.toList());
+        List<CollectionAggCodeCounter> res = new ArrayList<>();
+        Map<String, CollectionAggCodeCounter> map = getCollectionAggCodeCounterMap(collectionAggCodeCounterList, aggMarkMap);
+        for(CollectionRecordPo pojo : collectionRecordPos) {
+            String key = getKey(pojo.getCollectionCode(), pojo.getAggCode(), aggCodeTypeEnum.name());
+            CollectionAggCodeCounter collectionAggCodeCounter = map.get(key);
+            if(Objects.isNull(collectionAggCodeCounter)) {
+                log.warn("集齐服务根据主表查询附表信息，没有查到附表统计数据，应该是存在主表明细表数据不一致，主表查到，明细表没查到或者查到加工完之后数据缺失，key={}", key);
+            }
+            res.add(collectionAggCodeCounter);
+        }
+        return res;
+    }
 
+    private Map<String, CollectionAggCodeCounter> getCollectionAggCodeCounterMap(List<CollectionAggCodeCounter> list, Map<String, String> aggMarkMap) {
+        Map<String, CollectionAggCodeCounter> resMap = new HashMap<>();
+        for(CollectionAggCodeCounter pojo : list) {
+            //这里的key是上游有分组处理的逻辑key
+            String key = getKey(pojo.getCollectionCode(), pojo.getAggCode(), pojo.getAggCodeType());
+            pojo.setAggMark(aggMarkMap.get(pojo.getAggCode()));
+            resMap.put(key, pojo);
+        }
+        return resMap;
+    }
+
+    private String getKey(String collectionCode, String aggCode, String aggCodeType) {
+        return  collectionCode.concat(",").concat(aggCode).concat(",").concat(aggCodeType);
     }
 
     @Override
