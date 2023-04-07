@@ -32,11 +32,14 @@ public class LabelPrintFileResourceTest extends TestCase {
     @Mock
     private AmazonS3ClientWrapper labelprintAmazonS3ClientWrapper;
 
+    private String secretKey = "dms-print-test";
+    private String dmsWebSecretKey = "46BF9403EC39C597A04E4E505224D063";
+    
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        labelPrintFileResource.fileModifySecretKey = "dms-test";
+        labelPrintFileResource.fileModifySecretKey = secretKey;
         Mockito.doNothing().when(labelprintAmazonS3ClientWrapper).putObjectWithFlow(any(),any(),any(),any());
         when(labelprintAmazonS3ClientWrapper.getObject(any(),any())).thenReturn(null);
 //        when(labelprintAmazonS3ClientWrapper.listObjects("","",100,null)).thenReturn(any());
@@ -55,8 +58,8 @@ public class LabelPrintFileResourceTest extends TestCase {
         fileRequest.setFileNamePrefix("A");
         fileRequest.setFileName("B");
         fileRequest.setFolder("C");
-        fileRequest.setSourceSysName("test");
-        fileRequest.setSecretKey("3DE045A0BE5A4C5038EAA8B39C7B63AD");
+        fileRequest.setSourceSysName("dmsWeb");
+        fileRequest.setSecretKey(dmsWebSecretKey);
         Response result= labelPrintFileResource.downloadFile(fileRequest);
         System.out.println(JsonHelper.toJson(result));
     }
@@ -67,8 +70,8 @@ public class LabelPrintFileResourceTest extends TestCase {
         fileRequest.setFileNamePrefix("A");
         fileRequest.setFileName("B");
         fileRequest.setFolder("C");
-        fileRequest.setSourceSysName("test");
-        fileRequest.setSecretKey("3DE045A0BE5A4C5038EAA8B39C7B63AD");
+        fileRequest.setSourceSysName("dmsWeb");
+        fileRequest.setSecretKey(dmsWebSecretKey);
         labelPrintFileResource.listFiles(fileRequest);
     }
 
@@ -78,8 +81,8 @@ public class LabelPrintFileResourceTest extends TestCase {
         fileRequest.setFileNamePrefix("A");
         fileRequest.setFileName("B");
         fileRequest.setFolder("C");
-        fileRequest.setSourceSysName("test");
-        fileRequest.setSecretKey("3DE045A0BE5A4C5038EAA8B39C7B63AD");
+        fileRequest.setSourceSysName("dmsWeb");
+        fileRequest.setSecretKey(dmsWebSecretKey);
         InvokeResult<Boolean> result = labelPrintFileResource.deleteFile(fileRequest);
         System.out.println(JsonHelper.toJson(result));
     }
@@ -91,9 +94,14 @@ public class LabelPrintFileResourceTest extends TestCase {
         fileRequest.setFileName("B");
         fileRequest.setFolder("C");
         fileRequest.setSourceSysName("test");
-        fileRequest.setSecretKey("dms-test");
-        String[] secretKeys = {"dms-test","dms-prod"};
-        String[] systems = {"test","sms","client40","client42"};
+        String[] secretKeys = {"dms-print-test","dms-print-prod"};
+        //
+        String[] systems = {
+        		"test",
+        		"dmsClient40","dmsClient42","dmsClient43",
+        		"dmsWeb",
+        		"sms",
+        		};
         for(String secretKey:secretKeys) {
             fileRequest.setSecretKey(secretKey);
             for(String system:systems) {

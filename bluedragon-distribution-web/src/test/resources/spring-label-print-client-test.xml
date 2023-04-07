@@ -36,5 +36,4 @@
 	<import resource="classpath:/spring/spring-oss.xml"/>
     <!-- 引入打印引擎配置 -->
     <import resource="classpath:/ql-dms-print-engine.xml"/>
-    <bean id="dmsAmazonS3LabelFileLoader" class="com.jd.bluedragon.core.print.DmsAmazonS3LabelFileLoader" parent="abstractLabelFileLoader" depends-on="labelFileLoaderFactory"/>	
 </beans>
