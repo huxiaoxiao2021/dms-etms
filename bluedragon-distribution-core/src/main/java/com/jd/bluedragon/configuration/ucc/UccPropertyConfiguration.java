@@ -1200,6 +1200,11 @@ public class UccPropertyConfiguration {
      */
     private Boolean tysUnloadCarCollectDemoteSwitch;
 
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
 
 
     public boolean getCzQuerySwitch() {
@@ -2834,5 +2839,13 @@ public class UccPropertyConfiguration {
 
     public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
         this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
     }
 }
