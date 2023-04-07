@@ -6,6 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +45,8 @@ public class CommandResource {
     @Autowired
     @Qualifier("packagePrintInternalService")
     private PackagePrintInternalService packagePrintInternalService;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      *
@@ -75,7 +79,13 @@ public class CommandResource {
 
         // 分拣中心首次打印
         request.getData().setSortingFirstPrint(1);
-
+        //对siteCode =1 进行处理
+        if(request.getData().getOperateSiteCode().equals(1)){
+            BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(request.getData().getOperatorCode());
+            if(baseStaff != null){
+                request.getData().setOperateSiteCode(baseStaff.getSiteCode());
+            }
+        }
         return packagePrintInternalService.printComplete(request);
     }
 }
