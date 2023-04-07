@@ -1362,7 +1362,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         resData.setCollectDemoteSwitch(false);
         String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
-        if(StringUtils.isEmpty(siteWhitelist)) {
+        if(StringUtils.isBlank(siteWhitelist)) {
             if(log.isInfoEnabled()) {
                 log.info("转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(unloadScanCollectDealDto));
             }
