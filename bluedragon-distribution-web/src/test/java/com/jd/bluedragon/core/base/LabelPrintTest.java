@@ -74,7 +74,7 @@ public class LabelPrintTest {
     		path.mkdirs();
     	}
 		DrawSetting drawSetting = new DrawSetting();
-		String[] keys = {"jss","dmsHttp","dmsAmazon"};
+		String[] keys = {"jss","dmsHttp"};
 		while(true) {
 			for(String key:keys) {
 				LabelFileLoaderFactory.setDefaultLabelFileLoaderKey(key);
