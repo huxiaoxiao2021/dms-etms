@@ -1463,6 +1463,17 @@ public class JyUnloadVehicleCheckTysService {
             return;
         }
         resData.setCollectDemoteSwitch(false);
+        String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
+        if(StringUtils.isBlank(siteWhitelist)) {
+            if(log.isInfoEnabled()) {
+                log.info("转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(unloadScanCollectDealDto));
+            }
+        }else if(!siteWhitelist.contains(String.format("%s%s%s", ",", unloadScanCollectDealDto.getCurrentOperate().getSiteCode(), ","))){
+            if(log.isInfoEnabled()) {
+                log.info("转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(unloadScanCollectDealDto), siteWhitelist);
+            }
+            return;
+        }
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.collectDeal", false, true);
         try{
@@ -1494,7 +1505,7 @@ public class JyUnloadVehicleCheckTysService {
         }catch (Exception e) {
             log.error("JyUnloadVehicleCheckTysService.collectDeal--转运卸车运单集齐服务异常，该异常存在于卸车主流程，异常报错处理，不卡流程，参数请求对象={}，参数返回对象={},errMsg={}",
                     JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult), e.getMessage(), e);
-            resData.setUnloadCollectErrWarn("集齐服务处理异常：" + e.getMessage());
+            resData.setUnloadCollectErrWarn("集齐服务处理异常");
             resData.setUnloadCollectDto(null);
             Profiler.functionError(info);
         }finally {
