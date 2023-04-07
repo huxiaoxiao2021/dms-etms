@@ -118,7 +118,6 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     } catch (Exception e) {
       logger.error("jySealVehicleService.cancelSealCar error!内容为【{}】", message.getText(), e);
     }
-  }
         try {
             jyBizTaskComboardService.updateBoardStatusBySendCode(mqBody.getBatchCode(), mqBody.getOperateUserCode(), mqBody.getOperateUserName());
         } catch (Exception e) {
