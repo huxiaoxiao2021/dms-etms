@@ -78,6 +78,7 @@ public class CollectWaitServiceImpl implements CollectStatisticsDimensionService
             collectReportReqDto.getPageSize(), (collectReportReqDto.getPageNo() - 1) * collectReportReqDto.getPageSize());
 
         List<CollectReportDto> res = collectionAggCodeCounters.parallelStream().map(collectionAggCodeCounter -> {
+
             CollectReportDto collectReportDto = new CollectReportDto();
             collectReportDto.setWaybillCode(collectionAggCodeCounter.getAggCode());
             collectReportDto.setCollectionCode(collectionAggCodeCounter.getCollectionCode());

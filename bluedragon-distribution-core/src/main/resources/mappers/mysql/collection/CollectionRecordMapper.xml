@@ -371,6 +371,7 @@
 			</if>
 		</where>
 		group BY cr.collection_code, cr.agg_code, cr.agg_mark
+		order by aggMark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
 
 	</select>
