@@ -240,4 +240,11 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+
+    /**
+     * 线上获取任务简码
+     * @param request
+     * @return
+     */
+    InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
 }

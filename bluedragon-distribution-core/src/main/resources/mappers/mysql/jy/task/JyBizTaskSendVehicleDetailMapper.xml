@@ -28,6 +28,7 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="excepLabel" column="excep_label"/>
+        <result property="taskSimpleCode" column="task_simple_code"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -38,7 +39,7 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,task_simple_code
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -441,6 +442,9 @@
             </if>
             <if test="excepLabel != null">
                 excep_label = #{excepLabel},
+            </if>
+            <if test="taskSimpleCode != null">
+                task_simple_code = #{taskSimpleCode},
             </if>
             <if test="yn != null">
                 yn = #{yn}

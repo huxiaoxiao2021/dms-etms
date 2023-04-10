@@ -12,6 +12,8 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRequest;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRespone;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -193,5 +195,11 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
             result.toFail("system exception");
         }
         return result;
+    }
+
+    @Override
+    public InvokeResult<QueryLoadingRateRespone> queryLoadingRate(QueryLoadingRateRequest request) {
+        //根据派车单明细-查询车的装货量，计算装载率
+        return null;
     }
 }

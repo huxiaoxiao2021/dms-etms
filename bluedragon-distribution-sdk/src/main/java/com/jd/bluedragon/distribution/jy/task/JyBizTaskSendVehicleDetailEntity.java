@@ -155,6 +155,15 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	private Integer lineType;
 	private String lineTypeName;
+	private String taskSimpleCode;
+
+	public String getTaskSimpleCode() {
+		return taskSimpleCode;
+	}
+
+	public void setTaskSimpleCode(String taskSimpleCode) {
+		this.taskSimpleCode = taskSimpleCode;
+	}
 
 	public Integer getLineType() {
 		return lineType;
