@@ -38,4 +38,15 @@
         <property name="ownSign" value="${ownSign}"/>
     </bean>
 
+    <!-- 作业APP任务定时关闭任务 -->
+    <bean id="jyBizTaskAutoCloseTask" class="com.jd.bluedragon.distribution.worker.jy.JyBizTaskAutoCloseTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JyBizTaskAutoCloseTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1326"/>
+        <property name="desc" value="作业工作台自动关闭任务"/>
+    </bean>
+
 </beans>

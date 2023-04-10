@@ -597,5 +597,10 @@
     <jmq:consumer id="jmq.jyCollectStatusBatchUpdateWaybillSplitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update.split}" listener="jyCollectStatusBatchUpdateWaybillSplitConsumer"/>
     </jmq:consumer>
+    <!-- 作业工作台自动关闭任务 -->
+    <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
