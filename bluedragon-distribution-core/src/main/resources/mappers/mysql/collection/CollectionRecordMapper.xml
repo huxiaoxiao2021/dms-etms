@@ -236,6 +236,7 @@
 
 	</select>
 
+	<!--todo zcf  拆分-->
 	<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
 		SELECT
 			count(*)
@@ -252,6 +253,7 @@
 				crd.yn = 1
 				AND cr.yn = 1
 				AND cr.is_init = 1
+		<!--todo 类型-->
 				AND cr.is_collected = #{isCollected, jdbcType=VARCHAR}
 				<if test="isMoreCollectedMark != null">
 					AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=VARCHAR}
@@ -339,6 +341,7 @@
 		</where>
 	</select>
 
+	<!--todo zcf   -->
 	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
 
