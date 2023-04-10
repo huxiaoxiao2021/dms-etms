@@ -956,7 +956,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         condition.setReviewStartTime(previousMachineEligibleTime);
         condition.setReviewEndTime(currentMachineEligibleTime);
         condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-        condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+        if (uccPropertyConfiguration.getMachineCalibrateSpotCheckSwitch()) {
+            condition.setExcessStatusList(Lists.newArrayList(ExcessStatusEnum.EXCESS_ENUM_NO.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
+        } else {
+            condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+        }
 
         int index = 1;
         while (index++ <= 100) {

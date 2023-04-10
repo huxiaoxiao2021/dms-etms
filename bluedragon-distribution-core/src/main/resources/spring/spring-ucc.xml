@@ -225,7 +225,8 @@
 		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
 		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
 		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:720000}"/>
-		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
+		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:28800000}"/>
+		<property name="machineCalibrateSpotCheckSwitch" value="${machineCalibrateSpotCheckSwitch:true}"/>
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
