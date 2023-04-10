@@ -19,16 +19,14 @@ import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
-import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
-import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -94,7 +92,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
     @Autowired
-    private TaskService taskService;
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
@@ -215,9 +213,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             recordTaskMembers(unloadScanDto);
 
             updateTaskBusinessInfo(unloadScanDto);
-
-            // 创建或延后自动关闭任务执行时间
-            // this.pushBizTaskAutoCloseTask(unloadScanDto);
         } else {
             // 更新最后扫描事件缓存，每次续期4小时
             final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
@@ -398,45 +393,5 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         if (logger.isInfoEnabled()) {
             logger.info(message, objects);
         }
-    }
-
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
-
-    /**
-     * 推自动关闭卸车任务
-     */
-    private boolean pushBizTaskAutoCloseTask(UnloadScanDto unloadScanDto) {
-        try {
-            AutoCloseTaskPo autoCloseTaskPo = new AutoCloseTaskPo();
-            autoCloseTaskPo.setBizId(unloadScanDto.getBizId());
-            autoCloseTaskPo.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode());
-
-            Task tTask = new Task();
-            tTask.setCreateSiteCode(unloadScanDto.getEndSiteId().intValue());
-            tTask.setKeyword1(String.valueOf(unloadScanDto.getBizId()));
-            tTask.setKeyword2(autoCloseTaskPo.getTaskBusinessType().toString());
-
-            tTask.setType(autoCloseTaskPo.getTaskBusinessType());
-            tTask.setTableName(Task.getTableName(Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE));
-            String ownSign = BusinessHelper.getOwnSign();
-            tTask.setOwnSign(ownSign);
-            tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), unloadScanDto.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-            if (autoCloseJyBizTaskConfig == null) {
-                logger.info("JyUnloadScanConsumer.pushBizTaskAutoCloseTask no config, will not push auto close task");
-                return true;
-            }
-            // 计算卸车时间推后的执行时间
-            final Date operateTime = unloadScanDto.getOperateTime();
-            final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinishLazyTime() * 60 * 60 * 60 * 1000L;
-            tTask.setExecuteTime(new Date(executeTimeMillSeconds));
-            tTask.setBody(JsonHelper.toJson(autoCloseTaskPo));
-            logger.info("pushBizTaskAutoCloseTask 作业工作台自动关闭任务 bizId={}", autoCloseTaskPo.getBizId());
-            taskService.doAddTask(tTask, false);
-        } catch (Exception e) {
-            logger.error("pushBizTaskAutoCloseTask exception ", e);
-        }
-        return true;
     }
 }
