@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * dws抽检下发消息处理消费
+ * dws抽检图片下发AI消息处理消费
  *
  * @author hujiping
  * @date 2022/3/17 8:47 PM

@@ -52,6 +52,7 @@ import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.dbs.util.CollectionUtils;
@@ -564,11 +565,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        if (!jyBizTaskComboardService.updateBoardStatusBySendCode(batchCode, operateUserCode, operateUserName)) {
+        /*if (!jyBizTaskComboardService.updateBoardStatusBySendCode(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("更新板状态失败！");
             return invokeResult;
-        }
+        }*/
         InvokeResult<Boolean> result = deleteBySendVehicleBizId(sealCarCodeOfTms.getTransWorkItemCode(), operateUserCode, operateUserName);
         if (result != null && result.getData() == Boolean.FALSE) {
             throw new JyBizException("删除封签列表失败！");
@@ -787,6 +788,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             resp.setSendCode(sendMList.get(0).getSendCode());
             resp.setCreateTime(sendMList.get(0).getOperateTime());
+        }
+        else if (BusinessUtil.isBoardCode(request.getBarCode())){
+            SendM sendM =sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(),request.getBarCode(),SendStatusEnum.HAS_BEEN_SENDED.getCode());
+            if (!ObjectHelper.isNotNull(sendM)){
+                throw new JyBizException("未找到该板号的发货记录！");
+            }
+            resp.setSendCode(sendM.getSendCode());
+            resp.setCreateTime(sendM.getOperateTime());
         }
         else if (BusinessUtil.isSendCode(request.getBarCode())){
             resp.setSendCode(request.getBarCode());

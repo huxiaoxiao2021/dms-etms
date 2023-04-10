@@ -64,10 +64,13 @@ public class JYTransferConfigProxy {
     }
 
     public boolean isMatchConfig(ConfigTransferDpSite configTransferDpSite, String waybillSign) {
-        if (BusinessHelper.isDPWaybill1(waybillSign) && configTransferDpSite != null) {
+        if(configTransferDpSite == null){
+            return false;
+        }
+        if (BusinessHelper.isDPWaybill1(waybillSign)) {
             return true;
         }
-        if (BusinessHelper.isDPWaybill2(waybillSign) && configTransferDpSite != null
+        if (BusinessHelper.isDPWaybill2(waybillSign)
                 && configTransferDpSite.getEffectiveStartTime().before(new Date())
                 && configTransferDpSite.getEffectiveStopTime().after(new Date())) {
             return true;

@@ -246,6 +246,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
+            boolean matchGetCrossOfAir = waybillCommonService.isMatchGetCrossOfAir(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay(), tmsWaybill.getOldSiteId(), dmsCode,waybillCode);
+            if(matchGetCrossOfAir){
+                log.info("符合航空航填面单的滑道信息逻辑1");
+                commonWaybill.setTempOriginalCrossType(Constants.ORIGINAL_CROSS_TYPE_GENERAL);
+            }else {
+                log.info("原有的赋值滑道信息逻辑");
+                commonWaybill.setTempOriginalCrossType(commonWaybill.getOriginalCrossType());
+            }
             //调用外单接口，根据商家id获取商家编码
             BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
             if(basicTraderInfoDTO != null){
@@ -582,7 +590,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             baseDmsStore.setCky2(waybill.getCky2());//cky2
             baseDmsStore.setOrgId(waybill.getOrgId());//机构编号
             baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
-                JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
+                JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getTempOriginalCrossType());
                 if(jdResult.isSucceed()) {
                     tag=jdResult.getData();
                 }else{
