@@ -6,6 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
@@ -20,6 +21,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.avro.data.Json;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,9 +84,10 @@ public class CommandResource {
 
         // 分拣中心首次打印
         request.getData().setSortingFirstPrint(1);
+        log.info("补打回调-{}", JSON.toJSONString(request.getData()));
         //对siteCode =1 进行处理
         if(StringUtils.isNotBlank(request.getData().getOperatorErp()) && request.getData().getOperateSiteCode().equals(1)){
-            log.warn("此运单-{}，当前操作站点-{}",request.getData().getWaybillCode(),request.getData().getOperateSiteCode());
+            log.warn("此运单-{}，当前操作erp-{},站点-{}",request.getData().getWaybillCode(),request.getData().getOperatorErp(),request.getData().getOperateSiteCode());
             BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(request.getData().getOperatorErp());
             if(baseStaff != null){
                 request.getData().setOperateSiteCode(baseStaff.getSiteCode());
