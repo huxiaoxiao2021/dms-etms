@@ -226,20 +226,20 @@ public class JyTysUnloadCollectTest {
     @Test
     public void test1() {
         UnloadScanCollectDealDto re = new UnloadScanCollectDealDto();
-        re.setBizId("JQ23032410452400032");
-        re.setScanCode("JDX000233472480-4-4-");
+        re.setBizId("SC23040600030436");
+        re.setScanCode("JDVA00257825175-2-3-");
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(10186);
         re.setCurrentOperate(currentOperate);
-        re.setGoodNumber(4);
+        re.setGoodNumber(3);
         System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re)));
 
-        UnloadScanCollectDealDto re1 = new UnloadScanCollectDealDto();
-        re1.setBizId("XCZJ23032300000019");
-        re1.setScanCode("JDX000233366667-10-10-");
-        re1.setCurrentOperate(currentOperate);
-        re1.setGoodNumber(10);
-        System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re1)));
+//        UnloadScanCollectDealDto re1 = new UnloadScanCollectDealDto();
+//        re1.setBizId("SC23040600030436");
+//        re1.setScanCode("JDVA00257825175-2-3-");
+//        re1.setCurrentOperate(currentOperate);
+//        re1.setGoodNumber(3);
+//        System.out.println(JsonHelper.toJson(jyCollectService.scanQueryCollectTypeStatistics(re1)));
     }
 
     @Test
