@@ -223,7 +223,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         if (!ObjectHelper.isNotNull(request.getStartSiteId())){
             throw new JyBizException("参数错误：始发场地不能为空！");
         }
-        if (!CollectionUtils.isEmpty(request.getEndSiteIdList())){
+        if (CollectionUtils.isEmpty(request.getEndSiteIdList())){
             throw new JyBizException("参数错误：目的场地不能为空！");
         }
     }
