@@ -414,6 +414,7 @@
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
+				<ref bean="halfSendExchangeNewWaybillCheckSiteHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
