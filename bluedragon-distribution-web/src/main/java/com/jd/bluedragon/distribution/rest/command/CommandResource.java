@@ -84,7 +84,6 @@ public class CommandResource {
 
         // 分拣中心首次打印
         request.getData().setSortingFirstPrint(1);
-        log.info("补打回调-{}", JSON.toJSONString(request.getData()));
         //对siteCode =1 进行处理
         if(StringUtils.isNotBlank(request.getData().getOperatorErp()) && request.getData().getOperateSiteCode().equals(1)){
             log.warn("此运单-{}，当前操作erp-{},站点-{}",request.getData().getWaybillCode(),request.getData().getOperatorErp(),request.getData().getOperateSiteCode());
