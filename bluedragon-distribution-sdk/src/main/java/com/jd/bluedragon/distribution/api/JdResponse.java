@@ -222,6 +222,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_WAYBILL_WASTE = 30123;
     public static final String MESSAGE_WAYBILL_WASTE = "弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)";
 
+    public static final Integer CODE_HALF_SEND_NOT_ALLOW_CHANGE_NEW_WAYBILL = 30124;
+    public static final String MESSAGE_HALF_SEND_NOT_ALLOW_CHANGE_NEW_WAYBILL = "先到先送运单不允许再当前场地操作换单/换单打印";
+
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";
 

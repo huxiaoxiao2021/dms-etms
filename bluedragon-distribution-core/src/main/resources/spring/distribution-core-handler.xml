@@ -408,6 +408,7 @@
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
+				<ref bean="halfSendExchangeNewWaybillCheckSiteHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
