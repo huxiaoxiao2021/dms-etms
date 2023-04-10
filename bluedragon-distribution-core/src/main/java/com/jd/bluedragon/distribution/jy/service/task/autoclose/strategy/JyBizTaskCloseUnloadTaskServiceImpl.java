@@ -70,9 +70,6 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    private TaskService taskService;
-
-    @Autowired
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
 
     /**
@@ -103,7 +100,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             // 如果【待卸状态中未卸车完成】，且状态不是待卸，可以视为任务不用执行
             if (Objects.equals(JyAutoCloseTaskBusinessTypeEnum.WAIT_UNLOAD_NOT_FINISH.getCode(), autoCloseTaskPo.getTaskBusinessType())) {
                 if(!Objects.equals(taskUnloadVehicleExist.getVehicleStatus(), JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode())){
-                    log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask task no need handle param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
+                    log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask WAIT_UNLOAD_NOT_FINISH task no need handle param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
                     return result;
                 }
             }
@@ -111,7 +108,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             if (Objects.equals(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode(), autoCloseTaskPo.getTaskBusinessType())) {
                 // 如果状态不是卸车中，可以视为任务不用执行
                 if(!Objects.equals(taskUnloadVehicleExist.getVehicleStatus(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())){
-                    log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask task no need handle param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
+                    log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask UNLOADING_NOT_FINISH task no need handle param {} bizTask {}", JSON.toJSONString(autoCloseTaskPo), JSON.toJSONString(taskUnloadVehicleExist));
                     return result;
                 }
                 // 还在卸车中，判断最后的卸车扫描时间是否更新，如果已经更新，则将本任务的执行时间延后
@@ -121,11 +118,6 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
                     if (unloadBizLastScanTimeValStr != null) {
                         long unloadBizLastScanTimeVal = Long.parseLong(unloadBizLastScanTimeValStr);
                         if(unloadBizLastScanTimeVal > autoCloseTaskPo.getOperateTime()){
-                            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-                            if(autoCloseJyBizTaskConfig == null){
-                                autoCloseJyBizTaskConfig = new AutoCloseJyBizTaskConfig();
-                                autoCloseJyBizTaskConfig.setUnloadingNotFinishLazyTime(4 * 60);
-                            }
                             AutoCloseTaskMq autoCloseTaskMqNew = new AutoCloseTaskMq();
                             autoCloseTaskMqNew.setTaskBusinessType(autoCloseTaskPo.getTaskBusinessType());
                             autoCloseTaskMqNew.setBizId(autoCloseTaskPo.getBizId());
@@ -147,12 +139,24 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             autoCloseTaskContextDto.setOperateUserName(this.sysOperateUserName);
             autoCloseTaskContextDto.setBizId(taskUnloadVehicleExist.getBizId());
 
+            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            if(autoCloseJyBizTaskConfig == null){
+                return result;
+            }
+            if(Objects.equals(false, autoCloseJyBizTaskConfig.getFakeExecute())){
+                log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask fakeExecute {}", JSON.toJSONString(autoCloseTaskContextDto));
+                return result;
+            }
+
             // 关闭主任务 + 调度任务
             this.completeTask(autoCloseTaskContextDto);
             // 更新任务业务数据
             this.saveOrUpdateOfBusinessInfo(autoCloseTaskContextDto, taskUnloadVehicleExist);
             // 签退任务关联的签到记录
             this.finishUnloadTaskGroup(autoCloseTaskContextDto);
+
+            final String unloadBizLastScanTimeKey = jyBizTaskAutoCloseHelperService.getUnloadBizLastScanTimeKey(autoCloseTaskContextDto.getBizId());
+            redisClientOfJy.del(unloadBizLastScanTimeKey);
         } catch (Exception e) {
             log.error("JyBizTaskCloseUnloadTaskServiceImpl.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);
             result.toFail("系统异常");

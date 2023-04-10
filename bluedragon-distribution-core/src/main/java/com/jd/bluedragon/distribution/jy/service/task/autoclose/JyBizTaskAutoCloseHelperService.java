@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
  */
 public interface JyBizTaskAutoCloseHelperService {
 
+    String getUnloadBizLastScanTimeKey(String bizId);
+
     boolean pushBizTaskAutoCloseTask4WaitUnloadNotFinish(AutoCloseTaskMq autoCloseTaskMq, JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist);
 
     boolean pushBizTaskAutoCloseTask4UnloadingNotFinish(AutoCloseTaskMq autoCloseTaskMq, JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist);

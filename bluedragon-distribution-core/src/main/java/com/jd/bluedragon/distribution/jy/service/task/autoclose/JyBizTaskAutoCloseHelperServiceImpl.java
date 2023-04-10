@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
@@ -33,6 +34,11 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
 
     @Autowired
     private TaskService taskService;
+
+    @Override
+    public String getUnloadBizLastScanTimeKey(String bizId) {
+        return String.format(CacheKeyConstants.JY_UNLOAD_TASK_LAST_SCAN_TIME_KEY, bizId);
+    }
 
     /**
      * @param autoCloseTaskMq

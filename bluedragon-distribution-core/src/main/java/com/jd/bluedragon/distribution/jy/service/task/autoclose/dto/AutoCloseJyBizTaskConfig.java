@@ -22,6 +22,8 @@ public class AutoCloseJyBizTaskConfig implements Serializable {
      */
     private Integer unloadingNotFinishLazyTime;
 
+    private Boolean fakeExecute;
+
     public Integer getWaitUnloadNotFinishLazyTime() {
         return waitUnloadNotFinishLazyTime;
     }
@@ -36,5 +38,13 @@ public class AutoCloseJyBizTaskConfig implements Serializable {
 
     public void setUnloadingNotFinishLazyTime(Integer unloadingNotFinishLazyTime) {
         this.unloadingNotFinishLazyTime = unloadingNotFinishLazyTime;
+    }
+
+    public Boolean getFakeExecute() {
+        return fakeExecute;
+    }
+
+    public void setFakeExecute(Boolean fakeExecute) {
+        this.fakeExecute = fakeExecute;
     }
 }
