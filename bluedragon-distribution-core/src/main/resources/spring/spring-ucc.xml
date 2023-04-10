@@ -259,6 +259,7 @@
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
 
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
@@ -522,6 +523,7 @@
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
+				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 			</list>
 		</property>
 	</bean>
