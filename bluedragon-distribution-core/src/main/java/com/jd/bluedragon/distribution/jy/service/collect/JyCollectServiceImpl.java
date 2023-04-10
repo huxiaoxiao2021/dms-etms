@@ -220,6 +220,8 @@ public class JyCollectServiceImpl implements JyCollectService{
 
         if (CollectionUtils.isEmpty(collectionCodeEntityList) || isNotExistAllSite) {
             CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
+            collectionCodeEntity.addAllKey(element);
+            collectionCodeEntity.buildCollectionCondition();
             collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
             collectionCodeEntityList.add(collectionCodeEntity);
         }
@@ -231,6 +233,8 @@ public class JyCollectServiceImpl implements JyCollectService{
                         && StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()));
             if (isNotExistUnloadTask) {
                 CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
+                collectionCodeEntity.addAllKey(element);
+                collectionCodeEntity.buildCollectionCondition();
                 collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
                 collectionCodeEntityList.add(collectionCodeEntity);
             }
@@ -423,6 +427,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         collectElements.put(CollectionConditionKeyEnum.date_time, DateUtil.format(new Date(), DateUtil.FORMAT_DATE));
         CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(businessTypeEnum);
         collectionCodeEntity.addAllKey(collectElements);
+        collectionCodeEntity.buildCollectionCondition();
         return collectionCodeEntity;
     }
 
