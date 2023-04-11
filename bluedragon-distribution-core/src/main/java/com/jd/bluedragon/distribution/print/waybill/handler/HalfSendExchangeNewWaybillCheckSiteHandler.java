@@ -42,7 +42,7 @@ public class HalfSendExchangeNewWaybillCheckSiteHandler implements InterceptHand
         final WaybillPrintRequest waybillPrintRequest = context.getRequest();
         final Integer operateType = waybillPrintRequest.getOperateType();
         // 只有站长工作台换单打印才校验
-        if(!Objects.equals(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT, operateType)){
+        if(!Objects.equals(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType(), operateType)){
             return result;
         }
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybillPrintRequest.getSiteCode());
