@@ -507,7 +507,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntities), aggCode, aggCodeTypeEnum, collectedMark);
             return null;
         }
-
+        if(log.isInfoEnabled()) {
+            log.info("sumCollectionByAggCodeAndCollectionCode:start:参数【{}|{}|{}|{}|{}】，参数={}",
+                    JsonUtils.toJSONString(collectionCodeEntities), JsonUtils.toJSONString(importCollectionCodeEntity), aggCode, JsonUtils.toJSONString(aggCodeTypeEnum), collectedMark);
+        }
         List<CollectionCodeEntity> codeEntities = collectionCodeEntities.parallelStream().filter(collectionCodeEntity -> {
             List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findCollectionRecord(
                 CollectionRecordPo.builder()
@@ -524,7 +527,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             codeEntities.add(importCollectionCodeEntity);
         }
         collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(codeEntities);
-
+        if(log.isInfoEnabled()) {
+            log.info("sumCollectionByAggCodeAndCollectionCode拿到collectionCode为{}，参数={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(codeEntities));
+        }
         List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDao.countCollectionByAggCodeAndCollectionCodes(collectionCodes, aggCode, aggCodeTypeEnum);
         if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
             log.error("根据aggCode查询集齐统计情况失败，参数为：{}-{}-{}",JSON.toJSONString(collectionCodes),aggCode, aggCodeTypeEnum);
