@@ -38,7 +38,7 @@ public class HalfSendExchangeNewWaybillCheckSiteHandler implements InterceptHand
         final WaybillPrintRequest waybillPrintRequest = context.getRequest();
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybillPrintRequest.getSiteCode());
         // 7. 分批配送运单，不允许在分拣场地操作换单
-        if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+        if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
             final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(context.getWaybill().getWaybillCode());
             if(isDeliveryManyBatchResult.isFail()){
                 result.toError(JdResponse.CODE_WRONG_STATUS, isDeliveryManyBatchResult.getMessage());
