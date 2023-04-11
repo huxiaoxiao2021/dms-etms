@@ -110,7 +110,7 @@ public class JyTysUnloadTest {
                 InvokeResult<ScanPackageRespDto> param2 = new InvokeResult<>();
                 param2.success();
                 param2.setData(scanPackageRespDto);
-
+//                Object obj = jyUnloadVehicleTysService.privateCollectDeal(param1);
                 jyUnloadVehicleCheckTysService.collectDeal(param1, param2);
                 log.info(JsonHelper.toJson(param2));
             }catch (Exception e) {
