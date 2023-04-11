@@ -887,7 +887,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				||JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
 			boolean isEffectErp = false;
@@ -909,9 +910,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}else if(!JobTypeEnum.JOBTYPE6.getCode().equals(jobCode) && !isCarId){
 			result.toFail("签到失败，无效的身份证号！");
-			return result;
-		} else if (JobTypeEnum.JOBTYPE7.getCode().equals(jobCode) && isCarId) {
-			result.toFail("签到失败，联盟工请使用人员码签到，身份证签到无计提！");
 			return result;
 		}
 		return result;
