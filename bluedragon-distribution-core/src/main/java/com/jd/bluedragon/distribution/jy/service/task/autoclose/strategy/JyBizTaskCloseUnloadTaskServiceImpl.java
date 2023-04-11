@@ -28,6 +28,8 @@ import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jim.cli.Cluster;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
@@ -89,6 +91,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
      * @time 2023-01-31 17:00:46 周二
      */
     @Override
+    @JProfiler(jKey = "DMS.WORKER.JyBizTaskCloseUnloadTaskServiceImpl.closeTask", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Void> closeTask(AutoCloseTaskPo autoCloseTaskPo) {
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         Result<Void> result = Result.success();
