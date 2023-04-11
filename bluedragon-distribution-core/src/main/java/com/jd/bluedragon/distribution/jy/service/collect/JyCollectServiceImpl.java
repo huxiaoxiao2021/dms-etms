@@ -244,7 +244,7 @@ public class JyCollectServiceImpl implements JyCollectService{
         }
 
         if(log.isInfoEnabled()) {
-            log.info("getCollectionCodeEntityByElement获取collectionCode集合,param=【{}{}{}】,返回={}", bizCode,siteCode, isManualCreateTask, JsonHelper.toJson(collectionCodeEntityList));
+            log.info("getCollectionCodeEntityByElement获取collectionCode集合,param=【{}|{}|{}】,返回={}", bizCode,siteCode, isManualCreateTask, JsonHelper.toJson(collectionCodeEntityList));
         }
         return collectionCodeEntityList;
     }
