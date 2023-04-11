@@ -215,6 +215,9 @@ public class JyCollectServiceImpl implements JyCollectService{
                     && StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()));
 
         if (CollectionUtils.isEmpty(collectionCodeEntityList)) {
+            if(log.isInfoEnabled()) {
+                log.info("getCollectionCodeEntityByElement获取collectionCode集合为空,param=【{}{}】",JsonHelper.toJson(element), JsonHelper.toJson(businessType));
+            }
             collectionCodeEntityList = new ArrayList<>();
         }
 
@@ -238,6 +241,10 @@ public class JyCollectServiceImpl implements JyCollectService{
                 collectionCodeEntity.setCollectionCode(collectionRecordService.getCollectionCode(collectionCodeEntity, "NONE"));
                 collectionCodeEntityList.add(collectionCodeEntity);
             }
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("getCollectionCodeEntityByElement获取collectionCode集合,param=【{}{}{}】,返回={}", bizCode,siteCode, isManualCreateTask, JsonHelper.toJson(collectionCodeEntityList));
         }
         return collectionCodeEntityList;
     }
