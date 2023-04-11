@@ -565,11 +565,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
         // 更新批次状态
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        if (!jyBizTaskComboardService.updateBoardStatusBySendCode(batchCode, operateUserCode, operateUserName)) {
+        /*if (!jyBizTaskComboardService.updateBoardStatusBySendCode(batchCode, operateUserCode, operateUserName)) {
             invokeResult.setData(Boolean.FALSE);
             invokeResult.setMessage("更新板状态失败！");
             return invokeResult;
-        }
+        }*/
         InvokeResult<Boolean> result = deleteBySendVehicleBizId(sealCarCodeOfTms.getTransWorkItemCode(), operateUserCode, operateUserName);
         if (result != null && result.getData() == Boolean.FALSE) {
             throw new JyBizException("删除封签列表失败！");
