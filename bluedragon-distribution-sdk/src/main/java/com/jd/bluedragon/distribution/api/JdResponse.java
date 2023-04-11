@@ -229,7 +229,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_CODE_PRINT_WEIGHT_ALTER = "重量错误，请重新称重！";
 
     public static final Integer CODE_HALF_SEND_NOT_ALLOW_CHANGE_NEW_WAYBILL = 30124;
-    public static final String MESSAGE_HALF_SEND_NOT_ALLOW_CHANGE_NEW_WAYBILL = "先到先送运单不允许再当前场地操作换单/换单打印";
+    public static final String MESSAGE_HALF_SEND_NOT_ALLOW_CHANGE_NEW_WAYBILL = "先到先送运单不允许在当前场地操作换单/换单打印";
 
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";

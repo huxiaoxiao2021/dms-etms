@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -14,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * 先到先动增值服务换单打印允许操作站点校验
@@ -37,6 +40,11 @@ public class HalfSendExchangeNewWaybillCheckSiteHandler implements InterceptHand
         InterceptResult<String> result = context.getResult();
 
         final WaybillPrintRequest waybillPrintRequest = context.getRequest();
+        final Integer operateType = waybillPrintRequest.getOperateType();
+        // 只有站长工作台换单打印才校验
+        if(!Objects.equals(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT, operateType)){
+            return result;
+        }
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybillPrintRequest.getSiteCode());
         // 7. 分批配送运单，不允许在分拣场地操作换单
         if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
