@@ -263,6 +263,6 @@ public interface JyUnloadVehicleTysService {
 
 
 
-    InvokeResult<ScanPackageRespDto> privateCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult);
+    InvokeResult<ScanPackageRespDto> privateCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto);
 
 }
