@@ -515,10 +515,14 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
                             collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
                         }
+                        log.info("collectTheScanCode:主表插入修改collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
                         if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
                             collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                             collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
-                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            if(insertNum <= 0 && log.isInfoEnabled()) {
+                                log.info("collectTheScanCode:主表插入数量为0，collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
+                            }
                         }
                         jimDbLock.releaseLock(key, "1");
 
