@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportDetailResDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportQueryParamReqDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportReqDto;
-import com.jd.bluedragon.distribution.jy.dto.collect.CollectReportResDto;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 
 import java.util.List;
@@ -272,5 +269,9 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto);
+
+
+
+    InvokeResult<ScanPackageRespDto> privateCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult);
 
 }
