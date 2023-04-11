@@ -181,7 +181,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         /* 新增到数据库中 */
                         //todo zcf 插入
                         if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
-                            collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                            Integer barthInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                            if(log.isInfoEnabled()) {
+                                log.info("initPartCollection:批量插入明细数量barthInsertNum={},collectionCode={},aggCode={}", barthInsertNum,collectionCode, aggCode);
+                            }
                         }
 
                         /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
@@ -197,9 +200,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         /* 更新到数据库中 */
                         //todo zcf 修改
                         if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
-                            collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                            Integer barthUpdateNum =collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
                                 collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                                     .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
+                            if(log.isInfoEnabled()) {
+                                log.info("initPartCollection:批量修改明细数量barthInsertNum={},collectionCode={},aggCode={}", barthUpdateNum, collectionCode, aggCode);
+                            }
                         }
                     });
 
@@ -234,9 +240,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         }
                         collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
                         //todo zcf 插入删除
+                        if(log.isInfoEnabled()) {
+                            log.info("initPartCollection：集齐主表统计插入修改collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                        }
                         if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
                             collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            if(insertNum <= 0 && log.isInfoEnabled()) {
+                                log.info("initPartCollection：集齐主表统计插入数量为0，collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                            }
                         }
                         jimDbLock.releaseLock(key, "1");
                     }
@@ -300,7 +312,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         ).collect(Collectors.toList());
                         /* 新增到数据库中 */
                         if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
-                            collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                            Integer batchInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                            if(log.isInfoEnabled()) {
+                                log.info("initAndCollectedPartCollection:批量插入数量为{}，collectionCode-{},aggCode={}", batchInsertNum, collectionCode, aggCode);
+                            }
                         }
 
                         /* 在过滤出已经存在的情况下，且状态是多扫或者未扫的状态下 */
@@ -317,9 +332,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             .collect(Collectors.groupingBy(CollectionRecordDetailPo::getCollectedMark))
                             .forEach((collectedMark,itemCollectionRecordDetailPosExtraExist) -> {
                                 /* 更新到数据库中 */
-                                collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                                Integer batchUpdateNum = collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
                                     itemCollectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                                         .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,collectedMark);
+                                if(log.isInfoEnabled()) {
+                                    log.info("initAndCollectedPartCollection:批量修改数量为{}，collectionCode-{},aggCode={}", batchUpdateNum, collectionCode, aggCode);
+                                }
                             });
                     });
 
@@ -352,8 +370,15 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
                             Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                         collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
+
+                        if(log.isInfoEnabled()) {
+                            log.info("initAndCollectedPartCollection:插入或修改集齐主表数据collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                        }
                         if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                            collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                            if(log.isInfoEnabled()) {
+                                log.info("initAndCollectedPartCollection:插入集齐主表数据0条，collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                            }
                         }
                         jimDbLock.releaseLock(key, "1");
                     }
@@ -382,7 +407,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
 
         if(log.isInfoEnabled()) {
-            log.info("CollectionRecordService.collectTheScanCode单条修改集齐状态：camshaft={}", JsonUtils.toJSONString(collectionCollectorEntity));
+            log.info("CollectionRecordService.collectTheScanCode单条修改集齐状态：参数={}", JsonUtils.toJSONString(collectionCollectorEntity));
         }
         String scanCode = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode();
         String scanCodeType = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name();
@@ -432,19 +457,25 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .build())
                     .collect(Collectors.toList());
 
-                collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
+                Integer batchInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
+                if(log.isInfoEnabled()) {
+                    log.info("collectTheScanCode:批量插入数量为{},collectionRecordDetailPos(此场景理论只有一条数据)={}",batchInsertNum, JsonUtils.toJSONString(collectionRecordDetailPos));
+                }
             }
             if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
 
+                CollectionRecordDetailPo collectionRecordDetailPo = CollectionRecordDetailPo.builder()
+                        .collectionCode(collectionCodeEntity.getCollectionCode())
+                        .scanCode(scanCode)
+                        .collectedStatus(CollectionStatusEnum.collected.getStatus())
+                        .collectedMark(collectedMark)
+                        .collectedTime(new Date())
+                        .build();
                 //更新为集齐状态
-                collectionRecordDao.updateCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                    .collectionCode(collectionCodeEntity.getCollectionCode())
-                    .scanCode(scanCode)
-                    .collectedStatus(CollectionStatusEnum.collected.getStatus())
-                    .collectedMark(collectedMark)
-                    .collectedTime(new Date())
-                    .build());
-
+                Integer batchUpdateNum = collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo);
+                if(log.isInfoEnabled()) {
+                    log.info("collectTheScanCode:批量插入数量为{}, collectionRecordDetailPo={}",batchUpdateNum, JsonUtils.toJSONString(collectionRecordDetailPo));
+                }
             }
 
             /* 更新主表 */
