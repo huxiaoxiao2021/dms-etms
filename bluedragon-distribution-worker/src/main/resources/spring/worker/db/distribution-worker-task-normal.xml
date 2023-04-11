@@ -316,4 +316,5 @@
         <property name="type" value="1325"/>
         <property name="desc" value="设备校准任务"/>
     </bean>
+
 </beans>

@@ -848,6 +848,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
 		workStationGridCheckQuery.setBusinessKey(gridKey);
 		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+		// todo 增加结果的调用是否成功判断
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
 			result.toFail("岗位码对应的网格信息不存在，请先维护场地网格信息！");
