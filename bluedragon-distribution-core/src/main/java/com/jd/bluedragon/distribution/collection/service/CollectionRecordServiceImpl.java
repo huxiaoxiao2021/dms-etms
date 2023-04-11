@@ -75,7 +75,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         if(log.isInfoEnabled()) {
             log.info("{},参数={},erp={},condition={}", methodDesc, JSON.toJSONString(collectionCodeEntity), userErp, condition);
         }
-        String JQCode = kvIndexDao.queryRecentOneByKeyword(condition);
+        String JQCode = kvIndexDao.queryRecentOneByKeyword(condition.toUpperCase());
         if (StringUtils.isNotEmpty(JQCode)) {
             log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}，condition={}", JQCode, JSON.toJSONString(collectionCodeEntity), condition);
             return JQCode;
@@ -99,7 +99,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             )
             .flatMap((Function<CollectionBusinessTypeEnum, Stream<CollectionCodeEntity>>)businessTypeEnum -> {
                 CollectionCodeEntity collectionCodeEntity = CollectionEntityConverter.buildCollectionCodeEntity(elements, businessTypeEnum, null);
-                List<String> jqCodes = kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition());
+                List<String> jqCodes = kvIndexDao.queryByKeyword(collectionCodeEntity.getCollectionCondition().toUpperCase());
                 if (CollectionUtils.isEmpty(jqCodes)) {
                     return Stream.empty();
                 }
