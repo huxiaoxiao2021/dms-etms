@@ -508,7 +508,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return null;
         }
         if(log.isInfoEnabled()) {
-            log.info("sumCollectionByAggCodeAndCollectionCode:start:参数【{}|{}|{}|{}|{}】，参数={}",
+            log.info("sumCollectionByAggCodeAndCollectionCode:start:参数【{}|{}|{}|{}|{}】",
                     JsonUtils.toJSONString(collectionCodeEntities), JsonUtils.toJSONString(importCollectionCodeEntity), aggCode, JsonUtils.toJSONString(aggCodeTypeEnum), collectedMark);
         }
         List<CollectionCodeEntity> codeEntities = collectionCodeEntities.parallelStream().filter(collectionCodeEntity -> {
@@ -522,7 +522,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return CollectionUtils.isNotEmpty(collectionRecordPos);
         }).collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(collectionCodes)) {
+        if (CollectionUtils.isEmpty(codeEntities)) {
             log.warn("本次在多个池子中查询的数据，都是未进行初始化的数据，数据将使用兜底的场地的数据进行查询");
             codeEntities.add(importCollectionCodeEntity);
         }
