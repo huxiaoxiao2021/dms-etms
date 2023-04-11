@@ -2342,4 +2342,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
     }
 
+
+    @Override
+    public InvokeResult<ScanPackageRespDto> privateCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        jyUnloadVehicleCheckTysService.collectDeal(unloadScanCollectDealDto, invokeResult);
+        return invokeResult;
+    }
+
 }

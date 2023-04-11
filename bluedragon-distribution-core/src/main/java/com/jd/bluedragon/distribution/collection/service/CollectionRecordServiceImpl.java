@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.collection.builder.CollectionEntityConvert
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
 import com.jd.jsf.gd.util.JsonUtils;
@@ -67,7 +68,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return "";
         }
         String condition = collectionCodeEntity.buildCollectionCondition().getCollectionCondition();
-        if (StringUtils.isEmpty(condition)) {
+        if (StringUtils.isBlank(condition)) {
             log.error("获取待集齐集合ID的要素失败，参数错误：{}", JSON.toJSONString(collectionCodeEntity));
             return "";
         }
@@ -79,9 +80,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.info("获取到已经创建的待集齐集合ID[{}],参数为:{}，condition={}", JQCode, JSON.toJSONString(collectionCodeEntity), condition);
             return JQCode;
         }
-        return jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
+        JQCode = jqCodeService.createJQCode(collectionCodeEntity.getCollectElements(), collectionCodeEntity.getBusinessType(),
             BusinessCodeFromSourceEnum.DMS_WORKER_SYS, null == userErp? "none" : userErp);
-
+        if(log.isInfoEnabled()) {
+            log.info("{},生成collectionCode成功；参数={},erp={},condition={}, JQCode={}", methodDesc, JSON.toJSONString(collectionCodeEntity), userErp, condition, JQCode);
+        }
+        return JQCode;
     }
 
     @Override
@@ -160,6 +164,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     /* 对包裹列表数进行分页处理 */
                     Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
                         /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
+                        //todo zcf 查明细
                         List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
                             collectionRecordDao.findExistDetails(collectionCode,
                                 partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
@@ -174,6 +179,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                             collectionRecordDetailPo -> !collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
                         ).collect(Collectors.toList());
                         /* 新增到数据库中 */
+                        //todo zcf 插入
                         if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
                             collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                         }
@@ -189,6 +195,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                     )
                         ).collect(Collectors.toList());
                         /* 更新到数据库中 */
+                        //todo zcf 修改
                         if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
                             collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
                                 collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
@@ -202,7 +209,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .findAny().orElse("");
 
                     String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
-                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
+                    if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
+                        //todo zcf 统计明细数据查询
                         CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
                             collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
                         if(log.isInfoEnabled()) {
@@ -225,7 +233,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
                         }
                         collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-
+                        //todo zcf 插入删除
                         if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
                             collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
                             collectionRecordDao.insertCollectionRecord(collectionRecordPo);
@@ -276,6 +284,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     /* 对包裹列表数进行分页处理 */
                     Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
                         /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
+                        //todo zcf 查明细
                         List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
                             collectionRecordDao.findExistDetails(collectionCode,
                                 partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
@@ -315,7 +324,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     });
 
                     String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
-                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
+                    if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
 
                         String collectedMark = collectionRecordDetailPos.parallelStream()
                                 .map(CollectionRecordDetailPo::getCollectedMark)
@@ -360,7 +369,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     @JProfiler(jKey = "DMS.WEB.CollectionRecordService.collectTheScanCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean collectTheScanCode(CollectionCollectorEntity collectionCollectorEntity, Result<Boolean> result) {
         if (null == collectionCollectorEntity
-            || StringUtils.isEmpty(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode())) {
+            || StringUtils.isBlank(collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode())) {
             result.toFail("收集的待集齐单号不存在");
             result.setData(false);
             return false;
@@ -372,6 +381,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return false;
         }
 
+        if(log.isInfoEnabled()) {
+            log.info("CollectionRecordService.collectTheScanCode单条修改集齐状态：camshaft={}", JsonUtils.toJSONString(collectionCollectorEntity));
+        }
         String scanCode = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCode();
         String scanCodeType = collectionCollectorEntity.getCollectionScanCodeEntity().getScanCodeType().name();
         String collectedMark = collectionCollectorEntity.getCollectionScanCodeEntity().getCollectedMark();
@@ -383,7 +395,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCodeEntity> codeEntities = collectionCollectorEntity.genCollectionCodeEntities().parallelStream()
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCondition()))
             .peek(codeEntity ->
-                codeEntity.setCollectionCode(this.getOrGenJQCodeByBusinessType(codeEntity,"NONE"))
+                codeEntity.setCollectionCode(getCollectionCode(codeEntity, "NONE"))
             )
             .filter(collectionCodeEntity -> StringUtils.isNotEmpty(collectionCodeEntity.getCollectionCode()))//理论上collectionCode不会为空
             .collect(Collectors.toList());
@@ -446,7 +458,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             aggCodeDetailPos.forEach(aggCodeDetailPo -> {
 
                     String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCodeEntity.getCollectionCode(),aggCodeDetailPo.getAggCodeType(),aggCodeDetailPo.getAggCode());
-                    if (jimDbLock.tryLock(key,"1", 10L, TimeUnit.MINUTES)) {
+                    if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
 
                         /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
                         CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
@@ -491,7 +503,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     public List<CollectionAggCodeCounter> sumCollectionByAggCodeAndCollectionCode(List<CollectionCodeEntity> collectionCodeEntities, CollectionCodeEntity importCollectionCodeEntity,
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
-        if (CollectionUtils.isEmpty(collectionCodes) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null || StringUtils.isEmpty(collectedMark)) {
+        if (CollectionUtils.isEmpty(collectionCodes) || StringUtils.isBlank(aggCode) || aggCodeTypeEnum == null || StringUtils.isBlank(collectedMark)) {
             log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntities), aggCode, aggCodeTypeEnum, collectedMark);
             return null;
         }
@@ -537,7 +549,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
         String collectionCode = collectionCodeEntity.getCollectionCode();
-        if (StringUtils.isEmpty(collectionCode) || StringUtils.isEmpty(aggCode) || aggCodeTypeEnum == null) {
+        if (StringUtils.isBlank(collectionCode) || StringUtils.isBlank(aggCode) || aggCodeTypeEnum == null) {
             log.warn("根据aggCode查询集齐统计情况，参数不正确，请检查:{}-{}-{}-{}", JSON.toJSONString(collectionCodeEntity), aggCode, aggCodeTypeEnum, collectedMark);
             return null;
         }
@@ -609,7 +621,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
 
-        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isBlank(collectedMark)) {
             return Collections.emptyList();
         }
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
@@ -664,7 +676,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
 
-        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isBlank(collectedMark)) {
             return Collections.emptyList();
         }
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
@@ -700,7 +712,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode,
         String collectedMark, Integer limit, Integer offset) {
 
-        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || null == aggCodeTypeEnum || StringUtils.isBlank(collectedMark)) {
             return Collections.emptyList();
         }
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
@@ -734,7 +746,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     public List<CollectionAggCodeCounter> sumAggCollectionByCollectionCode(
         List<CollectionCodeEntity> collectionCodeEntities, List<String> aggCodes,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
-        if (CollectionUtils.isEmpty(collectionCodeEntities) || CollectionUtils.isEmpty(aggCodes) || null == aggCodeTypeEnum || StringUtils.isEmpty(collectedMark)) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || CollectionUtils.isEmpty(aggCodes) || null == aggCodeTypeEnum || StringUtils.isBlank(collectedMark)) {
             return Collections.emptyList();
         }
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
@@ -760,7 +772,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     public List<CollectionScanCodeDetail> queryCollectionScanDetailByAggCode(
         List<CollectionCodeEntity> collectionCodeEntities, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer limit, Integer offset) {
 
-        if (CollectionUtils.isEmpty(collectionCodeEntities) || StringUtils.isEmpty(aggCode) || null == aggCodeTypeEnum) {
+        if (CollectionUtils.isEmpty(collectionCodeEntities) || StringUtils.isBlank(aggCode) || null == aggCodeTypeEnum) {
             return Collections.emptyList();
         }
 
@@ -785,7 +797,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 .scanCodeType(collectionRecordDetailPo.getScanCodeType())
                 .collectedStatus(CollectionStatusEnum.getEnum(collectionRecordDetailPo.getCollectedStatus()))
                 .collectedMarkType(
-                    StringUtils.isEmpty(collectionRecordDetailPo.getCollectedMark())?
+                    StringUtils.isBlank(collectionRecordDetailPo.getCollectedMark())?
                         CollectionCollectedMarkTypeEnum.none :
                         Objects.equals(collectionRecordDetailPo.getCollectedMark(), collectedMark)?
                             CollectionCollectedMarkTypeEnum.inner : CollectionCollectedMarkTypeEnum.outer
@@ -816,5 +828,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities),
             aggCodeTypeEnum, collectedMark
         );
+    }
+
+
+    @Override
+    public String getCollectionCode(CollectionCodeEntity codeEntity, String erp) {
+        String code = this.getOrGenJQCodeByBusinessType(codeEntity,erp);
+        if(StringUtils.isBlank(code)) {
+            log.error("CollectionRecordServiceImpl.getCollectionCode:获取collectionCode为空,参数={}", JsonUtils.toJSONString(codeEntity));
+            throw new JyBizException("获取collectionCode为空");
+        }
+        return code;
     }
 }

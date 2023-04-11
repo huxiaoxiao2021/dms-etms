@@ -222,7 +222,7 @@ public class JyCollectServiceImpl implements JyCollectService{
             CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.all_site_collection);
             collectionCodeEntity.addAllKey(element);
             collectionCodeEntity.buildCollectionCondition();
-            collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
+            collectionCodeEntity.setCollectionCode(collectionRecordService.getCollectionCode(collectionCodeEntity, "NONE"));
             collectionCodeEntityList.add(collectionCodeEntity);
         }
 
@@ -235,7 +235,7 @@ public class JyCollectServiceImpl implements JyCollectService{
                 CollectionCodeEntity collectionCodeEntity = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
                 collectionCodeEntity.addAllKey(element);
                 collectionCodeEntity.buildCollectionCondition();
-                collectionCodeEntity.setCollectionCode(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, "NONE"));
+                collectionCodeEntity.setCollectionCode(collectionRecordService.getCollectionCode(collectionCodeEntity, "NONE"));
                 collectionCodeEntityList.add(collectionCodeEntity);
             }
         }
@@ -397,7 +397,7 @@ public class JyCollectServiceImpl implements JyCollectService{
     //集齐初始化参数组装
     private CollectionCodeEntity getCollectionCodeEntity(CollectDto collectDto, CollectionBusinessTypeEnum businessTypeEnum) {
         CollectionCodeEntity collectionCodeEntity = buildCollectionCodeEntity(collectDto, businessTypeEnum);
-        String collectionCode = collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntity, collectDto.getOperatorErp());
+        String collectionCode = collectionRecordService.getCollectionCode(collectionCodeEntity, collectDto.getOperatorErp());
         if(log.isInfoEnabled()) {
             log.info("JyCollectServiceImpl.getCollectionCodeEntity获取collectionCode，参数collectionCodeEntity={},res={}", JsonHelper.toJson(collectionCodeEntity), collectionCode);
         }
@@ -500,7 +500,9 @@ public class JyCollectServiceImpl implements JyCollectService{
     @JProfiler(jKey = "JyCollectServiceImpl.scanQueryCollectTypeStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public UnloadCollectDto scanQueryCollectTypeStatistics(UnloadScanCollectDealDto reqDto) {
         String methodDesc = "JyCollectServiceImpl.scanQueryCollectTypeStatistics：实操扫描查询统计：";
-
+        if(log.isInfoEnabled()) {
+            log.info("{}入参={}", methodDesc, JsonHelper.toJson(reqDto));
+        }
         //自建任务只能命中一个池子，非自建任务可能命中两个池子
         List<CollectionCodeEntity> collectionCodeEntityList = this.getCollectionCodeEntityByElement(reqDto.getBizId()
             , reqDto.getCurrentOperate().getSiteCode(), Boolean.TRUE.equals(reqDto.getManualCreateTaskFlag()));

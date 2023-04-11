@@ -143,5 +143,5 @@ public interface CollectionRecordService {
      */
     Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<CollectionCodeEntity> collectionCodeEntities, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark);
 
-
+    String getCollectionCode(CollectionCodeEntity codeEntity, String erp);
 }
