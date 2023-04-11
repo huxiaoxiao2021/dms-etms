@@ -253,7 +253,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if(task.getProcessingStatus() != null && JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()) != null){
                 processStatus = JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName();
             }
-            bizLog.setRemark(String.format(msg,entity.getUpdateUserErp(),cycle.getName(),status,processStatus));
+            String erp =StringUtils.isNotBlank(entity.getUpdateUserErp())?entity.getUpdateUserErp():"";
+            bizLog.setRemark(String.format(msg,erp,cycle.getName(),status,processStatus));
             jyBizTaskExceptionLogDao.insertSelective(bizLog);
         }catch (Exception e){
             logger.error("保存日志信息出错 req-{}-{}",JSON.toJSONString(entity),e.getMessage(),e);
@@ -1032,14 +1033,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 回传状态
         Integer notifyStatus = jyExCustomerNotifyMQ.getNotifyStatus();
         switch (CustomerNotifyStatusEnum.convertApproveEnum(notifyStatus)) {
+            case SELF_REPAIR_ORDER:
+                // 自营补单 todo 调用终端妥投接口
+                break;
+            case SELF_REPAIR_PRICE:
+                // 自营补差 todo 调用终端妥投接口
+                break;
             case AGREE_LP:
-                // 接不通/外单客户同意理赔:
+                // 外单客户同意理赔
                 break;
             case NOT_AGREE_LP:
                 // 外单客户不同意理赔
-                break;
-            case SELF_REPLENISH:
-                // 自营补单/补差: 妥投 todo 处理逻辑待定
                 break;
             case CANCEL_ORDER:
                 // 取消订单: 写报废全程跟踪，发拦截成功消息
@@ -1050,7 +1054,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return;
         }
         // 更新异常任务表状态
-        updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), jyExCustomerNotifyMQ.getOperateErp(), new Date(), true);
+        //updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), jyExCustomerNotifyMQ.getOperateErp(), new Date(), true);
     }
 
     private void kfNotifyCancelDeal(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {

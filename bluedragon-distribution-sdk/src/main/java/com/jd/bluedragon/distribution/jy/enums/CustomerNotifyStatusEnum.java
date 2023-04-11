@@ -10,10 +10,11 @@ public enum CustomerNotifyStatusEnum {
 
     // todo 枚举状态待客服系统同步
     UNKNOWN(0, "未知"),
-    AGREE_LP(1, "外单客户同意理赔"),
-    NOT_AGREE_LP(2, "外单客户不同意理赔"),
-    SELF_REPLENISH(3, "自营补单/补差"),
-    CANCEL_ORDER(4, "取消订单"),
+    SELF_REPAIR_ORDER(170, "自营补单"),
+    SELF_REPAIR_PRICE(171, "自营补差"),
+    AGREE_LP(172, "外单客户同意理赔"),
+    NOT_AGREE_LP(173, "外单客户不同意理赔"),
+    CANCEL_ORDER(174, "取消订单"),
     ;
 
     private Integer code;
