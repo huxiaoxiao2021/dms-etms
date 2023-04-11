@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
@@ -38,8 +39,10 @@ public class HalfSendExchangeNewWaybillCheckSiteHandler implements InterceptHand
         final WaybillPrintRequest waybillPrintRequest = context.getRequest();
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybillPrintRequest.getSiteCode());
         // 7. 分批配送运单，不允许在分拣场地操作换单
-        if (!BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())) {
-            final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(context.getWaybill().getWaybillCode());
+        if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+            String oldBarCode = context.getRequest().getOldBarCode();/* 获取输入旧单号 */
+            String oldWaybillCode = WaybillUtil.getWaybillCode(oldBarCode);/* 获取旧运单号 */
+            final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(oldWaybillCode);
             if(isDeliveryManyBatchResult.isFail()){
                 result.toError(JdResponse.CODE_WRONG_STATUS, isDeliveryManyBatchResult.getMessage());
                 return result;

@@ -6,21 +6,26 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
+import com.jd.bluedragon.distribution.base.service.AbstractBaseUserService;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -38,11 +43,13 @@ import com.jd.bluedragon.distribution.command.JdCommandService;
 @Produces({MediaType.APPLICATION_JSON})
 public class CommandResource {
 
-    private static final Log logger = LogFactory.getLog(CommandResource.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractBaseUserService.class);
 
     @Autowired
     @Qualifier("packagePrintInternalService")
     private PackagePrintInternalService packagePrintInternalService;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      *
@@ -75,7 +82,14 @@ public class CommandResource {
 
         // 分拣中心首次打印
         request.getData().setSortingFirstPrint(1);
-
+        //对siteCode =1 进行处理
+        if(StringUtils.isNotBlank(request.getData().getOperatorErp()) && request.getData().getOperateSiteCode().equals(1)){
+            log.warn("此运单-{}，当前操作站点-{}",request.getData().getWaybillCode(),request.getData().getOperateSiteCode());
+            BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(request.getData().getOperatorErp());
+            if(baseStaff != null){
+                request.getData().setOperateSiteCode(baseStaff.getSiteCode());
+            }
+        }
         return packagePrintInternalService.printComplete(request);
     }
 }

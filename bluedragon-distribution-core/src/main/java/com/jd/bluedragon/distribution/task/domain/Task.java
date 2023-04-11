@@ -199,6 +199,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SORTING = 1002;
     public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SEND = 1003;
 
+    // 拣运作业任务自动关闭
+    public static final Integer TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE = 1326;
 
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
@@ -282,6 +284,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public static final String TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ = "SEQ_JY_OPEN_CARGO_OPERATE";
 
+    // 拣运作业任务自动关闭表
+    public static final String TABLE_NAME_TASK_JY_WORK_TASK_AUTO_CLOSE="task_jy_work_task_auto_close";
 
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
@@ -659,6 +663,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
             return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)) {
+            return Task.TABLE_NAME_TASK_JY_WORK_TASK_AUTO_CLOSE;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -1021,6 +1027,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "JYOpenSortingTask";
         }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
             return "JYOpenSendTask";
+        }else if(TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)){
+            return "JyBizTaskAutoCloseTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
