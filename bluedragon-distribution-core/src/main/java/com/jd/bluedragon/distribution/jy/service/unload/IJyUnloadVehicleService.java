@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 
 import java.util.List;
 
@@ -104,5 +105,7 @@ public interface IJyUnloadVehicleService {
      * @return
      */
 	InvokeResult<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request);
+
+    boolean judgeUnloadTaskNormal(UnloadPreviewData previewData, List<JyUnloadAggsEntity> unloadAggList);
 
 }
