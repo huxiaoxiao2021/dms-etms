@@ -132,4 +132,11 @@ public interface TaskService {
      * @time 2021-09-15 15:10:45 周三
      */
     List<Task> findVirtualBoardTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds, Integer lazyExecuteDays);
+
+    /**
+     * 查找作业工作台自动关闭任务，一个封车编码只有一条
+     * @author fanggang7
+     * @time 2023-03-21 16:34:55 周二
+     */
+    List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
 }

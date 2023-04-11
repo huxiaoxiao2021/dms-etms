@@ -630,7 +630,7 @@
         <property name="timeout" value="1000"/>
     </bean>
 
-    <!-- 设备抽检下发处理MQ -->
+    <!-- 设备抽检图片下发AI处理MQ -->
     <bean id="dwsIssueDealProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.spotCheck.dwsIssueDeal}"/>
         <property name="timeout" value="1000"/>
@@ -772,6 +772,12 @@
     <!--换单打印时的包裹信息 -->
     <bean id="changeWaybillPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.change.order.print}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--发送作业任务自动关闭消息 -->
+    <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}" />
         <property name="timeout" value="1000" />
     </bean>
 </beans>

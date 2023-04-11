@@ -1,11 +1,11 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -806,6 +806,11 @@ public class UccPropertyConfiguration {
      */
     private Integer cttGroupSendFLowLimit;
 
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -1242,6 +1247,11 @@ public class UccPropertyConfiguration {
     public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
         this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
     }
+
+    /**
+     * 自动关闭任务配置，转换为对象
+     */
+    private String autoCloseJyBizTaskConfig;
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
@@ -2945,5 +2955,25 @@ public class UccPropertyConfiguration {
 
     public boolean isDpSpringSiteCode(Integer siteCode) {
         return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
+    }
+
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
+        if(StringUtils.isNotBlank(autoCloseJyBizTaskConfig)){
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigResult = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+            return autoCloseJyBizTaskConfigResult;
+        }
+        return new AutoCloseJyBizTaskConfig();
+    }
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
     }
 }

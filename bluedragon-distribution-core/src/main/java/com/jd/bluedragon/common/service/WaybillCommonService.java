@@ -242,4 +242,15 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	List<WaybillVasDto> getWaybillVasList(String waybillCode);
+
+	/**
+	 * 针对航空/航填面单是否匹配滑道获取逻辑
+	 * @param waybillSign
+	 * @param sendPay
+	 * @param prepareSiteCode 预分拣派送站点
+	 * @param dmsSiteCode 当前操作分拣中心场地编码
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode);
 }

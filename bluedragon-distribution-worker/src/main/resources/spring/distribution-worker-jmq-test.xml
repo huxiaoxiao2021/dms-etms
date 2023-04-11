@@ -387,7 +387,7 @@
         <jmq:listener topic="${jmq.topic.dwsAIDistinguish.Notify}" listener="dwsAIDistinguishNotifyConsumer"/>
     </jmq:consumer>
 
-    <!-- dws抽检下发处理消息消费 -->
+    <!-- dws抽检图片下发AI处理消息消费 -->
     <jmq:consumer id="jmq.dwsIssueDealConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.spotCheck.dwsIssueDeal}" listener="dwsIssueDealConsumer"/>
     </jmq:consumer>
@@ -560,6 +560,11 @@
     <!--  换单打印消费  -->
     <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
+    </jmq:consumer>
+
+    <!-- 作业工作台自动关闭任务 -->
+    <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
     </jmq:consumer>
 
 </beans>

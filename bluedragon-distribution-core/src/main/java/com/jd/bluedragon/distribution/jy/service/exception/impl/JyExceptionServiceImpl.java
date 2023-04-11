@@ -49,6 +49,7 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -615,13 +616,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      *
      */
     @Override
-    public JdCResponse<ExpTaskDto> queryByBarcode(String barcode) {
+    public JdCResponse<ExpTaskDto> queryByBarcode(String barcode, String erp) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barcode);
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + barcode);
         }
         ExpTaskDto taskDto = getTaskDto(taskEntity);
+        if(ObjectUtils.notEqual(taskEntity.getHandlerErp(), erp)){
+            return JdCResponse.fail("您未领取该条码任务!" + barcode);
+        }
         return JdCResponse.ok(taskDto);
     }
 
