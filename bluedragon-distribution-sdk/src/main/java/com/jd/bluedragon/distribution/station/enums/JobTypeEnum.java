@@ -13,6 +13,7 @@ public enum JobTypeEnum {
 	JOBTYPE4(4,"临时工"),
 	JOBTYPE5(5,"小时工"),
     JOBTYPE6(6,"支援"),
+	JOBTYPE7(7, "联盟工"),
     ;
 	
 	private JobTypeEnum(Integer code, String name) {
