@@ -4,7 +4,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -543,24 +545,18 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	        }
 		}
 		//菜单权限验证，按场地限制
-        MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
-        menuUsageConfigRequestDto.setMenuCode(checkMenuAuthRequest.getMenuCode());
-        CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(checkMenuAuthRequest.getSiteCode());
-        menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
-        User user = new User();
-        user.setUserErp(checkMenuAuthRequest.getUserCode());
-        menuUsageConfigRequestDto.setUser(user);
-        MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
-        if(clientMenuUsageConfig != null) {
-        	respData.setCanUse(clientMenuUsageConfig.getCanUse());
-        	respData.setMsg(clientMenuUsageConfig.getMsg());
-        	respData.setMsgType(clientMenuUsageConfig.getMsgType());
-        	//菜单不可用
-        	if(Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
-        		checkResult.toFail(clientMenuUsageConfig.getMsg());
-	        	return checkResult; 
-        	}
+		FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
+		funcUsageConfigRequestDto.setFuncCode(checkMenuAuthRequest.getMenuCode());
+		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
+        operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
+        funcUsageConfigRequestDto.setOperateUser(operateUser);
+        FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+        if(menuUsageConfig != null) {
+        	respData.setCanUse(menuUsageConfig.getCanUse());
+        	respData.setMsg(menuUsageConfig.getMsg());
+        	respData.setMsgType(menuUsageConfig.getMsgType());
+        	respData.setUrl(menuUsageConfig.getUrl());
+        	respData.setUrlMsg(menuUsageConfig.getUrlMsg());
         }
 		return checkResult;
 	}
