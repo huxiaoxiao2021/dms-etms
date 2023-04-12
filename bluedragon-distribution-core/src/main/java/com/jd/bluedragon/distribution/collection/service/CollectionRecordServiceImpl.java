@@ -626,7 +626,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         if (CollectionUtils.isEmpty(collectionCodes)) {
             return 0;
         }
-
+        if(log.isInfoEnabled()) {
+            log.info("countNoneCollectedAggCodeNumByCollectionCode:查询集齐统计：collectionCodes={}，aggCodeTypeEnum={}， collectedMark={}",
+                    JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(aggCodeTypeEnum), collectedMark);
+        }
         return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
          collectedMark, Constants.NUMBER_ZERO, null);
 
