@@ -350,6 +350,15 @@ public class JyUnloadVehicleCheckTysService {
         res.setGoodNumber((!Objects.isNull(waybill) && !Objects.isNull(waybill.getGoodNumber())) ? waybill.getGoodNumber() : 0);
         res.setOldSiteId(waybill.getOldSiteId());
         res.setNextSiteId(scanPackageDto.getNextSiteCode());
+        //
+        if(res.getManualCreateTaskFlag() == null) {
+            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(res.getBizId());
+            if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+                res.setManualCreateTaskFlag(true);
+            }else {
+                res.setManualCreateTaskFlag(false);
+            }
+        }
         return res;
     }
 
@@ -1476,20 +1485,12 @@ public class JyUnloadVehicleCheckTysService {
         }
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyUnloadVehicleCheckTysService.collectDeal", false, true);
+        if (!ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())
+                && !ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
+            log.warn("{}非包裹或运单，暂不处理集齐逻辑 unloadScanDto={}", unloadScanCollectDealDto.getScanCode(), JsonUtils.toJSONString(unloadScanCollectDealDto));
+            return;
+        }
         try{
-            if (!ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())
-                    && !ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
-                log.warn("{}非包裹或运单，暂不处理集齐逻辑 unloadScanDto={}", unloadScanCollectDealDto.getScanCode(), JsonUtils.toJSONString(unloadScanCollectDealDto));
-                return;
-            }
-            if(unloadScanCollectDealDto.getManualCreateTaskFlag() == null) {
-                JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(unloadScanCollectDealDto.getBizId());
-                if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
-                    unloadScanCollectDealDto.setManualCreateTaskFlag(true);
-                }else {
-                    unloadScanCollectDealDto.setManualCreateTaskFlag(false);
-                }
-            }
             if(log.isInfoEnabled()) {
                 log.info("JyUnloadVehicleCheckTysService.collectDeal:转运卸车集齐处理下传参数：{}, 当前结果集数据为{}", JsonUtils.toJSONString(unloadScanCollectDealDto), JsonUtils.toJSONString(invokeResult));
             }
@@ -1509,7 +1510,24 @@ public class JyUnloadVehicleCheckTysService {
             resData.setUnloadCollectDto(null);
             Profiler.functionError(info);
         }finally {
+            sendInitMq(unloadScanCollectDealDto);
             Profiler.registerInfoEnd(info);
+        }
+    }
+
+    private void sendInitMq(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        //自建任务
+        if(unloadScanCollectDealDto.getManualCreateTaskFlag()) {
+            //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
+            taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
+        }else {
+            //判断为在末级别,则发送初始化的MQ，按运单集齐
+            CollectDto collectDto1 = new CollectDto();
+            collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
+            collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
+            collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
+            collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
+            jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
         }
     }
 
@@ -1528,8 +1546,6 @@ public class JyUnloadVehicleCheckTysService {
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
 
-        //自建任务扫描时集齐Model初始化运单下所有包裹，走异步  （consumer保证幂等  场地+封车编码+单号）
-        taskNullScanInitCollectSendMq(unloadScanCollectDealDto);
         //修改集齐状态 + 处理返回集齐结果 （按单验初始化时直接修改集齐状态）
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             collectDto.setCollectType(CollectTypeEnum.TASK_JIQI.getCode());
@@ -1556,13 +1572,6 @@ public class JyUnloadVehicleCheckTysService {
         UnloadCollectDto collectDto = new UnloadCollectDto();
         resData.setUnloadCollectDto(collectDto);
 
-        //判断为在末级别,则发送初始化的MQ，按运单集齐
-        CollectDto collectDto1 = new CollectDto();
-        collectDto1.setWaybillCode(WaybillUtil.getWaybillCode(unloadScanCollectDealDto.getScanCode()));
-        collectDto1.setBizId(unloadScanCollectDealDto.getBizId());
-        collectDto1.setCollectNodeSiteCode(unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
-        collectDto1.setOperatorErp(unloadScanCollectDealDto.getUser().getUserErp());
-        jyCollectService.sealCarWaybillCollectInitSendMq(collectDto1);
 
         if (ScanCodeTypeEnum.SCAN_WAYBILL.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //按运单修改集齐状态mq： 异步
