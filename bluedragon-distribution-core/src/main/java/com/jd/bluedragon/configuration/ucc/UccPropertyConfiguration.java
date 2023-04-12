@@ -811,7 +811,7 @@ public class UccPropertyConfiguration {
      *  以,隔开，ALL标识开通全国
      */
     private String volumeExcessIssueSites;
-    
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -1219,6 +1219,16 @@ public class UccPropertyConfiguration {
     private String czSiteTypeForbiddenList;
 
     private boolean batchSendForbiddenSwitch;
+
+    private boolean loadProgressByTransWorkCode;
+
+    public boolean getLoadProgressByTransWorkCode() {
+        return loadProgressByTransWorkCode;
+    }
+
+    public void setLoadProgressByTransWorkCode(boolean loadProgressByTransWorkCode) {
+        this.loadProgressByTransWorkCode = loadProgressByTransWorkCode;
+    }
 
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;

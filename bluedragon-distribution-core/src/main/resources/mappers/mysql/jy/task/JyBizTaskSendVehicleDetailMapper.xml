@@ -616,4 +616,15 @@
             and end_site_id = #{endSiteId}
             and create_time &gt;= #{createTimeBegin}
     </select>
+
+    <select id="findSendVehicleDetailByTransWorkCode" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            id,send_vehicle_biz_id,biz_id,trans_work_item_code,vehicle_status,start_site_id,end_site_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE send_vehicle_biz_id in
+              (SELECT biz_id
+        FROM jy_biz_task_send_vehicle
+        WHERE yn = 1
+          AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR})
+    </select>
 </mapper>

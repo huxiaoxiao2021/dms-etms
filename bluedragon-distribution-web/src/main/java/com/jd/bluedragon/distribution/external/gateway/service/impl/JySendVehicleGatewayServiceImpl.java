@@ -10,7 +10,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTyp
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
@@ -217,5 +219,10 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     @Override
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
+    }
+
+    @Override
+    public JdCResponse<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
+        return retJdCResponse(jySendVehicleService.onlineGetTaskSimpleCode(request));
     }
 }

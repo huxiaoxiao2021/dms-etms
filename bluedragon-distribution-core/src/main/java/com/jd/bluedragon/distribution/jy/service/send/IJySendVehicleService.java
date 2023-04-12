@@ -247,4 +247,9 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
+
+    /**
+     * 开放操作进度数据：发送操作进度消息
+     */
+    boolean openOperateProgress(OperateProgressRequest request);
 }
