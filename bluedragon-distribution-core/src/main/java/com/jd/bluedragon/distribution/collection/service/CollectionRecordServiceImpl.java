@@ -12,8 +12,10 @@ import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.fastjson.JSON;
+import com.jd.jim.cli.Cluster;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -22,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -48,17 +51,24 @@ import java.util.stream.Stream;
 @Slf4j
 public class CollectionRecordServiceImpl implements CollectionRecordService{
 
+
+    /**
+     * 自动过期时间 10分钟
+     */
+    private final static long REDIS_CACHE_EXPIRE_TIME = 10 * 60;
+
     @Autowired
     private CollectionRecordDao collectionRecordDao;
-
     @Autowired
     private JimDbLock jimDbLock;
-
     @Autowired
     private KvIndexDao kvIndexDao;
-
     @Autowired
     private JQCodeService jqCodeService;
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClient;
+
 
     @Override
     @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getOrGenJQCodeByBusinessType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -177,22 +187,24 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
      * 加锁
      */
     private void initPartCollectionCollectRecordDetailHandler(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
-            /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
-            List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
+        initPartCollectionCollectRecordDetailHandlerLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+        try{
+            Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
+                /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
+                    List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
                     collectionRecordDao.findExistDetails(collectionCode,
-                            partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-                                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
+                    partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
+                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
 
-            Map<String, List<CollectionRecordDetailPo>> collectionRecordDetailPosExistMap =
+                    Map<String, List<CollectionRecordDetailPo>> collectionRecordDetailPosExistMap =
                     collectionRecordDetailPosExist.parallelStream().collect(Collectors.groupingBy(CollectionRecordDetailPo::getScanCode));
 
-            /* 如果待初始化的信息，已经在待集齐集合中存在，那么需要根据已经存在的信息选择更新状态或者是skip，分两拨处理 */
-            List<CollectionRecordDetailPo> collectionRecordDetailPosNotExist = partitionDetailPos.parallelStream().filter(
+                    /* 如果待初始化的信息，已经在待集齐集合中存在，那么需要根据已经存在的信息选择更新状态或者是skip，分两拨处理 */
+                    List<CollectionRecordDetailPo> collectionRecordDetailPosNotExist = partitionDetailPos.parallelStream().filter(
                     /* 首选过滤出不存在的情况 */
                     collectionRecordDetailPo -> !collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
             ).collect(Collectors.toList());
-            /* 新增到数据库中 */
+                    /* 新增到数据库中 */
             if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
                 Integer barthInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                 if(log.isInfoEnabled()) {
@@ -200,17 +212,17 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 }
             }
 
-            /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
-            List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = partitionDetailPos.parallelStream().filter(
-                    /* 首选过滤出存在且标注多扫的状态 */
-                    collectionRecordDetailPo ->
-                            collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode()) &&
-                                    collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode()).parallelStream().anyMatch(
-                                            collectionRecordDetailPo1 -> CollectionStatusEnum.extra_collected.getStatus().equals(
-                                                    collectionRecordDetailPo1.getCollectedStatus())
-                                    )
-            ).collect(Collectors.toList());
-            /* 更新到数据库中 */
+                        /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
+                        List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = partitionDetailPos.parallelStream().filter(
+                                /* 首选过滤出存在且标注多扫的状态 */
+                                collectionRecordDetailPo ->
+                                        collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode()) &&
+                                                collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode()).parallelStream().anyMatch(
+                                                        collectionRecordDetailPo1 -> CollectionStatusEnum.extra_collected.getStatus().equals(
+                                                                collectionRecordDetailPo1.getCollectedStatus())
+                                                )
+                        ).collect(Collectors.toList());
+                    /* 更新到数据库中 */
             if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
                 Integer barthUpdateNum =collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
                         collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
@@ -219,7 +231,49 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     log.info("initPartCollection:批量修改明细数量barthInsertNum={},collectionCode={},aggCode={}", barthUpdateNum, collectionCode, aggCode);
                 }
             }
-        });
+            });
+        }catch (Exception e) {
+            log.error("initPartCollection:集齐初始化包裹处理部分异常collectionCode={},aggCode={},errMsg={}", collectionCode, aggCode, e.getMessage(), e);
+            throw new JyBizException("集齐初始化包裹处理部分异常");
+        }finally {
+            initPartCollectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+        }
+    }
+
+    private void initPartCollectionCollectRecordDetailHandlerLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+        if (!jimDbLock.lock(aggCodeKey,"1", 10L, TimeUnit.MINUTES)) {
+            log.warn("");
+            throw new JyBizException("集齐初始化包裹list分段锁资源竞争失败");
+        }
+        try{
+            String partPackageKey =  MessageFormat.format(Constants.JQ_PART_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+            for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
+                int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
+                if(redisClient.getBit(partPackageKey, currNum)) {
+                    log.info("集齐部分包裹list加bit锁,存在下表{}的重复包裹{}正在处理中，key={},异常稍后重试", currNum, detailPo.getScanCode(), partPackageKey);
+                    throw new JyBizException("集齐初始化包裹list分段加bit锁获取失败" + detailPo.getScanCode());
+                }
+            }
+            //在redis3.2.0中增加了bitfield命令，进行批量对位图的操作。
+            for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
+                int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
+                redisClient.setBit(partPackageKey, currNum, true);
+            }
+            redisClient.expire(partPackageKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
+        }catch (Exception e) {
+            throw new JyBizException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
+        }finally {
+            jimDbLock.releaseLock(aggCodeKey,"1");
+        }
+    }
+
+    private void initPartCollectionCollectRecordDetailHandlerUnLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        String partPackageKey =  MessageFormat.format(Constants.JQ_PART_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+        for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
+            int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
+            redisClient.setBit(partPackageKey, currNum, false);
+        }
     }
 
     /**

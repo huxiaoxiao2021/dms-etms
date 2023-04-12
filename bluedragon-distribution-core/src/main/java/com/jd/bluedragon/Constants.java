@@ -1846,4 +1846,12 @@ public class Constants {
      * 集齐加锁前缀
      */
     public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
+    /**
+     * 集齐运单锁（内部给部分包裹list加bit锁）
+     */
+    public static final String JQ_DETAIL_AGG_LOCK_PREFIX = "JQ_LOCK_DETAIL_AGG_{0}_{1}_{2}";
+    /**
+     * 集齐部分包裹bit锁
+     */
+    public static final String JQ_PART_DETAIL_AGG_LOCK_PREFIX = "JQ_PART_LOCK_DETAIL_AGG_{0}_{1}_{2}";
 }
