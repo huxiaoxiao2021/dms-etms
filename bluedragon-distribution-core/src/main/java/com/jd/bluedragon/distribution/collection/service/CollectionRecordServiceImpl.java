@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collection.service;
 
+import IceInternal.Ex;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -161,101 +162,125 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 }
                 collectionRecordDetailPoMaps.forEach((aggCode, collectionRecordDetailPos) -> {
 
-                    /* 对包裹列表数进行分页处理 */
-                    Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
-                        /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
-                        //todo zcf 查明细
-                        List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
-                            collectionRecordDao.findExistDetails(collectionCode,
-                                partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-                                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
-
-                        Map<String, List<CollectionRecordDetailPo>> collectionRecordDetailPosExistMap =
-                            collectionRecordDetailPosExist.parallelStream().collect(Collectors.groupingBy(CollectionRecordDetailPo::getScanCode));
-
-                        /* 如果待初始化的信息，已经在待集齐集合中存在，那么需要根据已经存在的信息选择更新状态或者是skip，分两拨处理 */
-                        List<CollectionRecordDetailPo> collectionRecordDetailPosNotExist = partitionDetailPos.parallelStream().filter(
-                            /* 首选过滤出不存在的情况 */
-                            collectionRecordDetailPo -> !collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
-                        ).collect(Collectors.toList());
-                        /* 新增到数据库中 */
-                        //todo zcf 插入
-                        if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
-                            Integer barthInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
-                            if(log.isInfoEnabled()) {
-                                log.info("initPartCollection:批量插入明细数量barthInsertNum={},collectionCode={},aggCode={}", barthInsertNum,collectionCode, aggCode);
-                            }
-                        }
-
-                        /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
-                        List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = partitionDetailPos.parallelStream().filter(
-                            /* 首选过滤出存在且标注多扫的状态 */
-                            collectionRecordDetailPo ->
-                                collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode()) &&
-                                    collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode()).parallelStream().anyMatch(
-                                        collectionRecordDetailPo1 -> CollectionStatusEnum.extra_collected.getStatus().equals(
-                                            collectionRecordDetailPo1.getCollectedStatus())
-                                    )
-                        ).collect(Collectors.toList());
-                        /* 更新到数据库中 */
-                        //todo zcf 修改
-                        if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
-                            Integer barthUpdateNum =collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
-                                collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
-                                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
-                            if(log.isInfoEnabled()) {
-                                log.info("initPartCollection:批量修改明细数量barthInsertNum={},collectionCode={},aggCode={}", barthUpdateNum, collectionCode, aggCode);
-                            }
-                        }
-                    });
-
-                    String collectedMark = collectionRecordDetailPos.parallelStream()
-                        .map(CollectionRecordDetailPo::getCollectedMark)
-                        .filter(StringUtils::isNotEmpty)
-                        .findAny().orElse("");
-
-                    String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
-                    if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
-                        //todo zcf 统计明细数据查询
-                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                            collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
-                        if(log.isInfoEnabled()) {
-                            log.info("initPartCollection:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
-                                    collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
-                        }
-                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                        collectionRecordPo.setCollectionCode(collectionCode);
-                        collectionRecordPo.setAggCode(aggCode);
-                        collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
-                        collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
-                        collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
-                        collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                        collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-
-                        if (StringUtils.isNotEmpty(collectedMark)) {
-                            collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum()>0?
-                                Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                        }
-                        collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode,""));
-                        //todo zcf 插入删除
-                        if(log.isInfoEnabled()) {
-                            log.info("initPartCollection：集齐主表统计插入修改collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
-                        }
-                        if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                            Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
-                            if(insertNum <= 0 && log.isInfoEnabled()) {
-                                log.info("initPartCollection：集齐主表统计插入数量为0，collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
-                            }
-                        }
-                        jimDbLock.releaseLock(key, "1");
-                    }
+                    /* 对集齐明细数进行分页处理 */
+                    initPartCollectionCollectRecordDetailHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+                    /* 对集齐主表数据进行处理 */
+                    initPartCollectionCollectRecordHandler(collectionCreatorEntity, collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
                 });
             });
 
         return true;
+    }
+
+    /**
+     * 集齐初始化处理明细表逻辑
+     * 加锁
+     */
+    private void initPartCollectionCollectRecordDetailHandler(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
+            /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
+            List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
+                    collectionRecordDao.findExistDetails(collectionCode,
+                            partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
+                                    .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
+
+            Map<String, List<CollectionRecordDetailPo>> collectionRecordDetailPosExistMap =
+                    collectionRecordDetailPosExist.parallelStream().collect(Collectors.groupingBy(CollectionRecordDetailPo::getScanCode));
+
+            /* 如果待初始化的信息，已经在待集齐集合中存在，那么需要根据已经存在的信息选择更新状态或者是skip，分两拨处理 */
+            List<CollectionRecordDetailPo> collectionRecordDetailPosNotExist = partitionDetailPos.parallelStream().filter(
+                    /* 首选过滤出不存在的情况 */
+                    collectionRecordDetailPo -> !collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode())
+            ).collect(Collectors.toList());
+            /* 新增到数据库中 */
+            if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
+                Integer barthInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                if(log.isInfoEnabled()) {
+                    log.info("initPartCollection:批量插入明细数量barthInsertNum={},collectionCode={},aggCode={}", barthInsertNum,collectionCode, aggCode);
+                }
+            }
+
+            /* 在过滤出已经存在的情况下，且状态是多扫的状态下 */
+            List<CollectionRecordDetailPo> collectionRecordDetailPosExtraExist = partitionDetailPos.parallelStream().filter(
+                    /* 首选过滤出存在且标注多扫的状态 */
+                    collectionRecordDetailPo ->
+                            collectionRecordDetailPosExistMap.containsKey(collectionRecordDetailPo.getScanCode()) &&
+                                    collectionRecordDetailPosExistMap.get(collectionRecordDetailPo.getScanCode()).parallelStream().anyMatch(
+                                            collectionRecordDetailPo1 -> CollectionStatusEnum.extra_collected.getStatus().equals(
+                                                    collectionRecordDetailPo1.getCollectedStatus())
+                                    )
+            ).collect(Collectors.toList());
+            /* 更新到数据库中 */
+            if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
+                Integer barthUpdateNum =collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                        collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
+                                .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
+                if(log.isInfoEnabled()) {
+                    log.info("initPartCollection:批量修改明细数量barthInsertNum={},collectionCode={},aggCode={}", barthUpdateNum, collectionCode, aggCode);
+                }
+            }
+        });
+    }
+
+    /**
+     * 集齐主表数据修改
+     */
+    private void initPartCollectionCollectRecordHandler(CollectionCreatorEntity collectionCreatorEntity, List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
+        String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+        String collectedMark = collectionRecordDetailPos.parallelStream()
+                .map(CollectionRecordDetailPo::getCollectedMark)
+                .filter(StringUtils::isNotEmpty)
+                .findAny().orElse("");
+        if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
+            try {
+                //统计明细数据查询
+                CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                        collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
+                if (log.isInfoEnabled()) {
+                    log.info("initPartCollection:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                            collectionCreatorEntity.getCollectionCodeEntity(), aggCode, aggCodeTypeEnum, collectedMark);
+                }
+                CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                collectionRecordPo.setCollectionCode(collectionCode);
+                collectionRecordPo.setAggCode(aggCode);
+                collectionRecordPo.setAggCodeType(aggCodeTypeEnum.name());
+                collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
+                collectionRecordPo.setIsInit(Constants.NUMBER_ONE);
+                collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0 ?
+                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0 ?
+                        Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+
+                if (StringUtils.isNotEmpty(collectedMark)) {
+                    collectionRecordPo.setIsMoreCollectedMark(collectionAggCodeCounter.getOutMarkCollectedNum() > 0 ?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                }
+                collectionRecordPo.setAggMark(collectionCreatorEntity.getCollectionAggMarks().getOrDefault(aggCode, ""));
+                //插入删除
+                if (log.isInfoEnabled()) {
+                    log.info("initPartCollection：集齐主表统计插入修改collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                }
+                if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                    collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
+                    Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                    if (insertNum <= 0 && log.isInfoEnabled()) {
+                        log.info("initPartCollection：集齐主表统计插入数量为0，collectionRecordPo={}", JsonUtils.toJSONString(collectionRecordPo));
+                    }
+                }
+
+            }catch (Exception e) {
+                log.error("集齐初始化主表统计数据处理异常collectionCreatorEntity={}，collectionCode={},aggCode={},errMsg={}",
+                        JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode, e.getMessage(), e);
+                throw new JyBizException("集齐初始化主表统计数据处理异常" + collectionCode + aggCode);
+            }finally {
+                jimDbLock.releaseLock(key, "1");
+            }
+        }else {
+            //获取不到锁抛异常外部jmq-consumer走重试
+            log.warn("集齐初始化主表统计数据处理没有获取到锁，异常重试，collectionCreatorEntity={}，collectionCode={},aggCode={}",
+                    JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode);
+            throw new JyBizException("集齐初始化主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
+        }
     }
 
     @Override
