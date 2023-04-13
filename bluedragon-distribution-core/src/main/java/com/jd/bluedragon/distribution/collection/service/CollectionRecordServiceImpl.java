@@ -790,7 +790,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.info("countNoneCollectedAggCodeNumByCollectionCode:查询集齐统计：collectionCodes={}，aggCodeTypeEnum={}， collectedMark={}",
                     JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(aggCodeTypeEnum), collectedMark);
         }
-        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+        return this.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
          collectedMark, Constants.NUMBER_ZERO, null);
 
     }
@@ -802,7 +802,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+        return this.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
             collectedMark, Constants.NUMBER_ONE, Constants.NUMBER_ZERO);
 
     }
@@ -814,9 +814,33 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         List<String> collectionCodes = CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities);
 
-        return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
+        return this.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeTypeEnum,
             collectedMark, Constants.NUMBER_ONE, Constants.NUMBER_ONE);
     }
+
+    private Integer countAggCodeByCollectionCodesAndStatus(List<String> collectionCodes, CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer numberOne, Integer numberOne1) {
+        List<String> aggCodes = collectionRecordDetailDao.getAggCodesByCollectedMark(collectionCodes, collectedMark,aggCodeTypeEnum.name());
+        if(CollectionUtils.isEmpty(aggCodes)) {
+            if(log.isInfoEnabled()) {
+                log.info("countAggCodeByCollectionCodesAndStatus:根据collectionCode【{}】任务【{}】查明细aggCode数量为0", JsonUtils.toJSONString(collectionCodes), collectedMark);
+            }
+            return 0;
+        }
+        if(aggCodes.size() <= Constants.DB_IN_MAX_SIZE) {
+            return collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodes, aggCodeTypeEnum.name(), numberOne, numberOne1);
+        }else {
+            if(log.isInfoEnabled()) {
+                log.info("countAggCodeByCollectionCodesAndStatus:根据collectionCode【{}】任务【{}】查aggCode数量为{}", JsonUtils.toJSONString(collectionCodes), collectedMark, aggCodes.size());
+            }
+            List<List<String>> aggCodesList = Lists.partition(aggCodes, Constants.DB_IN_MAX_SIZE);
+            Integer res = 0;
+            for(List<String> aggCodeList : aggCodesList) {
+                res += collectionRecordDao.countAggCodeByCollectionCodesAndStatus(collectionCodes, aggCodeList, aggCodeTypeEnum.name(), numberOne, numberOne1);
+            }
+            return res;
+        }
+    }
+
 
     @Override
     @JProfiler(jKey = "DMS.WEB.CollectionRecordService.sumNoneCollectedAggCodeByCollectionCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

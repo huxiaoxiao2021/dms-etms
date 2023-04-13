@@ -120,38 +120,6 @@
 		</where>
 	</select>
 
-	<!--todo zcf  拆分-->
-	<!--<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
-		SELECT
-			count(*)
-		FROM
-		(
-			SELECT cr.agg_code
-			FROM
-				collection_record_detail crd INNER JOIN collection_record cr
-			ON
-				crd.collection_code = cr.collection_code
-				AND crd.agg_code = cr.agg_code
-				AND crd.agg_code_type = cr.agg_code_type
-			WHERE
-				crd.yn = 1
-				AND cr.yn = 1
-				AND cr.is_init = 1
-		&lt;!&ndash;todo 类型&ndash;&gt;
-				AND cr.is_collected = #{isCollected, jdbcType=VARCHAR}
-				<if test="isMoreCollectedMark != null">
-					AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=VARCHAR}
-				</if>
-				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-				AND crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-				AND crd.collection_code IN
-				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-					#{collectionCode, jdbcType=VARCHAR}
-				</foreach>
-			GROUP BY cr.agg_code
-		) t
-	</select>-->
-
 	<select id="getMaxTimeStampByCollectionCodesAndCollectedMark" parameterType="java.util.Map"
 			resultType="java.sql.Timestamp">
 		SELECT
@@ -300,6 +268,20 @@
 		</where>
 		order by collected_mark
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+	</select>
+
+	<select id="getAggCodesByCollectedMark" parameterType="java.util.Map" resultType="java.lang.String">
+			SELECT distinct agg_code
+			FROM
+				collection_record_detail crd
+			WHERE
+				crd.yn = 1
+				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
+				AND crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				AND crd.collection_code IN
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
 	</select>
 
 </mapper>

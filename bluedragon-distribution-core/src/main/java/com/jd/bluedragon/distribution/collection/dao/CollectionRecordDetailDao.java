@@ -128,4 +128,12 @@ public class CollectionRecordDetailDao {
     public void setSequenceGenAdaptor(SequenceGenAdaptor sequenceGenAdaptor) {
         this.sequenceGenAdaptor = sequenceGenAdaptor;
     }
+
+    public List<String> getAggCodesByCollectedMark(List<String> collectionCodes, String collectedMark, String aggCodeTypeEnumName) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("aggCodeType", aggCodeTypeEnumName);
+        param.put("collectedMark", collectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".getAggCodesByCollectedMark"), param);
+    }
 }

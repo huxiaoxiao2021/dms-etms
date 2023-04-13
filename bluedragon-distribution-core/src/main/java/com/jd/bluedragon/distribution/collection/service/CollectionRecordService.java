@@ -80,14 +80,20 @@ public interface CollectionRecordService {
     /**
      * 通过查询元素定位到所有的满足该元素下的所有的集合的未集齐aggCode数量
      * @param collectionCodeEntities 查询元素 内包含待集齐集合ID
-     * @return 返回不齐数量
+     * @return 查不齐统计数量
      */
     Integer countNoneCollectedAggCodeNumByCollectionCode(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
+    /**
+     * 查本车集齐统计数量
+     */
     Integer countCollectionAggCodeNumByCollectionCodeInnerMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 
+    /**
+     * 查在库集齐统计数量
+     */
     Integer countCollectionAggCodeNumByCollectionCodeOutMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, String collectedMark);
 

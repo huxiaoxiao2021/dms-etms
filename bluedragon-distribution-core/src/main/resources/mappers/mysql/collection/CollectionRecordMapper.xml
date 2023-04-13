@@ -117,37 +117,26 @@
 		</where>
 	</select>
 
-	<!--todo zcf  拆分-->
 	<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
-		SELECT
-			count(*)
+		SELECT count(*)
 		FROM
-		(
-			SELECT cr.agg_code
-			FROM
-				collection_record_detail crd INNER JOIN collection_record cr
-			ON
-				crd.collection_code = cr.collection_code
-				AND crd.agg_code = cr.agg_code
-				AND crd.agg_code_type = cr.agg_code_type
-			WHERE
-				crd.yn = 1
-				AND cr.yn = 1
-				AND cr.is_init = 1
-		<!--todo 类型-->
-				AND cr.is_collected = #{isCollected, jdbcType=INTEGER}
-				<if test="isMoreCollectedMark != null">
-					AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
-				</if>
-				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-				AND crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-				AND crd.collection_code IN
+			collection_record cr
+		WHERE
+			AND cr.yn = 1
+			AND cr.is_init = 1
+			AND cr.is_collected = #{isCollected, jdbcType=INTEGER}
+			<if test="isMoreCollectedMark != null">
+				AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			AND cr.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			AND cr.collection_code IN
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
-			GROUP BY cr.agg_code
-		) t
-
+			AND cr.agg_code IN
+				<foreach collection="aggCodeList" open="(" item="aggCode" separator="," close=")">
+					#{agg_code, jdbcType=VARCHAR}
+				</foreach>
 	</select>
 
 	<!--todo zcf   -->
