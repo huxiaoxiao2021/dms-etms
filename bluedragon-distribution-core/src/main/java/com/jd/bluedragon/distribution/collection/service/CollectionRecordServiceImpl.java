@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.builder.CollectionEntityConverter;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
+import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
 import com.jd.bluedragon.distribution.collection.exception.CollectionException;
@@ -58,6 +59,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
     @Autowired
     private CollectionRecordDao collectionRecordDao;
+    @Autowired
+    private CollectionRecordDetailDao collectionRecordDetailDao;
     @Autowired
     private JimDbLock jimDbLock;
     @Autowired
@@ -191,7 +194,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
                 /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
                     List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
-                    collectionRecordDao.findExistDetails(collectionCode,
+                            collectionRecordDetailDao.findExistDetails(collectionCode,
                     partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                     .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
 
@@ -205,7 +208,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             ).collect(Collectors.toList());
                     /* 新增到数据库中 */
             if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
-                Integer barthInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                Integer barthInsertNum = collectionRecordDetailDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                 if(log.isInfoEnabled()) {
                     log.info("initPartCollection:批量插入明细数量barthInsertNum={},collectionCode={},aggCode={}", barthInsertNum,collectionCode, aggCode);
                 }
@@ -223,7 +226,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         ).collect(Collectors.toList());
                     /* 更新到数据库中 */
             if (CollectionUtils.isNotEmpty(collectionRecordDetailPosExtraExist)) {
-                Integer barthUpdateNum =collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                Integer barthUpdateNum =collectionRecordDetailDao.updateDetailInfoByScanCodes(collectionCode,
                         collectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                                 .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected,null);
                 if(log.isInfoEnabled()) {
@@ -392,7 +395,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
                 /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
                 List<CollectionRecordDetailPo> collectionRecordDetailPosExist =
-                        collectionRecordDao.findExistDetails(collectionCode,
+                        collectionRecordDetailDao.findExistDetails(collectionCode,
                                 partitionDetailPos.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                                         .collect(Collectors.toList()), aggCode, aggCodeTypeEnum);
 
@@ -406,7 +409,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 ).collect(Collectors.toList());
                 /* 新增到数据库中 */
                 if (CollectionUtils.isNotEmpty(collectionRecordDetailPosNotExist)) {
-                    Integer batchInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
+                    Integer batchInsertNum = collectionRecordDetailDao.batchInsertCollectionRecordDetail(collectionRecordDetailPosNotExist);
                     if (log.isInfoEnabled()) {
                         log.info("initAndCollectedPartCollection:批量插入数量为{}，collectionCode-{},aggCode={}", batchInsertNum, collectionCode, aggCode);
                     }
@@ -426,7 +429,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .collect(Collectors.groupingBy(CollectionRecordDetailPo::getCollectedMark))
                         .forEach((collectedMark, itemCollectionRecordDetailPosExtraExist) -> {
                             /* 更新到数据库中 */
-                            Integer batchUpdateNum = collectionRecordDao.updateDetailInfoByScanCodes(collectionCode,
+                            Integer batchUpdateNum = collectionRecordDetailDao.updateDetailInfoByScanCodes(collectionCode,
                                     itemCollectionRecordDetailPosExtraExist.parallelStream().map(CollectionRecordDetailPo::getScanCode)
                                             .collect(Collectors.toList()), aggCode, aggCodeTypeEnum, CollectionStatusEnum.collected, collectedMark);
                             if (log.isInfoEnabled()) {
@@ -563,7 +566,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         collectRecordDetailHandlerLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
         try {
             /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
-            List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
+            List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDetailDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
                     .collectionCode(collectionCodeEntity.getCollectionCode())
                     .scanCode(scanCode)
                     .build());
@@ -591,7 +594,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                 .build())
                         .collect(Collectors.toList());
 
-                Integer batchInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
+                Integer batchInsertNum = collectionRecordDetailDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
                 if (log.isInfoEnabled()) {
                     log.info("collectTheScanCode:批量插入数量为{},collectionRecordDetailPos(此场景理论只有一条数据)={}", batchInsertNum, JsonUtils.toJSONString(collectionRecordDetailPos));
                 }
@@ -606,7 +609,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .collectedTime(new Date())
                         .build();
                 //更新为集齐状态
-                Integer batchUpdateNum = collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo);
+                Integer batchUpdateNum = collectionRecordDetailDao.updateCollectionRecordDetail(collectionRecordDetailPo);
                 if (log.isInfoEnabled()) {
                     log.info("collectTheScanCode:批量插入数量为{}, collectionRecordDetailPo={}", batchUpdateNum, JsonUtils.toJSONString(collectionRecordDetailPo));
                 }
@@ -628,7 +631,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                                                         String scanCode,
                                                         String collectedMark) {
         /* 更新主表 */
-        List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
+        List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDetailDao.findAggCodeByScanCode(
                 CollectionRecordDetailPo.builder()
                         .collectionCode(collectionCodeEntity.getCollectionCode())
                         .scanCode(scanCode)
@@ -722,7 +725,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         if(log.isInfoEnabled()) {
             log.info("sumCollectionByAggCodeAndCollectionCode拿到collectionCode为{}，参数={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(codeEntities));
         }
-        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDao.countCollectionByAggCodeAndCollectionCodes(collectionCodes, aggCode, aggCodeTypeEnum);
+        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDetailDao.countCollectionByAggCodeAndCollectionCodes(collectionCodes, aggCode, aggCodeTypeEnum);
         if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
             log.error("根据aggCode查询集齐统计情况失败，参数为：{}-{}-{}",JSON.toJSONString(collectionCodes),aggCode, aggCodeTypeEnum);
             return null;
@@ -751,7 +754,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return null;
         }
 
-        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDao
+        List<CollectionCollectedMarkCounter> collectionCollectedMarkCounters = collectionRecordDetailDao
             .countCollectionByAggCodeAndCollectionCodes(Collections.singletonList(collectionCode), aggCode, aggCodeTypeEnum);
 
         if (CollectionUtils.isEmpty(collectionCollectedMarkCounters)) {
@@ -957,7 +960,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         Map<String, CollectionBusinessTypeEnum> aggMarkMap =
             collectionCodeEntities.stream().collect(Collectors.toMap(CollectionCodeEntity::getCollectionCode, CollectionCodeEntity::getBusinessType, (s, s2) -> s2));
 
-        List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
+        List<CollectionCollectedMarkCounter> collectionScanMarkCounters = collectionRecordDetailDao.sumAggCollectionByCollectionCode(collectionCodes, aggCodes, aggCodeTypeEnum);
 
         collectionScanMarkCounters.forEach(collectionCollectedMarkCounter -> {
             collectionCollectedMarkCounter.setAggCodeType(aggCodeTypeEnum.name());
@@ -981,7 +984,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionRecordDao.queryCollectedDetailByCollectionAndAggCode(
+        List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionRecordDetailDao.queryCollectedDetailByCollectionAndAggCode(
             collectionCodes, aggCode, aggCodeTypeEnum, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordDetailPos)) {
@@ -1014,7 +1017,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     public Timestamp getMaxTimeStampByCollectionCodesAndAggCode(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode) {
 
-        return collectionRecordDao.getMaxTimeStampByCollectionCodesAndAggCode(
+        return collectionRecordDetailDao.getMaxTimeStampByCollectionCodesAndAggCode(
             CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities),
             aggCodeTypeEnum, aggCode
             );
@@ -1024,7 +1027,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getMaxTimeStampByCollectionCodesAndCollectedMark", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<CollectionCodeEntity> collectionCodeEntities,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
-        return collectionRecordDao.getMaxTimeStampByCollectionCodesAndCollectedMark(
+        return collectionRecordDetailDao.getMaxTimeStampByCollectionCodesAndCollectedMark(
             CollectionEntityConverter.getCollectionCodesFromCollectionCodeEntity(collectionCodeEntities),
             aggCodeTypeEnum, collectedMark
         );
