@@ -460,6 +460,59 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     /**
+     * 更新其他业务信息 不存在时返回失败，调用者自己处理不存在场景
+     * 包含以下业务字段
+     * 业务主键
+     * <p>
+     * 排除saveOrUpdateOfBaseInfo字段
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.updateOfBusinessInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public boolean updateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
+
+        String bizId = entity.getBizId();
+        if(StringUtils.isEmpty(bizId)){
+            throw new JyBizException("未传入bizId！请检查入参");
+        }
+        // 锁定数据
+        boolean result;
+        boolean needUnLock = Boolean.TRUE;
+        try{
+            if(locked(bizId)){
+                //获取数据判断是否存在 防止数据卸载 使用忽略YN模式
+                Long id = jyBizTaskUnloadVehicleDao.findIdByBizIdWithoutYn(bizId);
+                if(id != null && id > 0){
+                    //存在即更新
+                    entity.setId(id);
+                    result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
+                    entity.setId(null);
+                }else {
+                    //不存在不执行 并返回失败
+                    if(logger.isInfoEnabled()){
+                        logger.info("updateOfBusinessInfo not exist!",JsonHelper.toJson(entity));
+                    }
+                    result = Boolean.FALSE;
+                }
+            }else{
+                needUnLock = Boolean.FALSE;
+                //未锁定成功 抛出异常
+                throw new JyBizException(String.format("锁定数据数据失败，bizId:%s", bizId));
+            }
+        }finally {
+            if(needUnLock){
+                unLocked(bizId);
+            }
+
+        }
+
+        return result;
+    }
+
+    /**
      * 检查当前卸车任务是否被锁定
      * 支持自旋，操作锁异常抛出异常调用者自行处理
      *
