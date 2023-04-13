@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.exception.CollectionException;
 import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.CollectStatisticsQueryDto;
@@ -94,6 +95,11 @@ public class JyCollectServiceImpl implements JyCollectService{
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
     @Autowired
     private RouterService routerService;
+    @Autowired
+    @Qualifier(value = "inspectUpdateCollectStatusProducer")
+    private DefaultJMQProducer inspectUpdateCollectStatusProducer;
+
+
 
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.findCollectInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -474,6 +480,27 @@ public class JyCollectServiceImpl implements JyCollectService{
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.updateSingleCollectStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        try{
+            return updateSingleCollectStatusHandler(unloadScanCollectDealDto);
+        }catch (CollectionException cex) {
+            //todo CollectionException 该异常是因为没有获取到集齐并发锁，走补偿重试逻辑，实操不报错；  其他异常可能存在逻辑错误，需要处理
+            String businessId =  unloadScanCollectDealDto.getScanCode() + unloadScanCollectDealDto.getBizId();
+            log.warn("实操修改单条包裹状态，没有获取到并发锁，发消息走异步补偿逻辑，businessId={}, collectionCollectorEntity={}", businessId, JsonUtils.toJSONString(unloadScanCollectDealDto));
+            inspectUpdateCollectStatusProducer.sendOnFailPersistent(businessId, JsonUtils.toJSONString(unloadScanCollectDealDto));
+            return true;
+        }catch (Exception e) {
+            String businessId =  unloadScanCollectDealDto.getScanCode() + unloadScanCollectDealDto.getBizId();
+            //捕捉该异常时，一般是逻辑错误，实操正常通过，没有入口修改异常数据，通过jmq重试将该错误逻辑修复后将正常集齐数据下发
+            log.warn("实操修改单条包裹状态异常，发消息走异步补偿逻辑，businessId={}, collectionCollectorEntity={}", businessId, JsonUtils.toJSONString(unloadScanCollectDealDto));
+            inspectUpdateCollectStatusProducer.sendOnFailPersistent(businessId, JsonUtils.toJSONString(unloadScanCollectDealDto));
+            return false;
+        }
+
+    }
+
+    @Override
+    @JProfiler(jKey = "JyCollectServiceImpl.updateSingleCollectStatusHandler",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateSingleCollectStatusHandler(UnloadScanCollectDealDto unloadScanCollectDealDto) {
         Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
         collectElements.put(CollectionConditionKeyEnum.site_code, unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
         //自建任务只需要更新场地维度的集齐数据

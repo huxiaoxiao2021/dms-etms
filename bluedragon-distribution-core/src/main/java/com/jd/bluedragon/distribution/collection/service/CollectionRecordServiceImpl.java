@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.collection.service;
 
-import IceInternal.Ex;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -11,6 +10,7 @@ import com.jd.bluedragon.distribution.collection.builder.CollectionEntityConvert
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
+import com.jd.bluedragon.distribution.collection.exception.CollectionException;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -31,7 +31,6 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -244,7 +243,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
         if (!jimDbLock.lock(aggCodeKey,"1", 10L, TimeUnit.MINUTES)) {
             log.warn("");
-            throw new JyBizException("集齐初始化包裹list分段锁资源竞争失败");
+            throw new CollectionException("集齐初始化包裹list分段锁资源竞争失败");
         }
         try{
             String partPackageKey =  MessageFormat.format(Constants.JQ_PART_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
@@ -252,7 +251,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
                 if(redisClient.getBit(partPackageKey, currNum)) {
                     log.info("集齐部分包裹list加bit锁,存在下表{}的重复包裹{}正在处理中，key={},异常稍后重试", currNum, detailPo.getScanCode(), partPackageKey);
-                    throw new JyBizException("集齐初始化包裹list分段加bit锁获取失败" + detailPo.getScanCode());
+                    throw new CollectionException("集齐初始化包裹list分段加bit锁获取失败" + detailPo.getScanCode());
                 }
             }
             //在redis3.2.0中增加了bitfield命令，进行批量对位图的操作。
@@ -262,7 +261,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             }
             redisClient.expire(partPackageKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
         }catch (Exception e) {
-            throw new JyBizException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
+            throw new CollectionException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
         }finally {
             jimDbLock.releaseLock(aggCodeKey,"1");
         }
@@ -333,7 +332,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             //获取不到锁抛异常外部jmq-consumer走重试
             log.warn("集齐初始化主表统计数据处理没有获取到锁，异常重试，collectionCreatorEntity={}，collectionCode={},aggCode={}",
                     JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode);
-            throw new JyBizException("集齐初始化主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
+            throw new CollectionException("集齐初始化主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
         }
     }
 
@@ -503,7 +502,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             //获取不到锁抛异常外部jmq-consumer走重试
             log.warn("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试，collectionCreatorEntity={}，collectionCode={},aggCode={}",
                     JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode);
-            throw new JyBizException("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
+            throw new CollectionException("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
         }
     }
 
@@ -544,39 +543,57 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
         Map<CollectionAggCodeTypeEnum, String> finalElement = element;
         codeEntities.forEach(collectionCodeEntity -> {
+            //明细表处理
+            collectTheScanCodeCollectRecordDetailHandler(collectionCodeEntity, scanCode, scanCodeType, collectedMark, finalElement);
+            //主表处理
+            collectTheScanCodeCollectRecordHandler(collectionCollectorEntity, collectionCodeEntity, scanCode, collectedMark);
+        });
+
+        return true;
+    }
+    /**
+     * 单条集齐状态变更修改主表数据
+     */
+    private void collectTheScanCodeCollectRecordDetailHandler(CollectionCodeEntity collectionCodeEntity, String scanCode, String scanCodeType, String collectedMark, Map<CollectionAggCodeTypeEnum, String> finalElement) {
+        List<CollectionRecordDetailPo> collectionRecordDetailPos1 = new ArrayList<>();
+        collectionRecordDetailPos1.add(CollectionRecordDetailPo.builder().scanCode(scanCode).build());
+        String collectionCode = collectionCodeEntity.getCollectionCode();
+        CollectionAggCodeTypeEnum aggCodeTypeEnum1 = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().get(0);//这里确认下，传入1个，转换输出list
+        String aggCode = finalElement.getOrDefault(aggCodeTypeEnum1, "null");
+        collectRecordDetailHandlerLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
+        try {
             /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
             List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
-                                                            .collectionCode(collectionCodeEntity.getCollectionCode())
-                                                            .scanCode(scanCode)
-                                                            .build());
+                    .collectionCode(collectionCodeEntity.getCollectionCode())
+                    .scanCode(scanCode)
+                    .build());
             /* 取第一条，如果是已经集齐或者是多集状态则不进行操作直接退出 */
             if (CollectionUtils.isNotEmpty(scanDetailPos)
-                && (
+                    && (
                     CollectionStatusEnum.collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())
-                        || CollectionStatusEnum.extra_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus()))) {
+                            || CollectionStatusEnum.extra_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus()))) {
                 log.info("该单号【{}】在该待集齐集合【{}】中已经是集齐状态，无需重复收集", scanCode, collectionCodeEntity.getCollectionCode());
                 return;
             }
-
             /* 如果是不存在的情况，那么需要创建为多集齐的状态 */
             if (CollectionUtils.isEmpty(scanDetailPos)) {
                 /* 根据businessType和element创建多个待插入的明细表数据 */
                 List<CollectionRecordDetailPo> collectionRecordDetailPos = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().parallelStream()
-                    .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
-                        .collectionCode(collectionCodeEntity.getCollectionCode())
-                        .scanCode(scanCode)
-                        .scanCodeType(scanCodeType)
-                        .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
-                        .aggCodeType(aggCodeTypeEnum.name())
-                        .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
-                        .collectedMark(collectedMark)
-                        .createTime(new Date())
-                        .build())
-                    .collect(Collectors.toList());
+                        .map(aggCodeTypeEnum -> CollectionRecordDetailPo.builder()
+                                .collectionCode(collectionCodeEntity.getCollectionCode())
+                                .scanCode(scanCode)
+                                .scanCodeType(scanCodeType)
+                                .aggCode(finalElement.getOrDefault(aggCodeTypeEnum, "null"))
+                                .aggCodeType(aggCodeTypeEnum.name())
+                                .collectedStatus(CollectionStatusEnum.extra_collected.getStatus())
+                                .collectedMark(collectedMark)
+                                .createTime(new Date())
+                                .build())
+                        .collect(Collectors.toList());
 
                 Integer batchInsertNum = collectionRecordDao.batchInsertCollectionRecordDetail(collectionRecordDetailPos);
-                if(log.isInfoEnabled()) {
-                    log.info("collectTheScanCode:批量插入数量为{},collectionRecordDetailPos(此场景理论只有一条数据)={}",batchInsertNum, JsonUtils.toJSONString(collectionRecordDetailPos));
+                if (log.isInfoEnabled()) {
+                    log.info("collectTheScanCode:批量插入数量为{},collectionRecordDetailPos(此场景理论只有一条数据)={}", batchInsertNum, JsonUtils.toJSONString(collectionRecordDetailPos));
                 }
             }
             if (CollectionUtils.isNotEmpty(scanDetailPos) && CollectionStatusEnum.none_collected.getStatus().equals(scanDetailPos.get(0).getCollectedStatus())) {
@@ -590,64 +607,87 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         .build();
                 //更新为集齐状态
                 Integer batchUpdateNum = collectionRecordDao.updateCollectionRecordDetail(collectionRecordDetailPo);
-                if(log.isInfoEnabled()) {
-                    log.info("collectTheScanCode:批量插入数量为{}, collectionRecordDetailPo={}",batchUpdateNum, JsonUtils.toJSONString(collectionRecordDetailPo));
+                if (log.isInfoEnabled()) {
+                    log.info("collectTheScanCode:批量插入数量为{}, collectionRecordDetailPo={}", batchUpdateNum, JsonUtils.toJSONString(collectionRecordDetailPo));
                 }
             }
+        }catch (Exception e) {
+            log.error("collectTheScanCode:集齐单条修改集齐状态包裹处理部分异常collectionCodeEntity={},scanCode={},collectedMark={},finalElement={}，errMsg={}",
+                    JsonUtils.toJSONString(collectionCodeEntity), scanCode, collectedMark, JsonUtils.toJSONString(finalElement), e.getMessage(), e);
+            throw new JyBizException("集齐初始化并修改集齐状态包裹处理部分异常");
+        }finally {
+            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
+        }
+    }
 
-            /* 更新主表 */
-            List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
+    /**
+     * 单条集齐状态变更修改主表数据
+     */
+    private void collectTheScanCodeCollectRecordHandler(CollectionCollectorEntity collectionCollectorEntity,
+                                                        CollectionCodeEntity collectionCodeEntity,
+                                                        String scanCode,
+                                                        String collectedMark) {
+        /* 更新主表 */
+        List<CollectionRecordDetailPo> aggCodeDetailPos = collectionRecordDao.findAggCodeByScanCode(
                 CollectionRecordDetailPo.builder()
-                    .collectionCode(collectionCodeEntity.getCollectionCode())
-                    .scanCode(scanCode)
-                    .build()
-            );
+                        .collectionCode(collectionCodeEntity.getCollectionCode())
+                        .scanCode(scanCode)
+                        .build()
+        );
 
-            aggCodeDetailPos.forEach(aggCodeDetailPo -> {
-
-                    String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCodeEntity.getCollectionCode(),aggCodeDetailPo.getAggCodeType(),aggCodeDetailPo.getAggCode());
-                    if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
-
-                        /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
-                        CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
-                            collectionCodeEntity,aggCodeDetailPo.getAggCode(),
+        aggCodeDetailPos.forEach(aggCodeDetailPo -> {
+            String key = MessageFormat.format(Constants.JQ_AGG_LOCK_PREFIX, collectionCodeEntity.getCollectionCode(),aggCodeDetailPo.getAggCodeType(),aggCodeDetailPo.getAggCode());
+            if (jimDbLock.lock(key,"1", 10L, TimeUnit.MINUTES)) {
+                try {
+                    /* 根据collectionCode， aggCodeType， aggCode， 查询是否集齐 */
+                    CollectionAggCodeCounter collectionAggCodeCounter = this.sumCollectionByAggCodeAndCollectionCode(
+                            collectionCodeEntity, aggCodeDetailPo.getAggCode(),
                             CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark
-                        );
-                        if(log.isInfoEnabled()) {
-                            log.info("collectTheScanCode:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
-                                    collectionCodeEntity, aggCodeDetailPo.getAggCode(), CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark);
-                        }
-                        CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
-                        collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
-                        collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
-                        collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
-                        collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
-                        collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0?
-                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                        collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0?
-                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                        if(StringUtils.isNotBlank(collectionCollectorEntity.getAggMark())) {
-                            collectionRecordPo.setAggMark(collectionCollectorEntity.getAggMark());
-                        }
-                        if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
-                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
-                        }
-                        log.info("collectTheScanCode:主表插入修改collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
-                        if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
-                            collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
-                            collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
-                            Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
-                            if(insertNum <= 0 && log.isInfoEnabled()) {
-                                log.info("collectTheScanCode:主表插入数量为0，collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
-                            }
-                        }
-                        jimDbLock.releaseLock(key, "1");
-
+                    );
+                    if (log.isInfoEnabled()) {
+                        log.info("collectTheScanCode:集齐服务统计数据结果集转换={},param=【{}|{}|{}|{}】", JsonUtils.toJSONString(collectionAggCodeCounter),
+                                collectionCodeEntity, aggCodeDetailPo.getAggCode(), CollectionAggCodeTypeEnum.valueOf(aggCodeDetailPo.getAggCodeType()), collectedMark);
                     }
-            });
-        });
+                    CollectionRecordPo collectionRecordPo = new CollectionRecordPo();
+                    collectionRecordPo.setCollectionCode(collectionCodeEntity.getCollectionCode());
+                    collectionRecordPo.setAggCode(aggCodeDetailPo.getAggCode());
+                    collectionRecordPo.setAggCodeType(aggCodeDetailPo.getAggCodeType());
+                    collectionRecordPo.setInitNumber(collectionAggCodeCounter.getSumScanNum());
+                    collectionRecordPo.setIsCollected(collectionAggCodeCounter.getCollectedNum() > 0 && collectionAggCodeCounter.getNoneCollectedNum() == 0 ?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                    collectionRecordPo.setIsExtraCollected(collectionAggCodeCounter.getExtraCollectedNum() > 0 ?
+                            Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+                    if (StringUtils.isNotBlank(collectionCollectorEntity.getAggMark())) {
+                        collectionRecordPo.setAggMark(collectionCollectorEntity.getAggMark());
+                    }
+                    if (collectionAggCodeCounter.getOutMarkCollectedNum() > 0 && collectionAggCodeCounter.getInnerMarkCollectedNum() > 0) {
+                        collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ONE);
+                    }
+                    log.info("collectTheScanCode:主表插入修改collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
+                    if (collectionRecordDao.updateCollectionRecord(collectionRecordPo) <= 0) {
+                        collectionRecordPo.setIsMoreCollectedMark(Constants.NUMBER_ZERO);
+                        collectionRecordPo.setIsInit(Constants.NUMBER_ZERO);
+                        Integer insertNum = collectionRecordDao.insertCollectionRecord(collectionRecordPo);
+                        if (insertNum <= 0 && log.isInfoEnabled()) {
+                            log.info("collectTheScanCode:主表插入数量为0，collectionRecordPo{}", JsonUtils.toJSONString(collectionRecordPo));
+                        }
+                    }
+                    jimDbLock.releaseLock(key, "1");
 
-        return true;
+                }catch (Exception e) {
+                    log.error("集齐修改单条状态主表统计数据处理异常collectionCollectorEntity={}，collectionCodeEntity={}, scanCode={}, collectedMark={}, errMsg={}",
+                            JsonUtils.toJSONString(collectionCollectorEntity), JsonUtils.toJSONString(collectionCodeEntity), scanCode, collectedMark, e.getMessage(), e);
+                    throw new JyBizException("集齐修改单条状态主表统计数据处理异常" + collectedMark + scanCode);
+                }finally {
+                    jimDbLock.releaseLock(key, "1");
+                }
+            }else {
+                //获取不到锁抛异常外部jmq-consumer走重试
+                log.warn("集齐修改单条状态主表统计数据处理没有获取到锁，异常重试，collectionCollectorEntity={}，collectionCodeEntity={}, scanCode={}, collectedMark={}",
+                        JsonUtils.toJSONString(collectionCollectorEntity), JsonUtils.toJSONString(collectionCodeEntity), scanCode, collectedMark);
+                throw new CollectionException("集齐修改单条状态主表统计数据处理没有获取到锁，异常重试" + collectedMark + scanCode);
+            }
+        });
     }
 
     @Override

@@ -77,7 +77,12 @@ public interface JyCollectService {
      * 修改单条集齐状态
      */
     boolean updateSingleCollectStatus(UnloadScanCollectDealDto unloadScanCollectDealDto);
-
+    /**
+     * updateSingleCollectStatus 的实际执行方法
+     * @param unloadScanCollectDealDto
+     * @return
+     */
+    public boolean updateSingleCollectStatusHandler(UnloadScanCollectDealDto unloadScanCollectDealDto);
     /**
      * 扫描查询集齐统计数据
      */

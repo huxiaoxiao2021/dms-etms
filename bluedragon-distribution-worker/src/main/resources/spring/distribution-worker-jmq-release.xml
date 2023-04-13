@@ -572,5 +572,9 @@
     <jmq:consumer id="jmq.jyCollectStatusBatchUpdateWaybillSplitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update.split}" listener="jyCollectStatusBatchUpdateWaybillSplitConsumer"/>
     </jmq:consumer>
+    <!--  验货修改集齐状态补偿方案  -->
+    <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
+    </jmq:consumer>
 </beans>
 
