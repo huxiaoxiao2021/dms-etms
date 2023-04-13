@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.JyBizTaskAutoCloseHelperService;
@@ -27,8 +28,14 @@ import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jim.cli.Cluster;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -72,6 +79,9 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
     @Autowired
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
 
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+
     /**
      * 关闭任务接口
      *
@@ -81,6 +91,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
      * @time 2023-01-31 17:00:46 周二
      */
     @Override
+    @JProfiler(jKey = "DMS.WORKER.JyBizTaskCloseUnloadTaskServiceImpl.closeTask", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Void> closeTask(AutoCloseTaskPo autoCloseTaskPo) {
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         Result<Void> result = Result.success();
@@ -143,7 +154,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             if(autoCloseJyBizTaskConfig == null){
                 return result;
             }
-            if(Objects.equals(false, autoCloseJyBizTaskConfig.getFakeExecute())){
+            if(Objects.equals(true, autoCloseJyBizTaskConfig.getFakeExecute())){
                 log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask fakeExecute {}", JSON.toJSONString(autoCloseTaskContextDto));
                 return result;
             }
@@ -212,7 +223,12 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
      */
     private void finishUnloadTaskGroup(AutoCloseTaskContextDto autoCloseTaskContextDto) {
         JyTaskGroupMemberEntity endData = new JyTaskGroupMemberEntity();
-        endData.setRefTaskId(autoCloseTaskContextDto.getBizId());
+        final String taskId = getJyScheduleTaskId(autoCloseTaskContextDto.getBizId());
+        if(taskId == null){
+            log.warn("卸车完成关闭小组任务数据为空. autoCloseTaskContextDto:{}", JsonHelper.toJson(autoCloseTaskContextDto));
+            return;
+        }
+        endData.setRefTaskId(taskId);
         endData.setUpdateUser(autoCloseTaskContextDto.getOperateUserErp());
         endData.setUpdateUserName(autoCloseTaskContextDto.getOperateUserName());
         endData.setUpdateTime(new Date(autoCloseTaskContextDto.getOperateTime()));
@@ -221,6 +237,19 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         if (log.isInfoEnabled()) {
             log.info("卸车完成关闭小组任务. data:{}, result:{}", JsonHelper.toJson(endData), JsonHelper.toJson(result));
         }
+    }
+
+    /**
+     * 查询调度任务ID
+     * @param bizId
+     * @return
+     */
+    private String getJyScheduleTaskId(String bizId) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
     private String getUnloadBizLastScanTimeKey(String bizId) {
