@@ -2904,35 +2904,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
         if (sendAgg != null && basicVehicleType != null) {
 
-            BigDecimal finalScannedWeight =sendAgg.getTotalScannedWeight();
-            Integer finalScannedCount =sendAgg.getTotalScannedCount();
-            //获取同派车单下-其余场地（非本场地）的已经封车任务统计数据
-            if (!taskSend.manualCreatedTask()){
-                JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
-                condition.setTransWorkCode(taskSend.getTransWorkCode());
-                List<JyBizTaskSendVehicleEntity> sendVehicleEntityList =taskSendVehicleService.findByTransWork(condition);
-                List<String> bizList =new ArrayList<>();
-                for (JyBizTaskSendVehicleEntity entity:sendVehicleEntityList){
-                    if (!entity.getBizId().equals(taskSend.getBizId()) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
-                        bizList.add(entity.getBizId());
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(bizList)){
-                    List<JySendAggsEntity> sendAggList = sendAggService.getSendStatisticsByBizList(bizList);
-                    for (JySendAggsEntity jySendAggsEntity:sendAggList){
-                        finalScannedWeight.add(jySendAggsEntity.getTotalScannedWeight());
-                        finalScannedCount+= jySendAggsEntity.getTotalScannedCount();
-                    }
-                }
-            }
-
-            VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
-            vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
-            VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
-
-            BigDecimal loadRate = vehicleVolumeDicResp == null ?
-                dealLoadRate(finalScannedWeight, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())))
-                : dealLoadRate(finalScannedCount, getVehicleVolume(taskSend, vehicleVolumeDicResp));
+            BigDecimal loadRate = calculateLoadRate(taskSend, basicVehicleType, sendAgg);
             progress.setLoadRate(loadRate);
             progress.setLoadVolume(sendAgg.getTotalScannedVolume());
             progress.setLoadWeight(sendAgg.getTotalScannedWeight());
@@ -2951,6 +2923,46 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
         progress.setSealedTotal(this.getSealedDestTotal(taskSend.getBizId()));
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
+    }
+
+    /**
+     * 计算装载率
+     * @param taskSend
+     * @param basicVehicleType
+     * @param sendAgg
+     * @return
+     */
+    private BigDecimal calculateLoadRate(JyBizTaskSendVehicleEntity taskSend, BasicVehicleTypeDto basicVehicleType, JySendAggsEntity sendAgg) {
+        BigDecimal finalScannedWeight = sendAgg.getTotalScannedWeight();
+        Integer finalScannedCount = sendAgg.getTotalScannedCount();
+        //获取同派车单下-其余场地（非本场地）的已经封车任务统计数据
+        if (!taskSend.manualCreatedTask()){
+            JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
+            condition.setTransWorkCode(taskSend.getTransWorkCode());
+            List<JyBizTaskSendVehicleEntity> sendVehicleEntityList =taskSendVehicleService.findByTransWork(condition);
+            List<String> bizList =new ArrayList<>();
+            for (JyBizTaskSendVehicleEntity entity:sendVehicleEntityList){
+                if (!entity.getBizId().equals(taskSend.getBizId()) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
+                    bizList.add(entity.getBizId());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(bizList)){
+                List<JySendAggsEntity> sendAggList = sendAggService.getSendStatisticsByBizList(bizList);
+                for (JySendAggsEntity jySendAggsEntity:sendAggList){
+                    finalScannedWeight.add(jySendAggsEntity.getTotalScannedWeight());
+                    finalScannedCount+= jySendAggsEntity.getTotalScannedCount();
+                }
+            }
+        }
+
+        VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
+        vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
+        VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
+
+        BigDecimal loadRate = vehicleVolumeDicResp == null ?
+            dealLoadRate(finalScannedWeight, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())))
+            : dealLoadRate(finalScannedCount, getVehicleVolume(taskSend, vehicleVolumeDicResp));
+        return loadRate;
     }
 
     public Integer getDestTotal(String sendVehicleBizId) {
