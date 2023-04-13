@@ -103,7 +103,6 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 updateSpotDto.setPackageCode(weightVolumeSpotCheckDto.getPackageCode());
                 updateSpotDto.setReviewSiteCode(weightVolumeSpotCheckDto.getReviewSiteCode());
                 updateSpotDto.setMachineStatus(waybillMachineStatus);
-                spotCheckQueryManager.insertOrUpdateSpotCheck(updateSpotDto);
                 spotCheckServiceProxy.insertOrUpdateProxyReform(updateSpotDto);
             }
 
