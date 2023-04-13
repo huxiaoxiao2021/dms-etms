@@ -70,18 +70,6 @@ public class CollectionRecordDetailDao {
         return this.sqlSession.update(NAMESPACE.concat(".updateDetailInfoByScanCodes"), param);
     }
 
-    public Integer countAggCodeByCollectionCodesAndStatus(List<String> collectionCodes,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark, Integer isCollected, Integer isMoreCollectedMark) {
-
-        Map<String,Object> param = new HashMap<>();
-        param.put("collectionCodes", collectionCodes);
-        param.put("aggCodeType", aggCodeTypeEnum.name());
-        param.put("collectedMark", collectedMark);
-        param.put("isCollected", isCollected);
-        param.put("isMoreCollectedMark", isMoreCollectedMark);
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCodeByCollectionCodesAndStatus"), param);
-    }
-
     public Timestamp getMaxTimeStampByCollectionCodesAndCollectedMark(List<String> collectionCodes,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String collectedMark) {
 
@@ -104,22 +92,6 @@ public class CollectionRecordDetailDao {
 
     public List<CollectionRecordDetailPo> findAggCodeByScanCode(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByScanCode"), collectionRecordDetailPo);
-    }
-
-    public List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected,
-        Integer isMoreCollectedMark, Integer limit, Integer offset) {
-        Map<String,Object> param = new HashMap<>();
-        param.put("collectionCodes", collectionCodes);
-        param.put("collectedMark", collectedMark);
-        param.put("aggCodeType", aggCodeTypeEnum.name());
-        param.put("aggCode", aggCode);
-        param.put("isCollected", isCollected);
-        param.put("isExtraCollected", isExtraCollected);
-        param.put("isMoreCollectedMark", isMoreCollectedMark);
-        param.put("limit", limit);
-        param.put("offset", offset);
-        return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
     }
 
     public List<CollectionCollectedMarkCounter> sumAggCollectionByCollectionCode(List<String> collectionCodes, List<String> aggCodes,
