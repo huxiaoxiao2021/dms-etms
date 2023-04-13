@@ -561,8 +561,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionRecordDetailPo> collectionRecordDetailPos1 = new ArrayList<>();
         collectionRecordDetailPos1.add(CollectionRecordDetailPo.builder().scanCode(scanCode).build());
         String collectionCode = collectionCodeEntity.getCollectionCode();
-        CollectionAggCodeTypeEnum aggCodeTypeEnum1 = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().get(0);//这里确认下，传入1个，转换输出list
+        CollectionAggCodeTypeEnum aggCodeTypeEnum1 = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().get(0);
         String aggCode = finalElement.getOrDefault(aggCodeTypeEnum1, "null");
+        //todo 未来风险点记录：对明细加锁时，异步初始化场景对指定已知的aggCodeType加锁更新，此处实操触发不考虑aggCodeType对所有可能aggCodeType更新，未来出现多个aggCodeType时存在风险， 当前只有一个aggCodeType不存在风险
         collectRecordDetailHandlerLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
         try {
             /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
