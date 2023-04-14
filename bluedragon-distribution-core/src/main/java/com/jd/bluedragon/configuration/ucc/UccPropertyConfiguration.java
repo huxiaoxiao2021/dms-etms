@@ -1203,6 +1203,12 @@ public class UccPropertyConfiguration {
     private Long machineCalibrateIntervalTimeOfSpotCheck;
 
     /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
+
+    /**
      * 设备下发是否依据设备状态标识
      */
     private boolean spotCheckIssueRelyOMachineStatus;
@@ -2919,6 +2925,14 @@ public class UccPropertyConfiguration {
     }
     public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
     }
 
     public boolean getSpotCheckIssueRelyOMachineStatus() {
