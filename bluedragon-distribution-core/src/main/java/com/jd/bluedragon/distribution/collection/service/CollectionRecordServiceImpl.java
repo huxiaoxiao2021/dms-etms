@@ -857,7 +857,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+        List<CollectionRecordPo> collectionRecordPos = this.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
             0, null, null, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordPos)) {
@@ -912,7 +912,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+        List<CollectionRecordPo> collectionRecordPos = this.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
             1, null, 0, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordPos)) {
@@ -948,7 +948,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             return Collections.emptyList();
         }
 
-        List<CollectionRecordPo> collectionRecordPos = collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
+        List<CollectionRecordPo> collectionRecordPos = this.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode,
             1, null, 1, limit, offset);
 
         if (CollectionUtils.isEmpty(collectionRecordPos)) {
@@ -967,6 +967,36 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     && Objects.equals(collectionAggCodeCounter.getCollectionCode(), collectionRecordPo.getCollectionCode())))
             .peek(collectionAggCodeCounter -> collectionAggCodeCounter.setAggMark(aggMarkMap.get(collectionAggCodeCounter.getAggCode())))
             .collect(Collectors.toList());
+    }
+
+    private List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes,
+                                                                String collectedMark,
+                                                                CollectionAggCodeTypeEnum aggCodeTypeEnum,
+                                                                String aggCode,
+                                                                Integer isCollected,
+                                                                Integer isExtraCollected,
+                                                                Integer isMoreCollectedMark,
+                                                                Integer limit,
+                                                                Integer offset) {
+
+//        return collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark, limit, offset);
+        if(StringUtils.isNotBlank(aggCode)) {
+            List<CollectionRecordDetailPo> detailList = collectionRecordDetailDao.findByAggCode(collectionCodes, collectedMark,
+                    aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark);
+            if(CollectionUtils.isEmpty(detailList)) {
+                return null;
+            }
+            List<CollectionRecordPo> resList = new ArrayList<>();
+            for(CollectionRecordDetailPo detailPo : detailList) {
+                resList.add(collectionRecordDao.findByAggCode(detailPo.getCollectionCode(), detailPo.getAggCodeType(),
+                        detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark));
+            }
+            //按运单查无需排序，同一单流向肯定相同，出现不同肯定是DB中存储逻辑存在问题
+            return resList;
+        }else {
+            //todo zcf join未处理
+            return collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark, limit, offset);
+        }
     }
 
     @Override

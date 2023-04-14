@@ -64,6 +64,19 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCodeByCollectionCodesAndStatus"), param);
     }
 
+    /**
+     *
+     * @param collectionCodes
+     * @param collectedMark 关联的任务bizId
+     * @param aggCodeTypeEnum
+     * @param aggCode
+     * @param isCollected   是否集齐
+     * @param isExtraCollected  是否多集
+     * @param isMoreCollectedMark   是否多任务操作
+     * @param limit
+     * @param offset
+     * @return
+     */
     public List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark,
         CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected,
         Integer isMoreCollectedMark, Integer limit, Integer offset) {
@@ -87,5 +100,21 @@ public class CollectionRecordDao {
 
     public void setSequenceGenAdaptor(SequenceGenAdaptor sequenceGenAdaptor) {
         this.sequenceGenAdaptor = sequenceGenAdaptor;
+    }
+
+    public CollectionRecordPo findByAggCode(String collectionCode,
+                              String aggCodeTypeEnumName,
+                              String aggCode,
+                              Integer isCollected,
+                              Integer isExtraCollected,
+                              Integer isMoreCollectedMark) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCode", collectionCode);
+        param.put("aggCodeType", aggCodeTypeEnumName);
+        param.put("aggCode", aggCode);
+        param.put("isCollected", isCollected);
+        param.put("isExtraCollected", isExtraCollected);
+        param.put("isMoreCollectedMark", isMoreCollectedMark);
+        return this.sqlSession.selectOne(NAMESPACE.concat(".findByAggCode"), param);
     }
 }

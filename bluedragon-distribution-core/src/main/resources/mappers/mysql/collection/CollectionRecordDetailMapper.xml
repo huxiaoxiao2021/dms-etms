@@ -273,15 +273,30 @@
 	<select id="getAggCodesByCollectedMark" parameterType="java.util.Map" resultType="java.lang.String">
 			SELECT distinct agg_code
 			FROM
-				collection_record_detail crd
+				collection_record_detail
 			WHERE
-				crd.yn = 1
-				AND crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-				AND crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-				AND crd.collection_code IN
+				yn = 1
+				AND collected_mark = #{collectedMark, jdbcType=VARCHAR}
+				AND agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+				AND collection_code IN
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 	</select>
 
+
+	<select id="findByAggCode" parameterType="java.util.Map" resultMap="collectionRecordDetailMap">
+		select	collection_code, agg_code
+		from collection_record_detail
+		where
+			collection_code in
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
+			and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and yn = 1
+		group BY collection_code, agg_code
+	</select>
 </mapper>

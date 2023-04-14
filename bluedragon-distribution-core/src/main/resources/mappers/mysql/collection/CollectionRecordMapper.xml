@@ -120,20 +120,20 @@
 	<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
 		SELECT count(*)
 		FROM
-			collection_record cr
+			collection_record
 		WHERE
-			AND cr.yn = 1
-			AND cr.is_init = 1
-			AND cr.is_collected = #{isCollected, jdbcType=INTEGER}
+			AND yn = 1
+			AND is_init = 1
+			AND is_collected = #{isCollected, jdbcType=INTEGER}
 			<if test="isMoreCollectedMark != null">
-				AND cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+				AND is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
 			</if>
-			AND cr.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			AND cr.collection_code IN
+			AND agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			AND collection_code IN
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
-			AND cr.agg_code IN
+			AND agg_code IN
 				<foreach collection="aggCodeList" open="(" item="aggCode" separator="," close=")">
 					#{agg_code, jdbcType=VARCHAR}
 				</foreach>
@@ -173,7 +173,28 @@
 		</where>
 		group BY cr.collection_code, cr.agg_code, cr.agg_mark
 		order by aggMark
-		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}	<!-- 这里 limit 100 -->
+	</select>
+
+
+
+	<select id="findByAggCode" parameterType="java.util.Map" resultMap="collectionRecordMap">
+		select collection_code,agg_code,agg_mark
+		from collection_record
+		where yn = 1
+			and is_init = 1 <!--todo 只查初始化的，会丢多扫运单，去掉该条件库里存在脏数据-->
+			and collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			<if test="isMoreCollectedMark != null">
+				and is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
 	</select>
 
 </mapper>
