@@ -174,7 +174,9 @@ public class RecyclingBoxInOutResource {
         materialSend.setMaterialCode(tagNo);
         materialSend.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialSend.setCreateSiteCode(request.getSiteCode().longValue());
-        materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialSend.setSendCode(StringUtils.EMPTY);
         materialSend.setSendType(MaterialSendTypeEnum.SEND_BY_SINGLE_MATERIAL.getCode());
         materialSend.setSendNum(DEFAULT_RECEIVE_NUM);
