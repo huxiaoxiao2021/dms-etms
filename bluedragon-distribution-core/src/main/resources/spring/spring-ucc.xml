@@ -252,6 +252,8 @@
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
 		<property name="loadProgressByTransWorkCode" value="${loadProgressByTransWorkCode:false}"/>
+		<property name="operateProgressRegionList" value="${operateProgressRegionList:'10,20,30,40,50'}"/>
+
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -495,6 +497,7 @@
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.loadProgressByTransWorkCode</value>
+				<value>uccPropertyConfiguration.operateProgressRegionList</value>
 			</list>
 		</property>
 	</bean>

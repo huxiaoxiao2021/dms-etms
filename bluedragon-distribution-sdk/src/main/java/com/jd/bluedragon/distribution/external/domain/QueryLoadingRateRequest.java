@@ -13,15 +13,9 @@ public class QueryLoadingRateRequest implements Serializable {
   /**
    * 派车单明细号
    */
-  private String transWorkItemCode;
+  private String transWorkCode;
 
-  public String getTransWorkItemCode() {
-    return transWorkItemCode;
-  }
-
-  public void setTransWorkItemCode(String transWorkItemCode) {
-    this.transWorkItemCode = transWorkItemCode;
-  }
+  private Integer operateSiteId;
 
   public String getVehicleNumber() {
     return vehicleNumber;
@@ -29,5 +23,21 @@ public class QueryLoadingRateRequest implements Serializable {
 
   public void setVehicleNumber(String vehicleNumber) {
     this.vehicleNumber = vehicleNumber;
+  }
+
+  public String getTransWorkCode() {
+    return transWorkCode;
+  }
+
+  public void setTransWorkCode(String transWorkCode) {
+    this.transWorkCode = transWorkCode;
+  }
+
+  public Integer getOperateSiteId() {
+    return operateSiteId;
+  }
+
+  public void setOperateSiteId(Integer operateSiteId) {
+    this.operateSiteId = operateSiteId;
   }
 }

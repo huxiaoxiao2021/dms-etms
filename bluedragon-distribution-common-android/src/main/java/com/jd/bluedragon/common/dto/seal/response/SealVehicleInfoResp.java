@@ -41,6 +41,19 @@ public class SealVehicleInfoResp implements Serializable {
      */
     private JyAppDataSealVo savedPageData;
 
+    /**
+     * 任务简码
+     */
+    private String taskSimpleCode;
+
+    public String getTaskSimpleCode() {
+        return taskSimpleCode;
+    }
+
+    public void setTaskSimpleCode(String taskSimpleCode) {
+        this.taskSimpleCode = taskSimpleCode;
+    }
+
     public List<String> getSendCodeList() {
         return sendCodeList;
     }

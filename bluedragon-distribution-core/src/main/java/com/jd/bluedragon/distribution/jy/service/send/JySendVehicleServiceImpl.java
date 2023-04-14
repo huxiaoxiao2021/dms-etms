@@ -53,6 +53,7 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -83,6 +84,7 @@ import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
@@ -163,6 +165,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 
@@ -311,6 +314,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private DefaultJMQProducer jyOperationProgressProducer;
     @Autowired
     VehicleBasicManager vehicleBasicManager;
+    @Autowired
+    JimDbLock jimDbLock;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -3680,23 +3685,96 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
             }
             else {
-
+                //调用运输接口获取，并持久化，返回给客户端
             }
         }
         return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
     }
 
-    @Override
-    public boolean openOperateProgress(OperateProgressRequest request) {
-        if (log.isInfoEnabled()){
-            log.info("生产操作进度数据 {}",JsonHelper.toJson(request));
+    public boolean productOperateProgressMsg(JyBizTaskSendVehicleEntity task,BigDecimal operateProgress) {
+        if (CollectionUtils.isNotEmpty(uccConfig.getOperateProgressRegionList())){
+            List<Integer> regionList =uccConfig.getOperateProgressRegionList();
+            int size =regionList.size();
+            int  progress = operateProgress.intValue();
+            if (progress< regionList.get(0)){
+                return false;
+            }
+            //计算目标推送档位
+            int targetPosition =0;
+            if (progress>=regionList.get(size-1)){
+                targetPosition =regionList.get(size-1);
+            }
+            else {
+                for (int i=0;i<size;i++){
+                    if (progress>=regionList.get(i) && progress<regionList.get(i+1)){
+                        targetPosition = regionList.get(i);
+                        break;
+                    }
+                }
+            }
+            if (targetPosition==0){
+                return false;
+            }
+            String operateProgressKey = String.format(Constants.JY_OPERATE_PROGRESS_PREFIX, task.getBizId());
+            String uuid =UUID.randomUUID().toString().replace("-","");
+            if (!jimDbLock.lock(operateProgressKey, uuid, LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return false;
+            }
+            try {
+                String operateProgressPosotionKey = String.format(Constants.JY_OPERATE_PROGRESS_POSITION_PREFIX, task.getBizId());
+                if (redisClientOfJy.exists(operateProgressPosotionKey)){
+                    Integer hasBeenSendPosition  =Integer.valueOf(redisClientOfJy.get(operateProgressPosotionKey));
+                    if (hasBeenSendPosition < targetPosition){
+                        if (sendOperateProgressMsg(task,targetPosition)){
+                            redisClientOfJy.set(operateProgressPosotionKey,String.valueOf(targetPosition));
+                        }
+                    }
+                }
+                else {
+                    if (sendOperateProgressMsg(task,targetPosition)){
+                        redisClientOfJy.set(operateProgressPosotionKey,String.valueOf(targetPosition));
+                    }
+                }
+            } finally {
+                jimDbLock.releaseLock(operateProgressKey, uuid);
+            }
         }
+        return false;
+    }
+
+    private boolean sendOperateProgressMsg(JyBizTaskSendVehicleEntity task, int targetPosition) {
+        OperateProgressRequest operateProgressRequest =new OperateProgressRequest();
+        operateProgressRequest.setOperationProgress(String.valueOf(targetPosition));
+        operateProgressRequest.setOperateSiteId(task.getStartSiteId().intValue());
+        operateProgressRequest.setOperationCode(task.getTransWorkCode());
+        operateProgressRequest.setOperationTime(new Date());
+        operateProgressRequest.setOperationType(Constants.CONSTANT_NUMBER_ONE);
         try {
-            jyOperationProgressProducer.send(request.getOperationCode(),JsonHelper.toJson(request));
+            jyOperationProgressProducer.send(operateProgressRequest.getOperationCode(),JsonHelper.toJson(operateProgressRequest));
+            if (log.isInfoEnabled()){
+                log.info("生成操作进度消息成功{}",JsonHelper.toJson(operateProgressRequest));
+            }
         }catch (Exception e){
-            log.error("生产操作进度数据异常 {}",request.getOperationCode(),e);
+            log.error("生产操作进度消息异常 {}",operateProgressRequest.getOperationCode(),e);
             return false;
         }
         return true;
+    }
+
+    @Override
+    public BigDecimal calculateOperateProgress(JySendAggsEntity sendAggsEntity, boolean needSendMsg) {
+        if (ObjectHelper.isNotNull(sendAggsEntity) && ObjectHelper.isNotNull(sendAggsEntity.getSendVehicleBizId())){
+            JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(sendAggsEntity.getSendVehicleBizId());
+            if (taskSend == null) {
+                throw new JyBizException("未找到对应的发货任务");
+            }
+            BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
+            BigDecimal operateProgress =calculateLoadRate(taskSend,basicVehicleType,sendAggsEntity);
+            if (ObjectHelper.isNotNull(operateProgress) && needSendMsg){
+                productOperateProgressMsg(taskSend,operateProgress);
+            }
+            return operateProgress;
+        }
+        return null;
     }
 }

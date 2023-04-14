@@ -22,7 +22,7 @@ public class OperateProgressRequest implements Serializable {
   /**
    * 操作类型 1 装车 2卸车
    */
-  private String operationType;
+  private Integer operationType;
   /**
    * 时间
    */
@@ -52,11 +52,11 @@ public class OperateProgressRequest implements Serializable {
     this.operationProgress = operationProgress;
   }
 
-  public String getOperationType() {
+  public Integer getOperationType() {
     return operationType;
   }
 
-  public void setOperationType(String operationType) {
+  public void setOperationType(Integer operationType) {
     this.operationType = operationType;
   }
 

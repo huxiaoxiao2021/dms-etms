@@ -1860,6 +1860,13 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+
+    /**
+     * 操作进度锁
+     */
+    public static final String JY_OPERATE_PROGRESS_PREFIX  = "jy_operate_progress_%s";
+
+    public static final String JY_OPERATE_PROGRESS_POSITION_PREFIX  = "jy_operate_progress_position_%s";
     /**
      * 产品类型-医药专送
      */

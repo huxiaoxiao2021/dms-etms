@@ -79,7 +79,7 @@ public class TmsItemSimpleCodeConsumer extends MessageBaseConsumer {
 
         if (!ObjectHelper.isNotNull(entity)){
           logger.error("{} 任务还未创建，不执行更新",simpleCodeDto.getSimpleCode());
-          throw new JyBizException("{} 任务还未创建");
+          throw new JyBizException("任务还未创建,无法更新对应任务的简码！");
         }
         if (ObjectHelper.isNotNull(entity.getTaskSimpleCode()) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
           logInfo("{} 已经封车，不再接收任务简码变更",simpleCodeDto.getSimpleCode());

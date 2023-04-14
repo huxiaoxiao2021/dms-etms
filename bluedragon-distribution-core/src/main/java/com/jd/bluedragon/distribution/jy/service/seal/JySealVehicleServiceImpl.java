@@ -196,6 +196,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
         }
+        if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+            sealVehicleInfoResp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+        }
         sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
