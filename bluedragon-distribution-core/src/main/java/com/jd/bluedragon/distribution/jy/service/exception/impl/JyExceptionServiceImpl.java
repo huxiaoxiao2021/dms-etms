@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -994,6 +995,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         //todo   根据领取人岗位信息 查询出所有在此岗位的签过到的人
+
         List<Message> messageList = Lists.newArrayList();
         for (String handlerErp : handlerErpList) {
             Message message = new Message();

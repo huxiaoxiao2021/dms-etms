@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.consumer.jy.exception;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionProcessStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.common.util.StringUtils;
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +41,8 @@ public class DmsExScrapNoticeConsumer extends MessageBaseConsumer {
     
     @Autowired
     private JyExceptionService jyExceptionService;
+    @Autowired
+    private UserSignRecordService userSignRecordService;
     
     @Override
     public void consume(Message message) throws Exception {
@@ -75,15 +82,30 @@ public class DmsExScrapNoticeConsumer extends MessageBaseConsumer {
             }
             // 推送咚咚
             String title = "已领取报废任务详情通知";
-            String template = "您目前有%s单报废任务,其中%s单审批中,,%s单已完结需要对实物进行处理,请及时处理!";
+            String template = "目前有%s单报废任务,其中%s单审批中,,%s单已完结需要对实物进行处理,请及时处理!";
             String content = String.format(template, totalCount, approveCount, completeCount);
-            List<String> erpList = Lists.newArrayList(handlerErp);
-            NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
+            List<String> noticeErps = getNoticeErps(handlerErp);
+            NoticeUtils.noticeToTimelineWithNoUrl(title, content, noticeErps);
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("异常报废推送咚咚处理异常, 消息体:{}", message.getText(), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
+    }
+
+    /**
+     * 获取零点到当前时间 和当前erp签到在同一岗位下的erp
+     * @param erp
+     */
+    public List<String> getNoticeErps(String erp){
+        UserSignQueryRequest request = new UserSignQueryRequest();
+        request.setUserCode(erp);
+        request.setSignInTimeStart(DateHelper.getCurrentDayWithOutTimes());
+        request.setSignInTimeEnd(new Date());
+        if(logger.isInfoEnabled()){
+            logger.info("获取同岗位下的erps-request:{}", JSON.toJSONString(request));
+        }
+        return userSignRecordService.querySignUserInfoByUser(request);
     }
 }

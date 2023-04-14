@@ -1267,6 +1267,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.getData().setGroupData(context.groupData);
 		return result;
 	}
+
+	@Override
+	public List<String> querySignUserInfoByUser(UserSignQueryRequest query) {
+		return userSignRecordDao.querySignUserInfoByUser(query);
+	}
+
 	/**
 	 * 作废操作
 	 * @param context

@@ -186,4 +186,7 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
+
+
+	List<String> querySignUserInfoByUser(UserSignQueryRequest query);
 }
