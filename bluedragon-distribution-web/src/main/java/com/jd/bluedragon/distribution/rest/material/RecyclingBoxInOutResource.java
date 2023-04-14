@@ -153,7 +153,9 @@ public class RecyclingBoxInOutResource {
         materialReceive.setMaterialCode(tagNo);
         materialReceive.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialReceive.setCreateSiteCode(request.getSiteCode().longValue());
-        materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialReceive.setReceiveCode(StringUtils.EMPTY);
         materialReceive.setReceiveType(MaterialReceiveTypeEnum.RECEIVE_BY_SINGLE_MATERIAL.getCode());
         materialReceive.setReceiveNum(DEFAULT_RECEIVE_NUM);
