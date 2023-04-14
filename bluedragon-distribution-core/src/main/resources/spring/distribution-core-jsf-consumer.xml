@@ -263,6 +263,9 @@
     <jsf:consumer id="jdiTransWorkWS" interface="com.jd.tms.jdi.ws.JdiTransWorkWS"
                   protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <jsf:consumer id="jdiTransWorkItemWS" interface="com.jd.tms.jdi.ws.JdiTransWorkItemWS"
+      protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!--  (TFC)运输流程中心系统 jsf接口  王京-->
     <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="${tfc.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1254,8 +1257,8 @@
 
     <!-- 异常提报查询 -->
     <jsf:consumer id="transAbnormalSelectApiJsf" interface="com.jd.tms.dtp.api.DtpTransAbnormalSelectApi"
-                  protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}" 
-                  timeout="${jsf.transAbnormalSelectApi.timeout}" 
+                  protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}"
+                  timeout="${jsf.transAbnormalSelectApi.timeout}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>

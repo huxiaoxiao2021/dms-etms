@@ -7,6 +7,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.jdi.dto.*;
 import com.jd.tms.jdi.ws.JdiQueryWS;
+import com.jd.tms.jdi.ws.JdiTransWorkItemWS;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -41,6 +42,9 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     @Qualifier("jdiTransWorkWS")
     @Autowired
     private JdiTransWorkWS jdiTransWorkWS;
+
+    @Autowired
+    private JdiTransWorkItemWS jdiTransWorkItemWS;
 
     @Override
     public CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) {
@@ -178,5 +182,17 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
             }
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.querySealCarSimpleCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<JdiSealCarResponseDto> querySealCarSimpleCode(JdiSealCarQueryDto dto) {
+        checkQueryParams(dto);
+        return jdiTransWorkItemWS.querySealCarSimpleCode(dto);
+    }
+
+
+    private void checkQueryParams(JdiSealCarQueryDto dto) {
+
     }
 }

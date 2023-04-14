@@ -127,6 +127,9 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.jdi.dto.CommonDto;
+import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
+import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
@@ -3678,17 +3681,47 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Override
     public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
         JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
-        if (ObjectHelper.isNotNull(detailEntity)){
-            if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+        if (!ObjectHelper.isNotNull(detailEntity)){
+            return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
+        }
+        if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+            GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
+            resp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+        }
+        else {
+            //调用运输接口获取，并持久化，返回给客户端
+            JdiSealCarQueryDto dto =assembleJdiSealCarQueryDto(detailEntity,request);
+            CommonDto<JdiSealCarResponseDto> commonDto =jdiQueryWSManager.querySealCarSimpleCode(dto);
+            if (commonDto != null && Constants.RESULT_SUCCESS == commonDto.getCode()){
+                JyBizTaskSendVehicleDetailEntity detail =new JyBizTaskSendVehicleDetailEntity();
+                detail.setBizId(detailEntity.getBizId());
+                detail.setUpdateTime(new Date());
+                detail.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                taskSendVehicleDetailService.updateByBiz(detail);
+
                 GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
-                resp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+                resp.setTaskSimpleCode(commonDto.getData().getSimpleCode());
                 return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
             }
-            else {
-                //调用运输接口获取，并持久化，返回给客户端
-            }
+            return new InvokeResult(SERVER_ERROR_CODE,commonDto.getMessage());
         }
-        return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
+    }
+
+    private JdiSealCarQueryDto assembleJdiSealCarQueryDto(JyBizTaskSendVehicleDetailEntity detailEntity,GetTaskSimpleCodeReq req) {
+        BaseStaffSiteOrgDto startSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getStartSiteId().intValue());
+        BaseStaffSiteOrgDto endSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getEndSiteId().intValue());
+        String transWorkCode =detailEntity.getTransWorkItemCode().split("-")[0];
+
+        JdiSealCarQueryDto dto =new JdiSealCarQueryDto();
+        dto.setTransWorkItemCode(transWorkCode);
+        dto.setOperateSiteCode(startSite.getDmsSiteCode());
+        dto.setBeginNodeCode(startSite.getDmsSiteCode());
+        dto.setEndNodeCode(endSite.getDmsSiteCode());
+        dto.setOperatorCode(req.getUser().getUserErp());
+        dto.setLoadCarUrl(req.getImgUrlList());
+        dto.setTransType(detailEntity.getLineType());
+        return dto;
     }
 
     public boolean productOperateProgressMsg(JyBizTaskSendVehicleEntity task,BigDecimal operateProgress) {
