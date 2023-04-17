@@ -17,6 +17,9 @@ import java.util.regex.Matcher;
 public class WaybillUtil {
 
     public static boolean isWaybillCode(String waybillCode) {
+        if(WaybillCodeRuleValidateUtil.isDpWaybillCode(waybillCode)){
+            return false;
+        }
         return WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode);
     }
 
