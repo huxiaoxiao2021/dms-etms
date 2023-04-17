@@ -54,7 +54,8 @@ public class ChangeWaybillSignFilter implements Filter {
 
         // 提示 WaybillDistributeTypeChangeFilter 存在拦截消息的改址拦截 这里只处理标位的 ForceChangeWaybillSignFilter 中处理强制改址拦截 ChangeWaybillSignFilter 中处理弱拦截
         //region 订单信息修改的，拦截重新打印包裹标签
-        if (WaybillCacheHelper.isWeakChangeWaybillSign(request.getWaybillCache())) {
+        //改址弱拦截 2023年04月10日 下线
+        /*if (WaybillCacheHelper.isWeakChangeWaybillSign(request.getWaybillCache())) {
             BlockResponse response = null;
             if (WaybillUtil.isPackageCode(request.getPackageCode())) {
                 response = waybillService.checkPackageBlock(request.getPackageCode(), CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
@@ -66,7 +67,7 @@ public class ChangeWaybillSignFilter implements Filter {
                         HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE, request.getFuncModule()));
 
             }
-        }
+        }*/
         //endregion
 
         chain.doFilter(request, chain);

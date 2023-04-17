@@ -1860,6 +1860,10 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+    /**
+     * 产品类型-医药专送
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
 
     /**
      * 拣运滞留任务biz前缀

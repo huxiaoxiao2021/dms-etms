@@ -116,7 +116,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.queryByBarcode", mState = {JProEnum.TP})
     public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
-        return jyExceptionService.queryByBarcode(req.getBarCode());
+        return jyExceptionService.queryByBarcode(req.getBarCode(), req.getUserErp());
     }
 
     /**

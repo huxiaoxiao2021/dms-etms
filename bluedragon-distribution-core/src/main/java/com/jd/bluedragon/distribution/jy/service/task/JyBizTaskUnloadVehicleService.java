@@ -122,6 +122,18 @@ public interface JyBizTaskUnloadVehicleService {
     boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
 
     /**
+     * 更新其他业务信息
+     * 包含以下业务字段
+     * 业务主键
+     * <p>
+     * 排除saveOrUpdateOfBaseInfo字段
+     *
+     * @param entity
+     * @return
+     */
+    boolean updateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
+
+    /**
      * 检查当前卸车任务是否被锁定
      * 支持自旋，操作锁异常抛出异常调用者自行处理
      *

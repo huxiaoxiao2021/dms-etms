@@ -398,9 +398,13 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				//操作单位更改为收货单位
 				bdTraceDto.setOperatorSiteId(tWaybillStatus.getReceiveSiteCode());
 				bdTraceDto.setOperatorSiteName(tWaybillStatus.getReceiveSiteName());
-				
-				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
-						+ "已驳回");
+				if(StringUtils.isBlank(tWaybillStatus.getRemark())){
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
+							+ "已驳回");
+				}else{
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
+							+ "已驳回，原因："+tWaybillStatus.getRemark());
+				}
 				this.log.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.log.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );

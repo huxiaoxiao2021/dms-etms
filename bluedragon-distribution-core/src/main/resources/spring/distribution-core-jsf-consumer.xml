@@ -1267,5 +1267,13 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>    
+    </jsf:consumer>
+
+    <!--  四级地址解析服务  -->
+    <jsf:consumer id="externalAddressToJDAddressService"
+                  interface="com.jd.addresstranslation.api.address.ExternalAddressToJDAddressService"
+                  protocol="jsf"
+                  alias="${jsf.address.gbmap.alias}"
+                  timeout="${jsf.address.gbmap.timeout}"
+                  retries="${jsf.retries}"/>
 </beans>
