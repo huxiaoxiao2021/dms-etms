@@ -79,6 +79,7 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Autowired
     private JySendAggsService sendAggService;
     @Autowired
+    @Qualifier(value = "jySendVehicleService")
     IJySendVehicleService sendVehicleService;
 
     @Override
