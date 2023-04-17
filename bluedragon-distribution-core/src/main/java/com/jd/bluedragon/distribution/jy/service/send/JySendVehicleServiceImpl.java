@@ -160,6 +160,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -1625,6 +1626,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
+
+            asyncProductOperateProgress(taskSend);
         } catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());
@@ -1634,6 +1637,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         return result;
+    }
+
+    @Async
+    void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
+        if (uccConfig.getProductOperateProgressSwitch()){
+            JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
+            calculateOperateProgress(sendAgg,true);
+        }
     }
 
     @Override

@@ -1259,6 +1259,16 @@ public class UccPropertyConfiguration {
 
     private boolean loadProgressByVehicleVolume;
 
+    private boolean productOperateProgressSwitch;
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
     public boolean getLoadProgressByVehicleVolume() {
         return loadProgressByVehicleVolume;
     }
