@@ -251,7 +251,7 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
-		<property name="loadProgressByTransWorkCode" value="${loadProgressByTransWorkCode:false}"/>
+		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
 		<property name="operateProgressRegionList" value="${operateProgressRegionList:'10,20,30,40,50'}"/>
 
 
@@ -496,7 +496,7 @@
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
-				<value>uccPropertyConfiguration.loadProgressByTransWorkCode</value>
+				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
 				<value>uccPropertyConfiguration.operateProgressRegionList</value>
 			</list>
 		</property>

@@ -967,6 +967,10 @@ public class UccPropertyConfiguration {
         return operateProgressRegionList;
     }
 
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
     public String getOperateProgressRegions() {
         return operateProgressRegions;
     }
@@ -1253,14 +1257,14 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
-    private boolean loadProgressByTransWorkCode;
+    private boolean loadProgressByVehicleVolume;
 
-    public boolean getLoadProgressByTransWorkCode() {
-        return loadProgressByTransWorkCode;
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
     }
 
-    public void setLoadProgressByTransWorkCode(boolean loadProgressByTransWorkCode) {
-        this.loadProgressByTransWorkCode = loadProgressByTransWorkCode;
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
     }
 
     public boolean getBatchSendForbiddenSwitch() {

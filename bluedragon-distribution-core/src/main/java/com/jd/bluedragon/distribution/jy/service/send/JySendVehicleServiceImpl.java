@@ -2844,7 +2844,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return invokeResult;
     }
 
-
     /**
      * 设置发货进度
      *
@@ -2852,10 +2851,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param progress
      */
     public void setSendProgressData(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
-        if (uccConfig.getLoadProgressByTransWorkCode()){
-            setSendProgressDataByVehicleVolume(taskSend,progress);
-            return;
-        }
         JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
 
         BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
@@ -2869,7 +2864,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         if (sendAgg != null && basicVehicleType != null) {
-            progress.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
+            if (uccConfig.getLoadProgressByVehicleVolume()){
+                progress.setLoadRate(calculateLoadRate(taskSend, basicVehicleType, sendAgg));
+            }
+            else {
+                progress.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
+            }
             progress.setLoadVolume(sendAgg.getTotalScannedVolume());
             progress.setLoadWeight(sendAgg.getTotalScannedWeight());
             //progress.setToScanCount(this.dealMinus(sendAgg.getTotalShouldScanCount(), sendAgg.getTotalScannedCount()));
@@ -2897,40 +2897,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         else {
             return vehicleVolumeDicResp.getVolumeBranchC();
         }
-    }
-    public void setSendProgressDataByVehicleVolume(JyBizTaskSendVehicleEntity taskSend, SendVehicleProgress progress) {
-        BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
-        if (basicVehicleType != null) {
-            if(basicVehicleType.getVolume() != null) {
-                progress.setVolume(BigDecimal.valueOf(basicVehicleType.getVolume()));
-            }
-            if(basicVehicleType.getWeight() != null) {
-                progress.setWeight(BigDecimal.valueOf(basicVehicleType.getWeight()));
-            }
-        }
-
-        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
-        if (sendAgg != null && basicVehicleType != null) {
-
-            BigDecimal loadRate = calculateLoadRate(taskSend, basicVehicleType, sendAgg);
-            progress.setLoadRate(loadRate);
-            progress.setLoadVolume(sendAgg.getTotalScannedVolume());
-            progress.setLoadWeight(sendAgg.getTotalScannedWeight());
-            progress.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
-            progress.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
-            progress.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
-            progress.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
-            progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
-            progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
-        }
-        log.info("获取待扫数据入参--{}",taskSend.getBizId());
-        Long toScanCountSum = jySendProductAggsService.getToScanCountSum(taskSend.getBizId());
-        log.info("获取待扫数据--{}",toScanCountSum);
-        progress.setToScanCount(toScanCountSum);
-
-        progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
-        progress.setSealedTotal(this.getSealedDestTotal(taskSend.getBizId()));
-        progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
     }
 
     /**
