@@ -1579,8 +1579,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (waybill.getOldSiteId() == null) {
         throw new JyBizException("运单对应的预分拣站点为空");
       }
-      if (WaybillUtil.isWaybillCode(barCode) && waybill.getGoodNumber() < ucc
-          .getBulkScanPackageMinCount()) {
+      if (!WaybillUtil.isPackageCode(barCode) && WaybillUtil.isWaybillCode(barCode) && waybill.getGoodNumber() < ucc.getBulkScanPackageMinCount()) {
         throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
       if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
