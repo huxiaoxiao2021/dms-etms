@@ -189,43 +189,6 @@
 		</where>
 	</select>
 
-	<!--todo zcf   -->
-<!--	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
-
-		select
-			cr.collection_code as collectionCode, cr.agg_code as aggCode, cr.agg_mark as aggMark
-		from
-			collection_record cr inner join collection_record_detail crd
-		on
-			cr.collection_code = crd.collection_code and cr.agg_code = crd.agg_code and cr.agg_code_type = crd.agg_code_type
-		<where>
-			crd.collection_code in
-			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-				#{collectionCode, jdbcType=VARCHAR}
-			</foreach>
-			and crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-			and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			<if test="aggCode != null">
-				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
-			</if>
-			and cr.is_init = 1
-			and cr.yn = 1 and crd.yn = 1
-			<if test="isMoreCollectedMark != null">
-				and cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
-			</if>
-			<if test="isCollected != null">
-				and cr.is_collected = #{isCollected, jdbcType=INTEGER}
-			</if>
-			<if test="isExtraCollected != null">
-				and cr.is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
-			</if>
-		</where>
-		group BY cr.collection_code, cr.agg_code, cr.agg_mark
-		order by aggMark
-		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
-	</select>-->
-
 	<select id="sumAggCollectionByCollectionCode" parameterType="java.util.Map"
 			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter">
 		SELECT
@@ -271,7 +234,7 @@
 	</select>
 
 	<select id="getAggCodesByCollectedMark" parameterType="java.util.Map" resultType="java.lang.String">
-			SELECT distinct agg_code
+			SELECT agg_code
 			FROM
 				collection_record_detail
 			WHERE
@@ -282,21 +245,38 @@
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
+			group by agg_code
 	</select>
 
 
 	<select id="findByAggCode" parameterType="java.util.Map" resultMap="collectionRecordDetailMap">
 		select	collection_code, agg_code
 		from collection_record_detail
-		where
-			collection_code in
+		where yn = 1
+			and collection_code in
 				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
 					#{collectionCode, jdbcType=VARCHAR}
 				</foreach>
 			and collected_mark = #{collectedMark, jdbcType=VARCHAR}
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 			and agg_code = #{aggCode, jdbcType=VARCHAR}
-			and yn = 1
 		group BY collection_code, agg_code
 	</select>
+
+
+	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map" resultType="collectionRecordDetailMap">
+		select collection_code, agg_code
+		from collection_record_detail
+		where yn = 1
+			and collection_code in
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
+			and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+		group BY collection_code, agg_code
+		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+	</select>
+
+
 </mapper>

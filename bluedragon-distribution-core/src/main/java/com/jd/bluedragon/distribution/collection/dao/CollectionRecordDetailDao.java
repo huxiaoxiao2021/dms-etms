@@ -143,6 +143,20 @@ public class CollectionRecordDetailDao {
         param.put("collectedMark", collectedMark);
         param.put("aggCodeType", aggCodeTypeEnum.name());
         param.put("aggCode", aggCode);
+        return this.sqlSession.selectList(NAMESPACE.concat(".findByAggCode"), param);
+    }
+
+    public List<CollectionRecordDetailPo> findAggCodeByCollectedMark(List<String> collectionCodes,
+                                                               String collectedMark,
+                                                               CollectionAggCodeTypeEnum aggCodeTypeEnum,
+                                                               Integer limit,
+                                                               Integer offset) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("collectionCodes", collectionCodes);
+        param.put("collectedMark", collectedMark);
+        param.put("aggCodeType", aggCodeTypeEnum.name());
+        param.put("limit", limit);
+        param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
     }
 }

@@ -64,34 +64,23 @@ public class CollectionRecordDao {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countAggCodeByCollectionCodesAndStatus"), param);
     }
 
-    /**
-     *
-     * @param collectionCodes
-     * @param collectedMark 关联的任务bizId
-     * @param aggCodeTypeEnum
-     * @param aggCode
-     * @param isCollected   是否集齐
-     * @param isExtraCollected  是否多集
-     * @param isMoreCollectedMark   是否多任务操作
-     * @param limit
-     * @param offset
-     * @return
-     */
-    public List<CollectionRecordPo> findAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark,
-        CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected,
-        Integer isMoreCollectedMark, Integer limit, Integer offset) {
+
+    public List<CollectionRecordPo> findAggCodes(String collectionCode,
+                                                 String aggCodeTypeEnumName,
+                                                 List<String> aggCodes,
+                                                 Integer isCollected,
+                                                 Integer isExtraCollected,
+                                                 Integer isMoreCollectedMark) {
         Map<String,Object> param = new HashMap<>();
-        param.put("collectionCodes", collectionCodes);
-        param.put("collectedMark", collectedMark);
-        param.put("aggCodeType", aggCodeTypeEnum.name());
-        param.put("aggCode", aggCode);
+        param.put("collectionCode", collectionCode);
+        param.put("aggCodeType", aggCodeTypeEnumName);
+        param.put("aggCodes", aggCodes);
         param.put("isCollected", isCollected);
         param.put("isExtraCollected", isExtraCollected);
         param.put("isMoreCollectedMark", isMoreCollectedMark);
-        param.put("limit", limit);
-        param.put("offset", offset);
-        return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
+        return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodes"), param);
     }
+
 
 
     public void setSqlSession(SqlSession sqlSession) {

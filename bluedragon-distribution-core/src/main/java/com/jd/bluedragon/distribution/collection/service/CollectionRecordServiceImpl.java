@@ -57,6 +57,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
      */
     private final static long REDIS_CACHE_EXPIRE_TIME = 10 * 60;
 
+
+    private final static int SQL_IN_MAX_LENGTH = 300;
+    private final static int JIQI_TASK_WAYBILL_PAGE = 100;
+
     @Autowired
     private CollectionRecordDao collectionRecordDao;
     @Autowired
@@ -981,22 +985,100 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
 //        return collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark, limit, offset);
         if(StringUtils.isNotBlank(aggCode)) {
-            List<CollectionRecordDetailPo> detailList = collectionRecordDetailDao.findByAggCode(collectionCodes, collectedMark,
-                    aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark);
-            if(CollectionUtils.isEmpty(detailList)) {
+            return findAggCodeByCollectedMarkWithAggCode(collectionCodes,collectedMark,aggCodeTypeEnum,aggCode,isCollected,isExtraCollected,isMoreCollectedMark,limit,offset);
+        }else {
+            return findAggCodeByCollectedMarkWithoutAggCode(collectionCodes,collectedMark,aggCodeTypeEnum,aggCode,isCollected,isExtraCollected,isMoreCollectedMark,limit,offset);
+        }
+    }
+
+    private List<CollectionRecordPo> findAggCodeByCollectedMarkWithAggCode(List<String> collectionCodes,
+                                                                String collectedMark,
+                                                                CollectionAggCodeTypeEnum aggCodeTypeEnum,
+                                                                String aggCode,
+                                                                Integer isCollected,
+                                                                Integer isExtraCollected,
+                                                                Integer isMoreCollectedMark,
+                                                                Integer limit,
+                                                                Integer offset) {
+        List<CollectionRecordDetailPo> detailList = collectionRecordDetailDao.findByAggCode(collectionCodes, collectedMark,
+                aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark);
+        if(CollectionUtils.isEmpty(detailList)) {
+            return null;
+        }
+        if(detailList.size() > 2) {
+            log.warn("当前场景按单{}搜索最多存在两个集合中，存在两条不同collectionCode的aggCode, 当前查出来大于2条[{}条]:collectionCodes={},collectedMark={}",
+                    aggCode, detailList.size(), JsonUtils.toJSONString(collectionCodes), collectedMark);
+        }
+        List<CollectionRecordPo> resList = new ArrayList<>();
+        //todo 目前模型detailList理论最多两条，风险保护，出现异常数据时只查前十条
+        Lists.partition(detailList, 10).get(0).forEach(detailPo -> {
+            resList.add(collectionRecordDao.findByAggCode(detailPo.getCollectionCode(), detailPo.getAggCodeType(),
+                    detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark));
+        });
+        //按运单查无需排序，同一单流向肯定相同，出现不同肯定是DB中存储逻辑存在问题
+        return resList;
+    }
+
+
+    private List<CollectionRecordPo> findAggCodeByCollectedMarkWithoutAggCode(List<String> collectionCodes, String collectedMark, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected, Integer isMoreCollectedMark, Integer limit, Integer offset) {
+//        List<CollectionRecordPo> res = new ArrayList<>();
+        //todo 这里分页处理主要考虑查明细返回运单，去主表过滤后不足100条，此时需要在查明细表组装，，限制最多查 cycleCount 次，避免一直查库
+        int offsetTemp = 0;
+        int limitTemp = 1000;
+        int cycleCount = 2;
+        List<CollectionRecordPo> res = new ArrayList<>();
+        while(res.size() < JIQI_TASK_WAYBILL_PAGE && cycleCount > 0) {
+            List<CollectionRecordDetailPo> detailPoListTemp = findDetailAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, offsetTemp, limitTemp);
+            if(CollectionUtils.isEmpty(detailPoListTemp)) {
+                if(log.isInfoEnabled()) {
+                    log.info("findAggCodeByCollectedMark根据任务查找任务下运单为空collectionCodes={},collectedMark={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(collectedMark));
+                }
                 return null;
             }
-            List<CollectionRecordPo> resList = new ArrayList<>();
-            for(CollectionRecordDetailPo detailPo : detailList) {
-                resList.add(collectionRecordDao.findByAggCode(detailPo.getCollectionCode(), detailPo.getAggCodeType(),
-                        detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark));
+            Map<String, List<CollectionRecordDetailPo>> map = detailPoListTemp.stream().collect(Collectors.groupingBy(CollectionRecordDetailPo::getCollectionCode));
+            if(log.isInfoEnabled()) {
+                log.info("findAggCodeByCollectedMark根据任务查找任务下运单，collectionList={},查明细返回aggCode数量={},offsetTemp={}, limitTemp",
+                        JsonUtils.toJSONString(map.keySet()), detailPoListTemp.size(), offsetTemp, limitTemp);
             }
-            //按运单查无需排序，同一单流向肯定相同，出现不同肯定是DB中存储逻辑存在问题
-            return resList;
-        }else {
-            //todo zcf join未处理
-            return collectionRecordDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, aggCode, isCollected, isExtraCollected, isMoreCollectedMark, limit, offset);
+            //理论上map最大两个key
+            map.forEach((collectionCode, collectionRecordDetailPoList) -> {
+                List<String> aggCodeList =  collectionRecordDetailPoList.stream().map(CollectionRecordDetailPo::getAggCode).filter(aggCodeTemp -> StringUtils.isNotBlank(aggCodeTemp)).collect(Collectors.toList());
+                //避免不同key中aggCode分布不均导致sql中aggCode in数量过大,对每个可能collectionCode进行拆分
+                List<List<String>> aggCodeListList = Lists.partition(aggCodeList, SQL_IN_MAX_LENGTH);
+                for(List<String> aggCodeList1 : aggCodeListList) {
+                    List<CollectionRecordPo> collectionRecordPos1 = collectionRecordDao.findAggCodes(collectionCode, aggCodeTypeEnum.name(), aggCodeList1, isCollected, isExtraCollected, isMoreCollectedMark);
+                    if(CollectionUtils.isEmpty(collectionRecordPos1)) {
+                        continue;
+                    }
+                    int shortNum = JIQI_TASK_WAYBILL_PAGE - res.size();
+                    if(collectionRecordPos1.size() < shortNum) {
+                        res.addAll(collectionRecordPos1);
+                        continue;
+                    }else {
+                        res.addAll(collectionRecordPos1.subList(0, shortNum));
+                        break;
+                    }
+                }
+            });
+            offsetTemp += limitTemp;
+            cycleCount--;
         }
+        if(CollectionUtils.isEmpty(res)) {
+            if(log.isInfoEnabled()) {
+                log.info("findAggCodeByCollectedMark根据任务查找任务下运单查询结果为空collectionCodes={},collectedMark={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(collectedMark));
+            }
+        }
+        Collections.sort(res, new Comparator<CollectionRecordPo>() {
+            @Override
+            public int compare(CollectionRecordPo o1, CollectionRecordPo o2) {
+                return o1.getAggMark().compareTo(o2.getAggMark());
+            }
+        });
+        return res;
+    }
+
+    private List<CollectionRecordDetailPo> findDetailAggCodeByCollectedMark(List<String> collectionCodes, String collectedMark, CollectionAggCodeTypeEnum aggCodeTypeEnum, Integer limit, Integer offset) {
+        return collectionRecordDetailDao.findAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, limit, offset);
     }
 
     @Override

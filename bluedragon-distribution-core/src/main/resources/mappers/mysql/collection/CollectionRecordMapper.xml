@@ -139,42 +139,6 @@
 				</foreach>
 	</select>
 
-	<!--todo zcf   -->
-	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
-
-		select
-			cr.collection_code as collectionCode, cr.agg_code as aggCode, cr.agg_mark as aggMark
-		from
-			collection_record cr inner join collection_record_detail crd
-		on
-			cr.collection_code = crd.collection_code and cr.agg_code = crd.agg_code and cr.agg_code_type = crd.agg_code_type
-		<where>
-			crd.collection_code in
-			<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
-				#{collectionCode, jdbcType=VARCHAR}
-			</foreach>
-			and crd.collected_mark = #{collectedMark, jdbcType=VARCHAR}
-			and crd.agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
-			<if test="aggCode != null">
-				and cr.agg_code = #{aggCode, jdbcType=VARCHAR}
-			</if>
-			and cr.is_init = 1
-			and cr.yn = 1 and crd.yn = 1
-			<if test="isMoreCollectedMark != null">
-				and cr.is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
-			</if>
-			<if test="isCollected != null">
-				and cr.is_collected = #{isCollected, jdbcType=INTEGER}
-			</if>
-			<if test="isExtraCollected != null">
-				and cr.is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
-			</if>
-		</where>
-		group BY cr.collection_code, cr.agg_code, cr.agg_mark
-		order by aggMark
-		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}	<!-- 这里 limit 100 -->
-	</select>
 
 
 
@@ -196,5 +160,33 @@
 				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
 	</select>
+
+	<select id="findAggCodes" parameterType="java.util.Map"
+			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
+
+		select collection_code, agg_code, agg_mark
+		from collection_record
+		where
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code in
+			<foreach collection="aggCodes" open="(" item="aggCode" separator="," close=")">
+				#{aggCode, jdbcType=VARCHAR}
+			</foreach>
+			and is_init = 1
+			and yn = 1
+			<if test="isMoreCollectedMark != null">
+				and is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+		order by aggMark
+		limit 100
+	</select>
+
 
 </mapper>
