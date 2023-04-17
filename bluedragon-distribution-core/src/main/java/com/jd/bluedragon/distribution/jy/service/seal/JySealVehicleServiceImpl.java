@@ -198,6 +198,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
             sealVehicleInfoResp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+            if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                sealVehicleInfoResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                sealVehicleInfoResp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            }
         }
         sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
