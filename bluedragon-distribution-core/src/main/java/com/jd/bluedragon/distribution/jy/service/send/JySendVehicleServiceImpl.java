@@ -3664,6 +3664,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
             GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
             resp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+            if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            }
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
         }
         else {
@@ -3679,6 +3685,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
                 GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
                 resp.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+                if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                    TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                    resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                    resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+                }
                 return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
             }
             return new InvokeResult(SERVER_ERROR_CODE,commonDto.getMessage());

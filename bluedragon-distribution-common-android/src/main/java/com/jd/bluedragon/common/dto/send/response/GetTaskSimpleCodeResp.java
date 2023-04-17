@@ -10,6 +10,31 @@ public class GetTaskSimpleCodeResp implements Serializable {
    * 任务简码
    */
   private String taskSimpleCode;
+  /**
+   * 线路编码
+   */
+  private String routeLineCode;
+
+  /**
+   * 线路名称
+   */
+  private String routeLineName;
+
+  public String getRouteLineCode() {
+    return routeLineCode;
+  }
+
+  public void setRouteLineCode(String routeLineCode) {
+    this.routeLineCode = routeLineCode;
+  }
+
+  public String getRouteLineName() {
+    return routeLineName;
+  }
+
+  public void setRouteLineName(String routeLineName) {
+    this.routeLineName = routeLineName;
+  }
 
   public String getTaskSimpleCode() {
     return taskSimpleCode;
