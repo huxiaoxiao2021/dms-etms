@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExNoticeCustomerMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
+import com.jd.bluedragon.distribution.jy.manager.AbnormalReasonManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
@@ -41,6 +42,7 @@ import com.jd.lsb.flow.domain.jme.JmeFile;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.wl.cs.abnormal.portal.api.dto.reason.AbnormalReasonDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +62,10 @@ import java.util.*;
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
+
+    private final Integer REASON_LEVEL_CODE_ONE = 20009;
+    private final Integer REASON_LEVEL_CODE_TWO = 232300;
+    private final Integer REASON_LEVEL_CODE_THREE = 232301;
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -91,6 +97,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     @Autowired
     private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
+    @Autowired
+    private AbnormalReasonManager abnormalReasonManager;
 
     @Override
     public Integer getExceptionType() {
@@ -316,6 +324,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyExNoticeCustomerMQ.setExptCreateTime(DateHelper.formatDateTime(exScrapTaskEntity.getCreateTime()));
             jyExNoticeCustomerMQ.setExptCreator(exScrapTaskEntity.getCreateUserErp());
             jyExNoticeCustomerMQ.setExptId(exScrapTaskEntity.getBizId());
+            addAbnormalReason(jyExNoticeCustomerMQ);
 
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exScrapTaskEntity.getSiteCode().intValue());
             if(baseSite != null){
@@ -330,6 +339,34 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             // add log
             recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_CUSTOMER, exScrapTaskEntity);
         }
+    }
+
+    /**
+     * 补充异常原因
+     * @param mq
+     */
+    private void  addAbnormalReason(JyExNoticeCustomerMQ mq){
+        List<AbnormalReasonDto> abnormalReasonDtos = abnormalReasonManager.queryAbnormalReasonListBySystemCode();
+        if(CollectionUtils.isEmpty(abnormalReasonDtos)){
+            logger.warn("质控异常原因为空");
+            return ;
+        }
+        for (AbnormalReasonDto dto:abnormalReasonDtos) {
+            if(dto.getCode().equals(REASON_LEVEL_CODE_ONE)){
+                mq.setExptOneLevel(dto.getReasonLevel().toString());
+                mq.setExptOneLevelName(dto.getName());
+            }else if(dto.getCode().equals(REASON_LEVEL_CODE_TWO)){
+                mq.setExptTwoLevel(dto.getReasonLevel().toString());
+                mq.setExptTwoLevelName(dto.getName());
+            }else if(dto.getCode().equals(REASON_LEVEL_CODE_THREE)){
+                mq.setExptThreeLevel(dto.getReasonLevel().toString());
+                mq.setExptThreeLevelName(dto.getName());
+            }else {
+                logger.warn("未知类型");
+            }
+        }
+
+
     }
 
     private void updateTaskApproveResult(String bizId, boolean flowEndFlag, boolean approveFinalResult) {

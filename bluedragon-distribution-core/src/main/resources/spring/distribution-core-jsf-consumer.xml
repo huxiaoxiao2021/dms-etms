@@ -1267,5 +1267,17 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>    
+    </jsf:consumer>
+
+    <!--  质控-异常原因接口  -->
+    <jsf:consumer id="abnormalReasonApi"
+                  interface="com.jd.wl.cs.abnormal.portal.api.service.reason.AbnormalReasonApi"
+                  alias="${jsf.abnormalReasonApi.alias}"
+                  timeout="${jsf.abnormalReasonApi.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.abnormalReasonApi.token}" hide="true"/>
+    </jsf:consumer>
+
 </beans>
