@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCa
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
+import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
@@ -44,6 +45,9 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
 
     @Autowired
     private SpotCheckQueryManager spotCheckQueryManager;
+
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     @Autowired
     @Qualifier("dwsCheckManager")
@@ -101,8 +105,9 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 WeightVolumeSpotCheckDto updateSpotDto = new WeightVolumeSpotCheckDto();
                 updateSpotDto.setPackageCode(weightVolumeSpotCheckDto.getPackageCode());
                 updateSpotDto.setReviewSiteCode(weightVolumeSpotCheckDto.getReviewSiteCode());
+                updateSpotDto.setMachineCode(weightVolumeSpotCheckDto.getMachineCode());
                 updateSpotDto.setMachineStatus(waybillMachineStatus);
-                spotCheckQueryManager.insertOrUpdateSpotCheck(updateSpotDto);
+                spotCheckServiceProxy.insertOrUpdateProxyReform(updateSpotDto);
             }
 
             // 下发抽检数据
