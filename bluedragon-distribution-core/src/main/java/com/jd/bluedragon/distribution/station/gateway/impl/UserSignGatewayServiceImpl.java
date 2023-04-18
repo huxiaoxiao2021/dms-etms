@@ -392,6 +392,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			log.warn("网格工种限制功能开关关闭!");
 			return "";
 		}
+		if(StringUtils.isBlank(positionCode) || Objects.isNull(jobCode)){
+			log.warn("岗位码或工种为空!");
+			return "";
+		}
+
 		//根据岗位码获取岗位信息
 		Result<PositionDetailRecord> positionResult = positionManager.queryOneByPositionCode(positionCode);
 		log.info("根据岗位码获取岗位信息-{}-结果-{}",positionCode,JSON.toJSONString(positionResult));
