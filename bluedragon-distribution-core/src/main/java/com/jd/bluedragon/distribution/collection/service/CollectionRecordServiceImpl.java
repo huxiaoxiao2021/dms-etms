@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.collection.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
@@ -11,10 +12,12 @@ import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao;
 import com.jd.bluedragon.distribution.collection.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.*;
-import com.jd.bluedragon.distribution.collection.exception.CollectionException;
+import com.jd.bluedragon.distribution.collection.exception.CollectLockFailException;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BitMapUtil;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jsf.gd.util.JsonUtils;
@@ -60,6 +63,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
     private final static int SQL_IN_MAX_LENGTH = 300;
     private final static int JIQI_TASK_WAYBILL_PAGE = 100;
+    private final static int WAYBILL_MAX_PACKAGE_SIZE = 50000;//最大5W个包裹(运单获取不到时默认bits是5W)
 
     @Autowired
     private CollectionRecordDao collectionRecordDao;
@@ -74,7 +78,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClient;
-
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     @JProfiler(jKey = "DMS.WEB.CollectionRecordService.getOrGenJQCodeByBusinessType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -177,9 +182,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                         aggCodeTypeEnum.name(), collectionCode);
                 }
                 collectionRecordDetailPoMaps.forEach((aggCode, collectionRecordDetailPos) -> {
-
+                    if(!WaybillUtil.isWaybillCode(aggCode)) {
+                        log.warn("initPartCollection集齐服务当前处理aggCode是运单的逻辑，非运单场景后续要扩展aggCode={}", aggCode);
+                        throw new JyBizException("集齐服务当前仅处理aggCode是运单的场景");
+                    }
+                    int goodNumber = getWaybillGoodNumber(aggCode);
                     /* 对集齐明细数进行分页处理 */
-                    initPartCollectionCollectRecordDetailHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+                    initPartCollectionCollectRecordDetailHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum, goodNumber);
                     /* 对集齐主表数据进行处理 */
                     initPartCollectionCollectRecordHandler(collectionCreatorEntity, collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
                 });
@@ -188,12 +197,21 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         return true;
     }
 
+    private int getWaybillGoodNumber(String waybillCode) {
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        int goodNumber = WAYBILL_MAX_PACKAGE_SIZE;
+        if (!Objects.isNull(waybill) && !Objects.isNull(waybill.getGoodNumber()) && waybill.getGoodNumber() > 0) {
+            goodNumber = waybill.getGoodNumber();
+        }
+        return goodNumber;
+    }
+
     /**
      * 集齐初始化处理明细表逻辑
      * 加锁
      */
-    private void initPartCollectionCollectRecordDetailHandler(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        collectRecordDetailHandlerLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+    private void initPartCollectionCollectRecordDetailHandler(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum, int goodNumber) {
+        collectRecordDetailHandlerLock(collectionRecordDetailPos, collectionCode, aggCode, goodNumber);
         try{
             Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
                 /* 检查当前这批数据下的明细表的数据是否已经存在，在增量模式下，不会对已有的数据造成影响 */
@@ -242,44 +260,167 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.error("initPartCollection:集齐初始化包裹处理部分异常collectionCode={},aggCode={},errMsg={}", collectionCode, aggCode, e.getMessage(), e);
             throw new JyBizException("集齐初始化包裹处理部分异常");
         }finally {
-            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos, collectionCode, aggCode, goodNumber);
         }
     }
 
-    private void collectRecordDetailHandlerLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+    private void collectRecordDetailHandlerLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, int goodNumber) {
+        String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCode);
         if (!jimDbLock.lock(aggCodeKey,"1", 10L, TimeUnit.MINUTES)) {
             log.warn("");
-            throw new CollectionException("集齐初始化包裹list分段锁资源竞争失败");
+            throw new CollectLockFailException("集齐初始化包裹list分段锁资源竞争失败");
         }
         try{
-            String partPackageKey =  MessageFormat.format(Constants.JQ_PART_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
-            for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
-                int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
-                if(redisClient.getBit(partPackageKey, currNum)) {
-                    log.info("集齐部分包裹list加bit锁,存在下表{}的重复包裹{}正在处理中，key={},异常稍后重试", currNum, detailPo.getScanCode(), partPackageKey);
-                    throw new CollectionException("集齐初始化包裹list分段加bit锁获取失败" + detailPo.getScanCode());
+            //内存中本次处理批包裹的二进制字符串
+            String localBitsBinaryString = getLocalBatchPackageBitsBinaryString(collectionRecordDetailPos, goodNumber);
+            String partPackageKey =  MessageFormat.format(Constants.JQ_DETAIL_AGG_BIT_LOCK_PREFIX, collectionCode,aggCode);
+            //redis中维护正在处理中的bits(16进制)
+            String redisValueString = redisClient.get(partPackageKey);
+            if(StringUtils.isEmpty(redisValueString)) {
+                String value = BitMapUtil.turn2to16(localBitsBinaryString);
+                redisClient.setEx(partPackageKey, value, 10, TimeUnit.MINUTES);
+            }else {
+                String cacheString = BitMapUtil.turn16to2(redisValueString);
+                boolean flag = packageLockConflictCheck(partPackageKey, localBitsBinaryString, cacheString);
+                if(flag) {
+                    log.warn("集齐操作包裹批锁存在部分包裹锁冲突：collectionCode={},aggCod{},goodNumber={}", collectionCode, aggCode, goodNumber);
+                    throw new CollectLockFailException("集齐操作包裹批锁存在部分包裹锁冲突");
+                }else {
+                    String valueString = buildCacheBitsString(localBitsBinaryString, cacheString);
+                    redisClient.setEx(partPackageKey, valueString, 10, TimeUnit.MINUTES);
                 }
             }
-            //在redis3.2.0中增加了bitfield命令，进行批量对位图的操作。
-            for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
-                int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
-                redisClient.setBit(partPackageKey, currNum, true);
-            }
-            redisClient.expire(partPackageKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
         }catch (Exception e) {
-            throw new CollectionException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
+            throw new CollectLockFailException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
         }finally {
             jimDbLock.releaseLock(aggCodeKey,"1");
         }
     }
 
-    private void collectionCollectRecordDetailHandlerUnLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        String partPackageKey =  MessageFormat.format(Constants.JQ_PART_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCodeTypeEnum.name(),aggCode);
+    /**
+     * 合并两段bits
+     * 理论上：两个二进制走按位或逻辑 |
+     * @param localBitsBinaryString
+     * @param localBitsBinaryString
+     * @return
+     */
+    private String buildCacheBitsString(String localBitsBinaryString, String cacheBitsBinaryString) {
+        if(StringUtils.isBlank(localBitsBinaryString) || StringUtils.isBlank(cacheBitsBinaryString)) {
+            return localBitsBinaryString + cacheBitsBinaryString;
+        }
+        int length = Math.min(localBitsBinaryString.length(), cacheBitsBinaryString.length());
+        String lStr;
+        String cStr;
+        String pre = "";
+        if(length == localBitsBinaryString.length()) {
+            lStr = localBitsBinaryString;
+        }else {
+            lStr  = localBitsBinaryString.substring(localBitsBinaryString.length() - length);
+            pre = localBitsBinaryString.substring(0, localBitsBinaryString.length() - length);
+        }
+        if(length == cacheBitsBinaryString.length()) {
+            cStr = cacheBitsBinaryString;
+        }else {
+            cStr  = cacheBitsBinaryString.substring(cacheBitsBinaryString.length() - length);
+            pre = cacheBitsBinaryString.substring(0, cacheBitsBinaryString.length() - length);
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append(pre);
+        for(int i = 0; i < lStr.length(); i++) {
+            sb.append((Objects.equals(lStr.charAt(i), '1')) ? '1' : cStr.charAt(i));
+        }
+        return BitMapUtil.turn2to16(sb.toString());
+    }
+
+    /**
+     * 判断内存中的二进制传和redis缓存中二进制字符串中是否存在冲突位
+     * 按位与 & > 0
+     * @param localBitsBinaryString
+     * @param cacheString
+     * @return  true: 冲突   false: 无冲突
+     */
+    private boolean packageLockConflictCheck(String partPackageKey, String localBitsBinaryString, String cacheString) {
+        if(StringUtils.isBlank(localBitsBinaryString) || StringUtils.isBlank(cacheString)) {
+            return false;
+        }
+        int length = Math.min(localBitsBinaryString.length(),cacheString.length());
+        String ls = localBitsBinaryString.substring(localBitsBinaryString.length() - length);
+        String cs = cacheString.substring(cacheString.length() - length);
+
+        for(int i = length - 1; i > 0; i--) {
+            if(Objects.equals(ls.charAt(i), '1') && Objects.equals(cs.charAt(i), '1')) {
+                if(log.isInfoEnabled()) {
+                    log.info("cacheKey={}处理集齐包裹冲突，包裹下标是{}, cacheStr={},localStr={}", partPackageKey, i, cacheString, localBitsBinaryString);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取当前批的bits字符串
+     * @param collectionRecordDetailPos
+     * @param goodNumber
+     * @return
+     */
+    private String getLocalBatchPackageBitsBinaryString(List<CollectionRecordDetailPo> collectionRecordDetailPos,int goodNumber) {
+        byte[] bits = BitMapUtil.create(goodNumber);
         for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
             int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
-            redisClient.setBit(partPackageKey, currNum, false);
+            BitMapUtil.add(bits, currNum);
         }
+        return BitMapUtil.getBinaryString(bits);
+    }
+
+    private void collectionCollectRecordDetailHandlerUnLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, int goodNumber) {
+        String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCode);
+        if (!jimDbLock.lock(aggCodeKey,"1", 10L, TimeUnit.MINUTES)) {
+            log.warn("");
+            return;
+        }
+        String localBitsBinaryString = "";
+        try{
+            localBitsBinaryString = getLocalBatchPackageBitsBinaryString(collectionRecordDetailPos, goodNumber);
+            //内存中本次需要释放批包裹的二进制字符串
+            String partPackageKey =  MessageFormat.format(Constants.JQ_DETAIL_AGG_BIT_LOCK_PREFIX, collectionCode,aggCode);
+            //redis中维护正在处理中的bits(16进制)
+            String redisValueString = redisClient.get(partPackageKey);
+            if(StringUtils.isNotBlank(redisValueString)) {
+                String cacheString = BitMapUtil.turn16to2(redisValueString);
+                String valueString = releaseBatchPackageCacheBitsString(localBitsBinaryString, cacheString);
+                redisClient.setEx(partPackageKey, valueString, 10, TimeUnit.MINUTES);
+            }
+        }catch (Exception e) {
+            log.error("释放集齐aggCode锁失败，不对外抛异常，逻辑已经执行完毕，其他场景可能存在获取不到锁重试，等该锁过期后正常执行，aggCodeKey={},localBits={}", aggCodeKey, localBitsBinaryString);
+        }finally {
+            jimDbLock.releaseLock(aggCodeKey,"1");
+        }
+    }
+
+    /**
+     * redis缓存下线本地打标是1的
+     * @param localBitsBinaryString
+     * @param cacheBitsBinaryString
+     * @return
+     */
+    private String releaseBatchPackageCacheBitsString(String localBitsBinaryString, String cacheBitsBinaryString) {
+        int length = cacheBitsBinaryString.length();
+        String releaseBitStr ;
+        String cachePublicStr;
+        StringBuffer sb = new StringBuffer();
+        if(localBitsBinaryString.length() >= length) {
+            releaseBitStr = localBitsBinaryString.substring(localBitsBinaryString.length() - length);
+            cachePublicStr = cacheBitsBinaryString;
+        }else {
+            releaseBitStr = localBitsBinaryString;
+            cachePublicStr = cacheBitsBinaryString.substring(length - localBitsBinaryString.length());
+            sb.append(cacheBitsBinaryString.substring(0, length - localBitsBinaryString.length()));
+        }
+        for(int i = 0; i < releaseBitStr.length(); i++) {
+            sb.append(Objects.equals(releaseBitStr.charAt(i),'1') ? '0' : cachePublicStr.charAt(i));
+        }
+        return BitMapUtil.turn2to16(sb.toString());
     }
 
     /**
@@ -339,7 +480,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             //获取不到锁抛异常外部jmq-consumer走重试
             log.warn("集齐初始化主表统计数据处理没有获取到锁，异常重试，collectionCreatorEntity={}，collectionCode={},aggCode={}",
                     JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode);
-            throw new CollectionException("集齐初始化主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
+            throw new CollectLockFailException("集齐初始化主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
         }
     }
 
@@ -377,7 +518,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 }
 
                 collectionRecordDetailPoMaps.forEach((aggCode, collectionRecordDetailPos) -> {
-                    initAndCollectedPartCollectionCollectRecordDetailHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+                    if(!WaybillUtil.isWaybillCode(aggCode)) {
+                        log.warn("集齐服务当前处理aggCode是运单的逻辑，非运单场景后续要扩展aggCode={}", aggCode);
+                        throw new JyBizException("集齐服务当前仅处理aggCode是运单的场景");
+                    }
+                    int goodNumber = getWaybillGoodNumber(aggCode);
+                    initAndCollectedPartCollectionCollectRecordDetailHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum, goodNumber);
                     initAndCollectedPartCollectionCollectRecordHandler(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum, collectionCreatorEntity);
                 });
 
@@ -392,8 +538,8 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private void initAndCollectedPartCollectionCollectRecordDetailHandler(List<CollectionRecordDetailPo> collectionRecordDetailPos,
                                                                           String collectionCode,
                                                                           String aggCode,
-                                                                          CollectionAggCodeTypeEnum aggCodeTypeEnum) {
-        collectRecordDetailHandlerLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+                                                                          CollectionAggCodeTypeEnum aggCodeTypeEnum, int goodNumber) {
+        collectRecordDetailHandlerLock(collectionRecordDetailPos, collectionCode, aggCode, goodNumber);
         try {
             /* 对包裹列表数进行分页处理 */
             Lists.partition(collectionRecordDetailPos, Constants.DEFAULT_PAGE_SIZE).forEach(partitionDetailPos -> {
@@ -445,7 +591,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             log.error("initAndCollectedPartCollection:集齐初始化并修改集齐状态包裹处理部分异常collectionCode={},aggCode={},errMsg={}", collectionCode, aggCode, e.getMessage(), e);
             throw new JyBizException("集齐初始化并修改集齐状态包裹处理部分异常");
         }finally {
-            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos, collectionCode, aggCode, aggCodeTypeEnum);
+            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos, collectionCode, aggCode, goodNumber);
         }
     }
 
@@ -509,7 +655,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             //获取不到锁抛异常外部jmq-consumer走重试
             log.warn("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试，collectionCreatorEntity={}，collectionCode={},aggCode={}",
                     JsonUtils.toJSONString(collectionCreatorEntity), collectionCode, aggCode);
-            throw new CollectionException("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
+            throw new CollectLockFailException("集齐初始化并修改集齐状态主表统计数据处理没有获取到锁，异常重试" + collectionCode + aggCode);
         }
     }
 
@@ -567,8 +713,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         String collectionCode = collectionCodeEntity.getCollectionCode();
         CollectionAggCodeTypeEnum aggCodeTypeEnum1 = collectionCodeEntity.getBusinessType().getCollectionAggCodeTypes().get(0);
         String aggCode = finalElement.getOrDefault(aggCodeTypeEnum1, "null");
-        //todo 未来风险点记录：对明细加锁时，异步初始化场景对指定已知的aggCodeType加锁更新，此处实操触发不考虑aggCodeType对所有可能aggCodeType更新，未来出现多个aggCodeType时存在风险， 当前只有一个aggCodeType不存在风险
-        collectRecordDetailHandlerLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
+        if(!WaybillUtil.isWaybillCode(aggCode)) {
+            log.warn("集齐服务当前处理aggCode是运单的逻辑，非运单场景后续要扩展aggCode={}", aggCode);
+            throw new JyBizException("集齐服务当前仅处理aggCode是运单的场景");
+        }
+        int goodNumber = getWaybillGoodNumber(aggCode);
+        collectRecordDetailHandlerLock(collectionRecordDetailPos1, collectionCode, aggCode, goodNumber);
         try {
             /* 检查该待集齐集合中是否有这单，检查是否是待集齐的状态 */
             List<CollectionRecordDetailPo> scanDetailPos = collectionRecordDetailDao.findCollectionRecordDetail(CollectionRecordDetailPo.builder()
@@ -624,7 +774,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                     JsonUtils.toJSONString(collectionCodeEntity), scanCode, collectedMark, JsonUtils.toJSONString(finalElement), e.getMessage(), e);
             throw new JyBizException("集齐初始化并修改集齐状态包裹处理部分异常");
         }finally {
-            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos1, collectionCode, aggCode, aggCodeTypeEnum1);
+            collectionCollectRecordDetailHandlerUnLock(collectionRecordDetailPos1, collectionCode, aggCode, goodNumber);
         }
     }
 
@@ -693,7 +843,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 //获取不到锁抛异常外部jmq-consumer走重试
                 log.warn("集齐修改单条状态主表统计数据处理没有获取到锁，异常重试，collectionCollectorEntity={}，collectionCodeEntity={}, scanCode={}, collectedMark={}",
                         JsonUtils.toJSONString(collectionCollectorEntity), JsonUtils.toJSONString(collectionCodeEntity), scanCode, collectedMark);
-                throw new CollectionException("集齐修改单条状态主表统计数据处理没有获取到锁，异常重试" + collectedMark + scanCode);
+                throw new CollectLockFailException("集齐修改单条状态主表统计数据处理没有获取到锁，异常重试" + collectedMark + scanCode);
             }
         });
     }

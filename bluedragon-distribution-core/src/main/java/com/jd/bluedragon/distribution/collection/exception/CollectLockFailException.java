@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.collection.exception;
 /**
  * 集齐服务异常
  */
-public class CollectionException extends RuntimeException{
+public class CollectLockFailException extends RuntimeException{
 
     private Integer code;
     /**
@@ -11,7 +11,7 @@ public class CollectionException extends RuntimeException{
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public CollectionException() {
+    public CollectLockFailException() {
     }
 
     /**
@@ -22,11 +22,11 @@ public class CollectionException extends RuntimeException{
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public CollectionException(String message) {
+    public CollectLockFailException(String message) {
         super(message);
     }
 
-    public CollectionException(Integer code, String message) {
+    public CollectLockFailException(Integer code, String message) {
         super(message);
         this.code =code;
     }
@@ -44,7 +44,7 @@ public class CollectionException extends RuntimeException{
      *                unknown.)
      * @since 1.4
      */
-    public CollectionException(String message, Throwable cause) {
+    public CollectLockFailException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -61,7 +61,7 @@ public class CollectionException extends RuntimeException{
      *              unknown.)
      * @since 1.4
      */
-    public CollectionException(Throwable cause) {
+    public CollectLockFailException(Throwable cause) {
         super(cause);
     }
 
@@ -79,7 +79,7 @@ public class CollectionException extends RuntimeException{
      *                           be writable
      * @since 1.7
      */
-    public CollectionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public CollectLockFailException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

@@ -1853,7 +1853,7 @@ public class Constants {
     /**
      * 集齐部分包裹bit锁
      */
-    public static final String JQ_PART_DETAIL_AGG_LOCK_PREFIX = "JQ_PART_LOCK_DETAIL_AGG_{0}_{1}_{2}";
+    public static final String JQ_DETAIL_AGG_BIT_LOCK_PREFIX = "JQ_DETAIL_AGG_BIT_LOCK_PREFIX_{0}_{1}";
 
     /**
      * DB 执行in 限制最大数量
