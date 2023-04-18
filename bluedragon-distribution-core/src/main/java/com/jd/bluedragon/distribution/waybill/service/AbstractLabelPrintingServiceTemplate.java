@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -261,7 +262,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(labelPrinting.getPrepareSiteCode()>LabelPrintingService.PREPARE_SITE_CODE_NOTHING && !labelPrinting.getPrepareSiteCode().equals(LabelPrintingService.PREPARE_SITE_CODE_EMS_DIRECT)){
-        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore,labelPrinting.getPrepareSiteCode(),request.getDmsCode(),labelPrinting.getOriginalCrossType());
+        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore,labelPrinting.getPrepareSiteCode(),request.getDmsCode(),labelPrinting.getTempOriginalCrossType());
             if(jdResult.isSucceed()) {
             	crossPackageTag = jdResult.getData();
             }else{
@@ -465,6 +466,16 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         // labelPrinting.setBusiOrderCode(waybill.getBusiOrderCode());
         waybillCommonService.setBasePrintInfoByWaybill(labelPrinting,waybill);
+        //判断是否符合航空航填面单的滑道信息逻辑
+        boolean matchGetCrossOfAir = waybillCommonService.isMatchGetCrossOfAir(waybill.getWaybillSign(), waybill.getSendPay(), labelPrinting.getPrepareSiteCode(), request.getDmsCode(), waybillCode);
+        if(matchGetCrossOfAir){
+            log.info("符合航空航填面单的滑道信息逻辑");
+            labelPrinting.setTempOriginalCrossType(Constants.ORIGINAL_CROSS_TYPE_GENERAL);
+        }else {
+            log.info("原有的赋值滑道信息逻辑");
+            labelPrinting.setTempOriginalCrossType(labelPrinting.getOriginalCrossType());
+        }
+
         return labelPrinting;
     }
 

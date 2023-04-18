@@ -2063,6 +2063,28 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return baseEntity.getData();
     }
 
+    @Override
+    public boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode) {
+        log.info("isMatchGetCrossOfAir 入参-{}-{}-{}-{}-{}",waybillSign,sendPay,prepareSiteCode,dmsSiteCode,waybillCode);
+        if (BusinessUtil.checkCanAirToRoad(waybillSign, sendPay) || BusinessUtil.isAirFill(waybillSign)) {
+            log.info("航空/航填面单---");
+//            预分拣派送站点
+//            Integer prepareSiteCode = printWaybill.getPrepareSiteCode();
+            //根据网点信息查询绑定的分拣中心
+            BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(prepareSiteCode);
+            Integer dmsId = null;
+            if (baseSiteInfo != null) {
+                dmsId = baseSiteInfo.getDmsId();
+            }
+            //校验绑定的分拣中心和当前操作场地是否相同
+            log.info("绑定的分拣中心-{}-当前操作的分拣中心编码-{}", dmsId, dmsSiteCode);
+            if (Objects.equals(dmsId, dmsSiteCode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 处理“尊” 标识位逻辑
      * @param

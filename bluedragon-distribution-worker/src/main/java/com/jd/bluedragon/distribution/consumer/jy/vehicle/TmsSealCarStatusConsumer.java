@@ -164,9 +164,6 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行解封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
-            //记录实际解封车顺序 不允许失败阻碍其他流程
-            jyUnSealVehicleService.saveRealUnSealRanking(tmsSealCarStatus.getSealCarCode()
-                    ,DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
 
             return jyUnloadVehicleService.createUnloadTask(convert4Load(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms)) != null;
         }else if(TMS_STATUS_IN_RAIL.equals(tmsSealCarStatus.getStatus())){

@@ -251,6 +251,7 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
 		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
 		<property name="operateProgressRegionList" value="${operateProgressRegionList:'10,20,30,40,50'}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
@@ -496,6 +497,7 @@
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
+				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
 				<value>uccPropertyConfiguration.operateProgressRegionList</value>
 				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>

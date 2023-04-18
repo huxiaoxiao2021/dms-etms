@@ -2678,4 +2678,13 @@ public class BusinessUtil {
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
     }
+
+    /**
+     * 航空填仓  WaybillSign67位=1
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAirFill(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_67,WaybillSignConstants.CHAR_67_1);
+    }
 }
