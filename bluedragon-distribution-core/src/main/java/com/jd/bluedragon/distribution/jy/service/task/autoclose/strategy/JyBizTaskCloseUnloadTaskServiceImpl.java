@@ -268,11 +268,14 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         currentOperate.setSiteCode(taskUnloadVehicleExist.getEndSiteId().intValue());
         currentOperate.setSiteName(taskUnloadVehicleExist.getEndSiteName());
         currentOperate.setGroupCode(scheduleTask.getDistributionTarget());
-        final String positionCode = this.getJyGroupPositionCode(scheduleTask.getDistributionTarget());
-        if(positionCode == null){
-            return result.toFail("根据组号查询网格码失败");
+        // 非待卸状态的，不查组号
+        if(Objects.equals(taskUnloadVehicleExist.getVehicleStatus(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())){
+            final String positionCode = this.getJyGroupPositionCode(scheduleTask.getDistributionTarget());
+            if(positionCode == null){
+                return result.toFail("根据组号查询网格码失败");
+            }
+            currentOperate.setPositionCode(positionCode);
         }
-        currentOperate.setPositionCode(positionCode);
 
         com.jd.bluedragon.distribution.jy.dto.User user = new com.jd.bluedragon.distribution.jy.dto.User();
         user.setUserErp(autoCloseTaskContextDto.getOperateUserErp());
