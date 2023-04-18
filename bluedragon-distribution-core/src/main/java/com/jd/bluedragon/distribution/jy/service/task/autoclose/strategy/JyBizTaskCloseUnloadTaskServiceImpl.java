@@ -165,6 +165,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             if(Objects.equals(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_DMS.getCode(), taskUnloadVehicleExist.getTaskType())){
                 final Result<Boolean> completeResult = this.completeTask(autoCloseTaskContextDto, taskUnloadVehicleExist);
                 if(!completeResult.isSuccess()){
+                    log.warn("JyBizTaskCloseUnloadTaskServiceImpl.closeTask completeTask fail {}", JSON.toJSONString(completeResult));
                     return result.toFail("关闭任务失败 " + completeResult.getMessage());
                 }
             }
@@ -172,6 +173,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             if(Objects.equals(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_TYS.getCode(), taskUnloadVehicleExist.getTaskType())){
                 final Result<Boolean> completeResult = this.completeTysTask(autoCloseTaskContextDto, taskUnloadVehicleExist);
                 if(!completeResult.isSuccess()){
+                    log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask completeTask fail {}", JSON.toJSONString(completeResult));
                     return result.toFail("关闭任务失败" + completeResult.getMessage());
                 }
             }
