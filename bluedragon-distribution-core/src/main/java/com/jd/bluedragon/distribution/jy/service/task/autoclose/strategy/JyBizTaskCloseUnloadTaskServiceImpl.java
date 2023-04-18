@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCompleteDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadPreviewDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadPreviewRespDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizOpereateSourceEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
@@ -311,6 +312,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         unloadCompleteDto.setBizId(autoCloseTaskContextDto.getBizId());
         unloadCompleteDto.setTaskId(scheduleTask.getTaskId());
         unloadCompleteDto.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
+        unloadCompleteDto.setOperateSource(JyBizOpereateSourceEnum.SYSTEM.getCode());
         final InvokeResult<Boolean> completeResult = jyUnloadVehicleTysService.completeUnloadTask(unloadCompleteDto);
 
         if (completeResult == null) {
