@@ -1220,6 +1220,10 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -2975,5 +2979,13 @@ public class UccPropertyConfiguration {
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
         this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
 }

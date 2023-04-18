@@ -252,6 +252,7 @@
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
 		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -495,6 +496,7 @@
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
+				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
 			</list>
 		</property>
 	</bean>

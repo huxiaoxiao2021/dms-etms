@@ -1,15 +1,27 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
+import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
 import com.jdl.basic.common.utils.Result;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -52,6 +64,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
+
+	@Autowired
+	private WorkStationManager workStationManager;
+	@Autowired
+	private WorkStationGridManager workStationGridManager;
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
@@ -234,6 +253,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
+		//校验签到工种
+		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
+		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
+			return result;
+		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
@@ -250,10 +276,17 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String positionCode = scanRequest.getPositionCode();
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
-		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
-				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
-			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
+//		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
+//				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+//				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
+//			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
+//			return result;
+//		}
+		//校验签到工种
+		String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
+		log.info("校验签到工种queryUserDataForLogin checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
 			return result;
 		}
 		//已扫描岗位码，校验在岗状态
@@ -291,6 +324,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			if(!apiResult.isSuccess()
 					|| apiResult.getData() == null){
 				result.toFail("扫描的网格码无效！");
+				return result;
+			}
+			//校验签到工种
+			String checkMsg = checkJobCodeSignIn(positionCode, scanRequest.getJobCode());
+			log.info("校验签到工种queryPositionDataForLogin checkMsg-{}",checkMsg);
+			if(StringUtils.isNotBlank(checkMsg)){
+				result.toFail(checkMsg);
 				return result;
 			}
 			//已扫描人员码，校验在岗状态
@@ -339,4 +379,57 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return result;
 	}
+
+	/**
+	 * 校验工种是否允许签到
+	 * @param positionCode
+	 * @param jobCode
+	 * @return
+	 */
+	private String  checkJobCodeSignIn(String positionCode,Integer jobCode){
+		//添加开关 以便于上线后没维护工种类型 都进行卡控
+		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+			log.warn("网格工种限制功能开关关闭!");
+			return "";
+		}
+		//根据岗位码获取岗位信息
+		Result<PositionDetailRecord> positionResult = positionManager.queryOneByPositionCode(positionCode);
+		log.info("根据岗位码获取岗位信息-{}-结果-{}",positionCode,JSON.toJSONString(positionResult));
+		if(positionResult == null || positionResult.getData() == null){
+			return "获取岗位信息失败!";
+		}
+		PositionDetailRecord data = positionResult.getData();
+		WorkStationGridQuery gridQuery = new WorkStationGridQuery();
+		gridQuery.setBusinessKey(data.getRefGridKey());
+		//获取地网格信息workStationGrid
+		Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(gridQuery);
+		log.info("获取地网格信息workStationGrid-{}-结果-{}",gridQuery,JSON.toJSONString(workStationGridResult));
+		String  ownerUserErp ="";
+		String gridName="";
+		if(workStationGridResult != null && workStationGridResult.getData() != null){
+			ownerUserErp = workStationGridResult.getData().getOwnerUserErp();
+			gridName = workStationGridResult.getData().getGridName();
+
+		}
+		//获取当前网格的工种信息
+		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(data.getRefStationKey());
+		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",data.getRefStationKey(), JSON.toJSONString(jobTypes));
+		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
+		if(CollectionUtils.isEmpty(jobTypes)){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		boolean flag = false;
+		for (int i = 0; i < jobTypes.size(); i++) {
+			if(Objects.equals(jobCode,jobTypes.get(i))){
+				flag =true;
+			}
+		}
+		if(!flag){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		return "";
+	}
+
+
 }

@@ -2,7 +2,10 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
+import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
 import com.jdl.basic.common.utils.Result;
+
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -24,4 +27,14 @@ public interface WorkStationManager {
      * @return
      */
     Result<WorkStation> queryByRealBusinessKey(String businessKey);
+
+
+    /**
+     * 根据businessKey查询 网格工种
+     * @param businessKey
+     * @return
+     */
+    List<WorkStationJobTypeDto> queryWorkStationJobTypeBybusinessKey(String businessKey);
+
+
 }
