@@ -188,6 +188,9 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.querySealCarSimpleCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public CommonDto<JdiSealCarResponseDto> querySealCarSimpleCode(JdiSealCarQueryDto dto) {
         checkQueryParams(dto);
+        if (logger.isInfoEnabled()){
+            logger.info("invoke querySealCarSimpleCode params:{}",JsonHelper.toJson(dto));
+        }
         return jdiTransWorkItemWS.querySealCarSimpleCode(dto);
     }
 
