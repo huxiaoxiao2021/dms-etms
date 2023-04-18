@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
@@ -34,6 +35,7 @@ import java.util.List;
  * @Author wyh
  * @Date 2022/5/26 18:38
  **/
+@UnifiedExceptionProcess
 public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayService {
 
     @Autowired
