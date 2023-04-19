@@ -1162,8 +1162,16 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         List<CollectionRecordPo> resList = new ArrayList<>();
         //todo 目前模型detailList理论最多两条，风险保护，出现异常数据时只查前十条
         Lists.partition(detailList, 10).get(0).forEach(detailPo -> {
-            resList.add(collectionRecordDao.findByAggCode(detailPo.getCollectionCode(), detailPo.getAggCodeType(),
-                    detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark));
+            CollectionRecordPo poTemp = collectionRecordDao.findByAggCode(detailPo.getCollectionCode(), aggCodeTypeEnum.name(),
+                    detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark);
+            if(!Objects.isNull(poTemp)) {
+                resList.add(poTemp);
+            }else {
+                if(log.isInfoEnabled()) {
+                    log.info("findAggCodeByCollectedMarkWithAggCode查询集齐主表为空，collectionCode={},aggCode={},isCollected={},isExtraCollected={},isMoreCollectedMark={}",
+                            detailPo.getCollectionCode(), detailPo.getAggCode(), isCollected, isExtraCollected, isMoreCollectedMark);
+                }
+            }
         });
         //按运单查无需排序，同一单流向肯定相同，出现不同肯定是DB中存储逻辑存在问题
         return resList;

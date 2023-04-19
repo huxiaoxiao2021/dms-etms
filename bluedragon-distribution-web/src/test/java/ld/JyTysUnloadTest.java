@@ -180,28 +180,28 @@ public class JyTysUnloadTest {
         while(true) {
             try {
                 String json = "{\n" +
-                        "    \"bizId\": \"SC23040200030108\",\n" +
+                        "    \"bizId\": \"XCZJ23041900000045\",\n" +
                         "    \"collectType\": 101,\n" +
                         "    \"collectionCode\": \"JQ23033122360300032\",\n" +
                         "    \"currentOperate\": {\n" +
                         "        \"dmsCode\": \"010F002\",\n" +
-                        "        \"groupCode\": \"G00000052005\",\n" +
-                        "        \"operateTime\": 1680437708513,\n" +
+                        "        \"groupCode\": \"G00000048001\",\n" +
+                        "        \"operateTime\": 1681900215911,\n" +
                         "        \"orgId\": 6,\n" +
                         "        \"orgName\": \"华北\",\n" +
-                        "        \"positionCode\": \"GW00108005\",\n" +
+                        "        \"positionCode\": \"GW00002001\",\n" +
                         "        \"siteCode\": 10186,\n" +
                         "        \"siteName\": \"北京凉水河快运中心\"\n" +
                         "    },\n" +
-                        "    \"manualCreateTaskFlag\": false,\n" +
-                        "    \"pageNo\": 3,\n" +
+                        "    \"manualCreateTaskFlag\": true,\n" +
+                        "    \"pageNo\": 1,\n" +
                         "    \"pageSize\": 30,\n" +
                         "    \"user\": {\n" +
                         "        \"userCode\": 17331,\n" +
                         "        \"userErp\": \"wuyoude\",\n" +
                         "        \"userName\": \"吴有德\"\n" +
                         "    },\n" +
-                        "    \"waybillCode\": \"JD0003419580301\"\n" +
+                        "    \"waybillCode\": \"JD0003419719673\"\n" +
                         "}";
                 CollectReportReqDto param1 = JSONObject.parseObject(json, CollectReportReqDto.class);
                 InvokeResult<CollectReportDetailResDto> res = jyUnloadVehicleTysService.findCollectReportDetailPage(param1);

@@ -496,6 +496,9 @@ public class JyCollectServiceImpl implements JyCollectService{
     @Override
     @JProfiler(jKey = "JyCollectServiceImpl.updateSingleCollectStatusHandler",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean updateSingleCollectStatusHandler(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        if(log.isInfoEnabled()) {
+            log.info("updateSingleCollectStatusHandler集齐单个包裹修改状态开始：param={}", JsonHelper.toJson(unloadScanCollectDealDto));
+        }
         Map<CollectionConditionKeyEnum, Object> collectElements = new HashMap<>();
         collectElements.put(CollectionConditionKeyEnum.site_code, unloadScanCollectDealDto.getCurrentOperate().getSiteCode());
         //自建任务只需要更新场地维度的集齐数据
