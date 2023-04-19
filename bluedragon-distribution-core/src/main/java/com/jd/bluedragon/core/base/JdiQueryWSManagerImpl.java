@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.jdi.dto.*;
@@ -201,6 +202,15 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
 
 
     private void checkQueryParams(JdiSealCarQueryDto dto) {
+        if (ObjectHelper.isEmpty(dto.getTransWorkItemCode())){
+            throw new JyBizException("参数错误：派车单明细编码为空！");
+        }
+        if (ObjectHelper.isEmpty(dto.getOperateSiteCode())){
+            throw new JyBizException("参数错误：操作场地编码为空！");
+        }
+        if (ObjectHelper.isEmpty(dto.getOperatorCode())){
+            throw new JyBizException("参数错误：操作人员编码为空！");
+        }
 
     }
 }

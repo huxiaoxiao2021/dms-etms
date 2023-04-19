@@ -13,6 +13,8 @@ import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -67,6 +69,8 @@ import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
+import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
+import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.ump.annotation.JProEnum;
@@ -146,6 +150,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     SendMService sendMService;
     @Autowired
     private SiteService siteService;
+    @Autowired
+    private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -835,6 +841,68 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+    }
+
+    @Override
+    public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
+        JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+        if (ObjectHelper.isEmpty(detailEntity)){
+            return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
+        }
+        if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+            GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
+            resp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+            if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            }
+            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+        }
+        else {
+            //调用运输接口获取，并持久化，返回给客户端
+            JdiSealCarQueryDto dto =assembleJdiSealCarQueryDto(detailEntity,request);
+            com.jd.tms.jdi.dto.CommonDto<JdiSealCarResponseDto> commonDto =jdiQueryWSManager.querySealCarSimpleCode(dto);
+            if (ObjectHelper.isEmpty(commonDto)){
+                return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE);
+            }
+            if (Constants.RESULT_SUCCESS == commonDto.getCode()){
+                JyBizTaskSendVehicleDetailEntity detail =new JyBizTaskSendVehicleDetailEntity();
+                detail.setBizId(detailEntity.getBizId());
+                detail.setUpdateTime(new Date());
+                detail.setUpdateUserErp(request.getUser().getUserErp());
+                detail.setUpdateUserName(request.getUser().getUserName());
+                detail.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                taskSendVehicleDetailService.updateByBiz(detail);
+
+                GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
+                resp.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detail.getTaskSimpleCode());
+                if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                    TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                    resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                    resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+                }
+                return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+            }
+            return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,commonDto.getMessage());
+        }
+    }
+
+    private JdiSealCarQueryDto assembleJdiSealCarQueryDto(JyBizTaskSendVehicleDetailEntity detailEntity,GetTaskSimpleCodeReq req) {
+        BaseStaffSiteOrgDto startSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getStartSiteId().intValue());
+        BaseStaffSiteOrgDto endSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getEndSiteId().intValue());
+
+        JdiSealCarQueryDto dto =new JdiSealCarQueryDto();
+        dto.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
+        dto.setOperateSiteCode(startSite.getDmsSiteCode());
+        dto.setBeginNodeCode(startSite.getDmsSiteCode());
+        dto.setEndNodeCode(endSite.getDmsSiteCode());
+        dto.setOperatorCode(req.getUser().getUserErp());
+        dto.setLoadCarUrl(req.getImgUrlList());
+        dto.setTransType(detailEntity.getLineType());
+        return dto;
     }
 
     public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {

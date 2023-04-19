@@ -168,14 +168,4 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
-
-
-    /**
-     * 上传图片调用运输接口获取任务简码
-     * @param request
-     * @return
-     */
-    JdCResponse<GetTaskSimpleCodeResp>   onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
-
-
 }

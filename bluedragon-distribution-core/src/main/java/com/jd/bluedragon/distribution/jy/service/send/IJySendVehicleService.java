@@ -246,13 +246,6 @@ public interface IJySendVehicleService {
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 
     /**
-     * 线上获取任务简码
-     * @param request
-     * @return
-     */
-    InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
-
-    /**
      * 计算操作进度
      * @param sendAggsEntity
      * @return
