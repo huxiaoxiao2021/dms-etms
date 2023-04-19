@@ -85,6 +85,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.*;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
@@ -302,6 +303,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
+
+    @Autowired
+    private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2855,12 +2859,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
             progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
         }
-        JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
-        query.setSendVehicleBizId(taskSend.getBizId());
-        List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
         JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
-        aggsEntityQuery.setOperateSiteId(taskSend.getOperateSiteCode());
-        aggsEntityQuery.setEndSiteIds(receiveIds);
+        if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+            query.setSendVehicleBizId(taskSend.getBizId());
+            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+            aggsEntityQuery.setOperateSiteId(taskSend.getOperateSiteCode());
+            aggsEntityQuery.setEndSiteIds(receiveIds);
+        }else {
+            aggsEntityQuery.setBizId(taskSend.getBizId());
+        }
         log.info("获取待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
         Long toScanCountSum = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);
         log.info("获取待扫数据--{}",toScanCountSum);
@@ -3410,13 +3418,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             List<SendVehicleProductTypeAgg> productTypeList = Lists.newArrayList();
             result.setData(productTypeList);
-            JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
-            query.setSendVehicleBizId(request.getSendVehicleBizId());
-            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
-
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
-            aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));
-            aggsEntityQuery.setEndSiteIds(receiveIds);
+            if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+                JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+                query.setSendVehicleBizId(request.getSendVehicleBizId());
+                List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+                aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));
+                aggsEntityQuery.setEndSiteIds(receiveIds);
+            }else {
+                aggsEntityQuery.setBizId(request.getSendVehicleBizId());
+            }
+
             log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(aggsEntityQuery));
             List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
             log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(sendVehicleProductTypeList));
