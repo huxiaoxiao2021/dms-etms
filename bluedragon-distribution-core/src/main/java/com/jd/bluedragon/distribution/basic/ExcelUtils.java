@@ -81,6 +81,11 @@ public class ExcelUtils {
      * @throws IOException
      */
     public static File generateFileWithExcel(String fileName, Workbook workbook) throws IOException {
+        File folder = new File(fileTmpPath);
+        if(!folder.exists()){
+            folder.setWritable(true, false);
+            folder.mkdirs();
+        }
         File file = new File(fileTmpPath + "/" + fileName);
         if (file.exists()) {
             file.delete();
