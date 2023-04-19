@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
@@ -80,6 +81,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,6 +154,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     private SiteService siteService;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+    @Autowired
+    private JySendAggsService sendAggService;
+    @Autowired
+    @Qualifier("jySendVehicleService")
+    private IJySendVehicleService jySendVehicleService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -861,6 +868,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
         }
         else {
+            checkOperateProgress(detailEntity);
             //调用运输接口获取，并持久化，返回给客户端
             JdiSealCarQueryDto dto =assembleJdiSealCarQueryDto(detailEntity,request);
             com.jd.tms.jdi.dto.CommonDto<JdiSealCarResponseDto> commonDto =jdiQueryWSManager.querySealCarSimpleCode(dto);
@@ -887,6 +895,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
             }
             return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,commonDto.getMessage());
+        }
+    }
+
+    private void checkOperateProgress(JyBizTaskSendVehicleDetailEntity detail) {
+        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(detail.getSendVehicleBizId());
+        BigDecimal operateProgress =jySendVehicleService.calculateOperateProgress(sendAgg,false);
+        if (ObjectHelper.isNotNull(operateProgress)){
+            log.info("拍照上传获取任务简码-计算装车进度：{}",operateProgress.doubleValue());
+            if (operateProgress.compareTo(new BigDecimal(ucc.getOnlineGetTaskSimpleCodeThreshold()))<0){
+                throw new JyBizException("装载率不足50%，无法拍照获取任务简码!");
+            }
         }
     }
 

@@ -255,6 +255,7 @@
 		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
 		<property name="operateProgressRegionList" value="${operateProgressRegionList:'10,20,30,40,50'}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
+		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -501,6 +502,7 @@
 				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
 				<value>uccPropertyConfiguration.operateProgressRegionList</value>
 				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
+				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 			</list>
 		</property>
 	</bean>

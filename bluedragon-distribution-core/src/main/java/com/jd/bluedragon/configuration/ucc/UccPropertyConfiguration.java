@@ -1261,6 +1261,16 @@ public class UccPropertyConfiguration {
 
     private boolean productOperateProgressSwitch;
 
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
     public boolean getProductOperateProgressSwitch() {
         return productOperateProgressSwitch;
     }
