@@ -29,6 +29,9 @@ public class CollectionBagOperationReqVO extends JdRequest {
      */
     private String receiveSiteName;
 
+
+    private String userErp;
+
     public List<String> getBoxCodes() {
         return boxCodes;
     }
@@ -51,5 +54,13 @@ public class CollectionBagOperationReqVO extends JdRequest {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }

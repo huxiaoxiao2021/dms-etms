@@ -266,6 +266,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
         body.setSiteName(request.getSiteName());
         body.setUserCode(request.getUserCode());
         body.setUserName(request.getUserName());
+        body.setUserErp(request.getUserErp());
 
         JdResult<Boolean> result = operationResource.send(body);
         if (result.isFailed()) {
