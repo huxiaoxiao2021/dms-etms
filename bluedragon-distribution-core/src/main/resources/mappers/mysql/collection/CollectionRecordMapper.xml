@@ -122,7 +122,7 @@
 		FROM
 			collection_record
 		WHERE
-			AND yn = 1
+			yn = 1
 			AND is_init = 1
 			AND is_collected = #{isCollected, jdbcType=INTEGER}
 			<if test="isMoreCollectedMark != null">
