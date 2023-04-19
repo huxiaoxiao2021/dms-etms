@@ -707,7 +707,7 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
     <!--  collection_record_detail 待集齐集合明细表  -->
-    <bean id="collectionRecordDao" class="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao">
+    <bean id="collectionRecordDetailDao" class="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao">
         <property name="sqlSession" ref="sessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
