@@ -135,7 +135,7 @@
 				</foreach>
 			AND agg_code IN
 				<foreach collection="aggCodeList" open="(" item="aggCode" separator="," close=")">
-					#{agg_code, jdbcType=VARCHAR}
+					#{aggCode, jdbcType=VARCHAR}
 				</foreach>
 	</select>
 
@@ -162,7 +162,7 @@
 	</select>
 
 	<select id="findAggCodes" parameterType="java.util.Map"
-			resultType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo">
+			resultMap="collectionRecordMap">
 
 		select collection_code, agg_code, agg_mark
 		from collection_record
@@ -184,7 +184,7 @@
 			<if test="isExtraCollected != null">
 				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
 			</if>
-		order by aggMark
+		order by agg_mark
 		limit 100
 	</select>
 

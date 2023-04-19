@@ -1183,7 +1183,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 if(log.isInfoEnabled()) {
                     log.info("findAggCodeByCollectedMark根据任务查找任务下运单为空collectionCodes={},collectedMark={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(collectedMark));
                 }
-                return null;
+                break;
             }
             Map<String, List<CollectionRecordDetailPo>> map = detailPoListTemp.stream().collect(Collectors.groupingBy(CollectionRecordDetailPo::getCollectionCode));
             if(log.isInfoEnabled()) {
