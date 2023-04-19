@@ -327,7 +327,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return result;
 			}
 			//校验签到工种
-			String checkMsg = checkJobCodeSignIn(positionCode, scanRequest.getJobCode());
+			Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanRequest.getScanUserCode());
+			String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
 			log.info("校验签到工种queryPositionDataForLogin checkMsg-{}",checkMsg);
 			if(StringUtils.isNotBlank(checkMsg)){
 				result.toFail(checkMsg);
