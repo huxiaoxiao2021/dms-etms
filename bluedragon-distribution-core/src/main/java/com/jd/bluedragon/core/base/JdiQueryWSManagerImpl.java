@@ -191,7 +191,12 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
         if (logger.isInfoEnabled()){
             logger.info("invoke querySealCarSimpleCode params:{}",JsonHelper.toJson(dto));
         }
-        return jdiTransWorkItemWS.querySealCarSimpleCode(dto);
+        try {
+            return jdiTransWorkItemWS.querySealCarSimpleCode(dto);
+        } catch (Exception e) {
+           logger.error("invoke jdiTransWorkItemWS.querySealCarSimpleCode异常 {}",JsonHelper.toJson(dto),e);
+        }
+        return null;
     }
 
 
