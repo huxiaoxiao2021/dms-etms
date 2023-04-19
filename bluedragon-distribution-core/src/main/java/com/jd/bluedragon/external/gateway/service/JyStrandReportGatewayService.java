@@ -21,7 +21,7 @@ public interface JyStrandReportGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<Void> artificialCreateStrandReportTask(JyStrandReportTaskCreateReq request);
+    JdCResponse<JyStrandReportTaskVO> artificialCreateStrandReportTask(JyStrandReportTaskCreateReq request);
 
     /**
      * 取消任务

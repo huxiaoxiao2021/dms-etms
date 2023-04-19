@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.strand;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportDealService;
 import com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -26,7 +26,7 @@ public class JyStrandScanContainerDealConsumer extends MessageBaseConsumer {
     private final Logger logger = LoggerFactory.getLogger(JyStrandScanContainerDealConsumer.class);
     
     @Autowired
-    private JyBizTaskStrandReportService jyBizTaskStrandReportService;
+    private JyBizTaskStrandReportDealService jyBizTaskStrandReportDealService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -36,7 +36,7 @@ public class JyStrandScanContainerDealConsumer extends MessageBaseConsumer {
                 logger.warn("拣运滞留扫描容器处理消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
-            JyBizStrandReportDetailEntity jyBizStrandReportDetail = JsonHelper.fromJsonUseGson(message.getText(), JyBizStrandReportDetailEntity.class);
+            JyBizStrandReportDetailEntity jyBizStrandReportDetail = JsonHelper.fromJson(message.getText(), JyBizStrandReportDetailEntity.class);
             if(jyBizStrandReportDetail == null) {
                 logger.warn("拣运滞留扫描容器处理消息体转换失败，内容为【{}】", message.getText());
                 return;
@@ -48,7 +48,7 @@ public class JyStrandScanContainerDealConsumer extends MessageBaseConsumer {
             }
             
             // 针对容器内的扫描件进行滞留
-            jyBizTaskStrandReportService.scanContainerDeal(jyBizStrandReportDetail);
+            jyBizTaskStrandReportDealService.scanContainerDeal(jyBizStrandReportDetail);
 
         } catch (Exception e) {
             Profiler.functionError(info);

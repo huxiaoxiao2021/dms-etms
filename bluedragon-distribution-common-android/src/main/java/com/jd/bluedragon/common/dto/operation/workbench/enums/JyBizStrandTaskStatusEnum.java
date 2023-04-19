@@ -41,6 +41,10 @@ public enum JyBizStrandTaskStatusEnum {
         completeStatus.add(OVER_TIME.getCode());
     }
 
+    public static boolean isCompleteTask(int code) {
+        return (code == COMPLETE.getCode()) || (code == OVER_TIME.getCode());
+    }
+
     public int getCode() {
         return code;
     }

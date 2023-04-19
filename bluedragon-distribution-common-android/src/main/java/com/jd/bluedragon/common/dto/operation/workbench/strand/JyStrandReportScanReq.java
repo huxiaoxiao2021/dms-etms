@@ -55,6 +55,8 @@ public class JyStrandReportScanReq implements Serializable {
      */
     private Integer scanType;
 
+    private Integer taskStatus;
+
     public String getBizId() {
         return bizId;
     }
@@ -117,5 +119,13 @@ public class JyStrandReportScanReq implements Serializable {
 
     public void setScanType(Integer scanType) {
         this.scanType = scanType;
+    }
+
+    public Integer getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(Integer taskStatus) {
+        this.taskStatus = taskStatus;
     }
 }

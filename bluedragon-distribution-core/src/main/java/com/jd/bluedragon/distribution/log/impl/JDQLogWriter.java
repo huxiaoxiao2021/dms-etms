@@ -27,9 +27,9 @@ public class JDQLogWriter implements LogWriter {
     private UccPropertyConfiguration uccPropertyConfiguration;
     private static Logger logger = Logger.getLogger(LogWriter.class);
 
-//    @Autowired
-//    @Qualifier("opLogJDQProducer")
-//    JDQProducer jdqProducer;
+    @Autowired
+    @Qualifier("opLogJDQProducer")
+    JDQProducer jdqProducer;
 
 
     @Override
@@ -45,13 +45,13 @@ public class JDQLogWriter implements LogWriter {
         long time = new Date().getTime();
         logs.put("time", time);
         logs.put("msg", JSON.toJSONString(businessLogProfiler));
-//        jdqProducer.produce(time + "", JSON.toJSONString(logs), new Callback() {
-//            @Override
-//            public void onCompletion(RecordMetadata metadata, Exception exception) {
-//                if (exception != null) {
-//                    logger.error("send log to kafka failed, " + exception.getMessage() + ", log=" + JSON.toJSONString(businessLogProfiler));
-//                }
-//            }
-//        });
+        jdqProducer.produce(time + "", JSON.toJSONString(logs), new Callback() {
+            @Override
+            public void onCompletion(RecordMetadata metadata, Exception exception) {
+                if (exception != null) {
+                    logger.error("send log to kafka failed, " + exception.getMessage() + ", log=" + JSON.toJSONString(businessLogProfiler));
+                }
+            }
+        });
     }
 }

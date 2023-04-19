@@ -164,8 +164,14 @@
         update jy_biz_task_strand_report
         <set>
             task_status = #{taskStatus},
-            update_time = now(),
-            update_user_erp = #{updateUserErp}
+            update_user_erp = #{updateUserErp},
+            <if test="submitUserErp != null">
+                submit_time = #{submitTime},
+            </if>
+            <if test="submitUserErp != null">
+                submit_user_erp = #{submitUserErp},
+            </if>
+            update_time = now()
         </set>
         <where>
             yn = 1

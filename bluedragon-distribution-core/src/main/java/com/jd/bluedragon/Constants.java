@@ -1868,5 +1868,5 @@ public class Constants {
     /**
      * 拣运滞留任务biz前缀
      */
-    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "JY_STRAND_";
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
 }

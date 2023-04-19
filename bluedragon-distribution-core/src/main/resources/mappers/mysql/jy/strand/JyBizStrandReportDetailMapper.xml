@@ -14,7 +14,7 @@
         <result property="containerInnerCount" column="container_inner_count"/>
         <result property="scanType" column="scan_type"/>
         <result property="isCancel" column="is_cancel"/>
-        <result property="gridCode" column="grid_code"/>
+        <result property="refGridKey" column="ref_grid_key"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="updateUserErp" column="update_user_erp"/>
         <result property="createTime" column="create_time"/>
@@ -24,7 +24,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, biz_id, site_code, site_name, scan_bar_code, container_code, container_inner_count, scan_type, is_cancel, grid_code,
+        id, biz_id, site_code, site_name, scan_bar_code, container_code, container_inner_count, scan_type, is_cancel, ref_grid_key,
         create_user_erp, update_user_erp, create_time, update_time, yn, ts
     </sql>
 
@@ -58,8 +58,8 @@
                 <if test="isCancel != null">
                     is_cancel,
                 </if>
-                <if test="gridCode != null">
-                    grid_code,
+                <if test="refGridKey != null">
+                    ref_grid_key,
                 </if>
                 <if test="createUserErp != null">
                     create_user_erp,
@@ -101,8 +101,8 @@
                 <if test="isCancel != null">
                     #{isCancel},
                 </if>
-                <if test="gridCode != null">
-                    #{gridCode},
+                <if test="refGridKey != null">
+                    #{refGridKey},
                 </if>
                 <if test="createUserErp != null">
                     #{createUserErp},
@@ -155,6 +155,7 @@
             jy_strand_report_detail
         where yn = 1
         and biz_id = #{bizId,jdbcType=VARCHAR}
+        and is_cancel = 0
         <if test="scanBarCode != null and scanBarCode != ''">
             and scan_bar_code = #{scanBarCode,jdbcType=VARCHAR}
         </if>
@@ -181,6 +182,30 @@
     <select id="queryTotalInnerScanNum" parameterType="string" resultType="int">
         select
             sum(container_inner_count)
+        from
+            jy_strand_report_detail
+        where yn = 1
+        and is_cancel = 0
+        and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="queryTotalInnerScanNumByBizIds" parameterType="java.util.List" resultType="com.jd.bluedragon.distribution.jy.strand.StrandDetailSumEntity">
+        select
+            biz_id as bizId, sum(container_inner_count) as totalContainerInnerCount
+        from
+            jy_strand_report_detail
+        where yn = 1
+          and is_cancel = 0
+          and biz_id in
+          <foreach item="bizId" index="index" collection="list" open="(" separator="," close=")">
+             #{bizId}
+          </foreach>
+          group by biz_id
+    </select>
+    
+    <select id="queryContainerByBizId" parameterType="String" resultType="String">
+        select
+            container_code
         from
             jy_strand_report_detail
         where yn = 1

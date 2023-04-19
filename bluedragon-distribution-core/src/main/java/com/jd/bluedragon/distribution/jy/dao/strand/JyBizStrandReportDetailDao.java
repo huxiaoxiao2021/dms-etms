@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.strand;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity;
+import com.jd.bluedragon.distribution.jy.strand.StrandDetailSumEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -42,5 +43,13 @@ public class JyBizStrandReportDetailDao extends BaseDao<JyBizStrandReportDetailE
 
     public Integer queryTotalScanNum(String bizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryTotalScanNum", bizId);
+    }
+
+    public List<StrandDetailSumEntity> queryTotalInnerScanNumByBizIds(List<String> list) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryTotalInnerScanNumByBizIds", list);
+    }
+
+    public List<String> queryContainerByBizId(String bizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryContainerByBizId", bizId);
     }
 }

@@ -5,7 +5,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandScanTyp
 import com.jd.bluedragon.common.dto.operation.workbench.strand.*;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizStrandReportDetailService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,12 +27,12 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/distribution-web-context.xml")
-public class JyBizTaskStrandReportServiceImplTest {
+public class JyBizTaskStrandReportDealServiceImplTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(JyBizTaskStrandReportServiceImplTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(JyBizTaskStrandReportDealServiceImplTest.class);
     
     @Autowired
-    private JyBizTaskStrandReportService jyBizTaskStrandReportService;
+    private JyBizTaskStrandReportDealService jyBizTaskStrandReportDealService;
 
     @Test
     public void artificialCreateStrandReportTask() {
@@ -49,7 +50,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             proveUrlList.add("http://test.storage.jd.com/dms-feedback/13c72d01-7e8a-4e11-8941-c3fef5e77ad5.jpg?Expires=1946465841&AccessKey=a7ogJNbj3Ee9YM1O&Signature=8Z0AG4t%2F5cx3YhpzR%2B661oLj2Ko%3D");
             proveUrlList.add("http://test.storage.jd.com/dms-feedback/13c72d01-7e8a-4e11-8941-c3fef5e77ad5.jpg?Expires=1946465841&AccessKey=a7ogJNbj3Ee9YM1O&Signature=8Z0AG4t%2F5cx3YhpzR%2B661oLj2Ko%3D");
             request.setProveUrlList(proveUrlList);
-            InvokeResult<Void> result = jyBizTaskStrandReportService.artificialCreateStrandReportTask(request);
+            InvokeResult<JyStrandReportTaskVO> result = jyBizTaskStrandReportDealService.artificialCreateStrandReportTask(request);
 
             Assert.assertTrue(result.codeSuccess());
         }catch (Throwable e){
@@ -76,7 +77,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             proveUrlList.add("http://test.storage.jd.com/dms-feedback/13c72d01-7e8a-4e11-8941-c3fef5e77ad5.jpg?Expires=1946465841&AccessKey=a7ogJNbj3Ee9YM1O&Signature=8Z0AG4t%2F5cx3YhpzR%2B661oLj2Ko%3D");
             proveUrlList.add("http://test.storage.jd.com/dms-feedback/13c72d01-7e8a-4e11-8941-c3fef5e77ad5.jpg?Expires=1946465841&AccessKey=a7ogJNbj3Ee9YM1O&Signature=8Z0AG4t%2F5cx3YhpzR%2B661oLj2Ko%3D");
             request.setProveUrlList(proveUrlList);
-            InvokeResult<Void> result = jyBizTaskStrandReportService.systemCreateStrandReportTask(request);
+            InvokeResult<JyStrandReportTaskVO> result = jyBizTaskStrandReportDealService.systemCreateStrandReportTask(request);
 
             Assert.assertTrue(result.codeSuccess());
         }catch (Throwable e){
@@ -91,7 +92,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             JyStrandReportTaskCreateReq request = new JyStrandReportTaskCreateReq();
             request.setBizId("JY_STRAND_00013001");
             request.setOperateUserErp("bjxings");
-            InvokeResult<Void> result = jyBizTaskStrandReportService.cancelStrandReportTask(request);
+            InvokeResult<Void> result = jyBizTaskStrandReportDealService.cancelStrandReportTask(request);
             Assert.assertTrue(result.codeSuccess());
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -102,7 +103,7 @@ public class JyBizTaskStrandReportServiceImplTest {
     @Test
     public void queryStrandReason() {
         try {
-            InvokeResult<List<ConfigStrandReasonData>> result = jyBizTaskStrandReportService.queryStrandReason();
+            InvokeResult<List<ConfigStrandReasonData>> result = jyBizTaskStrandReportDealService.queryStrandReason();
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -113,7 +114,7 @@ public class JyBizTaskStrandReportServiceImplTest {
     @Test
     public void queryStrandScanType() {
         try {
-            InvokeResult<List<JyBizStrandScanTypeEnum>> result = jyBizTaskStrandReportService.queryStrandScanType();
+            InvokeResult<List<JyBizStrandScanTypeEnum>> result = jyBizTaskStrandReportDealService.queryStrandScanType();
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -133,7 +134,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             scanRequest.setScanBarCode("JDX000236450536-1-3-");
             scanRequest.setScanType(JyBizStrandScanTypeEnum.WAYBILL.getCode());
 
-            InvokeResult<JyStrandReportScanResp> result = jyBizTaskStrandReportService.strandScan(scanRequest);
+            InvokeResult<JyStrandReportScanResp> result = jyBizTaskStrandReportDealService.strandScan(scanRequest);
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -152,7 +153,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             scanRequest.setScanBarCode("JDX000235707765-2-2-");
             scanRequest.setContainerCode("JDX000235707765");
 
-            InvokeResult<JyStrandReportScanResp> result = jyBizTaskStrandReportService.cancelStrandScan(scanRequest);
+            InvokeResult<JyStrandReportScanResp> result = jyBizTaskStrandReportDealService.cancelStrandScan(scanRequest);
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -167,7 +168,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             scanRequest.setBizId("JY_STRAND_00017001");
             scanRequest.setOperateUserErp("wuyoude");
 
-            InvokeResult<Void> result = jyBizTaskStrandReportService.strandReportSubmit(scanRequest);
+            InvokeResult<Void> result = jyBizTaskStrandReportDealService.strandReportSubmit(scanRequest);
 
             Assert.assertTrue(true);
         }catch (Throwable e){
@@ -197,7 +198,7 @@ public class JyBizTaskStrandReportServiceImplTest {
                     "  \"yn\" : 1,\n" +
                     "  \"ts\" : 1681715824000\n" +
                     "}";
-            jyBizTaskStrandReportService.scanContainerDeal(JsonHelper.fromJson(text, JyBizStrandReportDetailEntity.class));
+            jyBizTaskStrandReportDealService.scanContainerDeal(JsonHelper.fromJson(text, JyBizStrandReportDetailEntity.class));
             Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("服务异常", e);
@@ -205,15 +206,20 @@ public class JyBizTaskStrandReportServiceImplTest {
         }
     }
 
+    @Autowired
+    private JyBizStrandReportDetailService jyBizStrandReportDetailService;
+    
     @Test
     public void queryStrandReportTaskPageList() {
         try {
 
-            JyStrandReportTaskPageReq pageReq = new JyStrandReportTaskPageReq();
-            pageReq.setSiteCode(910);
-            pageReq.setPageNo(1);
-            pageReq.setPageSize(10);
-            InvokeResult<JyStrandReportTaskPageResp> result = jyBizTaskStrandReportService.queryStrandReportTaskPageList(pageReq);
+//            JyStrandReportTaskPageReq pageReq = new JyStrandReportTaskPageReq();
+//            pageReq.setSiteCode(910);
+//            pageReq.setPageNo(1);
+//            pageReq.setPageSize(10);
+//            InvokeResult<JyStrandReportTaskPageResp> result = jyBizTaskStrandReportDealService.queryStrandReportTaskPageList(pageReq);
+
+            List<StrandDetailSumEntity> strandDetailSumEntities = jyBizStrandReportDetailService.queryTotalInnerScanNumByBizIds(Lists.newArrayList("JY_STRAND_00014001", "JY_STRAND_00017001"));
 
             Assert.assertTrue(true);
         }catch (Throwable e){
@@ -226,7 +232,7 @@ public class JyBizTaskStrandReportServiceImplTest {
     public void queryStrandReportTaskDetail() {
         try {
             String bizId = "JY_STRAND_00017001";
-            InvokeResult<JyStrandReportTaskDetailVO> result = jyBizTaskStrandReportService.queryStrandReportTaskDetail(bizId);
+            InvokeResult<JyStrandReportTaskDetailVO> result = jyBizTaskStrandReportDealService.queryStrandReportTaskDetail(bizId);
 
             Assert.assertTrue(true);
         }catch (Throwable e){
@@ -243,7 +249,7 @@ public class JyBizTaskStrandReportServiceImplTest {
             detailPageReq.setBizId("JY_STRAND_00017001");
             detailPageReq.setPageNum(1);
             detailPageReq.setPageSize(10);
-            InvokeResult<List<JyStrandReportScanVO>> result = jyBizTaskStrandReportService.queryPageStrandReportTaskDetail(detailPageReq);
+            InvokeResult<List<JyStrandReportScanVO>> result = jyBizTaskStrandReportDealService.queryPageStrandReportTaskDetail(detailPageReq);
 
             Assert.assertTrue(true);
         }catch (Throwable e){

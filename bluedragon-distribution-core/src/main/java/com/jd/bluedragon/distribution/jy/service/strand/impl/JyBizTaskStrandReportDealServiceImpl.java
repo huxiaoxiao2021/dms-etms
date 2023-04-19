@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.strand;
+package com.jd.bluedragon.distribution.jy.service.strand.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -10,13 +10,13 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandTaskSta
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.strand.*;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
@@ -25,24 +25,29 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
-import com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao;
-import com.jd.bluedragon.distribution.jy.dao.strand.JyBizStrandReportDetailDao;
-import com.jd.bluedragon.distribution.jy.dao.strand.JyBizTaskStrandReportDao;
-import com.jd.bluedragon.distribution.jy.dto.JyBusinessException;
 import com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
+import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizStrandReportDetailService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportDealService;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.strand.JyBizStrandReportDetailEntity;
 import com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity;
+import com.jd.bluedragon.distribution.jy.strand.StrandDetailSumEntity;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -51,6 +56,8 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -60,6 +67,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -70,22 +79,23 @@ import java.util.concurrent.TimeUnit;
  * @author hujiping
  * @date 2023/3/27 4:04 PM
  */
-@Service("jyBizTaskStrandReportService")
-public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportService {
+@Service("jyBizTaskStrandReportDealService")
+public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandReportDealService {
 
-    private final Logger logger = LoggerFactory.getLogger(JyBizTaskStrandReportServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(JyBizTaskStrandReportDealServiceImpl.class);
 
     @Autowired
-    private IGenerateObjectId genObjectId;
+    @Qualifier("redisJyBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
     
     @Autowired
-    private JyBizTaskStrandReportDao jyBizTaskStrandReportDao;
+    private JyBizTaskStrandReportService jyBizTaskStrandReportService;
 
     @Autowired
-    private JyBizStrandReportDetailDao jyBizStrandReportDetailDao;
+    private JyBizStrandReportDetailService jyBizStrandReportDetailService;
 
     @Autowired
-    private JyAttachmentDetailDao jyAttachmentDetailDao;
+    private JyAttachmentDetailService jyAttachmentDetailService;
 
     @Autowired
     private KvIndexDao kvIndexDao;
@@ -115,20 +125,26 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
+    private JimDbLock jimDbLock;
 
     @Autowired
     @Qualifier("jyStrandScanContainerDealProducer")
     private DefaultJMQProducer jyStrandScanContainerDealProducer;
 
     @Autowired
-    private TaskService taskService;
+    @Qualifier("jyBizTaskAutoCloseProducer")
+    private DefaultJMQProducer jyBizTaskAutoCloseProducer;
+    
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    private RouterService routerService;
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.artificialCreateStrandReportTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
-    public InvokeResult<Void> artificialCreateStrandReportTask(JyStrandReportTaskCreateReq request) {
+    public InvokeResult<JyStrandReportTaskVO> artificialCreateStrandReportTask(JyStrandReportTaskCreateReq request) {
         request.setTaskType(JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode());
         return createStrandReportTask(request);
     }
@@ -136,33 +152,53 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.systemCreateStrandReportTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
-    public InvokeResult<Void> systemCreateStrandReportTask(JyStrandReportTaskCreateReq request) {
+    public InvokeResult<JyStrandReportTaskVO> systemCreateStrandReportTask(JyStrandReportTaskCreateReq request) {
         request.setTaskType(JyBizStrandTaskTypeEnum.TRANS_REJECT_SYSTEM.getCode());
         return createStrandReportTask(request);
     }
 
-    private InvokeResult<Void> createStrandReportTask(JyStrandReportTaskCreateReq request) {
-        InvokeResult<Void> result = paramsCheck(request);
+    private InvokeResult<JyStrandReportTaskVO> createStrandReportTask(JyStrandReportTaskCreateReq request) {
+        InvokeResult<JyStrandReportTaskVO> result = paramsCheck(request);
         if(!result.codeSuccess()){
             return result;
         }
         // 新增任务表数据
-        request.setBizId(generateBiz());
-        insertTask(request, JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode());
+        JyBizTaskStrandReportEntity taskEntity = insertTask(request);
         // 新增附件数据
-        insertAnnex(request);
-        // todo 推送延时任务
-//        addDelayTask();
+        insertAnnex(request, taskEntity);
+        // 推送延时任务
+        pushDelayTask(taskEntity);
+        // assemble data
+        result.setData(assembleTaskVO(taskEntity));
         return result;
     }
 
-    private void insertAnnex(JyStrandReportTaskCreateReq request) {
+    private JyStrandReportTaskVO assembleTaskVO(JyBizTaskStrandReportEntity taskEntity) {
+        JyStrandReportTaskVO taskVO = new JyStrandReportTaskVO();
+        BeanUtils.copyProperties(taskEntity, taskVO);
+        taskVO.setScanNum(Constants.NUMBER_ZERO);
+        long sysTime = System.currentTimeMillis();
+        taskVO.setSystemTime(sysTime);
+        taskVO.setTaskEndTime(taskEntity.getExpectCloseTime().getTime());
+        taskVO.setTaskRemainingTime(taskVO.getTaskEndTime() - sysTime);
+        return taskVO;
+    }
+
+    private void pushDelayTask(JyBizTaskStrandReportEntity taskEntity) {
+        AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
+        autoCloseTaskMq.setBizId(taskEntity.getBizId());
+        autoCloseTaskMq.setOperateTime(System.currentTimeMillis());
+        autoCloseTaskMq.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.STRAND_NOT_SUBMIT.getCode());
+        jyBizTaskAutoCloseProducer.sendOnFailPersistent(taskEntity.getBizId(), JsonHelper.toJson(autoCloseTaskMq));
+    }
+
+    private void insertAnnex(JyStrandReportTaskCreateReq request, JyBizTaskStrandReportEntity taskEntity) {
         List<String> proveUrlList = request.getProveUrlList();
         if(CollectionUtils.isNotEmpty(proveUrlList)){
             List<JyAttachmentDetailEntity> annexList = Lists.newArrayList();
             for (String proveUrl : proveUrlList) {
                 JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
-                annexEntity.setBizId(request.getBizId());
+                annexEntity.setBizId(taskEntity.getBizId());
                 annexEntity.setSiteCode(request.getSiteCode());
                 annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
                 annexEntity.setCreateUserErp(request.getOperateUserErp());
@@ -170,13 +206,13 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
                 annexEntity.setAttachmentUrl(proveUrl);
                 annexList.add(annexEntity);
             }
-            jyAttachmentDetailDao.batchInsert(annexList);
+            jyAttachmentDetailService.batchInsert(annexList);
         }
     }
 
-    private void insertTask(JyStrandReportTaskCreateReq request, Integer taskType) {
+    private JyBizTaskStrandReportEntity insertTask(JyStrandReportTaskCreateReq request) {
         JyBizTaskStrandReportEntity entity = new JyBizTaskStrandReportEntity();
-        entity.setBizId(request.getBizId());
+        entity.setBizId(generateBiz());
         entity.setTransportRejectBiz(request.getTransportRejectBiz());
         entity.setWaveTime(request.getWaveTime());
         entity.setSiteCode(request.getSiteCode());
@@ -185,19 +221,29 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         entity.setStrandReason(request.getStrandReason());
         entity.setNextSiteCode(request.getNextSiteCode());
         entity.setNextSiteName(request.getNextSiteName());
-        entity.setTaskType(taskType);
+        entity.setTaskType(request.getTaskType());
         entity.setTaskStatus(JyBizStrandTaskStatusEnum.TODO.getCode());
         entity.setCreateUserErp(request.getOperateUserErp());
         entity.setCreateUserName(request.getOperateUserName());
         Long sysCloseTime = uccPropertyConfiguration.getJySysStrandTaskCloseTime();
         Long artificialCloseTime = uccPropertyConfiguration.getJyArtificialStrandTaskCloseTime();
-        entity.setExpectCloseTime(new Date(System.currentTimeMillis() +
-                (Objects.equals(taskType, JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode()) ? artificialCloseTime : sysCloseTime)));
-        jyBizTaskStrandReportDao.insert(entity);
+        Date expectedCloseTime = new Date(System.currentTimeMillis() +
+                (Objects.equals(request.getTaskType(), JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode()) ? artificialCloseTime : sysCloseTime));
+        entity.setExpectCloseTime(expectedCloseTime);
+        jyBizTaskStrandReportService.insert(entity);
+        // 创建调度任务
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(entity.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        req.setOpeUser(entity.getCreateUserErp());
+        req.setOpeUserName(entity.getCreateUserName());
+        req.setOpeTime(new Date());
+        jyScheduleTaskManager.createScheduleTask(req);
+        return entity;
     }
 
-    private InvokeResult<Void> paramsCheck(JyStrandReportTaskCreateReq request) {
-        InvokeResult<Void> result = new InvokeResult<>();
+    private InvokeResult<JyStrandReportTaskVO> paramsCheck(JyStrandReportTaskCreateReq request) {
+        InvokeResult<JyStrandReportTaskVO> result = new InvokeResult<>();
         if(request == null){
             result.parameterError();
             return result;
@@ -228,7 +274,8 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
 
     private String generateBiz() {
         // 生成自定义业务主键
-        return Constants.JY_BIZ_TASK_STRAND_PREFIX.concat(StringHelper.padZero(genObjectId.getObjectId(JyBizTaskStrandReportEntity.class.getName()),8));
+        String ownerKey = String.format(Constants.JY_BIZ_TASK_STRAND_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.cancelStrandReportTask",
@@ -249,8 +296,20 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         updateEntity.setBizId(request.getBizId());
         updateEntity.setTaskStatus(JyBizStrandTaskStatusEnum.CANCEL.getCode());
         updateEntity.setUpdateUserErp(request.getOperateUserErp());
-        jyBizTaskStrandReportDao.updateStatus(updateEntity);
+        jyBizTaskStrandReportService.updateStatus(updateEntity);
+        // 同步关闭schedule
+        closeScheduleTask(request.getBizId(), request.getOperateUserErp());
         return result;
+    }
+    
+    private void closeScheduleTask(String bizId, String operateUserErp) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.SEND.getCode()));
+        req.setOpeUser(operateUserErp);
+        req.setOpeUserName(operateUserErp);
+        req.setOpeTime(new Date());
+        jyScheduleTaskManager.closeScheduleTask(req);
     }
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryStrandReason",
@@ -283,19 +342,20 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         try {
             // 防重校验
             repeatCheck(key);
-            // 存在性校验
-            existCheck(scanRequest);
             // 数量限制
             scanNumLimit(scanRequest.getBizId());
+            // 存在性校验
+            existCheck(scanRequest);
             // 获取扫描条码归属容器及容器内数量
             ImmutablePair<String, Integer> containerPair = queryBelongContainer(scanRequest);
+            // 容器校验
+            containerCheck(scanRequest, containerPair.left);
             // 新增明细表数据
             insertDetailRecord(scanRequest, containerPair);
             // 获取已扫明细
             result.setData(queryScanDetail(scanRequest));
-        }catch (JyBusinessException e){
+        }catch (JyBizException e){
             result.error(e.getMessage());
-            Profiler.functionError(info);
         }catch (Exception e){
             logger.error("任务:{}下条码:{}的滞留扫描操作异常!", scanRequest.getBizId(), scanRequest.getScanBarCode(), e);
             result.error("扫描异常,请联系分拣小秘!");
@@ -310,24 +370,30 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
     private void scanNumLimit(String bizId) {
         // 拣运-滞留扫描数量上线
         Integer jyStrandScanNumLimit = uccPropertyConfiguration.getJyStrandScanNumLimit();
-        Integer totalScanNum = jyBizStrandReportDetailDao.queryTotalScanNum(bizId);
+        Integer totalScanNum = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(totalScanNum >= jyStrandScanNumLimit){
-            throw new JyBusinessException("当前任务已扫数量超限,请更换任务扫描!");
+            throw new JyBizException("当前任务已扫数量超限,请更换任务扫描!");
         }
     }
 
+    /**
+     * 查询已扫明细
+     *  hint：后续量大可以使用redis进行处理
+     * @param scanRequest
+     * @return
+     */
     private JyStrandReportScanResp queryScanDetail(JyStrandReportScanReq scanRequest) {
         String bizId = scanRequest.getBizId();
         JyStrandReportScanResp jyStrandReportScanResp = new JyStrandReportScanResp();
         jyStrandReportScanResp.setBizId(bizId);
-        Integer total = jyBizStrandReportDetailDao.queryTotalScanNum(bizId);
+        Integer total = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(total > 0){
             List<JyStrandReportScanVO> scanVOList = Lists.newArrayList();
             Map<String, Object> paramsMap = Maps.newHashMap();
             paramsMap.put("bizId", bizId);
             paramsMap.put("offset", 0);
-            paramsMap.put("pageSize", 10);
-            List<JyBizStrandReportDetailEntity> detailList = jyBizStrandReportDetailDao.queryPageListByCondition(paramsMap);
+            paramsMap.put("pageSize", 30);
+            List<JyBizStrandReportDetailEntity> detailList = jyBizStrandReportDetailService.queryPageListByCondition(paramsMap);
             for (JyBizStrandReportDetailEntity temp : detailList) {
                 JyStrandReportScanVO jyStrandReportScanVO = new JyStrandReportScanVO();
                 jyStrandReportScanVO.setScanType(temp.getScanType());
@@ -336,7 +402,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
                 jyStrandReportScanVO.setContainerInnerCount(temp.getContainerInnerCount());
                 scanVOList.add(jyStrandReportScanVO);
             }
-            jyStrandReportScanResp.setScanNum(jyBizStrandReportDetailDao.queryTotalInnerScanNum(bizId));
+            jyStrandReportScanResp.setScanNum(jyBizStrandReportDetailService.queryTotalInnerScanNum(bizId));
             jyStrandReportScanResp.setScanVOList(scanVOList);
         }else {
             jyStrandReportScanResp.setScanNum(Constants.NUMBER_ZERO);
@@ -349,24 +415,27 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         JyBizStrandReportDetailEntity condition = new JyBizStrandReportDetailEntity();
         condition.setBizId(scanRequest.getBizId());
         condition.setScanBarCode(scanRequest.getScanBarCode());
-        JyBizStrandReportDetailEntity detailEntity = jyBizStrandReportDetailDao.queryOneByCondition(condition);
+        JyBizStrandReportDetailEntity detailEntity = jyBizStrandReportDetailService.queryOneByCondition(condition);
         if(detailEntity != null && Objects.equals(detailEntity.getIsCancel(), Constants.NUMBER_ZERO)){
-            throw new JyBusinessException("当前条码:" + scanRequest.getScanBarCode() + "已扫描,请勿重复扫描!");
+            throw new JyBizException("当前条码:" + scanRequest.getScanBarCode() + "已扫描,请勿重复扫描!");
+        }
+    }
+
+    private void containerCheck(JyStrandReportScanReq scanRequest, String containerCode) {
+        List<String> containerList = jyBizStrandReportDetailService.queryContainerByBizId(scanRequest.getBizId());
+        if(CollectionUtils.isNotEmpty(containerList) && containerList.contains(containerCode)){
+            throw new JyBizException("当前条码:" + scanRequest.getScanBarCode() + "所属容器:" + containerCode + "已扫描,请勿重复扫描!");
         }
     }
 
     private void releaseCache(String key) {
-        try {
-            jimdbCacheService.del(key);
-        }catch (Exception e){
-            logger.error("释放锁:{}异常!", key, e);
-        }
+        jimDbLock.releaseLock(key, Constants.STRING_FLG_TRUE);
     }
 
     private void repeatCheck(String key) {
-        boolean isSuc = jimdbCacheService.setNx(key, Constants.NUMBER_ONE, 1, TimeUnit.SECONDS);
+        boolean isSuc = jimDbLock.lock(key, Constants.STRING_FLG_TRUE, 5, TimeUnit.SECONDS);
         if(!isSuc){
-            throw new JyBusinessException("当前扫描条码正在处理,请勿重复操作!");
+            throw new JyBizException("当前扫描条码正在处理,请勿重复操作!");
         }
     }
 
@@ -381,14 +450,14 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         if(StringUtils.isNotEmpty(scanRequest.getPositionCode())){
             Result<PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(scanRequest.getPositionCode());
             if (positionResult != null && positionResult.getData() != null) {
-                entity.setGridCode(positionResult.getData().getGridCode());
+                entity.setRefGridKey(positionResult.getData().getRefGridKey());
             }
         }
         entity.setSiteCode(scanRequest.getSiteCode());
         entity.setSiteName(scanRequest.getSiteName());
         entity.setCreateUserErp(scanRequest.getOperateUserErp());
         entity.setUpdateUserErp(scanRequest.getOperateUserErp());
-        jyBizStrandReportDetailDao.insert(entity);
+        jyBizStrandReportDetailService.insert(entity);
     }
 
     /**
@@ -399,7 +468,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
      * @return
      */
     private ImmutablePair<String, Integer> queryBelongContainer(JyStrandReportScanReq scanRequest) {
-        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportDao.queryOneByBiz(scanRequest.getBizId());
+        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportService.queryOneByBiz(scanRequest.getBizId());
         // 下级流向
         Integer nextSiteCode = taskEntity.getNextSiteCode();
         switch (JyBizStrandScanTypeEnum.queryEnumByCode(scanRequest.getScanType())){
@@ -409,21 +478,24 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
             case BOX:
                 return queryBoxInnerScanCount(scanRequest, nextSiteCode);
             case BOARD:
-                return queryBoardInnerScanCount(scanRequest, scanRequest.getSiteCode());
+                return queryBoardInnerScanCount(scanRequest, nextSiteCode);
             default:
-                throw new JyBusinessException("扫货方式不合法!");
+                throw new JyBizException("扫货方式不合法!");
         }
     }
 
     private ImmutablePair<String, Integer> queryPackOrWaybillInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
         String waybillCode = WaybillUtil.getWaybillCode(scanRequest.getScanBarCode());
+        RouteNextDto routeNextDto = routerService.matchRouterNextNode(scanRequest.getSiteCode(), waybillCode);
+        if(routeNextDto == null || !Objects.equals(routeNextDto.getFirstNextSiteId(), nextSiteCode)){
+            throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
+        }
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
         String containerCode = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode()) 
                 ? scanRequest.getScanBarCode() : waybillCode;
-        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-        if(waybill == null || !Objects.equals(waybill.getOldSiteId(), nextSiteCode)){
-            throw new JyBusinessException("扫描条码所属容器的流向和任务流向不一致!");
-        }
-        return ImmutablePair.of(containerCode, waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
+        Integer containerInnerCount = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode()) 
+                ? Constants.NUMBER_ONE : (waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
+        return ImmutablePair.of(containerCode, containerInnerCount);
     }
 
     /**
@@ -443,19 +515,19 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
             if(response != null && response.getData() != null && StringUtils.isNotEmpty(response.getData().getCode())){
                 String boardCode = response.getData().getCode();
                 if(!Objects.equals(response.getData().getDestinationId(), nextSiteCode)){
-                    throw new JyBusinessException("扫描单所属板的流向和任务目的地不一致!");
+                    throw new JyBizException("扫描单所属板的流向和任务目的地不一致!");
                 }
                 Integer boardInnerCount = groupBoardManager.getBoardBoxCount(boardCode, siteCode);
                 return ImmutablePair.of(boardCode, boardInnerCount == null ? Constants.NUMBER_ZERO : boardInnerCount);
             }
-        }catch (JyBusinessException e){
+        }catch (JyBizException e){
             throw e;   
         }catch (Exception e){
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
         }
-        throw new JyBusinessException("未查询单号:" + packOrBoxCode + "对应的板号!");
+        throw new JyBizException("未查询单号:" + packOrBoxCode + "对应的板号!");
     }
 
     /**
@@ -469,26 +541,18 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         String boxCode = scanRequest.getScanBarCode();
         Box box = boxService.findBoxByCode(boxCode);
         if(box == null){
-            throw new JyBusinessException("未查询单号:" + boxCode + "对应的箱!");
+            throw new JyBizException("未查询单号:" + boxCode + "对应的箱!");
         }
         if(!Objects.equals(box.getReceiveSiteCode(), nextSiteCode)){
-            throw new JyBusinessException("箱号的目的地和任务流向不一致!");
+            throw new JyBizException("箱号的目的地和任务流向不一致!");
         }
         List<String> keywords = new ArrayList<String>();
         keywords.add(boxCode);
         List<Integer> siteCodes = kvIndexDao.queryByKeywordSet(keywords);
         if(CollectionUtils.isEmpty(siteCodes)){
-            throw new JyBusinessException("未查询单号:" + boxCode + "对应的箱!");
+            throw new JyBizException("未查询单号:" + boxCode + "对应的箱!");
         }
-        Integer createSiteCode = siteCodes.get(0);
-        Sorting sortingCondition = new Sorting();
-        sortingCondition.setCreateSiteCode(createSiteCode);
-        sortingCondition.setBoxCode(boxCode);
-        List<Sorting> sortingList = sortingDao.findByBoxCode(sortingCondition);
-        if(CollectionUtils.isEmpty(sortingList)){
-            throw new JyBusinessException("箱内没有明细!");
-        }
-        return ImmutablePair.of(boxCode, sortingList.size());
+        return ImmutablePair.of(boxCode, sortingDao.findPackCount(siteCodes.get(0), boxCode));
     }
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.cancelStrandScan",
@@ -510,7 +574,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         condition.setBizId(request.getBizId());
         condition.setScanBarCode(request.getScanBarCode());
         condition.setContainerCode(request.getContainerCode());
-        JyBizStrandReportDetailEntity entity = jyBizStrandReportDetailDao.queryOneByCondition(condition);
+        JyBizStrandReportDetailEntity entity = jyBizStrandReportDetailService.queryOneByCondition(condition);
         if(entity == null){
             logger.warn("未查询bizId:{},barCode:{},containerCode:{}的扫描记录!", request.getBizId(), request.getScanBarCode(), request.getContainerCode());
             result.error("未查询到单号:" + request.getScanBarCode() + "的扫描记录,请联系分拣小秘!");
@@ -525,7 +589,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         cancelEntity.setScanBarCode(request.getScanBarCode());
         cancelEntity.setContainerCode(request.getContainerCode());
         cancelEntity.setUpdateUserErp(request.getOperateUserErp());
-        jyBizStrandReportDetailDao.cancel(cancelEntity);
+        jyBizStrandReportDetailService.cancel(cancelEntity);
         // 获取已扫明细
         result.setData(queryScanDetail(request));
         return result;
@@ -562,7 +626,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
     }
 
     private <T> void strandTaskCheck(String bizId, InvokeResult<T> result) {
-        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportDao.queryOneByBiz(bizId);
+        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportService.queryOneByBiz(bizId);
         if(taskEntity == null){
             result.error("当前任务不存在,请联系分拣小秘!");
             return;
@@ -579,16 +643,16 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
 
     private boolean scanBarCodeCheck(JyStrandReportScanReq request, InvokeResult<JyStrandReportScanResp> result) {
         if(Objects.equals(JyBizStrandScanTypeEnum.queryEnumByCode(request.getScanType()), JyBizStrandScanTypeEnum.UNKNOWN)){
-            result.parameterError("参数错误-扫货方式不合法!");
+            result.parameterError("请选择扫货方式!");
             return false;
         }
         if(StringUtils.isEmpty(request.getScanBarCode())){
-            result.parameterError("参数错误-扫描条码不能为空!");
+            result.parameterError("扫描条码不能为空!");
             return false;
         }
         if(!WaybillUtil.isPackageCode(request.getScanBarCode()) && !WaybillUtil.isWaybillCode(request.getScanBarCode())
                 && !BusinessHelper.isBoxcode(request.getScanBarCode()) && !BusinessUtil.isBoardCode(request.getScanBarCode())){
-            result.parameterError("参数错误-扫描条码不合法!");
+            result.parameterError("扫描条码不合法!");
             return false;
         }
         if(Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode())
@@ -614,6 +678,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         return true;
     }
 
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.strandReportSubmit",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
@@ -629,8 +694,10 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         if(!result.codeSuccess()){
            return result; 
         }
+        // 更新任务状态
+        updateTaskComplete(scanRequest);
         // 分批获取明细异步处理
-        Integer totalCount = jyBizStrandReportDetailDao.queryTotalScanNum(bizId);
+        Integer totalCount = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(totalCount > 0){
             int pageNum = 0;
             int pageSize = 50;
@@ -640,7 +707,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
                 paramsMap.put("bizId", bizId);
                 paramsMap.put("pageSize", pageSize);
                 paramsMap.put("offset", pageNum * pageSize);
-                List<JyBizStrandReportDetailEntity> pageList = jyBizStrandReportDetailDao.queryPageListByCondition(paramsMap);
+                List<JyBizStrandReportDetailEntity> pageList = jyBizStrandReportDetailService.queryPageListByCondition(paramsMap);
                 if(CollectionUtils.isEmpty(pageList)){
                     break;
                 }
@@ -666,6 +733,18 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         return result;
     }
 
+    private void updateTaskComplete(JyStrandReportScanReq scanRequest) {
+        JyBizTaskStrandReportEntity entity = new JyBizTaskStrandReportEntity();
+        entity.setBizId(scanRequest.getBizId());
+        entity.setTaskStatus(scanRequest.getTaskStatus());
+        entity.setUpdateUserErp(scanRequest.getOperateUserErp());
+        entity.setSubmitTime(new Date());
+        entity.setSubmitUserErp(scanRequest.getOperateUserErp());
+        jyBizTaskStrandReportService.updateStatus(entity);
+        // 同步关闭schedule
+        closeScheduleTask(scanRequest.getBizId(), scanRequest.getOperateUserErp());
+    }
+
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryStrandReportTaskPageList",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
@@ -681,7 +760,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         // 构建分页查询对象
         JyStrandTaskPageCondition pageCondition = convert2PageQueryCondition(pageReq);
         // 查询总数
-        Integer total = jyBizTaskStrandReportDao.queryTotalCondition(pageCondition);
+        Integer total = jyBizTaskStrandReportService.queryTotalCondition(pageCondition);
         if(NumberHelper.isPositiveNumber(total)){
             pageList.addAll(queryTaskPageList(pageCondition));
         }else {
@@ -695,9 +774,10 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
 
     private List<JyStrandReportTaskVO> queryTaskPageList(JyStrandTaskPageCondition pageCondition) {
         List<JyStrandReportTaskVO> pageList = Lists.newLinkedList();
-        List<JyBizTaskStrandReportEntity> list = jyBizTaskStrandReportDao.queryPageListByCondition(pageCondition);
+        List<JyBizTaskStrandReportEntity> list = jyBizTaskStrandReportService.queryPageListByCondition(pageCondition);
         if(CollectionUtils.isNotEmpty(list)){
             long sysTime = System.currentTimeMillis();
+            Map<String, Integer> bizContainerInnerSumMap = queryBizContainerInnerSum(list);
             for (JyBizTaskStrandReportEntity temp : list) {
                 JyStrandReportTaskVO jyStrandReportTaskVO = new JyStrandReportTaskVO();
                 jyStrandReportTaskVO.setBizId(temp.getBizId());
@@ -710,13 +790,28 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
                 jyStrandReportTaskVO.setTaskStatus(temp.getTaskStatus());
                 jyStrandReportTaskVO.setTaskType(temp.getTaskType());
                 jyStrandReportTaskVO.setSystemTime(sysTime);
-                jyStrandReportTaskVO.setTaskEndTime(temp.getExpectCloseTime() == null ? null : temp.getExpectCloseTime().getTime());
+                jyStrandReportTaskVO.setTaskEndTime(temp.getExpectCloseTime() == null ? Constants.NUMBER_ZERO : temp.getExpectCloseTime().getTime());
                 jyStrandReportTaskVO.setTaskRemainingTime(jyStrandReportTaskVO.getTaskEndTime() - sysTime);
-                jyStrandReportTaskVO.setScanNum(jyBizStrandReportDetailDao.queryTotalInnerScanNum(temp.getBizId()));
+                jyStrandReportTaskVO.setScanNum(bizContainerInnerSumMap.get(temp.getBizId()));
                 pageList.add(jyStrandReportTaskVO);
             }
         }
         return pageList;
+    }
+
+    private Map<String, Integer> queryBizContainerInnerSum(List<JyBizTaskStrandReportEntity> list) {
+        List<String> bizIds = Lists.newArrayList();
+        for (JyBizTaskStrandReportEntity item : list) {
+            bizIds.add(item.getBizId());
+        }
+        Map<String, Integer> bizContainerInnerSumMap = Maps.newHashMap();
+        List<StrandDetailSumEntity> sumList = jyBizStrandReportDetailService.queryTotalInnerScanNumByBizIds(bizIds);
+        if(CollectionUtils.isNotEmpty(sumList)){
+            for (StrandDetailSumEntity item : sumList) {
+                bizContainerInnerSumMap.put(item.getBizId(), item.getTotalContainerInnerCount());
+            }
+        }
+        return bizContainerInnerSumMap;
     }
 
     private JyStrandTaskPageCondition convert2PageQueryCondition(JyStrandReportTaskPageReq pageReq) {
@@ -746,7 +841,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
             result.parameterError();
             return result;
         }
-        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportDao.queryOneByBiz(bizId);
+        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportService.queryOneByBiz(bizId);
         if(taskEntity == null){
             result.error("未查询到:" + bizId + "的任务数据,请联系分拣小秘!");
             return result;
@@ -764,17 +859,17 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         jyStrandReportTaskDetailVO.setProveUrlList(queryProveUrl(bizId, taskEntity.getSiteCode()));
         jyStrandReportTaskDetailVO.setSubmitTime(taskEntity.getSubmitTime() == null ? null : taskEntity.getSubmitTime().getTime());
         // 已扫容器内的扫描件数量
-        Integer scanContainerInnerNum = jyBizStrandReportDetailDao.queryTotalInnerScanNum(bizId);
+        Integer scanContainerInnerNum = jyBizStrandReportDetailService.queryTotalInnerScanNum(bizId);
         jyStrandReportTaskDetailVO.setScanNum(scanContainerInnerNum == null ? Constants.NUMBER_ZERO : scanContainerInnerNum);
         // 已扫数量
-        Integer scanNum = jyBizStrandReportDetailDao.queryTotalScanNum(bizId);
+        Integer scanNum = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(scanNum > 0){
             // 已扫
             Map<String, Object> paramsMap = Maps.newHashMap();
             paramsMap.put("bizId", bizId);
             paramsMap.put("offset", 0);
-            paramsMap.put("pageSize", 10);
-            List<JyBizStrandReportDetailEntity> detailScanList = jyBizStrandReportDetailDao.queryPageListByCondition(paramsMap);
+            paramsMap.put("pageSize", 30);
+            List<JyBizStrandReportDetailEntity> detailScanList = jyBizStrandReportDetailService.queryPageListByCondition(paramsMap);
             if(CollectionUtils.isNotEmpty(detailScanList)){
                 List<JyStrandReportScanVO> scanVOList = Lists.newArrayList();
                 for (JyBizStrandReportDetailEntity temp : detailScanList) {
@@ -800,7 +895,7 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         paramsMap.put("siteCode", siteCode);
         paramsMap.put("offset", 0);
         paramsMap.put("pageSize", 100);
-        List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailDao.queryPageListByCondition(paramsMap);
+        List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailService.queryPageListByCondition(paramsMap);
         if(CollectionUtils.isNotEmpty(attachmentList)){
             for (JyAttachmentDetailEntity temp : attachmentList) {
                 list.add(temp.getAttachmentUrl());
@@ -823,9 +918,9 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         paramsMap.put("bizId", detailPageReq.getBizId());
         paramsMap.put("offset", (detailPageReq.getPageNum() - 1) * detailPageReq.getPageSize());
         paramsMap.put("pageSize", detailPageReq.getPageSize());
-        List<JyBizStrandReportDetailEntity> pageList = jyBizStrandReportDetailDao.queryPageListByCondition(paramsMap);
+        List<JyBizStrandReportDetailEntity> pageList = jyBizStrandReportDetailService.queryPageListByCondition(paramsMap);
         if(CollectionUtils.isEmpty(pageList)){
-            result.error("未查询到已扫明细!");
+            result.setData(Lists.newArrayList());
             return result;
         }
         List<JyStrandReportScanVO> list = Lists.newArrayList();
@@ -842,23 +937,17 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
         return result;
     }
 
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.regularDealStrandReport",
-            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    @Override
-    public InvokeResult<Void> regularDealStrandReport() {
-        return null;
-    }
-
     @Override
     public void scanContainerDeal(JyBizStrandReportDetailEntity detailEntity) {
         String bizId = detailEntity.getBizId();
-        JyBizTaskStrandReportEntity strandReportTask = jyBizTaskStrandReportDao.queryOneByBiz(bizId);
+        JyBizTaskStrandReportEntity strandReportTask = jyBizTaskStrandReportService.queryOneByBiz(bizId);
         if(strandReportTask == null || Objects.equals(strandReportTask.getTaskStatus(), JyBizStrandTaskStatusEnum.CANCEL.getCode())){
-            logger.warn("拣运滞留任务bizId:{}已取消/已完成!", bizId);
+            logger.warn("拣运滞留任务bizId:{}已取消!", bizId);
             return;
         }
         StrandReportRequest request = new StrandReportRequest();
         request.setBarcode(detailEntity.getContainerCode());
+        request.setContainerCode(detailEntity.getContainerCode());
         request.setReasonCode(strandReportTask.getStrandCode());
         request.setReasonMessage(strandReportTask.getStrandReason());
         request.setSyncFlag(Constants.NUMBER_ONE);
@@ -895,6 +984,6 @@ public class JyBizTaskStrandReportServiceImpl implements JyBizTaskStrandReportSe
 
     @Override
     public boolean existCheck(String transPlanCode) {
-        return jyBizTaskStrandReportDao.queryOneByTransportRejectBiz(transPlanCode) != null;
+        return jyBizTaskStrandReportService.queryOneByTransportRejectBiz(transPlanCode) != null;
     }
 }

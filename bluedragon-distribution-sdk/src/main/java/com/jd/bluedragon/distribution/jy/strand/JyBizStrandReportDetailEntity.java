@@ -49,9 +49,9 @@ public class JyBizStrandReportDetailEntity implements Serializable {
     private Integer isCancel;
 
     /**
-     * 网格编码
+     * 工序主键
      */
-    private String gridCode;
+    private String refGridKey;
     
     /**
      * 场地编码
@@ -149,12 +149,12 @@ public class JyBizStrandReportDetailEntity implements Serializable {
         this.isCancel = isCancel;
     }
 
-    public String getGridCode() {
-        return gridCode;
+    public String getRefGridKey() {
+        return refGridKey;
     }
 
-    public void setGridCode(String gridCode) {
-        this.gridCode = gridCode;
+    public void setRefGridKey(String refGridKey) {
+        this.refGridKey = refGridKey;
     }
 
     public Integer getSiteCode() {
