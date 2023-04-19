@@ -254,12 +254,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return result;
 		}
 		//校验签到工种
-//		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
-//		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
-//		if(StringUtils.isNotBlank(checkMsg)){
-//			result.toFail(checkMsg);
-//			return result;
-//		}
+		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
+		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
+			return result;
+		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
@@ -276,12 +276,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String positionCode = scanRequest.getPositionCode();
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
-//		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-//				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
-//				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
-//			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
-//			return result;
-//		}
 		//校验签到工种
 		String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
 		log.info("校验签到工种queryUserDataForLogin checkMsg-{}",checkMsg);
