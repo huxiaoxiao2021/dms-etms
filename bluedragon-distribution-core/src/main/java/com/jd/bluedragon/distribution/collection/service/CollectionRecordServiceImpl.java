@@ -1178,7 +1178,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         int cycleCount = 2;
         List<CollectionRecordPo> res = new ArrayList<>();
         while(res.size() < JIQI_TASK_WAYBILL_PAGE && cycleCount > 0) {
-            List<CollectionRecordDetailPo> detailPoListTemp = findDetailAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, offsetTemp, limitTemp);
+            List<CollectionRecordDetailPo> detailPoListTemp = findDetailAggCodeByCollectedMark(collectionCodes, collectedMark, aggCodeTypeEnum, limitTemp, offsetTemp);
             if(CollectionUtils.isEmpty(detailPoListTemp)) {
                 if(log.isInfoEnabled()) {
                     log.info("findAggCodeByCollectedMark根据任务查找任务下运单为空collectionCodes={},collectedMark={}", JsonUtils.toJSONString(collectionCodes), JsonUtils.toJSONString(collectedMark));
