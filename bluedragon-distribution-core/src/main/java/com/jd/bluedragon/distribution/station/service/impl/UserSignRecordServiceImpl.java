@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
@@ -41,10 +43,12 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.*;
+
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -107,6 +111,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	/**
 	 * 签到作废-小时数限制
@@ -827,7 +833,70 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
 		}
+		String checkMsg  =checkJobCodeSignIn(signRequest.getPositionCode(),signRequest.getJobCode());
+		log.info("校验签到工种checkAndFillUserInfo checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
+			return result;
+		}
 		return result;
+	}
+
+
+	/**
+	 * 校验工种是否允许签到
+	 * @param positionCode
+	 * @param jobCode
+	 * @return
+	 */
+	private String  checkJobCodeSignIn(String positionCode,Integer jobCode){
+		//添加开关 以便于上线后没维护工种类型 都进行卡控
+		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+			log.warn("网格工种限制功能开关关闭!");
+			return "";
+		}
+		if(StringUtils.isBlank(positionCode) || Objects.isNull(jobCode)){
+			log.warn("岗位码或工种为空!");
+			return "";
+		}
+
+		//根据岗位码获取岗位信息
+		com.jdl.basic.common.utils.Result<PositionDetailRecord> positionResult = positionManager.queryOneByPositionCode(positionCode);
+		log.info("根据岗位码获取岗位信息-{}-结果-{}",positionCode, JSON.toJSONString(positionResult));
+		if(positionResult == null || positionResult.getData() == null){
+			return "获取岗位信息失败!";
+		}
+		PositionDetailRecord data = positionResult.getData();
+		WorkStationGridQuery gridQuery = new WorkStationGridQuery();
+		gridQuery.setBusinessKey(data.getRefGridKey());
+		//获取地网格信息workStationGrid
+		com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(gridQuery);
+		log.info("获取地网格信息workStationGrid-{}-结果-{}",gridQuery,JSON.toJSONString(workStationGridResult));
+		String  ownerUserErp ="";
+		String gridName="";
+		if(workStationGridResult != null && workStationGridResult.getData() != null){
+			ownerUserErp = workStationGridResult.getData().getOwnerUserErp();
+			gridName = workStationGridResult.getData().getGridName();
+
+		}
+		//获取当前网格的工种信息
+		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(data.getRefStationKey());
+		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",data.getRefStationKey(), JSON.toJSONString(jobTypes));
+		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
+		if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		boolean flag = false;
+		for (int i = 0; i < jobTypes.size(); i++) {
+			if(Objects.equals(jobCode,jobTypes.get(i))){
+				flag =true;
+			}
+		}
+		if(!flag){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		return "";
 	}
 	private JdCResponse<WorkStationGrid> checkAndGetWorkStationGrid(UserSignRequest signInRequest){
 		JdCResponse<WorkStationGrid> result = new JdCResponse<>();

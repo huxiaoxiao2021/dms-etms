@@ -254,12 +254,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return result;
 		}
 		//校验签到工种
-		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
-		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
-		if(StringUtils.isNotBlank(checkMsg)){
-			result.toFail(checkMsg);
-			return result;
-		}
+//		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
+//		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+//		if(StringUtils.isNotBlank(checkMsg)){
+//			result.toFail(checkMsg);
+//			return result;
+//		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
