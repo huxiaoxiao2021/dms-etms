@@ -234,6 +234,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
         body.setUserName(request.getUserName());
         body.setSiteCode(request.getSiteCode());
         body.setSiteName(request.getSiteName());
+        body.setUserErp(request.getUserErp());
 
         JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.warmBoxOutbound(body);
         if (result.isFailed()) {
