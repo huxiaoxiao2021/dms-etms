@@ -264,7 +264,7 @@
 	</select>
 
 
-	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map" resultType="collectionRecordDetailMap">
+	<select id="findAggCodeByCollectedMark" parameterType="java.util.Map" resultMap="collectionRecordDetailMap">
 		select collection_code, agg_code
 		from collection_record_detail
 		where yn = 1
