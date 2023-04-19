@@ -1226,6 +1226,11 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -2989,5 +2994,13 @@ public class UccPropertyConfiguration {
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
         this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
     }
 }
