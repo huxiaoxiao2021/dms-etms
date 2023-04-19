@@ -134,7 +134,7 @@ public class CollectionRecordDetailDao {
         param.put("collectionCodes", collectionCodes);
         param.put("aggCodeType", aggCodeTypeEnumName);
         param.put("collectedMark", collectedMark);
-        return this.sqlSession.selectOne(NAMESPACE.concat(".getAggCodesByCollectedMark"), param);
+        return this.sqlSession.selectList(NAMESPACE.concat(".getAggCodesByCollectedMark"), param);
     }
 
     public List<CollectionRecordDetailPo> findByAggCode(List<String> collectionCodes, String collectedMark, CollectionAggCodeTypeEnum aggCodeTypeEnum, String aggCode, Integer isCollected, Integer isExtraCollected, Integer isMoreCollectedMark) {
