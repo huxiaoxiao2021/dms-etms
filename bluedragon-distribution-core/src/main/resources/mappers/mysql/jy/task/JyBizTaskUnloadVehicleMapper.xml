@@ -20,6 +20,7 @@
         <result property="endSiteName" column="end_site_name"/>
         <result property="sortTime" column="sort_time"/>
         <result property="ranking" column="ranking"/>
+        <result property="realRanking" column="real_ranking"/>
         <result property="predictionArriveTime" column="prediction_arrive_time"/>
         <result property="actualArriveTime" column="actual_arrive_time"/>
         <result property="desealCarTime" column="deseal_car_time"/>
@@ -70,6 +71,7 @@
         end_site_name,
         sort_time,
         ranking,
+        real_ranking,
         prediction_arrive_time,
         actual_arrive_time,
         deseal_car_time,
@@ -140,6 +142,9 @@
         </if>
         <if test="ranking != null">
             ranking,
+        </if>
+        <if test="realRanking != null">
+            real_ranking,
         </if>
         <if test="predictionArriveTime != null">
             prediction_arrive_time,
@@ -242,6 +247,9 @@
         </if>
         <if test="ranking != null">
             #{ranking},
+        </if>
+        <if test="realRanking != null">
+            #{realRanking},
         </if>
         <if test="predictionArriveTime != null">
             #{predictionArriveTime},
@@ -612,6 +620,9 @@
             <if test="ranking != null">
                 ranking = #{ranking},
             </if>
+            <if test="realRanking != null">
+                real_ranking = #{realRanking},
+            </if>
             <if test="predictionArriveTime != null">
                 prediction_arrive_time = #{predictionArriveTime},
             </if>
@@ -741,5 +752,23 @@
                 #{item}
             </foreach>
         </if>
+    </select>
+
+    <select id="findRealRankingByBizId" resultMap="jyBizTaskUnloadVehicleMap">
+        SELECT
+            biz_id,
+            ranking,
+            rownum as real_ranking
+        from(
+                select *,(@rownum :=@rownum + 1) AS rownum
+                from jy_biz_task_unload_vehicle,(SELECT @rownum := 0) r
+                WHERE yn = 1
+                  and end_site_id = #{endSiteId}
+                  and vehicle_status = #{vehicleStatus}
+                  and sort_time BETWEEN #{sortTimeBegin} and #{sortTimeEnd}
+                ORDER BY ranking
+            ) as task_order_ranking
+        where  biz_id = #{bizId}
+
     </select>
 </mapper>

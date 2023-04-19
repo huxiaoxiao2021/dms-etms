@@ -159,6 +159,11 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
     return retJdCResponse(jyComBoardSendService.deleteCTTGroup(request));
   }
 
+  @Override
+  public JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req) {
+    return retJdCResponse(jyComBoardSendService.queryScanUser(req));
+  }
+
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
         invokeResult.getData());

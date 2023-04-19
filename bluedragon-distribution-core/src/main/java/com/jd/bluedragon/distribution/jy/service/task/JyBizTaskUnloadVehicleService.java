@@ -31,6 +31,13 @@ public interface JyBizTaskUnloadVehicleService {
     JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
 
     /**
+     * 获取6个小时内实际解封车顺序
+     *
+     * @param entity
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity);
+    /**
      * 根据派车明细编码获取数据
      * @return
      */
@@ -113,6 +120,18 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
+
+    /**
+     * 更新其他业务信息
+     * 包含以下业务字段
+     * 业务主键
+     * <p>
+     * 排除saveOrUpdateOfBaseInfo字段
+     *
+     * @param entity
+     * @return
+     */
+    boolean updateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
 
     /**
      * 检查当前卸车任务是否被锁定

@@ -95,7 +95,7 @@ public class DmsConstants {
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
-    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^[5-9][0-9]{9}$|^[5-9][0-9]{13}$|^DPK[0-9]{12}$|^B[0-9]{21,23}$|^DPL[0-9]{20}$|^[1-6][0-9]{15}$|^B[0-9]{15}T[0-9]{5}$|^[1-8][0-9]{16}$|^DPL[0-9]{12}$");
+    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{21,23}$");
 
     /**
      * 返单号正则表达式
@@ -395,7 +395,11 @@ public class DmsConstants {
     /**
      * 返调度-路区：0
      */
-    public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";    
+    public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";
+
+    public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
+    public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
+    public static final String WHITE_SPACE = "\\s*";
     /**
      * 暂存类型枚举值
      */

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketEntity;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketPrintInfo;
 import com.jd.bluedragon.distribution.recycle.material.enums.MaterialStatusEnum;
+import com.jd.bluedragon.distribution.recycle.material.enums.MaterialTypeEnum;
 import com.jd.bluedragon.distribution.recycle.material.enums.PrintTypeEnum;
 import com.jd.bluedragon.distribution.recycle.material.enums.TransStatusEnum;
 import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.recycle.material.enums.MaterialTypeEnum.BASKET;
 
@@ -48,6 +50,27 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         }
         // 补打
         return getReprintInfo(recycleBasketEntity);
+    }
+
+    @Override
+    public JdResponse<RecycleBasketPrintInfo> disableAkBox(RecycleBasketEntity recycleBasketEntity) {
+        JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
+
+        // 校验条码
+        String recycleBasketCode = recycleBasketEntity.getRecycleBasketCode();
+        // 作废
+        ApiResult<RecycleMaterial> materialCode = recycleMaterialJsfService.disableMaterialByCode(
+                recycleBasketCode,
+                recycleBasketEntity.getUserErp(),
+                recycleBasketEntity.getCreateSiteCode());
+
+        if (!materialCode.isSucceed()) {
+            response.toFail(materialCode.getMessage());
+        }else {
+            response.toSucceed("操作成功!");
+        }
+
+        return response;
     }
 
     private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity){

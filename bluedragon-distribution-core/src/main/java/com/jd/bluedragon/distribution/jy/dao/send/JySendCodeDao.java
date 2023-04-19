@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * 发货批次关系表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -29,6 +29,10 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
      */
     public int insert(JySendCodeEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    public int batchInsert(List<JySendCodeEntity> list) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", list);
     }
 
     /**
@@ -69,6 +73,10 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
 
     public int deleteVehicleSendRelationByVehicleBizId(JySendCodeDto dto) {
         return this.getSqlSession().update(NAMESPACE + ".deleteVehicleSendRelationByVehicleBizId", dto);
+    }
+
+    public int deleteVehicleSendRelationByVehicleDetailBizId(JySendCodeEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteVehicleSendRelationByVehicleDetailBizId", entity);
     }
 
     public List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodeList) {

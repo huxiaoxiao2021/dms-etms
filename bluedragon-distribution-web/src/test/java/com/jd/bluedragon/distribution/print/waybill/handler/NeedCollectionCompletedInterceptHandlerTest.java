@@ -27,6 +27,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,9 +58,8 @@ public class NeedCollectionCompletedInterceptHandlerTest {
 
 
 
-        List<PackageStateDto> collectCompleteResult = mock(ArrayList.class);
-        when(collectCompleteResult.size()).thenReturn(1);
-        when(waybillTraceManager.getPkStateDtoByWCodeAndState(any(String.class),any(String.class))).thenReturn(collectCompleteResult);
+//        List<PackageStateDto> collectCompleteResult = mock(ArrayList.class);
+//        when(waybillTraceManager.getPkStateDtoByWCodeAndState(anyString(),anyString())).thenReturn(collectCompleteResult);
 
 
         InterceptResult<String> testResult = needCollectionCompletedInterceptHandler.handle(context);

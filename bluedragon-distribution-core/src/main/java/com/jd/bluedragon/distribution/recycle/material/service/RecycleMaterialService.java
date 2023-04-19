@@ -6,4 +6,9 @@ import com.jd.ql.dms.common.domain.JdResponse;
 
 public interface RecycleMaterialService {
     JdResponse<RecycleBasketPrintInfo> getPrintInfo(RecycleBasketEntity recycleBasketEntity);
+
+    /**
+     * 作废 周转筐条码
+     */
+    JdResponse<RecycleBasketPrintInfo> disableAkBox(RecycleBasketEntity recycleBasketEntity);
 }

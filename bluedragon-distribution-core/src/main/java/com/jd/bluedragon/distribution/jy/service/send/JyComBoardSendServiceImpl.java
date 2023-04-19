@@ -86,6 +86,8 @@ import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.*;
 
 import com.jdl.jy.realtime.base.Pager;
@@ -117,7 +119,6 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
 @Service
@@ -364,8 +365,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
+    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
+      throw new JyBizException("参数错误: 无流向信息！");
+    }
     if (log.isInfoEnabled()) {
       log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
+    }
+    if (request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
+      throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个！");
     }
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
     if (resp == null ) {
@@ -421,7 +428,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setCrossCode(barCode.substring(0, index));
       query.setTabletrolleyCode(barCode.substring(index + 1));
       tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
+    }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+      // 目的地站点
+      query.setSiteCode(Integer.valueOf(barCode));
+      tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
     }
+
     if (tableTrolleyJsfResp != null && !CollectionUtils
         .isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
       tableTrolleyResp.setTableTrolleyDtoList(
@@ -440,7 +452,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    */
   private boolean checkBarCode(String barCode) {
     if (WaybillUtil.isPackageCode(barCode) || BusinessHelper.isBoxcode(barCode) || checkCTTCode(
-        barCode)) {
+        barCode) || SerialRuleUtil.isMatchNumeric(barCode)) {
       return Boolean.TRUE;
     }
     return Boolean.FALSE;
@@ -462,6 +474,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
+    if (CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
+      throw new JyBizException("参数错误: 无流向信息！");
+    }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
     // 校验是否包含当前流向
     for (TableTrolleyDto tableTrolleyDto : request.getTableTrolleyDtoList()) {
@@ -476,6 +491,21 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return new InvokeResult(HAVE_SEND_FLOW_UNDER_GROUP_CODE, HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE);
       }
     }
+
+    // 获取混扫任务下的流向信息
+    JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+    condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+    condition.setTemplateCode(request.getTemplateCode());
+    condition.setGroupCode(request.getGroupCode());
+    List<JyGroupSortCrossDetailEntity> sendFlowList =
+            jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+    if (!CollectionUtils.isEmpty(sendFlowList)) {
+      Integer sendFlowSize = sendFlowList.size() + request.getTableTrolleyDtoList().size();
+      if (sendFlowSize > ucc.getCttGroupSendFLowLimit()) {
+        throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
+      }
+    }
+
     if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
       return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     } else {
@@ -569,7 +599,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       entity.setCrossCode(barCode.substring(0, index));
       entity.setTabletrolleyCode(barCode.substring(index + 1));
       cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
+    }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+      // 目的地站点
+      entity.setEndSiteId(Long.valueOf(barCode));
+      cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
     }
+
     if (cttGroupDataResp == null || CollectionUtils
         .isEmpty(cttGroupDataResp.getCttGroupDtolist())) {
       log.info("获取混扫任务信息异常： {}", JsonHelper.toJson(request));
@@ -595,19 +630,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
     entity.setGroupCode(request.getGroupCode());
     entity.setStartSiteId(Long.valueOf(startSiteCode));
+    entity.setStartSiteId(Long.valueOf(startSiteCode));
     // 获取当前场地扫描人员信息
     JyComboardEntity userQuery = new JyComboardEntity();
     userQuery.setGroupCode(request.getGroupCode());
     userQuery.setStartSiteId(Long.valueOf(startSiteCode));
     Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
     userQuery.setCreateTime(time);
-    //List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
-    List<User> userList =new ArrayList<>();
-    User user =new User();
-    user.setUserErp("sys");
-    user.setUserCode(123);
-    user.setUserName("系统管理员");
-    userList.add(user);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
     resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
@@ -1058,26 +1088,33 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       execComboard(request);
       execSend(request);
     } catch (JyBizException e) {
-      log.error("传站组板即发货扫描异常",e);
+      log.info("传站组板即发货扫描异常",e);
       if (ObjectHelper.isNotNull(e.getCode())){
+        if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
+          ComboardScanResp resp = assembleComboardResp(request);
+          return new InvokeResult(e.getCode(), e.getMessage(),resp);
+        }
         return new InvokeResult(e.getCode(), e.getMessage());
       }
       return new InvokeResult(CODE_ERROR, e.getMessage());
     }
-
-    ComboardScanResp resp = new ComboardScanResp();
-    resp.setEndSiteId(request.getDestinationId());
-    resp.setBarCode(request.getBarCode());
-    resp.setBarCodeType(request.getBarCodeType());
-    resp.setScanDetailCount(request.getScanDetailCount());
+    ComboardScanResp resp = assembleComboardResp(request);
     if (ucc.getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){
       return new InvokeResult(NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE, NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE, resp);
     }
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
+  private ComboardScanResp assembleComboardResp(ComboardScanReq request) {
+    ComboardScanResp resp = new ComboardScanResp();
+    resp.setEndSiteId(request.getDestinationId());
+    resp.setBarCode(request.getBarCode());
+    resp.setBarCodeType(request.getBarCodeType());
+    resp.setScanDetailCount(request.getScanDetailCount());
+    return resp;
+  }
+
   @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request) {
     if (!Objects.equals(request.getBizSource(),BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       throw new JyBizException("非自动化系统调用");
@@ -1085,16 +1122,23 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (WaybillUtil.isWaybillCode(request.getBarCode())){
       throw new JyBizException("自动化系统不支持按运单组板发货");
     }
+    CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, true);
+    try{
+      execSortMachineComboard(request);
+      execSend(request);
 
-    execSortMachineComboard(request);
-    execSend(request);
-
-    ComboardScanResp resp = new ComboardScanResp();
-    resp.setEndSiteId(request.getDestinationId());
-    resp.setBarCode(request.getBarCode());
-    resp.setBarCodeType(request.getBarCodeType());
-    resp.setScanDetailCount(request.getScanDetailCount());
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+      ComboardScanResp resp = new ComboardScanResp();
+      resp.setEndSiteId(request.getDestinationId());
+      resp.setBarCode(request.getBarCode());
+      resp.setBarCodeType(request.getBarCodeType());
+      resp.setScanDetailCount(request.getScanDetailCount());
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+    }catch (Exception e){
+      Profiler.functionError(info);
+      throw e;
+    } finally {
+      Profiler.registerInfoEnd(info);
+    }
   }
 
   private void execSortMachineComboard(ComboardScanReq request) {
@@ -1117,6 +1161,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         request.setBizId(entity.getBizId());
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
+      addBoardBox.setOperatorTime(request.getCurrentOperate().getOperateTime());
       Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
@@ -1271,6 +1316,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }else{
       operatorInfo.setOperateTime(request.getCurrentOperate().getOperateTime());
     }
+    operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+    operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
     return operatorInfo;
   }
 
@@ -1351,10 +1398,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("已封车禁止继续扫描！");
       }
       if (ObjectHelper.isNotNull(entity.getBulkFlag()) && entity.getBulkFlag()){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE);
       }
       if (entity.getHaveScanCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
-        throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE);
       }
       request.setBizId(entity.getBizId());
       request.setSendCode(entity.getSendCode());
@@ -1445,6 +1492,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     record.setCreateUserName(request.getUser().getUserName());
     record.setUpdateUserErp(request.getUser().getUserErp());
     record.setUpdateUserName(request.getUser().getUserName());
+    record.setGroupCode(request.getGroupCode());
     return record;
   }
 
@@ -1546,7 +1594,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
        */
       sortingCheck(request);
 
-      //comboardCheckChain(request);
     } else if (BusinessHelper.isBoxcode(barCode)) {
       final Box box = boxService.findBoxByCode(barCode);
       if (box == null) {
@@ -1617,6 +1664,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     sendStatusCheck(request, sendType, sendResult, sendM);
+    if (request.getForceSendFlag()){
+      return;
+    }
     sendInterceptChain(request, sendM, sendType);
   }
 
@@ -1696,6 +1746,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardEntity.setCreateTime(now);
     comboardEntity.setUpdateTime(now);
     comboardEntity.setGroupCode(request.getGroupCode());
+    if (request.getForceSendFlag()){
+      comboardEntity.setForceSendFlag(true);
+    }
     return comboardEntity;
   }
 
@@ -1729,6 +1782,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
       domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
     }
+    if(request.getCurrentOperate() != null) {
+        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
+    }
     return domain;
   }
 
@@ -1747,13 +1804,22 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!CollectionUtils.isEmpty(sortingList)) {
       for (Sorting sortingTemp : sortingList) {
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(sortingTemp.getBoxCode());
-        if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE)) {
-          log.info("分拣传站租板校验--包裹【{}】 已经集包【{}】", request.getBarCode(),
-              JsonHelper.toJson(sortingTemp));
+        if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE) && !checkReComboard(sortingTemp)) {
+          log.info("分拣传站租板校验--包裹【{}】 已经集包【{}】", request.getBarCode(), JsonHelper.toJson(sortingTemp));
           throw new JyBizException(BoxResponse.MESSAGE_CODE_PACKAGE_BOX);
         }
       }
     }
+  }
+
+  private boolean checkReComboard(Sorting sorting) {
+    if (ObjectHelper.isNotNull(sorting)){
+      Date sortingCreateTime = sorting.getCreateTime();
+      if (sortingCreateTime != null && System.currentTimeMillis() - sortingCreateTime.getTime() >  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean cycleBagBindCheck(String boxCode, Integer siteCode, Box box) {
@@ -1776,6 +1842,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void comboardCheckChain(ComboardScanReq request) {
+    if (request.getForceSendFlag()){
+      return;
+    }
     if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
       final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
       pdaOperateRequest.setPackageCode(request.getBarCode());
@@ -1797,6 +1866,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+
+  boolean needForceSend(Integer siteId){
+    if (ucc.getForceSendSiteList().equals(Constants.TOTAL_URL_INTERCEPTOR) || ucc.getForceSendSiteList().contains(String.valueOf(siteId))){
+      return true;
+    }
+    return false;
+  }
   /**
    * 校验当前barCode的流向 是否在当前混扫任务的流向范围内
    */
@@ -1805,6 +1881,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (!request.getEndSiteId().equals(request.getDestinationId())){
         final Integer parentSiteId = baseService.getMappingSite(request.getDestinationId());
         if (parentSiteId==null || !request.getEndSiteId().equals(parentSiteId)){
+          if (request.getForceSendFlag()){
+            request.setDestinationId(request.getEndSiteId());
+            return;
+          }
+          if (needForceSend(request.getCurrentOperate().getSiteCode())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+            throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+          }
           throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
         }
         request.setDestinationId(parentSiteId);
@@ -1843,10 +1927,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
       }
     }
+    //不在混扫的流向内
     if (!hasMatchDestinationIdFlag) {
-      //throw new JyBizException("扫描包裹/箱号所属流向不在当前混扫任务范畴内！");
+      if (request.getForceSendFlag()){
+        request.setDestinationId(request.getEndSiteId());
+        return;
+      }
+      if (needForceSend(request.getCurrentOperate().getSiteCode())){
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
+        throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本混扫任务流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+      }
       throw new JyBizException(NOT_BELONG_THIS_HUNSAO_TASK_CODE,NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE);
     }
+    //混扫切换流向
     if (!request.getEndSiteId().equals(request.getDestinationId()) && !request.getNeedSkipSendFlowCheck()){
       if (ucc.getSupportMutilScan()){
         request.setNeedSkipSendFlowCheck(true);
@@ -2478,6 +2571,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }else{
         operatorInfo.setOperateTime(request.getCurrentOperate().getOperateTime());
       }
+      operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+      operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
       if (!CollectionUtils.isEmpty(barCodeList)) {
         String barCode = barCodeList.get(0);
         virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
@@ -2511,6 +2606,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     taskDto.setSiteName(request.getCurrentOperate().getSiteName());
     taskDto.setUserCode(request.getUser().getUserCode());
     taskDto.setBizSource(getBizSourceEnum(request));
+    if(request.getCurrentOperate() != null) {
+    	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+    	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
+    }
     try {
       cancelComboardSendProducer.send(request.getBoardCode(), JsonHelper.toJson(taskDto));
       log.info("JyComBoardSendServiceImpl asyncSendCancelComboardAndSend : {}", JsonHelper.toJson(taskDto));
@@ -2536,11 +2635,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     taskDto.setBoardCode(request.getBoardCode());
     taskDto.setWaybillCode(waybillCode);
     taskDto.setEndSiteName(request.getEndSiteName());
-    taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     taskDto.setUserErp(request.getUser().getUserErp());
     taskDto.setUserName(request.getUser().getUserName());
-    taskDto.setSiteName(request.getCurrentOperate().getSiteName());
     taskDto.setUserCode(request.getUser().getUserCode());
+    if(request.getCurrentOperate() != null) {
+        taskDto.setSiteName(request.getCurrentOperate().getSiteName());
+        taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+    	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+    	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
+    }
     for (int i = 0; i < pageTotal; i++) {
       taskDto.setPageNo(i + 1);
       taskDto.setPageSize(onePageSize);
@@ -2573,6 +2676,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     sendM.setOperateTime(now);
     sendM.setUpdateTime(now);
     sendM.setYn(0);
+    if(request.getCurrentOperate() != null) {
+    	sendM.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
+    	sendM.setOperatorId(request.getCurrentOperate().getOperatorId());
+    }
     return sendM;
   }
   @Override
@@ -2631,6 +2738,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setTemplateCode(request.getTemplateCode());
     condition.setGroupCode(request.getGroupCode());
     List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+
+    if (CollectionUtils.isEmpty(entityList)) {
+      throw new JyBizException("任务已删除,请刷新页面！");
+    }
 
     List<Long> ids = new ArrayList<>();
     for (JyGroupSortCrossDetailEntity entity : entityList) {
@@ -2717,7 +2828,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendFlowDto sendFlow = new SendFlowDto();
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(request.getCurrentOperate().getSiteCode());
-    Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(ucc.getJyComboardSealQueryBoardListTime()));
+    Date time = DateHelper.addHoursByDay(new Date(), -ucc.getJyComboardSealQueryBoardListTime());
     sendFlow.setQueryTimeBegin(time);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
@@ -2778,6 +2889,26 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     invokeResult.setCode(RESULT_SUCCESS_CODE);
     invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
     return invokeResult;
+  }
+
+  @Override
+  public InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq request) {
+    SendFlowDataResp resp = new SendFlowDataResp();
+    List<User> userList = new ArrayList<>();
+    resp.setScanUserList(userList);
+    try{
+      // 获取当前场地扫描人员信息
+      JyComboardEntity userQuery = new JyComboardEntity();
+      userQuery.setGroupCode(request.getGroupCode());
+      userQuery.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardScanUserBeginDay());
+      userQuery.setCreateTime(time);
+      userList = jyComboardService.queryUserByStartSiteCode(userQuery);
+    }catch (Exception e) {
+      log.error("获取扫描人员信息失败{}",JsonHelper.toJson(request));
+    }
+    resp.setScanUserList(userList);
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
   private HashMap<String, JyComboardAggsEntity> getBoardScanCountMap(List<JyComboardAggsEntity> boardScanCountList) {

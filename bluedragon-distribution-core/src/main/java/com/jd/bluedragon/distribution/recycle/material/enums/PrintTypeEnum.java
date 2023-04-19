@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.recycle.material.enums;
 
 public enum PrintTypeEnum {
-    PRINT(1,"打印"),REPRINT(2,"补打印");
+    PRINT(1,"打印"),
+    REPRINT(2,"补打印"),
+    DISABLE_AKBOX(3,"作废周转筐");
     private int code;
 
     private String name;
