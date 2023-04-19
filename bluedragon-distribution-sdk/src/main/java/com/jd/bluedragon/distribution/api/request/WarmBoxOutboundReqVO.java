@@ -29,6 +29,8 @@ public class WarmBoxOutboundReqVO extends JdRequest {
      * 出入库类型；按板号出：1；按箱号出：2
      */
     private Byte outboundType;
+    
+    private String userErp;
 
     public String getBoardCode() {
         return boardCode;
@@ -54,4 +56,11 @@ public class WarmBoxOutboundReqVO extends JdRequest {
         this.outboundType = outboundType;
     }
 
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
 }
