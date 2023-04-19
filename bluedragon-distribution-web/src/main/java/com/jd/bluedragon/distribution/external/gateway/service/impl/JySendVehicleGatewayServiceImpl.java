@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
@@ -11,9 +10,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTyp
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
-import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
@@ -35,7 +32,6 @@ import java.util.List;
  * @Author wyh
  * @Date 2022/5/26 18:38
  **/
-@UnifiedExceptionProcess
 public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayService {
 
     @Autowired
