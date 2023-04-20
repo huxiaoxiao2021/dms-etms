@@ -16,6 +16,20 @@ public class GetTaskSimpleCodeReq extends BaseReq implements Serializable {
    */
   private List<String> imgUrlList;
 
+  /**
+   * SpotBizTypeEnum
+   * 0：C网  1：B网
+   */
+  private Integer spotBizType;
+
+  public Integer getSpotBizType() {
+    return spotBizType;
+  }
+
+  public void setSpotBizType(Integer spotBizType) {
+    this.spotBizType = spotBizType;
+  }
+
   public String getSendVehicleBizId() {
     return sendVehicleBizId;
   }

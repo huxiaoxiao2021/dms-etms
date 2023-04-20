@@ -160,6 +160,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Qualifier("jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
 
+    @Autowired
+    @Qualifier("jySendVehicleServiceTys")
+    private IJySendVehicleService jySendVehicleServiceTys;
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
@@ -852,6 +856,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
+        checkGetTaskSimpleCodeParams(request);
         JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
         if (ObjectHelper.isEmpty(detailEntity)){
             return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
@@ -868,7 +873,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
         }
         else {
-            checkOperateProgress(detailEntity);
+            checkOperateProgress(detailEntity.getSendVehicleBizId(),request.getSpotBizType());
             //调用运输接口获取，并持久化，返回给客户端
             JdiSealCarQueryDto dto =assembleJdiSealCarQueryDto(detailEntity,request);
             com.jd.tms.jdi.dto.CommonDto<JdiSealCarResponseDto> commonDto =jdiQueryWSManager.querySealCarSimpleCode(dto);
@@ -898,9 +903,25 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
     }
 
-    private void checkOperateProgress(JyBizTaskSendVehicleDetailEntity detail) {
-        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(detail.getSendVehicleBizId());
-        BigDecimal operateProgress =jySendVehicleService.calculateOperateProgress(sendAgg,false);
+    private void checkGetTaskSimpleCodeParams(GetTaskSimpleCodeReq request) {
+        if (ObjectHelper.isEmpty(request.getSpotBizType())){
+            throw new JyBizException("参数错误：spotBizType为空！");
+        }
+        if (ObjectHelper.isEmpty(request.getSendVehicleDetailBizId())){
+            throw new JyBizException("参数错误：任务明细bizId为空！");
+        }
+        if (CollectionUtils.isEmpty(request.getImgUrlList())){
+            throw new JyBizException("参数错误：imgUrlList为空！");
+        }
+    }
+
+    private void checkOperateProgress(String sendVehicleBizId,Integer spotBizType) {
+        //加个降级开关的逻辑
+        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(sendVehicleBizId);
+        BigDecimal operateProgress =
+            SpotBizTypeEnum.SPOT_CHECK_TYPE_C.getCode().equals(spotBizType) ?
+            jySendVehicleService.calculateOperateProgress(sendAgg,false)
+            :jySendVehicleServiceTys.calculateOperateProgress(sendAgg,false);
         if (ObjectHelper.isNotNull(operateProgress)){
             log.info("拍照上传获取任务简码-计算装车进度：{}",operateProgress.doubleValue());
             if (operateProgress.compareTo(new BigDecimal(ucc.getOnlineGetTaskSimpleCodeThreshold()))<0){
