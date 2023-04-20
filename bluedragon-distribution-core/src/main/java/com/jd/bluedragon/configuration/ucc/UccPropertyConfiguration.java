@@ -1166,6 +1166,12 @@ public class UccPropertyConfiguration {
     private Long machineCalibrateIntervalTimeOfSpotCheck;
 
     /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
+
+    /**
      * 设备下发是否依据设备状态标识
      */
     private boolean spotCheckIssueRelyOMachineStatus;
@@ -1219,6 +1225,11 @@ public class UccPropertyConfiguration {
     private String czSiteTypeForbiddenList;
 
     private boolean batchSendForbiddenSwitch;
+
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
 
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
@@ -2772,6 +2783,14 @@ public class UccPropertyConfiguration {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
     }
 
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
+    }
+
     public boolean getSpotCheckIssueRelyOMachineStatus() {
         return spotCheckIssueRelyOMachineStatus;
     }
@@ -2975,5 +2994,13 @@ public class UccPropertyConfiguration {
         if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
             autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
         }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
     }
 }

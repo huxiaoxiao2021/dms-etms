@@ -48,7 +48,7 @@ public interface JyExceptionService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(String barcode);
+    JdCResponse<ExpTaskDto> queryByBarcode(String barcode, String erp);
 
     /**
      * 任务明细

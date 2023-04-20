@@ -25,22 +25,22 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     private JySendProductAggsSpecialDao jySendProductAggsSpecialDao;
 
     @Override
-    public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId) {
+    public List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query) {
 
         JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getSendVehicleProductTypeList");
-        List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
+        List<JySendVehicleProductType> list = jySendProductAggsDao.getSendVehicleProductTypeList(query);
         Profiler.registerInfoEnd(info);
         return list;
     }
 
     @Override
-    public Long getToScanCountSum(String sendVehicleBizId) {
+    public Long getToScanCountSum(JySendProductAggsEntityQuery query) {
         JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
         String keyword = jySendProductAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getToScanCountSum");
-        Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
+        Long toScanCountSum = jySendProductAggsDao.getToScanCountSum(query);
         Profiler.registerInfoEnd(info);
         return toScanCountSum;
     }
