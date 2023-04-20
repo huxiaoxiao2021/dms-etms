@@ -421,7 +421,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		boolean flag = false;
 		for (int i = 0; i < jobTypes.size(); i++) {
-			if(Objects.equals(jobCode,jobTypes.get(i))){
+			if(Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
 				flag =true;
 				break;
 			}
