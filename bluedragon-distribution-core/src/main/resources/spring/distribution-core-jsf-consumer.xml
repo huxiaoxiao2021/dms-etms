@@ -1270,7 +1270,7 @@
     </jsf:consumer>
 
     <!--  质控-异常原因接口  -->
-    <jsf:consumer id="abnormalReasonApi"
+    <jsf:consumer id="abnormalReasonApiofZK"
                   interface="com.jd.wl.cs.abnormal.portal.api.service.reason.AbnormalReasonApi"
                   alias="${jsf.abnormalReasonApi.alias}"
                   timeout="${jsf.abnormalReasonApi.timeout}"

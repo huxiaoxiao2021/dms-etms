@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,14 +30,15 @@ public class AbnormalReasonManagerImpl implements AbnormalReasonManager{
     private static  final Integer DMS_ETMS_CODE = 9;
 
     @Autowired
-    private AbnormalReasonApi abnormalReasonApi;
+    @Qualifier("abnormalReasonApiofZK")
+    private AbnormalReasonApi abnormalReasonApiofZK;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.AbnormalReasonManagerImpl.queryAbnormalReasonListBySystemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<AbnormalReasonDto> queryAbnormalReasonListBySystemCode() {
 
         try{
-            Result<List<AbnormalReasonDto>> result = abnormalReasonApi.queryAbnormalReasonListBySystemCode(DMS_ETMS_CODE);
+            Result<List<AbnormalReasonDto>> result = abnormalReasonApiofZK.queryAbnormalReasonListBySystemCode(DMS_ETMS_CODE);
             if(log.isInfoEnabled()){
                 log.info("queryAbnormalReasonListBySystemCode 获取异常原因Result -{}", JSON.toJSONString(result));
             }
