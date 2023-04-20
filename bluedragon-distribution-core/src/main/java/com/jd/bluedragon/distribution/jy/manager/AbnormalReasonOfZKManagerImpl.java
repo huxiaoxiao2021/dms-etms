@@ -18,13 +18,13 @@ import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
- * @Date: 2023/4/18 14:21
+ * @Date: 2023/4/20 15:48
  * @Description:
  */
-@Service("abnormalReasonManager")
-public class AbnormalReasonManagerImpl implements AbnormalReasonManager{
+@Service("abnormalReasonManagerOfZK")
+public class AbnormalReasonOfZKManagerImpl implements AbnormalReasonOfZKManager {
 
-    private static final Logger log = LoggerFactory.getLogger(AbnormalReasonManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AbnormalReasonOfZKManagerImpl.class);
 
     //系统编码
     private static  final Integer DMS_ETMS_CODE = 9;
@@ -36,7 +36,6 @@ public class AbnormalReasonManagerImpl implements AbnormalReasonManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.AbnormalReasonManagerImpl.queryAbnormalReasonListBySystemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<AbnormalReasonDto> queryAbnormalReasonListBySystemCode() {
-
         try{
             Result<List<AbnormalReasonDto>> result = abnormalReasonApiofZK.queryAbnormalReasonListBySystemCode(DMS_ETMS_CODE);
             if(log.isInfoEnabled()){

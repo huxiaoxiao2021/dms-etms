@@ -25,7 +25,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExNoticeCustomerMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
-import com.jd.bluedragon.distribution.jy.manager.AbnormalReasonManager;
+import com.jd.bluedragon.distribution.jy.manager.AbnormalReasonOfZKManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
@@ -97,8 +97,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     @Autowired
     private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
+
     @Autowired
-    private AbnormalReasonManager abnormalReasonManager;
+    @Qualifier("abnormalReasonManagerOfZK")
+    private AbnormalReasonOfZKManager abnormalReasonManagerOfZK;
 
     @Override
     public Integer getExceptionType() {
@@ -346,7 +348,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param mq
      */
     private void  addAbnormalReason(JyExNoticeCustomerMQ mq){
-        List<AbnormalReasonDto> abnormalReasonDtos = abnormalReasonManager.queryAbnormalReasonListBySystemCode();
+        List<AbnormalReasonDto> abnormalReasonDtos = abnormalReasonManagerOfZK.queryAbnormalReasonListBySystemCode();
         if(CollectionUtils.isEmpty(abnormalReasonDtos)){
             logger.warn("质控异常原因为空");
             return ;

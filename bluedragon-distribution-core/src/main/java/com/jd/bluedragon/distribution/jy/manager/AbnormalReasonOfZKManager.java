@@ -6,14 +6,14 @@ import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
- * @Date: 2023/4/18 14:18
- * @Description: 质控获取异常原因Manager
+ * @Date: 2023/4/20 15:45
+ * @Description:
  */
-public interface AbnormalReasonManager {
+public interface AbnormalReasonOfZKManager {
 
     /**
      * 根据系统编码获取异常原因
-     * @param systemCode
+     * @param
      * @return
      */
     List<AbnormalReasonDto> queryAbnormalReasonListBySystemCode();
