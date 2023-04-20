@@ -278,7 +278,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             String redisValueString = redisClient.get(partPackageKey);
             if(StringUtils.isEmpty(redisValueString)) {
                 String value = BitMapUtil.turn2to16(localBitsBinaryString);
-                redisClient.setEx(partPackageKey, value, 10, TimeUnit.MINUTES);
+                redisClient.setEx(partPackageKey, value, Constants.JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT, TimeUnit.SECONDS);
                 if(log.isInfoEnabled()) {
                     log.info("集齐包裹lsit缓存添加成功，包裹list.size={},key={},cacheValue={}", collectionRecordDetailPos.size(), partPackageKey, value);
                 }
@@ -402,7 +402,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 if(log.isInfoEnabled()) {
                     log.info("集齐释放包裹list缓存:key={}, value16进制={},转二进制value={}", partPackageKey, redisValueString, cacheString);
                 }
-                redisClient.setEx(partPackageKey, valueString, 10, TimeUnit.MINUTES);
+                redisClient.setEx(partPackageKey, valueString, Constants.JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT, TimeUnit.SECONDS);
                 if(log.isInfoEnabled()) {
                     log.info("集齐释放包裹list缓存成功，重新cache续期，key={},value={}", partPackageKey, valueString);
                 }
