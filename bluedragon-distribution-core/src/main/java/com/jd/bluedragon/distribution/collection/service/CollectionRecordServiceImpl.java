@@ -375,7 +375,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         byte[] bits = BitMapUtil.create(goodNumber);
         for(CollectionRecordDetailPo detailPo : collectionRecordDetailPos) {
             int currNum = WaybillUtil.getCurrentPackageNum(detailPo.getScanCode());
-            BitMapUtil.add(bits, currNum);
+            BitMapUtil.add(bits, currNum-1);//BitMapUtil 下标0开始
         }
         return BitMapUtil.getBinaryString(bits);
     }
