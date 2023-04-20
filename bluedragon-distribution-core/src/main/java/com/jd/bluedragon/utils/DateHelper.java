@@ -2,7 +2,6 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.print.utils.StringHelper;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -96,6 +95,9 @@ public class DateHelper {
     public static final String DATE_FORMATE_yyyyMMdd = "yyyyMMdd";
 
     public static final String DATE_FORMATE_yyMMdd = "yyMMdd";
+
+    public static final String DATE_FORMAT_MONTH = "yyyy-MM";
+    public static final String DATE_FORMAT_YEAR = "yyyy";
 
     /**
      * 日期-格式yyyy-MM-dd HH:mm
@@ -681,4 +683,44 @@ public class DateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+
+    /**
+     * 获取当前月份第一天
+     */
+    public static Date getFirstMonthDay(){
+        Calendar cale = Calendar.getInstance();
+        cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH, 1);
+        cale.set(Calendar.HOUR_OF_DAY, 0);
+        cale.set(Calendar.MINUTE, 0);
+        cale.set(Calendar.SECOND, 0);
+        return cale.getTime();
+    }
+
+    /**
+     * 获取当前月份最后一天
+     */
+    public static Date getLastMonthDay(){
+        Calendar cale = Calendar.getInstance();
+        cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH, cale.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cale.set(Calendar.HOUR_OF_DAY, 23);
+        cale.set(Calendar.MINUTE, 59);
+        cale.set(Calendar.SECOND, 29);
+        return cale.getTime();
+    }
+
+    public static Date preMonthFirstDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int curMonth = calendar.get(Calendar.MONTH);
+        calendar.set(Calendar.MONTH, curMonth - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
+
 }
