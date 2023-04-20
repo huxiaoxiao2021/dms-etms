@@ -935,6 +935,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     // 发出拦截报表mq
                     this.sendInterceptMsg(filterContext, checkException);
                 }
+                logger.info("virtualBoardCombinationCheck SortingCheckException {} ", JsonHelper.toJson(pdaOperateRequest), ex);
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
