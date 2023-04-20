@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.integral.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyIntegralDetailQuery;
-import com.jd.bluedragon.common.dto.integral.response.JyIntroductionDTO;
-import com.jd.bluedragon.common.dto.integral.response.JyRuleDescriptionDTO;
+import com.jd.bluedragon.common.dto.integral.request.IntegralRankingRequest;
+import com.jd.bluedragon.common.dto.integral.request.IntegralSummaryRequest;
+import com.jd.bluedragon.common.dto.integral.response.*;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
@@ -39,4 +39,33 @@ public interface IntegralService {
      * 获取规则描述
      */
     JdCResponse<List<JyRuleDescriptionDTO>> queryQuotaDescriptionByCondition(JyIntegralDetailQuery query);
+
+    /**
+     * 积分排行榜
+     * @param req
+     * @return
+     */
+    InvokeResult<List<JyIntegralRankingDTO>> integralRankingList(IntegralRankingRequest req);
+
+    /**
+     * 每月积分汇总
+     * @param req
+     * @return
+     */
+    InvokeResult<List<JyIntegralMonthlySummaryDto>> integralMonthlySummary(IntegralSummaryRequest req);
+
+
+    /**
+     * 每日积分汇总
+     * @param req
+     * @return
+     */
+    InvokeResult<List<JyIntegralDailySummaryDto>> integralDailySummary(IntegralSummaryRequest req);
+
+    /**
+     * 个人积分排名
+     * @param req
+     * @return
+     */
+    InvokeResult<JyPersonalIntegralRankingDto> personalIntegralRanking(IntegralRankingRequest req);
 }
