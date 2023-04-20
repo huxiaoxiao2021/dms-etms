@@ -438,7 +438,7 @@
     </jmq:consumer>
 
     <!--  拣运卸车完成  -->
-    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 
