@@ -289,7 +289,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 String cacheString = BitMapUtil.turn16to2(redisValueString);
                 boolean flag = packageLockConflictCheck(partPackageKey, localBitsBinaryString, cacheString);
                 if(flag) {
-                    log.warn("集齐操作包裹批锁存在部分包裹锁冲突：collectionCode={},aggCod{},goodNumber={}", collectionCode, aggCode, goodNumber);
+                    log.warn("集齐操作包裹批锁存在部分包裹锁冲突：collectionCode={},aggCod{},goodNumber={},localString={}，cacheString={}", collectionCode, aggCode, goodNumber, localBitsBinaryString, cacheString);
                     throw new CollectLockFailException("集齐操作包裹批锁存在部分包裹锁冲突");
                 }else {
                     String valueString = buildCacheBitsString(localBitsBinaryString, cacheString);

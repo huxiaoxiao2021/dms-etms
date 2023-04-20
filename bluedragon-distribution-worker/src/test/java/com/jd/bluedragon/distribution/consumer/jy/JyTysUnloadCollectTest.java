@@ -66,9 +66,9 @@ public class JyTysUnloadCollectTest {
         while(true) {
             try {
                 //空任务扫描初始化
-                taskNullScanInitCollect();
+//                taskNullScanInitCollect();
                 //封车集齐初始化
-//                sealCarInitCollect();
+                sealCarInitCollect();
             } catch (Exception e) {
                 logger.error("服务异常!", e);
             }
@@ -101,7 +101,7 @@ public class JyTysUnloadCollectTest {
     //封车集齐初始化
     private void sealCarInitCollect() throws Exception {
         InitCollectDto initCollectDto = new InitCollectDto();
-        initCollectDto.setBizId("SC23032400029387");
+        initCollectDto.setBizId("SC23042000031354");
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
         Message message1 = new Message();
@@ -119,9 +119,9 @@ public class JyTysUnloadCollectTest {
 
             try {
                 //空任务节点
-                taskNullScanSplitInitCollect();
+//                taskNullScanSplitInitCollect();
                 //封车节点
-//                sealCarSplitInitCollect();
+                sealCarSplitInitCollect();
             } catch (Exception e) {
                 logger.error("服务异常!", e);
             }
@@ -130,12 +130,12 @@ public class JyTysUnloadCollectTest {
 
     private void sealCarSplitInitCollect() throws Exception {
         String body1 = "{\n" +
-                "    \"bizId\": \"SC23032400029387\",\n" +
+                "    \"bizId\": \"SC23042000031354\",\n" +
                 "    \"operateNode\": 101,\n" +
-                "    \"operateTime\": 1679055682628,\n" +
-                "    \"pageNo\": 1,\n" +
+                "    \"operateTime\": 1681990565522,\n" +
+                "    \"pageNo\": 8,\n" +
                 "    \"pageSize\": 100,\n" +
-                "    \"sealBatchCode\": \"40240-10186-20230324103443653\",\n" +
+                "    \"sealBatchCode\": \"40240-10186-20230420044403685\",\n" +
                 "    \"sealSiteCode\": 40240,\n" +
                 "    \"shouldUnSealSiteCode\": 10186\n" +
                 "}";
