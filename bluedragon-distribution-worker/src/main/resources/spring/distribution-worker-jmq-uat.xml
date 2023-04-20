@@ -166,7 +166,7 @@
     <!--调度信息数据-->
     <jmq:consumer id="jmq.bdWaybillScheduleMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.bdWaybillScheduleMqListener}" listener="bdWaybillScheduleMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
@@ -478,6 +478,10 @@
     <!-- 作业工作台自动关闭任务 -->
     <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
     </jmq:consumer>
 
 </beans>
