@@ -279,7 +279,13 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             if(StringUtils.isEmpty(redisValueString)) {
                 String value = BitMapUtil.turn2to16(localBitsBinaryString);
                 redisClient.setEx(partPackageKey, value, 10, TimeUnit.MINUTES);
+                if(log.isInfoEnabled()) {
+                    log.info("集齐包裹lsit缓存添加成功，包裹list.size={},key={},cacheValue={}", collectionRecordDetailPos.size(), partPackageKey, value);
+                }
             }else {
+                if(log.isInfoEnabled()) {
+                    log.info("集齐redis中存的包裹list缓存，key={}，十六进制value={}", partPackageKey, redisValueString);
+                }
                 String cacheString = BitMapUtil.turn16to2(redisValueString);
                 boolean flag = packageLockConflictCheck(partPackageKey, localBitsBinaryString, cacheString);
                 if(flag) {
@@ -346,11 +352,12 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         int length = Math.min(localBitsBinaryString.length(),cacheString.length());
         String ls = localBitsBinaryString.substring(localBitsBinaryString.length() - length);
         String cs = cacheString.substring(cacheString.length() - length);
+        log.info("cacheKey={}处理集齐包裹冲突前查看缓存value:, cacheStr={},localStr={}", partPackageKey, cacheString, localBitsBinaryString);
 
         for(int i = length - 1; i > 0; i--) {
             if(Objects.equals(ls.charAt(i), '1') && Objects.equals(cs.charAt(i), '1')) {
                 if(log.isInfoEnabled()) {
-                    log.info("cacheKey={}处理集齐包裹冲突，包裹下标是{}, cacheStr={},localStr={}", partPackageKey, i, cacheString, localBitsBinaryString);
+                    log.info("cacheKey={}处理集齐包裹冲突，包裹下标是{}, 实际比较cacheStr={},实际比较localStr={}", partPackageKey, length-i, cs, ls);
                 }
                 return true;
             }
@@ -376,7 +383,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
     private void collectionCollectRecordDetailHandlerUnLock(List<CollectionRecordDetailPo> collectionRecordDetailPos, String collectionCode, String aggCode, int goodNumber) {
         String aggCodeKey = MessageFormat.format(Constants.JQ_DETAIL_AGG_LOCK_PREFIX, collectionCode,aggCode);
         if (!jimDbLock.lock(aggCodeKey,"1", 10L, TimeUnit.MINUTES)) {
-            log.warn("");
+            log.warn("collectionCollectRecordDetailHandlerUnLock没获取到锁，包裹list.size={},key={}", collectionRecordDetailPos.size(), aggCodeKey);
             return;
         }
         String localBitsBinaryString = "";
@@ -384,12 +391,21 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             localBitsBinaryString = getLocalBatchPackageBitsBinaryString(collectionRecordDetailPos, goodNumber);
             //内存中本次需要释放批包裹的二进制字符串
             String partPackageKey =  MessageFormat.format(Constants.JQ_DETAIL_AGG_BIT_LOCK_PREFIX, collectionCode,aggCode);
+            if(log.isInfoEnabled()) {
+                log.info("集齐释放包裹list缓存:key={}, 当前待释放value+{},包裹list.size={}", partPackageKey, localBitsBinaryString, collectionRecordDetailPos.size());
+            }
             //redis中维护正在处理中的bits(16进制)
             String redisValueString = redisClient.get(partPackageKey);
             if(StringUtils.isNotBlank(redisValueString)) {
                 String cacheString = BitMapUtil.turn16to2(redisValueString);
                 String valueString = releaseBatchPackageCacheBitsString(localBitsBinaryString, cacheString);
+                if(log.isInfoEnabled()) {
+                    log.info("集齐释放包裹list缓存:key={}, value16进制={},转二进制value={}", partPackageKey, redisValueString, cacheString);
+                }
                 redisClient.setEx(partPackageKey, valueString, 10, TimeUnit.MINUTES);
+                if(log.isInfoEnabled()) {
+                    log.info("集齐释放包裹list缓存成功，重新cache续期，key={},value={}", partPackageKey, valueString);
+                }
             }
         }catch (Exception e) {
             log.error("释放集齐aggCode锁失败，不对外抛异常，逻辑已经执行完毕，其他场景可能存在获取不到锁重试，等该锁过期后正常执行，aggCodeKey={},localBits={}", aggCodeKey, localBitsBinaryString);
