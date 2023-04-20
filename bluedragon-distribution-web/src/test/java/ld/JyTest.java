@@ -10,7 +10,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadSc
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
-import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;

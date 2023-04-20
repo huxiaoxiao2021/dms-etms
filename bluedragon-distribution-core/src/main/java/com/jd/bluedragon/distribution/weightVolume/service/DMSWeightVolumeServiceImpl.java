@@ -385,7 +385,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 //特殊商家类型  且  个性化运单场景
                 if (BusinessUtil.isSignInChars(waybillSign, 32, '0','2','K','Y')
                         &&
-                        BusinessUtil.isSignInChars(waybillSign, 24, '0','1','3')
+                        BusinessUtil.isSignInChars(waybillSign, 24, '0','1','3','8')
                 ) {
                     logger.info("零称重量方 纯配外单 C网 特殊商家类型 且 个性化运单场景，需要拦截，运单号{}",waybillCode);
                     return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;

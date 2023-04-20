@@ -1,11 +1,11 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -806,6 +806,11 @@ public class UccPropertyConfiguration {
      */
     private Integer cttGroupSendFLowLimit;
 
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -1136,11 +1141,6 @@ public class UccPropertyConfiguration {
      */
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
-
-
-
-
-
     /**
      * 设备校准任务时长
      *  单位：毫秒
@@ -1164,6 +1164,12 @@ public class UccPropertyConfiguration {
      *  单位：毫秒
      */
     private Long machineCalibrateIntervalTimeOfSpotCheck;
+
+    /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
 
     /**
      * 设备下发是否依据设备状态标识
@@ -1200,6 +1206,9 @@ public class UccPropertyConfiguration {
 
     private boolean  supportMutilScan;
 
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList;
+
     /**
      * 传站拦截-- 场地黑名单
      */
@@ -1216,6 +1225,11 @@ public class UccPropertyConfiguration {
     private String czSiteTypeForbiddenList;
 
     private boolean batchSendForbiddenSwitch;
+
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
 
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
@@ -1244,6 +1258,11 @@ public class UccPropertyConfiguration {
     public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
         this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
     }
+
+    /**
+     * 自动关闭任务配置，转换为对象
+     */
+    private String autoCloseJyBizTaskConfig;
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
@@ -2763,6 +2782,14 @@ public class UccPropertyConfiguration {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
     }
 
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
+    }
+
     public boolean getSpotCheckIssueRelyOMachineStatus() {
         return spotCheckIssueRelyOMachineStatus;
     }
@@ -2917,5 +2944,63 @@ public class UccPropertyConfiguration {
 
     public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
         this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getDpSpringSiteCode() {
+        return dpSpringSiteCode;
+    }
+
+    public void setDpSpringSiteCode(String dpSpringSiteCode) {
+        this.dpSpringSiteCode = dpSpringSiteCode;
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
+        if(dpSpringSiteCodeList != null){
+            return dpSpringSiteCodeList;
+        } else {
+            dpSpringSiteCodeList = new ArrayList<>();
+        }
+        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
+            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }
+        return this.dpSpringSiteCodeList;
+    }
+
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
+    }
+
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
+        if(StringUtils.isNotBlank(autoCloseJyBizTaskConfig)){
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigResult = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+            return autoCloseJyBizTaskConfigResult;
+        }
+        return new AutoCloseJyBizTaskConfig();
+    }
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
     }
 }

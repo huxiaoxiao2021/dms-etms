@@ -531,6 +531,8 @@ public class TaskServiceImpl implements TaskService {
             }else{
                 log.warn(" Duplicate task: {}",task.getBody());
             }
+        } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(task.getType())) {
+            return routerDao.addWithParam(task);
         }else{
             return routerDao.add(TaskDao.namespace, task);
         }
@@ -1142,4 +1144,19 @@ public class TaskServiceImpl implements TaskService {
 		TaskDao routerDao = taskDao;
 		return routerDao.findVirtualBoardTasks(type, fetchNum, ownSign, queueIds, lazyExecuteDays);
 	}
+
+    /**
+     * 查找作业工作台自动关闭任务
+     *
+     * @author fanggang7
+     * @time 2023-03-21 16:34:55 周二
+     */
+    @Override
+    public List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds) {
+        Assert.notNull(type, "type must not be null");
+        Assert.notNull(fetchNum, "fetchNum must not be null");
+        Assert.notNull(ownSign, "ownSign must not be null");
+        TaskDao routerDao = taskDao;
+        return routerDao.findJyBizAutoCloseTasks(type, fetchNum, ownSign, queueIds);
+    }
 }
