@@ -993,9 +993,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.warn("未查询到当天18点之前已领取的报废任务!");
             return;
         }
-
-        //todo   根据领取人岗位信息 查询出所有在此岗位的签过到的人
-
         List<Message> messageList = Lists.newArrayList();
         for (String handlerErp : handlerErpList) {
             Message message = new Message();

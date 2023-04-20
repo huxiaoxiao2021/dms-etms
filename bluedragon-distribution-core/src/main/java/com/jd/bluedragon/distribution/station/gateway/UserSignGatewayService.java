@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
+import java.util.List;
+
 /**
  * 人员签到表--Service接口
  * 
@@ -101,5 +103,7 @@ public interface UserSignGatewayService {
 	 * @param userSignRequest
 	 * @return
 	 */
-	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);	
+	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
+
+	JdCResponse<List<String>> querySignUserInfoByUser(String erp);
 }
