@@ -981,7 +981,7 @@
 		select user_code
 		from user_sign_record u1
 		where u1.yn = 1 and u1.ref_grid_key =(
-		    select ref_grid_key from user_sign_record u2
+		    select u2.ref_grid_key from user_sign_record u2
 			where u2.yn = 1
 				<choose>
 					<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
@@ -994,10 +994,10 @@
 				order by u2.sign_in_time desc limit 1
 			)
 		<if test="signInTimeStart != null" >
-			and  <![CDATA[   u2.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}  ]]>
+			and  <![CDATA[   u1.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}  ]]>
 		  </if>
 		<if test="signInTimeEnd != null" >
-			and  <![CDATA[   u2.sign_in_time <= #{signInTimeEnd,jdbcType=TIMESTAMP}  ]]>
+			and  <![CDATA[   u1.sign_in_time <= #{signInTimeEnd,jdbcType=TIMESTAMP}  ]]>
 		</if>
 	</select>
 </mapper>
