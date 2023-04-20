@@ -978,7 +978,7 @@
 	</select>
 
 	<select id="querySignUserInfoByUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="java.lang.String">
-		select user_code
+		select distinct (user_code)
 		from user_sign_record u1
 		where u1.yn = 1 and u1.ref_grid_key =(
 		    select u2.ref_grid_key from user_sign_record u2
