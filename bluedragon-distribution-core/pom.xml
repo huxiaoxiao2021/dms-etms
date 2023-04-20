@@ -247,7 +247,11 @@
 			<artifactId>bluedragon-distribution-utils</artifactId>
 			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
-
+<!--		积分-->
+		<dependency>
+			<groupId>com.jdl.jy.flat</groupId>
+			<artifactId>flat-service-sdk</artifactId>
+		</dependency>
 
 		<!--运单拦截信息接口 2021.3.26-->
 		<dependency>
@@ -2698,7 +2702,15 @@
                     -->
 				</configuration>
 			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
 	<version>1.0.0</version>

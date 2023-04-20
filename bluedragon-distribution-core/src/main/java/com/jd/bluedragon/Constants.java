@@ -1864,4 +1864,11 @@ public class Constants {
      * 产品类型-医药专送
      */
     public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
+    /**
+     * 数字
+     */
+    public static final class Numbers {
+        public static final Integer INTEGER_ZERO = 0;
+    }
+
 }
