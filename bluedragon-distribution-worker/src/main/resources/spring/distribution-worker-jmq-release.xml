@@ -596,5 +596,9 @@
         <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
     </jmq:consumer>
 
+    <!--  周转筐批量作废异步处理  -->
+    <jmq:consumer id="jmq.recycleBasketAbolishConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.recycleBasket.batchAbolish}" listener="recycleBasketAbolishConsumer"/>
+    </jmq:consumer>
 </beans>
 

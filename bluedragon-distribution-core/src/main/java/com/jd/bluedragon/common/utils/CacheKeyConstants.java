@@ -391,5 +391,8 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_JY_BIZ_TASK_AUTO_CLOSE = JY_CACHE_PREFIX + "jyBizTaskAutoClose:%s:%s";
 
-
+    /**
+     * 批量作废周转筐缓存key
+     */
+    public static final String CACHE_KEY_BATCH_ABOLISH_RECYCLE_BASKET = "abolishRecycleBasket:%s";
 }
