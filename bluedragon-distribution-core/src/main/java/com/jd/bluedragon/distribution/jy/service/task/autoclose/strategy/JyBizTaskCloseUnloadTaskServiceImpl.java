@@ -211,17 +211,12 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         unloadCommonRequest.setPageSize(1);
         unloadCommonRequest.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
         final InvokeResult<UnloadPreviewData> unloadPreviewDataResult = jyUnloadVehicleService.unloadPreviewDashboard(unloadCommonRequest);
-        if (unloadPreviewDataResult == null) {
-            return result.toFail("查询任务预览数据失败，调用结果为空");
-        }
-        if (!unloadPreviewDataResult.codeSuccess()) {
+        UnloadPreviewData unloadPreviewData = new UnloadPreviewData();
+        if (unloadPreviewDataResult == null || !unloadPreviewDataResult.codeSuccess() || unloadPreviewDataResult.getData() == null) {
+            // return result.toFail("查询任务预览数据失败，调用结果为空");
             log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
-            return result.toFail("查询任务预览数据失败，返回结果失败");
-        }
-        final UnloadPreviewData unloadPreviewData = unloadPreviewDataResult.getData();
-        if (unloadPreviewData == null) {
-            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
-            return result.toFail("查询任务预览数据失败，返回结果为空");
+        } else {
+            unloadPreviewData = unloadPreviewDataResult.getData();
         }
 
         final UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
@@ -236,7 +231,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         unloadCompleteRequest.setTaskId(scheduleTask.getTaskId());
         unloadCompleteRequest.setBizId(autoCloseTaskContextDto.getBizId());
         unloadCompleteRequest.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
-        unloadCompleteRequest.setAbnormalFlag(unloadPreviewData.getAbnormalFlag());
+        unloadCompleteRequest.setAbnormalFlag(unloadPreviewData.getAbnormalFlag() != null ? unloadPreviewData.getAbnormalFlag() : Constants.NUMBER_ZERO.byteValue());
         unloadCompleteRequest.setToScanCount(unloadPreviewData.getToScanCount() != null ? unloadPreviewData.getToScanCount() : 0);
         unloadCompleteRequest.setMoreScanLocalCount(unloadPreviewData.getMoreScanLocalCount() != null ? unloadPreviewData.getMoreScanLocalCount() : 0);
         unloadCompleteRequest.setMoreScanOutCount(unloadPreviewData.getMoreScanOutCount() != null ? unloadPreviewData.getMoreScanOutCount() : 0);
@@ -291,24 +286,19 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
         unloadPreviewDto.setVehicleNumber(taskUnloadVehicleExist.getVehicleNumber());
         unloadPreviewDto.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
         unloadPreviewDto.setExceptionType(1);
+        UnloadPreviewRespDto unloadPreviewData = new UnloadPreviewRespDto();
         final InvokeResult<UnloadPreviewRespDto> unloadPreviewDataResult = jyUnloadVehicleTysService.previewBeforeUnloadComplete(unloadPreviewDto);
-        if (unloadPreviewDataResult == null) {
-            return result.toFail("查询任务预览数据失败，调用结果为空");
-        }
-        if (!unloadPreviewDataResult.codeSuccess()) {
+        if (unloadPreviewDataResult == null || !unloadPreviewDataResult.codeSuccess() || unloadPreviewDataResult.getData() == null) {
             log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
-            return result.toFail("查询任务预览数据失败，返回结果失败");
-        }
-        final UnloadPreviewRespDto unloadPreviewData = unloadPreviewDataResult.getData();
-        if (unloadPreviewData == null) {
-            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
-            return result.toFail("查询任务预览数据失败，返回结果为空");
+            // return result.toFail("查询任务预览数据失败，调用结果为空");
+        } else {
+            unloadPreviewData = unloadPreviewDataResult.getData();
         }
 
         UnloadCompleteDto unloadCompleteDto = new UnloadCompleteDto();
         unloadCompleteDto.setCurrentOperate(currentOperate);
         unloadCompleteDto.setUser(user);
-        unloadCompleteDto.setAbnormalFlag(unloadPreviewData.getAbnormalFlag());
+        unloadCompleteDto.setAbnormalFlag(unloadPreviewData.getAbnormalFlag() != null ? unloadPreviewData.getAbnormalFlag() : Constants.NUMBER_ZERO.byteValue());
         unloadCompleteDto.setToScanCount(unloadPreviewData.getToScanCount() != null ? unloadPreviewData.getToScanCount().longValue() : 0);
         unloadCompleteDto.setMoreScanLocalCount(unloadPreviewData.getMoreScanLocalCount() != null ? unloadPreviewData.getMoreScanLocalCount().longValue() : 0);
         unloadCompleteDto.setMoreScanOutCount(unloadPreviewData.getMoreScanOutCount() != null ? unloadPreviewData.getMoreScanOutCount().longValue() : 0);
