@@ -188,5 +188,10 @@ public interface UserSignRecordService {
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
 
 
-	List<String> querySignUserInfoByUser(UserSignQueryRequest query);
+	/**
+	 * 根据erp 根据erp 获取当天相同岗位签到用户信息
+	 * @param erp
+	 * @return
+	 */
+	List<String> querySameWorkSignUserInfoByUser(String erp);
 }

@@ -84,28 +84,15 @@ public class DmsExScrapNoticeConsumer extends MessageBaseConsumer {
             String title = "已领取报废任务详情通知";
             String template = "目前有%s单报废任务,其中%s单审批中,,%s单已完结需要对实物进行处理,请及时处理!";
             String content = String.format(template, totalCount, approveCount, completeCount);
-            List<String> noticeErps = getNoticeErps(handlerErp);
-            NoticeUtils.noticeToTimelineWithNoUrl(title, content, noticeErps);
+            List<String> noticeErps = userSignRecordService.querySameWorkSignUserInfoByUser(handlerErp);
+            if(CollectionUtils.isNotEmpty(noticeErps)){
+                NoticeUtils.noticeToTimelineWithNoUrl(title, content, noticeErps);
+            }
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("异常报废推送咚咚处理异常, 消息体:{}", message.getText(), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
-    }
-
-    /**
-     * 获取零点到当前时间 和当前erp签到在同一岗位下的erp
-     * @param erp
-     */
-    public List<String> getNoticeErps(String erp){
-        UserSignQueryRequest request = new UserSignQueryRequest();
-        request.setUserCode(erp);
-        request.setSignInTimeStart(DateHelper.getCurrentDayWithOutTimes());
-        request.setSignInTimeEnd(new Date());
-        if(logger.isInfoEnabled()){
-            logger.info("获取同岗位下的erps-request:{}", JSON.toJSONString(request));
-        }
-        return userSignRecordService.querySignUserInfoByUser(request);
     }
 }

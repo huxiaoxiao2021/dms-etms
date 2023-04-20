@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
@@ -1269,8 +1270,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	@Override
-	public List<String> querySignUserInfoByUser(UserSignQueryRequest query) {
-		return userSignRecordDao.querySignUserInfoByUser(query);
+	public List<String> querySameWorkSignUserInfoByUser(String erp) {
+
+		UserSignQueryRequest request = new UserSignQueryRequest();
+		request.setUserCode(erp);
+		request.setSignInTimeStart(DateHelper.getCurrentDayWithOutTimes());
+		request.setSignInTimeEnd(new Date());
+		log.info("获取同岗位下的erps-request:{}", JSON.toJSONString(request));
+		return userSignRecordDao.querySignUserInfoByUser(request);
 	}
 
 	/**

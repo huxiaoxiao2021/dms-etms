@@ -196,12 +196,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Override
 	public JdCResponse<List<String>> querySignUserInfoByUser(String erp) {
 		JdCResponse<List<String>> response = new JdCResponse<>();
-		UserSignQueryRequest request = new UserSignQueryRequest();
-		request.setUserCode(erp);
-		request.setSignInTimeStart(DateHelper.getCurrentDayWithOutTimes());
-		request.setSignInTimeEnd(new Date());
-		log.info("获取同岗位下的erps-request:{}", JSON.toJSONString(request));
-		response.setData(userSignRecordService.querySignUserInfoByUser(request));
+		response.toSucceed();
+		response.setData(userSignRecordService.querySameWorkSignUserInfoByUser(erp));
 		return response;
 	}
 
