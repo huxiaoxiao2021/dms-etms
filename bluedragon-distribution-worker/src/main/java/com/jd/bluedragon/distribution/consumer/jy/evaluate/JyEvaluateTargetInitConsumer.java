@@ -108,8 +108,12 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private EvaluateTargetResultDto createTargetInfo(EvaluateTargetInitDto targetInitDto) {
+        
         // 查询发货调度任务
-        JyScheduleTaskResp targetScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        JyScheduleTaskResp targetScheduleTask = null;
+        if (StringUtils.isNotBlank(targetInitDto.getTargetBizId())) {
+            targetScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        }
         String targetTaskId = Constants.EMPTY_FILL;
         // 发货任务协助人
         List<JyTaskGroupMemberEntity> taskGroupMembers = null;

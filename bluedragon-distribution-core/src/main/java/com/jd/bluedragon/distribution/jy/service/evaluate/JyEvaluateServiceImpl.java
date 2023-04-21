@@ -203,6 +203,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
         // 如果记录为空，代表首次评价
         if (CollectionUtils.isEmpty(recordList)) {
+            request.setTargetBizId(Constants.EMPTY_FILL);
             targetInitDto.setFirstEvaluate(Boolean.TRUE);
             JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
             // 派车单号
