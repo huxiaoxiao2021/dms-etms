@@ -378,9 +378,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
         entity.setBizId(bizId);
         int processStatus = approveFinalResult
-                ? JyBizTaskExceptionProcessStatusEnum.APPROVING.getCode() : JyBizTaskExceptionProcessStatusEnum.APPROVE_REJECT.getCode();
+                ? JyBizTaskExceptionProcessStatusEnum.APPROVE_PASS.getCode() : JyBizTaskExceptionProcessStatusEnum.APPROVE_REJECT.getCode();
         entity.setProcessingStatus(processStatus);
-        entity.setStatus(approveFinalResult ? JyExpStatusEnum.PROCESSING.getCode() : JyExpStatusEnum.COMPLETE.getCode());
+        entity.setStatus(JyExpStatusEnum.COMPLETE.getCode());
         entity.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(entity);
     }
