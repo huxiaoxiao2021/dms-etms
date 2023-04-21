@@ -78,7 +78,7 @@ public class MspClientProxy {
             for (String pin : pins) {
                 timLineMessageBuilder.addToErp(pin);
             }
-            timLineMessageBuilder.content(title, content,null,  this.dealWithUrl(url,encodeUrl), null);
+            timLineMessageBuilder.content(title, content,null,  url, null);
             timLineMessageBuilder.toTerminal(TerminalCodeEnums.ALL_TERMINAL);
 
             MessageEntity messageEntity = timLineMessageBuilder.build();
