@@ -243,13 +243,13 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     }
 
     private void checkQueryLoadingRateRequest(QueryLoadingRateRequest request) {
-        if (ObjectHelper.isNotNull(request.getTransWorkCode())){
+        if (ObjectHelper.isEmpty(request.getTransWorkCode())){
             throw new JyBizException("参数错误：派车单号为空！");
         }
-        if (ObjectHelper.isNotNull(request.getOperateSiteId())){
+        if (ObjectHelper.isEmpty(request.getOperateSiteId())){
             throw new JyBizException("参数错误：操作场地id为空！");
         }
-        if (ObjectHelper.isNotNull(request.getTransWorkCode())){
+        if (ObjectHelper.isEmpty(request.getTransWorkCode())){
             throw new JyBizException("参数错误：车牌号为空！");
         }
     }
