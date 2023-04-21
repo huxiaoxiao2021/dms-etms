@@ -209,7 +209,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             String ossUrl = jssService.uploadFileWithName(bucket, ExcelUtils.getBytesByFile(file), folderName + "/" + fileName);
             // 推送咚咚
             String title = "批量作废周转筐结果通知";
-            String content = "导入的excel中以下单号为异常单号,不能作废：" + JsonHelper.toJson(abnormalList);
+            String content = "导入的excel中的单号为异常单号不能作废,详情请看excel!";
             NoticeUtils.noticeToTimeline(title, content, ossUrl, userErp);
         }catch (Exception e){
             logger.error("批量作废周转筐异常数据推送咚咚异常!", e);
