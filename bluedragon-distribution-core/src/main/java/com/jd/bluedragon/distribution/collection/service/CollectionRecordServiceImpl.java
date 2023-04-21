@@ -280,23 +280,27 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
                 String value = BitMapUtil.turn2to16(localBitsBinaryString);
                 redisClient.setEx(partPackageKey, value, Constants.JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT, TimeUnit.SECONDS);
                 if(log.isInfoEnabled()) {
-                    log.info("集齐包裹lsit缓存添加成功，包裹list.size={},key={},cacheValue={}", collectionRecordDetailPos.size(), partPackageKey, value);
+                    log.info("collectRecordDetailHandlerLock:集齐包裹lsit缓存添加成功，包裹list.size={},key={},cacheValue={}", collectionRecordDetailPos.size(), partPackageKey, value);
                 }
             }else {
                 if(log.isInfoEnabled()) {
-                    log.info("集齐redis中存的包裹list缓存，key={}，十六进制value={}", partPackageKey, redisValueString);
+                    log.info("collectRecordDetailHandlerLock:集齐redis中存的包裹list缓存，key={}，十六进制value={}", partPackageKey, redisValueString);
                 }
                 String cacheString = BitMapUtil.turn16to2(redisValueString);
                 boolean flag = packageLockConflictCheck(partPackageKey, localBitsBinaryString, cacheString);
                 if(flag) {
-                    log.warn("集齐操作包裹批锁存在部分包裹锁冲突：collectionCode={},aggCod{},goodNumber={},localString={}，cacheString={}", collectionCode, aggCode, goodNumber, localBitsBinaryString, cacheString);
+                    log.warn("collectRecordDetailHandlerLock:集齐操作包裹批锁存在部分包裹锁冲突：collectionCode={},aggCod{},goodNumber={},localString={}，cacheString={}", collectionCode, aggCode, goodNumber, localBitsBinaryString, cacheString);
                     throw new CollectLockFailException("集齐操作包裹批锁存在部分包裹锁冲突");
                 }else {
-                    String valueString = buildCacheBitsString(localBitsBinaryString, cacheString);
+                    String valueString = buildCacheBitsString(partPackageKey, localBitsBinaryString, cacheString);
+                    if(log.isInfoEnabled()) {
+                        log.info("collectRecordDetailHandlerLock:集齐处理包裹list缓存无冲突，合并16进制串存储，key={},value={}", partPackageKey, valueString);
+                    }
                     redisClient.setEx(partPackageKey, valueString, 10, TimeUnit.MINUTES);
                 }
             }
         }catch (Exception e) {
+            log.error("collectRecordDetailHandlerLock集齐加锁异常，aggCodeKey={},本批包裹list.size={}", aggCodeKey, collectionRecordDetailPos.size());
             throw new CollectLockFailException("initPartCollectionCollectRecordDetailHandlerLock" + e.getMessage());
         }finally {
             jimDbLock.releaseLock(aggCodeKey,"1");
@@ -310,7 +314,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
      * @param localBitsBinaryString
      * @return
      */
-    private String buildCacheBitsString(String localBitsBinaryString, String cacheBitsBinaryString) {
+    private String buildCacheBitsString(String partPackageKey, String localBitsBinaryString, String cacheBitsBinaryString) {
         if(StringUtils.isBlank(localBitsBinaryString) || StringUtils.isBlank(cacheBitsBinaryString)) {
             return localBitsBinaryString + cacheBitsBinaryString;
         }
@@ -335,6 +339,9 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         for(int i = 0; i < lStr.length(); i++) {
             sb.append((Objects.equals(lStr.charAt(i), '1')) ? '1' : cStr.charAt(i));
         }
+        if(log.isInfoEnabled()) {
+            log.info("collectRecordDetailHandlerLock:集齐处理包裹list缓存无冲突，合并2进制串存储，key={},value={}", partPackageKey, sb.toString());
+        }
         return BitMapUtil.turn2to16(sb.toString());
     }
 
@@ -352,12 +359,14 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         int length = Math.min(localBitsBinaryString.length(),cacheString.length());
         String ls = localBitsBinaryString.substring(localBitsBinaryString.length() - length);
         String cs = cacheString.substring(cacheString.length() - length);
-        log.info("cacheKey={}处理集齐包裹冲突前查看缓存value:, cacheStr={},localStr={}", partPackageKey, cacheString, localBitsBinaryString);
+        if(log.isInfoEnabled()) {
+            log.info("collectRecordDetailHandlerLock:cacheKey={}处理集齐包裹冲突前查看缓存value:, cacheStr={},localStr={}", partPackageKey, cacheString, localBitsBinaryString);
+        }
 
         for(int i = length - 1; i > 0; i--) {
             if(Objects.equals(ls.charAt(i), '1') && Objects.equals(cs.charAt(i), '1')) {
                 if(log.isInfoEnabled()) {
-                    log.info("cacheKey={}处理集齐包裹冲突，包裹下标是{}, 实际比较cacheStr={},实际比较localStr={}", partPackageKey, length-i, cs, ls);
+                    log.info("collectRecordDetailHandlerLock:cacheKey={}处理集齐包裹冲突，包裹下标是{}, 实际比较cacheStr={},实际比较localStr={}", partPackageKey, length-i, cs, ls);
                 }
                 return true;
             }
@@ -392,23 +401,23 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
             //内存中本次需要释放批包裹的二进制字符串
             String partPackageKey =  MessageFormat.format(Constants.JQ_DETAIL_AGG_BIT_LOCK_PREFIX, collectionCode,aggCode);
             if(log.isInfoEnabled()) {
-                log.info("集齐释放包裹list缓存:key={}, 当前待释放value+{},包裹list.size={}", partPackageKey, localBitsBinaryString, collectionRecordDetailPos.size());
+                log.info("collectionCollectRecordDetailHandlerUnLock:集齐释放包裹list缓存:key={}, 当前待释放value{},包裹list.size={}", partPackageKey, localBitsBinaryString, collectionRecordDetailPos.size());
             }
             //redis中维护正在处理中的bits(16进制)
             String redisValueString = redisClient.get(partPackageKey);
             if(StringUtils.isNotBlank(redisValueString)) {
                 String cacheString = BitMapUtil.turn16to2(redisValueString);
-                String valueString = releaseBatchPackageCacheBitsString(localBitsBinaryString, cacheString);
+                String valueString = releaseBatchPackageCacheBitsString(partPackageKey, localBitsBinaryString, cacheString);
                 if(log.isInfoEnabled()) {
-                    log.info("集齐释放包裹list缓存:key={}, value16进制={},转二进制value={}", partPackageKey, redisValueString, cacheString);
+                    log.info("collectionCollectRecordDetailHandlerUnLock:集齐释放包裹list缓存:key={}, value16进制={},转二进制value={}", partPackageKey, redisValueString, cacheString);
                 }
                 redisClient.setEx(partPackageKey, valueString, Constants.JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT, TimeUnit.SECONDS);
                 if(log.isInfoEnabled()) {
-                    log.info("集齐释放包裹list缓存成功，重新cache续期，key={},value={}", partPackageKey, valueString);
+                    log.info("collectionCollectRecordDetailHandlerUnLock:集齐释放包裹list缓存成功，重新cache续期，key={},value={}", partPackageKey, valueString);
                 }
             }
         }catch (Exception e) {
-            log.error("释放集齐aggCode锁失败，不对外抛异常，逻辑已经执行完毕，其他场景可能存在获取不到锁重试，等该锁过期后正常执行，aggCodeKey={},localBits={}", aggCodeKey, localBitsBinaryString);
+            log.error("collectionCollectRecordDetailHandlerUnLock:释放集齐aggCode锁失败，不对外抛异常，逻辑已经执行完毕，其他场景可能存在获取不到锁重试，等该锁过期后正常执行，aggCodeKey={},localBits={}", aggCodeKey, localBitsBinaryString);
         }finally {
             jimDbLock.releaseLock(aggCodeKey,"1");
         }
@@ -420,7 +429,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
      * @param cacheBitsBinaryString
      * @return
      */
-    private String releaseBatchPackageCacheBitsString(String localBitsBinaryString, String cacheBitsBinaryString) {
+    private String releaseBatchPackageCacheBitsString(String partPackageKey, String localBitsBinaryString, String cacheBitsBinaryString) {
         int length = cacheBitsBinaryString.length();
         String releaseBitStr ;
         String cachePublicStr;
@@ -435,6 +444,10 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
         }
         for(int i = 0; i < releaseBitStr.length(); i++) {
             sb.append(Objects.equals(releaseBitStr.charAt(i),'1') ? '0' : cachePublicStr.charAt(i));
+        }
+        if(log.isInfoEnabled()) {
+            log.info("collectionCollectRecordDetailHandlerUnLock:集齐包裹list处理完成，释放cache标位，key={}，缓存V={},本地待释放V={},释放结果待存储V={}",
+                    partPackageKey, cacheBitsBinaryString, localBitsBinaryString,sb.toString());
         }
         return BitMapUtil.turn2to16(sb.toString());
     }
