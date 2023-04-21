@@ -1867,6 +1867,8 @@ public class Constants {
     public static final String JY_OPERATE_PROGRESS_PREFIX  = "jy_operate_progress_%s";
 
     public static final String JY_OPERATE_PROGRESS_POSITION_PREFIX  = "jy_operate_progress_position_%s";
+
+    public static final String JY_TMS_SIMPLE_TASK_CODE_PREFIX  = "jy_tms_simple_task_code_%s";
     /**
      * 产品类型-医药专送
      */

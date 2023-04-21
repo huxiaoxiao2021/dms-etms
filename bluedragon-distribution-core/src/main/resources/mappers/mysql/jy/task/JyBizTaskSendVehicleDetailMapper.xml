@@ -361,7 +361,10 @@
             <if test="lineTypeName != null">
                 line_type_name,
             </if>
-            yn
+            <if test="taskSimpleCode != null">
+                task_simple_code,
+            </if>
+             yn
         )
         VALUES
        (
@@ -384,6 +387,9 @@
             </if>
             <if test="lineTypeName != null">
                 #{lineTypeName},
+            </if>
+            <if test="taskSimpleCode != null">
+                #{taskSimpleCode},
             </if>
             1
        )

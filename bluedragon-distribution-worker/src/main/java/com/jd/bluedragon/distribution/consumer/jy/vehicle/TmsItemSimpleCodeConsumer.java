@@ -59,6 +59,9 @@ public class TmsItemSimpleCodeConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClient;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -78,6 +81,7 @@ public class TmsItemSimpleCodeConsumer extends MessageBaseConsumer {
         JyBizTaskSendVehicleDetailEntity entity =taskSendVehicleDetailService.findByTransWorkItemCode(condition);
 
         if (!ObjectHelper.isNotNull(entity)){
+          cacheTaskSimpleCode(simpleCodeDto);
           logger.error("{} 任务还未创建，不执行更新",simpleCodeDto.getSimpleCode());
           throw new JyBizException("任务还未创建,无法更新对应任务的简码！");
         }
@@ -91,6 +95,18 @@ public class TmsItemSimpleCodeConsumer extends MessageBaseConsumer {
         detailEntity.setTaskSimpleCode(simpleCodeDto.getSimpleCode());
         taskSendVehicleDetailService.updateByBiz(detailEntity);
     }
+
+    private void cacheTaskSimpleCode(TmsItemSimpleCodeDto simpleCodeDto) {
+        try {
+            if (ObjectHelper.isNotNull(simpleCodeDto)){
+                String key = String.format(Constants.JY_TMS_SIMPLE_TASK_CODE_PREFIX, simpleCodeDto.getTransWorkItemCode());
+                redisClient.set(key,simpleCodeDto.getSimpleCode(),10,TimeUnit.MINUTES,false);
+            }
+        } catch (Exception e) {
+            logger.error("接收运输消息缓存任务简码异常",e);
+        }
+    }
+
     private void logInfo(String message, Object ...objects) {
         if (logger.isInfoEnabled()) {
             logger.info(message, objects);
