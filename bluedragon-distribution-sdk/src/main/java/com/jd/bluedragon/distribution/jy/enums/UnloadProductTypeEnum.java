@@ -16,7 +16,8 @@ public enum UnloadProductTypeEnum {
     LUXURY("LUXURY", "特保单", 5),
     EASYFROZEN("EASYFROZEN", "易冻损", 6),
     KA("KA", "KA", 7),
-    MEDICINE("MEDICINE", "医药", 8)
+    MEDICINE("MEDICINE", "医药", 8),
+    TEAN("TEAN","特安",9)
     ;
 
     private String code;
