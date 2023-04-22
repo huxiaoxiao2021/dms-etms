@@ -92,6 +92,9 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
+            //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+            jyBizTaskUnloadVehicleService.initActualArriveTime(taskUnloadVehicleEntity.getBizId(),DateHelper.parseAllFormatDateTime(mqBody.getArriveTime()));
+
             if(!jyBizTaskUnloadVehicleService.changeStatus(convert(taskUnloadVehicleEntity,mqBody))){
                 //失败重试
                 throw new JyBizException("司机到车（调度任务）更新状态失败重试");
@@ -119,8 +122,6 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("TmsTransWorkCarArriveConsumer 不需要关心的数据丢弃,消息:{}", JsonHelper.toJson(mqBody));
             }
-            return;
-
         }
     }
 
