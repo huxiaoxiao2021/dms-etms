@@ -313,6 +313,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         if(!updateOfBusinessInfo(updateParam)){
             logger.error("initActualArriveTime fail!,{},{}",bizId,JsonHelper.toJson(updateParam));
         }
+        if(logger.isInfoEnabled()){
+            logger.info("initActualArriveTime end ,bizId:{} ,actualArriveTime:{}",bizId,actualArriveTime.toString());
+        }
         return true;
     }
 
