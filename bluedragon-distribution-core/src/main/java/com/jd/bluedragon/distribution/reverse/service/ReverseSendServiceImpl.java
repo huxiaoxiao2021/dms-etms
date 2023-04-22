@@ -120,6 +120,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private DefaultJMQProducer bdDmsReverseSendMQ;
 
     @Autowired
+    @Qualifier("outStoreVmiProducer")
+    private DefaultJMQProducer outStoreVmiProducer;
+    @Autowired
     WaybillQueryManager waybillQueryManager;
 
     @Autowired
@@ -1118,6 +1121,24 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         this.log.info("仓储逆向发货XML为：{}", messageValue);
         this.log.info("仓储逆向发货target为：{}", target);
         com.jd.staig.receiver.rpc.Result result = null;
+
+        /**
+         * vmi 业务场景特殊 要求与dtc通知的报文内容保持一致，所以写在此处，待迁移集约系统后可下线
+        */
+        if (BusinessUtil.isVmi(send.getSendPay())) {
+            String vmiBody = JsonHelper.toJson(send);
+            log.info("运单号：{} VMI，不执行DTC退库接口,推送MQ,{}", wallBillCode,vmiBody);
+            outStoreVmiProducer.send(wallBillCode,vmiBody);
+            //发送失败依赖抛出异常 catch处理返回失败,同时处理返回值，让代码继续执行下去，
+            this.log.info("青龙发货至仓储WS消息成功，运单号为:{}", wallBillCode);
+            if (!send.isSickWaybill()) {//病单屏蔽报丢报损MQ
+                //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
+                this.log.info("回传MQ消息给报损系统，锁定定单不让再提报损，运单号为:{}", wallBillCode);
+                sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
+            }
+            return true;
+        }
+
         try {
             result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
             try {
@@ -2048,6 +2069,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             return Boolean.TRUE;
         }
+
 
         return Boolean.FALSE;
     }
