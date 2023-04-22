@@ -174,13 +174,21 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 if(logger.isInfoEnabled()) {
                     logger.info("消费处理tms_seal_car_status 执行进围栏状态 存在 逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
                 }
+                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
+
                 return jyBizTaskUnloadVehicleService.changeStatus(convert2Entity4InRail(tmsSealCarStatus));
             }else {
                 //不存在继续创建任务 状态为待解
                 if(logger.isInfoEnabled()) {
                     logger.info("消费处理tms_seal_car_status 执行进围栏状态 不存在 逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
                 }
-                return jyUnSealVehicleService.createUnSealTask(convert4InRail(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
+                boolean flag = jyUnSealVehicleService.createUnSealTask(convert4InRail(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
+
+                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
+
+                return flag;
             }
 
         }
