@@ -493,7 +493,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 }else {
                     //不存在不执行 并返回失败
                     if(logger.isInfoEnabled()){
-                        logger.info("updateOfBusinessInfo not exist!",JsonHelper.toJson(entity));
+                        logger.info("updateOfBusinessInfo not exist! {}",bizId);
                     }
                     result = Boolean.FALSE;
                 }
