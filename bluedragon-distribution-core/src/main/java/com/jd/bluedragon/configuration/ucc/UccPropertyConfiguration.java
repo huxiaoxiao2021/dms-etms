@@ -1021,6 +1021,11 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
+
+    /**
      * 拣运发车任务满载率上限。eg:150
      */
     private Integer jySendTaskLoadRateUpperLimit;
@@ -2429,6 +2434,14 @@ public class UccPropertyConfiguration {
 
     public void setJyUnSealTaskSwitchToEs(Integer jyUnSealTaskSwitchToEs) {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
+    }
+
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
     }
 
     public Integer getJySendTaskLoadRateUpperLimit() {

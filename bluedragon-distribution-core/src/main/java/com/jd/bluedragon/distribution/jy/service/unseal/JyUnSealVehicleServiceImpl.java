@@ -86,10 +86,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     private static final int STATUS = 10;
     private static final int VEHICLE_NUMBER_FOUR = 4;
-    /**
-     * 默认时间
-     */
-    public static final int DEFAULT_LAST_HOUR = 6;
+
     @Autowired
     @Qualifier("jyUnSealVehicleManager")
     private IJyUnSealVehicleManager jySealVehicleManager;
@@ -248,7 +245,10 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
             else {
                 // 查询最近6小时的待解封车任务
-                condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), DEFAULT_LAST_HOUR));
+                Long lastHour = uccConfig.getJyUnSealTaskLastHourTime();
+                if(lastHour != null && lastHour > Constants.LONG_ZERO){
+                    condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), lastHour.intValue()));
+                }
             }
 
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
@@ -311,7 +311,10 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
             condition.setEndSiteId(unloadVehicle.getEndSiteId());
             // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
-            condition.setSortTime(DateHelper.newTimeRangeHoursAgo(unSealTime, DEFAULT_LAST_HOUR));
+            Long lastHour = uccConfig.getJyUnSealTaskLastHourTime();
+            if(lastHour != null && lastHour > Constants.LONG_ZERO) {
+                condition.setSortTime(DateHelper.newTimeRangeHoursAgo(unSealTime, lastHour.intValue()));
+            }
             condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
             condition.setBizId(bizId);
             JyBizTaskUnloadVehicleEntity realRankingResult = jyBizTaskUnloadVehicleService.findRealRankingByBizId(condition);
@@ -1201,7 +1204,10 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setEndSiteId(endSiteId);
         // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
         Date currentDate = new Date();
-        condition.setSortTime(DateHelper.newTimeRangeHoursAgo(currentDate, DEFAULT_LAST_HOUR));
+        Long lastHour = uccConfig.getJyUnSealTaskLastHourTime();
+        if(lastHour != null && lastHour > Constants.LONG_ZERO) {
+            condition.setSortTime(DateHelper.newTimeRangeHoursAgo(currentDate, lastHour.intValue()));
+        }
         condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
         condition.setBizId(request.getBizId());
         JyBizTaskUnloadVehicleEntity realRankingResult = jyBizTaskUnloadVehicleService.findRealRankingByBizId(condition);
