@@ -454,13 +454,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String methodDesc = "JyUnloadVehicleTysServiceImpl.completeUnloadTask--完成任务--";
 
         // 校验操作人与任务的相关性
-        String checkResult = checkPositionCodeSimilarity(request.getBizId(), request.getCurrentOperate().getPositionCode());
-        if (checkResult != null) {
-            log.warn("{}当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", methodDesc, JsonUtils.toJSONString(request), checkResult);
-            InvokeResult<Boolean> result = new InvokeResult<>();
-            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-            result.setMessage(checkResult);
-            return result;
+        if(!Objects.equals(request.getOperateSource(), JyBizOpereateSourceEnum.SYSTEM.getCode())){
+            String checkResult = checkPositionCodeSimilarity(request.getBizId(), request.getCurrentOperate().getPositionCode());
+            if (checkResult != null) {
+                log.warn("{}当前操作人与任务所在网格码不一致,无权限:request={},checkResult={}", methodDesc, JsonUtils.toJSONString(request), checkResult);
+                InvokeResult<Boolean> result = new InvokeResult<>();
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(checkResult);
+                return result;
+            }
         }
 
         //子任务完成

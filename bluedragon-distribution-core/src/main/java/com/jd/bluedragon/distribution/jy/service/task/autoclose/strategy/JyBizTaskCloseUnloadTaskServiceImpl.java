@@ -2,13 +2,24 @@ package com.jd.bluedragon.distribution.jy.service.task.autoclose.strategy;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCommonRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadPreviewData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCompleteDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadPreviewDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadPreviewRespDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizOpereateSourceEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
-import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadTaskTypeEnum;
+import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
-import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.JyBizTaskAutoCloseHelperService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
@@ -17,13 +28,7 @@ import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTas
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
-import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
-import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -34,13 +39,14 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 解封车关闭任务实现
@@ -57,17 +63,10 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
     private JyBizTaskUnloadVehicleService taskUnloadVehicleService;
 
     @Autowired
+    private JyUnloadVehicleTysService jyUnloadVehicleTysService;
+
+    @Autowired
     private IJyUnloadVehicleService jyUnloadVehicleService;
-
-    @Autowired
-    @Qualifier("jyTaskGroupMemberService")
-    private JyTaskGroupMemberService taskGroupMemberService;
-
-    @Autowired
-    private UnloadVehicleTransactionManager transactionManager;
-
-    @Autowired
-    private JyUnloadAggsService jyUnloadAggsService;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -81,6 +80,10 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
 
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    @Qualifier("jyGroupService")
+    private JyGroupService jyGroupService;
 
     /**
      * 关闭任务接口
@@ -160,11 +163,21 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             }
 
             // 关闭主任务 + 调度任务
-            this.completeTask(autoCloseTaskContextDto);
-            // 更新任务业务数据
-            this.saveOrUpdateOfBusinessInfo(autoCloseTaskContextDto, taskUnloadVehicleExist);
-            // 签退任务关联的签到记录
-            this.finishUnloadTaskGroup(autoCloseTaskContextDto);
+            if(Objects.equals(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_DMS.getCode(), taskUnloadVehicleExist.getTaskType())){
+                final Result<Boolean> completeResult = this.completeTask(autoCloseTaskContextDto, taskUnloadVehicleExist);
+                if(!completeResult.isSuccess()){
+                    log.warn("JyBizTaskCloseUnloadTaskServiceImpl.closeTask completeTask fail {}", JSON.toJSONString(completeResult));
+                    return result.toFail("关闭任务失败 " + completeResult.getMessage());
+                }
+            }
+
+            if(Objects.equals(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_TYS.getCode(), taskUnloadVehicleExist.getTaskType())){
+                final Result<Boolean> completeResult = this.completeTysTask(autoCloseTaskContextDto, taskUnloadVehicleExist);
+                if(!completeResult.isSuccess()){
+                    log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask completeTask fail {}", JSON.toJSONString(completeResult));
+                    return result.toFail("关闭任务失败" + completeResult.getMessage());
+                }
+            }
 
             final String unloadBizLastScanTimeKey = jyBizTaskAutoCloseHelperService.getUnloadBizLastScanTimeKey(autoCloseTaskContextDto.getBizId());
             redisClientOfJy.del(unloadBizLastScanTimeKey);
@@ -176,80 +189,158 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
     }
 
     /**
-     * 组装更新主任务状态实体
+     * 关闭主任务
      */
-    private boolean saveOrUpdateOfBusinessInfo(AutoCloseTaskContextDto autoCloseTaskContextDto, JyBizTaskUnloadVehicleEntity bizTaskUnloadVehicleExist) {
-        JyBizTaskUnloadVehicleEntity updateData = new JyBizTaskUnloadVehicleEntity();
-        updateData.setId(bizTaskUnloadVehicleExist.getId());
-        updateData.setBizId(bizTaskUnloadVehicleExist.getBizId());
-        updateData.setUnloadFinishTime(new Date(autoCloseTaskContextDto.getOperateTime()));
-        updateData.setUpdateTime(updateData.getUnloadFinishTime());
+    private Result<Boolean> completeTask(AutoCloseTaskContextDto autoCloseTaskContextDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicleExist) {
+        Result<Boolean> result = Result.success();
 
-        boolean manualFlag = Objects.equals(Constants.YN_YES, bizTaskUnloadVehicleExist.getManualCreatedFlag());
-        if(!manualFlag){
-            // 查询是否异常
-            List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(bizTaskUnloadVehicleExist.getBizId()));
-            if (CollectionUtils.isEmpty(unloadAggList)) {
-                log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(bizTaskUnloadVehicleExist));
-            } else {
-                UnloadPreviewData previewData = new UnloadPreviewData();
-                final boolean unloadTaskNormalFlag = jyUnloadVehicleService.judgeUnloadTaskNormal(previewData, unloadAggList);
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(taskUnloadVehicleExist.getEndSiteId().intValue());
+        currentOperate.setSiteName(taskUnloadVehicleExist.getEndSiteName());
 
-                updateData.setAbnormalFlag(unloadTaskNormalFlag ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
-                updateData.setUpdateUserErp(this.sysOperateUser);
-                updateData.setUpdateUserName(this.sysOperateUser);
-                updateData.setMoreCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount());
-                updateData.setLessCount(previewData.getToScanCount());
-            }
+        User user = new User();
+        user.setUserErp(autoCloseTaskContextDto.getOperateUserErp());
+        user.setUserName(autoCloseTaskContextDto.getOperateUserName());
+
+        // 调用预览接口
+        UnloadCommonRequest unloadCommonRequest = new UnloadCommonRequest();
+        unloadCommonRequest.setCurrentOperate(currentOperate);
+        unloadCommonRequest.setUser(user);
+        unloadCommonRequest.setBizId(taskUnloadVehicleExist.getBizId());
+        unloadCommonRequest.setPageNumber(1);
+        unloadCommonRequest.setPageSize(1);
+        unloadCommonRequest.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
+        final InvokeResult<UnloadPreviewData> unloadPreviewDataResult = jyUnloadVehicleService.unloadPreviewDashboard(unloadCommonRequest);
+        UnloadPreviewData unloadPreviewData = new UnloadPreviewData();
+        if (unloadPreviewDataResult == null || !unloadPreviewDataResult.codeSuccess() || unloadPreviewDataResult.getData() == null) {
+            // return result.toFail("查询任务预览数据失败，调用结果为空");
+            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
+        } else {
+            unloadPreviewData = unloadPreviewDataResult.getData();
         }
 
-        return taskUnloadVehicleService.saveOrUpdateOfBusinessInfo(updateData);
+        final UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
+        unloadCompleteRequest.setCurrentOperate(currentOperate);
+        unloadCompleteRequest.setUser(user);
+
+        final JyScheduleTaskResp scheduleTask = getJyScheduleTask(autoCloseTaskContextDto.getBizId());
+        if(scheduleTask == null){
+            log.warn("查询调度任务数据为空. autoCloseTaskContextDto:{}", JsonHelper.toJson(autoCloseTaskContextDto));
+            return result.toFail("查询调度任务数据为空");
+        }
+        unloadCompleteRequest.setTaskId(scheduleTask.getTaskId());
+        unloadCompleteRequest.setBizId(autoCloseTaskContextDto.getBizId());
+        unloadCompleteRequest.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
+        unloadCompleteRequest.setAbnormalFlag(unloadPreviewData.getAbnormalFlag() != null ? unloadPreviewData.getAbnormalFlag() : Constants.NUMBER_ZERO.byteValue());
+        unloadCompleteRequest.setToScanCount(unloadPreviewData.getToScanCount() != null ? unloadPreviewData.getToScanCount() : 0);
+        unloadCompleteRequest.setMoreScanLocalCount(unloadPreviewData.getMoreScanLocalCount() != null ? unloadPreviewData.getMoreScanLocalCount() : 0);
+        unloadCompleteRequest.setMoreScanOutCount(unloadPreviewData.getMoreScanOutCount() != null ? unloadPreviewData.getMoreScanOutCount() : 0);
+
+        final InvokeResult<Boolean> completeResult = jyUnloadVehicleService.submitUnloadCompletion(unloadCompleteRequest);
+        if (completeResult == null) {
+            return result.toFail("关闭任务数据失败，调用结果为空");
+        }
+        if (!completeResult.codeSuccess()) {
+            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTask completeResult {}", JSON.toJSONString(completeResult));
+            return result.toFail("关闭任务数据失败，返回结果失败");
+        }
+        return result;
     }
 
     /**
      * 关闭主任务
      */
-    private boolean completeTask(AutoCloseTaskContextDto autoCloseTaskContextDto) {
-        JyBizTaskUnloadDto completeDto = new JyBizTaskUnloadDto();
-        completeDto.setBizId(autoCloseTaskContextDto.getBizId());
-        completeDto.setOperateUserErp(autoCloseTaskContextDto.getOperateUserErp());
-        completeDto.setOperateUserName(autoCloseTaskContextDto.getOperateUserName());
-        completeDto.setOperateTime(new Date());
-        return transactionManager.completeUnloadTask(completeDto);
+    private Result<Boolean> completeTysTask(AutoCloseTaskContextDto autoCloseTaskContextDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicleExist) {
+        Result<Boolean> result = Result.success();
+
+        final JyScheduleTaskResp scheduleTask = getJyScheduleTask(autoCloseTaskContextDto.getBizId());
+        if(scheduleTask == null){
+            log.warn("查询调度任务数据为空. autoCloseTaskContextDto:{}", JsonHelper.toJson(autoCloseTaskContextDto));
+            return result.toFail("查询调度任务数据为空");
+        }
+
+        com.jd.bluedragon.distribution.jy.dto.CurrentOperate currentOperate = new com.jd.bluedragon.distribution.jy.dto.CurrentOperate();
+        currentOperate.setSiteCode(taskUnloadVehicleExist.getEndSiteId().intValue());
+        currentOperate.setSiteName(taskUnloadVehicleExist.getEndSiteName());
+        currentOperate.setGroupCode(scheduleTask.getDistributionTarget());
+        // 非待卸状态的，不查组号
+        if(Objects.equals(taskUnloadVehicleExist.getVehicleStatus(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())){
+            final String positionCode = this.getJyGroupPositionCode(scheduleTask.getDistributionTarget());
+            if(positionCode == null){
+                return result.toFail("根据组号查询网格码失败");
+            }
+            currentOperate.setPositionCode(positionCode);
+        }
+
+        com.jd.bluedragon.distribution.jy.dto.User user = new com.jd.bluedragon.distribution.jy.dto.User();
+        user.setUserErp(autoCloseTaskContextDto.getOperateUserErp());
+        user.setUserName(autoCloseTaskContextDto.getOperateUserName());
+
+        final UnloadPreviewDto unloadPreviewDto = new UnloadPreviewDto();
+        unloadPreviewDto.setCurrentOperate(currentOperate);
+        unloadPreviewDto.setUser(user);
+        unloadPreviewDto.setBizId(taskUnloadVehicleExist.getBizId());
+        unloadPreviewDto.setPageNumber(1);
+        unloadPreviewDto.setPageSize(1);
+        unloadPreviewDto.setTaskId(Long.parseLong(scheduleTask.getTaskId()));
+        unloadPreviewDto.setVehicleNumber(taskUnloadVehicleExist.getVehicleNumber());
+        unloadPreviewDto.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
+        unloadPreviewDto.setExceptionType(1);
+        UnloadPreviewRespDto unloadPreviewData = new UnloadPreviewRespDto();
+        final InvokeResult<UnloadPreviewRespDto> unloadPreviewDataResult = jyUnloadVehicleTysService.previewBeforeUnloadComplete(unloadPreviewDto);
+        if (unloadPreviewDataResult == null || !unloadPreviewDataResult.codeSuccess() || unloadPreviewDataResult.getData() == null) {
+            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask unloadPreviewDataResult {}", JSON.toJSONString(unloadPreviewDataResult));
+            // return result.toFail("查询任务预览数据失败，调用结果为空");
+        } else {
+            unloadPreviewData = unloadPreviewDataResult.getData();
+        }
+
+        UnloadCompleteDto unloadCompleteDto = new UnloadCompleteDto();
+        unloadCompleteDto.setCurrentOperate(currentOperate);
+        unloadCompleteDto.setUser(user);
+        unloadCompleteDto.setAbnormalFlag(unloadPreviewData.getAbnormalFlag() != null ? unloadPreviewData.getAbnormalFlag() : Constants.NUMBER_ZERO.byteValue());
+        unloadCompleteDto.setToScanCount(unloadPreviewData.getToScanCount() != null ? unloadPreviewData.getToScanCount().longValue() : 0);
+        unloadCompleteDto.setMoreScanLocalCount(unloadPreviewData.getMoreScanLocalCount() != null ? unloadPreviewData.getMoreScanLocalCount().longValue() : 0);
+        unloadCompleteDto.setMoreScanOutCount(unloadPreviewData.getMoreScanOutCount() != null ? unloadPreviewData.getMoreScanOutCount().longValue() : 0);
+        unloadCompleteDto.setBizId(autoCloseTaskContextDto.getBizId());
+        unloadCompleteDto.setTaskId(scheduleTask.getTaskId());
+        unloadCompleteDto.setSealCarCode(taskUnloadVehicleExist.getSealCarCode());
+        unloadCompleteDto.setOperateSource(JyBizOpereateSourceEnum.SYSTEM.getCode());
+        final InvokeResult<Boolean> completeResult = jyUnloadVehicleTysService.completeUnloadTask(unloadCompleteDto);
+
+        if (completeResult == null) {
+            return result.toFail("关闭任务数据失败，调用结果为空");
+        }
+        if (!completeResult.codeSuccess()) {
+            log.warn("JyBizTaskCloseUnloadTaskServiceImpl.completeTysTask completeResult {}", JSON.toJSONString(completeResult));
+            return result.toFail("关闭任务数据失败，返回结果失败");
+        }
+
+        return result;
     }
 
     /**
-     * 签退任务关联的签到记录
-     */
-    private void finishUnloadTaskGroup(AutoCloseTaskContextDto autoCloseTaskContextDto) {
-        JyTaskGroupMemberEntity endData = new JyTaskGroupMemberEntity();
-        final String taskId = getJyScheduleTaskId(autoCloseTaskContextDto.getBizId());
-        if(taskId == null){
-            log.warn("卸车完成关闭小组任务数据为空. autoCloseTaskContextDto:{}", JsonHelper.toJson(autoCloseTaskContextDto));
-            return;
-        }
-        endData.setRefTaskId(taskId);
-        endData.setUpdateUser(autoCloseTaskContextDto.getOperateUserErp());
-        endData.setUpdateUserName(autoCloseTaskContextDto.getOperateUserName());
-        endData.setUpdateTime(new Date(autoCloseTaskContextDto.getOperateTime()));
-        com.jd.bluedragon.distribution.api.response.base.Result<Boolean> result = taskGroupMemberService.endTask(endData);
-
-        if (log.isInfoEnabled()) {
-            log.info("卸车完成关闭小组任务. data:{}, result:{}", JsonHelper.toJson(endData), JsonHelper.toJson(result));
-        }
-    }
-
-    /**
-     * 查询调度任务ID
+     * 查询调度任务数据
      * @param bizId
      * @return
      */
-    private String getJyScheduleTaskId(String bizId) {
+    private JyScheduleTaskResp getJyScheduleTask(String bizId) {
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(bizId);
         req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
         JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
-        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
+        return scheduleTask;
+    }
+
+    /**
+     * 根据组号查询网格码
+     */
+    private String getJyGroupPositionCode(String groupCode) {
+        JyGroupEntity groupInfo = jyGroupService.queryGroupByGroupCode(groupCode);
+        if (groupInfo == null) {
+            return null;
+        }
+        return groupInfo.getPositionCode();
     }
 
     private String getUnloadBizLastScanTimeKey(String bizId) {

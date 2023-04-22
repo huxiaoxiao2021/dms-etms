@@ -821,4 +821,5 @@
         <property name="topic" value="${jmq.topic.recycleBasket.batchAbolish}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
 </beans>

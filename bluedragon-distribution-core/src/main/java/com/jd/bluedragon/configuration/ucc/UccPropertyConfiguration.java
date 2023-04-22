@@ -1045,6 +1045,11 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
+
+    /**
      * 面单举报异常配置
      */
     private String faceAbnormalReportConfig;
@@ -1256,6 +1261,11 @@ public class UccPropertyConfiguration {
     private boolean createBoardBySendFlowSwitch;
 
     /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
+
+    /**
      * 需要按照岗位码隔离板列表的场地名单
      */
     private String needIsolateBoardByGroupCodeSiteList;
@@ -1308,6 +1318,7 @@ public class UccPropertyConfiguration {
      * 自动关闭任务配置，转换为对象
      */
     private String autoCloseJyBizTaskConfig;
+    private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
@@ -2550,6 +2561,14 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+    }
+
     public Integer getJySendTaskLoadRateUpperLimit() {
         return jySendTaskLoadRateUpperLimit;
     }
@@ -3124,14 +3143,21 @@ public class UccPropertyConfiguration {
     }
 
     public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        if(StringUtils.isNotBlank(autoCloseJyBizTaskConfig)){
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigResult = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
-            return autoCloseJyBizTaskConfigResult;
-        }
-        return new AutoCloseJyBizTaskConfig();
+        return autoCloseJyBizTaskConfigObj;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
         this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
     }
 }
