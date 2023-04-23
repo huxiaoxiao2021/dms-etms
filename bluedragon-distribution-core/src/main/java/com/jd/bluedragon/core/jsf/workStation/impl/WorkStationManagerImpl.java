@@ -65,7 +65,7 @@ public class WorkStationManagerImpl implements WorkStationManager {
         try {
             log.info("三定网格工序工种管理 queryWorkStationJobTypeBybusinessKey-入参 {}", businessKey);
             Result<List<WorkStationJobTypeDto>> result = basicWorkStationJsfService.queryWorkStationJobTypeBybusinessKey(businessKey);
-            if(result != null){
+            if(result != null && result.isSuccess()){
                 return result.getData();
             }
 
