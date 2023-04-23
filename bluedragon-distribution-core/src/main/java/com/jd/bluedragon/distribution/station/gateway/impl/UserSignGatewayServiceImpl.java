@@ -254,12 +254,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return result;
 		}
 		//校验签到工种
-		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
-		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
-		if(StringUtils.isNotBlank(checkMsg)){
-			result.toFail(checkMsg);
-			return result;
-		}
+//		String checkMsg = checkJobCodeSignIn(positionCode, userSignRequest.getJobCode());
+//		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+//		if(StringUtils.isNotBlank(checkMsg)){
+//			result.toFail(checkMsg);
+//			return result;
+//		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
@@ -277,12 +277,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
 		//校验签到工种
-		String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
-		log.info("校验签到工种queryUserDataForLogin checkMsg-{}",checkMsg);
-		if(StringUtils.isNotBlank(checkMsg)){
-			result.toFail(checkMsg);
-			return result;
-		}
+//		String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
+//		log.info("校验签到工种queryUserDataForLogin checkMsg-{}",checkMsg);
+//		if(StringUtils.isNotBlank(checkMsg)){
+//			result.toFail(checkMsg);
+//			return result;
+//		}
 		//已扫描岗位码，校验在岗状态
 		if(StringUtils.isNotBlank(positionCode)) {
 			JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,jobCode,userCode);
@@ -321,13 +321,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return result;
 			}
 			//校验签到工种
-			Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanRequest.getScanUserCode());
-			String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
-			log.info("校验签到工种queryPositionDataForLogin checkMsg-{}",checkMsg);
-			if(StringUtils.isNotBlank(checkMsg)){
-				result.toFail(checkMsg);
-				return result;
-			}
+//			Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanRequest.getScanUserCode());
+//			String checkMsg = checkJobCodeSignIn(positionCode, jobCode);
+//			log.info("校验签到工种queryPositionDataForLogin checkMsg-{}",checkMsg);
+//			if(StringUtils.isNotBlank(checkMsg)){
+//				result.toFail(checkMsg);
+//				return result;
+//			}
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
 				JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,scanRequest.getJobCode(),scanRequest.getUserCode());

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionData;
@@ -61,6 +62,9 @@ public class WorkStationManagerImpl implements WorkStationManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationManagerImpl.queryWorkStationJobTypeBybusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
+//    @Cache(key = "WorkStationManagerImpl.queryWorkStationJobTypeBybusinessKey@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000
+//            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
     public List<WorkStationJobTypeDto> queryWorkStationJobTypeBybusinessKey(String businessKey) {
         try {
             log.info("三定网格工序工种管理 queryWorkStationJobTypeBybusinessKey-入参 {}", businessKey);
