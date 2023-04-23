@@ -244,7 +244,6 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
-}
 
     /**
      * 计算操作进度
