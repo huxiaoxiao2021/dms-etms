@@ -63,8 +63,11 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
 
+    //异常原因一级
     private final Integer REASON_LEVEL_CODE_ONE = 1;
+    //异常原因二级
     private final Integer REASON_LEVEL_CODE_TWO = 2;
+    //异常原因三级
     private final Integer REASON_LEVEL_CODE_THREE = 3;
 
     @Autowired
@@ -118,10 +121,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
         //校验生鲜单号 自营OR外单
-        String msg = checkFresh(waybillCode);
-        if (StringUtils.isNotBlank(msg)) {
-            return JdCResponse.fail(msg);
-        }
+        checkFresh(waybillCode);
         taskEntity.setBarCode(waybillCode);
         taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
 
@@ -329,15 +329,17 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyExNoticeCustomerMQ.setExptId(exScrapTaskEntity.getBizId());
             jyExNoticeCustomerMQ.setAttachmentAddr(exScrapEntity.getGoodsImageUrl());
             addAbnormalReason(jyExNoticeCustomerMQ);
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exScrapTaskEntity.getSiteCode().intValue());
-            if(baseSite != null){
-                jyExNoticeCustomerMQ.setStartOrgCode(baseSite.getOrgId().toString());
-                jyExNoticeCustomerMQ.setStartOrgName(baseSite.getOrgName());
-                jyExNoticeCustomerMQ.setProvinceAgencyCode(baseSite.getProvinceId()!= null? baseSite.getProvinceId().toString():"");
-                jyExNoticeCustomerMQ.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceName())?baseSite.getProvinceName():"");
+            if(Objects.nonNull(exScrapTaskEntity.getSiteCode())){
+                BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exScrapTaskEntity.getSiteCode().intValue());
+                if(baseSite != null){
+                    jyExNoticeCustomerMQ.setStartOrgCode(baseSite.getOrgId().toString());
+                    jyExNoticeCustomerMQ.setStartOrgName(baseSite.getOrgName());
+                    jyExNoticeCustomerMQ.setProvinceAgencyCode(baseSite.getProvinceId()!= null? baseSite.getProvinceId().toString():"");
+                    jyExNoticeCustomerMQ.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceName())?baseSite.getProvinceName():"");
+                }
+                logger.info("生鲜报废单号:{}审批通过,异步通知客服系! 消息体-{}", bizId,JsonHelper.toJson(jyExNoticeCustomerMQ));
+                dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
             }
-            logger.info("生鲜报废单号:{}审批通过,异步通知客服系! 消息体-{}", bizId,JsonHelper.toJson(jyExNoticeCustomerMQ));
-            dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
             // add log
             recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_CUSTOMER, exScrapTaskEntity);
         }
@@ -354,13 +356,13 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             return ;
         }
         for (AbnormalReasonDto dto:abnormalReasonDtos) {
-            if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_ONE)){
+            if(Objects.equals(dto.getReasonLevel(),REASON_LEVEL_CODE_ONE)){
                 mq.setExptOneLevel(dto.getCode().toString());
                 mq.setExptOneLevelName(dto.getName());
-            }else if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_TWO)){
+            }else if(Objects.equals(dto.getReasonLevel(),REASON_LEVEL_CODE_TWO)){
                 mq.setExptTwoLevel(dto.getCode().toString());
                 mq.setExptTwoLevelName(dto.getName());
-            }else if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_THREE)){
+            }else if(Objects.equals(dto.getReasonLevel(),REASON_LEVEL_CODE_THREE)){
                 mq.setExptThreeLevel(dto.getCode().toString());
                 mq.setExptThreeLevelName(dto.getName());
             }else {
@@ -665,7 +667,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param waybillCode
      * @return
      */
-    private String checkFresh(String waybillCode) {
+    private JdCResponse checkFresh(String waybillCode) {
         //根据运单获取waybillSign
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                 = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
@@ -674,12 +676,12 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 || dataByChoice.getData().getWaybill() == null
                 || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
             logger.warn("查询运单waybillSign失败!-{}", waybillCode);
-            return "获取运单失败!";
+            return JdCResponse.fail("获取运单失败!");
         }
         Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
         //一单多件校验
         if(!Objects.equals(goodNumber,1)){
-            return "一单多件禁止上报!";
+            JdCResponse.fail( "一单多件禁止上报!");
         }
         String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
         String sendPay = dataByChoice.getData().getWaybill().getSendPay();
@@ -688,15 +690,13 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             if (BusinessUtil.isSelfSX(sendPay)) {
                 //todo  调用终端妥投校验接口
                 logger.info("自营生鲜运单");
-                return "";
             }
         } else {//外单
             if (BusinessUtil.isNotSelfSX(waybillSign)) {
                 logger.info("外单生鲜运单");
-                return "";
             }
         }
-        return "非生鲜运单，请检查后再操作!";
+        return JdCResponse.fail("非生鲜运单，请检查后再操作!");
     }
 
     /**
