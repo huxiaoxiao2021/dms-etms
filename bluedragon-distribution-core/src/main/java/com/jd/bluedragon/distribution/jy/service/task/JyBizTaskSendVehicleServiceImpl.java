@@ -69,6 +69,11 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    public List<JyBizTaskSendVehicleEntity> findByTransWork(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDao.findByTransWork(entity);
+    }
+
+    @Override
     public int initTaskSendVehicle(JyBizTaskSendVehicleEntity entity) {
         JyBizTaskSendVehicleEntity sendTaskQ = new JyBizTaskSendVehicleEntity(entity.getTransWorkCode(), entity.getStartSiteId());
         if (this.findByTransWorkAndStartSite(sendTaskQ) == null) {

@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -40,6 +42,10 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JySendAggsService jySendAggsService;
+    @Autowired
+    IJySendVehicleService jySendVehicleService;
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -56,6 +62,13 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
+        }
+        try {
+            if (!uccConfig.getProductOperateProgressSwitch()) {
+                jySendVehicleService.calculateOperateProgress(entity, true);
+            }
+        } catch (Exception e) {
+            logger.error("计算发货操作进度异常",e);
         }
         String lockKey =String.format(CacheKeyConstants.JY_SEND_AGG_LOCK_KEY,entity.getUid());
 

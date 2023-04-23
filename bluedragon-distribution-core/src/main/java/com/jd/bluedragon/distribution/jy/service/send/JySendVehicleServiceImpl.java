@@ -53,6 +53,7 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -60,6 +61,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -73,6 +75,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -81,6 +84,7 @@ import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
@@ -124,6 +128,9 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.jdi.dto.CommonDto;
+import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
+import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
@@ -134,6 +141,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
 import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
@@ -152,6 +161,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -160,6 +170,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 
@@ -303,6 +314,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
+    @Autowired
+    @Qualifier("jyOperationProgressProducer")
+    private DefaultJMQProducer jyOperationProgressProducer;
+    @Autowired
+    VehicleBasicManager vehicleBasicManager;
+    @Autowired
+    JimDbLock jimDbLock;
 
     @Autowired
     private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
@@ -1612,12 +1630,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
-        } catch (Exception ex) {
+
+            asyncProductOperateProgress(taskSend);
+        }  catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
         }
 
         return result;
+    }
+
+    @Async
+    void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
+        if (uccConfig.getProductOperateProgressSwitch()){
+            JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
+            calculateOperateProgress(sendAgg,true);
+        }
     }
 
     @Override
@@ -2848,7 +2876,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         if (sendAgg != null && basicVehicleType != null) {
-            progress.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
+            if (uccConfig.getLoadProgressByVehicleVolume()){
+                progress.setLoadRate(calculateLoadRate(taskSend, basicVehicleType, sendAgg));
+            }
+            else {
+                progress.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight()))));
+            }
             progress.setLoadVolume(sendAgg.getTotalScannedVolume());
             progress.setLoadWeight(sendAgg.getTotalScannedWeight());
             //progress.setToScanCount(this.dealMinus(sendAgg.getTotalShouldScanCount(), sendAgg.getTotalScannedCount()));
@@ -2879,6 +2912,55 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
     }
 
+    Integer getVehicleVolume(JyBizTaskSendVehicleEntity taskSend,VehicleVolumeDicResp vehicleVolumeDicResp){
+        if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(taskSend.getLineType())){
+            return vehicleVolumeDicResp.getVolumeTrunkC();
+        }
+        else {
+            return vehicleVolumeDicResp.getVolumeBranchC();
+        }
+    }
+
+    /**
+     * 计算装载率
+     * @param taskSend
+     * @param basicVehicleType
+     * @param sendAgg
+     * @return
+     */
+    private BigDecimal calculateLoadRate(JyBizTaskSendVehicleEntity taskSend, BasicVehicleTypeDto basicVehicleType, JySendAggsEntity sendAgg) {
+        BigDecimal finalScannedWeight = sendAgg.getTotalScannedWeight();
+        Integer finalScannedCount = sendAgg.getTotalScannedCount();
+        //获取同派车单下-其余场地（非本场地）的已经封车任务统计数据
+        if (!taskSend.manualCreatedTask()){
+            JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
+            condition.setTransWorkCode(taskSend.getTransWorkCode());
+            List<JyBizTaskSendVehicleEntity> sendVehicleEntityList =taskSendVehicleService.findByTransWork(condition);
+            List<String> bizList =new ArrayList<>();
+            for (JyBizTaskSendVehicleEntity entity:sendVehicleEntityList){
+                if (!entity.getBizId().equals(taskSend.getBizId()) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())){
+                    bizList.add(entity.getBizId());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(bizList)){
+                List<JySendAggsEntity> sendAggList = sendAggService.getSendStatisticsByBizList(bizList);
+                for (JySendAggsEntity jySendAggsEntity:sendAggList){
+                    finalScannedWeight.add(jySendAggsEntity.getTotalScannedWeight());
+                    finalScannedCount+= jySendAggsEntity.getTotalScannedCount();
+                }
+            }
+        }
+
+        VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
+        vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
+        VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
+
+        BigDecimal loadRate = vehicleVolumeDicResp == null ?
+            dealLoadRate(finalScannedWeight, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())))
+            : dealLoadRate(finalScannedCount, getVehicleVolume(taskSend, vehicleVolumeDicResp));
+        return loadRate;
+    }
+
     public Integer getDestTotal(String sendVehicleBizId) {
         JyBizTaskSendVehicleDetailEntity totalQ = new JyBizTaskSendVehicleDetailEntity();
         totalQ.setSendVehicleBizId(sendVehicleBizId);
@@ -2898,6 +2980,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         return BigDecimal.valueOf(BigDecimalHelper.div(loadWeight, standardWeight, 6)).multiply(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
     }
+
+    /**
+     * 根据 已装包裹量/车辆最大承载包裹量 计算装载进度
+     * @param scannedCount
+     * @param volume
+     * @return
+     */
+    public BigDecimal dealLoadRate(Integer scannedCount, Integer volume) {
+        if (!NumberHelper.gt0(volume)) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(BigDecimalHelper.div(scannedCount, volume, 6)).multiply(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
+    }
+
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.checkSendVehicleNormalStatus",
@@ -3579,5 +3675,92 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         SendTaskItemDetail sendTaskItemDetail) {
         sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
         sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleDetailEntity.getVehicleStatus()));
+    }
+
+    public boolean productOperateProgressMsg(JyBizTaskSendVehicleEntity task,BigDecimal operateProgress) {
+        if (CollectionUtils.isNotEmpty(uccConfig.getOperateProgressRegionList())){
+            List<Integer> regionList =uccConfig.getOperateProgressRegionList();
+            int size =regionList.size();
+            int  progress = operateProgress.intValue();
+            if (progress< regionList.get(0)){
+                return false;
+            }
+            //计算目标推送档位
+            int targetPosition =0;
+            if (progress>=regionList.get(size-1)){
+                targetPosition =regionList.get(size-1);
+            }
+            else {
+                for (int i=0;i<size;i++){
+                    if (progress>=regionList.get(i) && progress<regionList.get(i+1)){
+                        targetPosition = regionList.get(i);
+                        break;
+                    }
+                }
+            }
+            if (targetPosition==0){
+                return false;
+            }
+            String operateProgressKey = String.format(Constants.JY_OPERATE_PROGRESS_PREFIX, task.getBizId());
+            String uuid =UUID.randomUUID().toString().replace("-","");
+            if (!jimDbLock.lock(operateProgressKey, uuid, LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return false;
+            }
+            try {
+                String operateProgressPosotionKey = String.format(Constants.JY_OPERATE_PROGRESS_POSITION_PREFIX, task.getBizId());
+                if (redisClientOfJy.exists(operateProgressPosotionKey)){
+                    Integer hasBeenSendPosition  =Integer.valueOf(redisClientOfJy.get(operateProgressPosotionKey));
+                    if (hasBeenSendPosition < targetPosition){
+                        if (sendOperateProgressMsg(task,targetPosition)){
+                            redisClientOfJy.set(operateProgressPosotionKey,String.valueOf(targetPosition));
+                        }
+                    }
+                }
+                else {
+                    if (sendOperateProgressMsg(task,targetPosition)){
+                        redisClientOfJy.set(operateProgressPosotionKey,String.valueOf(targetPosition));
+                    }
+                }
+            } finally {
+                jimDbLock.releaseLock(operateProgressKey, uuid);
+            }
+        }
+        return false;
+    }
+
+    private boolean sendOperateProgressMsg(JyBizTaskSendVehicleEntity task, int targetPosition) {
+        OperateProgressRequest operateProgressRequest =new OperateProgressRequest();
+        operateProgressRequest.setOperationProgress(String.valueOf(targetPosition));
+        operateProgressRequest.setOperateSiteId(task.getStartSiteId().intValue());
+        operateProgressRequest.setOperationCode(task.getTransWorkCode());
+        operateProgressRequest.setOperationTime(new Date());
+        operateProgressRequest.setOperationType(Constants.CONSTANT_NUMBER_ONE);
+        try {
+            jyOperationProgressProducer.send(operateProgressRequest.getOperationCode(),JsonHelper.toJson(operateProgressRequest));
+            if (log.isInfoEnabled()){
+                log.info("生成操作进度消息成功{}",JsonHelper.toJson(operateProgressRequest));
+            }
+        }catch (Exception e){
+            log.error("生产操作进度消息异常 {}",operateProgressRequest.getOperationCode(),e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public BigDecimal calculateOperateProgress(JySendAggsEntity sendAggsEntity, boolean needSendMsg) {
+        if (ObjectHelper.isNotNull(sendAggsEntity) && ObjectHelper.isNotNull(sendAggsEntity.getSendVehicleBizId())){
+            JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(sendAggsEntity.getSendVehicleBizId());
+            if (taskSend == null) {
+                throw new JyBizException("未找到对应的发货任务");
+            }
+            BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(taskSend.getVehicleType());
+            BigDecimal operateProgress =calculateLoadRate(taskSend,basicVehicleType,sendAggsEntity);
+            if (ObjectHelper.isNotNull(operateProgress) && needSendMsg){
+                productOperateProgressMsg(taskSend,operateProgress);
+            }
+            return operateProgress;
+        }
+        return null;
     }
 }

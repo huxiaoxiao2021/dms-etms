@@ -1,5 +1,10 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FOUND_SEND_TASK_DATA_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FOUND_SEND_TASK_DATA_MESSAGE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -12,6 +17,14 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRequest;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRespone;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -25,9 +38,12 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import java.math.BigDecimal;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +74,13 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
 
     @Autowired
     private DeliveryService deliveryService;
+    @Autowired
+    JyBizTaskSendVehicleService taskSendVehicleService;
+    @Autowired
+    private JySendAggsService sendAggService;
+    @Autowired
+    @Qualifier(value = "jySendVehicleService")
+    IJySendVehicleService sendVehicleService;
 
     @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode) {
@@ -193,5 +216,41 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
             result.toFail("system exception");
         }
         return result;
+    }
+
+    @Override
+    public InvokeResult<QueryLoadingRateRespone> queryLoadingRate(QueryLoadingRateRequest request) {
+        checkQueryLoadingRateRequest(request);
+
+        JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
+        condition.setTransWorkCode(request.getTransWorkCode());
+        condition.setStartSiteId(Long.valueOf(request.getOperateSiteId()));
+        JyBizTaskSendVehicleEntity taskSend =taskSendVehicleService.findByTransWorkAndStartSite(condition);
+        if (!ObjectHelper.isNotNull(taskSend)){
+            return new InvokeResult(NO_FOUND_SEND_TASK_DATA_CODE,NO_FOUND_SEND_TASK_DATA_MESSAGE);
+        }
+
+        QueryLoadingRateRespone queryLoadingRateRespone =new QueryLoadingRateRespone();
+        queryLoadingRateRespone.setLoadingRate(String.valueOf(Constants.NUMBER_ZERO));
+        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
+        if (ObjectHelper.isNotNull(sendAgg)){
+            BigDecimal operateProgress =sendVehicleService.calculateOperateProgress(sendAgg,false);
+            if (ObjectHelper.isNotNull(operateProgress)){
+                queryLoadingRateRespone.setLoadingRate(String.valueOf(operateProgress.intValue()));
+            }
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,queryLoadingRateRespone);
+    }
+
+    private void checkQueryLoadingRateRequest(QueryLoadingRateRequest request) {
+        if (ObjectHelper.isEmpty(request.getTransWorkCode())){
+            throw new JyBizException("参数错误：派车单号为空！");
+        }
+        if (ObjectHelper.isEmpty(request.getOperateSiteId())){
+            throw new JyBizException("参数错误：操作场地id为空！");
+        }
+        if (ObjectHelper.isEmpty(request.getTransWorkCode())){
+            throw new JyBizException("参数错误：车牌号为空！");
+        }
     }
 }
