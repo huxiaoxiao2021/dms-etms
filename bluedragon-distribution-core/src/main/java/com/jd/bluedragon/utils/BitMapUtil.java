@@ -102,28 +102,30 @@ public class BitMapUtil {
      * @return
      */
     public static String turn2to16(String str) {
-        String str16="";
-        int t=str.length()%4;
-        if(t!=0){
-            for(int i=str.length();i-4>=0;i=i-4){
-                String s=str.substring(i-4,i);
-                int tem=Integer.parseInt(String.valueOf(s), 2);
-                str16=Integer.toHexString(tem).toUpperCase()+str16;
-            }
-            String st=str.substring(0,t);
-
-            int tem=Integer.parseInt(String.valueOf(st), 2);
-            str16=Integer.toHexString(tem).toUpperCase()+str16;
-
-        }
-        else{
-            for(int i=str.length();i-4>=-1;i=i-4){
-                String s=str.substring(i-4,i);
-                int tem=Integer.parseInt(String.valueOf(s), 2);
-                str16=Integer.toHexString(tem).toUpperCase()+str16;
-            }
-        }
-        return str16;
+        BigInteger sint = new BigInteger(str, 2);
+        return sint.toString(16);
+//        String str16="";
+//        int t=str.length()%4;
+//        if(t!=0){
+//            for(int i=str.length();i-4>=0;i=i-4){
+//                String s=str.substring(i-4,i);
+//                int tem=Integer.parseInt(String.valueOf(s), 2);
+//                str16=Integer.toHexString(tem).toUpperCase()+str16;
+//            }
+//            String st=str.substring(0,t);
+//
+//            int tem=Integer.parseInt(String.valueOf(st), 2);
+//            str16=Integer.toHexString(tem).toUpperCase()+str16;
+//
+//        }
+//        else{
+//            for(int i=str.length();i-4>=-1;i=i-4){
+//                String s=str.substring(i-4,i);
+//                int tem=Integer.parseInt(String.valueOf(s), 2);
+//                str16=Integer.toHexString(tem).toUpperCase()+str16;
+//            }
+//        }
+//        return str16;
     }
 
 
