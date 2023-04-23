@@ -320,23 +320,23 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyExNoticeCustomerMQ.setDealType(ASCPContants.DEAL_TYPE);
             jyExNoticeCustomerMQ.setBusinessId(ASCPContants.BUSINESS_ID);
             jyExNoticeCustomerMQ.setCodeInfo(exScrapTaskEntity.getBarCode());
+            jyExNoticeCustomerMQ.setWaybillCode(exScrapTaskEntity.getBarCode());
             jyExNoticeCustomerMQ.setCodeType(ASCPContants.CODE_TYPE);
             jyExNoticeCustomerMQ.setDeptCode(Objects.nonNull(exScrapTaskEntity.getSiteCode())?exScrapTaskEntity.getSiteCode().toString():"");
             jyExNoticeCustomerMQ.setDeptName(exScrapTaskEntity.getSiteName());
             jyExNoticeCustomerMQ.setExptCreateTime(DateHelper.formatDateTime(exScrapTaskEntity.getCreateTime()));
             jyExNoticeCustomerMQ.setExptCreator(exScrapTaskEntity.getCreateUserErp());
             jyExNoticeCustomerMQ.setExptId(exScrapTaskEntity.getBizId());
+            jyExNoticeCustomerMQ.setAttachmentAddr(exScrapEntity.getGoodsImageUrl());
             addAbnormalReason(jyExNoticeCustomerMQ);
-
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exScrapTaskEntity.getSiteCode().intValue());
             if(baseSite != null){
                 jyExNoticeCustomerMQ.setStartOrgCode(baseSite.getOrgId().toString());
                 jyExNoticeCustomerMQ.setStartOrgName(baseSite.getOrgName());
+                jyExNoticeCustomerMQ.setProvinceAgencyCode(baseSite.getProvinceId()!= null? baseSite.getProvinceId().toString():"");
+                jyExNoticeCustomerMQ.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceName())?baseSite.getProvinceName():"");
             }
-            jyExNoticeCustomerMQ.setAttachmentAddr(exScrapEntity.getGoodsImageUrl());
-            if(logger.isInfoEnabled()){
-                logger.info("生鲜报废单号:{}审批通过,异步通知客服系统!", bizId);
-            }
+            logger.info("生鲜报废单号:{}审批通过,异步通知客服系! 消息体-{}", bizId,JsonHelper.toJson(jyExNoticeCustomerMQ));
             dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
             // add log
             recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_CUSTOMER, exScrapTaskEntity);

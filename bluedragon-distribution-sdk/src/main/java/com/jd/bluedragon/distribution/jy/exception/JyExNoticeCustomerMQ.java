@@ -84,6 +84,21 @@ public class JyExNoticeCustomerMQ implements Serializable {
     /**附件地址,通用基础字段  传附件地址，用逗号分隔*/
     private String attachmentAddr;
 
+    /**
+     * 运单号
+     */
+    private String waybillCode;
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+
 
     public int getSourceSystemCode() {
         return sourceSystemCode;
@@ -278,5 +293,29 @@ public class JyExNoticeCustomerMQ implements Serializable {
     }
 
     public void setHandlerTime(long time) {
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
     }
 }
