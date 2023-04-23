@@ -266,7 +266,7 @@
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
-		<property name="operateProgressRegionList" value="${operateProgressRegionList:'10,20,30,40,50'}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:''}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
 
@@ -534,7 +534,7 @@
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
 				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
-				<value>uccPropertyConfiguration.operateProgressRegionList</value>
+				<value>uccPropertyConfiguration.operateProgressRegions</value>
 				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 			</list>
