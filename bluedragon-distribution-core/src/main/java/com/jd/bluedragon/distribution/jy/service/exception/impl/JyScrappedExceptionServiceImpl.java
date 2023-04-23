@@ -63,9 +63,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
 
-    private final Integer REASON_LEVEL_CODE_ONE = 20009;
-    private final Integer REASON_LEVEL_CODE_TWO = 232300;
-    private final Integer REASON_LEVEL_CODE_THREE = 232301;
+    private final Integer REASON_LEVEL_CODE_ONE = 1;
+    private final Integer REASON_LEVEL_CODE_TWO = 2;
+    private final Integer REASON_LEVEL_CODE_THREE = 3;
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -354,14 +354,14 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             return ;
         }
         for (AbnormalReasonDto dto:abnormalReasonDtos) {
-            if(dto.getCode().equals(REASON_LEVEL_CODE_ONE)){
-                mq.setExptOneLevel(dto.getReasonLevel().toString());
+            if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_ONE)){
+                mq.setExptOneLevel(dto.getCode().toString());
                 mq.setExptOneLevelName(dto.getName());
-            }else if(dto.getCode().equals(REASON_LEVEL_CODE_TWO)){
-                mq.setExptTwoLevel(dto.getReasonLevel().toString());
+            }else if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_TWO)){
+                mq.setExptTwoLevel(dto.getCode().toString());
                 mq.setExptTwoLevelName(dto.getName());
-            }else if(dto.getCode().equals(REASON_LEVEL_CODE_THREE)){
-                mq.setExptThreeLevel(dto.getReasonLevel().toString());
+            }else if(dto.getReasonLevel().equals(REASON_LEVEL_CODE_THREE)){
+                mq.setExptThreeLevel(dto.getCode().toString());
                 mq.setExptThreeLevelName(dto.getName());
             }else {
                 logger.warn("未知类型");
