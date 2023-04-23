@@ -266,7 +266,7 @@
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
-		<property name="operateProgressRegions" value="${operateProgressRegions:''}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:'10'}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
 
