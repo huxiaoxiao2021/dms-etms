@@ -121,7 +121,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
         //校验生鲜单号 自营OR外单
-        checkFresh(waybillCode);
+        String msg = checkFresh(waybillCode);
+        if (StringUtils.isNotBlank(msg)) {
+            return JdCResponse.fail(msg);
+        }
         taskEntity.setBarCode(waybillCode);
         taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
 
@@ -667,7 +670,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param waybillCode
      * @return
      */
-    private JdCResponse checkFresh(String waybillCode) {
+    private String checkFresh(String waybillCode) {
         //根据运单获取waybillSign
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                 = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
@@ -676,12 +679,12 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 || dataByChoice.getData().getWaybill() == null
                 || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
             logger.warn("查询运单waybillSign失败!-{}", waybillCode);
-            return JdCResponse.fail("获取运单失败!");
+            return "获取运单失败!";
         }
         Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
         //一单多件校验
         if(!Objects.equals(goodNumber,1)){
-            JdCResponse.fail( "一单多件禁止上报!");
+            return "一单多件禁止上报!";
         }
         String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
         String sendPay = dataByChoice.getData().getWaybill().getSendPay();
@@ -690,13 +693,15 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             if (BusinessUtil.isSelfSX(sendPay)) {
                 //todo  调用终端妥投校验接口
                 logger.info("自营生鲜运单");
+                return "";
             }
         } else {//外单
             if (BusinessUtil.isNotSelfSX(waybillSign)) {
                 logger.info("外单生鲜运单");
+                return "";
             }
         }
-        return JdCResponse.fail("非生鲜运单，请检查后再操作!");
+        return "非生鲜运单，请检查后再操作!";
     }
 
     /**
