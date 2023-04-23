@@ -131,9 +131,7 @@ public class BitMapUtil {
         //16进制转10进制
         BigInteger sint = new BigInteger(hexString, 16);
         //10进制转2进制
-        String result = sint.toString(2);
-        //字符串反转
-        return new StringBuilder(result).reverse().toString();
+        return sint.toString(2);
     }
 
 

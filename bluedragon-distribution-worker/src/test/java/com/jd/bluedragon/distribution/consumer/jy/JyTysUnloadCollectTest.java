@@ -101,7 +101,7 @@ public class JyTysUnloadCollectTest {
     //封车集齐初始化
     private void sealCarInitCollect() throws Exception {
         InitCollectDto initCollectDto = new InitCollectDto();
-        initCollectDto.setBizId("SC23042000031354");
+        initCollectDto.setBizId("SC23042300031536");
         initCollectDto.setOperateTime(System.currentTimeMillis());
         initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
         Message message1 = new Message();
@@ -129,32 +129,39 @@ public class JyTysUnloadCollectTest {
     }
 
     private void sealCarSplitInitCollect() throws Exception {
-        String body1 = "{\n" +
-                "    \"bizId\": \"SC23042000031354\",\n" +
-                "    \"operateNode\": 101,\n" +
-                "    \"operateTime\": 1681990565522,\n" +
-                "    \"pageNo\": 8,\n" +
-                "    \"pageSize\": 100,\n" +
-                "    \"sealBatchCode\": \"40240-10186-20230420044403685\",\n" +
-                "    \"sealSiteCode\": 40240,\n" +
-                "    \"shouldUnSealSiteCode\": 10186\n" +
-                "}";
-        Message message1 = new Message();
-        message1.setText(body1);
-        jyCollectDataSplitBatchInitConsumer.consume(message1);
-        String body2 = "{\n" +
-                "    \"bizId\": \"SC23031700029108\",\n" +
-                "    \"operateNode\": 101,\n" +
-                "    \"operateTime\": 1679055682628,\n" +
-                "    \"pageNo\": 2,\n" +
-                "    \"pageSize\": 10,\n" +
-                "    \"sealBatchCode\": \"40240-10186-20230317173374331\",\n" +
-                "    \"sealSiteCode\": 40240,\n" +
-                "    \"shouldUnSealSiteCode\": 10186\n" +
-                "}";
-        Message message2 = new Message();
-        message2.setText(body2);
-        jyCollectDataSplitBatchInitConsumer.consume(message2);
+        for (int pageNo = 1; pageNo <=5; pageNo++) {
+            String body1 = "{\n" +
+                    "    \"bizId\": \"SC23042300031536\",\n" +
+                    "    \"operateNode\": 101,\n" +
+                    "    \"operateTime\": 1682233675752,\n" +
+                    "    \"pageNo\": " + pageNo + ",\n" +
+                    "    \"pageSize\": 100,\n" +
+                    "    \"sealBatchCode\": \"40240-10186-20230423104433676\",\n" +
+                    "    \"sealSiteCode\": 40240,\n" +
+                    "    \"shouldUnSealSiteCode\": 10186\n" +
+                    "}";
+            Message message1 = new Message();
+            message1.setText(body1);
+            try{
+                jyCollectDataSplitBatchInitConsumer.consume(message1);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+//        String body2 = "{\n" +
+//                "    \"bizId\": \"SC23031700029108\",\n" +
+//                "    \"operateNode\": 101,\n" +
+//                "    \"operateTime\": 1679055682628,\n" +
+//                "    \"pageNo\": 2,\n" +
+//                "    \"pageSize\": 10,\n" +
+//                "    \"sealBatchCode\": \"40240-10186-20230317173374331\",\n" +
+//                "    \"sealSiteCode\": 40240,\n" +
+//                "    \"shouldUnSealSiteCode\": 10186\n" +
+//                "}";
+//        Message message2 = new Message();
+//        message2.setText(body2);
+//        jyCollectDataSplitBatchInitConsumer.consume(message2);
     }
 
     private void taskNullScanSplitInitCollect() throws Exception {
