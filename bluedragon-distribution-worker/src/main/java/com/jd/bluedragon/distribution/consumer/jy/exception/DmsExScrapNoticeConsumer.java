@@ -67,27 +67,21 @@ public class DmsExScrapNoticeConsumer extends MessageBaseConsumer {
             }
             int totalCount = scrapDetailList.size();
             int approveCount = 0; // 审批数量
-            //int kfCount = 0; // 客服介入梳理
             int completeCount = 0; // 已完成数量
             for (JyBizTaskExceptionEntity temp : scrapDetailList) {
                 if(Objects.equals(temp.getProcessingStatus(), JyBizTaskExceptionProcessStatusEnum.APPROVING.getCode())){
                     approveCount ++;
                 }
-                //if(Objects.equals(temp.getProcessingStatus(), JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode())){
-                //    kfCount ++;
-                //}
                 if(Objects.equals(temp.getStatus(), JyExpStatusEnum.COMPLETE.getCode())){
                     completeCount ++;
                 }
             }
             // 推送咚咚
             String title = "已领取报废任务详情通知";
-            String template = "目前有%s单报废任务,其中%s单审批中,,%s单已完结需要对实物进行处理,请及时处理!";
+            String template = "您目前有%s单报废任务,其中%s单审批中,%s单已完结需要对实物进行处理,请及时处理!";
             String content = String.format(template, totalCount, approveCount, completeCount);
-            List<String> noticeErps = userSignRecordService.querySameWorkSignUserInfoByUser(handlerErp);
-            if(CollectionUtils.isNotEmpty(noticeErps)){
-                NoticeUtils.noticeToTimelineWithNoUrl(title, content, noticeErps);
-            }
+            List<String> erpList = Lists.newArrayList(handlerErp);
+            NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("异常报废推送咚咚处理异常, 消息体:{}", message.getText(), e);

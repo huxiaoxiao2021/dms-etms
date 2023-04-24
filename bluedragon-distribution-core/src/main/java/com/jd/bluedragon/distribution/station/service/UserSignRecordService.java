@@ -186,12 +186,4 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
-
-
-	/**
-	 * 根据erp 根据erp 获取当天相同岗位签到用户信息
-	 * @param erp
-	 * @return
-	 */
-	List<String> querySameWorkSignUserInfoByUser(String erp);
 }

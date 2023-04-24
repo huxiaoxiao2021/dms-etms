@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
 import org.springframework.beans.BeanUtils;
@@ -29,9 +27,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * 人员签到表--JsfService接口实现
@@ -192,14 +187,4 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
 		return userSignRecordService.deleteUserSignRecord(userSignRequest);
 	}
-
-	@Override
-	public JdCResponse<List<String>> querySignUserInfoByUser(String erp) {
-		JdCResponse<List<String>> response = new JdCResponse<>();
-		response.toSucceed();
-		response.setData(userSignRecordService.querySameWorkSignUserInfoByUser(erp));
-		return response;
-	}
-
-
 }

@@ -173,11 +173,4 @@ public interface UserSignRecordDao {
 	List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(UserSignQueryRequest query);
 
 	Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey);
-
-	/**
-	 * 查询和当前签到人签到同一岗位的签到人员
-	 * @param query
-	 * @return
-	 */
-	List<String> querySignUserInfoByUser(UserSignQueryRequest query);
 }
