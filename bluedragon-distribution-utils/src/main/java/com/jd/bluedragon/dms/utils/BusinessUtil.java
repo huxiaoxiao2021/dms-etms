@@ -692,17 +692,6 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
-    /**
-     * 是否shi vmi订单
-     * @param sendPay
-     * @return
-     */
-    public static Boolean isVmi(String sendPay) {
-        if (isSignChar(sendPay, SendPayConstants.POSITION_840, SendPayConstants.CHAR_840_1)) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 通过运单标识 判断是否需求包装耗材

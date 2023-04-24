@@ -1098,9 +1098,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         com.jd.staig.receiver.rpc.Result result = null;
 
         /**
-         * vmi 业务场景特殊 要求与dtc通知的报文内容保持一致，所以写在此处，待迁移集约系统后可下线
+         * vmi 业务场景特殊 因为需要sendPayMap 并且 还要求与dtc通知的报文内容保持一致，所以写在此处，待迁移集约系统后可下线
         */
-        if (BusinessUtil.isVmi(send.getSendPay())) {
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(wallBillCode);
+        if ( waybill != null && waybill.getWaybillExt() != null && BusinessHelper.isVmi(JsonHelper.json2MapByJSON(waybill.getWaybillExt().getSendPayMap()))) {
             if(vmiHandle(target, outboundType, send, source, outboundNo)){
                 if (!send.isSickWaybill()) {//病单屏蔽报丢报损MQ
                     //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
