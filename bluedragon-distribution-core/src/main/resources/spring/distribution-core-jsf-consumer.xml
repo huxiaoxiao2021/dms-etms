@@ -1269,6 +1269,14 @@
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  四级地址解析服务  -->
+    <jsf:consumer id="externalAddressToJDAddressService"
+                  interface="com.jd.addresstranslation.api.address.ExternalAddressToJDAddressService"
+                  protocol="jsf"
+                  alias="${jsf.address.gbmap.alias}"
+                  timeout="${jsf.address.gbmap.timeout}"
+                  retries="${jsf.retries}"/>
+
     <!--  质控-异常原因接口  -->
     <jsf:consumer id="abnormalReasonApiofZK"
                   interface="com.jd.wl.cs.abnormal.portal.api.service.reason.AbnormalReasonApi"
@@ -1280,4 +1288,8 @@
         <jsf:parameter key="token" value="${jsf.abnormalReasonApi.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- erp接口 杨金宇 -->
+    <jsf:consumer id="deliveryWSService" interface="com.jd.ql.erp.jsf.DeliveryWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>
