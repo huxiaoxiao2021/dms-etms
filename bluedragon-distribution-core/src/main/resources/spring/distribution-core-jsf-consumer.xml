@@ -1280,6 +1280,26 @@
                   timeout="${jsf.address.gbmap.timeout}"
                   retries="${jsf.retries}"/>
 
+    <!-- 积分 -->
+    <jsf:consumer id="iJyPersonalIntegralStatisticsJSFService"
+                  interface="com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  积分排名服务  -->
+    <jsf:consumer id="jyFlatIntegralRankingJSFService"
+                  interface="com.jdl.jy.flat.api.integral.IJyFlatIntegralRankingJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+
     <!-- 滑道笼车配置 -->
     <jsf:consumer id="vehicleVolumeDicJsfService"
       interface="com.jdl.basic.api.service.vehicle.VehicleVolumeDicJsfService"

@@ -300,6 +300,27 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     /**
+     * 初始化实际到达时间 同步修改排序时间
+     * @return 永远返回成功
+     */
+    @Override
+    public boolean initActualArriveTime(String bizId, Date actualArriveTime) {
+        JyBizTaskUnloadVehicleEntity updateParam = new JyBizTaskUnloadVehicleEntity();
+        updateParam.setActualArriveTime(actualArriveTime);
+        //切记后续需要调整sortTime时间 需要比较数据库中的时间 本次临时解决flink任务问题暂不考虑
+        updateParam.setSortTime(actualArriveTime);
+        updateParam.setBizId(bizId);
+        //需要和产品沟通一下具体逻辑整体切换
+        /*if(!updateOfBusinessInfo(updateParam)){
+            logger.error("initActualArriveTime fail!,{},{}",bizId,JsonHelper.toJson(updateParam));
+        }*/
+        if(logger.isInfoEnabled()){
+            logger.info("initActualArriveTime end ,bizId:{} ,actualArriveTime:{}",bizId,actualArriveTime.toString());
+        }
+        return true;
+    }
+
+    /**
      * 发送自动关闭任务消息
      * @param bizId bizId
      * @param changeStatus 目标更新状态
@@ -493,7 +514,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 }else {
                     //不存在不执行 并返回失败
                     if(logger.isInfoEnabled()){
-                        logger.info("updateOfBusinessInfo not exist!",JsonHelper.toJson(entity));
+                        logger.info("updateOfBusinessInfo not exist! {}",bizId);
                     }
                     result = Boolean.FALSE;
                 }
