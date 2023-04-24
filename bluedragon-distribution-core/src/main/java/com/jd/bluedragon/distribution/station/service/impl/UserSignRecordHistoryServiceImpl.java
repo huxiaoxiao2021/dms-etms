@@ -17,7 +17,6 @@ import org.springframework.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.security.aces.mybatis.util.AcesFactory;
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
@@ -52,11 +51,11 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
 	@Qualifier("userSignRecordService")
 	private UserSignRecordService userSignRecordService;
 	
-	@Value("${beans.userSignRecordHistoryService.useEasyData:false}")
+	@Value("${beans.userSignRecordHistoryService.useEasyData:true}")
 	private boolean useEasyData = true;
 	
     @Autowired
-    EasyDataClientUtil easyDataClientUtil;
+     protected EasyDataClientUtil easyDataClientUtil;
 
     @Autowired
     UserSignRecordEasyDataConfig userSignRecordEasyDataConfig;
@@ -130,7 +129,7 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
 	        //调用easydata
 	      FdsPage edresult = easyDataClientUtil.query(userSignRecordEasyDataConfig.getQueryDataListForFlow(), queryParam,
 	        		userSignRecordEasyDataConfig.getApiGroupName(),userSignRecordEasyDataConfig.getAppToken(),
-	        		query.getPageNumber(),query.getPageSize(),
+	        		query.getPageSize(),query.getPageNumber() - 1,
 	                 userSignRecordEasyDataConfig.getTenant());
 	        List<UserSignRecordFlow> dataList = new ArrayList<>();
 	        if (null != edresult && !CollectionUtils.isEmpty(edresult.getContent())){
@@ -183,18 +182,39 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
         if (null != tmpMap.get("signDate")){
             signDate = String.valueOf(tmpMap.get("signDate"));
         }
+        String userCodeOfOperator = null;
+        if (null != tmpMap.get("userCodeOfOperator")){
+        	userCodeOfOperator = String.valueOf(tmpMap.get("userCodeOfOperator"));
+        }
+        String userCodeOfOperatorOut = null;
+        if (null != tmpMap.get("userCodeOfOperatorOut")){
+        	userCodeOfOperatorOut = String.valueOf(tmpMap.get("userCodeOfOperatorOut"));
+        }
 
         UserSignRecordFlow result = JSONObject.parseObject(JSONObject.toJSONString(tmpMap), UserSignRecordFlow.class);
 
         if (StringUtils.isNotEmpty(signInTime)){
             result.setSignInTime(new Date(Long.valueOf(signInTime)));
+            result.setCreateTime(result.getSignInTime());
         }
         if (StringUtils.isNotEmpty(signOutTime)){
             result.setSignOutTime(new Date(Long.valueOf(signOutTime)));
+            result.setUpdateTime(result.getSignOutTime());
         }
         if (StringUtils.isNotEmpty(signDate)){
             result.setSignDate(new Date(Long.valueOf(signDate)));
         }
+        if (StringUtils.isNotEmpty(userCodeOfOperator)){
+        	result.setCreateUser(userCodeOfOperator);
+        	result.setCreateUserName(userCodeOfOperator);
+        }
+        if (StringUtils.isNotEmpty(userCodeOfOperatorOut)){
+        	result.setUpdateUser(userCodeOfOperatorOut);
+        	result.setUpdateUserName(userCodeOfOperatorOut);
+        }
+        result.setRefRecordId(result.getId());
+        result.setId(null);
+        result.setFlowStatus(SignFlowStatusEnum.DEFALUT.getCode());
 		return result;
 	}
 

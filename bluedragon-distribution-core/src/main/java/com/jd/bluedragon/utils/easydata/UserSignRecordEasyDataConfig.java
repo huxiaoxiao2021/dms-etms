@@ -15,11 +15,11 @@ public class UserSignRecordEasyDataConfig {
 	@Value("${easydata.config.tenant:1}")
     String tenant;
     
-	@Value("${easydata.config.userSignRecordEasyDataConfig.querySignCount:queryCountForFlow}")	
+	@Value("${easydata.config.userSignRecordEasyDataConfig.queryCountForFlow:queryCountForFlow}")	
     String queryCountForFlow;
-	@Value("${easydata.config.userSignRecordEasyDataConfig.querySignList:queryDataListForFlow}")	
+	@Value("${easydata.config.userSignRecordEasyDataConfig.queryDataListForFlow:queryDataListForFlow}")	
     String queryDataListForFlow;
-	@Value("${easydata.config.userSignRecordEasyDataConfig.queryById:queryByIdForFlow}")	
+	@Value("${easydata.config.userSignRecordEasyDataConfig.queryByIdForFlow:queryByIdForFlow}")	
     String queryByIdForFlow;
 	@Value("${easydata.config.userSignRecordEasyDataConfig.queryCountForCheckSignTime:queryCountForCheckSignTime}")	
     String queryCountForCheckSignTime;
