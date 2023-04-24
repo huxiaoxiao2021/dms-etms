@@ -60,6 +60,7 @@
         <mapper resource="mappers/mysql/jy/comboard/JyComboardMapper.xml" />
         <mapper resource="mappers/mysql/jy/exception/JyExceptionMapper.xml"/>
         <mapper resource="mappers/mysql/collection/CollectionRecordMapper.xml"/>
+        <mapper resource="mappers/mysql/collection/CollectionRecordDetailMapper.xml"/>
     </mappers>
 
 </configuration>

@@ -558,7 +558,6 @@
         <property name="topic" value="${jmq.topic.batch.send.status.change}"/>
     </bean>
 
-
     <!-- 面单异常举报 -->
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
@@ -827,4 +826,10 @@
         <property name="timeout" value="3000" />
     </bean>
 
+
+    <!--  验货修改集齐状态补偿方案  -->
+    <bean id="inspectUpdateCollectStatusProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.inspect.update.collect.status}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
