@@ -1553,7 +1553,7 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态、
-            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {//todo update要支持上面init-consumer没处理时的场景
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
                 log.error("{} 按包裹扫描修改集齐状态失败，param={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }
