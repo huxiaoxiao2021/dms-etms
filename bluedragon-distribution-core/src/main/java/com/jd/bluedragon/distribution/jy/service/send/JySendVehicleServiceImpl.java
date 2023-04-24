@@ -54,6 +54,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -162,6 +163,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -321,6 +323,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     VehicleBasicManager vehicleBasicManager;
     @Autowired
     JimDbLock jimDbLock;
+    @Autowired
+    ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
     private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
@@ -1640,11 +1644,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
-    @Async
     void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
         if (uccConfig.getProductOperateProgressSwitch()){
-            JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
-            calculateOperateProgress(sendAgg,true);
+            CalculateOperateProgressTask calculateOperateProgressTask =new CalculateOperateProgressTask(taskSend,this.sendAggService,this);
+            taskExecutor.execute(calculateOperateProgressTask);
         }
     }
 
