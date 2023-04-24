@@ -35,4 +35,12 @@ public interface PositionManager {
      * @return
      */
     Result<PositionData> queryPositionInfo(String positionCode);
+
+    /**
+     * 根据业务主键查询岗位码
+     *
+     * @param refGridKey
+     * @return
+     */
+    String queryPositionCodeByRefGridKey(String refGridKey);
 }

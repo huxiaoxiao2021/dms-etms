@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.qualityControl.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
@@ -14,11 +18,13 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.qualityControl.domain.abnormalReportRecordMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -84,7 +90,17 @@ public class QualityControlService {
 
     @Autowired
     private SysConfigService sysConfigService;
+    
+    @Autowired
+    private UserSignRecordService userSignRecordService;
 
+    @Autowired
+    @Qualifier("abnormalReportRecordProducer")
+    private DefaultJMQProducer abnormalReportRecordProducer;
+    
+    @Autowired
+    private PositionManager positionManager;
+    
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
         List<SendDetail> sendDetails = null;
@@ -532,6 +548,10 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+                
+                // 找到操作人登录网格并发送MQ消息
+                QcfindGridAndSendMQ(qcReportJmqDto);
+                
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     return result.toFail();
@@ -547,6 +567,40 @@ public class QualityControlService {
         return result;
     }
 
+    private void QcfindGridAndSendMQ(QcReportJmqDto qcReportJmqDto) {
+        try{
+            // 查询登录人提报时间所在网格
+            UserSignQueryRequest condition = new UserSignQueryRequest();
+            condition.setUserCode(qcReportJmqDto.getCreateUser());
+            condition.setSignInTimeEnd(new Date(qcReportJmqDto.getCreateTime()));
+            JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
+            if (!response.isSucceed() || response.getData() == null) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+                return;
+            }
+
+            UserSignRecordData userSignRecordData = response.getData();
+            if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
+                return;
+            }
+            
+            //查找网格码
+            String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
+            if (positionCode == null) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
+                return; 
+            }
+            
+            // 推送MQ
+            abnormalReportRecordMQ body = BeanUtils.copy(qcReportJmqDto, abnormalReportRecordMQ.class);
+            body.setCreateGridCode(positionCode);
+            abnormalReportRecordProducer.sendOnFailPersistent(qcReportJmqDto.getPackageNumber(),JsonHelper.toJson(body));
+        }catch (Exception e) {
+            log.error("ualityControlService.QcfindGridAndSendMQ 异常:{}",JsonHelper.toJson(qcReportJmqDto),e);
+        }
+    }
+    
     public Result<Void> checkMqParam(QcReportJmqDto qcReportJmqDto) {
         Result<Void> result = Result.success();
         if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
@@ -616,6 +670,10 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+
+                // 找到操作人登录网格并发送MQ消息
+                QcOutCallfindGridAndSendMQ(qcReportJmqDto);
+                
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     return result.toFail();
@@ -628,6 +686,40 @@ public class QualityControlService {
             result.toFail("handleQcOutCallReportConsume exception " + e.getMessage());
         }
         return result;
+    }
+
+    private void QcOutCallfindGridAndSendMQ(QcReportOutCallJmqDto qcReportJmqDto) {
+        try{
+            // 查询登录人提报时间所在网格
+            UserSignQueryRequest condition = new UserSignQueryRequest();
+            condition.setUserCode(qcReportJmqDto.getCreateUser());
+            condition.setSignInTimeEnd(new Date(qcReportJmqDto.getCreateTime()));
+            JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
+            if (!response.isSucceed() || response.getData() == null) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+                return;
+            }
+
+            UserSignRecordData userSignRecordData = response.getData();
+            if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
+                return;
+            }
+            
+            //查找网格码
+            String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
+            if (positionCode == null) {
+                log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
+                return;
+            }
+
+            // 推送MQ
+            abnormalReportRecordMQ body = BeanUtils.copy(qcReportJmqDto, abnormalReportRecordMQ.class);
+            body.setCreateGridCode(positionCode);
+            abnormalReportRecordProducer.sendOnFailPersistent(qcReportJmqDto.getPackageNumber(),JsonHelper.toJson(body));
+        }catch (Exception e) {
+            log.error("ualityControlService.QcfindGridAndSendMQ 异常:{}",JsonHelper.toJson(qcReportJmqDto),e);
+        }
     }
 
     public Result<Void> checkMqParam(QcReportOutCallJmqDto qcReportJmqDto) {
