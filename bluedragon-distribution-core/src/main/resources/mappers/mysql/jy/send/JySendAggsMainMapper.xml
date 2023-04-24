@@ -417,22 +417,6 @@
     <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity">
         UPDATE
         jy_send_aggs set
-
-        <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id = #{sendVehicleBizId},
-        </if>
-        <if test="transWorkItemCode != null">
-            trans_work_item_code = #{transWorkItemCode},
-        </if>
-        <if test="vehicleNumber != null">
-            vehicle_number = #{vehicleNumber},
-        </if>
-        <if test="operateSiteId != null">
-            operate_site_id = #{operateSiteId},
-        </if>
-        <if test="receiveSiteId != null">
-            receive_site_id = #{receiveSiteId},
-        </if>
         <if test="shouldScanCount != null">
             should_scan_count = #{shouldScanCount},
         </if>
@@ -485,15 +469,8 @@
             vehicle_weight = #{vehicleWeight},
         </if>
         <if test="vehicleVolume != null">
-            vehicle_volume = #{vehicleVolume},
+            vehicle_volume = #{vehicleVolume}
         </if>
-        <if test="createTime != null">
-            create_time = #{createTime},
-        </if>
-        <if test="yn != null">
-            yn = #{yn},
-        </if>
-        ts = now()
         where
         biz_id = #{bizId}
     </update>

@@ -62,23 +62,8 @@
     <update id="updateByBizProduct" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity">
         UPDATE
         jy_send_product_aggs set
-        <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id = #{sendVehicleBizId},
-        </if>
-        <if test="operateSiteId != null">
-            operate_site_id = #{operateSiteId},
-        </if>
-        <if test="receiveSiteId != null">
-            receive_site_id = #{receiveSiteId},
-        </if>
         <if test="shouldScanCount != null">
-            should_scan_count = #{shouldScanCount},
-        </if>
-        <if test="createTime != null">
-            create_time = #{createTime},
-        </if>
-        <if test="yn != null">
-            yn = #{yn}
+            should_scan_count = #{shouldScanCount}
         </if>
         where biz_id = #{bizId} and product_type = #{productType}
     </update>

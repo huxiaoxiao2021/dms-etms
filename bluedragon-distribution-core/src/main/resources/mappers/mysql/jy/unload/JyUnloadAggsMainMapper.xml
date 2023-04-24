@@ -216,15 +216,6 @@
         <if test="sealCarCode != null">
             seal_car_code = #{sealCarCode},
         </if>
-        <if test="operateSiteId != null">
-            operate_site_id = #{operateSiteId},
-        </if>
-        <if test="productType != null">
-            product_type = #{productType},
-        </if>
-        <if test="boardCode != null">
-            board_code = #{boardCode},
-        </if>
         <if test="shouldScanCount != null">
             should_scan_count = #{shouldScanCount},
         </if>
@@ -280,12 +271,8 @@
             total_more_scan_out_waybill_count = #{totalMoreScanOutWaybillCount},
         </if>
         <if test="totalScannedBoardCount !=null">
-            total_scanned_board_count = #{totalScannedBoardCount},
+            total_scanned_board_count = #{totalScannedBoardCount}
         </if>
-        <if test="yn !=null">
-            yn = #{yn},
-        </if>
-        ts = now()
         where biz_id = #{bizId}
         and product_type = #{productType}
         and board_code = #{boardCode}
