@@ -213,8 +213,6 @@
     <update id="updateByBizProductBoard" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity">
         update jy_unload_aggs
         <set>
-
-
             <if test="sealCarCode != null">
                 seal_car_code = #{sealCarCode},
             </if>

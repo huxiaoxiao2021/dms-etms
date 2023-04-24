@@ -64,7 +64,7 @@
         jy_send_product_aggs
         <set>
             <if test="shouldScanCount != null">
-                should_scan_count = #{shouldScanCount}
+                should_scan_count = #{shouldScanCount},
             </if>
         </set>
         where biz_id = #{bizId} and product_type = #{productType}
