@@ -416,61 +416,63 @@
     <!--查询关键字匹配 -->
     <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity">
         UPDATE
-        jy_send_aggs set
-        <if test="shouldScanCount != null">
-            should_scan_count = #{shouldScanCount},
-        </if>
-        <if test="actualScanCount != null">
-            actual_scan_count = #{actualScanCount},
-        </if>
-        <if test="actualScanPackageCodeCount != null">
-            actual_scan_package_code_count = #{actualScanPackageCodeCount},
-        </if>
-        <if test="actualScanBoxCodeCount != null">
-            actual_scan_box_code_count = #{actualScanBoxCodeCount},
-        </if>
-        <if test="actualScanWeight != null">
-            actual_scan_weight = #{actualScanWeight},
-        </if>
-        <if test="actualScanVolume != null">
-            actual_scan_volume = #{actualScanVolume},
-        </if>
-        <if test="interceptScanCount != null">
-            intercept_scan_count = #{interceptScanCount},
-        </if>
-        <if test="forceSendCount != null">
-            force_send_count = #{forceSendCount},
-        </if>
-        <if test="totalShouldScanCount != null">
-            total_should_scan_count = #{totalShouldScanCount},
-        </if>
-        <if test="totalScannedCount != null">
-            total_scanned_count = #{totalScannedCount},
-        </if>
-        <if test="totalInterceptCount != null">
-            total_intercept_count = #{totalInterceptCount},
-        </if>
-        <if test="totalForceSendCount != null">
-            total_force_send_count = #{totalForceSendCount},
-        </if>
-        <if test="totalScannedWeight != null">
-            total_scanned_weight = #{totalScannedWeight},
-        </if>
-        <if test="totalScannedVolume != null">
-            total_scanned_volume = #{totalScannedVolume},
-        </if>
-        <if test="totalScannedPackageCodeCount != null">
-            total_scanned_package_code_count = #{totalScannedPackageCodeCount},
-        </if>
-        <if test="totalScannedBoxCodeCount != null">
-            total_scanned_box_code_count = #{totalScannedBoxCodeCount},
-        </if>
-        <if test="vehicleWeight != null">
-            vehicle_weight = #{vehicleWeight},
-        </if>
-        <if test="vehicleVolume != null">
-            vehicle_volume = #{vehicleVolume}
-        </if>
+        jy_send_aggs
+        <set>
+            <if test="shouldScanCount != null">
+                should_scan_count = #{shouldScanCount},
+            </if>
+            <if test="actualScanCount != null">
+                actual_scan_count = #{actualScanCount},
+            </if>
+            <if test="actualScanPackageCodeCount != null">
+                actual_scan_package_code_count = #{actualScanPackageCodeCount},
+            </if>
+            <if test="actualScanBoxCodeCount != null">
+                actual_scan_box_code_count = #{actualScanBoxCodeCount},
+            </if>
+            <if test="actualScanWeight != null">
+                actual_scan_weight = #{actualScanWeight},
+            </if>
+            <if test="actualScanVolume != null">
+                actual_scan_volume = #{actualScanVolume},
+            </if>
+            <if test="interceptScanCount != null">
+                intercept_scan_count = #{interceptScanCount},
+            </if>
+            <if test="forceSendCount != null">
+                force_send_count = #{forceSendCount},
+            </if>
+            <if test="totalShouldScanCount != null">
+                total_should_scan_count = #{totalShouldScanCount},
+            </if>
+            <if test="totalScannedCount != null">
+                total_scanned_count = #{totalScannedCount},
+            </if>
+            <if test="totalInterceptCount != null">
+                total_intercept_count = #{totalInterceptCount},
+            </if>
+            <if test="totalForceSendCount != null">
+                total_force_send_count = #{totalForceSendCount},
+            </if>
+            <if test="totalScannedWeight != null">
+                total_scanned_weight = #{totalScannedWeight},
+            </if>
+            <if test="totalScannedVolume != null">
+                total_scanned_volume = #{totalScannedVolume},
+            </if>
+            <if test="totalScannedPackageCodeCount != null">
+                total_scanned_package_code_count = #{totalScannedPackageCodeCount},
+            </if>
+            <if test="totalScannedBoxCodeCount != null">
+                total_scanned_box_code_count = #{totalScannedBoxCodeCount},
+            </if>
+            <if test="vehicleWeight != null">
+                vehicle_weight = #{vehicleWeight},
+            </if>
+            <if test="vehicleVolume != null">
+                vehicle_volume = #{vehicleVolume},
+            </if>
+        </set>
         where
         biz_id = #{bizId}
     </update>
