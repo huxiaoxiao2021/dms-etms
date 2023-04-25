@@ -1288,8 +1288,12 @@
         <jsf:parameter key="token" value="${jsf.abnormalReasonApi.token}" hide="true"/>
     </jsf:consumer>
 
-    <!-- erp接口 杨金宇 -->
+    <!-- erp妥投任务处理接口 杨金宇 -->
     <jsf:consumer id="deliveryWSService" interface="com.jd.ql.erp.jsf.DeliveryWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!-- erp 妥投校验接口 杨金宇 -->
+    <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
@@ -46,6 +47,7 @@ import com.jd.ps.data.epf.dto.CommonDto;
 import com.jd.ps.data.epf.dto.ExpInfoSumaryInputDto;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.dto.delivery.DeliveredReqDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
@@ -144,6 +146,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private DeliveryWSManager deliveryWSManager;
     
     /**
      * 通用异常上报入口-扫描
@@ -1031,13 +1036,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
         // 回传状态
-        Integer notifyStatus = jyExCustomerNotifyMQ.getNotifyStatus();
+        Integer notifyStatus = 0;
+        if(StringUtils.isNotBlank(jyExCustomerNotifyMQ.getResultType())){
+            notifyStatus = new Integer(jyExCustomerNotifyMQ.getResultType());
+        }
         switch (CustomerNotifyStatusEnum.convertApproveEnum(notifyStatus)) {
             case SELF_REPAIR_ORDER:
-                // 自营补单 todo 调用终端妥投接口
+                // 自营补单  调用终端妥投接口
+                delivered(jyExCustomerNotifyMQ.getExptId());
                 break;
             case SELF_REPAIR_PRICE:
-                // 自营补差 todo 调用终端妥投接口
+                // 自营补差  调用终端妥投接口
+                delivered(jyExCustomerNotifyMQ.getExptId());
                 break;
             case AGREE_LP:
                 // 外单客户同意理赔
@@ -1058,7 +1068,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void kfNotifyCancelDeal(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
-        String bizId = jyExCustomerNotifyMQ.getBusinessId();
+        String bizId = jyExCustomerNotifyMQ.getExptId();
         JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if(exTaskEntity == null){
             logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);
@@ -1532,5 +1542,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private String getPositionCountKey(PositionDetailRecord position) {
         return RECEIVING_POSITION_COUNT_PRE + "|" + position.getSiteCode() + "|"
                 + position.getFloor() + "|" + position.getAreaCode() + "|" + position.getGridCode() + "|" + position.getGridNo();
+    }
+
+    /**
+     * 调用终端妥投接口
+     */
+    private void delivered(String bizId){
+        JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if(exTaskEntity == null){
+            logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);
+            return;
+        }
+        DeliveredReqDTO reqDTO = new DeliveredReqDTO();
+        reqDTO.setWaybillCode(exTaskEntity.getBarCode());
+        reqDTO.setUserCode(exTaskEntity.getHandlerErp());
+        reqDTO.setSiteId(Objects.nonNull(exTaskEntity.getSiteCode())?exTaskEntity.getSiteCode().intValue():0);
+        reqDTO.setSiteName(exTaskEntity.getSiteName());
+        reqDTO.setDeviceId("sorting");
+        reqDTO.setSystemSource(19);
+        reqDTO.setOperateTime(new Date());
+        reqDTO.setOperatorId(-1);
+        reqDTO.setOperatorName("分拣中心");
+        deliveryWSManager.delivered(reqDTO);
     }
 }

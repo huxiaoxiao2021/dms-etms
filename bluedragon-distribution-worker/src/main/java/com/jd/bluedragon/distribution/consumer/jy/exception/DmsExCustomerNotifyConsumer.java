@@ -37,8 +37,8 @@ public class DmsExCustomerNotifyConsumer extends MessageBaseConsumer {
                 return;
             }
             JyExCustomerNotifyMQ jyExCustomerNotifyMQ = JsonHelper.fromJson(message.getText(), JyExCustomerNotifyMQ.class);
-            if(jyExCustomerNotifyMQ == null || StringUtils.isEmpty(jyExCustomerNotifyMQ.getBusinessId())
-                    || jyExCustomerNotifyMQ.getNotifyStatus() == null) {
+            if(jyExCustomerNotifyMQ == null || StringUtils.isEmpty(jyExCustomerNotifyMQ.getExptId())
+                    || StringUtils.isEmpty(jyExCustomerNotifyMQ.getResultType())) {
                 logger.warn("客户回传消息体异常，内容为【{}】", message.getText());
                 return;
             }

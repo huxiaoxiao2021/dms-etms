@@ -31,10 +31,15 @@ public class DeliveryWSManagerImpl implements DeliveryWSManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DeliveryWSManagerImpl.delivered", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ResponseDTO delivered(DeliveredReqDTO deliveredReqDTO) {
-        log.info("DeliveryWSManagerImpl-妥投处理接口 入参-{}", JSON.toJSONString(deliveredReqDTO));
-        ResponseDTO delivered = deliveryWSService.delivered(deliveredReqDTO);
-        log.info("DeliveryWSManagerImpl-妥投处理接口 出参-{}", JSON.toJSONString(deliveredReqDTO));
-
-        return null;
+        ResponseDTO responseDTO = null;
+        try{
+            log.info("DeliveryWSManagerImpl-妥投处理接口 入参-{}", JSON.toJSONString(deliveredReqDTO));
+            responseDTO = deliveryWSService.delivered(deliveredReqDTO);
+            log.info("DeliveryWSManagerImpl-妥投处理接口 出参-{}", JSON.toJSONString(deliveredReqDTO));
+            return responseDTO;
+        }catch (Exception e){
+            log.error("妥投处理接口异常-入参-{}-异常信息-{}",JSON.toJSONString(deliveredReqDTO),e.getMessage(),e);
+        }
+        return responseDTO;
     }
 }

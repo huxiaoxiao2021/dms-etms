@@ -13,10 +13,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.FlowServiceManager;
-import com.jd.bluedragon.core.base.HrUserManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
@@ -40,6 +37,7 @@ import com.jd.lsb.flow.domain.ApproveRequestOrder;
 import com.jd.lsb.flow.domain.HistoryApprove;
 import com.jd.lsb.flow.domain.jme.JmeFile;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.dto.forcedelivery.price.WaybillPriceRequestDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.cs.abnormal.portal.api.dto.reason.AbnormalReasonDto;
@@ -69,6 +67,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private final Integer REASON_LEVEL_CODE_TWO = 2;
     //异常原因三级
     private final Integer REASON_LEVEL_CODE_THREE = 3;
+
+    private final Integer DMS_ETMS_SOURCE = 19;
 
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
@@ -104,6 +104,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @Autowired
     @Qualifier("abnormalReasonManagerOfZK")
     private AbnormalReasonOfZKManager abnormalReasonManagerOfZK;
+    @Autowired
+    private WaybillForceDeliveryApiManager waybillForceDeliveryApiManager;
 
     @Override
     public Integer getExceptionType() {
@@ -121,7 +123,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
         //校验生鲜单号 自营OR外单
-        String msg = checkFresh(waybillCode);
+        String msg = checkFresh(waybillCode,req.getUserErp());
         if (StringUtils.isNotBlank(msg)) {
             return JdCResponse.fail(msg);
         }
@@ -670,7 +672,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param waybillCode
      * @return
      */
-    private String checkFresh(String waybillCode) {
+    private String checkFresh(String waybillCode,String erp) {
         //根据运单获取waybillSign
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                 = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
@@ -693,6 +695,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             if (BusinessUtil.isSelfSX(sendPay)) {
                 //todo  调用终端妥投校验接口
                 logger.info("自营生鲜运单");
+//                if(!checkDelivery(waybillCode, erp)){
+//                    return "此运单妥投校验失败,不允许上报!";
+//                }
                 return "";
             }
         } else {//外单
@@ -744,5 +749,17 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             logger.error("保存日志信息出错 req-{}-{}",JSON.toJSONString(entity),e.getMessage(),e);
         }
 
+    }
+
+    /**
+     * 校验运单是否可以妥投
+     * @return
+     */
+    private boolean checkDelivery(String waybillCode, String erp){
+        WaybillPriceRequestDto  requestDto = new WaybillPriceRequestDto();
+        requestDto.setWaybillCode(waybillCode);
+        requestDto.setUserCode(erp);
+        requestDto.setSource(DMS_ETMS_SOURCE);
+        return waybillForceDeliveryApiManager.forceDeliveryCheck(requestDto);
     }
 }

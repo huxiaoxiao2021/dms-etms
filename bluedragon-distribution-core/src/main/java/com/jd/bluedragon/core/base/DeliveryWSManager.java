@@ -10,5 +10,10 @@ import com.jd.ql.erp.dto.delivery.DeliveredReqDTO;
  */
 public interface DeliveryWSManager {
 
+    /**
+     * 妥投任务处理接口
+     * @param deliveredReqDTO
+     * @return
+     */
     ResponseDTO delivered(DeliveredReqDTO deliveredReqDTO);
 }
