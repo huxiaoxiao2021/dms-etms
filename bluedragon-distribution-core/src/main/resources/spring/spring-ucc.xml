@@ -255,6 +255,7 @@
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
 		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
+		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -499,6 +500,7 @@
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
+				<value>uccPropertyConfiguration.boardCombinationRouterSwitch</value>
 			</list>
 		</property>
 	</bean>

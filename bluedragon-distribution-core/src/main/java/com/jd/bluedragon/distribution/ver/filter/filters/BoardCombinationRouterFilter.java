@@ -72,7 +72,6 @@ public class BoardCombinationRouterFilter implements Filter {
 
             if(SiteHelper.isDistributionCenter(request.getReceiveSite())){
                 //根据waybillCode查库获取路由信息
-
                 BaseStaffSiteOrgDto routeNextDto = routerService.getRouterNextSite(createSiteCode, waybillCode);
 
                 //路由中包括当前操作的分拣中心并且没有通过校验
@@ -85,6 +84,11 @@ public class BoardCombinationRouterFilter implements Filter {
                     throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
                             SortingResponse.MESSAGE_BOARD_ROUTER_ERROR + "路由下一站：" + routerShortNames);
                 } else if (routeNextDto == null && uccPropertyConfiguration.isControlCheckRoute()){
+                    // 跳过路由校验
+                    if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                        chain.doFilter(request, chain);
+                        return;
+                    }
                     throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
                             SortingResponse.MESSAGE_BOARD_ROUTER_EMPTY_ERROR);
                 }

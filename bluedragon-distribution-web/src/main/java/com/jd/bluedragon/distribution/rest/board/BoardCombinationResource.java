@@ -226,9 +226,9 @@ public class BoardCombinationResource {
             // 操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindingsNew(combinationRequest, boardResponse, oldBoard, request);
             if (JdResponse.CODE_FAIL.equals(statusCode)) {
-                result.toFail(boardResponse.buildStatusMessages());
+                result.toFail(boardResponse.getSingleStatusInfo().getStatusCode(), boardResponse.getSingleStatusInfo().getStatusMessage());
             } else if (JdResponse.CODE_CONFIRM.equals(statusCode)) {
-                result.toConfirm(boardResponse.buildStatusMessages());
+                result.toConfirm(boardResponse.getSingleStatusInfo().getStatusMessage());
             } else if (JdResponse.CODE_SUCCESS.equals(statusCode)) {
                 return result;
             }
@@ -600,6 +600,7 @@ public class BoardCombinationResource {
         boardCombinationRequest.setBoardCode(param.getBoardCode());
         boardCombinationRequest.setReceiveSiteCode(param.getReceiveSiteCode());
         boardCombinationRequest.setReceiveSiteName(param.getReceiveSiteName());
+        boardCombinationRequest.setNextSiteCode(param.getNextSiteCode());
         boardCombinationRequest.setIsForceCombination(param.isForceCombination());
         boardCombinationRequest.setSiteCode(param.getCurrentOperate().getSiteCode());
         boardCombinationRequest.setSiteName(param.getCurrentOperate().getSiteName());
@@ -609,7 +610,6 @@ public class BoardCombinationResource {
         if (param.getFlowDisaccord() != null) {
             boardCombinationRequest.setFlowDisaccord(param.getFlowDisaccord());
         }
-
         return boardCombinationRequest;
 
     }

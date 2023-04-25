@@ -1236,6 +1236,11 @@ public class UccPropertyConfiguration {
      */
     private boolean loadCarEvaluateSwitch;
 
+    /**
+     * 组板路由校验开关
+     */
+    private boolean boardCombinationRouterSwitch;
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -3015,5 +3020,13 @@ public class UccPropertyConfiguration {
 
     public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
         this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public boolean getBoardCombinationRouterSwitch() {
+        return boardCombinationRouterSwitch;
+    }
+
+    public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+        this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
     }
 }
