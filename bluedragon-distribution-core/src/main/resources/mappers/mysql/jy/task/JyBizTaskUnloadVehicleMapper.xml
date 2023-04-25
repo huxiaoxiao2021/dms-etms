@@ -48,6 +48,7 @@
         <result property="ts" column="ts"/>
         <result property="taskType" column="task_type"/>
         <result property="railwayPfNo" column="railway_pf_no"/>
+        <result property="teanFlag" column="te_an_flag"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -98,7 +99,8 @@
         railway_pf_no,
         unload_start_time,
         comboard_count,
-        intercept_count
+        intercept_count,
+        te_an_flag
     </sql>
 
 
@@ -388,6 +390,10 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="teanFlag != null">
+                and te_an_flag =#{teanFlag}
+            </if>
+
         </where>
 
         group by vehicle_status
@@ -513,6 +519,9 @@
 
             <if test="entity.refGroupCode != null and entity.refGroupCode != ''">
                 and ref_group_code = #{entity.refGroupCode}
+            </if>
+            <if test="entity.teanFlag != null ">
+                and te_an_flag = #{entity.teanFlag}
             </if>
 
         </where>
@@ -688,6 +697,9 @@
             </if>
             <if test="refGroupCode != null">
                 ref_group_code =#{refGroupCode},
+            </if>
+            <if test="teanFlag != null">
+                te_an_flag=##{teanFlag},
             </if>
         </set>
         <where>

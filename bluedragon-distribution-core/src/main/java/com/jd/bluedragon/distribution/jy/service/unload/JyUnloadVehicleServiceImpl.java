@@ -452,6 +452,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
         condition.setTaskType(request.getTaskType());
+        if(Objects.equals(request.getTeanFlag(),1)){
+            condition.setTeanFlag(request.getTeanFlag());
+        }
 
         return condition;
     }
