@@ -37,7 +37,7 @@ public class KvIndexDao extends BaseDao<KvIndex> {
         return this.add(entity);
     }
 
-    private List<String> queryByKeyword(String keyword) {
+    public List<String> queryByKeyword(String keyword) {
 		return this.getSqlSession().selectList(namespace + ".queryByKeyword", keyword);
 	}
 

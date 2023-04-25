@@ -1302,6 +1302,18 @@ public class UccPropertyConfiguration {
         this.supportMutilScan = supportMutilScan;
     }
 
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
+
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3015,5 +3027,21 @@ public class UccPropertyConfiguration {
 
     public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
         this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
     }
 }
