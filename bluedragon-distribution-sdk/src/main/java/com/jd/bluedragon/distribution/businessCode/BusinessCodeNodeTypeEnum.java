@@ -24,6 +24,11 @@ public enum BusinessCodeNodeTypeEnum {
     /**
      * 箱号
      */
-    box_code;
+    box_code,
+
+    /**
+     * 拣运能力域-待集齐集合的集合ID
+     */
+    collection_code;
 
 }
