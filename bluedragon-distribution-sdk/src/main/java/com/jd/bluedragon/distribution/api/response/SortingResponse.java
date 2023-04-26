@@ -85,6 +85,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_31123 = 31123;
     public static final String MESSAGE_31123 = "验货未集齐是否继续操作";
 
+    public static final Integer CODE_31124 = 31124;
+    public static final String MESSAGE_31124 = "此单为特安包裹，请勿与普通件进行混包！";
+
+
     /**************************************配送拦截新逻辑START****************************/
 
     public static final Integer CODE_29311 = 29311;

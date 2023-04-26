@@ -381,5 +381,7 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_JY_BIZ_TASK_AUTO_CLOSE = JY_CACHE_PREFIX + "jyBizTaskAutoClose:%s:%s";
 
+    public static final String CACHE_KEY_JY_TEAN_WAYBILL = JY_CACHE_PREFIX + "jyTEANWaybill:%s:%s";
+
 
 }

@@ -1871,4 +1871,8 @@ public class Constants {
         public static final Integer INTEGER_ZERO = 0;
     }
 
+    /**
+     * 暂存 增值服务编码
+     * */
+    public static final String TE_AN_SERVICE = "ed-a-0047";
 }

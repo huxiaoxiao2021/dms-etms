@@ -38,6 +38,7 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -2083,6 +2084,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
         }
         return false;
+    }
+
+    @Override
+    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
+            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
+    public boolean isTeAnWaybill(String waybillCode) {
+        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+        if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
+                || CollectionUtils.isEmpty(baseEntity.getData())){
+            return false;
+        }
+        List<WaybillVasDto> list = baseEntity.getData();
+        for(WaybillVasDto dto : list){
+            if(Constants.TE_AN_SERVICE.equals(dto.getVasNo())){
+                return true;
+            }
+        }
+        return false;
+
     }
 
     /**

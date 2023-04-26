@@ -67,6 +67,11 @@ public class VehicleBaseInfo implements Serializable {
      */
     private Integer orderIndex;
 
+    /**
+     * 0-非特安；1-特安
+     */
+    private Integer teanFlag;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -153,5 +158,13 @@ public class VehicleBaseInfo implements Serializable {
 
     public void setOrderIndex(Integer orderIndex) {
         this.orderIndex = orderIndex;
+    }
+
+    public Integer getTeanFlag() {
+        return teanFlag;
+    }
+
+    public void setTeanFlag(Integer teanFlag) {
+        this.teanFlag = teanFlag;
     }
 }

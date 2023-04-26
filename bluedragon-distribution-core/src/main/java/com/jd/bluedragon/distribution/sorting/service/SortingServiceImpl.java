@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -179,6 +180,9 @@ public class SortingServiceImpl implements SortingService {
 
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
+
+	@Autowired
+	private WaybillCommonService waybillCommonService;
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -1582,7 +1586,12 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-            pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
+			//校验特安单
+			sortingJsfResponse = checkTEANWaybillSorting(pdaOperateRequest, sortingJsfResponse);
+			if (sortingJsfResponse.getCode() != 200) {
+				return sortingJsfResponse;
+			}
+			pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
 			//调用web分拣验证校验链
 			sortingJsfResponse = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
@@ -1600,6 +1609,38 @@ public class SortingServiceImpl implements SortingService {
 			sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
 		}
 
+		return sortingJsfResponse;
+	}
+
+	/**
+	 *检验特安包裹：需要查询上一个扫描建包的包裹是否同为特安包裹(若没有上一个包裹，则无需校验）
+	 */
+	private SortingJsfResponse checkTEANWaybillSorting(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
+
+		int expriedTime = 2*60*60;//两个小时
+		//如果是包裹号解析成运单号
+		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
+		//根据场地+erp组成缓存Key
+		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getOperateUserCode());
+		//根据运单校验是否是特安包裹
+		boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
+		//值针对特安做处理
+		if(isTeAn){
+			//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
+			String cacheWaybill = redisManager.get(cachedKey);
+			if(StringUtils.isNotBlank(cacheWaybill)){
+				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
+				//如果上一个包裹不是特安包裹则提示
+				if(!isTeAnOld){
+					sortingJsfResponse = new SortingJsfResponse();
+					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
+					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124);
+					return sortingJsfResponse;
+				}
+			}
+		}
+		//缓存当前扫描的包裹信息
+		redisManager.setex(cachedKey,expriedTime,waybillCode);
 		return sortingJsfResponse;
 	}
 
