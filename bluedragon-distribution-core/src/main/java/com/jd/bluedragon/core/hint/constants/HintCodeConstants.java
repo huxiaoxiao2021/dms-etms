@@ -1016,4 +1016,6 @@ public class HintCodeConstants {
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
     public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";     
+
+    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
 }
