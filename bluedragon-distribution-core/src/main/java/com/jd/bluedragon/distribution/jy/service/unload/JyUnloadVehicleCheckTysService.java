@@ -560,10 +560,11 @@ public class JyUnloadVehicleCheckTysService {
                 throw new LoadIllegalException(LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
             }
             request.setBoardCode(board.getCode());
-            request.setNextSiteCode(board.getDestinationId());
+            request.setNextSiteCode(board.getDestinationId());//单流向
             request.setNextSiteName(board.getDestination());
             request.setBoardDestinationId(board.getDestinationId());
-
+            request.setReceiveSiteCode(board.getDestinationId());//板流向
+            request.setReceiveSiteName(board.getDestination());
             response.setBizId(request.getBizId());
             response.setBoardCode(board.getCode());
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
@@ -592,6 +593,10 @@ public class JyUnloadVehicleCheckTysService {
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.FLOW_DISACCORD.getLevel(), UnloadCarWarnEnum.FLOW_DISACCORD.getDesc());
             return false;
+        }
+        if(Objects.isNull(request.getReceiveSiteCode())) {
+            request.setReceiveSiteCode(destinationId);//板流向
+            request.setReceiveSiteName(result.getData().getDestination());
         }
         return true;
     }
