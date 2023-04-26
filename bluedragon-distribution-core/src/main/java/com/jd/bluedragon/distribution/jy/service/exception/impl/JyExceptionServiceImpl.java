@@ -87,6 +87,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
     private static final String SPLIT = ",";
 
+
+    private final String DEVICE_ID = "sorting";
+    private final Integer SYSTEM_SOURCE = 19;
+    private final Integer OPERATE_ID = -1;
+    private final String OPERATE_NAME = "分拣中心";
+
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
     @Autowired
@@ -1036,11 +1042,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ) {
         // 回传状态
-        Integer notifyStatus = 0;
-        if(StringUtils.isNotBlank(jyExCustomerNotifyMQ.getResultType())){
-            notifyStatus = new Integer(jyExCustomerNotifyMQ.getResultType());
-        }
-        switch (CustomerNotifyStatusEnum.convertApproveEnum(notifyStatus)) {
+        String resultType = jyExCustomerNotifyMQ.getResultType();
+        switch (CustomerNotifyStatusEnum.convertApproveEnum(resultType)) {
             case SELF_REPAIR_ORDER:
                 // 自营补单  调用终端妥投接口
                 delivered(jyExCustomerNotifyMQ.getExptId());
@@ -1558,11 +1561,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         reqDTO.setUserCode(exTaskEntity.getHandlerErp());
         reqDTO.setSiteId(Objects.nonNull(exTaskEntity.getSiteCode())?exTaskEntity.getSiteCode().intValue():0);
         reqDTO.setSiteName(exTaskEntity.getSiteName());
-        reqDTO.setDeviceId("sorting");
-        reqDTO.setSystemSource(19);
+        reqDTO.setDeviceId(DEVICE_ID);
+        reqDTO.setSystemSource(SYSTEM_SOURCE);
         reqDTO.setOperateTime(new Date());
-        reqDTO.setOperatorId(-1);
-        reqDTO.setOperatorName("分拣中心");
+        reqDTO.setOperatorId(OPERATE_ID);
+        reqDTO.setOperatorName(OPERATE_NAME);
         deliveryWSManager.delivered(reqDTO);
     }
 }

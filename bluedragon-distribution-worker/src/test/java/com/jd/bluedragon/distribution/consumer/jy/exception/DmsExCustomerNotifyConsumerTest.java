@@ -36,8 +36,13 @@ public class DmsExCustomerNotifyConsumerTest {
         try {
             Message message = new Message();
             JyExCustomerNotifyMQ jyExCustomerNotifyMQ = new JyExCustomerNotifyMQ();
-            jyExCustomerNotifyMQ.setBusinessId("SANWU_SW1111111135");
-            jyExCustomerNotifyMQ.setNotifyStatus(CustomerNotifyStatusEnum.CANCEL_ORDER.getCode());
+            jyExCustomerNotifyMQ.setBusinessId("408");
+            jyExCustomerNotifyMQ.setEventNo("110");
+            jyExCustomerNotifyMQ.setExptId("SCRAPPED_JDVA19408919512");
+            jyExCustomerNotifyMQ.setResultType("174");
+            jyExCustomerNotifyMQ.setDesc("客服回传");
+            jyExCustomerNotifyMQ.setErpCode("chen");
+            jyExCustomerNotifyMQ.setSendTime("2023-01-01");
             message.setText(JsonHelper.toJson(jyExCustomerNotifyMQ));
             dmsExCustomerNotifyConsumer.consume(message);
             Assert.assertTrue(true);

@@ -32,6 +32,7 @@ public class DmsExCustomerNotifyConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DmsExCustomerNotifyConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         try {
+            logger.info("客服回传消息体-{}",message.getText());
             if (!JsonHelper.isJsonString(message.getText())) {
                 logger.warn("客服回传消息体非JSON格式，内容为【{}】", message.getText());
                 return;
