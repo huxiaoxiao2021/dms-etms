@@ -20,6 +20,9 @@ public class DynamicDataSourceHolders {
     if (DynamicDataSourceType.DEFAULT.name().equals(dataSource)){
       d =DynamicDataSourceType.DEFAULT;
     }
+    if (DynamicDataSourceType.JY_CORE.name().equals(dataSource)){
+      d =DynamicDataSourceType.JY_CORE;
+    }
     else if (DynamicDataSourceType.AGGS_MAIN.name().equals(dataSource)){
       d =DynamicDataSourceType.AGGS_MAIN;
     }

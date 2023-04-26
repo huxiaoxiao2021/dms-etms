@@ -20,17 +20,21 @@ public class ChooseDataSourceOPRAspect {
     Object target = point.getTarget();
     String methodName = point.getSignature().getName();
     Class<?>[] clazz = target.getClass().getInterfaces();
-    Class<?>[] parameterTypes = ((MethodSignature) point.getSignature()).getMethod().getParameterTypes();
+    Class<?> targetClass = target.getClass();
+   //Class<?>[] parameterTypes = ((MethodSignature) point.getSignature()).getMethod().getParameterTypes();
     try {
-      Method method = clazz[0].getMethod(methodName, parameterTypes);
+      //Method method = clazz[0].getMethod(methodName, parameterTypes);
       //先判断下 ThreadLocal是否有值 有 使用，没有 执行切面逻辑
+      logger.info("===================ChooseDataSourceOPRAspect===111========================");
       if (null == DynamicDataSourceHolders.getDataSource()){
-        if (method != null && method.isAnnotationPresent(DataSources.class)) {
-          DataSources data = method.getAnnotation(DataSources.class);
+        logger.info("===================ChooseDataSourceOPRAspect===222========================");
+        if (target != null && targetClass.isAnnotationPresent(DataSources.class)) {
+          logger.info("===================ChooseDataSourceOPRAspect===333========================");
+          DataSources data = targetClass.getAnnotation(DataSources.class);
+          logger.info("===================ChooseDataSourceOPRAspect：{}",data.value());
           DynamicDataSourceHolders.putDataSource(data.value());
         }
       }
-
     } catch (Exception e) {
       logger.error(String.format("Choose DataSource error, method:%s, msg:%s", methodName, e.getMessage()));
     }
