@@ -102,6 +102,8 @@ public class SortingServiceImpl implements SortingService {
 
 	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
 
+	private final static Integer CACHE_WAYBILL_INFO_EXPIRE_SCONDS = 2 * 60 * 60; //半小时
+
 	@Autowired
 	private DynamicSortingQueryDao dynamicSortingQueryDao;
 
@@ -1617,7 +1619,6 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	private SortingJsfResponse checkTEANWaybillSorting(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
 
-		int expriedTime = 2*60*60;//两个小时
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
 		//根据场地+erp组成缓存Key
@@ -1640,7 +1641,7 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 		//缓存当前扫描的包裹信息
-		redisManager.setex(cachedKey,expriedTime,waybillCode);
+		redisManager.setex(cachedKey,CACHE_WAYBILL_INFO_EXPIRE_SCONDS,waybillCode);
 		return sortingJsfResponse;
 	}
 

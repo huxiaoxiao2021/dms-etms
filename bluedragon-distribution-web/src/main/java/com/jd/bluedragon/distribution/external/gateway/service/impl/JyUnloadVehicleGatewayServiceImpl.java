@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
@@ -60,6 +62,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private TransportRelatedService transportRelatedService;
+    @Autowired
+    private WaybillCommonService waybillCommonService;
 
 
     @Override
@@ -174,6 +178,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             // 失败直接返回
             return response;
         }
+        //扫描检验特安件
+        waybillCommonService.checkTEANWaybillCondition(response,request.getBarCode());
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {

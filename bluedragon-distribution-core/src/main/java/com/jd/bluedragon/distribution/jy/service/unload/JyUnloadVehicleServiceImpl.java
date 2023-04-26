@@ -12,7 +12,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleBaseInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -167,8 +166,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private BaseMinorManager baseMinorManager;
-    @Autowired
-    private WaybillCommonService waybillCommonService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -532,10 +529,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
         // 德邦场地提示
         this.handleDepponMergeCondition(request, result);
-
-        this.handleTEANMergeCondition(request,result);
-
-
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
@@ -562,23 +555,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         return result;
     }
-
-    /**
-     * 处理特安
-     */
-    private void handleTEANMergeCondition(UnloadScanRequest request, InvokeResult<Integer> result){
-        // 只处理包裹号或运单号
-        if(!WaybillUtil.isWaybillCode(request.getBarCode()) && WaybillUtil.isPackageCode(request.getBarCode())){
-            return;
-        }
-        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-
-        boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
-        if(isTeAn){
-            //result.customMessage();
-        }
-    }
-
     private void handleDepponMergeCondition(UnloadScanRequest request, InvokeResult<Integer> result) {
         // 只处理包裹号或运单号
         if(!WaybillUtil.isWaybillCode(request.getBarCode()) && WaybillUtil.isPackageCode(request.getBarCode())){
