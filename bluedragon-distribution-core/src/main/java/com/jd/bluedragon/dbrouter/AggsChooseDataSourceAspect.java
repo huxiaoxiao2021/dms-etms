@@ -7,6 +7,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +30,10 @@ public class AggsChooseDataSourceAspect {
   @Autowired
   UccPropertyConfiguration ucc;
 
+  @Pointcut("execution(* com.jd.bluedragon.distribution.jy.service.comboard..*.*(..)) ")
+  public void pointCut(){};
 
-  @Before("execution(* com.jd.bluedragon.distribution.jy.service.comboard..*.*(..)) ")
+  @Before("pointCut()")
   public void before(JoinPoint point) {
     try {
       if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)) {
@@ -46,7 +49,6 @@ public class AggsChooseDataSourceAspect {
           }
         }
       } else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)) {
-        logger.info("=============aggsDataSource= {}",aggsDataSource);
         if (ObjectHelper.isNotNull(aggsDataSource)) {
           DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(aggsDataSource);
           if (ObjectHelper.isNotNull(dataSourceType)) {
@@ -59,7 +61,7 @@ public class AggsChooseDataSourceAspect {
     }
   }
 
-  @After("execution(* com.jd.bluedragon.distribution.jy.service.comboard..*.*(..)) ")
+  @After("pointCut()")
   public void after(JoinPoint point) {
     DynamicDataSourceHolders.clearDataSource();
   }

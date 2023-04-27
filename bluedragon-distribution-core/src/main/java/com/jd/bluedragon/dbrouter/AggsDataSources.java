@@ -1,5 +1,6 @@
 package com.jd.bluedragon.dbrouter;
 
+import com.jd.bluedragon.enums.ReadWriteTypeEnum;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
@@ -23,6 +24,9 @@ public class AggsDataSources extends AbstractRoutingDataSource {
 
   @Value("${jy.aggs.dataSource}")
   private String shouldChooseDateSource;
+
+  @Value("${jy.aggs.readWrite.type}")
+  protected String readWriteType;
 
 
   @Override
@@ -50,17 +54,13 @@ public class AggsDataSources extends AbstractRoutingDataSource {
   protected Object determineCurrentLookupKey() {
     logger.info("AggsDataSources数据库路由选举策略...");
     DynamicDataSourceType currentDataSource = DynamicDataSourceHolders.getDataSource();
-    logger.info(".DynamicDataSourceHolders..{}", currentDataSource.name());
-    DynamicDataSourceType finalDataSource =
-        currentDataSource != null ? currentDataSource : DynamicDataSourceType.DEFAULT;
-    logger.info("最终选择了" + finalDataSource.name() + "数据源");
-    if (finalDataSource.getName().equals(shouldChooseDateSource)){
-      logger.info("选对了");
+    DynamicDataSourceType finalDataSource = currentDataSource != null ? currentDataSource : DynamicDataSourceType.DEFAULT;
+    logger.info("最终选择了" + finalDataSource.getName() + "数据源");
+    if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
+      if (!finalDataSource.getName().equals(shouldChooseDateSource)){
+        logger.error("AggsDataSources数据库路由选举策略错误：should choose {} ,but final choose {}",shouldChooseDateSource,finalDataSource.getName());
+      }
     }
-    else {
-      logger.info("选错了");
-    }
-
     return finalDataSource.name();
   }
 
