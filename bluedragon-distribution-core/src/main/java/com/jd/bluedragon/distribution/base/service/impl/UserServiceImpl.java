@@ -159,8 +159,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
         LoginUserResponse loginUserResponse = clientLoginIn(request);
-        this.getAndSaveToken(request, loginUserResponse);
-        this.handleDeviceLocation(request, loginUserResponse);
+		if(uccPropertyConfiguration.getPdaLoginSkipSwitch()){
+			this.getAndSaveToken(request, loginUserResponse);
+			this.handleDeviceLocation(request, loginUserResponse);
+		}
         return loginUserResponse;
     }
 
