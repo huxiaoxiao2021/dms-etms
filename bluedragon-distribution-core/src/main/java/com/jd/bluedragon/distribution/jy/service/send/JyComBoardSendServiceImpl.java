@@ -1064,7 +1064,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<Integer> comboardSourceList = new ArrayList<>();
       comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
       req.setComboardSourceList(comboardSourceList);
-      req.setGroupCode(request.getGroupCode());
+      if (!ucc.getCreateBoardBySendFlowSwitch()) {
+        req.setGroupCode(request.getGroupCode());
+      }
       if (!jyBizTaskComboardService.batchFinishBoardBySendFLowList(req)) {
         log.info("完结板失败，混扫任务编号：{}", request.getTemplateCode());
         return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
@@ -1417,8 +1419,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
 
-    String sendFlowAndGroupLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX, request.getCurrentOperate().getSiteCode(),request.getDestinationId(),request.getGroupCode());
-    if (!jimDbLock.lock(sendFlowAndGroupLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+    String sendFlowAndGroupLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX, request.getCurrentOperate().getSiteCode(), request.getDestinationId(), request.getGroupCode());
+    if (!ucc.getCreateBoardBySendFlowSwitch() && !jimDbLock.lock(sendFlowAndGroupLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
     try {
@@ -1454,7 +1456,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (ucc.getCreateBoardBySendFlowSwitch()){
         jimDbLock.releaseLock(sendFlowLockKey, request.getRequestId());
       }
-      jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
+      if (!ucc.getCreateBoardBySendFlowSwitch()) {
+        jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
+      }
     }
   }
 
