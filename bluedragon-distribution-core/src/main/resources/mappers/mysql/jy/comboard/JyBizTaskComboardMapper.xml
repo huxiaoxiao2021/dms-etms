@@ -121,6 +121,9 @@
       <if test="comboardSource != null">
         comboard_source,
       </if>
+      <if test="groupCode != null">
+        group_code,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -182,6 +185,9 @@
       </if>
       <if test="comboardSource != null">
         #{comboardSource,jdbcType=INTEGER},
+      </if>
+      <if test="groupCode != null">
+        #{groupCode,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -330,7 +336,8 @@
     <if test="updateUserName != null and updateUserName != ''">
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
     </if>
-    update_time = now()
+    update_time = now(),
+    finish_time = now()
     where board_code = #{boardCode,jdbcType=VARCHAR}
   </update>
   <update id="batchFinishBoardBySendFLowList"
@@ -343,7 +350,8 @@
     <if test="updateUserName != null and updateUserName != ''">
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
     </if>
-    update_time = now()
+    update_time = now(),
+    finish_time = now()
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
     and end_site_id in
     <foreach item="item" index="index" collection="endSiteCodeList"

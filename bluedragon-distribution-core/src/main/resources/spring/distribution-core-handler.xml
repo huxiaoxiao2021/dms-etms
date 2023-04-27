@@ -80,6 +80,8 @@
 				<entry key="100318"  value-ref="getBasicPrintInfo"/>
 				<!-- 100319-终端工作台-现场预分拣 -->
 				<entry key="100319"  value-ref="reSchedulePrint"/>
+				<!-- 100320-终端:分批派送换单打印 -->
+                <entry key="100320"  value-ref="packageReverseChangePrint"/>				
 			</map>
 		</property>
 	</bean>

@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -20,9 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -138,6 +141,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             }
             ids.add(entity.getId());
         }
+        
         updateReq.setIds(ids);
         updateReq.setUpdateUserErp(request.getUser().getUserErp());
         updateReq.setUpdateUserName(request.getUser().getUserName());
@@ -164,10 +168,34 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     @Override
     public CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
-        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listCTTGroupData(entity);
+        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listGroupByEndSiteCodeOrCTTCode(entity);
+        
+        if (CollectionUtils.isEmpty(cttGroupDtos)) {
+            return resp;
+        }
+        // 查询混扫任务统计信息
+        List<String> templateCodeList = new ArrayList<>();
+        for (CTTGroupDto cttGroupDto : cttGroupDtos) {
+            templateCodeList.add(cttGroupDto.getTemplateCode());
+        }
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setTemplateCodeList(templateCodeList);
+        condition.setGroupCode(entity.getGroupCode());
+        List<CTTGroupDto> countList = jyGroupSortCrossDetailDao.listCountByTemplateCode(condition);
+        HashMap<String,Integer> countMap = getCountMapByCTTGroupDto(countList);
+        cttGroupDtos.forEach(item -> item.setSendFlowCount(countMap.get(item.getTemplateCode())));
+        
         log.info("混扫任务信息：{}", JsonHelper.toJson(cttGroupDtos));
         resp.setCttGroupDtolist(cttGroupDtos);
         return resp;
+    }
+
+    private HashMap<String, Integer> getCountMapByCTTGroupDto(List<CTTGroupDto> countList) {
+        HashMap<String, Integer> map = new HashMap<>();
+        for (CTTGroupDto cttGroupDto : countList) {
+            map.put(cttGroupDto.getTemplateCode(),cttGroupDto.getSendFlowCount());
+        }
+        return map;
     }
 
     @Override

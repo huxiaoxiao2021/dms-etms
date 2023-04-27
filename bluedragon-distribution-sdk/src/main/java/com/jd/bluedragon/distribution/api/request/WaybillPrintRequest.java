@@ -168,6 +168,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 请求时间
 	 */
 	private Date requestTime = new Date();
+	
+	/**
+	 * 返调度标识 1-返调度 0-其他打印
+	 */
+	private Integer localSchedule;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -481,5 +486,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setOutputType(Integer outputType) {
 		this.outputType = outputType;
+	}
+
+	public Integer getLocalSchedule() {
+		return localSchedule;
+	}
+
+	public void setLocalSchedule(Integer localSchedule) {
+		this.localSchedule = localSchedule;
 	}
 }

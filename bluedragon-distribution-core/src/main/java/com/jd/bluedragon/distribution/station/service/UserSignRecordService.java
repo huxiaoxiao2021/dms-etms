@@ -186,4 +186,10 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
+	/**
+	 * 查询最近一次-已签未退记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
 }

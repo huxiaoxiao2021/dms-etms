@@ -148,4 +148,11 @@ public interface GroupBoardManager {
      * @return
      */
     List<Board> getBoardListBySendFlow(BoardListRequest request);
+
+    /**
+     * 批量完结板
+     * @param boardCodeList
+     * @return
+     */
+    Boolean batchCloseBoard(List<String> boardCodeList);
 }

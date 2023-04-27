@@ -122,6 +122,10 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         weightVolumeEntity.setOperateSiteName(spotCheckNotifyMQ.getOrgName());
         String reviewUserErp = spotCheckNotifyMQ.getStartStaffAccount();
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(reviewUserErp);
+        if(baseStaff == null){
+            logger.warn("根据erp:{}查询基础资料为空!", reviewUserErp);
+            return;
+        }
         weightVolumeEntity.setOperatorCode(reviewUserErp);
         weightVolumeEntity.setOperatorId(baseStaff.getStaffNo());
         weightVolumeEntity.setOperatorName(baseStaff.getStaffName());

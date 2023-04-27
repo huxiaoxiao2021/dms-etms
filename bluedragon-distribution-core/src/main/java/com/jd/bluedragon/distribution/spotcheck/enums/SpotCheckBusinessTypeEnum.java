@@ -11,6 +11,7 @@ public enum SpotCheckBusinessTypeEnum {
     SPOT_CHECK_TYPE_C(0,"C网"),
     SPOT_CHECK_TYPE_B(1,"B网"),
     SPOT_CHECK_TYPE_MEDICAL(2,"医药"),
+    SPOT_CHECK_TYPE_COLD(3,"冷链"),
     SPOT_CHECK_TYPE_X(-1,"未知");
 
     private Integer code;

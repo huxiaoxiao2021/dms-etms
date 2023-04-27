@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.api.biz.exception;
 
+import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;
@@ -11,8 +12,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskException
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskNotifyTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.basic.common.utils.StringUtils;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +26,7 @@ import java.util.Objects;
 @Component("bizTaskExceptionService")
 @BizType(JyScheduleTaskTypeEnum.EXCEPTION)
 public class BizTaskExceptionService implements BizTaskService {
-
+    private Logger logger = LoggerFactory.getLogger(BizTaskExceptionService.class);
     @Autowired
     private JyBizTaskExceptionDao bizTaskExceptionDao;
     @Autowired
@@ -44,34 +48,41 @@ public class BizTaskExceptionService implements BizTaskService {
     @Override
     public void bizTaskNotify(JyBizTaskMessage message) {
         JyBizTaskExceptionEntity jyBizTaskExceptionEntity = bizTaskExceptionDao.findByBizId(message.getBizId());
-        switch (JyBizTaskNotifyTypeEnum.valueOf(message.getNotifyType())){
-            case DISTRIBUTE:
-                if (StringUtils.isEmpty(jyBizTaskExceptionEntity.getDistributionTarget())){
-                    jyBizTaskExceptionEntity.setDistributionType(message.getDistributionType());
-                    jyBizTaskExceptionEntity.setDistributionTarget(message.getDistributionTarget());
-                    jyBizTaskExceptionEntity.setDistributionTime(message.getDistributionTime());
-                    bizTaskExceptionDao.updateByBizId(jyBizTaskExceptionEntity);
-
-                    JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
-                    bizLog.setBizId(jyBizTaskExceptionEntity.getBizId());
-                    bizLog.setCycleType(JyBizTaskExceptionCycleTypeEnum.DISTRIBUTION.getCode());
-                    bizLog.setType(jyBizTaskExceptionEntity.getType());
-                    bizLog.setOperateTime(message.getDistributionTime());
-                    bizLog.setOperateUser("sys");
-                    bizLog.setOperateUserName("sys");
-                    jyBizTaskExceptionLogDao.insertSelective(bizLog);
-                }
-                break;
-            case TIMEOUT:
-                if (Objects.equals(jyBizTaskExceptionEntity.getTimeOut(),JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode())){
-                    jyBizTaskExceptionEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.TIMEOUT.getCode());
-                    bizTaskExceptionDao.updateByBizId(jyBizTaskExceptionEntity);
-                }
-                break;
-            default:
-                break;
+        if (jyBizTaskExceptionEntity == null){
+            return;
         }
+        try {
+            switch (JyBizTaskNotifyTypeEnum.valueOf(message.getNotifyType())){
+                case DISTRIBUTE:
+                    if (StringUtils.isEmpty(jyBizTaskExceptionEntity.getDistributionTarget())){
+                        jyBizTaskExceptionEntity.setDistributionType(message.getDistributionType());
+                        jyBizTaskExceptionEntity.setDistributionTarget(message.getDistributionTarget());
+                        jyBizTaskExceptionEntity.setDistributionTime(message.getDistributionTime());
+                        bizTaskExceptionDao.updateByBizId(jyBizTaskExceptionEntity);
 
+                        JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+                        bizLog.setBizId(jyBizTaskExceptionEntity.getBizId());
+                        bizLog.setCycleType(JyBizTaskExceptionCycleTypeEnum.DISTRIBUTION.getCode());
+                        bizLog.setType(jyBizTaskExceptionEntity.getType());
+                        bizLog.setOperateTime(message.getDistributionTime());
+                        bizLog.setOperateUser("sys");
+                        bizLog.setOperateUserName("sys");
+                        jyBizTaskExceptionLogDao.insertSelective(bizLog);
+                    }
+                    break;
+                case TIMEOUT:
+                    if (Objects.equals(jyBizTaskExceptionEntity.getTimeOut(),JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode())){
+                        jyBizTaskExceptionEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.TIMEOUT.getCode());
+                        bizTaskExceptionDao.updateByBizId(jyBizTaskExceptionEntity);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }catch (Exception e){
+            logger.error("接收异常调度任务消息处理失败，message[]"+ JsonHelper.toJson(message),e);
+            throw e;
+        }
     }
 
 }

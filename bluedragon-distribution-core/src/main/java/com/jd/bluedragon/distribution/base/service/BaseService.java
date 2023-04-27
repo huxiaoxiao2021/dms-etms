@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.GlobalFuncUsageControlDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -266,6 +269,24 @@ public interface BaseService{
      * @time 2022-04-11 16:47:33 周一
      */
     MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
+
+    /**
+     * 获取全局功能管控配置
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 功能可用性结果
+     * @author fanggang7
+     * @time 2023-03-22 19:59:20 周三
+     */
+    GlobalFuncUsageControlDto getGlobalFuncUsageControlConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto);
+
+    /**
+     * 根据功能编码获取功能可用性配置结果
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 菜单可用性结果
+     * @author fanggang7
+     * @time 2022-04-11 16:47:33 周一
+     */
+    FuncUsageProcessDto getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto);
 
 	/**
 	 * 校验菜单是否可用

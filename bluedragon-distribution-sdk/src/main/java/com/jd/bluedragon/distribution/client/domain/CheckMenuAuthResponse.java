@@ -29,7 +29,15 @@ public class CheckMenuAuthResponse implements Serializable {
      * 提示类型
      */
     private Integer msgType;
-	
+    /**
+     * 指引跳转的链接地址
+     */
+    private String url;
+    /**
+     * 指引跳转的链接地址-对应的信息
+     */
+    private String urlMsg;
+    
 	public String getMenuCode() {
 		return menuCode;
 	}
@@ -53,5 +61,17 @@ public class CheckMenuAuthResponse implements Serializable {
 	}
 	public void setMsgType(Integer msgType) {
 		this.msgType = msgType;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getUrlMsg() {
+		return urlMsg;
+	}
+	public void setUrlMsg(String urlMsg) {
+		this.urlMsg = urlMsg;
 	}
 }

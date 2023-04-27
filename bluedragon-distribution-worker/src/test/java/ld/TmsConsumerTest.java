@@ -57,6 +57,19 @@ public class TmsConsumerTest {
     //司机到达
     String s2 = "{\"transWorkCode\":\"TW22033029178590\",\"transWorkItemCode\":\"TW22033029178590-001\",\"comeTime\":null,\"sendTime\":null,\"arriveTime\":\"2022-03-30 15:08:20\",\"businessType\":14,\"transType\":11,\"transWay\":2,\"vehicleNumber\":\"甘AX6A83\",\"operateType\":2}";
 
+    //解封车
+    String testRealRankingJson ="{\"sealCarCode\":\"SC22120800024423\",\"status\":20,\"operateUserCode\":\"fang3\",\"operateUserName\":\"方斌\",\"operateTime\":\"2022-12-10 17:17:40\",\"sealCarType\":30,\"batchCodes\":null,\"transBookCode\":\"TB22041730847267\",\"volume\":null,\"weight\":null,\"transWay\":null,\"vehicleNumber\":\"鄂ADJ8702\",\"operateSiteId\":869056,\"operateSiteCode\":\"027Y432\",\"operateSiteName\":\"武汉汉口北揽收营业部\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1,\"sealCarInArea\":null}\n";
+    @Test
+    public void testRealRanking(){
+        //解封车
+        Message message = new Message();
+        message.setText(testRealRankingJson);
+        try {
+            tmsSealCarStatusConsumer.consume(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Test

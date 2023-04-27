@@ -97,18 +97,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     protected void reformCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         String packageCode = spotCheckContext.getPackageCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        // 纯配外单校验
-        String waybillSign = spotCheckContext.getWaybill().getWaybillSign();
-        if(!BusinessUtil.isPurematch(waybillSign)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
-            return;
-        }
-        // 业务类型校验
-        if(!BusinessUtil.isBInternet(waybillSign) && !BusinessUtil.isCInternet(waybillSign)
-                && !(BusinessUtil.isMedicalFreshProductType(waybillSign) || BusinessUtil.isMedicine(waybillSign))){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID);
-            return;
-        }
         // 泡重比校验
         if(weightVolumeRatioCheck(spotCheckContext, result)){
             return;
@@ -434,6 +422,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode());
         }else if(BusinessUtil.isMedicalFreshProductType(waybillSign) || BusinessUtil.isMedicine(waybillSign)){
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_MEDICAL.getCode());
+        }else if(BusinessUtil.isColdDelivery(waybillSign) || (BusinessUtil.isColdCityDistribute(waybillSign)
+                && BusinessUtil.isColdKB(waybillSign) && BusinessUtil.isColdReceipt(waybillSign))){
+            spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_COLD.getCode());
         }else {
             logger.warn(SpotCheckConstants.SPOT_CHECK_FORBID);
             throw new SpotCheckBusinessException(SpotCheckConstants.SPOT_CHECK_FORBID);

@@ -79,11 +79,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         }
         String packageCode = spotCheckContext.getPackageCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        // 纯配外单校验
-        if(!BusinessUtil.isPurematch(spotCheckContext.getWaybill().getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
-            return;
-        }
         // 泡重比校验
         if(weightVolumeRatioCheck(spotCheckContext, result)){
             return;
@@ -124,12 +119,8 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
             // 3、下发超标数据
             if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-                if(spotCheckDealService.isExecuteDwsAIDistinguish(spotCheckContext.getReviewSiteCode())){
-                    // 发消息来单独处理dws的一单多件的下发逻辑
-                    dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
-                }else {
-                    spotCheckDealService.executeIssue(summaryDto);
-                }
+                // 异步处理dws一单多件图片下发AI逻辑
+                dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
             }
         }
         // 包裹明细数据落库

@@ -107,6 +107,7 @@
                                     <div class="col-xs-6 ">
                                         <select type="text" class="form-control" id="businessTypeSelect" name="businessTypeSelect">
                                             <option value="" selected>全部</option>
+                                            <option value=3>冷链</option>
                                             <option value=2>医药</option>
                                             <option value=1>B网</option>
                                             <option value=0>C网</option>

@@ -91,6 +91,25 @@ public interface JssService {
      */
     String uploadFile(String bucket, byte[] bytes, String extName);
 
+    /**
+     * 上传文件
+     * 
+     * @param bucket
+     * @param bytes
+     * @param fileName 文件名（可带文件夹）
+     * @return
+     */
+    String uploadFileWithName(String bucket, byte[] bytes, String fileName);
+
+    /**
+     * 上传并获取外网url
+     * @param bucket
+     * @param bytes
+     * @param extName
+     * @return
+     */
+    String uploadFileAndGetOutUrl(String bucket, byte[] bytes, String extName);
+
 
 
 }

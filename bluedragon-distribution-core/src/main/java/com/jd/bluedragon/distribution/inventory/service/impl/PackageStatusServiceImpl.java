@@ -439,7 +439,6 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             siteWithDirection.setSiteSubType(dto.getSubType());
             siteWithDirection.setDirectionCode(dto.getSiteCode());
             siteWithDirection.setDirectionName(dto.getSiteName());
-            //todo zcf test log  UAT可保留做数据验证，上线需删除
             log.info("PackageStatusServiceImpl.getDirectionBySiteCode----parameter=【{}】,result=【{}】", siteCode, JsonHelper.toJson(dto));
             if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
                 siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);

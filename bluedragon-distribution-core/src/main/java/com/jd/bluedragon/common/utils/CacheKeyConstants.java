@@ -226,6 +226,12 @@ public class CacheKeyConstants {
     public static final String JY_UNLOAD_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ul:biz:first:%s";
 
     /**
+     * 拣运卸车任务主键
+     * bizId
+     */
+    public static final String JY_UNLOAD_TASK_LAST_SCAN_TIME_KEY = JY_CACHE_PREFIX + "ul:biz:lastScan:%s";
+
+    /**
      * PDA扫描进度缓存
      * bizId
      */
@@ -363,5 +369,20 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_PRODUCT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendProductAggBakLock:%s";
 
+    /**
+     * 换单打印
+     * sealCarCode
+     */
+    public static final String CACHE_KEY_CHANGE_ORDER_PRINT_KEY = JY_CACHE_PREFIX + "changeOrderPrintLock:%s";
 
+    /**
+     * 作业任务自动关闭
+     * 任务类型，bizId
+     */
+    public static final String CACHE_KEY_JY_BIZ_TASK_AUTO_CLOSE = JY_CACHE_PREFIX + "jyBizTaskAutoClose:%s:%s";
+
+    /**
+     * 批量作废周转筐缓存key
+     */
+    public static final String CACHE_KEY_BATCH_ABOLISH_RECYCLE_BASKET = "abolishRecycleBasket:%s";
 }

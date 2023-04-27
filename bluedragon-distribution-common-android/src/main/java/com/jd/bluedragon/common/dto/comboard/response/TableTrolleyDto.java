@@ -34,6 +34,16 @@ public class TableTrolleyDto implements Serializable {
      */
     private Integer boardCount;
 
+    /**
+     * 该流向完结组板数量
+     */
+    private Integer finishBoardCount;
+
+    /**
+     * 该流向未完结组板数量
+     */
+    private Integer inProcessBoardCount;
+    
     public boolean isSelectedFlag() {
         return selectedFlag;
     }
@@ -88,5 +98,21 @@ public class TableTrolleyDto implements Serializable {
 
     public void setBoardCount(Integer boardCount) {
         this.boardCount = boardCount;
+    }
+
+    public Integer getFinishBoardCount() {
+        return finishBoardCount;
+    }
+
+    public void setFinishBoardCount(Integer finishBoardCount) {
+        this.finishBoardCount = finishBoardCount;
+    }
+
+    public Integer getInProcessBoardCount() {
+        return inProcessBoardCount;
+    }
+
+    public void setInProcessBoardCount(Integer inProcessBoardCount) {
+        this.inProcessBoardCount = inProcessBoardCount;
     }
 }
