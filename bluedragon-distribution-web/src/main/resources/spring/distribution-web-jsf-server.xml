@@ -533,4 +533,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    
+    <!--  抽检服务   -->
+    <jsf:provider id="jsfSpotCheckDealService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckDealService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
 </beans>
