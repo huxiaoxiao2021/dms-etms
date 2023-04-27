@@ -48,4 +48,36 @@ public class BusinessCodeAttributeKey {
     public enum BoardCodeAttributeKeyEnum {
 
     }
+
+    /**
+     * 拣运集齐能力域设计-待集齐集合的属性字段
+     * 除了在枚举中的key需要落code>business_code_attribute</code>表以外，在<code>collectionConditionKeyEnum</code>中的枚举也需要落库
+     */
+    public enum JQCodeAttributeKeyEnum {
+
+        /**
+         * 值所在的枚举请见
+         * @link CollectionBusinessTypeEnum
+         */
+        collection_business_type("集齐业务类型"),
+
+        /**
+         * 值所在的枚举请见
+         * @link CollectionConditionKeyEnum
+         */
+        collection_condition("集齐条件"),
+
+        ;
+
+        private final String mark;
+
+        JQCodeAttributeKeyEnum(String mark) {
+            this.mark = mark;
+        }
+
+        public String getMark() {
+            return mark;
+        }
+
+    }
 }

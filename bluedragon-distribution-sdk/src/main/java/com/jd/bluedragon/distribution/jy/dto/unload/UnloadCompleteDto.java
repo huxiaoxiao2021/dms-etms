@@ -47,6 +47,10 @@ public class UnloadCompleteDto extends UnloadBaseDto implements Serializable {
      */
     private Long moreScanOutCount;
 
+    /**
+     * 操作来源
+     */
+    private Integer operateSource;
 
     public String getTaskId() {
         return taskId;
@@ -102,5 +106,13 @@ public class UnloadCompleteDto extends UnloadBaseDto implements Serializable {
 
     public void setMoreScanOutCount(Long moreScanOutCount) {
         this.moreScanOutCount = moreScanOutCount;
+    }
+
+    public Integer getOperateSource() {
+        return operateSource;
+    }
+
+    public void setOperateSource(Integer operateSource) {
+        this.operateSource = operateSource;
     }
 }

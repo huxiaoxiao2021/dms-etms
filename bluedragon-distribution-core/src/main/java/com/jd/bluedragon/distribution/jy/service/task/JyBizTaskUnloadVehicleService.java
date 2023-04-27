@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -88,6 +89,11 @@ public interface JyBizTaskUnloadVehicleService {
      */
     boolean changeStatus(JyBizTaskUnloadVehicleEntity entity);
 
+    /**
+     * 初始化实际到达时间 同步修改排序时间
+     * @return
+     */
+    boolean initActualArriveTime(String BizId, Date actualArriveTime);
 
     /**
      * 保存或更新基础信息 注:字段未NULL时不更新此字段
@@ -120,6 +126,18 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
+
+    /**
+     * 更新其他业务信息
+     * 包含以下业务字段
+     * 业务主键
+     * <p>
+     * 排除saveOrUpdateOfBaseInfo字段
+     *
+     * @param entity
+     * @return
+     */
+    boolean updateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
 
     /**
      * 检查当前卸车任务是否被锁定

@@ -954,6 +954,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 转运中心
+     * @param subType
+     * @return
+     */
+    public static boolean isTransferSite(Integer subType){
+        return Integer.valueOf(6420).equals(subType);
+    }
+
+    /**
      *判断是否是冷链卡班
      */
     public static Boolean isColdChainKB(String waybillSign,String productType){
@@ -2677,5 +2686,14 @@ public class BusinessUtil {
      */
     public static boolean isTKS(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
+    }
+
+    /**
+     * 航空填仓  WaybillSign67位=1
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAirFill(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_67,WaybillSignConstants.CHAR_67_1);
     }
 }

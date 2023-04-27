@@ -1,11 +1,11 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -811,7 +811,7 @@ public class UccPropertyConfiguration {
      *  以,隔开，ALL标识开通全国
      */
     private String volumeExcessIssueSites;
-    
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -1021,6 +1021,11 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
+
+    /**
      * 拣运发车任务满载率上限。eg:150
      */
     private Integer jySendTaskLoadRateUpperLimit;
@@ -1166,6 +1171,12 @@ public class UccPropertyConfiguration {
     private Long machineCalibrateIntervalTimeOfSpotCheck;
 
     /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
+
+    /**
      * 设备下发是否依据设备状态标识
      */
     private boolean spotCheckIssueRelyOMachineStatus;
@@ -1220,6 +1231,11 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
+
     private boolean createBoardBySendFlowSwitch;
 
     /**
@@ -1271,6 +1287,12 @@ public class UccPropertyConfiguration {
         this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
     }
 
+    /**
+     * 自动关闭任务配置，转换为对象
+     */
+    private String autoCloseJyBizTaskConfig;
+    private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
+
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
     }
@@ -1302,6 +1324,18 @@ public class UccPropertyConfiguration {
     public void setSupportMutilScan(boolean supportMutilScan) {
         this.supportMutilScan = supportMutilScan;
     }
+
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
+
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2437,6 +2471,14 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+    }
+
     public Integer getJySendTaskLoadRateUpperLimit() {
         return jySendTaskLoadRateUpperLimit;
     }
@@ -2789,6 +2831,14 @@ public class UccPropertyConfiguration {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
     }
 
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
+    }
+
     public boolean getSpotCheckIssueRelyOMachineStatus() {
         return spotCheckIssueRelyOMachineStatus;
     }
@@ -2981,5 +3031,40 @@ public class UccPropertyConfiguration {
 
     public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
         this.volumeExcessIssueSites = volumeExcessIssueSites;
+    }
+
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
+        return autoCloseJyBizTaskConfigObj;
+    }
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
     }
 }

@@ -4,9 +4,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
@@ -14,8 +14,9 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -27,8 +28,10 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -106,6 +109,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Autowired
     private JyUnloadAggsService jyUnloadAggsService;
+
+    @Autowired
+    @Qualifier("jyBizTaskAutoCloseProducer")
+    private DefaultJMQProducer jyBizTaskAutoCloseProducer;
 
     /**
      * 根据bizId获取数据
@@ -271,7 +278,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 if(logger.isInfoEnabled()){
                     logger.info("changeStatus change bizId:{} before:{} after:{} ",entity.getBizId(),nowStatus.getVehicleStatus(),changeStatus);
                 }
-                return jyBizTaskUnloadVehicleDao.changeStatus(entity) > 0;
+                final boolean updateFlag = jyBizTaskUnloadVehicleDao.changeStatus(entity) > 0;
+                if(updateFlag) {
+                    // 发送自动关闭任务消息
+                    this.sendJyBizTaskAutoCloseMessage(bizId, changeStatus, entity.getUpdateTime().getTime());
+                }
+                return updateFlag;
             }else {
                 needUnLock = Boolean.FALSE;
                 //未锁定成功 抛出异常
@@ -284,6 +296,54 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             if(logger.isInfoEnabled()){
                 logger.info("changeStatus end ,bizId:{} ,needUnLock:{}",entity.getBizId(),needUnLock);
             }
+        }
+    }
+
+    /**
+     * 初始化实际到达时间 同步修改排序时间
+     * @return 永远返回成功
+     */
+    @Override
+    public boolean initActualArriveTime(String bizId, Date actualArriveTime) {
+        JyBizTaskUnloadVehicleEntity updateParam = new JyBizTaskUnloadVehicleEntity();
+        updateParam.setActualArriveTime(actualArriveTime);
+        //切记后续需要调整sortTime时间 需要比较数据库中的时间 本次临时解决flink任务问题暂不考虑
+        updateParam.setSortTime(actualArriveTime);
+        updateParam.setBizId(bizId);
+        //需要和产品沟通一下具体逻辑整体切换
+        /*if(!updateOfBusinessInfo(updateParam)){
+            logger.error("initActualArriveTime fail!,{},{}",bizId,JsonHelper.toJson(updateParam));
+        }*/
+        if(logger.isInfoEnabled()){
+            logger.info("initActualArriveTime end ,bizId:{} ,actualArriveTime:{}",bizId,actualArriveTime.toString());
+        }
+        return true;
+    }
+
+    /**
+     * 发送自动关闭任务消息
+     * @param bizId bizId
+     * @param changeStatus 目标更新状态
+     */
+    private void sendJyBizTaskAutoCloseMessage(String bizId, Integer changeStatus, Long operateTime) {
+        try {
+            logger.info("sendJyBizTaskAutoCloseMessage {} {} {}", bizId, changeStatus, DateUtil.format(new Date(operateTime), DateUtil.FORMAT_DATE_TIME));
+            if(!new ArrayList<>(Arrays.asList(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), JyBizTaskUnloadStatusEnum.UN_LOADING.getCode())).contains(changeStatus)){
+                return;
+            }
+            final AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
+            autoCloseTaskMq.setBizId(bizId);
+            autoCloseTaskMq.setChangeStatus(changeStatus);
+            autoCloseTaskMq.setOperateTime(operateTime);
+            if (Objects.equals(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), changeStatus)) {
+                autoCloseTaskMq.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.WAIT_UNLOAD_NOT_FINISH.getCode());
+            }
+            if (Objects.equals(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode(), changeStatus)) {
+                autoCloseTaskMq.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode());
+            }
+            jyBizTaskAutoCloseProducer.send(bizId, JsonHelper.toJson(autoCloseTaskMq));
+        } catch (JMQException e) {
+            logger.error("JyBizTaskUnloadVehicleServiceImpl.sendJyBizTaskAutoCloseMessage exception {}", bizId, e);
         }
     }
 
@@ -404,6 +464,59 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
+                }
+            }else{
+                needUnLock = Boolean.FALSE;
+                //未锁定成功 抛出异常
+                throw new JyBizException(String.format("锁定数据数据失败，bizId:%s", bizId));
+            }
+        }finally {
+            if(needUnLock){
+                unLocked(bizId);
+            }
+
+        }
+
+        return result;
+    }
+
+    /**
+     * 更新其他业务信息 不存在时返回失败，调用者自己处理不存在场景
+     * 包含以下业务字段
+     * 业务主键
+     * <p>
+     * 排除saveOrUpdateOfBaseInfo字段
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.updateOfBusinessInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public boolean updateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
+
+        String bizId = entity.getBizId();
+        if(StringUtils.isEmpty(bizId)){
+            throw new JyBizException("未传入bizId！请检查入参");
+        }
+        // 锁定数据
+        boolean result;
+        boolean needUnLock = Boolean.TRUE;
+        try{
+            if(locked(bizId)){
+                //获取数据判断是否存在 防止数据卸载 使用忽略YN模式
+                Long id = jyBizTaskUnloadVehicleDao.findIdByBizIdWithoutYn(bizId);
+                if(id != null && id > 0){
+                    //存在即更新
+                    entity.setId(id);
+                    result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
+                    entity.setId(null);
+                }else {
+                    //不存在不执行 并返回失败
+                    if(logger.isInfoEnabled()){
+                        logger.info("updateOfBusinessInfo not exist! {}",bizId);
+                    }
+                    result = Boolean.FALSE;
                 }
             }else{
                 needUnLock = Boolean.FALSE;
@@ -569,6 +682,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setTaskType(dto.getTaskType());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
+            this.sendJyBizTaskAutoCloseMessage(bizId, JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), initParams.getUpdateTime().getTime());
             return initParams;
         }else{
             logger.error("JyBizTaskUnloadVehicleService.initTaskByTms save fail! {},{}",JsonHelper.toJson(dto),

@@ -13,6 +13,7 @@ public class FuncUsageProcessDto implements Serializable {
 
     private static final long serialVersionUID = 5558432835220167498L;
 
+    private static final String URL_MSG_DEFAULT = "点击跳转";
     /**
      * 是否可以使用功能
      */
@@ -27,6 +28,14 @@ public class FuncUsageProcessDto implements Serializable {
      * 提示类型
      */
     private Integer msgType;
+    /**
+     * 指引跳转的链接地址
+     */
+    private String url;
+    /**
+     * 指引跳转的链接地址-对应的信息（默认：点击跳转）
+     */
+    private String urlMsg;    
 
     public Integer getCanUse() {
         return canUse;
@@ -51,4 +60,25 @@ public class FuncUsageProcessDto implements Serializable {
     public void setMsgType(Integer msgType) {
         this.msgType = msgType;
     }
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUrlMsg() {
+		if(url != null && url.length() > 0) {
+			if(urlMsg == null || urlMsg.length() == 0) {
+				return URL_MSG_DEFAULT;
+			}
+		}
+		return urlMsg;
+	}
+
+	public void setUrlMsg(String urlMsg) {
+		this.urlMsg = urlMsg;
+	}
 }

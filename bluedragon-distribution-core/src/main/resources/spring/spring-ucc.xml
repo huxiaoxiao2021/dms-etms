@@ -170,6 +170,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
+		<property name="jyUnSealTaskLastHourTime" value="${jyUnSealTaskLastHourTime:6}"/>
         <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
@@ -225,7 +226,8 @@
 		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
 		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
 		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:720000}"/>
-		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
+		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:28800000}"/>
+		<property name="machineCalibrateSpotCheckSwitch" value="${machineCalibrateSpotCheckSwitch:true}"/>
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
@@ -251,6 +253,10 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
+		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
+		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
+		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 
@@ -405,6 +411,7 @@
 				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskOrderByIntegral</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskSwitchToEs</value>
+				<value>uccPropertyConfiguration.jyUnSealTaskLastHourTime</value>
 				<value>uccPropertyConfiguration.jySendTaskLoadRateLimit</value>
 				<value>uccPropertyConfiguration.createSendTaskExecuteCount</value>
 				<value>uccPropertyConfiguration.createSendTasktimeOut</value>
@@ -486,6 +493,10 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionSiteCodes</value>
 				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
 				<value>uccPropertyConfiguration.dpSpringSiteCode</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.tysUnloadCarCollectDemoteSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectSiteWhitelist</value>
 
 				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
 				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
@@ -495,6 +506,8 @@
 				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
 				<value>uccPropertyConfiguration.forceSendSiteList</value>
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
+				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
+				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 			</list>
