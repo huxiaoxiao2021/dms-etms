@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.basic;
 
+import com.google.common.collect.Lists;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -10,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * excel工具类
@@ -31,6 +35,68 @@ public class ExcelUtils {
         ExcelUtils.fileTmpPath = fileTmpPath;
     }
 
+    /**
+     * 读取excel第一个sheet页内容
+     *
+     * @param inputStream   文件流
+     * @param xlsOrXlsx     excel类型
+     * @param cls           生成对象class
+     * @param fieldNameList 对象属性名（顺序与excel顺序一致）
+     */
+    public static <T> List<T> readFromExcel(InputStream inputStream, String xlsOrXlsx, Class<T> cls, List<String> fieldNameList) throws Exception {
+        List<T> list = Lists.newArrayList();
+        try {
+            // 解析excel
+            Workbook book;
+            Sheet sheet = null;
+            if (Objects.equals(xlsOrXlsx, EXCEL_SUFFIX_XLS)) {
+                // 解析excel
+                POIFSFileSystem pSystem = new POIFSFileSystem(inputStream);
+                // 获取整个excel
+                book = new HSSFWorkbook(pSystem);
+                //获取第一个表单sheet
+                sheet = book.getSheetAt(0);
+            }else 
+            if (Objects.equals(xlsOrXlsx, EXCEL_SUFFIX_XLSX)) {
+                // 直接通过流获取整个excel
+                book = new XSSFWorkbook(inputStream);
+                // 获取第一个表单sheet
+                sheet = book.getSheetAt(0);
+            }
+            if (sheet != null) {
+                // 获取第一行
+                int firstRow = sheet.getFirstRowNum();
+                // 获取最后一行
+                int lastRow = sheet.getLastRowNum();
+                // 循环行数依次获取列数
+                for (int i = firstRow + 1; i < lastRow + 1; i++) {
+                    // 获取第 i 行
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        T t = cls.newInstance();
+                        // 获取此行的第一列
+                        int firstCell = 0;
+                        /*
+                         *获取此行的存在数据的第一列
+                         * int firstCell = row.getFirstCellNum();
+                         * */
+                        // 获取此行的存在数据的最后一列
+                        int lastCell = row.getLastCellNum();
+                        for (int j = firstCell; j < lastCell; j++) {
+                            setValue(t, cls, row, j, fieldNameList);
+                        }
+                        list.add(t);
+                    }
+                }
+            }
+        }finally {
+            if(inputStream != null){
+                inputStream.close();
+            }
+        }
+        return list;
+    }
+    
     /**
      * 将数据写入Excel
      *
@@ -136,5 +202,37 @@ public class ExcelUtils {
         } catch (Exception e) {
             System.out.println();;
         }
+    }
+
+    private static <T> void setValue(T t, Class<T> cls, Row row, int j, List<String> fieldNameList) throws Exception {
+        Object cellContent = null;
+        // 拿到单元格类型
+        Cell cell = row.getCell(j);
+        int cellType = cell.getCellType();
+        switch (cellType) {
+            // 字符串类型
+            case Cell.CELL_TYPE_STRING:
+                cellContent = cell.getStringCellValue();
+                break;
+            // 布尔类型
+            case Cell.CELL_TYPE_BOOLEAN:
+                cellContent = cell.getBooleanCellValue();
+                break;
+            // 数值类型
+            case Cell.CELL_TYPE_NUMERIC:
+                cellContent = cell.getNumericCellValue();
+                break;
+            // 取空串
+            default:
+                cellContent = "";
+                break;
+        }
+        String currentFieldName = fieldNameList.get(j);
+        // 获取该类的成员变量
+        Field f = cls.getDeclaredField(currentFieldName);
+        // 取消语言访问检查
+        f.setAccessible(true);
+        // 给变量赋值
+        f.set(t, cellContent);
     }
 }
