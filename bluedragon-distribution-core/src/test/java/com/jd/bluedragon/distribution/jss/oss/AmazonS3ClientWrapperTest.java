@@ -24,13 +24,13 @@ public class AmazonS3ClientWrapperTest {
     @Before
     public void setUp() throws Exception {
         amazonS3ClientWrapperUnderTest = new AmazonS3ClientWrapper();
-        amazonS3ClientWrapperUnderTest.setAccessKey("JDC_D7F39DBD95C716540108BD9333F4");
-        amazonS3ClientWrapperUnderTest.setSecretKey("0AB20B66892C2A4374094F360F912C0A");
+        amazonS3ClientWrapperUnderTest.setAccessKey("JDC_F1852E17FA45BCDD76ECA7E28DF8");
+        amazonS3ClientWrapperUnderTest.setSecretKey("0939322DE96A77695E2F2110891EF23E");
         amazonS3ClientWrapperUnderTest.setSigningRegion("cn-north-1");
         amazonS3ClientWrapperUnderTest.setEndpoint("http://s3-internal-office.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.setSocketTimeout(5000);
         amazonS3ClientWrapperUnderTest.setConnectionTimeout(5000);
-        amazonS3ClientWrapperUnderTest.setBucketName("dmsweb");
+        amazonS3ClientWrapperUnderTest.setBucketName("workbench");
         amazonS3ClientWrapperUnderTest.setOuterNetEndpoint("http://s3.cn-north-1.jdcloud-oss.com");
         amazonS3ClientWrapperUnderTest.afterPropertiesSet();
 
@@ -133,9 +133,9 @@ public class AmazonS3ClientWrapperTest {
 
     @Test
     public void testGeneratePresignedUrl() throws Exception {
-        // Setup
+        // Setup /wb-public-bucket/DMS_WB_SUP_CHECK_19176410596706883C24E9A85D77A6C087B603F6913B9C154.mp4
         // Run the test
-        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 1, "test","anzhaung/tt/1-PDA通用安装包.rar");
+        final URL result = amazonS3ClientWrapperUnderTest.generatePresignedUrl( 10, "wb-public-bucket","DMS_WB_SUP_CHECK_19176410596706883C24E9A85D77A6C087B603F6913B9C154.mp4");
         System.out.println(result);
         // Verify the results
         assertNotNull(result);

@@ -2726,6 +2726,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.deleteCTTGroup", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -2891,6 +2892,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.queryScanUser", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq request) {
     SendFlowDataResp resp = new SendFlowDataResp();
     List<User> userList = new ArrayList<>();
