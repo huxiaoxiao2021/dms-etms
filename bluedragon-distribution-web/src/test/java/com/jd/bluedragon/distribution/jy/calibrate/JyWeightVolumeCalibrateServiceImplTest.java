@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCa
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -28,12 +29,28 @@ import java.util.Date;
  * @date 2022/12/20 2:27 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:bak/distribution-web-context-test.xml")
+@ContextConfiguration(locations = "classpath:spring/distribution-web-context.xml")
 @Slf4j
 public class JyWeightVolumeCalibrateServiceImplTest {
 
     @Autowired
     private JyWeightVolumeCalibrateService jyWeightVolumeCalibrateService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
+    
+    @Test
+    public void executeIssueOfCompensate() {
+        try {
+            spotCheckDealService.executeIssueOfCompensate("抽检异常数据结果.xlsx");
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            log.error("服务异常!", e);
+            Assert.fail();
+        }
+    }
+    
+    
 
     @Test
     public void machineCalibrateScan() {
