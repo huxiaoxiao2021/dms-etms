@@ -997,7 +997,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     
     private void buildCompensateAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
-        spotCheckIssueMQ.setFlowSystem(SpotCheckConstants.EQUIPMENT_SPOT_CHECK); // 现阶段只处理设备抽检数据，后续可调整
+        spotCheckIssueMQ.setFlowSystem(SpotCheckConstants.ARTIFICIAL_SPOT_CHECK); // 现阶段只处理设备抽检数据，后续可调整
         spotCheckIssueMQ.setInitiationLink("3"); // 此值固定
         spotCheckIssueMQ.setOperateType(3); // 此值固定
         spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
