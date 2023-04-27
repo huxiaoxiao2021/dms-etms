@@ -46,6 +46,7 @@ public class AggsChooseDataSourceAspect {
           }
         }
       } else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)) {
+        logger.info("=============aggsDataSource= {}",aggsDataSource);
         if (ObjectHelper.isNotNull(aggsDataSource)) {
           DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(aggsDataSource);
           if (ObjectHelper.isNotNull(dataSourceType)) {

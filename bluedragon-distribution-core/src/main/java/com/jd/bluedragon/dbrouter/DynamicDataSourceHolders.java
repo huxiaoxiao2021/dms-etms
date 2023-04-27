@@ -17,16 +17,16 @@ public class DynamicDataSourceHolders {
 
   public static DynamicDataSourceType getDataSources(String dataSource){
     DynamicDataSourceType d = null;
-    if (DynamicDataSourceType.DEFAULT.name().equals(dataSource)){
+    if (DynamicDataSourceType.DEFAULT.getName().equals(dataSource)){
       d =DynamicDataSourceType.DEFAULT;
     }
-    if (DynamicDataSourceType.JY_CORE.name().equals(dataSource)){
+    if (DynamicDataSourceType.JY_CORE.getName().equals(dataSource)){
       d =DynamicDataSourceType.JY_CORE;
     }
-    else if (DynamicDataSourceType.AGGS_MAIN.name().equals(dataSource)){
+    else if (DynamicDataSourceType.AGGS_MAIN.getName().equals(dataSource)){
       d =DynamicDataSourceType.AGGS_MAIN;
     }
-    else if (DynamicDataSourceType.AGGS_SLAVE.name().equals(dataSource)){
+    else if (DynamicDataSourceType.AGGS_SLAVE.getName().equals(dataSource)){
       d =DynamicDataSourceType.AGGS_SLAVE;
     }
     return d;
