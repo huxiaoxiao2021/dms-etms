@@ -308,7 +308,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     }
 
     private void noticeKF(String bizId, boolean approveFinalResult) {
+        logger.info(" noticeKF 通知客服-----");
         if(approveFinalResult){
+            logger.info("通知客服-----");
             JyBizTaskExceptionEntity exScrapTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
             if(exScrapTaskEntity == null){
                 logger.warn("根据业务主键:{}未查询到异常任务明细!", bizId);
@@ -335,6 +337,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             jyExNoticeCustomerMQ.setAttachmentAddr(exScrapEntity.getGoodsImageUrl());
             addAbnormalReason(jyExNoticeCustomerMQ);
             if(Objects.nonNull(exScrapTaskEntity.getSiteCode())){
+                logger.info("通知客服2-----");
                 BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exScrapTaskEntity.getSiteCode().intValue());
                 if(baseSite != null){
                     jyExNoticeCustomerMQ.setStartOrgCode(baseSite.getOrgId().toString());
@@ -693,11 +696,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         //自营生鲜运单判断
         if (BusinessUtil.isSelf(waybillSign)) {
             if (BusinessUtil.isSelfSX(sendPay)) {
-                //todo  调用终端妥投校验接口
                 logger.info("自营生鲜运单");
-//                if(!checkDelivery(waybillCode, erp)){
-//                    return "此运单妥投校验失败,不允许上报!";
-//                }
+                if(!checkDelivery(waybillCode, erp)){
+                    return "此运单妥投校验失败,不允许上报!";
+                }
                 return "";
             }
         } else {//外单
