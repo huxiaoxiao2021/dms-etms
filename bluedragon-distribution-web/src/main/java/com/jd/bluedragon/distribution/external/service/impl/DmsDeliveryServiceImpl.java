@@ -17,6 +17,7 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRequest;
 import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRespone;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -38,9 +39,10 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import java.math.BigDecimal;
@@ -79,8 +81,14 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Autowired
     private JySendAggsService sendAggService;
     @Autowired
-    @Qualifier(value = "jySendVehicleService")
-    IJySendVehicleService sendVehicleService;
+    @Qualifier("jySendVehicleService")
+    private IJySendVehicleService jySendVehicleService;
+
+    @Autowired
+    @Qualifier("jySendVehicleServiceTys")
+    private IJySendVehicleService jySendVehicleServiceTys;
+    @Autowired
+    private BaseService baseService;
 
     @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode) {
@@ -234,7 +242,10 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
         queryLoadingRateRespone.setLoadingRate(String.valueOf(Constants.NUMBER_ZERO));
         JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(taskSend.getBizId());
         if (ObjectHelper.isNotNull(sendAgg)){
-            BigDecimal operateProgress =sendVehicleService.calculateOperateProgress(sendAgg,false);
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getOperateSiteId());
+            BigDecimal operateProgress =BusinessHelper.isBSite(baseStaffSiteOrgDto.getSubType())?
+                jySendVehicleServiceTys.calculateOperateProgress(sendAgg,false):
+                jySendVehicleService.calculateOperateProgress(sendAgg,false);
             if (ObjectHelper.isNotNull(operateProgress)){
                 queryLoadingRateRespone.setLoadingRate(String.valueOf(operateProgress.intValue()));
             }
