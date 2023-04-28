@@ -3299,6 +3299,36 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
     }
 
+    @Override
+    public InvokeResult<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request) {
+        InvokeResult<SendVehicleProductTypeAgg> invokeResult = new InvokeResult<>();
+        if (request.getCurrentOperate()== null
+            ||  Objects.isNull(request.getCurrentOperate().getSiteCode())
+            || StringUtils.isBlank(request.getSendVehicleBizId()) ) {
+            invokeResult.parameterError();
+            return invokeResult;
+        }
+        JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+        query.setSendVehicleBizId(request.getSendVehicleBizId());
+        List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+
+        JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
+        aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));
+        aggsEntityQuery.setEndSiteIds(receiveIds);
+        aggsEntityQuery.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        log.info("获取特安待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
+        Long toScanCountSumOfTeAn = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);
+        log.info("获取特安待扫数据--{}",toScanCountSumOfTeAn);
+        SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
+        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
+        productTypeAgg.setCount(toScanCountSumOfTeAn);
+        invokeResult.setData(productTypeAgg);
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+        return invokeResult;
+    }
+
     /**
      * 设置发货流向数据
      *

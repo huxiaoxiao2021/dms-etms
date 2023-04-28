@@ -55,6 +55,9 @@
                  open="(" separator="," close=")">
             #{id}
         </foreach>
+        <if test="productType != null">
+            and  product_type = #{productType}
+        </if>
     </select>
 
 

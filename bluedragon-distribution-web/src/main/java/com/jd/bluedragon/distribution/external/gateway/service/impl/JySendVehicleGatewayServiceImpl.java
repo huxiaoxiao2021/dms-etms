@@ -218,4 +218,9 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
     }
+
+    @Override
+    public JdCResponse<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getProductInfo(request));
+    }
 }

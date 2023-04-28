@@ -240,4 +240,12 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+
+    /**
+     * 根据发货任务获取特安待扫数量
+     * @param request
+     * @return
+     */
+    InvokeResult<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request);
+
 }
