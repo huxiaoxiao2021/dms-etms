@@ -227,7 +227,7 @@
 				</if>
                 <if test="bizSource != null">
                     biz_source,
-                </if>				
+                </if>
 			</trim>
 			)
 			values
@@ -308,7 +308,7 @@
 				</if>
                 <if test="bizSource != null" >
                     #{bizSource,jdbcType=INTEGER},
-                </if>				
+                </if>
 			</trim>
 			)
 	</insert>
@@ -391,7 +391,7 @@
 				</if>
                 <if test="bizSource != null">
                     biz_source = #{bizSource,jdbcType=INTEGER},
-                </if>				
+                </if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -407,7 +407,7 @@
             </if>
             <if test="bizSource != null" >
                 biz_source = #{bizSource,jdbcType=INTEGER},
-            </if>   			
+            </if>
 			<if test="updateTime != null" >
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
 			</if>
@@ -990,7 +990,7 @@
         order by r.ts desc
         <if test="pageNumber > 0">
             limit #{offset}, #{limit}
-        </if>       
+        </if>
     </select>
     <select id="queryCountForFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="java.lang.Integer">
         select
@@ -1000,10 +1000,10 @@
     </select>
     <sql id="queryForFlowCondition">
         <where>
-            r.yn = 1 
+            r.yn = 1
         <if test="signDate != null" >
             and r.sign_date = #{signDate,jdbcType=DATE}
-        </if>       
+        </if>
         <if test="siteCode != null" >
             and r.site_code = #{siteCode,jdbcType=INTEGER}
         </if>
@@ -1012,9 +1012,9 @@
         </if>
         <if test="signDateEnd != null" >
             and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
-        </if> 
+        </if>
         <if test="userCode != null and userCode != '' " >
-            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle} 
+            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
         </if>
         </where>
     </sql>
@@ -1024,21 +1024,21 @@
         from user_sign_record r
          where r.yn = 1
 	         and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
-	         and  (<![CDATA[ 
+	         and  (<![CDATA[
 	           (r.sign_in_time > #{signInTime,jdbcType=TIMESTAMP} and r.sign_in_time < #{signOutTime,jdbcType=TIMESTAMP})
 	           or (r.sign_out_time > #{signInTime,jdbcType=TIMESTAMP} and r.sign_out_time < #{signOutTime,jdbcType=TIMESTAMP})
 	           or (r.sign_in_time <= #{signInTime,jdbcType=TIMESTAMP} and r.sign_out_time >= #{signOutTime,jdbcType=TIMESTAMP})
 	         ]]>)
 	         <if test="refRecordId != null" >
-	            and r.id != #{refRecordId,jdbcType=BIGINT}  
+	            and r.id != #{refRecordId,jdbcType=BIGINT}
 	         </if>
-    </select>   
+    </select>
     <select id="queryByIdForFlow" parameterType="java.lang.Long" resultMap="UserSignRecord">
         select
             <include refid="Main_Column_List"/>
         from
             user_sign_record r
-            where r.id = #{refRecordId,jdbcType=BIGINT}           
+            where r.id = #{refRecordId,jdbcType=BIGINT}
         limit 1
-    </select>     
+    </select>
 </mapper>

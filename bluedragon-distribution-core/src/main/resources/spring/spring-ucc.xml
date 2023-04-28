@@ -275,6 +275,8 @@
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -547,6 +549,8 @@
 				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
 				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
 				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 			</list>
 		</property>
 	</bean>

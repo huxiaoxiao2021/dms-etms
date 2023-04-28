@@ -62,6 +62,7 @@
 		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateDetailMapper.xml" />
 		<mapper resource="mappers/mysql/jy/strand/JyBizTaskStrandReportMapper.xml" />
 		<mapper resource="mappers/mysql/jy/strand/JyBizStrandReportDetailMapper.xml" />
+		<mapper resource="mappers/mysql/jy/exception/JyExceptionScrappedMapper.xml"/>
 
 
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateDimensionMapper.xml" />

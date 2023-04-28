@@ -533,7 +533,7 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    
+
     <!--  抽检服务   -->
     <jsf:provider id="jsfSpotCheckDealService"
                   interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService"
@@ -541,5 +541,13 @@
                   ref="spotCheckDealService"
                   server="dmsjsf">
     </jsf:provider>
-    
+
+    <!--  定时调度对外jsf  -->
+    <jsf:provider id="jsfDmsTimingHandlerService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsTimingHandlerService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
