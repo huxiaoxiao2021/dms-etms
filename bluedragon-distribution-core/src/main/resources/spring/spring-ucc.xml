@@ -222,6 +222,7 @@
 		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
 		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
+		<property name="pdaLoginSkipSwitch" value="${pdaLoginSkipSwitch:false}"/>
 		<property name="syncScheduleTaskSwitch" value="${syncScheduleTaskSwitch:true}"/>
 		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
 		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
@@ -479,7 +480,7 @@
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
-
+				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>

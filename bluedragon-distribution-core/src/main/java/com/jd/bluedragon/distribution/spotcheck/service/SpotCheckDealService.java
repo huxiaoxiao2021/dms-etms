@@ -163,4 +163,11 @@ public interface SpotCheckDealService {
      * @return
      */
     boolean spotCheckIssueIsRelyOnMachineStatus(Integer siteCode);
+
+    /**
+     * 执行下发（重新下发）
+     *
+     * @param excelName
+     */
+    void executeIssueOfCompensate(String excelName);
 }

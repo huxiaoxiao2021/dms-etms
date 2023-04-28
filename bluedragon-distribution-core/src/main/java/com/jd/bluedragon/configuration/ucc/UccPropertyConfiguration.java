@@ -1147,6 +1147,11 @@ public class UccPropertyConfiguration {
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
     /**
+     * 安卓登录可跳过不处理的逻辑降级开关
+     */
+    private Boolean pdaLoginSkipSwitch;
+
+    /**
      * 设备校准任务时长
      *  单位：毫秒
      */
@@ -2797,6 +2802,14 @@ public class UccPropertyConfiguration {
 
     public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
+    }
+
+    public Boolean getPdaLoginSkipSwitch() {
+        return pdaLoginSkipSwitch;
+    }
+
+    public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+        this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
     }
 
     public Long getMachineCalibrateTaskDuration() {

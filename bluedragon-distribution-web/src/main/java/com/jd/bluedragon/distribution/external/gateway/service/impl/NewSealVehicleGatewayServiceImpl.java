@@ -623,6 +623,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.createTransAbnormalAndDeSealCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request) {
         JdCResponse<String> response = new JdCResponse<>();
         response.toSucceed();
@@ -638,6 +639,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.createTransAbnormalAndUnseal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request) {
         return newSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage(request, false);
     }

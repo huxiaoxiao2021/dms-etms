@@ -27,7 +27,7 @@ public interface JssService {
     /**
      * JSS服务文件下载文件
      *
-     * @param bucket
+     * @param bucket 全路径
      * @param keyName
      * @return
      */
