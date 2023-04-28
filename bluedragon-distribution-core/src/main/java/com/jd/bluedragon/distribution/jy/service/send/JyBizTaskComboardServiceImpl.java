@@ -121,7 +121,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     }
     condition.setStatusList(sendFlowDto.getStatusList());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
-    if (ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
+    if (!ucc.getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
       condition.setGroupCode(sendFlowDto.getGroupCode());
     }
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
