@@ -1331,7 +1331,6 @@
       lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-    </jsf:consumer>
 
 
     <!--  质控-异常原因接口  -->
