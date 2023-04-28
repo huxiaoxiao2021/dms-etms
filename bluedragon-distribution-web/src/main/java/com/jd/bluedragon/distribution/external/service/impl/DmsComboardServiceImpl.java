@@ -226,6 +226,9 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         if (CollectionUtils.isEmpty(request.getEndSiteIdList())){
             throw new JyBizException("参数错误：目的场地不能为空！");
         }
+        if (request.getEndSiteIdList().size() > 20){
+            throw new JyBizException("参数错误：目的地数量超过查询上限！");
+        }
     }
 
     private CountBoardDto assembleCountBoardDto(CountBoardRequest request) {
