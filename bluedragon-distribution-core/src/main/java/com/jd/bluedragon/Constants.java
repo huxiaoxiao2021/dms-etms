@@ -1917,4 +1917,9 @@ public class Constants {
      * DB 执行in 限制最大数量
      */
     public static final Integer DB_IN_MAX_SIZE  = 100;
+
+    /**
+     * 拣运滞留任务biz前缀
+     */
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
 }

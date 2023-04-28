@@ -612,5 +612,14 @@
     <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
     </jmq:consumer>
+    <!--  拣运-滞留扫描容器处理消费  -->
+    <jmq:consumer id="jmq.jyStrandScanContainerDealConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strandScan.containerDeal}" listener="jyStrandScanContainerDealConsumer"/>
+    </jmq:consumer>
+    <!--  拣运-滞留:运输驳回自建滞留任务  -->
+    <jmq:consumer id="jmq.transportRejectAddCarApplyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
+    </jmq:consumer>
+    
 </beans>
 
