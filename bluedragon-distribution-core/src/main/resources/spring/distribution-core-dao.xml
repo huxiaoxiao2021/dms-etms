@@ -732,10 +732,10 @@
     </bean>
     <bean id="userSignRecordDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
-    </bean>   
+    </bean>
     <bean id="userSignRecordFlowDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordFlowDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
-    </bean>                   
+    </bean>
     <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
@@ -819,13 +819,13 @@
     </bean>
     <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean> 
+    </bean>
     <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean> 
+    </bean>
     <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>            
+    </bean>
     <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
@@ -915,6 +915,10 @@
     </bean>
     <bean id="jyAttachmentDetailDao" class="com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao">
         <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+
+    <bean id="jyExceptionScrappedDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
     <!--################################## jy_core 相关DAO END ############################################ -->

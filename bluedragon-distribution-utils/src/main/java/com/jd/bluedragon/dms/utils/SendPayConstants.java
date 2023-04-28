@@ -22,6 +22,9 @@ public interface SendPayConstants {
 	char CHAR_2_7 = '7';
 	char CHAR_2_8 = '8';
 	char CHAR_2_9 = '9';
+
+	int  POSITION_338 = 338;
+	char POSITION_338_1 = '1';
 	
 	int POSITION_124 = 124;
 	char CHAR_124_7 = '7';
