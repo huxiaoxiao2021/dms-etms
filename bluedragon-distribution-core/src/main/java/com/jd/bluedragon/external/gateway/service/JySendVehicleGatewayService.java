@@ -172,7 +172,7 @@ public interface JySendVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request);
+    JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
 
 }

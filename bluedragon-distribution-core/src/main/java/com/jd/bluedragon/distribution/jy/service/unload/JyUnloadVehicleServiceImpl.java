@@ -103,6 +103,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     private static final int UNLOAD_SCAN_BAR_EXPIRE = 6;
 
+    private static final int TEAN_PACKAGE_FLAG = 1;
+
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -453,7 +455,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
         condition.setTaskType(request.getTaskType());
-        if(Objects.equals(request.getTeanFlag(),1)){
+        if(Objects.equals(request.getTeanFlag(),TEAN_PACKAGE_FLAG)){
             condition.setTeanFlag(request.getTeanFlag());
         }
 

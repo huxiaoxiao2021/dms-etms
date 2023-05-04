@@ -7,6 +7,7 @@ import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
+import com.jdl.jy.realtime.model.vo.send.SendVehicleProductTypePackageResponse;
 
 /**
  * @ClassName IJySendVehicleJsfManager
@@ -39,4 +40,11 @@ public interface IJySendVehicleJsfManager {
      * @return
      */
     Pager<SendPackageDto> querySendPackageDetail(Pager<SendVehicleTaskQuery> queryPager);
+
+    /**
+     * 查询发货包裹数
+     * @param query
+     * @return
+     */
+    Long querySendVehicleProductTypePackageCount(SendVehiclePackageDetailQuery query);
 }

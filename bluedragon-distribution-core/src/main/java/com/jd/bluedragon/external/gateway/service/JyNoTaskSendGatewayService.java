@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
@@ -79,6 +80,13 @@ public interface JyNoTaskSendGatewayService {
      * @return
      */
     JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq);
+
+    /**
+     * 任务绑定前获取特安待扫数量
+     * @param bindVehicleDetailTaskReq
+     * @return
+     */
+    JdCResponse<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
 
 
 

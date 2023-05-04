@@ -220,7 +220,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
-    public JdCResponse<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request) {
-        return retJdCResponse(jySendVehicleService.getProductInfo(request));
+    public JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
     }
 }

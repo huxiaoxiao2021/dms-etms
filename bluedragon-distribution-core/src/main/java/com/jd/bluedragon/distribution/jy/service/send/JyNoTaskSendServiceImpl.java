@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -18,12 +20,10 @@ import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
-import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
-import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -56,6 +56,7 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
@@ -134,6 +135,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
+
+    @Autowired
+    private IJySendVehicleJsfManager sendVehicleJsfManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -775,6 +779,31 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
+    }
+
+    @Override
+    public InvokeResult<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq req) {
+        log.info("querySendVehicleProductTypePackageCount -入参-{}", JSON.toJSONString(req));
+        InvokeResult<SendVehicleProductTypeAgg>  result = new InvokeResult<>();
+        if(StringUtils.isBlank(req.getToSendVehicleBizId())
+                || Objects.isNull(req.getCurrentOperate())
+                || Objects.isNull(req.getCurrentOperate().getSiteCode())){
+            result.setMessage(PARAM_ERROR);
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            return result;
+        }
+        SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
+        query.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        query.setSendVehicleBizId(req.getToSendVehicleBizId());
+        query.setOperateSiteId(req.getCurrentOperate().getSiteCode());
+        Long count = sendVehicleJsfManager.querySendVehicleProductTypePackageCount(query);
+        SendVehicleProductTypeAgg  productTypeAgg= new SendVehicleProductTypeAgg();
+        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        productTypeAgg.setCount(count);
+        result.setData(productTypeAgg);
+        result.setCode(RESULT_SUCCESS_CODE);
+        result.setMessage(RESULT_SUCCESS_MESSAGE);
+        return result;
     }
 
     private String getSendCodeByScanCode(String code, int createSiteCode) {

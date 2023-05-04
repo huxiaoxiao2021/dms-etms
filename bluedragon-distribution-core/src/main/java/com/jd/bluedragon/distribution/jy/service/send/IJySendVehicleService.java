@@ -246,6 +246,6 @@ public interface IJySendVehicleService {
      * @param request
      * @return
      */
-    InvokeResult<SendVehicleProductTypeAgg> getProductInfo(SendAbnormalRequest request);
+    InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
 }

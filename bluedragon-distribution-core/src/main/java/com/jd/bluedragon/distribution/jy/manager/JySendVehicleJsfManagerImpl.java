@@ -28,6 +28,7 @@ import com.jdl.jy.realtime.model.es.send.JySendTaskWaybillAgg;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
+import com.jdl.jy.realtime.model.vo.send.SendVehicleProductTypePackageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,6 +177,23 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
             log.error("查询发货包裹数据异常. {}", JsonHelper.toJson(queryPager), e);
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleJsfManagerImpl.querySendVehicleProductTypePackageCount",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public Long querySendVehicleProductTypePackageCount(SendVehiclePackageDetailQuery query) {
+        try{
+            log.info("查询发货包裹数据 入参-{}",JSON.toJSONString(query));
+            ServiceResult<SendVehicleProductTypePackageResponse> result = sendVehicleJsfService.queryVerifiedUnSendPackage(query);
+            log.info("查询发货包裹数据 出参-{}",JSON.toJSONString(result));
+            if(result != null && result.getData() != null && result.getCode() == ServiceResult.SUCCESS_CODE ){
+                return result.getData().getCount();
+            }
+        }catch (Exception e){
+            log.error("查询发货包裹数据异常-入参-{}-{}", JsonHelper.toJson(query), e.getMessage(),e);
+        }
+        return 0L;
     }
 
     private ExcepScanLabelEnum resolveExcepScanLabelEnum(SendPackageEsDto sendPackageEsDto, Integer queryBarCodeFlag) {
