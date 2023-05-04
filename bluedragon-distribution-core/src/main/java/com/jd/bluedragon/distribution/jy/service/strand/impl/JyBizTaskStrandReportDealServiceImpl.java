@@ -234,7 +234,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         // 创建调度任务
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(entity.getBizId());
-        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        req.setTaskType(JyScheduleTaskTypeEnum.STRAND.getCode());
         req.setOpeUser(entity.getCreateUserErp());
         req.setOpeUserName(entity.getCreateUserName());
         req.setOpeTime(new Date());
@@ -305,7 +305,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     private void closeScheduleTask(String bizId, String operateUserErp) {
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(bizId);
-        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.SEND.getCode()));
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.STRAND.getCode()));
         req.setOpeUser(operateUserErp);
         req.setOpeUserName(operateUserErp);
         req.setOpeTime(new Date());
