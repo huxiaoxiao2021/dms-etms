@@ -1622,24 +1622,35 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
-		//根据场地+erp组成缓存Key
+		//根据场地+erp组成缓存Key 作为定位到一个人的操作
 		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getOperateUserCode());
-		//根据运单校验是否是特安包裹
-		boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
-		log.info("isTeAn -{}",isTeAn);
-		//值针对特安做处理
-		if(isTeAn){
-			//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
-			String cacheWaybill = redisManager.get(cachedKey);
-			log.info("cacheWaybill -{}",cacheWaybill);
-			if(StringUtils.isNotBlank(cacheWaybill)){
+
+		//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
+		String cacheWaybill = redisManager.get(cachedKey);
+		log.info("cacheWaybill -{}",cacheWaybill);
+		if(StringUtils.isNotBlank(cacheWaybill)){
+			//根据运单校验是否是特安包裹
+			boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
+			log.info("isTeAn -{}",isTeAn);
+			//如果第二次扫描为特安
+			if(isTeAn){
 				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
 				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(!isTeAnOld){
 					log.info("isTeAnOld 上一个包裹不是特安包裹");
 					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
-					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124);
+					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124_1);
+					return sortingJsfResponse;
+				}
+			}else{//如果第二次扫描为非特安
+				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
+				log.info("isTeAnOld -{}",isTeAnOld);
+				//如果上一个包裹不是特安包裹则提示
+				if(isTeAnOld){
+					log.info("isTeAnOld 上一个包裹是特安包裹，此单非特安件");
+					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
+					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124_2);
 					return sortingJsfResponse;
 				}
 			}
