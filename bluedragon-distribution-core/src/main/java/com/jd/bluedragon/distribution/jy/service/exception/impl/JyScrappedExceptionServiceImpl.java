@@ -342,8 +342,8 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 if(baseSite != null){
                     jyExNoticeCustomerMQ.setStartOrgCode(baseSite.getOrgId().toString());
                     jyExNoticeCustomerMQ.setStartOrgName(baseSite.getOrgName());
-                    jyExNoticeCustomerMQ.setProvinceAgencyCode(baseSite.getProvinceId()!= null? baseSite.getProvinceId().toString():"");
-                    jyExNoticeCustomerMQ.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceName())?baseSite.getProvinceName():"");
+                    jyExNoticeCustomerMQ.setProvinceAgencyCode(StringUtils.isNotBlank(baseSite.getProvinceAgencyCode())? baseSite.getProvinceAgencyCode().toString():"");
+                    jyExNoticeCustomerMQ.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceAgencyName())?baseSite.getProvinceAgencyName():"");
                 }
                 logger.info("生鲜报废单号:{}审批通过,异步通知客服系! 消息体-{}", bizId,JsonHelper.toJson(jyExNoticeCustomerMQ));
                 dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
