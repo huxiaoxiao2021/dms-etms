@@ -14,6 +14,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -1589,7 +1590,7 @@ public class SortingServiceImpl implements SortingService {
 
 		try{
 			//校验特安单
-			sortingJsfResponse = checkTEANWaybillSorting(pdaOperateRequest, sortingJsfResponse);
+			sortingJsfResponse = checkTEANWaybillSorting(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}
@@ -1617,23 +1618,26 @@ public class SortingServiceImpl implements SortingService {
 	/**
 	 *检验特安包裹：需要查询上一个扫描建包的包裹是否同为特安包裹(若没有上一个包裹，则无需校验）
 	 */
-	private SortingJsfResponse checkTEANWaybillSorting(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
-
+	private SortingJsfResponse checkTEANWaybillSorting(PdaOperateRequest pdaOperateRequest){
+		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
 		//根据场地+erp组成缓存Key
 		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getOperateUserCode());
 		//根据运单校验是否是特安包裹
 		boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
+		log.info("isTeAn -{}",isTeAn);
 		//值针对特安做处理
 		if(isTeAn){
 			//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
 			String cacheWaybill = redisManager.get(cachedKey);
+			log.info("cacheWaybill -{}",cacheWaybill);
 			if(StringUtils.isNotBlank(cacheWaybill)){
 				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
+				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(!isTeAnOld){
-					sortingJsfResponse = new SortingJsfResponse();
+					log.info("isTeAnOld 上一个包裹不是特安包裹");
 					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
 					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124);
 					return sortingJsfResponse;
@@ -1642,6 +1646,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 		//缓存当前扫描的包裹信息
 		redisManager.setex(cachedKey,CACHE_WAYBILL_INFO_EXPIRE_SCONDS,waybillCode);
+		log.info("sortingJsfResponse -{}",JSON.toJSONString(sortingJsfResponse));
 		return sortingJsfResponse;
 	}
 
