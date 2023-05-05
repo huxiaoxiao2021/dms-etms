@@ -153,7 +153,9 @@ public class RecyclingBoxInOutResource {
         materialReceive.setMaterialCode(tagNo);
         materialReceive.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialReceive.setCreateSiteCode(request.getSiteCode().longValue());
-        materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialReceive.setReceiveCode(StringUtils.EMPTY);
         materialReceive.setReceiveType(MaterialReceiveTypeEnum.RECEIVE_BY_SINGLE_MATERIAL.getCode());
         materialReceive.setReceiveNum(DEFAULT_RECEIVE_NUM);
@@ -172,7 +174,9 @@ public class RecyclingBoxInOutResource {
         materialSend.setMaterialCode(tagNo);
         materialSend.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialSend.setCreateSiteCode(request.getSiteCode().longValue());
-        materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialSend.setSendCode(StringUtils.EMPTY);
         materialSend.setSendType(MaterialSendTypeEnum.SEND_BY_SINGLE_MATERIAL.getCode());
         materialSend.setSendNum(DEFAULT_RECEIVE_NUM);

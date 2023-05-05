@@ -4,7 +4,7 @@ import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.qualityControl.domain.RedeliveryMode;
+import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 
 /**
  * 异常相关
