@@ -255,7 +255,7 @@
                 return DmsJddlUtils.getDbInstanceIndex((#site_code, 1, 1024#).longValue());
             </value>
         </property>
-        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_exception"/>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_attachment_detail"/>
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#site_code, 1, 1024#).longValue());
