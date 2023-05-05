@@ -2106,6 +2106,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
         }
+        //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
+        if(BusinessUtil.isSignChar(waybillSign,135,'2')){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
+        }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);
     }
