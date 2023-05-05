@@ -597,5 +597,8 @@
         <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
     </jmq:consumer>
 
+    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
+    </jmq:consumer>
 </beans>
 

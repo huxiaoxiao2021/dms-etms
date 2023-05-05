@@ -451,6 +451,15 @@
         ORDER BY ts DESC limit 1
     </select>
 
+    <select id="findByTransWork" parameterType="JyBizTaskSendVehicleEntity"
+      resultMap="jyBizTaskSendVehicleMap">
+        SELECT id,
+               biz_id,vehicle_status
+        FROM jy_biz_task_send_vehicle
+        WHERE yn = 1
+          AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
+    </select>
+
     <insert id="initTaskSendVehicle" parameterType="JyBizTaskSendVehicleEntity">
         INSERT INTO jy_biz_task_send_vehicle
         (biz_id,

@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 
 /**
  * jy封车相关网关api
@@ -60,7 +62,7 @@ public interface JySealCarGatewayService {
      *
      */
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
-    
+
     /**
      * 保存封车数据
      *
@@ -71,5 +73,12 @@ public interface JySealCarGatewayService {
      * 校验运力编码和发货批次的目的地是否一致
      */
     JdCResponse<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq);
+
+    /**
+     * 上传图片调用运输接口获取任务简码
+     * @param request
+     * @return
+     */
+    JdCResponse<GetTaskSimpleCodeResp>   onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
 
 }

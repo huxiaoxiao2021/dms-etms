@@ -258,6 +258,11 @@
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
+		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
+		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
+		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -506,6 +511,10 @@
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
+				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
+				<value>uccPropertyConfiguration.operateProgressRegions</value>
+				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
+				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 			</list>
 		</property>
 	</bean>

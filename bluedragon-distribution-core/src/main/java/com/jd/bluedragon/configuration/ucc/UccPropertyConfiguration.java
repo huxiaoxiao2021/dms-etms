@@ -700,6 +700,11 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+
+    private String operateProgressRegions;
+
+    private List<Integer> operateProgressRegionList;
+
     /**
      * 作业工作台解封车任务降级配置
      */
@@ -955,6 +960,38 @@ public class UccPropertyConfiguration {
                 urlList.add(needInterceptUrls);
             }
             this.needInterceptUrlList =urlList;
+        }
+    }
+
+    public List<Integer> getOperateProgressRegionList() {
+        return operateProgressRegionList;
+    }
+
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
+    public String getOperateProgressRegions() {
+        return operateProgressRegions;
+    }
+
+    public void setOperateProgressRegions(String operateProgressRegions) {
+        this.operateProgressRegions = operateProgressRegions;
+        if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+            List<Integer> operateProgressRegionList = new ArrayList<>();
+            if (operateProgressRegions.contains(",")){
+                String[] regionArr =operateProgressRegions.split(",");
+                for (String region:regionArr){
+                    operateProgressRegionList.add(Integer.valueOf(region));
+                }
+            }
+            else {
+                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+            }
+            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+                this.operateProgressRegionList =operateProgressRegionList;
+                Collections.sort(this.operateProgressRegionList);
+            }
         }
     }
 
@@ -1240,6 +1277,36 @@ public class UccPropertyConfiguration {
      * 装车评价开关
      */
     private boolean loadCarEvaluateSwitch;
+
+    private boolean loadProgressByVehicleVolume;
+
+    private boolean productOperateProgressSwitch;
+
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
+    }
+
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+    }
 
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
