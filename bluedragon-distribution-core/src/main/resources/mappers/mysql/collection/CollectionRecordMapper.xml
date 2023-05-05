@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao" >
+
+	<resultMap id="collectionRecordMap" type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" >
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+		<result column="collection_code" property="collectionCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code" property="aggCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="agg_code_type" property="aggCodeType" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="init_number" property="initNumber" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_init" property="isInit" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_collected" property="isCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_extra_collected" property="isExtraCollected" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="is_more_collected_mark" property="isMoreCollectedMark" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="agg_mark" property="aggMark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+
+	<insert id="insertCollectionRecord" parameterType="CollectionRecordPo">
+		INSERT INTO collection_record
+		(
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `init_number`, `is_init`, `is_collected`,
+			`is_extra_collected`, `is_more_collected_mark`, `agg_mark`, `create_time`, `yn`
+		)
+		VALUES (
+			#{id, jdbcType=BIGINT},
+			#{collectionCode, jdbcType=VARCHAR},
+			#{aggCode, jdbcType=VARCHAR},
+			#{aggCodeType, jdbcType=VARCHAR},
+			#{initNumber, jdbcType=INTEGER},
+			#{isInit, jdbcType=INTEGER},
+			#{isCollected, jdbcType=INTEGER},
+			#{isExtraCollected, jdbcType=INTEGER},
+			#{isMoreCollectedMark, jdbcType=INTEGER},
+			#{aggMark, jdbcType=VARCHAR},
+			NOW(),1
+		)
+	</insert>
+
+	<insert id="batchInsertCollectionRecord" parameterType="java.util.List">
+		INSERT INTO collection_record
+		(
+			`id`, `collection_code`, `agg_code`, `agg_code_type`, `init_number`, `is_init`, `is_collected`, `is_extra_collected`,
+			`agg_mark`, `create_time`, `yn`
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item.id, jdbcType=BIGINT},
+			#{item.collectionCode, jdbcType=VARCHAR},
+			#{item.aggCode, jdbcType=VARCHAR},
+			#{item.aggCodeType, jdbcType=VARCHAR},
+			#{item.initNumber, jdbcType=INTEGER},
+			#{item.isInit, jdbcType=INTEGER},
+			#{item.isCollected, jdbcType=INTEGER},
+			#{item.isExtraCollected, jdbcType=INTEGER},
+			#{item.isMoreCollectedMark, jdbcType=INTEGER},
+			#{item.aggMark, jdbcType=VARCHAR},
+			NOW(),1
+		</foreach>
+	</insert>
+
+	<update id="updateCollectionRecord" parameterType="CollectionRecordPo">
+		UPDATE
+			collection_record
+		<set>
+			<if test="isInit != null">
+				is_init = #{isInit, jdbcType=INTEGER},
+			</if>
+			<if test="isCollected != null">
+				is_collected = #{isCollected, jdbcType=INTEGER},
+			</if>
+			<if test="isExtraCollected != null">
+				is_extra_collected = #{isExtraCollected, jdbcType=INTEGER},
+			</if>
+			<if test="isMoreCollectedMark != null">
+				is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER},
+			</if>
+			<if test="aggMark != null">
+				agg_mark = #{aggMark, jdbcType=VARCHAR},
+			</if>
+			<if test="initNumber != null">
+				init_number = #{initNumber, jdbcType=INTEGER},
+			</if>
+			update_time = NOW()
+		</set>
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and yn = 1
+		</where>
+	</update>
+
+	<select id="findCollectionRecord" parameterType="CollectionRecordPo" resultMap="collectionRecordMap">
+		SELECT
+			collection_code, agg_code, agg_code_type, init_number, is_collected, is_extra_collected, is_more_collected_mark, agg_mark
+		FROM
+			collection_record
+		<where>
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isInit != null">
+				and is_init = #{isInit, jdbcType=INTEGER}
+			</if>
+			and yn = 1
+		</where>
+	</select>
+
+	<select id="countAggCodeByCollectionCodesAndStatus" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM
+			collection_record
+		WHERE
+			yn = 1
+			AND is_init = 1
+			AND is_collected = #{isCollected, jdbcType=INTEGER}
+			<if test="isMoreCollectedMark != null">
+				AND is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			AND agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			AND collection_code IN
+				<foreach collection="collectionCodes" open="(" item="collectionCode" separator="," close=")">
+					#{collectionCode, jdbcType=VARCHAR}
+				</foreach>
+			AND agg_code IN
+				<foreach collection="aggCodeList" open="(" item="aggCode" separator="," close=")">
+					#{aggCode, jdbcType=VARCHAR}
+				</foreach>
+	</select>
+
+
+
+
+	<select id="findByAggCode" parameterType="java.util.Map" resultMap="collectionRecordMap">
+		select collection_code,agg_code,agg_mark
+		from collection_record
+		where yn = 1
+			and is_init = 1 <!--todo 只查初始化的，会丢多扫运单，去掉该条件库里存在脏数据-->
+			and collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code = #{aggCode, jdbcType=VARCHAR}
+			<if test="isMoreCollectedMark != null">
+				and is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+	</select>
+
+	<select id="findAggCodes" parameterType="java.util.Map"
+			resultMap="collectionRecordMap">
+
+		select collection_code, agg_code, agg_mark
+		from collection_record
+		where
+			collection_code = #{collectionCode, jdbcType=VARCHAR}
+			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
+			and agg_code in
+			<foreach collection="aggCodes" open="(" item="aggCode" separator="," close=")">
+				#{aggCode, jdbcType=VARCHAR}
+			</foreach>
+			and is_init = 1
+			and yn = 1
+			<if test="isMoreCollectedMark != null">
+				and is_more_collected_mark = #{isMoreCollectedMark, jdbcType=INTEGER}
+			</if>
+			<if test="isCollected != null">
+				and is_collected = #{isCollected, jdbcType=INTEGER}
+			</if>
+			<if test="isExtraCollected != null">
+				and is_extra_collected = #{isExtraCollected, jdbcType=INTEGER}
+			</if>
+		order by agg_mark
+		limit 100
+	</select>
+
+
+</mapper>

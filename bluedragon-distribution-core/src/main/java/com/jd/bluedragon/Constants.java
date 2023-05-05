@@ -1,5 +1,6 @@
 package com.jd.bluedragon;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1880,4 +1881,23 @@ public class Constants {
         public static final Integer INTEGER_ZERO = 0;
     }
 
+
+    /**
+     * 集齐加锁前缀
+     */
+    public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
+    /**
+     * 集齐运单锁（内部给部分包裹list加bit锁）
+     */
+    public static final String JQ_DETAIL_AGG_LOCK_PREFIX = "JQ_LOCK_DETAIL_AGG_{0}_{1}";
+    /**
+     * 集齐部分包裹bit锁
+     */
+    public static final String JQ_DETAIL_AGG_BIT_LOCK_PREFIX = "JQ_DETAIL_AGG_BIT_LOCK_PREFIX_{0}_{1}";
+    public static final int JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT = 120;
+
+    /**
+     * DB 执行in 限制最大数量
+     */
+    public static final Integer DB_IN_MAX_SIZE  = 100;
 }

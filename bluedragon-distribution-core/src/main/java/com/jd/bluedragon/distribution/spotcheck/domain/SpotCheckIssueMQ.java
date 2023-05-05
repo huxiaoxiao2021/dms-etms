@@ -23,7 +23,7 @@ public class SpotCheckIssueMQ implements Serializable {
      */
     private String flowSystem;
 
-    // 流程发起环节,1：拣运 2：终端
+    // 流程发起环节,1：拣运 2：终端 3：异常重新下发
     private String initiationLink;
 
     // 数据来源系统  1:分拣设备抽检，2:分拣人工抽检；3：终端快递；4:终端快运；5:判责系统 6:称重再造系统

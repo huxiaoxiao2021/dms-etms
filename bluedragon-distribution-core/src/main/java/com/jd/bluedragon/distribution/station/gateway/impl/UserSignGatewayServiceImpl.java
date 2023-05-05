@@ -190,6 +190,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return result;
 	}
 	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithGroup",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithGroup(signInRequest);
 	}

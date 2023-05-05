@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackage;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendPack
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendDetailsResponse;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendPackageCountResponse;
 import com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.api.predict.IPackagePredictAggsJsfService;
 import com.jdl.jy.realtime.base.ServiceResult;
 import com.jdl.jy.realtime.model.vo.predict.InspectedNotSendBarCode;
@@ -37,6 +40,7 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.PkgPredictGateWayServiceImpl.queryCurrentWorkWaveInspectedNotSendPackageCount", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<WorkWaveInspectedNotSendPackageCountResponse> queryCurrentWorkWaveInspectedNotSendPackageCount(WorkWaveInspectedNotSendPackageCountReq req) {
         if (req.getQueryTime() == null) {
             req.setQueryTime(new Date());

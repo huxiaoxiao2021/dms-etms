@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.basic.ExcelUtils;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
@@ -945,7 +946,59 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         return Arrays.asList(spotCheckIssueByMachineStatusSwitch.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
+
+    @Override
+    public void executeIssueOfCompensate(String excelName) {
+        long startTime = System.currentTimeMillis();
+        if(StringUtils.isEmpty(excelName)){
+            logger.error("文件名不能为空!");
+            return;
+        }
+        InputStream inputStream = jssService.downloadFile("dms-export/excel", excelName);
+        if(inputStream == null){
+            logger.error("未查询到文件:{}", excelName);
+            return;
+        }
+        // 表头字段对应对象字段名
+        List<String> headList = Lists.newLinkedList();
+        headList.add("waybillCode");
+        headList.add("reviewWeight");
+        headList.add("reviewVolume");
+        headList.add("contrastWeight");
+        headList.add("contrastVolume");
+        List<WeightVolumeSpotCheckDto> spotCheckDtos = null;
+        try {
+            spotCheckDtos = ExcelUtils.readFromExcel(inputStream, ExcelUtils.EXCEL_SUFFIX_XLSX, WeightVolumeSpotCheckDto.class, headList);
+        }catch (Exception e){
+            logger.error("读取文件异常!");
+        }
+        if(CollectionUtils.isEmpty(spotCheckDtos)){
+            logger.error("读取文件:{}为空!", excelName);
+            return;
+        }
+        for (WeightVolumeSpotCheckDto item : spotCheckDtos) {
+            buildCompensateAndIssue(item);
+        }
+        logger.info("批量下发异常数据完成,总耗时:{}", System.currentTimeMillis() - startTime);
+    }
     
+    private void buildCompensateAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+        SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
+        spotCheckIssueMQ.setFlowSystem(SpotCheckConstants.EQUIPMENT_SPOT_CHECK); // 现阶段只处理设备抽检数据，后续可调整
+        spotCheckIssueMQ.setInitiationLink("3"); // 此值固定
+        spotCheckIssueMQ.setOperateType(3); // 此值固定
+        spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        spotCheckIssueMQ.setConfirmWeight(spotCheckDto.getContrastWeight() == null ? null : decimalFormat.format(spotCheckDto.getContrastWeight()));
+        spotCheckIssueMQ.setConfirmVolume(spotCheckDto.getContrastVolume() == null ? null : decimalFormat.format(spotCheckDto.getContrastVolume()));
+        spotCheckIssueMQ.setReConfirmWeight(spotCheckDto.getReviewWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewWeight()));
+        spotCheckIssueMQ.setReConfirmVolume(spotCheckDto.getReviewVolume() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewVolume()));
+        if(logger.isInfoEnabled()){
+            logger.info("重新下发运单号:{}的抽检超标数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
+        }
+        spotCheckIssueProducer.sendOnFailPersistent(spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
+    }
+
     private boolean isMultiPack(Waybill waybill, String packageCode) {
         int packNum;
         if(WaybillUtil.isPackageCode(packageCode)){

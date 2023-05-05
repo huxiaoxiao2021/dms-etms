@@ -108,14 +108,26 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private EvaluateTargetResultDto createTargetInfo(EvaluateTargetInitDto targetInitDto) {
+        
         // 查询发货调度任务
-        JyScheduleTaskResp targetScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
-        String targetTaskId = targetScheduleTask.getTaskId();
+        JyScheduleTaskResp targetScheduleTask = null;
+        if (StringUtils.isNotBlank(targetInitDto.getTargetBizId())) {
+            targetScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getTargetBizId(), JyScheduleTaskTypeEnum.SEND.getCode());
+        }
+        String targetTaskId = Constants.EMPTY_FILL;
+        // 发货任务协助人
+        List<JyTaskGroupMemberEntity> taskGroupMembers = null;
+        if (targetScheduleTask != null) {
+            targetTaskId = targetScheduleTask.getTaskId();
+            taskGroupMembers = jyEvaluateCommonService.queryMemberListByTaskId(targetTaskId);
+        }
         // 查询卸车调度任务
         JyScheduleTaskResp sourceScheduleTask = jyEvaluateCommonService.getJyScheduleTask(targetInitDto.getSourceBizId(), JyScheduleTaskTypeEnum.UNLOAD.getCode());
-        String sourceTaskId = sourceScheduleTask.getTaskId();
-        // 查询发货任务协助人
-        List<JyTaskGroupMemberEntity> taskGroupMembers = jyEvaluateCommonService.queryMemberListByTaskId(targetTaskId);
+        String sourceTaskId = Constants.EMPTY_FILL;
+        if (sourceScheduleTask != null) {
+            sourceTaskId = sourceScheduleTask.getTaskId();
+        }
+        
         // 根据发货任务操作场地查询区域信息
         BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
         // 根据卸车任务操作场地查询区域信息
@@ -123,15 +135,19 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
 
         if (targetInitDto.getUnsealTime() == null || targetInitDto.getSealTime() == null) {
             SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(targetInitDto.getSourceBizId());
-            targetInitDto.setUnsealTime(sealCarDto.getDesealCarTime());
-            targetInitDto.setSealTime(sealCarDto.getSealCarTime());
+            if (sealCarDto != null) {
+                targetInitDto.setUnsealTime(sealCarDto.getDesealCarTime());
+                targetInitDto.setSealTime(sealCarDto.getSealCarTime());
+            }
         }
 
         EvaluateTargetResultDto targetResultDto = createEvaluateTargetInfo(targetInitDto, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
         targetResultDto.setTargetTaskId(targetTaskId);
         targetResultDto.setSourceTaskId(sourceTaskId);
-        targetResultDto.setTargetStartTime(targetScheduleTask.getTaskStartTime());
-        targetResultDto.setTargetFinishTime(targetScheduleTask.getTaskEndTime());
+        if (targetScheduleTask != null) {
+            targetResultDto.setTargetStartTime(targetScheduleTask.getTaskStartTime());
+            targetResultDto.setTargetFinishTime(targetScheduleTask.getTaskEndTime());
+        }
         return targetResultDto;
     }
 
@@ -141,8 +157,10 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
                                                                 BaseStaffSiteOrgDto sourceSiteOrgDto) {
         EvaluateTargetResultDto targetInfo = new EvaluateTargetResultDto();
 
-        targetInfo.setTargetAreaCode(targetSiteOrgDto.getOrgId());
-        targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
+        if (targetSiteOrgDto != null) {
+            targetInfo.setTargetAreaCode(targetSiteOrgDto.getOrgId());
+            targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
+        }
         targetInfo.setTargetSiteCode(targetInitDto.getTargetSiteCode());
         targetInfo.setTargetSiteName(targetInitDto.getTargetSiteName());
 
@@ -152,8 +170,10 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (CollectionUtils.isNotEmpty(taskGroupMembers)) {
             targetInfo.setHelperErp(getUserCodesStr(taskGroupMembers));
         }
-        targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
-        targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
+        if (sourceSiteOrgDto != null) {
+            targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
+            targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
+        }
         targetInfo.setSourceSiteCode(targetInitDto.getSourceSiteCode());
         targetInfo.setSourceSiteName(targetInitDto.getSourceSiteName());
         targetInfo.setUnsealTime(targetInitDto.getUnsealTime());
