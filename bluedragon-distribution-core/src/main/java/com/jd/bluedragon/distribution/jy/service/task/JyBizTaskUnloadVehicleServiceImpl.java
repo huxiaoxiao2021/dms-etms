@@ -209,6 +209,24 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return jyBizTaskUnloadCountDtoList;
     }
 
+    @Override
+    public Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
+
+        if (enums == null) {
+            // 如果入参状态为空 则全部状态匹配
+            enums = JyBizTaskUnloadStatusEnum.values();
+        }
+        List<Integer> statusOfCodes = new ArrayList<>();
+        for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
+            statusOfCodes.add(statusEnum.getCode());
+        }
+        condition.setTeanFlag(1);
+        //获取数据
+        logger.info("获取特安车辆任务数据入参-{}");
+        return jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLineOfTEAN(condition, statusOfCodes, sealCarCodes);
+
+    }
+
 
     /**
      * 分页返回数据 集合（最大支持滚动到200条数据）

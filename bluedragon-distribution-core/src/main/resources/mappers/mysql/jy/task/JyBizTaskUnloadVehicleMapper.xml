@@ -420,6 +420,9 @@
         <if test="entity.taskType!=null">
             and task_type =#{entity.taskType}
         </if>
+        <if test="entity.teanFlag!=null">
+            and te_an_flag =#{entity.teanFlag}
+        </if>
         <choose>
             <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
                 AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
@@ -490,6 +493,32 @@
         </where>
 
         group by vehicle_status,line_type
+
+    </select>
+
+
+    <select id="findStatusCountByCondition4StatusAndLineOfTEAN" resultType="java.lang.Long">
+        select
+        count(1) as v_sum
+        from jy_biz_task_unload_vehicle
+
+        <where>
+
+            <include refid="queryTaskCondition"/>
+
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
 
     </select>
 

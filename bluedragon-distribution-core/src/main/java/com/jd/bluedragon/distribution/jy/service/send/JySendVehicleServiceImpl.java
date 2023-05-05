@@ -163,6 +163,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
@@ -182,6 +183,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     public static final int TRANS_BILL_STATUS_CONFIRM = 15;
     public static final int TRANS_BILL_WORK_STATUS = 20;
+
+    public static final int DEFAUL_PAGE_SIZE = 1000;
+    public static final int DEFAUL_PAGE_NUMBER = 1;
+
+
+
 
     @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
     private String vehicleMapUrl;
@@ -313,6 +320,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private HrUserManager hrUserManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -3355,6 +3365,48 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         invokeResult.setCode(RESULT_NULL_CODE);
         invokeResult.setMessage(RESULT_NULL_MESSAGE);
         return invokeResult;
+    }
+
+    @Override
+    public void NoticeToCanTEANPackage() {
+        try{
+            //获取当前时间 和后一分钟的时间
+            Date now = new Date();
+            Date nextMinute = DateHelper.add(now, Calendar.MINUTE, 1);
+            log.info("获取当前时间-{} -{}",now,nextMinute);
+            List<JyBizTaskSendVehicleDetailEntity> list = taskSendVehicleDetailService.queryjyBizTaskSendVehicleDetailByPlanDepartTime(now, nextMinute);
+            log.info("查出的任务明细列表-{}",JSON.toJSONString(list));
+            for (JyBizTaskSendVehicleDetailEntity detail: list) {
+                if(StringUtils.isNotBlank(detail.getSendVehicleBizId())){
+                    //获取特安待扫包裹明细
+                    SendVehicleToScanPackageDetailRequest request = new SendVehicleToScanPackageDetailRequest();
+                    request.setSendVehicleBizId(detail.getSendVehicleBizId());
+                    request.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+                    request.setPageNumber(DEFAUL_PAGE_NUMBER);
+                    request.setPageSize(DEFAUL_PAGE_SIZE);
+                    InvokeResult<SendVehicleToScanPackageDetailResponse> result = sendVehicleToScanPackageDetail(request);
+                    if(result == null || result.getData() == null || CollectionUtils.isEmpty(result.getData().getPackageCodeList())){
+                        continue;
+                    }
+                    String userErp = detail.getUpdateUserErp();
+                    String endSiteName = detail.getEndSiteName();
+                    Long packageCount = result.getData().getPackageCount();
+                    //获取当前任务包裹列表
+                    List<String> collect = result.getData().getPackageCodeList().stream().map(SendVehicleToScanPackage::getPackageCode).collect(Collectors.toList());
+                    // 推送咚咚
+                    String title = "特安包裹待扫提醒";
+                    String template = "您好，距离发车15分钟，%s 流向存在 %s个特安包裹待扫描，请联系场地发货人员尽快处理！待扫明细如下：%s";
+                    String content = String.format(template, endSiteName, packageCount, collect);
+                    //根据当前操作人查询上级erp
+                    String superiorErp = hrUserManager.getSuperiorErp(userErp);
+                    List<String> erpList = Lists.newArrayList(superiorErp);
+                    NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
+                }
+            }
+        }catch (Exception e){
+            log.error("场地推送特按待扫包裹信息异常-{}",e.getMessage(),e);
+        }
+
     }
 
     /**

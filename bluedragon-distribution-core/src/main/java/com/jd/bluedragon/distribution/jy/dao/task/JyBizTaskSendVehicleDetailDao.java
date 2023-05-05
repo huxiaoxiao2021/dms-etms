@@ -3,15 +3,17 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 发车任务明细表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -107,5 +109,12 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
 
     public JyBizTaskSendVehicleDetailEntity queryByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByTransWorkItemCode", query);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> queryjyBizTaskSendVehicleDetailByPlanDepartTime(Date dateTime, Date nextDateTime) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("dateTime", dateTime);
+        params.put("nextDateTime", nextDateTime);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryjyBizTaskSendVehicleDetailByPlanDepartTime", params);
     }
 }

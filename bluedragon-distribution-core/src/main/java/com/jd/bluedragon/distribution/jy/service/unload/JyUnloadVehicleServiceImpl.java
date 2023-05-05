@@ -231,9 +231,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                                            JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
         List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
+        Long teanCount = unloadVehicleService.findStatusCountByCondition4StatusAndLineOfTEAN(condition, sealCarCodes, curQueryStatus);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
+        unloadVehicleData.setTolalOfTEAN(teanCount);
 
         // 按车辆状态组装
         makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
@@ -419,6 +421,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         return lineTypeList;
     }
+
 
     private LineTypeStatis createLineTypeAgg(JyBizTaskUnloadCountDto countDto) {
         LineTypeStatis lineTypeStatis = new LineTypeStatis();

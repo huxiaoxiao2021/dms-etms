@@ -248,4 +248,11 @@ public interface IJySendVehicleService {
      */
     InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
+
+    /**
+     * 推送特安待扫包裹明细数据到场地负责人
+     * @return
+     */
+    void NoticeToCanTEANPackage();
+
 }

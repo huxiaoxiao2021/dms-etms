@@ -785,7 +785,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq req) {
         log.info("querySendVehicleProductTypePackageCount -入参-{}", JSON.toJSONString(req));
         InvokeResult<SendVehicleProductTypeAgg>  result = new InvokeResult<>();
-        if(StringUtils.isBlank(req.getToSendVehicleBizId())
+        if(StringUtils.isBlank(req.getToSendVehicleDetailBizId())
                 || Objects.isNull(req.getCurrentOperate())
                 || Objects.isNull(req.getCurrentOperate().getSiteCode())){
             result.setMessage(PARAM_ERROR);
@@ -794,7 +794,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
         query.setProductType(UnloadProductTypeEnum.TEAN.getCode());
-        query.setSendVehicleBizId(req.getToSendVehicleBizId());
+        query.setSendVehicleBizId(req.getToSendVehicleDetailBizId());
         query.setOperateSiteId(req.getCurrentOperate().getSiteCode());
         Long count = sendVehicleJsfManager.querySendVehicleProductTypePackageCount(query);
         SendVehicleProductTypeAgg  productTypeAgg= new SendVehicleProductTypeAgg();
