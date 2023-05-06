@@ -2094,7 +2094,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     public void checkTEANWaybillCondition(JdVerifyResponse response, String barCode) {
         log.info("isTeAnWaybill--运单号{}",barCode);
         // 只处理包裹号或运单号
-        if(!WaybillUtil.isWaybillCode(barCode) && WaybillUtil.isPackageCode(barCode)){
+        if(!WaybillUtil.isWaybillCode(barCode) && !WaybillUtil.isPackageCode(barCode)){
+            log.warn("此单非包裹或运单号");
             return;
         }
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
@@ -2106,10 +2107,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     @Override
-    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
-            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
+//    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
+//            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
     public boolean isTeAnWaybill(String waybillCode) {
-        log.info("isTeAnWaybill--运单号{}",waybillCode);
+        log.info("isTeAnWaybill---运单号{}",waybillCode);
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
         log.info("isTeAnWaybill--获取产品编码{}",JSON.toJSONString(baseEntity));
         if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
