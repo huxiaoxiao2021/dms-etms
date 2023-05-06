@@ -440,7 +440,7 @@
 
 
     <sql id="queryTaskConditionOfTean">
-        yn = 1 and  and te_an_flag =1
+        yn = 1 and  te_an_flag =1
 
         AND end_site_id = #{entity.endSiteId}
         <if test="entity.actualArriveStartTime != null">
