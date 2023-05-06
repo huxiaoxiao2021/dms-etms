@@ -795,6 +795,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         try{
             JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
             if(Objects.isNull(entity)) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务为空,bizId={}", bizId);
+                }
                 return null;
             }
             return entityConvertDto(entity);
