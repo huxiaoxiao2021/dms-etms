@@ -3354,7 +3354,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             log.info("获取特安待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
             toScanCountSumOfTeAn = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);
             log.info("获取特安待扫数据--{}",toScanCountSumOfTeAn);
-            if(toScanCountSumOfTeAn >0){
+            if(toScanCountSumOfTeAn!= null && toScanCountSumOfTeAn >0){
                 productTypeAgg.setCount(toScanCountSumOfTeAn);
                 invokeResult.setCode(RESULT_SUCCESS_CODE);
                 invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
