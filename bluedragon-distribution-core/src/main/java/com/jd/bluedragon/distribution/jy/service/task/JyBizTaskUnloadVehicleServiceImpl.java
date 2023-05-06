@@ -220,7 +220,6 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
             statusOfCodes.add(statusEnum.getCode());
         }
-        condition.setTeanFlag(1);
         //获取数据
         logger.info("获取特安车辆任务数据入参-{}");
         return jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLineOfTEAN(condition, statusOfCodes, sealCarCodes);

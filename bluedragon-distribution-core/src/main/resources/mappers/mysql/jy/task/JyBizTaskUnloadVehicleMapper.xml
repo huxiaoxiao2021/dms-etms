@@ -438,6 +438,45 @@
         </choose>
     </sql>
 
+
+    <sql id="queryTaskConditionOfTean">
+        yn = 1
+
+        AND end_site_id = #{entity.endSiteId}
+        <if test="entity.actualArriveStartTime != null">
+            and update_time >= #{entity.actualArriveStartTime}
+        </if>
+        <if test="entity.sealCarCode">
+            and seal_car_code = #{entity.sealCarCode}
+        </if>
+
+        <if test="entity.sortTime != null">
+            AND sort_time >= #{entity.sortTime}
+        </if>
+        <if test="entity.lineType!=null">
+            and line_type =#{entity.lineType}
+        </if>
+        <if test="entity.taskType!=null">
+            and task_type =#{entity.taskType}
+        </if>
+        <if test="entity.teanFlag!=null">
+            and te_an_flag =#{entity.teanFlag}
+        </if>
+        <choose>
+            <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
+                AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
+            </when>
+            <otherwise>
+                <if test="entity.fuzzyVehicleNumber">
+                    AND fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+                </if>
+                <if test="entity.startSiteId != null">
+                    AND start_site_id = #{entity.startSiteId}
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
     <select id="listUnloadVehicleTask" parameterType="JyBizTaskUnloadVehicleEntity" resultMap="jyBizTaskUnloadVehicleMap">
         select
         <include refid="Base_Column_List"/>
@@ -504,7 +543,7 @@
 
         <where>
 
-            <include refid="queryTaskCondition"/>
+            <include refid="queryTaskConditionOfTean"/>
 
             <if test="statuses != null">
                 and vehicle_status in
