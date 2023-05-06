@@ -792,8 +792,16 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
-        JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
-        return entityConvertDto(entity);
+        try{
+            JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
+            if(Objects.isNull(entity)) {
+                return null;
+            }
+            return entityConvertDto(entity);
+        }catch (Exception ex) {
+            logger.error("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务服务异常,bizId={},errMsg={}", bizId, ex.getMessage(), ex);
+            throw new JyBizException("查询卸车任务失败");
+        }
     }
 
     @Override
