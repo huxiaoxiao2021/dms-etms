@@ -175,22 +175,22 @@ public class JyScheduleTaskManagerImpl implements JyScheduleTaskManager {
         return null;
 	}
 
-	@Override
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMemberFlow", mState = {JProEnum.TP, JProEnum.FunctionError})	
-	public List<JyScheduleTaskResp> findStartedScheduleTasksForAddMemberFlow(JyScheduleTaskReq taskQuery) {
-        ServiceResult<List<JyScheduleTaskResp>> apiResult = null;
-        try{
-            apiResult = jyScheduleTaskApi.findStartedScheduleTasksForAddMemberFlow(taskQuery);
-            if(apiResult.getSuccess()){
-                return apiResult.getData();
-            }
-        }catch (Exception e){
-            logger.error("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember error req:{}",  JsonHelper.toJson(taskQuery),e);
-        }finally {
-            if(logger.isInfoEnabled()){
-                logger.info("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember req:{} resp:{}", JsonHelper.toJson(taskQuery),JsonHelper.toJson(apiResult));
-            }
-        }
-        return new ArrayList<JyScheduleTaskResp>();
-	}
+//	@Override
+//	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMemberFlow", mState = {JProEnum.TP, JProEnum.FunctionError})	
+//	public List<JyScheduleTaskResp> findStartedScheduleTasksForAddMemberFlow(JyScheduleTaskReq taskQuery) {
+//        ServiceResult<List<JyScheduleTaskResp>> apiResult = null;
+//        try{
+//            apiResult = jyScheduleTaskApi.findStartedScheduleTasksForAddMemberFlow(taskQuery);
+//            if(apiResult.getSuccess()){
+//                return apiResult.getData();
+//            }
+//        }catch (Exception e){
+//            logger.error("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember error req:{}",  JsonHelper.toJson(taskQuery),e);
+//        }finally {
+//            if(logger.isInfoEnabled()){
+//                logger.info("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember req:{} resp:{}", JsonHelper.toJson(taskQuery),JsonHelper.toJson(apiResult));
+//            }
+//        }
+//        return new ArrayList<JyScheduleTaskResp>();
+//	}
 }

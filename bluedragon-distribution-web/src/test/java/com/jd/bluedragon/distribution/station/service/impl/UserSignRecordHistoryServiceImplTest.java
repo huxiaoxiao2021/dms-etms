@@ -69,12 +69,13 @@ public class UserSignRecordHistoryServiceImplTest {
     	when(positionManager.queryPositionWithIsMatchAppFunc(positionCode1)).thenReturn(null);
     	easyDataClientUtil.setRestClient(new RestTemplate());
     	userSignRecordHistoryService.easyDataClientUtil = this.easyDataClientUtil;
-    	when(userSignRecordEasyDataConfig.getApiGroupName()).thenReturn("work_station_dim");
-    	when(userSignRecordEasyDataConfig.getAppToken()).thenReturn("c2a2f5f245cf0e67558f04304606bffd");
-    	when(userSignRecordEasyDataConfig.getQueryCountForFlow()).thenReturn("queryCountForFlow");
-    	when(userSignRecordEasyDataConfig.getQueryDataListForFlow()).thenReturn("queryDataListForFlow");
-    	when(userSignRecordEasyDataConfig.getQueryByIdForFlow()).thenReturn("queryByIdForFlow");
-    	when(userSignRecordEasyDataConfig.getQueryCountForCheckSignTime()).thenReturn("queryCountForCheckSignTime");
+    	when(userSignRecordEasyDataConfig.getApiGroupName()).thenReturn("work_station_dim_uat");
+    	when(userSignRecordEasyDataConfig.getAppToken()).thenReturn("1ed5b6c70298be8d2ad69d6644a43443");
+    	when(userSignRecordEasyDataConfig.getTenant()).thenReturn("LEO");
+    	when(userSignRecordEasyDataConfig.getQueryCountForFlow()).thenReturn("queryCountForFlowUat");
+    	when(userSignRecordEasyDataConfig.getQueryDataListForFlow()).thenReturn("queryDataListForFlowUat");
+    	when(userSignRecordEasyDataConfig.getQueryByIdForFlow()).thenReturn("queryByIdForFlowUat");
+    	when(userSignRecordEasyDataConfig.getQueryCountForCheckSignTime()).thenReturn("queryCountForCheckSignTimeUat");
     }
 	/**
 	 * @throws Exception
