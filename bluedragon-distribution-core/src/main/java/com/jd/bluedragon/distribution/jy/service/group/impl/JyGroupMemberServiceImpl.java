@@ -647,50 +647,6 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			if(log.isDebugEnabled()) {
 				log.debug("流程审批-添加组员：{}", JsonHelper.toJson(memberData));
 			}
-			//非新小组，将新加入组员加入到当前小组工作任务人员明细中
-			//查询当前小组工作任务
-			JyScheduleTaskReq taskQuery = new JyScheduleTaskReq();
-			taskQuery.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
-			taskQuery.setDistributionTarget(groupCode);
-			taskQuery.setTaskStartTime(memberData.getSignInTime());
-			taskQuery.setTaskEndTime(memberData.getSignOutTime());
-			
-			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksForAddMemberFlow(taskQuery);
-			if(!CollectionUtils.isEmpty(taskList)) {
-				for(JyScheduleTaskResp task : taskList) {
-					String taskId = task.getTaskId();
-					JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
-					taskMember.setMemberType(memberData.getMemberType());
-					taskMember.setDeviceTypeCode(memberData.getDeviceTypeCode());
-					taskMember.setDeviceTypeName(memberData.getDeviceTypeName());
-					taskMember.setMachineCode(memberData.getMachineCode());					
-					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
-					taskMember.setRefGroupCode(groupCode);
-					taskMember.setRefTaskId(taskId);
-					taskMember.setJobCode(memberData.getJobCode());
-					taskMember.setUserCode(memberData.getUserCode());
-					taskMember.setUserName(memberData.getUserName());
-					taskMember.setOrgCode(memberData.getOrgCode());
-					taskMember.setSiteCode(memberData.getSiteCode());
-					if(task.getTaskStartTime() != null && task.getTaskStartTime().after(memberData.getSignInTime())) {
-						taskMember.setStartTime(task.getTaskStartTime());
-					}else {
-						taskMember.setStartTime(memberData.getSignInTime());
-					}
-					if(task.getTaskEndTime() != null && task.getTaskEndTime().before(memberData.getSignOutTime())) {
-						taskMember.setEndTime(task.getTaskEndTime());
-					}else {
-						taskMember.setEndTime(memberData.getSignOutTime());
-					}
-					taskMember.setCreateTime(currentDate);
-					taskMember.setCreateUser(memberData.getCreateUser());
-					taskMember.setCreateUserName(memberData.getCreateUserName());	
-					jyTaskGroupMemberService.addTaskMember(taskMember);
-					if(log.isDebugEnabled()) {
-						log.debug("流程审批-添加任务组员：{}", JsonHelper.toJson(taskMember));
-					}
-				}
-			}
 		}
 		return result;
 	}
