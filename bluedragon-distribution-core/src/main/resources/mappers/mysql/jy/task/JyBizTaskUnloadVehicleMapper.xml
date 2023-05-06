@@ -440,7 +440,7 @@
 
 
     <sql id="queryTaskConditionOfTean">
-        yn = 1
+        yn = 1 and  and te_an_flag =1
 
         AND end_site_id = #{entity.endSiteId}
         <if test="entity.actualArriveStartTime != null">
@@ -458,9 +458,6 @@
         </if>
         <if test="entity.taskType!=null">
             and task_type =#{entity.taskType}
-        </if>
-        <if test="entity.teanFlag!=null">
-            and te_an_flag =#{entity.teanFlag}
         </if>
         <choose>
             <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
