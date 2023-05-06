@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
@@ -1545,5 +1546,47 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				signData.setWorkName(gridData.getData().getWorkName());
 			}
 		}
+	}
+	@Override
+	public Result<UserSignRecord> checkAndCreateSignInDataForFlowAdd(UserSignRequest signInRequest) {
+		Result<UserSignRecord> result = new Result<UserSignRecord>();
+		result.toSuccess();
+		JdCResponse<UserSignRecordData> checkResult = checkAndFillUserInfo(signInRequest);
+		if(!checkResult.isSucceed()) {
+			result.toFail(checkResult.getMessage());
+			return result;
+		}
+		//校验岗位码,并获取网格信息
+		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
+		if(!gridResult.isSucceed()) {
+			result.toFail(gridResult.getMessage());
+			return result;
+		}
+		WorkStationGrid gridInfo = gridResult.getData();
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        JdCResponse<UserSignRecordData> fillResult = this.checkAndFillSignInInfo(signInRequest,signInData,gridInfo);
+        if(!fillResult.isSucceed()) {
+        	result.toFail(fillResult.getMessage());
+        	return result;
+        }
+        result.setData(signInData);
+		return result;
+	}	
+	@Override
+	public Integer queryCountForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryCountForFlow(historyQuery);
+	}
+	@Override
+	public List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryDataListForFlow(historyQuery);
+	}
+	@Override
+	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
+		return userSignRecordDao.queryCountForCheckSignTime(checkQuery);
+	}
+	@Override
+	public UserSignRecord queryByIdForFlow(Long recordId) {
+		return userSignRecordDao.queryByIdForFlow(recordId);
 	}
 }
