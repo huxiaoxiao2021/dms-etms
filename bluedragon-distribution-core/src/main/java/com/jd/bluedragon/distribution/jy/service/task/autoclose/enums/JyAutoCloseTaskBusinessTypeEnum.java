@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose.enums;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 作业工作台任务自动关闭业务类型枚举
@@ -22,6 +19,15 @@ public enum JyAutoCloseTaskBusinessTypeEnum {
      * 卸车开始后一直不再卸车扫描，也未操作卸车完成，自动关闭卸车任务
      */
     UNLOADING_NOT_FINISH(2, "卸车后未卸车完成"),
+
+    /**
+     * 创建发货任务
+     */
+    CREATE_SEND_VEHICLE_TASK(4,"创建发货任务"),
+
+
+
+    UNKNOWN(-1, "未知"),
     ;
 
     public static Map<Integer, String> ENUM_MAP;
@@ -40,6 +46,15 @@ public enum JyAutoCloseTaskBusinessTypeEnum {
             ENUM_MAP.put(enumItem.getCode(), enumItem.getName());
             ENUM_LIST.add(enumItem.getCode());
         }
+    }
+
+    public static JyAutoCloseTaskBusinessTypeEnum queryEnumByCode(Integer code) {
+        for (JyAutoCloseTaskBusinessTypeEnum value : JyAutoCloseTaskBusinessTypeEnum.values()) {
+            if(Objects.equals(value.getCode(), code)){
+                return value;
+            }
+        }
+        return UNKNOWN;
     }
 
     /**

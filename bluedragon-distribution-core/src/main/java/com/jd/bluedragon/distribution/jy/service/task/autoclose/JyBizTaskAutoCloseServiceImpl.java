@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.strategy.JyBizTaskCloseServiceStrategy;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -14,6 +17,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +35,8 @@ import java.util.Objects;
 @Slf4j
 public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService {
 
+    private final Logger logger = LoggerFactory.getLogger(JyBizTaskAutoCloseServiceImpl.class);
+
     @Autowired
     private JyBizTaskCloseServiceStrategy jyBizTaskCloseServiceStrategy;
 
@@ -45,6 +52,9 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
     @Autowired
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
 
+    @Autowired
+    private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+
     /**
      * 消费自动关闭消息
      *
@@ -58,16 +68,16 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
         log.info("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq param {}", JSON.toJSONString(autoCloseTaskMq));
         Result<Boolean> result = Result.success();
         try {
-            final JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist = jyBizTaskUnloadVehicleService.findByBizId(autoCloseTaskMq.getBizId());
-            if (jyBizTaskUnloadVehicleExist == null) {
-                log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
-                return result;
-            }
-            if (Objects.equals(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), autoCloseTaskMq.getChangeStatus())) {
-                jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4WaitUnloadNotFinish(autoCloseTaskMq, jyBizTaskUnloadVehicleExist);
-            }
-            if (Objects.equals(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode(), autoCloseTaskMq.getChangeStatus())) {
-                jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4UnloadingNotFinish(autoCloseTaskMq, jyBizTaskUnloadVehicleExist);
+            switch (JyAutoCloseTaskBusinessTypeEnum.queryEnumByCode(autoCloseTaskMq.getTaskBusinessType())){
+                case WAIT_UNLOAD_NOT_FINISH:
+                case UNLOADING_NOT_FINISH:
+                    result.setData(unloadTaskAutoCloseDeal(autoCloseTaskMq));
+                    break;
+                case CREATE_SEND_VEHICLE_TASK:
+                    result.setData(sendVehicleDetailTaskDeal(autoCloseTaskMq));
+                    break;
+                default:
+                    logger.warn("未知业务类型:{}不予处理!", autoCloseTaskMq.getTaskBusinessType());
             }
         } catch (Exception e) {
             log.error("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq exception {}", JSON.toJSONString(autoCloseTaskMq), e);
@@ -75,6 +85,32 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
         }
         return result;
     }
+
+    private boolean sendVehicleDetailTaskDeal(AutoCloseTaskMq autoCloseTaskMq){
+        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(autoCloseTaskMq.getBizId());
+        if(jyBizTaskSendVehicleDetail == null){
+            log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
+            return false;
+        }
+        return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4SendVehicleTask(autoCloseTaskMq, jyBizTaskSendVehicleDetail);
+    }
+
+    private boolean unloadTaskAutoCloseDeal(AutoCloseTaskMq autoCloseTaskMq) {
+        final JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist = jyBizTaskUnloadVehicleService.findByBizId(autoCloseTaskMq.getBizId());
+        if (jyBizTaskUnloadVehicleExist == null) {
+            log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
+            return false;
+        }
+        if (Objects.equals(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode(), autoCloseTaskMq.getChangeStatus())) {
+            return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4WaitUnloadNotFinish(autoCloseTaskMq, jyBizTaskUnloadVehicleExist);
+        }
+        if (Objects.equals(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode(), autoCloseTaskMq.getChangeStatus())) {
+            return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4UnloadingNotFinish(autoCloseTaskMq, jyBizTaskUnloadVehicleExist);
+        }
+        return false;
+    }
+
+
 
     /**
      * 自动关闭任务

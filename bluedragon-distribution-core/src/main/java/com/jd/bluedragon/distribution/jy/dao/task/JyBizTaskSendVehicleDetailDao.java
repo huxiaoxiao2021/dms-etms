@@ -110,11 +110,4 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public JyBizTaskSendVehicleDetailEntity queryByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByTransWorkItemCode", query);
     }
-
-    public List<JyBizTaskSendVehicleDetailEntity> queryjyBizTaskSendVehicleDetailByPlanDepartTime(Date dateTime, Date nextDateTime) {
-        Map<String,Object> params = new HashMap<>();
-        params.put("dateTime", dateTime);
-        params.put("nextDateTime", nextDateTime);
-        return this.getSqlSession().selectList(NAMESPACE + ".queryjyBizTaskSendVehicleDetailByPlanDepartTime", params);
-    }
 }

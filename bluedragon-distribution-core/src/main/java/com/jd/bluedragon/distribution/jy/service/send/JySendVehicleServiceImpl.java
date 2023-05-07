@@ -96,6 +96,7 @@ import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -3368,15 +3369,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
-    public void NoticeToCanTEANPackage() {
+    public com.jd.dms.java.utils.sdk.base.Result<Void> NoticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
+        log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
+        com.jd.dms.java.utils.sdk.base.Result<Void> response = com.jd.dms.java.utils.sdk.base.Result.success();
         try{
-            //获取当前时间 和后一分钟的时间
-            Date now = new Date();
-            Date nextMinute = DateHelper.add(now, Calendar.MINUTE, 1);
-            log.info("获取当前时间-{} -{}",now,nextMinute);
-            List<JyBizTaskSendVehicleDetailEntity> list = taskSendVehicleDetailService.queryjyBizTaskSendVehicleDetailByPlanDepartTime(now, nextMinute);
-            log.info("查出的任务明细列表-{}",JSON.toJSONString(list));
-            for (JyBizTaskSendVehicleDetailEntity detail: list) {
+
+            JyBizTaskSendVehicleDetailEntity detail = taskSendVehicleDetailService.findByBizId(autoCloseTaskPo.getBizId());
+            log.info("查出的任务明细detailEntity -{}",JSON.toJSONString(detail));
+
                 if(StringUtils.isNotBlank(detail.getSendVehicleBizId())){
                     //获取特安待扫包裹明细
                     SendVehicleToScanPackageDetailRequest request = new SendVehicleToScanPackageDetailRequest();
@@ -3386,7 +3386,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     request.setPageSize(DEFAUL_PAGE_SIZE);
                     InvokeResult<SendVehicleToScanPackageDetailResponse> result = sendVehicleToScanPackageDetail(request);
                     if(result == null || result.getData() == null || CollectionUtils.isEmpty(result.getData().getPackageCodeList())){
-                        continue;
+                        return response;
                     }
                     String userErp = detail.getUpdateUserErp();
                     String endSiteName = detail.getEndSiteName();
@@ -3402,11 +3402,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     List<String> erpList = Lists.newArrayList(superiorErp);
                     NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
                 }
-            }
+
         }catch (Exception e){
             log.error("场地推送特按待扫包裹信息异常-{}",e.getMessage(),e);
         }
-
+        return response;
     }
 
     /**

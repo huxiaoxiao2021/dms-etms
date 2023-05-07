@@ -612,12 +612,4 @@
             and end_site_id = #{endSiteId}
             and create_time &gt;= #{createTimeBegin}
     </select>
-
-    <select id="queryjyBizTaskSendVehicleDetailByPlanDepartTime" resultMap="jyBizTaskSendVehicleDetailMap">
-        select distinct (send_vehicle_biz_id),biz_id,end_site_id,end_site_name,plan_depart_time,update_user_erp
-        from  jy_biz_task_send_vehicle_detail
-        where  yn =1 and  update_user_erp != ''
-        and  <![CDATA[   plan_depart_time >= #{dateTime} ]]>
-        and  <![CDATA[   plan_depart_time < #{nextDateTime} ]]>
-    </select>
 </mapper>

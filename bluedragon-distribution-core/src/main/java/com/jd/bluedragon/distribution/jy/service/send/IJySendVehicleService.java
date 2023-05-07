@@ -10,8 +10,10 @@ import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
 
@@ -253,6 +255,6 @@ public interface IJySendVehicleService {
      * 推送特安待扫包裹明细数据到场地负责人
      * @return
      */
-    void NoticeToCanTEANPackage();
+    Result<Void> NoticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
 
 }

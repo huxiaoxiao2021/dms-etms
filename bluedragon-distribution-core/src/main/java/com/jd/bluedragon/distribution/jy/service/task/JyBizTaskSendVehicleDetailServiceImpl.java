@@ -154,10 +154,4 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
 		return jyBizTaskSendVehicleDetailDao.findByTransWorkItemCode(query);
 	}
-
-    @Override
-    public List<JyBizTaskSendVehicleDetailEntity> queryjyBizTaskSendVehicleDetailByPlanDepartTime(Date dateTime, Date nextDateTime) {
-        return jyBizTaskSendVehicleDetailDao.queryjyBizTaskSendVehicleDetailByPlanDepartTime(dateTime, nextDateTime);
-    }
-
 }

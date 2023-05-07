@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationServi
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -115,6 +117,11 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     @Qualifier(value = "sendVehicleDetailTaskProducer")
     private DefaultJMQProducer sendVehicleDetailTaskProducer;
 
+    @Autowired
+    @Qualifier("jyBizTaskAutoCloseProducer")
+    private DefaultJMQProducer jyBizTaskAutoCloseProducer;
+
+
     @Override
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
@@ -195,6 +202,10 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                     transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
                     // 发送任务明细mq
                     sendVehicleDetailTaskMQ(taskSendVehicleDetailEntity, workItemDto.getOperateType());
+
+                    //发送车辆任务到自动执行任务 根据计划发货时间执行特安相关逻辑（复用自动关闭任务逻辑）
+                    sendVehicleTaskMQToAutoCloseTask(taskSendVehicleDetailEntity,JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode());
+
                 }
             }
             // 取消发货任务流向
@@ -231,6 +242,24 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         finally {
             redisClientOfJy.del(mutexKey);
         }
+    }
+
+    /**
+     *
+     * @param vehicleDetail
+     * @param businessType
+     */
+    private void sendVehicleTaskMQToAutoCloseTask(JyBizTaskSendVehicleDetailEntity vehicleDetail,Integer businessType){
+        try{
+            final AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
+            autoCloseTaskMq.setBizId(vehicleDetail.getSendVehicleBizId());
+            autoCloseTaskMq.setTaskBusinessType(businessType);
+            autoCloseTaskMq.setOperateTime(vehicleDetail.getPlanDepartTime().getTime());
+            jyBizTaskAutoCloseProducer.send(vehicleDetail.getBizId(),JsonHelper.toJson(autoCloseTaskMq));
+        }catch (Exception e){
+            logger.error("发送发车任务消息异常-{}",e.getMessage(),e);
+        }
+
     }
 
     private void sendVehicleDetailTaskMQ(JyBizTaskSendVehicleDetailEntity entity, Integer operateType) {

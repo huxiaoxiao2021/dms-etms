@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose.strategy;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,10 @@ public class JyBizTaskCloseServiceStrategy {
     @Qualifier("jyBizTaskCloseSendTaskService")
     private JyBizTaskCloseSendTaskServiceImpl jyBizTaskCloseSendTaskService;
 
+    @Resource
+    @Qualifier("jySendVehicleService")
+    private IJySendVehicleService jySendVehicleService;
+
     /**
      * 关闭任务接口
      *
@@ -48,6 +54,10 @@ public class JyBizTaskCloseServiceStrategy {
             // 卸车任务
             if(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){
                 return jyBizTaskCloseUnloadTaskService.closeTask(autoCloseTaskPo);
+            }
+            //发车任务
+            if(JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){
+                return jySendVehicleService.NoticeToCanTEANPackage(autoCloseTaskPo);
             }
         } catch (Exception e) {
             log.error("JyBizTaskCloseServiceStrategy.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);

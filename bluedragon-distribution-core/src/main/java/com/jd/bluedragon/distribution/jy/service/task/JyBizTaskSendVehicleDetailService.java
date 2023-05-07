@@ -112,6 +112,4 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
 	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
-
-    List<JyBizTaskSendVehicleDetailEntity> queryjyBizTaskSendVehicleDetailByPlanDepartTime(Date dateTime, Date nextDateTime);
 }
