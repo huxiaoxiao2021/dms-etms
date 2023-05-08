@@ -80,6 +80,9 @@ public class SendVehicleInfo implements Serializable {
      */
     private Boolean noTaskBindVehicle;
 
+    /**
+     * 特安包裹数
+     */
     private Long teanPackageCount;
 
     public String getSendDetailBizId() {

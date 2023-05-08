@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -255,6 +256,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             autoCloseTaskMq.setBizId(vehicleDetail.getSendVehicleBizId());
             autoCloseTaskMq.setTaskBusinessType(businessType);
             autoCloseTaskMq.setOperateTime(vehicleDetail.getPlanDepartTime().getTime());
+            logger.info("sendVehicleTaskMQToAutoCloseTask-{}", JSON.toJSONString(autoCloseTaskMq));
             jyBizTaskAutoCloseProducer.send(vehicleDetail.getBizId(),JsonHelper.toJson(autoCloseTaskMq));
         }catch (Exception e){
             logger.error("发送发车任务消息异常-{}",e.getMessage(),e);

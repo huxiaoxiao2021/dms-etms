@@ -57,7 +57,7 @@ public class JyBizTaskCloseServiceStrategy {
             }
             //发车任务
             if(JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){
-                return jySendVehicleService.NoticeToCanTEANPackage(autoCloseTaskPo);
+                return jySendVehicleService.noticeToCanTEANPackage(autoCloseTaskPo);
             }
         } catch (Exception e) {
             log.error("JyBizTaskCloseServiceStrategy.closeTask exception {}", JSON.toJSONString(autoCloseTaskPo), e);

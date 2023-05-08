@@ -1587,7 +1587,7 @@ public class SortingServiceImpl implements SortingService {
 
 		try{
 			//校验特安单
-			sortingJsfResponse = checkTEANWaybillSorting(pdaOperateRequest);
+			sortingJsfResponse = checkTeAnWaybillSorting(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}
@@ -1615,7 +1615,7 @@ public class SortingServiceImpl implements SortingService {
 	/**
 	 *检验特安包裹：需要查询上一个扫描建包的包裹是否同为特安包裹(若没有上一个包裹，则无需校验）
 	 */
-	private SortingJsfResponse checkTEANWaybillSorting(PdaOperateRequest pdaOperateRequest){
+	private SortingJsfResponse checkTeAnWaybillSorting(PdaOperateRequest pdaOperateRequest){
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
@@ -1641,7 +1641,7 @@ public class SortingServiceImpl implements SortingService {
 					return sortingJsfResponse;
 				}
 			}else{//如果第二次扫描为非特安
-				//如果上一个包裹不是特安包裹则提示
+				//如果上一个包裹是特安包裹则提示
 				if(isTeAnOld){
 					log.info("isTeAnOld 上一个包裹是特安包裹，此单非特安件");
 					sortingJsfResponse.setCode(SortingResponse.CODE_40008);

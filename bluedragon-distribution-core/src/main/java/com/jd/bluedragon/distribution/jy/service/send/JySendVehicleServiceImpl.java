@@ -3385,7 +3385,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
-    public com.jd.dms.java.utils.sdk.base.Result<Void> NoticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
+    public com.jd.dms.java.utils.sdk.base.Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         com.jd.dms.java.utils.sdk.base.Result<Void> response = com.jd.dms.java.utils.sdk.base.Result.success();
         try{
@@ -3393,7 +3393,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             JyBizTaskSendVehicleDetailEntity detail = taskSendVehicleDetailService.findByBizId(autoCloseTaskPo.getBizId());
             log.info("查出的任务明细detailEntity -{}",JSON.toJSONString(detail));
 
-                if(StringUtils.isNotBlank(detail.getSendVehicleBizId())){
+                if(detail !=null && StringUtils.isNotBlank(detail.getSendVehicleBizId())){
                     //获取特安待扫包裹明细
                     SendVehicleToScanPackageDetailRequest request = new SendVehicleToScanPackageDetailRequest();
                     request.setSendVehicleBizId(detail.getSendVehicleBizId());

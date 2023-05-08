@@ -255,6 +255,6 @@ public interface IJySendVehicleService {
      * 推送特安待扫包裹明细数据到场地负责人
      * @return
      */
-    Result<Void> NoticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
+    Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
 
 }
