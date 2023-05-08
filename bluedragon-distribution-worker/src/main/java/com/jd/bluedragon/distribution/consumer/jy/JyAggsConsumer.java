@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
+import com.jd.bluedragon.dbrouter.DataSources;
+import com.jd.bluedragon.dbrouter.DynamicDataSourceType;
+import com.jd.bluedragon.dbrouter.NeedChangeDataSources;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;
@@ -23,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service("jyAggsConsumer")
+@NeedChangeDataSources
 public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyAggsConsumer.class);
 
@@ -45,7 +49,9 @@ public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
             //执行逻辑
         }
         JyAggsService jyAggsService = this.getJyAggsService(jyAggsDto.getJyAggsTypeEnum());
+        logger.info("------------------jyAggsService---------------startAop");
         jyAggsService.saveAggs(message);
+        logger.info("------------------jyAggsService---------------endAop");
     }
 
     private JyAggsService getJyAggsService(JyAggsTypeEnum jyAggsTypeEnum){

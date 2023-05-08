@@ -24,6 +24,7 @@ public class JyComboardAggsServiceTest {
     @Autowired
     JyComboardAggsService jyComboardAggsService;
 
+
     @Test
     public void testQueryComboardAggs() throws Exception {
         JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsService.queryComboardAggs(910, 39);
