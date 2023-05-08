@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
-import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
@@ -13,6 +12,8 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
@@ -142,6 +143,11 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
         }
         InvokeResult<SealCarSendCodeResp> invokeResult = jySealVehicleService.validateTranCodeAndSendCode(validSendCodeReq);
         return retJdCResponse(invokeResult);
+    }
+
+    @Override
+    public JdCResponse<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
+        return retJdCResponse(jySealVehicleService.onlineGetTaskSimpleCode(request));
     }
 
     private boolean checkIfBelongOthers(ValidSendCodeReq validSendCodeReq) {

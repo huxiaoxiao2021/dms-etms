@@ -16,6 +16,8 @@ import java.util.List;
 public interface JySendAggsService {
     JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId);
 
+    List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId);
+
     /**
      * 按发车任务查发货流向进度
      * @param sendVehicleBizId

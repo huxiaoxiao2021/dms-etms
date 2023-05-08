@@ -14,10 +14,13 @@ import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckSer
 import com.jd.bluedragon.distribution.jss.JssService;
 
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -120,6 +123,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WaybillCodeCheckController.listData",mState={JProEnum.TP,JProEnum.FunctionError})
     public PagerResult<WaybillCodeCheckDto> listData(@RequestBody KaCodeCheckCondition condition) {
         return waybillCodeCheckService.listData(condition);
     }

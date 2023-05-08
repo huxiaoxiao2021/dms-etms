@@ -700,6 +700,11 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+
+    private String operateProgressRegions;
+
+    private List<Integer> operateProgressRegionList;
+
     /**
      * 作业工作台解封车任务降级配置
      */
@@ -958,6 +963,38 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<Integer> getOperateProgressRegionList() {
+        return operateProgressRegionList;
+    }
+
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
+    public String getOperateProgressRegions() {
+        return operateProgressRegions;
+    }
+
+    public void setOperateProgressRegions(String operateProgressRegions) {
+        this.operateProgressRegions = operateProgressRegions;
+        if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+            List<Integer> operateProgressRegionList = new ArrayList<>();
+            if (operateProgressRegions.contains(",")){
+                String[] regionArr =operateProgressRegions.split(",");
+                for (String region:regionArr){
+                    operateProgressRegionList.add(Integer.valueOf(region));
+                }
+            }
+            else {
+                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+            }
+            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+                this.operateProgressRegionList =operateProgressRegionList;
+                Collections.sort(this.operateProgressRegionList);
+            }
+        }
+    }
+
     public boolean getRestApiOuthSwitch() {
         return restApiOuthSwitch;
     }
@@ -1019,6 +1056,11 @@ public class UccPropertyConfiguration {
      * 到车任务切换ES逻辑开关 1：开启
      */
     private Integer jyUnSealTaskSwitchToEs;
+
+    /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
 
     /**
      * 拣运发车任务满载率上限。eg:150
@@ -1142,6 +1184,11 @@ public class UccPropertyConfiguration {
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
     /**
+     * 安卓登录可跳过不处理的逻辑降级开关
+     */
+    private Boolean pdaLoginSkipSwitch;
+
+    /**
      * 设备校准任务时长
      *  单位：毫秒
      */
@@ -1164,6 +1211,12 @@ public class UccPropertyConfiguration {
      *  单位：毫秒
      */
     private Long machineCalibrateIntervalTimeOfSpotCheck;
+
+    /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
 
     /**
      * 设备下发是否依据设备状态标识
@@ -1220,6 +1273,41 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
+
+    private boolean loadProgressByVehicleVolume;
+
+    private boolean productOperateProgressSwitch;
+
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
+    }
+
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+    }
+
     //网格工种限制开关
     private boolean jobTypeLimitSwitch;
 
@@ -1256,6 +1344,7 @@ public class UccPropertyConfiguration {
      * 自动关闭任务配置，转换为对象
      */
     private String autoCloseJyBizTaskConfig;
+    private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
@@ -1288,6 +1377,18 @@ public class UccPropertyConfiguration {
     public void setSupportMutilScan(boolean supportMutilScan) {
         this.supportMutilScan = supportMutilScan;
     }
+
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
+
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2423,6 +2524,14 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+    }
+
     public Integer getJySendTaskLoadRateUpperLimit() {
         return jySendTaskLoadRateUpperLimit;
     }
@@ -2743,6 +2852,14 @@ public class UccPropertyConfiguration {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 
+    public Boolean getPdaLoginSkipSwitch() {
+        return pdaLoginSkipSwitch;
+    }
+
+    public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+        this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
+    }
+
     public Long getMachineCalibrateTaskDuration() {
         return machineCalibrateTaskDuration;
     }
@@ -2773,6 +2890,14 @@ public class UccPropertyConfiguration {
 
     public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
     }
 
     public boolean getSpotCheckIssueRelyOMachineStatus() {
@@ -2970,15 +3095,38 @@ public class UccPropertyConfiguration {
     }
 
     public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        if(StringUtils.isNotBlank(autoCloseJyBizTaskConfig)){
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigResult = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
-            return autoCloseJyBizTaskConfigResult;
-        }
-        return new AutoCloseJyBizTaskConfig();
+        return autoCloseJyBizTaskConfigObj;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
         this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
     }
 
     public boolean isJobTypeLimitSwitch() {

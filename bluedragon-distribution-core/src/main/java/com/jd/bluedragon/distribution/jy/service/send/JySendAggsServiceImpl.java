@@ -34,6 +34,16 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     }
 
     @Override
+    public List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId) {
+        JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
+        String keyword = jySendAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".getVehicleSendStatistics");
+        List<JySendAggsEntity> entity = jySendAggsDao.getSendStatisticsByBizList(sendVehicleBizId);
+        Profiler.registerInfoEnd(info);
+        return entity;
+    }
+
+    @Override
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
         JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
         String keyword = jySendAggsDao.getClass().getSimpleName();
