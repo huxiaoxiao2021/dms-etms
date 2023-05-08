@@ -261,6 +261,11 @@ public class InvokeResult<T> implements Serializable {
     public static final String NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE = "大宗板号-一板一单，不允许继续扫描！";
 
 
+    public static final int NO_FOUND_SEND_TASK_DATA_CODE= 3065;
+    public static final String NO_FOUND_SEND_TASK_DATA_MESSAGE ="未找到对应的派车任务！";
+
+    public static final int ONLINE_GET_TASK_SIMPLE_FAIL_CODE= 3066;
+    public static final String ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE ="获取任务简码失败！";
 
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";

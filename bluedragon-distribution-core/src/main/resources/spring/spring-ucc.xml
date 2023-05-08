@@ -258,6 +258,13 @@
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
+		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
+		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
+		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 
@@ -509,6 +516,12 @@
 				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
 				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
+				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
+				<value>uccPropertyConfiguration.operateProgressRegions</value>
+				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
+				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
+				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 			</list>
