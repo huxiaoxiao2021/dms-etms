@@ -1622,8 +1622,8 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
-		//根据场地+erp组成缓存Key 作为定位到一个人的操作
-		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getOperateUserCode());
+		//根据场地+箱号组成缓存Key
+		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getBoxCode());
 
 		//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
 		String cacheWaybill = redisManager.get(cachedKey);
@@ -1639,8 +1639,8 @@ public class SortingServiceImpl implements SortingService {
 				//如果上一个包裹不是特安包裹则提示
 				if(!isTeAnOld){
 					log.info("isTeAnOld 上一个包裹不是特安包裹");
-					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
-					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124_1);
+					sortingJsfResponse.setCode(SortingResponse.CODE_40008);
+					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_40008_1);
 					return sortingJsfResponse;
 				}
 			}else{//如果第二次扫描为非特安
@@ -1649,8 +1649,8 @@ public class SortingServiceImpl implements SortingService {
 				//如果上一个包裹不是特安包裹则提示
 				if(isTeAnOld){
 					log.info("isTeAnOld 上一个包裹是特安包裹，此单非特安件");
-					sortingJsfResponse.setCode(SortingResponse.CODE_31124);
-					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31124_2);
+					sortingJsfResponse.setCode(SortingResponse.CODE_40008);
+					sortingJsfResponse.setMessage(SortingResponse.MESSAGE_40008_2);
 					return sortingJsfResponse;
 				}
 			}
