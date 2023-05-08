@@ -8,11 +8,15 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,5 +145,15 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
         queryPager.setPageNo(queryExcepPackageDto.getPageNo());
         queryPager.setPageSize(queryExcepPackageDto.getPageSize());
         return queryPager;
+    }
+
+    @Override
+    Integer getVehicleVolume(JyBizTaskSendVehicleEntity taskSend,VehicleVolumeDicResp vehicleVolumeDicResp){
+        if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(taskSend.getLineType())){
+            return vehicleVolumeDicResp.getVolumeTrunkB();
+        }
+        else {
+            return vehicleVolumeDicResp.getVolumeBranchB();
+        }
     }
 }

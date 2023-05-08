@@ -700,6 +700,11 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+
+    private String operateProgressRegions;
+
+    private List<Integer> operateProgressRegionList;
+
     /**
      * 作业工作台解封车任务降级配置
      */
@@ -958,6 +963,38 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<Integer> getOperateProgressRegionList() {
+        return operateProgressRegionList;
+    }
+
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
+    public String getOperateProgressRegions() {
+        return operateProgressRegions;
+    }
+
+    public void setOperateProgressRegions(String operateProgressRegions) {
+        this.operateProgressRegions = operateProgressRegions;
+        if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+            List<Integer> operateProgressRegionList = new ArrayList<>();
+            if (operateProgressRegions.contains(",")){
+                String[] regionArr =operateProgressRegions.split(",");
+                for (String region:regionArr){
+                    operateProgressRegionList.add(Integer.valueOf(region));
+                }
+            }
+            else {
+                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+            }
+            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+                this.operateProgressRegionList =operateProgressRegionList;
+                Collections.sort(this.operateProgressRegionList);
+            }
+        }
+    }
+
     public boolean getRestApiOuthSwitch() {
         return restApiOuthSwitch;
     }
@@ -1147,6 +1184,11 @@ public class UccPropertyConfiguration {
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
     /**
+     * 安卓登录可跳过不处理的逻辑降级开关
+     */
+    private Boolean pdaLoginSkipSwitch;
+
+    /**
      * 设备校准任务时长
      *  单位：毫秒
      */
@@ -1236,6 +1278,40 @@ public class UccPropertyConfiguration {
      */
     private boolean loadCarEvaluateSwitch;
 
+    private boolean loadProgressByVehicleVolume;
+
+    private boolean productOperateProgressSwitch;
+
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
+    }
+
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+    }
+
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
     /**
      * 组板扫描页刷新定时间隔
      */
@@ -1314,6 +1390,18 @@ public class UccPropertyConfiguration {
     public void setSupportMutilScan(boolean supportMutilScan) {
         this.supportMutilScan = supportMutilScan;
     }
+
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
+
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2777,6 +2865,14 @@ public class UccPropertyConfiguration {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 
+    public Boolean getPdaLoginSkipSwitch() {
+        return pdaLoginSkipSwitch;
+    }
+
+    public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+        this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
+    }
+
     public Long getMachineCalibrateTaskDuration() {
         return machineCalibrateTaskDuration;
     }
@@ -3028,5 +3124,29 @@ public class UccPropertyConfiguration {
 
     public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
         this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
 }

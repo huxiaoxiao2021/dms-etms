@@ -27,7 +27,7 @@ public interface JssService {
     /**
      * JSS服务文件下载文件
      *
-     * @param bucket
+     * @param bucket 全路径
      * @param keyName
      * @return
      */
@@ -90,6 +90,16 @@ public interface JssService {
      * @return
      */
     String uploadFile(String bucket, byte[] bytes, String extName);
+
+    /**
+     * 上传文件
+     * 
+     * @param bucket
+     * @param bytes
+     * @param fileName 文件名（可带文件夹）
+     * @return
+     */
+    String uploadFileWithName(String bucket, byte[] bytes, String fileName);
 
     /**
      * 上传并获取外网url
