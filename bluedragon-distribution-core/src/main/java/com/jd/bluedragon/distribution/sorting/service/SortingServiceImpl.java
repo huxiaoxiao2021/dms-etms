@@ -1629,10 +1629,10 @@ public class SortingServiceImpl implements SortingService {
 			//根据运单校验是否是特安包裹
 			boolean isTeAn = waybillService.isTeAnWaybill(waybillCode);
 			log.info("isTeAn -{}",isTeAn);
+			boolean isTeAnOld = waybillService.isTeAnWaybill(cacheWaybill);
+			log.info("isTeAnOld -{}",isTeAnOld);
 			//如果第二次扫描为特安
 			if(isTeAn){
-				boolean isTeAnOld = waybillService.isTeAnWaybill(cacheWaybill);
-				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(!isTeAnOld){
 					log.info("isTeAnOld 上一个包裹不是特安包裹");
@@ -1641,8 +1641,6 @@ public class SortingServiceImpl implements SortingService {
 					return sortingJsfResponse;
 				}
 			}else{//如果第二次扫描为非特安
-				boolean isTeAnOld = waybillService.isTeAnWaybill(cacheWaybill);
-				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(isTeAnOld){
 					log.info("isTeAnOld 上一个包裹是特安包裹，此单非特安件");
