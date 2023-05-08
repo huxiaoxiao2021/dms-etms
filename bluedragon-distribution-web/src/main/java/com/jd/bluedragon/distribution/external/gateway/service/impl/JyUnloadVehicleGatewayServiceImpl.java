@@ -62,8 +62,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private TransportRelatedService transportRelatedService;
-    @Autowired
-    private WaybillCommonService waybillCommonService;
 
 
     @Override
@@ -178,8 +176,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             // 失败直接返回
             return response;
         }
-        //扫描检验特安件
-        waybillCommonService.checkTEANWaybillCondition(response,request.getBarCode());
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {

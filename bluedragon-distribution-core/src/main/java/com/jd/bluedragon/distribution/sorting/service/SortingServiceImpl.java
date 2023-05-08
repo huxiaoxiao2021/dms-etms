@@ -184,9 +184,6 @@ public class SortingServiceImpl implements SortingService {
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
-	@Autowired
-	private WaybillCommonService waybillCommonService;
-
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
 	}
@@ -1630,11 +1627,11 @@ public class SortingServiceImpl implements SortingService {
 		log.info("cacheWaybill -{}",cacheWaybill);
 		if(StringUtils.isNotBlank(cacheWaybill)){
 			//根据运单校验是否是特安包裹
-			boolean isTeAn = waybillCommonService.isTeAnWaybill(waybillCode);
+			boolean isTeAn = waybillService.isTeAnWaybill(waybillCode);
 			log.info("isTeAn -{}",isTeAn);
 			//如果第二次扫描为特安
 			if(isTeAn){
-				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
+				boolean isTeAnOld = waybillService.isTeAnWaybill(cacheWaybill);
 				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(!isTeAnOld){
@@ -1644,7 +1641,7 @@ public class SortingServiceImpl implements SortingService {
 					return sortingJsfResponse;
 				}
 			}else{//如果第二次扫描为非特安
-				boolean isTeAnOld = waybillCommonService.isTeAnWaybill(cacheWaybill);
+				boolean isTeAnOld = waybillService.isTeAnWaybill(cacheWaybill);
 				log.info("isTeAnOld -{}",isTeAnOld);
 				//如果上一个包裹不是特安包裹则提示
 				if(isTeAnOld){

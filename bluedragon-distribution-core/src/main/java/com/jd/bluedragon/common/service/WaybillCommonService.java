@@ -255,13 +255,5 @@ public interface WaybillCommonService {
 	 */
 	boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode);
 
-	/**
-	 * 是否特安运单
-	 * @param waybillCode
-	 * @return
-	 */
-	boolean isTeAnWaybill(String waybillCode);
 
-
-	void checkTEANWaybillCondition(JdVerifyResponse response,String waybillCode);
 }

@@ -10,6 +10,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
@@ -116,6 +118,7 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -324,6 +327,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private HrUserManager hrUserManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1520,9 +1526,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         String barCode = request.getBarCode();
         SendKeyTypeEnum sendType = getSendType(barCode);
-
-        waybillCommonService.checkTEANWaybillCondition(result,barCode);
-
         // 获取本次扫描匹配的发货目的地
         List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         Set<Long> allDestId = new HashSet<>();
@@ -2411,6 +2414,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
+
         Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
@@ -2493,8 +2497,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
             }
         }
+        TEANCheck(request,response);
 
         return true;
+    }
+
+
+
+    private void TEANCheck(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
+        InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
+        log.info("发货扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
+        if(teanResult != null && teanResult.getData()){
+            response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+        }
+        log.info("发货扫描TEANCheck -结果-response {}",JSON.toJSONString(response));
     }
 
     private void saveNoTaskRemark(SendScanRequest request) {
