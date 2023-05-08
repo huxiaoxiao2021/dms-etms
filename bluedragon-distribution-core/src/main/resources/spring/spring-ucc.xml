@@ -264,6 +264,7 @@
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -517,6 +518,7 @@
 				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
 			</list>
 		</property>
 	</bean>
