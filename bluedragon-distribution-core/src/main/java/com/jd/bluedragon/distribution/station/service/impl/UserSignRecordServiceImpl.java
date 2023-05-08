@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
@@ -41,10 +43,12 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.*;
+
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -107,7 +111,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -887,6 +893,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Integer jobCode = signInData.getJobCode();
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
+
+		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
+		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
+			return result;
+		}
+
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
@@ -914,6 +928,45 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return result;
 	}
+
+	/**
+	 * 校验工种是否允许签到
+	 * @param workStationGrid
+	 * @param jobCode
+	 * @return
+	 */
+	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
+		//添加开关 以便于上线后没维护工种类型 都进行卡控
+		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+			log.warn("网格工种限制功能开关关闭!");
+			return "";
+		}
+
+		String ownerUserErp = workStationGrid.getOwnerUserErp();
+		String gridName=workStationGrid.getGridName();
+
+		//获取当前网格的工种信息
+		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
+		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
+		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
+		if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		boolean flag = false;
+		for (int i = 0; i < jobTypes.size(); i++) {
+			if(Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
+				flag =true;
+				break;
+			}
+		}
+		if(!flag){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		return "";
+	}
+
+
 
 	private void setWarZoneInfo(UserSignRecord signInData) {
 		if(signInData.getSiteCode() == null){

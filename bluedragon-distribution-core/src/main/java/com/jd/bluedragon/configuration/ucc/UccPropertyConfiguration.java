@@ -1308,6 +1308,10 @@ public class UccPropertyConfiguration {
         this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
     }
 
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -3123,5 +3127,13 @@ public class UccPropertyConfiguration {
 
     public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
         this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
 }
