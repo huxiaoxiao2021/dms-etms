@@ -1308,6 +1308,23 @@ public class UccPropertyConfiguration {
         this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
     }
 
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
+    /**
+     * 组板扫描页刷新定时间隔
+     */
+    private Integer jyComboardRefreshTimerInterval;
+
+    public Integer getJyComboardRefreshTimerInterval() {
+        return jyComboardRefreshTimerInterval;
+    }
+
+    public void setJyComboardRefreshTimerInterval(Integer jyComboardRefreshTimerInterval) {
+        this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
+    }
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -3123,5 +3140,13 @@ public class UccPropertyConfiguration {
 
     public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
         this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
 }

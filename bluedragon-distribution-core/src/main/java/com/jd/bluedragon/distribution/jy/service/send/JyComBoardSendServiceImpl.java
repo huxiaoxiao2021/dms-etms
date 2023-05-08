@@ -2909,6 +2909,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.error("获取扫描人员信息失败{}",JsonHelper.toJson(request));
     }
     resp.setScanUserList(userList);
+    resp.setTimerInterval(ucc.getJyComboardRefreshTimerInterval());
     return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
