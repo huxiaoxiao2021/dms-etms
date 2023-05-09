@@ -3394,13 +3394,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             log.info("查出的任务明细detailEntity -{}",JSON.toJSONString(detail));
 
                 if(detail !=null && StringUtils.isNotBlank(detail.getSendVehicleBizId())){
+                    CurrentOperate currentOperate = new CurrentOperate();
+                    currentOperate.setSiteCode(detail.getStartSiteId().intValue());
                     //获取特安待扫包裹明细
                     SendVehicleToScanPackageDetailRequest request = new SendVehicleToScanPackageDetailRequest();
                     request.setSendVehicleBizId(detail.getSendVehicleBizId());
                     request.setProductType(UnloadProductTypeEnum.TEAN.getCode());
                     request.setPageNumber(DEFAUL_PAGE_NUMBER);
                     request.setPageSize(DEFAUL_PAGE_SIZE);
+                    request.setCurrentOperate(currentOperate);
+                    log.info("特安待扫咚咚提醒信息获取特安待扫包裹入参-{}",JSON.toJSONString(request));
                     InvokeResult<SendVehicleToScanPackageDetailResponse> result = sendVehicleToScanPackageDetail(request);
+                    log.info("特安待扫咚咚提醒信息获取特安待扫包裹出参-{}",JSON.toJSONString(result));
                     if(result == null || result.getData() == null || CollectionUtils.isEmpty(result.getData().getPackageCodeList())){
                         return response;
                     }
@@ -3416,6 +3421,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     //根据当前操作人查询上级erp
                     String superiorErp = hrUserManager.getSuperiorErp(userErp);
                     List<String> erpList = Lists.newArrayList(superiorErp);
+                    if(log.isInfoEnabled()){
+                        log.info("特安待扫咚咚提醒信息-content-{}，当前人erp-{}，上级erp-{}",JSON.toJSONString(content),userErp,erpList);
+                    }
                     NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
                 }
 
