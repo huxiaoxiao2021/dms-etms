@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -183,6 +184,9 @@ public class SortingServiceImpl implements SortingService {
 
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -1617,6 +1621,11 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	private SortingJsfResponse checkTeAnWaybillSorting(PdaOperateRequest pdaOperateRequest){
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		if(!uccPropertyConfiguration.isCheckTeAnSwitch()){
+			log.warn("分拣理货-特安校验开关关闭!");
+			return sortingJsfResponse;
+		}
+
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
 		//根据场地+箱号组成缓存Key

@@ -812,6 +812,8 @@ public class UccPropertyConfiguration {
      */
     private String volumeExcessIssueSites;
 
+    private boolean checkTeAnSwitch;
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -3002,5 +3004,13 @@ public class UccPropertyConfiguration {
 
     public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
         this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public boolean isCheckTeAnSwitch() {
+        return checkTeAnSwitch;
+    }
+
+    public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+        this.checkTeAnSwitch = checkTeAnSwitch;
     }
 }
