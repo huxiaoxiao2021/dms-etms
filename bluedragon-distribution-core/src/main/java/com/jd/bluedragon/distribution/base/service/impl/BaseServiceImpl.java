@@ -1209,9 +1209,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
+    public com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
         log.info("BaseServiceImpl.selectSiteList param {}", JsonHelper.toJson(deviceInfo));
-        Result<ClientInitDataDto> result = Result.success();
+        com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
         final ClientInitDataDto clientInitDataDto = new ClientInitDataDto();
         result.setData(clientInitDataDto);
 

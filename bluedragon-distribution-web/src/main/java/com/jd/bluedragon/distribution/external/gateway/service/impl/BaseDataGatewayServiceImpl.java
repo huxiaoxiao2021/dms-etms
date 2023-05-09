@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
@@ -255,19 +256,6 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
      */
     @Override
     public JdCResponse<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo) {
-        JdCResponse<ClientInitDataDto> response = new JdCResponse<>();
-        response.toSucceed();
-        try {
-            final Result<ClientInitDataDto> serviceResult = baseService.getAndroidInitData(deviceInfo);
-            if(!serviceResult.isSuccess()){
-                log.warn("BaseService.getAndroidInitData error " + JsonHelper.toJson(serviceResult));
-                response.toFail("查询安卓初始化信息异常");
-                return response;
-            }
-        } catch (Exception e) {
-            log.error("BaseDataGatewayServiceImpl.getAndroidInitData exception ", e);
-            response.toError("接口异常");
-        }
-        return response;
+        return ResultConverter.convertResultToJdcResponse(baseService.getAndroidInitData(deviceInfo));
     }
 }
