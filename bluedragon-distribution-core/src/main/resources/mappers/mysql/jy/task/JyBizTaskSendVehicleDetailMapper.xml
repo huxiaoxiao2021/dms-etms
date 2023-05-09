@@ -612,4 +612,12 @@
             and end_site_id = #{endSiteId}
             and create_time &gt;= #{createTimeBegin}
     </select>
+
+    <select id="findBySendVehicleBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle_detail
+        where yn = 1 AND send_vehicle_biz_id = #{sendVehicleBizId}
+        limit 1;
+    </select>
 </mapper>

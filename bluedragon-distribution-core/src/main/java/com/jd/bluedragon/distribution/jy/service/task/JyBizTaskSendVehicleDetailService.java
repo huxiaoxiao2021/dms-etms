@@ -112,4 +112,6 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
 	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
+
+    JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId);
 }

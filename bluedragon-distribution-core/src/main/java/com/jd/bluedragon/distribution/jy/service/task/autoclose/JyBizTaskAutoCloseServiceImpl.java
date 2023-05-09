@@ -87,7 +87,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
     }
 
     private boolean sendVehicleDetailTaskDeal(AutoCloseTaskMq autoCloseTaskMq){
-        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(autoCloseTaskMq.getBizId());
+        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskMq.getBizId());
         if(jyBizTaskSendVehicleDetail == null){
             log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
             return false;
