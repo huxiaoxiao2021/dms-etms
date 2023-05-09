@@ -1284,6 +1284,26 @@ public class UccPropertyConfiguration {
 
     private int onlineGetTaskSimpleCodeThreshold;
 
+    /**
+     * PDA新老互斥开关
+     */
+    private boolean pdaVersionSwitch;
+
+    /**
+     * 交接至德邦校验开关
+     */
+    private boolean dpTransferSwitch;
+
+    /**
+     * 易冻品校验开关
+     */
+    private boolean easyFreezeSwitch;
+
+    /**
+     * 加盟商余额校验开关
+     */
+    private boolean allianceBusinessSwitch;
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3148,5 +3168,37 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public boolean isPdaVersionSwitch() {
+        return pdaVersionSwitch;
+    }
+
+    public void setPdaVersionSwitch(boolean pdaVersionSwitch) {
+        this.pdaVersionSwitch = pdaVersionSwitch;
+    }
+
+    public boolean isDpTransferSwitch() {
+        return dpTransferSwitch;
+    }
+
+    public void setDpTransferSwitch(boolean dpTransferSwitch) {
+        this.dpTransferSwitch = dpTransferSwitch;
+    }
+
+    public boolean isEasyFreezeSwitch() {
+        return easyFreezeSwitch;
+    }
+
+    public void setEasyFreezeSwitch(boolean easyFreezeSwitch) {
+        this.easyFreezeSwitch = easyFreezeSwitch;
+    }
+
+    public boolean isAllianceBusinessSwitch() {
+        return allianceBusinessSwitch;
+    }
+
+    public void setAllianceBusinessSwitch(boolean allianceBusinessSwitch) {
+        this.allianceBusinessSwitch = allianceBusinessSwitch;
     }
 }
