@@ -38,6 +38,7 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.cache.util.WaybillConstants;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -66,6 +67,9 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_135_2;
+
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
@@ -2107,7 +2111,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
         }
         //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
-        if(BusinessUtil.isSignChar(waybillSign,135,'2')){
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
         }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
