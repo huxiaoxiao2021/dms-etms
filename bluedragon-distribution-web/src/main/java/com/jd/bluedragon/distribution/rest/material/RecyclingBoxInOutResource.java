@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialTypeEnum;
 import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
+import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -49,6 +50,9 @@ public class RecyclingBoxInOutResource {
 
     @Autowired
     private MaterialServiceFactory materialServiceFactory;
+    
+    @Autowired
+    private RecycleMaterialService recycleMaterialService;
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
     private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
