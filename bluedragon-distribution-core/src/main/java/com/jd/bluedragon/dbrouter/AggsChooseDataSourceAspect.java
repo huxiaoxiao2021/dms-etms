@@ -44,7 +44,7 @@ public class AggsChooseDataSourceAspect {
           logger.info("===================AggsChooseDataSourceAspect read {} =========================",ucc.getAggsDataSource());
           DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(ucc.getAggsDataSource());
           if (ObjectHelper.isNotNull(dataSourceType)) {
-            logger.info("===================AggsChooseDataSourceAspect dataSourceType {} =========================",dataSourceType);
+            logger.info("===================AggsChooseDataSourceAspect read dataSourceType {} =========================",dataSourceType);
             DynamicDataSourceHolders.putDataSource(dataSourceType);
           }
         }
@@ -54,11 +54,11 @@ public class AggsChooseDataSourceAspect {
         if (ObjectHelper.isNotNull(args) && args.length>0){
           Message message =(Message)args[0];
           if (ObjectHelper.isNotNull(message.getTopic())){
-            logger.info("==========AggsChooseDataSourceAspect getTopic============ {}",message.getTopic());
+            logger.info("==========AggsChooseDataSourceAspect write getTopic============ {}",message.getTopic());
             String dateSourceKey = Constants.topic2DataSource.get(message.getTopic());
             DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceKey);
             if (ObjectHelper.isNotNull(dataSourceType)){
-              logger.info("==========AggsChooseDataSourceAspect getTopicAndDataSourceType============ {}",dataSourceType);
+              logger.info("==========AggsChooseDataSourceAspect write getTopicAndDataSourceType============ {}",dataSourceType);
               DynamicDataSourceHolders.putDataSource(dataSourceType);
             }
           }
