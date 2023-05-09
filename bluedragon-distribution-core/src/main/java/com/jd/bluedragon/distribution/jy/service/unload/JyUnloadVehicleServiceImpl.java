@@ -312,6 +312,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     break;
                 case UN_LOAD_DONE:
                     UnloadCompleteVehicle completeVehicle = (UnloadCompleteVehicle) vehicleBaseInfo;
+                    completeVehicle.setTags(resolveTagSign(entity.getTagsSign()));
                     completeVehicle.setLessCount(entity.getLessCount());
                     completeVehicle.setMoreCount(entity.getMoreCount());
                     completeVehicle.setManualCreatedTask(entity.unloadWithoutTask());

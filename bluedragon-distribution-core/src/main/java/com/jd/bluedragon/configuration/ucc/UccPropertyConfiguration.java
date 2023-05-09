@@ -3075,23 +3075,19 @@ public class UccPropertyConfiguration {
 
     public void setDpSpringSiteCode(String dpSpringSiteCode) {
         this.dpSpringSiteCode = dpSpringSiteCode;
-    }
+        this.dpSpringSiteCodeList = new ArrayList<>();
 
-    public List<Integer> getDpSpringSiteCodeList() {
-        if(dpSpringSiteCodeList != null){
-            return dpSpringSiteCodeList;
-        } else {
-            dpSpringSiteCodeList = new ArrayList<>();
-        }
-        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
         List<String> dpSpringSiteCodeList = new ArrayList<>();
-        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
-            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+        if(StringUtils.isNotBlank(dpSpringSiteCode)){
+            final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
         return this.dpSpringSiteCodeList;
     }
 

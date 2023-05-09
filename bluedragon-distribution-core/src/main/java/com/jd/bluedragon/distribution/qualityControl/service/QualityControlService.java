@@ -505,7 +505,7 @@ public class QualityControlService {
             }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
-                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
+                log.error("handleQcReportConsume 未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 

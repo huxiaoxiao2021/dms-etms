@@ -25,6 +25,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,8 @@ import java.util.*;
 @Service("jyCenterService")
 public class JYCenterServiceImpl implements JYCenterService {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private SendCodeService sendCodeService;
 
@@ -59,7 +63,9 @@ public class JYCenterServiceImpl implements JYCenterService {
     @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.createSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<String> createSendCode(JYSendCodeRequest jySendCodeRequest) {
-
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.createSendCode param {}", JsonHelper.toJson(jySendCodeRequest));
+        }
         InvokeResult<String> invokeResult = new InvokeResult<>();
 
         if (jySendCodeRequest == null) {
@@ -112,6 +118,9 @@ public class JYCenterServiceImpl implements JYCenterService {
     @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.batchInspectionWithPage", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> batchInspectionWithPage(BatchInspectionPageRequest batchInspectionPageRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.batchInspectionWithPage param {}", JsonHelper.toJson(batchInspectionPageRequest));
+        }
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (null == batchInspectionPageRequest || CollectionUtils.isEmpty(batchInspectionPageRequest.getUnloadDetailCargoList())) {
@@ -176,6 +185,9 @@ public class JYCenterServiceImpl implements JYCenterService {
     @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.batchSortingWithPage", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> batchSortingWithPage(BatchSortingPageRequest batchSortingPageRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.batchSortingWithPage param {}", JsonHelper.toJson(batchSortingPageRequest));
+        }
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (null == batchSortingPageRequest || CollectionUtils.isEmpty(batchSortingPageRequest.getCargoNoList()) || StringUtils.isEmpty(batchSortingPageRequest.getBoxCode())) {
@@ -266,6 +278,9 @@ public class JYCenterServiceImpl implements JYCenterService {
     @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.batchSendWithPage", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> batchSendWithPage(BatchSendPageRequest batchSendPageRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.batchSendWithPage param {}", JsonHelper.toJson(batchSendPageRequest));
+        }
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (null == batchSendPageRequest || CollectionUtils.isEmpty(batchSendPageRequest.getCargoNoList())) {
@@ -357,6 +372,9 @@ public class JYCenterServiceImpl implements JYCenterService {
     @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.batchWeightVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> batchWeightVolume(BatchWeightVolumeRequest batchWeightVolumeRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.batchWeightVolume param {}", JsonHelper.toJson(batchWeightVolumeRequest));
+        }
 
         if (null == batchWeightVolumeRequest || batchWeightVolumeRequest.getRequestProfile() == null
                 || CollectionUtils.isEmpty(batchWeightVolumeRequest.getDetailList())) {
