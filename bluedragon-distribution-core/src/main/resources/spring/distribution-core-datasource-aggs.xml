@@ -76,7 +76,7 @@
 
 
     <bean id="dynamicDataSource" class="com.jd.bluedragon.dbrouter.AggsDataSources">
-        <property name="defaultDataSource" ref="jyCore" />
+        <property name="defaultDataSource" ref="aggsSlave" />
         <property name="jyCore" ref="jyCore" />
         <property name="aggsMain" ref="aggsMain" />
         <property name="aggsSlave" ref="aggsSlave" />

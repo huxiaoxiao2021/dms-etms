@@ -63,8 +63,8 @@ public class WorkStationManagerImpl implements WorkStationManager {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationManagerImpl.queryWorkStationJobTypeBybusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
-//    @Cache(key = "WorkStationManagerImpl.queryWorkStationJobTypeBybusinessKey@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000
-//            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
+    @Cache(key = "WorkStationManagerImpl.queryWorkStationJobTypeBybusinessKey@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000
+            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
     public List<WorkStationJobTypeDto> queryWorkStationJobTypeBybusinessKey(String businessKey) {
         try {
             log.info("三定网格工序工种管理 queryWorkStationJobTypeBybusinessKey-入参 {}", businessKey);

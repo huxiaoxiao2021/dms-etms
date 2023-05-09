@@ -278,6 +278,7 @@
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -552,6 +553,7 @@
 				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
 				<value>uccPropertyConfiguration.aggsDataSource</value>
 			</list>
 		</property>
