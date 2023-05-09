@@ -32,60 +32,32 @@ public class JyAggsTest {
     public void consume() {
         try {
             //language=JSON
-            String body = "{\n" +
-                    "  \"actualScanBoxCodeCount\": 100,\n" +
-                    "  \"actualScanCount\": 100,\n" +
-                    "  \"actualScanPackageCodeCount\": 100,\n" +
-                    "  \"actualScanVolume\": 0.0,\n" +
-                    "  \"actualScanWeight\": 0.0,\n" +
-                    "  \"bizCreateTime\": 0,\n" +
-                    "  \"bizId\": \"TEST002\",\n" +
-                    "  \"createTime\": 1665283255773,\n" +
-                    "  \"flowKey\": \"100|100\",\n" +
-                    "  \"forceSendCount\": 100,\n" +
-                    "  \"id\": 1000,\n" +
-                    "  \"interceptScanCount\": 100,\n" +
-                    "  \"operateSiteId\": 100,\n" +
-                    "  \"receiveSiteId\": 100,\n" +
-                    "  \"sendCode\": \"TEST001\",\n" +
-                    "  \"sendCodeRemoveFlag\": false,\n" +
-                    "  \"sendVehicleBizId\": \"TEST002\",\n" +
-                    "  \"shouldScanCount\": 100,\n" +
-                    "  \"totalForceSendCount\": 100,\n" +
-                    "  \"totalInterceptCount\": 100,\n" +
-                    "  \"totalScannedBoxCodeCount\": 100,\n" +
-                    "  \"totalScannedCount\": 100,\n" +
-                    "  \"totalScannedPackageCodeCount\": 100,\n" +
-                    "  \"totalScannedVolume\": 0.0,\n" +
-                    "  \"totalScannedWeight\": 0.0,\n" +
-                    "  \"totalShouldScanCount\": 100,\n" +
-                    "  \"transWorkItemCode\": \"TEST001\",\n" +
-                    "  \"ts\": 1665283255773,\n" +
-                    "  \"vehicleNumber\": \"TEST001111\",\n" +
-                    "  \"vehicleStatus\": 100,\n" +
-                    "  \"vehicleVolume\": 0.0,\n" +
-                    "  \"vehicleWeight\": 0.0,\n" +
-                    "  \"version\": 8,\n" +
-                    "  \"yn\": 1\n" +
-                    "}\n";
+            String body = "{\n"
+                + "\t\"bizId\": \"-1\",\n"
+                + "\t\"boardCode\": \"-888888888\",\n"
+                + "\t\"boardCount\": 6,\n"
+                + "\t\"createTime\": 1683534182476,\n"
+                + "\t\"interceptCount\": 1,\n"
+                + "\t\"jyAggsTypeEnum\": \"JY_COMBOARD_AGGS\",\n"
+                + "\t\"key\": \"1386070-4301--1--1--1--1\",\n"
+                + "\t\"operateSiteId\": \"1386070\",\n"
+                + "\t\"packageTotalScannedCount\": 328,\n"
+                + "\t\"productType\": \"-1\",\n"
+                + "\t\"receiveSiteId\": \"4301\",\n"
+                + "\t\"scanType\": \"-1\",\n"
+                + "\t\"scannedCount\": 335,\n"
+                + "\t\"sendFlow\": \"1386070-4301\",\n"
+                + "\t\"volume\": 0.0,\n"
+                + "\t\"waitScanCount\": 560,\n"
+                + "\t\"weight\": 0.0\n"
+                + "}";
 
-            String body1 = "{\n" +
-                    "  \"bizId\": \"TEST002\",\n" +
-                    "  \"createTime\": 1665283255773,\n" +
-                    "  \"id\": 1000,\n" +
-                    "  \"operateSiteId\": 100,\n" +
-                    "  \"receiveSiteId\": 100,\n" +
-                    "  \"productType\": \"NONE\",\n" +
-                    "  \"shouldScanCount\": 100010101,\n" +
-                    "  \"sendVehicleBizId\": \"TEST002\",\n" +
-                    "  \"version\": 10,\n" +
-                    "  \"yn\": 1\n" +
-                    "}\n";
+
             Message message = new Message();
+            message.setTopic("jy_aggs");
             message.setText(body);
 
-            Message message1 = new Message();
-            message1.setText(body1);
+
 
 
             jyAggsConsumer.consume(message);

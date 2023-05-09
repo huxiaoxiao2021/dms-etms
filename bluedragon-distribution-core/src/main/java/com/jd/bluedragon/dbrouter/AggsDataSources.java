@@ -22,9 +22,6 @@ public class AggsDataSources extends AbstractRoutingDataSource {
 
   private Map<Object, Object> targetDataSources;
 
-  @Value("${jy.aggs.dataSource}")
-  private String shouldChooseDateSource;
-
   @Value("${jy.aggs.readWrite.type}")
   protected String readWriteType;
 
@@ -56,11 +53,6 @@ public class AggsDataSources extends AbstractRoutingDataSource {
     DynamicDataSourceType currentDataSource = DynamicDataSourceHolders.getDataSource();
     DynamicDataSourceType finalDataSource = currentDataSource != null ? currentDataSource : DynamicDataSourceType.DEFAULT;
     logger.info("最终选择了" + finalDataSource.getName() + "数据源");
-    if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
-      if (!finalDataSource.getName().equals(shouldChooseDateSource)){
-        logger.error("AggsDataSources数据库路由选举策略错误：should choose {} ,but final choose {}",shouldChooseDateSource,finalDataSource.getName());
-      }
-    }
     return finalDataSource.name();
   }
 

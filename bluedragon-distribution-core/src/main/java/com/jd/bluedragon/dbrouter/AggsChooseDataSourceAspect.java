@@ -1,6 +1,8 @@
 package com.jd.bluedragon.dbrouter;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.enums.ReadWriteTypeEnum;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jmq.common.message.Message;
@@ -21,19 +23,15 @@ import org.springframework.stereotype.Component;
 @Order(1)
 public class AggsChooseDataSourceAspect {
 
-  private static final org.slf4j.Logger logger = LoggerFactory
-      .getLogger(AggsChooseDataSourceAspect.class);
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AggsChooseDataSourceAspect.class);
 
   @Value("${jy.aggs.readWrite.type}")
   protected String readWriteType;
 
-  @Value("${jy.aggs.dataSource}")
-  protected String aggsDataSource;
-
   @Autowired
   UccPropertyConfiguration ucc;
 
-  @Pointcut("execution(* com.jd.bluedragon.distribution.jy.service.comboard..*.*(..)) || @within(com.jd.bluedragon.dbrouter.NeedChangeDataSources)")
+  @Pointcut("@within(com.jd.bluedragon.dbrouter.NeedChangeDataSources)")
   public void pointCut() {
   }
 
@@ -41,9 +39,12 @@ public class AggsChooseDataSourceAspect {
   public void before(JoinPoint point) {
     try {
       if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)) {
+        logger.info("===================AggsChooseDataSourceAspect read=========================");
         if (ObjectHelper.isNotNull(ucc.getAggsDataSource())) {
+          logger.info("===================AggsChooseDataSourceAspect read {} =========================",ucc.getAggsDataSource());
           DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(ucc.getAggsDataSource());
           if (ObjectHelper.isNotNull(dataSourceType)) {
+            logger.info("===================AggsChooseDataSourceAspect dataSourceType {} =========================",dataSourceType);
             DynamicDataSourceHolders.putDataSource(dataSourceType);
           }
         }
@@ -53,20 +54,24 @@ public class AggsChooseDataSourceAspect {
         if (ObjectHelper.isNotNull(args) && args.length>0){
           Message message =(Message)args[0];
           if (ObjectHelper.isNotNull(message.getTopic())){
-            String dateSourceKey = message.getTopic();
+            logger.info("==========AggsChooseDataSourceAspect getTopic============ {}",message.getTopic());
+            String dateSourceKey = Constants.topic2DataSource.get(message.getTopic());
             DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceKey);
-                DynamicDataSourceHolders.putDataSource(dataSourceType);
+            if (ObjectHelper.isNotNull(dataSourceType)){
+              logger.info("==========AggsChooseDataSourceAspect getTopicAndDataSourceType============ {}",dataSourceType);
+              DynamicDataSourceHolders.putDataSource(dataSourceType);
+            }
           }
         }
       }
     } catch (Exception e) {
-      logger.error(String.format("Choose DataSource error", e));
+      logger.error(String.format("aggsDataSourceAspect Choose DataSource error", e));
     }
   }
 
   @After("pointCut()")
   public void after(JoinPoint point) {
-    if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)) {
+    if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)){
       DynamicDataSourceHolders.clearDataSource();
     }
   }

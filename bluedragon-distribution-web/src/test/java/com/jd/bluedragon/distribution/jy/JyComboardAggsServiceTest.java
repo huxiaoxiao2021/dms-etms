@@ -26,6 +26,13 @@ public class JyComboardAggsServiceTest {
 
 
     @Test
+    public void testQueryBoardComboardAggs() throws Exception {
+
+        JyComboardAggsEntity b = jyComboardAggsService.queryComboardAggs("888888888");
+        System.out.println(JsonHelper.toJson(b));
+    }
+
+    @Test
     public void testQueryComboardAggs() throws Exception {
         JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsService.queryComboardAggs(910, 39);
         System.out.println(JsonHelper.toJson(jyComboardAggsEntity));
