@@ -148,11 +148,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
             tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), jyBizTaskSendVehicleDetail.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-            if (autoCloseJyBizTaskConfig == null) {
-                log.info("JyBizTaskAutoCloseServiceImpl.pushBizTaskAutoCloseTask4SendVehicleTask no config, will not push auto close task");
-                return true;
-            }
+
             //计划发车前十五分钟执行
             Date planDepartTime = jyBizTaskSendVehicleDetail.getPlanDepartTime();
             tTask.setExecuteTime(DateHelper.add(planDepartTime, Calendar.MINUTE,-15));

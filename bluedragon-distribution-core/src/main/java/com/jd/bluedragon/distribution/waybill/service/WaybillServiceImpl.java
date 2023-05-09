@@ -1721,7 +1721,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         boolean isTeAn =isTeAnWaybill(waybillCode);
         if(isTeAn){
-            result.customMessage(0, "此件为特安件!");
+            result.customMessage(0, "特安件请注意分拣!");
             result.setData(Boolean.TRUE);
         }
         return result;
