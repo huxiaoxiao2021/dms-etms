@@ -1254,7 +1254,7 @@ public class UccPropertyConfiguration {
     private boolean  supportMutilScan;
 
     private String dpSpringSiteCode;
-    private List<Integer> dpSpringSiteCodeList;
+    private List<Integer> dpSpringSiteCodeList = new ArrayList<>();
 
     /**
      * 传站拦截-- 场地黑名单
@@ -3075,7 +3075,6 @@ public class UccPropertyConfiguration {
 
     public void setDpSpringSiteCode(String dpSpringSiteCode) {
         this.dpSpringSiteCode = dpSpringSiteCode;
-        this.dpSpringSiteCodeList = new ArrayList<>();
 
         List<String> dpSpringSiteCodeList = new ArrayList<>();
         if(StringUtils.isNotBlank(dpSpringSiteCode)){
