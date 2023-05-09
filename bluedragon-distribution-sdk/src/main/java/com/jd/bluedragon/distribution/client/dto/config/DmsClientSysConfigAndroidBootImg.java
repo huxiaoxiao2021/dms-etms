@@ -13,16 +13,34 @@ public class DmsClientSysConfigAndroidBootImg implements Serializable {
 
     private static final long serialVersionUID = -8258130277665460531L;
 
+    /**
+     * 显示时间，毫秒单位
+     */
     private Long displayTime;
 
+    /**
+     * 生效开始时间
+     */
     private String enableTimStart;
 
+    /**
+     * 生效结束时间
+     */
     private String enableTimeEnd;
 
+    /**
+     * 跳转链接
+     */
     private String link;
 
+    /**
+     * 图片下载地址
+     */
     private String url;
 
+    /**
+     * 版本号
+     */
     private Integer version;
 
     public DmsClientSysConfigAndroidBootImg() {}
