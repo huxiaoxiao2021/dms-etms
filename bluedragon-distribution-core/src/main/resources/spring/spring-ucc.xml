@@ -278,6 +278,7 @@
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
+		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -551,6 +552,7 @@
 				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.aggsDataSource</value>
 			</list>
 		</property>
 	</bean>

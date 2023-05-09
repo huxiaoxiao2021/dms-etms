@@ -2,7 +2,9 @@ package com.jd.bluedragon;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -1922,4 +1924,10 @@ public class Constants {
      * 拣运滞留任务biz前缀
      */
     public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
+
+    public static Map<String, String> topic2DataSource =new HashMap<>();
+    static {
+        topic2DataSource.put("jy_aggs","aggsMain");
+        topic2DataSource.put("jy_aggs_slave","aggsSlave");
+    }
 }
