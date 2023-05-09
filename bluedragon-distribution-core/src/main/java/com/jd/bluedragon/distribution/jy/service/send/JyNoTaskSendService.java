@@ -75,11 +75,4 @@ public interface JyNoTaskSendService {
      * @return
      */
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
-
-    /**
-     * 任务绑定前获取特安待扫数量
-     * @param bindVehicleDetailTaskReq
-     * @return
-     */
-    InvokeResult<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
 }

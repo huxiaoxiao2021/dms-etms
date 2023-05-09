@@ -70,12 +70,6 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     public JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq) {
         return null;
     }
-
-    @Override
-    public JdCResponse<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
-        return retJdCResponse(jyNoTaskSendService.querySendVehicleProductTypePackageCount(bindVehicleDetailTaskReq));
-    }
-
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }

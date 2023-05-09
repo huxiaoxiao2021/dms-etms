@@ -81,13 +81,4 @@ public interface JyNoTaskSendGatewayService {
      */
     JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq);
 
-    /**
-     * 任务绑定前获取特安待扫数量
-     * @param bindVehicleDetailTaskReq
-     * @return
-     */
-    JdCResponse<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
-
-
-
 }

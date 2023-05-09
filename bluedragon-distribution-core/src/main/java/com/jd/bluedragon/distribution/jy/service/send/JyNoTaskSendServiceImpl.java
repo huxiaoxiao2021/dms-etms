@@ -780,32 +780,6 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
-
-    @Override
-    public InvokeResult<SendVehicleProductTypeAgg> querySendVehicleProductTypePackageCount(BindVehicleDetailTaskReq req) {
-        log.info("querySendVehicleProductTypePackageCount -入参-{}", JSON.toJSONString(req));
-        InvokeResult<SendVehicleProductTypeAgg>  result = new InvokeResult<>();
-        if(StringUtils.isBlank(req.getToSendVehicleBizId())
-                || Objects.isNull(req.getCurrentOperate())
-                || Objects.isNull(req.getCurrentOperate().getSiteCode())){
-            result.setMessage(PARAM_ERROR);
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            return result;
-        }
-        SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
-        query.setProductType(UnloadProductTypeEnum.TEAN.getCode());
-        query.setSendVehicleBizId(req.getToSendVehicleBizId());
-        query.setOperateSiteId(req.getCurrentOperate().getSiteCode());
-        Long count = sendVehicleJsfManager.querySendVehicleProductTypePackageCount(query);
-        SendVehicleProductTypeAgg  productTypeAgg= new SendVehicleProductTypeAgg();
-        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
-        productTypeAgg.setCount(count);
-        result.setData(productTypeAgg);
-        result.setCode(RESULT_SUCCESS_CODE);
-        result.setMessage(RESULT_SUCCESS_MESSAGE);
-        return result;
-    }
-
     private String getSendCodeByScanCode(String code, int createSiteCode) {
         /**
          * 包裹 运单 查sendD  箱号或者板号 查sendM
