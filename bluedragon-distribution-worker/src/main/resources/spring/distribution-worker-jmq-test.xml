@@ -475,6 +475,9 @@
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
     </jmq:consumer>
 
+    <jmq:consumer id="jmq.jyAggsConsumerSlave" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
