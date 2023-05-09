@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+import java.util.List;
+
 /**
  * <p>
  *
@@ -89,7 +91,15 @@ public class WeightVolumeCondition {
      * 设备编码
      */
     private String machineCode;
-
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
+    
     public Integer getLongPackage() {
         return longPackage;
     }
@@ -217,4 +227,21 @@ public class WeightVolumeCondition {
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
+    
 }

@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.rest.weightVolume;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
@@ -45,7 +47,32 @@ public class WeightVolumeResource {
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
     }
-
+    /**
+     * 称重上传校验接口
+     * @param condition
+     * @return
+     */
+    @POST
+    @Path("/weightVolume/checkAndUpload")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101803)
+    public JdResult<WeightVolumeUploadResult> checkAndUpload(WeightVolumeCondition condition) {
+    	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
+    	//校验成功，上传处理
+    	if(result != null 
+    			&& result.getData() != null
+    			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
+    		InvokeResult<Boolean> uploadResult = upload(condition);
+    		if(uploadResult != null 
+    				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+    			result.toSuccess();
+    		}else if(uploadResult != null){
+    			result.toFail(uploadResult.getMessage());
+    		} else {
+    			result.toFail("上传失败！");
+    		}
+    	}
+    	return result;
+    }
     /**
      * 单条上传接口
      * @param condition
@@ -67,6 +94,8 @@ public class WeightVolumeResource {
                 .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                 .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
                 .machineCode(condition.getMachineCode()).remark(remark);
+        entity.setOverLengthAndWeightEnable(condition.getOverLengthAndWeightEnable());
+        entity.setOverLengthAndWeightTypes(condition.getOverLengthAndWeightTypes());
         InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
         result.setCode(invokeResult.getCode());
         result.setMessage(invokeResult.getMessage());

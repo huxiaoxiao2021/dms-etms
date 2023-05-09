@@ -369,6 +369,10 @@ public class DmsConstants {
      */
     public static final String WAYBILL_VAS_JXD  = "ed-a-0073";
     /**
+     * 增值服务编码-超长超重服务（CCCZF00001）
+     */
+    public static final String WAYBILL_VAS_OVER_LENGTHANDWEIGHT  = "CCCZF00001";    
+    /**
      * 增值服务编码-京喜送达服务-取值key1
      */
     public static final String WAYBILL_VAS_JXD_CARDINFOS  = "cardInfos";

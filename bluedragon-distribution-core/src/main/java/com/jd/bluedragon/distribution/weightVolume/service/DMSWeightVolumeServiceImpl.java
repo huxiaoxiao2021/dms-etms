@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -19,14 +20,17 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
 import com.jd.bluedragon.distribution.weightVolume.domain.*;
+import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
@@ -40,7 +44,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -450,4 +459,72 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         return isCInternet;
     }
+
+	@Override
+	public JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition) {
+		JdResult<WeightVolumeUploadResult> result= new JdResult<WeightVolumeUploadResult>();
+		result.toSuccess();
+		
+		WeightVolumeUploadResult weightVolumeUploadResult = new WeightVolumeUploadResult();
+		weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
+		result.setData(weightVolumeUploadResult);
+		
+		boolean overLengthAndWeightFlag = false;
+		Map<String,String> overLengthAndWeightTypesMap = null;
+		overLengthAndWeightTypesMap = new HashMap<String,String>();
+		for(OverLengthAndWeightTypeEnum item: OverLengthAndWeightTypeEnum.values()) {
+			overLengthAndWeightTypesMap.put(item.getCode(), item.getName());
+		}
+		
+		//调用运单接口查询-增值服务信息
+		String waybillCode = condition.getBarCode();
+		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
+		if(vasResult.getData() != null) {
+			WaybillVasDto vasData = vasResult.getData();
+			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
+				overLengthAndWeightTypesMap = vasData.getExtendMap();
+			}
+		}
+		if(overLengthAndWeightTypesMap != null && !overLengthAndWeightTypesMap.isEmpty()) {
+			overLengthAndWeightFlag = true;
+		}
+		//无需上传，请求中上传了超重信息
+		if(!overLengthAndWeightFlag && Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+			result.toFail("此单没有超长超重服务！");
+			return result;
+		}
+		if(overLengthAndWeightFlag) {
+			//校验上传标识和服务内容
+			if(!Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())
+					|| CollectionUtils.isEmpty(condition.getOverLengthAndWeightTypes())) {
+				setOverLengthAndWeightTypes(overLengthAndWeightTypesMap,weightVolumeUploadResult);
+				result.toFail("请选择超长超重服务！");
+				return result;
+			}
+			//校验选择的服务，是否存在
+			for(String code: condition.getOverLengthAndWeightTypes()) {
+				if(!overLengthAndWeightTypesMap.containsKey(code)) {
+					setOverLengthAndWeightTypes(overLengthAndWeightTypesMap,weightVolumeUploadResult);
+					result.toFail("选择的超长超重服务无效，请重新操作！");
+					return result;
+				}
+			}
+			//校验成功
+			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+		}else {
+			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+		}
+		return result;
+	}
+	private void setOverLengthAndWeightTypes(Map<String,String> overLengthAndWeightTypesMap,WeightVolumeUploadResult weightVolumeUploadResult) {
+		weightVolumeUploadResult.setOverLengthAndWeightFlag(true);
+		List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
+		for(String code:overLengthAndWeightTypesMap.keySet()) {
+			OverLengthAndWeightType typeData = new OverLengthAndWeightType();
+			typeData.setCode(code);
+			typeData.setName(overLengthAndWeightTypesMap.get(code));
+			overLengthAndWeightTypesToSelect.add(typeData);
+		}
+		weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
+	}
 }
