@@ -263,6 +263,9 @@
     <jsf:consumer id="jdiTransWorkWS" interface="com.jd.tms.jdi.ws.JdiTransWorkWS"
                   protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <jsf:consumer id="jdiTransWorkItemWS" interface="com.jd.tms.jdi.ws.JdiTransWorkItemWS"
+      protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!--  (TFC)运输流程中心系统 jsf接口  王京-->
     <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="${tfc.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1296,4 +1299,15 @@
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+
+    <!-- 滑道笼车配置 -->
+    <jsf:consumer id="vehicleVolumeDicJsfService"
+      interface="com.jdl.basic.api.service.vehicle.VehicleVolumeDicJsfService"
+      alias="${jsf.alias.jy_basic}"
+      timeout="${jsf.jy_basic.timeout}"
+      retries="${jsf.retries}"
+      serialization="hessian"
+      lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>

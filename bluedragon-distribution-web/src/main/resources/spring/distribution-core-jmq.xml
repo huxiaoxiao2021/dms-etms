@@ -797,4 +797,9 @@
         <property name="topic" value="${jmq.topic.jy.inspect.update.collect.status}" />
         <property name="timeout" value="1000" />
     </bean>
+    <bean id="jyOperationProgressProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.operation.progress}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
 </beans>

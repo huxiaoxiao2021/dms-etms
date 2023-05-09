@@ -10,9 +10,13 @@ import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -240,4 +244,11 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
-}
+
+    /**
+     * 计算操作进度
+     * @param sendAggsEntity
+     * @return
+     */
+    BigDecimal calculateOperateProgress(JySendAggsEntity sendAggsEntity,boolean needSendMsg);
+    }

@@ -12,4 +12,12 @@
                   server="dmsjsf">
         <jsf:parameter key="token" value="${dms.flow.approvePostHandler.token}"/>
     </jsf:provider>
+    <!-- 签到修改审批结果回调接口，提供给审批回调使用 -->
+    <jsf:provider id="signModifyJsfApprovePostHandler"
+                  interface="com.jd.lsb.flow.handler.ApprovePostHandler"
+                  alias="${dms.flow.signModifyApprovePostHandler.alias}"
+                  ref="signModifyApprovePostHandler"
+                  server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.flow.signModifyApprovePostHandler.token}"/>
+    </jsf:provider>    
 </beans>

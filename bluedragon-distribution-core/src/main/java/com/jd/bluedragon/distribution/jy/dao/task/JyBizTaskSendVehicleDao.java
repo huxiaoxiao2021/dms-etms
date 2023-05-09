@@ -190,4 +190,8 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         }
         return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
     }
+
+    public List<JyBizTaskSendVehicleEntity> findByTransWork(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByTransWork", entity);
+    }
 }

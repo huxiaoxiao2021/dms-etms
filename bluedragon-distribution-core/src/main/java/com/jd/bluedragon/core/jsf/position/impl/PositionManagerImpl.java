@@ -70,5 +70,20 @@ public class PositionManagerImpl implements PositionManager {
         return result;
     }
 
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "PositionManagerImpl.queryPositionByGridKey",mState={JProEnum.TP,JProEnum.FunctionError})	
+	public Result<PositionData> queryPositionByGridKey(String gridKey) {
+        Result<PositionData> result = new Result<>();
+        result.toFail("获取岗位码信息数据失败");
+        try {
+            log.info("queryPositionByGridKey--获取基础服务数据");
+            return basicPositionQueryJsfService.queryPositionByGridKey(gridKey);
+        } catch (Exception e) {
+            log.error("获取岗位码信息列表数据异常 {}",  e.getMessage(),e);
+            result.toFail("获取岗位码信息数据异常!");
+        }
+        return result;
+	}
+
 
 }
