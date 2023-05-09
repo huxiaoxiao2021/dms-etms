@@ -403,6 +403,18 @@
         and yn = 1 limit 1
     </select>
 
+    <select id="getSendStatisticsByBizList" parameterType="java.util.List" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE send_vehicle_biz_id in
+        <foreach item="item" index="index" collection="list"
+          open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and yn = 1 group by send_vehicle_biz_id
+    </select>
+
     <select id="findBySendVehicleBiz" parameterType="java.lang.String" resultMap="jySendAggsMap">
         SELECT
             <include refid="Base_Column_List"/>

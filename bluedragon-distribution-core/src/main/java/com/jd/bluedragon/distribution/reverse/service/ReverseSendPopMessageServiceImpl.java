@@ -78,13 +78,15 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
         if (baseEntity != null && baseEntity.getData() != null) {
             Waybill waybill = baseEntity.getData().getWaybill();
             if (waybill == null) {
-                log.warn("【运单号:{}】未获取到运单对象",waybillCode);
-                throw new RuntimeException("【运单号:" + waybillCode + "】未获取到运单对象");
+                log.error("【运单号:{}】未获取到运单对象",waybillCode);
+                //throw new RuntimeException("【运单号:" + waybillCode + "】未获取到运单对象");
+                return false;
             }
             Integer type = waybill.getWaybillType();
             if (type == null) {
-                log.warn("【运单号:{}】运单类型为空",waybillCode);
-                throw new RuntimeException("【运单号:" + waybillCode + "】运单类型为空");
+                log.error("【运单号:{}】运单类型为空",waybillCode);
+                //throw new RuntimeException("【运单号:" + waybillCode + "】运单类型为空");
+                return false;
             }
             String messageType = this.getMessageTypeByType(type);
             if (StringUtils.isNotEmpty(messageType)) {
