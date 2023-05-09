@@ -6,18 +6,23 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import java.math.BigDecimal;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +52,11 @@ public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
     @Qualifier(value = "jySendVehicleService")
     IJySendVehicleService jySendVehicleService;
     @Autowired
+    @Qualifier("jySendVehicleServiceTys")
+    private IJySendVehicleService jySendVehicleServiceTys;
+    @Autowired
+    private BaseService baseService;
+    @Autowired
     private UccPropertyConfiguration uccConfig;
 
 
@@ -68,8 +78,16 @@ public class JySendGoodsAggsBakConsumer extends MessageBaseConsumer {
             return;
         }
         try {
-            if (!uccConfig.getProductOperateProgressSwitch()) {
-                jySendVehicleService.calculateOperateProgress(entity, true);
+            if (!uccConfig.getProductOperateProgressSwitch() && ObjectHelper.isNotNull(entity.getOperateSiteId())) {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(entity.getOperateSiteId().intValue());
+                if (ObjectHelper.isNotNull(baseStaffSiteOrgDto)){
+                    BigDecimal operateProgress = BusinessHelper.isBSite(baseStaffSiteOrgDto.getSubType())?
+                        jySendVehicleServiceTys.calculateOperateProgress(entity,true):
+                        jySendVehicleService.calculateOperateProgress(entity,true);
+                    if (logger.isInfoEnabled()){
+                        logger.info("计算装车进度 {}：{}",message.getText(),operateProgress);
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("计算发货操作进度异常",e);
