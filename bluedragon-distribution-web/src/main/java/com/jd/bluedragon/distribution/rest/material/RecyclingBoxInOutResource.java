@@ -98,36 +98,7 @@ public class RecyclingBoxInOutResource {
     @Path("/recyclingBox/outbound")
     @JProfiler(jKey = "DMS.WEB.RecyclingBoxInOutResource.recyclingBoxOutbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<RecyclingBoxInOutResponse> recyclingBoxOutbound(RecyclingBoxInOutboundRequest request) {
-        JdResult<RecyclingBoxInOutResponse> response = new JdResult<>();
-        response.toSuccess();
-
-        //青流箱出库参数校验
-        response = this.checkParam(request);
-        if (!response.isSucceed()) {
-            return response;
-        }
-
-        try {
-            List<DmsMaterialSend> materialSends = new ArrayList<>();
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(request.getSiteCode());
-            for (String tagNo : request.getTagNos()) {
-                materialSends.add(this.createMaterialSendFromRequest(tagNo, baseStaffSiteOrgDto, request));
-            }
-            JdResult<Boolean> result = materialServiceFactory.findMaterialOperationService(SEND_MODE)
-                    .saveMaterialSend(materialSends, false);
-            response.setCode(result.getCode());
-            response.setMessage(result.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("青流箱出库失败. req:[{}]", JsonHelper.toJson(request), e);
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("青流箱出库参数. req:[{}]", JsonHelper.toJson(request));
-        }
-
-        return  response;
+        return recycleMaterialService.recyclingBoxOutbound(request);
     }
 
     public JdResult<RecyclingBoxInOutResponse> checkParam(RecyclingBoxInOutboundRequest request) {

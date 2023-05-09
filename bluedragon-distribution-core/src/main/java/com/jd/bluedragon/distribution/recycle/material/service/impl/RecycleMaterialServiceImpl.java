@@ -64,9 +64,13 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
 
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
-
+    private static final byte COLLECTION_BAG_SEND = MaterialServiceFactory.MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
+    
     private static final int DEFAULT_SEND_NUM = 1;
+
+    private static final byte WARM_BOX_SEND = MaterialServiceFactory.MaterialSendModeEnum.WARM_BOX_SEND.getCode();
+
+    private static final byte MATERIAL_TAG_SEND = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
 
     @Override
     @JProfiler(jKey = "dms.web.RecycleMaterialServiceImpl.getPrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -101,7 +105,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             }
             long startTime = System.currentTimeMillis();
 
-            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
+            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(COLLECTION_BAG_SEND)
                     .saveMaterialSend(materialSends, false);
 
             long endTime = System.currentTimeMillis();
@@ -194,7 +198,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             long startTime = System.currentTimeMillis();
 
             boolean saveFlow = true;
-            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
+            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(WARM_BOX_SEND)
                     .saveMaterialSend(materialSends, saveFlow);
 
             long endTime = System.currentTimeMillis();
@@ -303,7 +307,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             for (String tagNo : request.getTagNos()) {
                 materialSends.add(this.createMaterialRecyclingBoxSendFromRequest(tagNo, baseStaffSiteOrgDto, request));
             }
-            JdResult<Boolean> result = materialServiceFactory.findMaterialOperationService(SEND_MODE)
+            JdResult<Boolean> result = materialServiceFactory.findMaterialOperationService(MATERIAL_TAG_SEND)
                     .saveMaterialSend(materialSends, false);
             response.setCode(result.getCode());
             response.setMessage(result.getMessage());
