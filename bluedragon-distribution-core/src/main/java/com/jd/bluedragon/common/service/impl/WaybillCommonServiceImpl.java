@@ -68,7 +68,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_135_2;
 
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
