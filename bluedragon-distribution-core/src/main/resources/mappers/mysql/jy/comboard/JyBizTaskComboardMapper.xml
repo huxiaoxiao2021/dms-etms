@@ -22,6 +22,7 @@
     <result column="bulk_flag" jdbcType="BIT" property="bulkFlag" />
     <result column="have_scan_count" jdbcType="INTEGER" property="haveScanCount" />
     <result column="comboard_source" jdbcType="INTEGER" property="comboardSource" />
+    <result column="group_code" jdbcType="VARCHAR" property="groupCode" />
   </resultMap>
   <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
     <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
@@ -30,7 +31,7 @@
   <sql id="Base_Column_List">
     id, biz_id, board_code, send_code, board_status, start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source
+    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source,group_code
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -299,7 +300,10 @@
     <if test="boardCode!=null">
       AND board_code = #{boardCode}
     </if>
-    <if test="comboardSourceList!=null and comboardSourceList.size() >0">
+    <if test="groupCode!=null">
+      AND group_code = #{groupCode}
+    </if>
+      <if test="comboardSourceList!=null and comboardSourceList.size() >0">
       AND comboard_source in
       <foreach item="item" index="index" collection="comboardSourceList"
         open="(" separator="," close=")">
@@ -319,6 +323,9 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    <if test="groupCode!=null">
+      and group_code =#{groupCode}
+    </if>
     and comboard_source in
     <foreach item="item" index="index" collection="comboardSourceList"
              open="(" separator="," close=")">
@@ -358,6 +365,9 @@
              open="(" separator="," close=")">
       #{item}
     </foreach>
+    <if test="groupCode!=null">
+      and group_code = #{groupCode}
+    </if>
     and comboard_source in
     <foreach item="item" index="index" collection="comboardSourceList"
              open="(" separator="," close=")">
@@ -374,6 +384,9 @@
     WHERE
     start_site_id =#{startSiteId}
     AND end_site_id =#{endSiteId}
+    <if test="groupCode!=null">
+      AND group_code=#{groupCode}
+    </if>
     AND board_status IN
     <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
       #{item}
@@ -522,5 +535,26 @@
     </foreach>
     AND yn = 1
     order by id desc
+  </select>
+  <select id="countBoardGroupBySendFlow" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto"
+    resultType="com.jd.bluedragon.common.dto.comboard.response.SendFlowDto">
+    SELECT
+      start_site_id startSiteId,
+      end_site_id endSiteId,
+      COUNT(id) boardCount
+    FROM
+      jy_biz_task_comboard
+    WHERE
+      start_site_id = #{startSiteId}
+    AND end_site_id in
+    <foreach item="item" index="index" collection="endSiteIdList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND board_status IN
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    GROUP BY
+      end_site_id;
   </select>
 </mapper>
