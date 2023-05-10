@@ -33,6 +33,11 @@ public class BaseSendVehicleDetail implements Serializable {
      */
     private String sendDetailBizId;
 
+    /**
+     * 主发货任务BizId
+     */
+    private String bizId;
+
     public Date getPlanDepartTime() {
         return planDepartTime;
     }
