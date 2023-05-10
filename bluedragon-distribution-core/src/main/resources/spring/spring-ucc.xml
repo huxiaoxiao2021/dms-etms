@@ -265,6 +265,9 @@
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
+		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
+		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -519,6 +522,8 @@
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
+				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
+				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 			</list>
 		</property>
 	</bean>
