@@ -3348,8 +3348,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.getProductToScanInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request) {
         InvokeResult<SendVehicleProductTypeAgg> invokeResult = new InvokeResult<>();
+        invokeResult.setCode(RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
         if (request.getCurrentOperate()== null
             ||  Objects.isNull(request.getCurrentOperate().getSiteCode())
             || StringUtils.isBlank(request.getSendVehicleBizId()) ) {
@@ -3363,6 +3367,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
         productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
         productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
+        productTypeAgg.setCount(0L);
         if(CollectionUtils.isNotEmpty(receiveIds)){
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));
@@ -3373,18 +3378,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             log.info("获取特安待扫数据--{}",toScanCountSumOfTeAn);
             if(toScanCountSumOfTeAn!= null && toScanCountSumOfTeAn >0){
                 productTypeAgg.setCount(toScanCountSumOfTeAn);
-                invokeResult.setCode(RESULT_SUCCESS_CODE);
-                invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                 invokeResult.setData(productTypeAgg);
                 return  invokeResult;
             }
         }
-        invokeResult.setCode(RESULT_NULL_CODE);
-        invokeResult.setMessage(RESULT_NULL_MESSAGE);
         return invokeResult;
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.noticeToCanTEANPackage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public com.jd.dms.java.utils.sdk.base.Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.closeTask param {}", JSON.toJSONString(autoCloseTaskPo));
         com.jd.dms.java.utils.sdk.base.Result<Void> response = com.jd.dms.java.utils.sdk.base.Result.success();
