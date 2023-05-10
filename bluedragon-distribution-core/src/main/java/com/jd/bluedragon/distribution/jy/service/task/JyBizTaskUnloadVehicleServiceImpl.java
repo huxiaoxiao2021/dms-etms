@@ -211,19 +211,22 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Override
     public Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
-
-        if (enums == null) {
-            // 如果入参状态为空 则全部状态匹配
-            enums = JyBizTaskUnloadStatusEnum.values();
+        try{
+            if (enums == null) {
+                // 如果入参状态为空 则全部状态匹配
+                enums = JyBizTaskUnloadStatusEnum.values();
+            }
+            List<Integer> statusOfCodes = new ArrayList<>();
+            for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
+                statusOfCodes.add(statusEnum.getCode());
+            }
+            //获取数据
+            logger.info("获取特安车辆任务数据入参-{}");
+            return jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLineOfTEAN(condition, statusOfCodes, sealCarCodes);
+        }catch (Exception e){
+            logger.error("获取特安车辆任务数据异常-{}",e.getMessage());
         }
-        List<Integer> statusOfCodes = new ArrayList<>();
-        for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
-            statusOfCodes.add(statusEnum.getCode());
-        }
-        //获取数据
-        logger.info("获取特安车辆任务数据入参-{}");
-        return jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLineOfTEAN(condition, statusOfCodes, sealCarCodes);
-
+        return 0L;
     }
 
 
