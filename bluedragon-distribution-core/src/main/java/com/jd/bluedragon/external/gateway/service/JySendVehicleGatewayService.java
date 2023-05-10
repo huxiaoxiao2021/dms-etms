@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 
 import java.util.List;
 
@@ -173,6 +174,8 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
+
+    JdCResponse<Boolean> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
 
 
 }
