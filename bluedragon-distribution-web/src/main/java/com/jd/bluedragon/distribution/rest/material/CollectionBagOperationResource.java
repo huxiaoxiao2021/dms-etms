@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialTypeEnum;
 import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
+import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -55,6 +56,9 @@ public class CollectionBagOperationResource {
 
     @Autowired
     private MaterialServiceFactory materialServiceFactory;
+    
+    @Autowired
+    private RecycleMaterialService recycleMaterialService;
 
     @POST
     @Path("/collectionBag/receive")
@@ -106,43 +110,7 @@ public class CollectionBagOperationResource {
     @Path("/collectionBag/send")
     @JProfiler(jKey = "DMS.WEB.CollectionBagOperationResource.send", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> send(CollectionBagRequest request) {
-        JdResult<Boolean> response = new JdResult<>();
-        response.toSuccess();
-        // 参数校验
-        response = this.checkRequestParam(request, true);
-        if (!response.isSucceed()) {
-            return response;
-        }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("集包袋发空袋参数. req:[{}]", JsonHelper.toJson(request));
-        }
-        try {
-            List<DmsMaterialSend> materialSends = new ArrayList<>();
-            BaseStaffSiteOrgDto createSite = siteService.getSite(request.getSiteCode());
-            BaseStaffSiteOrgDto receiveSite = siteService.getSite(request.getReceiveSiteCode().intValue());
-            for (String collectionBagCode : request.getCollectionBagCodes()) {
-                materialSends.add(this.createMaterialSendFromRequest(collectionBagCode, createSite, receiveSite, request));
-            }
-            long startTime = System.currentTimeMillis();
-
-            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
-                    .saveMaterialSend(materialSends, false);
-
-            long endTime = System.currentTimeMillis();
-            response.setCode(ret.getCode());
-            response.setMessage(ret.getMessage());
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("集包袋发空袋参数结果. time:[{}], resp:[{}]", endTime - startTime, JsonHelper.toJson(response));
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("集包袋发空袋参数失败. req:[{}]", JsonHelper.toJson(request), ex);
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-        return response;
+        return recycleMaterialService.CollectionBagOperationSend(request);
     }
 
     private JdResult<Boolean> checkRequestParam(CollectionBagRequest request, boolean send) {
