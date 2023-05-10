@@ -3393,7 +3393,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         com.jd.dms.java.utils.sdk.base.Result<Void> response = com.jd.dms.java.utils.sdk.base.Result.success();
         try{
 
-            JyBizTaskSendVehicleDetailEntity detail = taskSendVehicleDetailService.findByBizId(autoCloseTaskPo.getBizId());
+            JyBizTaskSendVehicleDetailEntity detail = taskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskPo.getBizId());
             log.info("查出的任务明细detailEntity -{}",JSON.toJSONString(detail));
 
                 if(detail !=null && StringUtils.isNotBlank(detail.getSendVehicleBizId())){

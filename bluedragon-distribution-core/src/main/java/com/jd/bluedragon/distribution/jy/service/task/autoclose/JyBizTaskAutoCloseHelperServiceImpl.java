@@ -133,7 +133,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
     public boolean pushBizTaskAutoCloseTask4SendVehicleTask(AutoCloseTaskMq autoCloseTaskMq,JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail) {
         try {
             AutoCloseTaskPo autoCloseTaskPo = new AutoCloseTaskPo();
-            autoCloseTaskPo.setBizId(jyBizTaskSendVehicleDetail.getBizId());
+            autoCloseTaskPo.setBizId(jyBizTaskSendVehicleDetail.getSendVehicleBizId());
             autoCloseTaskPo.setTaskBusinessType(JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode());
             autoCloseTaskPo.setOperateTime(autoCloseTaskMq.getOperateTime());
             autoCloseTaskPo.setChangeStatus(autoCloseTaskMq.getChangeStatus());
