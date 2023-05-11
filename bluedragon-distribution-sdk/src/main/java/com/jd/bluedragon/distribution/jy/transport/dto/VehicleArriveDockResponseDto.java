@@ -35,7 +35,7 @@ public class VehicleArriveDockResponseDto implements Serializable {
     /**
      * 场地ID
      */
-    private Long siteId;
+    private Integer siteId;
 
     /**
      * 场地名称
@@ -97,11 +97,11 @@ public class VehicleArriveDockResponseDto implements Serializable {
         this.siteCode = siteCode;
     }
 
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 

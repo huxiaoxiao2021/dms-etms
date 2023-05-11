@@ -16,11 +16,24 @@ public class VehicleArriveDockDataQo extends BaseRequest implements Serializable
     private static final long serialVersionUID = 7321555449562322027L;
 
     /**
+     * 始发场地ID
+     */
+    private Integer startSiteId;
+
+    /**
      * 月台号
      */
     private String dockCode;
 
     public VehicleArriveDockDataQo() {}
+
+    public Integer getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Integer startSiteId) {
+        this.startSiteId = startSiteId;
+    }
 
     public String getDockCode() {
         return dockCode;

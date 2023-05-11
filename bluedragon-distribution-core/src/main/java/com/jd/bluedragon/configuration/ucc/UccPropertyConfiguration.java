@@ -1401,6 +1401,16 @@ public class UccPropertyConfiguration {
      */
     private String jyCollectSiteWhitelist;
 
+    /**
+     * 发货运输车辆靠台验证刷新间隔
+     */
+    private Integer jyTransportSendVehicleValidateDockFreshTime;
+
+    /**
+     * 发货运输车辆靠台验证码允许访问上几次验证码个数
+     */
+    private Integer jyTransportSendVehicleValidateDockAllowFreshTimes;
+
 
 
     public boolean getCzQuerySwitch() {
@@ -3148,5 +3158,21 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockFreshTime() {
+        return jyTransportSendVehicleValidateDockFreshTime;
+    }
+
+    public void setJyTransportSendVehicleValidateDockFreshTime(Integer jyTransportSendVehicleValidateDockFreshTime) {
+        this.jyTransportSendVehicleValidateDockFreshTime = jyTransportSendVehicleValidateDockFreshTime;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockAllowFreshTimes() {
+        return jyTransportSendVehicleValidateDockAllowFreshTimes;
+    }
+
+    public void setJyTransportSendVehicleValidateDockAllowFreshTimes(Integer jyTransportSendVehicleValidateDockAllowFreshTimes) {
+        this.jyTransportSendVehicleValidateDockAllowFreshTimes = jyTransportSendVehicleValidateDockAllowFreshTimes;
     }
 }

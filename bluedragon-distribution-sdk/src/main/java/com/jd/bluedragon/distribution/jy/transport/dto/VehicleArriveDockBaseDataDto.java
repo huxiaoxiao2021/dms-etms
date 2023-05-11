@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.transport.dto;
 
-import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
+import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +19,7 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
     /**
      * 月台号列表
      */
-    private List<JySelectOption> dockList;
+    private List<DockInfoEntity> dockList;
 
     /**
      * 服务器时间，毫秒单位
@@ -39,11 +39,11 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
     public VehicleArriveDockBaseDataDto() {
     }
 
-    public List<JySelectOption> getDockList() {
+    public List<DockInfoEntity> getDockList() {
         return dockList;
     }
 
-    public void setDockList(List<JySelectOption> dockList) {
+    public void setDockList(List<DockInfoEntity> dockList) {
         this.dockList = dockList;
     }
 

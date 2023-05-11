@@ -20,6 +20,11 @@ public class VehicleArriveDockBaseDataQo extends BaseRequest implements Serializ
      */
     private String startSiteCode;
 
+    /**
+     * 始发场地ID
+     */
+    private Integer startSiteId;
+
     public VehicleArriveDockBaseDataQo() {}
 
     public String getStartSiteCode() {
@@ -30,4 +35,11 @@ public class VehicleArriveDockBaseDataQo extends BaseRequest implements Serializ
         this.startSiteCode = startSiteCode;
     }
 
+    public Integer getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Integer startSiteId) {
+        this.startSiteId = startSiteId;
+    }
 }
