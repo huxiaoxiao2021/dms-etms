@@ -395,6 +395,8 @@ public class CacheKeyConstants {
      * 批量作废周转筐缓存key
      */
     public static final String CACHE_KEY_BATCH_ABOLISH_RECYCLE_BASKET = "abolishRecycleBasket:%s";
+    public static final String CACHE_KEY_JY_TEAN_WAYBILL = JY_CACHE_PREFIX + "jyTEANWaybill:%s:%s";
+
 
     /**
      * 拣运-滞留扫描

@@ -11,8 +11,10 @@ import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
@@ -251,4 +253,20 @@ public interface IJySendVehicleService {
      * @return
      */
     BigDecimal calculateOperateProgress(JySendAggsEntity sendAggsEntity,boolean needSendMsg);
-    }
+
+
+    /**
+     * 根据发货任务获取特安待扫数量
+     * @param request
+     * @return
+     */
+    InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
+
+
+    /**
+     * 推送特安待扫包裹明细数据到场地负责人
+     * @return
+     */
+    Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
+
+}

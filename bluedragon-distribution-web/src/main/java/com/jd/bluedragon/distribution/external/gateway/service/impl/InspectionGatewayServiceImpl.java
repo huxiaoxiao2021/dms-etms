@@ -292,6 +292,9 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         //特保单校验
         luxurySecurityCheck(request,response);
 
+        //特安单校验
+        TEANCheck(request,response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -404,5 +407,14 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
         }
         log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
+    }
+
+    private void TEANCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
+        log.info("卸车扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
+        if(teanResult != null && teanResult.getData()){
+            response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+        }
+        log.info("卸车扫描TEANCheck -结果-response {}",JSON.toJSONString(response));
     }
 }
