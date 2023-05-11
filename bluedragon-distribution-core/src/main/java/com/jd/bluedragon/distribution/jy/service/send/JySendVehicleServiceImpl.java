@@ -3396,7 +3396,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             JyBizTaskSendVehicleDetailEntity detail = taskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskPo.getBizId());
             log.info("查出的任务明细detailEntity -{}",JSON.toJSONString(detail));
 
-                if(detail !=null && StringUtils.isNotBlank(detail.getSendVehicleBizId())){
+                if(detail !=null && StringUtils.isNotBlank(detail.getSendVehicleBizId()) && StringUtils.isNotBlank(detail.getUpdateUserErp())){
                     CurrentOperate currentOperate = new CurrentOperate();
                     currentOperate.setSiteCode(detail.getStartSiteId().intValue());
                     //获取特安待扫包裹明细
