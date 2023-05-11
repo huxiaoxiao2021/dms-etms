@@ -57,6 +57,7 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -1684,8 +1685,8 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
-//    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
-//            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
+    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
+            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
     public boolean isTeAnWaybill(String waybillCode) {
         log.info("isTeAnWaybill---运单号{}",waybillCode);
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
