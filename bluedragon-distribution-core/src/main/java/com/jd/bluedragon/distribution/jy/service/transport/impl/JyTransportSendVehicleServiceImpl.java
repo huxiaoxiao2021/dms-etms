@@ -266,14 +266,15 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             final String uuidStr = UUID.randomUUID().toString().toUpperCase();
             String validateOriginStr = String.format("%s__%s__%s__%s__%s", vehicleArriveDockDataDto.getSiteId(),
                     vehicleArriveDockDataDto.getWorkAreaCode(), vehicleArriveDockDataDto.getWorkGridNo(), vehicleArriveDockDataDto.getDockCode(), uuidStr);
-            final String validateStr = this.getValidateStrCacheKey(Md5Helper.encode(validateOriginStr));
-            vehicleArriveDockDataDto.setValidateStr(validateStr);
+            String validateStr = Md5Helper.encode(validateOriginStr);
+            final String validateStrCacheKey = this.getValidateStrCacheKey(validateStr);
+            vehicleArriveDockDataDto.setValidateStr(validateStrCacheKey);
 
             final VehicleArriveDockDataCacheDto vehicleArriveDockDataCacheDto = new VehicleArriveDockDataCacheDto();
             BeanCopyUtil.copy(vehicleArriveDockDataDto, vehicleArriveDockDataCacheDto);
             vehicleArriveDockDataCacheDto.setCreateTimeMillSeconds(System.currentTimeMillis());
             // 保存10分钟缓存
-            redisClientOfJy.setEx(validateStr, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
+            redisClientOfJy.setEx(validateStrCacheKey, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
 
             // 将上几次验证字符缓存删除
             /*int validateLastGenerateStrExpired = uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes() + 5;
@@ -290,7 +291,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
                 lastGenerateValidateStrArr.addAll(validateLastGenerateArrExist);
             }
             // 将新的验证码追加到队尾
-            lastGenerateValidateStrArr.add(validateStr);
+            lastGenerateValidateStrArr.add(validateStrCacheKey);
             // 存到缓存
             redisClientOfJy.setEx(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR, JsonHelper.toJSONString(lastGenerateValidateStrArr), validateLastGenerateStrExpired, JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);*/
         } catch (Exception e) {
