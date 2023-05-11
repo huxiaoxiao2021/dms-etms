@@ -86,13 +86,6 @@ public interface ReverseIntensiveService {
     InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request);
 
     /**
-     * 获取板号已绑定的保温箱信息
-     * @param relationReqVO
-     * @return
-     */
-    InvokeResult<WarmBoxInOutVO> listBoxBoardRelations(WarmBoxBoardRelationReqVO relationReqVO);
-
-    /**
      * 保温箱出库
      * @param outboundReqVO
      * @return
