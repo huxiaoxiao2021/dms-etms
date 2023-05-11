@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.distribution.rest.material.CollectionBagOperationResource;
 import com.jd.bluedragon.distribution.rest.material.RecyclingBoxInOutResource;
 import com.jd.bluedragon.distribution.rest.material.WarmBoxInOutResource;
@@ -68,17 +69,9 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
 
     @Autowired
     private BaseService baseService;
-
-    @Autowired
-    @Qualifier("warmBoxInOutResource")
-    private WarmBoxInOutResource warmBoxInOutResource;
-
-    @Autowired
-    @Qualifier("collectionBagOperationResource")
-    private CollectionBagOperationResource operationResource;
     
     @Autowired
-    private RecyclingBoxInOutResource recyclingBoxInOutResource;
+    private RecycleMaterialService recycleMaterialService;
     
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "ReverseIntensiveService.queryPackageCodes",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -180,40 +173,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
     public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
         return qualityControlService.exceptionSubmit(request);
     }
-
-    @Override
-    public InvokeResult<WarmBoxInOutVO> listBoxBoardRelations(WarmBoxBoardRelationReqVO request) {
-        InvokeResult<WarmBoxInOutVO> response = new InvokeResult<>();
-        response.success();
-        if (null == request) {
-            response.error("参数为空！");
-            return response;
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Gateway获取板和保温箱绑定关系. req:[{}]", JSON.toJSONString(request));
-        }
-
-        WarmBoxBoardRelationRequest queryParam = new WarmBoxBoardRelationRequest();
-        queryParam.setBoardCode(request.getBoardCode() == null ? StringUtils.EMPTY : request.getBoardCode());
-        queryParam.setUserCode(request.getUserCode());
-        queryParam.setUserName(request.getUserName());
-        queryParam.setSiteCode(request.getSiteCode());
-        queryParam.setSiteName(request.getSiteName());
-        JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.listBoxBoardRelation(queryParam);
-        if (result.isFailed()) {
-            response.error(result.getMessage());
-            return response;
-        }
-        response.setData(JSON.parseObject(JSON.toJSONString(result.getData()), WarmBoxInOutVO.class));
-        response.setMessage(result.getMessage());
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Gateway获取板和保温箱绑定关系. resp:[{}]", JSON.toJSONString(response));
-        }
-
-        return response;
-    }
-
+    
     @Override
     public InvokeResult<Void> warmBoxOutbound(WarmBoxOutboundReqVO request) {
         InvokeResult<Void> response = new InvokeResult<>();
@@ -236,7 +196,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
         body.setSiteName(request.getSiteName());
         body.setUserErp(request.getUserErp());
 
-        JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.warmBoxOutbound(body);
+        JdResult<WarmBoxInOutResponse> result = recycleMaterialService.warmBoxOutbound(body);
         if (result.isFailed()) {
             response.error(result.getMessage());
             return response;
@@ -268,7 +228,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
         body.setUserName(request.getUserName());
         body.setUserErp(request.getUserErp());
 
-        JdResult<Boolean> result = operationResource.send(body);
+        JdResult<Boolean> result = recycleMaterialService.CollectionBagOperationSend(body);
         if (result.isFailed()) {
             response.error(result.getMessage());
             return response;
@@ -282,7 +242,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
         InvokeResult<RecyclingBoxInOutResponse> response = new InvokeResult<>();
         response.success();
 
-        JdResult<RecyclingBoxInOutResponse> jdResult = recyclingBoxInOutResource.recyclingBoxOutbound(request);
+        JdResult<RecyclingBoxInOutResponse> jdResult = recycleMaterialService.recyclingBoxOutbound(request);
 
         response.setCode(jdResult.getCode());
         response.setMessage(jdResult.getMessage());
