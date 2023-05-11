@@ -179,6 +179,8 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             if (baseSiteInfo == null) {
                 return result.toFail(String.format("未查询到场地编码为%s的场地数据", qo.getStartSiteCode()));
             }
+            vehicleArriveDockBaseDataDto.setSiteId(baseSiteInfo.getSiteCode());
+            vehicleArriveDockBaseDataDto.setSiteName(baseSiteInfo.getSiteName());
             // 查询场地所有月台
             final InvokeResult<List<DockInfoEntity>> dockListResult = transportCommonService.listAllDockInfoBySiteCode(baseSiteInfo.getSiteCode());
             if (dockListResult == null || !dockListResult.codeSuccess()) {
@@ -216,6 +218,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockDataDto.setTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
             vehicleArriveDockDataDto.setTimeStr(DateUtil.format(new Date(vehicleArriveDockDataDto.getTimeMillSeconds()), DateUtil.FORMAT_DATE_TIME));
             vehicleArriveDockDataDto.setDockCode(qo.getDockCode());
+            vehicleArriveDockDataDto.setValidateStrRefreshIntervalTime(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime());
 
             result.setData(vehicleArriveDockDataDto);
 

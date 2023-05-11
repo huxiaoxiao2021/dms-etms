@@ -17,6 +17,16 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
     private static final long serialVersionUID = -5941136054594631023L;
 
     /**
+     * 场地ID
+     */
+    private Integer siteId;
+
+    /**
+     * 场地名称
+     */
+    private String siteName;
+
+    /**
      * 月台号列表
      */
     private List<DockInfoEntity> dockList;
@@ -37,6 +47,22 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
     private String timeFormatStr;
 
     public VehicleArriveDockBaseDataDto() {
+    }
+
+    public Integer getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(Integer siteId) {
+        this.siteId = siteId;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
     }
 
     public List<DockInfoEntity> getDockList() {
