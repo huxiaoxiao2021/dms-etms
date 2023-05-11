@@ -866,6 +866,8 @@ public class UccPropertyConfiguration {
     private Integer jyStrandScanNumLimit;
 
 
+    private boolean checkTeAnSwitch;
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -3339,5 +3341,13 @@ public class UccPropertyConfiguration {
 
     public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
         this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public boolean isCheckTeAnSwitch() {
+        return checkTeAnSwitch;
+    }
+
+    public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+        this.checkTeAnSwitch = checkTeAnSwitch;
     }
 }

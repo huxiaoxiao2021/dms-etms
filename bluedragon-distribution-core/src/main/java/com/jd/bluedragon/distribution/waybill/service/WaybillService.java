@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
@@ -254,5 +255,20 @@ public interface WaybillService {
      * @time 2023-03-25 11:21:32 周六
      */
     Result<Boolean> checkIsDeliveryManyBatch(String waybillCode);
+
+    /**
+     * 是否特安运单
+     * @param waybillCode
+     * @return
+     */
+    boolean isTeAnWaybill(String waybillCode);
+
+    /**
+     * 特安单检验
+     * @param response
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> checkTEANWaybillCondition(String waybillCode);
 
 }

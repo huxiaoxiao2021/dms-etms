@@ -50,6 +50,11 @@ public class UnloadVehicleTaskRequest implements Serializable {
 
     private Integer taskType;
 
+    /**
+     * 特安标识
+     */
+    private Integer teanFlag;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -128,5 +133,13 @@ public class UnloadVehicleTaskRequest implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public Integer getTeanFlag() {
+        return teanFlag;
+    }
+
+    public void setTeanFlag(Integer teanFlag) {
+        this.teanFlag = teanFlag;
     }
 }

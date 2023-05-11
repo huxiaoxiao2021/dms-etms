@@ -27,6 +27,11 @@ public enum JyAutoCloseTaskBusinessTypeEnum {
      */
     STRAND_NOT_SUBMIT(3, "滞留任务未提交"),
 
+    /**
+     * 创建发货任务
+     */
+    CREATE_SEND_VEHICLE_TASK(4,"创建发货任务"),
+
     UNKNOWN(-1, "未知"),
     ;
 

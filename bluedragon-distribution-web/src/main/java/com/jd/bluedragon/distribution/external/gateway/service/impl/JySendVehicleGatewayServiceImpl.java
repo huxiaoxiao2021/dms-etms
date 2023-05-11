@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -219,4 +220,18 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
     }
+
+    @Override
+    public JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
+    }
+
+    @Override
+    public JdCResponse<Boolean> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
+        jySendVehicleService.noticeToCanTEANPackage(autoCloseTaskPo);
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        return response;
+    }
+
+
 }
