@@ -66,10 +66,13 @@ public class JyEvaluateCommonService {
     public SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode) {
         CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
         LOGGER.info("JyEvaluateCommonService|获取封车信息返回数据sealCarCode={},result={}",sealCarCode, JsonHelper.toJson(sealCarDtoCommonDto));
-        if (sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()) {
-            throw new JyBizException("根据封车编码查询运输封车详情返回空");
+//        if (sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()) {
+//            throw new JyBizException("根据封车编码查询运输封车详情返回空");
+//        }
+        if (sealCarDtoCommonDto != null) {
+            return sealCarDtoCommonDto.getData();
         }
-        return sealCarDtoCommonDto.getData();
+        return null;
     }
 
 
@@ -77,10 +80,10 @@ public class JyEvaluateCommonService {
     public JyBizTaskUnloadVehicleEntity findUnloadTaskByBizId(String sourceBizId) {
         // 根据卸车bizId查询卸车任务详情
         JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(sourceBizId);
-        if (unloadVehicle == null) {
-            LOGGER.warn("JyEvaluateCommonService|查询卸车任务返回空:sourceBizId={}", sourceBizId);
-            throw new JyBizException("查询卸车任务返回空");
-        }
+//        if (unloadVehicle == null) {
+//            LOGGER.warn("JyEvaluateCommonService|查询卸车任务返回空:sourceBizId={}", sourceBizId);
+//            throw new JyBizException("查询卸车任务返回空");
+//        }
         return unloadVehicle;
     }
 
@@ -90,10 +93,10 @@ public class JyEvaluateCommonService {
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setTransWorkItemCode(transWorkItemCode);
         JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(query);
-        if (sendVehicleDetail == null) {
-            LOGGER.warn("JyEvaluateCommonService|查询发货任务返回空,transWorkItemCode={}", transWorkItemCode);
-            throw new JyBizException("查询发货任务返回空");
-        }
+//        if (sendVehicleDetail == null) {
+//            LOGGER.warn("JyEvaluateCommonService|查询发货任务返回空,transWorkItemCode={}", transWorkItemCode);
+//            throw new JyBizException("查询发货任务返回空");
+//        }
         return sendVehicleDetail;
     }
 
@@ -107,10 +110,10 @@ public class JyEvaluateCommonService {
         req.setBizId(bizId);
         req.setTaskType(taskType);
         JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
-        if (scheduleTask == null) {
-            LOGGER.warn("JyEvaluateCommonService|查询调度任务返回空,bizId={},taskType={}", bizId, taskType);
-            throw new JyBizException("查询调度任务返回空");
-        }
+//        if (scheduleTask == null) {
+//            LOGGER.warn("JyEvaluateCommonService|查询调度任务返回空,bizId={},taskType={}", bizId, taskType);
+//            throw new JyBizException("查询调度任务返回空");
+//        }
         return scheduleTask;
     }
 
@@ -129,10 +132,10 @@ public class JyEvaluateCommonService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.getSiteInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getSiteInfo(Integer siteCode) {
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
-        if (siteOrgDto == null) {
-            LOGGER.warn("JyEvaluateCommonService|查询任务所属区域返回空,siteCode={}", siteCode);
-            throw new JyBizException("查询任务所属区域返回空");
-        }
+//        if (siteOrgDto == null) {
+//            LOGGER.warn("JyEvaluateCommonService|查询任务所属区域返回空,siteCode={}", siteCode);
+//            throw new JyBizException("查询任务所属区域返回空");
+//        }
         return siteOrgDto;
     }
 

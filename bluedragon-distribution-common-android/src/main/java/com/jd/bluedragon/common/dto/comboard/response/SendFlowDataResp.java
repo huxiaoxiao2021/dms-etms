@@ -11,6 +11,15 @@ public class SendFlowDataResp implements Serializable {
      */
     private List<User>  scanUserList;
     private List<SendFlowDto> sendFlowDtoList;
+    private Integer timerInterval;
+
+    public Integer getTimerInterval() {
+        return timerInterval;
+    }
+
+    public void setTimerInterval(Integer timerInterval) {
+        this.timerInterval = timerInterval;
+    }
 
     public List<SendFlowDto> getSendFlowDtoList() {
         return sendFlowDtoList;

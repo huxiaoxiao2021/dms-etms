@@ -45,7 +45,7 @@ public class AoiServiceManagerImpl implements AoiServiceManager{
     @Value("${beans.aoiServiceManager.isMock:false}")
     private boolean isMock;
     
-    @Value("${beans.aoiServiceManager.appKey}")
+    @Value("${beans.aoiServiceManager.appKey:}")
     private String appKey;
     
     private Random random = new Random();

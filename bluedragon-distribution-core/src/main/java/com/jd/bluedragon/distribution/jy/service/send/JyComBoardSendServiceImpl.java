@@ -1064,7 +1064,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<Integer> comboardSourceList = new ArrayList<>();
       comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
       req.setComboardSourceList(comboardSourceList);
-      req.setGroupCode(request.getGroupCode());
+      if (!ucc.getCreateBoardBySendFlowSwitch()) {
+        req.setGroupCode(request.getGroupCode());
+      }
       if (!jyBizTaskComboardService.batchFinishBoardBySendFLowList(req)) {
         log.info("完结板失败，混扫任务编号：{}", request.getTemplateCode());
         return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
@@ -1120,7 +1122,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!Objects.equals(request.getBizSource(),BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       throw new JyBizException("非自动化系统调用");
     }
-    if (WaybillUtil.isWaybillCode(request.getBarCode())){
+    if (WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
       throw new JyBizException("自动化系统不支持按运单组板发货");
     }
     CallerInfo info = Profiler.registerInfo("DMSWEB.JyComBoardSendServiceImpl.comboardScanForSortMachine", false, true);
@@ -1196,7 +1198,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(condition);
       if (!entity.getBulkFlag() && entity.getHaveScanCount() < ucc.getJyComboardCountLimit()) {
         Date now = new Date();
-        if (entity.getHaveScanCount()<= Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())) {
+        if (entity.getHaveScanCount()<= Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
           //更新大宗标识
           JyBizTaskComboardEntity comboardEntity = new JyBizTaskComboardEntity();
           comboardEntity.setId(entity.getId());
@@ -1401,7 +1403,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (ObjectHelper.isNotNull(entity.getBulkFlag()) && entity.getBulkFlag()){
         throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE);
       }
-      if (entity.getHaveScanCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
+      if (entity.getHaveScanCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
         throw new JyBizException(NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE,NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE);
       }
       request.setBizId(entity.getBizId());
@@ -1417,8 +1419,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
 
-    String sendFlowAndGroupLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX, request.getCurrentOperate().getSiteCode(),request.getDestinationId(),request.getGroupCode());
-    if (!jimDbLock.lock(sendFlowAndGroupLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+    String sendFlowAndGroupLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX, request.getCurrentOperate().getSiteCode(), request.getDestinationId(), request.getGroupCode());
+    if (!ucc.getCreateBoardBySendFlowSwitch() && !jimDbLock.lock(sendFlowAndGroupLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
     try {
@@ -1432,7 +1434,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       sendFlowDto.setGroupCode(request.getGroupCode());
       BoardDto boardDto = jyBizTaskComboardService.queryInProcessBoard(sendFlowDto);
       if (ObjectHelper.isNotNull(boardDto)) {
-        if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
+        if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
           throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
         }
         if (!boardDto.getBulkFlag() && boardDto.getCount() < ucc.getJyComboardCountLimit()) {
@@ -1454,7 +1456,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (ucc.getCreateBoardBySendFlowSwitch()){
         jimDbLock.releaseLock(sendFlowLockKey, request.getRequestId());
       }
-      jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
+      if (!ucc.getCreateBoardBySendFlowSwitch()) {
+        jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
+      }
     }
   }
 
@@ -1589,7 +1593,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (waybill.getOldSiteId() == null) {
         throw new JyBizException("运单对应的预分拣站点为空");
       }
-      if (WaybillUtil.isWaybillCode(barCode) && waybill.getGoodNumber() < ucc.getBulkScanPackageMinCount()) {
+      if (WaybillUtil.isWaybillCode(barCode) && !WaybillUtil.isPackageCode(request.getBarCode()) && waybill.getGoodNumber() < ucc.getBulkScanPackageMinCount()) {
         throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
       if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
@@ -1724,12 +1728,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private SendKeyTypeEnum getSendType(String barCode) {
     SendKeyTypeEnum sendType = null;
-    if (WaybillUtil.isWaybillCode(barCode)) {
+    if (WaybillUtil.isPackageCode(barCode)) {
+      sendType = SendKeyTypeEnum.BY_PACKAGE;
+    } else if (WaybillUtil.isWaybillCode(barCode)) {
       sendType = SendKeyTypeEnum.BY_WAYBILL;
     } else if (BusinessUtil.isBoardCode(barCode)) {
       sendType = SendKeyTypeEnum.BY_BOARD;
-    } else if (WaybillUtil.isPackageCode(barCode)) {
-      sendType = SendKeyTypeEnum.BY_PACKAGE;
     } else if (BusinessHelper.isBoxcode(barCode)) {
       sendType = SendKeyTypeEnum.BY_BOX;
     }
@@ -1762,10 +1766,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private Integer getBarCodeType(String barCode) {
-    if (WaybillUtil.isWaybillCode(barCode)) {
-      return ComboardBarCodeTypeEnum.WAYBILL.getCode();
-    } else if (WaybillUtil.isPackageCode(barCode)) {
+    if (WaybillUtil.isPackageCode(barCode)) {
       return ComboardBarCodeTypeEnum.PACKAGE.getCode();
+    } else if (WaybillUtil.isWaybillCode(barCode)) {
+      return ComboardBarCodeTypeEnum.WAYBILL.getCode();
     } else {
       return ComboardBarCodeTypeEnum.BOX.getCode();
     }
@@ -2736,6 +2740,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.deleteCTTGroup", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<String> deleteCTTGroup(DeleteCTTGroupReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -2915,6 +2920,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.queryScanUser", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq request) {
     SendFlowDataResp resp = new SendFlowDataResp();
     List<User> userList = new ArrayList<>();
@@ -2931,6 +2937,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.error("获取扫描人员信息失败{}",JsonHelper.toJson(request));
     }
     resp.setScanUserList(userList);
+    resp.setTimerInterval(ucc.getJyComboardRefreshTimerInterval());
     return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 

@@ -177,6 +177,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
+		<property name="jyUnSealTaskLastHourTime" value="${jyUnSealTaskLastHourTime:6}"/>
         <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
@@ -220,6 +221,7 @@
 		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
 		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
+		<property name="pdaLoginSkipSwitch" value="${pdaLoginSkipSwitch:false}"/>
 		<property name="syncScheduleTaskSwitch" value="${syncScheduleTaskSwitch:true}"/>
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
@@ -261,9 +263,24 @@
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
-
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
+		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
+		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
+		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
+		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
+		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
+		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
+
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
+		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
+		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -423,6 +440,7 @@
 				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskOrderByIntegral</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskSwitchToEs</value>
+				<value>uccPropertyConfiguration.jyUnSealTaskLastHourTime</value>
 				<value>uccPropertyConfiguration.jySendTaskLoadRateLimit</value>
 				<value>uccPropertyConfiguration.createSendTaskExecuteCount</value>
 				<value>uccPropertyConfiguration.createSendTasktimeOut</value>
@@ -494,7 +512,7 @@
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
-
+				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
@@ -525,6 +543,20 @@
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
+				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
+				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
+				<value>uccPropertyConfiguration.operateProgressRegions</value>
+				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
+				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
+				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
+				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
+				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
 			</list>
 		</property>
 	</bean>

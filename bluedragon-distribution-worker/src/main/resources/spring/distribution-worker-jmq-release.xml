@@ -596,5 +596,50 @@
         <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
     </jmq:consumer>
 
+    <!--  装车评价报表加工消费  -->
+    <jmq:consumer id="jmq.jyEvaluateTargetInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.evaluate.target.init}" listener="jyEvaluateTargetInitConsumer"/>
+    </jmq:consumer>
+
+    <!--  周转筐批量作废异步处理  -->
+    <jmq:consumer id="jmq.recycleBasketAbolishConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.recycleBasket.batchAbolish}" listener="recycleBasketAbolishConsumer"/>
+    </jmq:consumer>
+    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
+    </jmq:consumer>
+    <!--  验货修改集齐状态补偿方案  -->
+    <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
+    </jmq:consumer>
+    <!--  拣运-滞留扫描容器处理消费  -->
+    <jmq:consumer id="jmq.jyStrandScanContainerDealConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strandScan.containerDeal}" listener="jyStrandScanContainerDealConsumer"/>
+    </jmq:consumer>
+    <!--  拣运-滞留:运输驳回自建滞留任务  -->
+    <jmq:consumer id="jmq.transportRejectAddCarApplyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
+    </jmq:consumer>
+
+    <!--  异常-报废审批处理自消费  -->
+    <jmq:consumer id="jmq.dmsExScrapApproveSelfConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>
+    </jmq:consumer>
+
+    <!--  异常-报废通知消费  -->
+    <jmq:consumer id="jmq.dmsExScrapNoticeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExScrapNoticeConsumer"/>
+    </jmq:consumer>
+
+    <!--  异常-未领取超时任务通知消费  -->
+    <jmq:consumer id="jmq.dmsExUnCollectOverTimeNoticeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.unCollectOverTimeNotice}" listener="dmsExUnCollectOverTimeNoticeConsumer"/>
+    </jmq:consumer>
+
+    <!--  异常-客服回传消费  -->
+    <jmq:consumer id="jmq.dmsExCustomerNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExCustomerNotifyConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

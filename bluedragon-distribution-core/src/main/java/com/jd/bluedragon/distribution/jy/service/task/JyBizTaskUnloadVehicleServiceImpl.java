@@ -209,6 +209,31 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return jyBizTaskUnloadCountDtoList;
     }
 
+    @Override
+    public Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
+        Long num =0L;
+        try{
+
+            if (enums == null) {
+                // 如果入参状态为空 则全部状态匹配
+                enums = JyBizTaskUnloadStatusEnum.values();
+            }
+            List<Integer> statusOfCodes = new ArrayList<>();
+            for (JyBizTaskUnloadStatusEnum statusEnum : enums) {
+                statusOfCodes.add(statusEnum.getCode());
+            }
+            //获取数据
+            logger.info("获取特安车辆任务数据入参-{}");
+            num = jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLineOfTEAN(condition, statusOfCodes, sealCarCodes);
+            if(num != null && num >0){
+                return num;
+            }
+        }catch (Exception e){
+            logger.error("获取特安车辆任务数据异常-{}",e.getMessage());
+        }
+        return num;
+    }
+
 
     /**
      * 分页返回数据 集合（最大支持滚动到200条数据）
@@ -297,6 +322,27 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 logger.info("changeStatus end ,bizId:{} ,needUnLock:{}",entity.getBizId(),needUnLock);
             }
         }
+    }
+
+    /**
+     * 初始化实际到达时间 同步修改排序时间
+     * @return 永远返回成功
+     */
+    @Override
+    public boolean initActualArriveTime(String bizId, Date actualArriveTime) {
+        JyBizTaskUnloadVehicleEntity updateParam = new JyBizTaskUnloadVehicleEntity();
+        updateParam.setActualArriveTime(actualArriveTime);
+        //切记后续需要调整sortTime时间 需要比较数据库中的时间 本次临时解决flink任务问题暂不考虑
+        updateParam.setSortTime(actualArriveTime);
+        updateParam.setBizId(bizId);
+        //需要和产品沟通一下具体逻辑整体切换
+        /*if(!updateOfBusinessInfo(updateParam)){
+            logger.error("initActualArriveTime fail!,{},{}",bizId,JsonHelper.toJson(updateParam));
+        }*/
+        if(logger.isInfoEnabled()){
+            logger.info("initActualArriveTime end ,bizId:{} ,actualArriveTime:{}",bizId,actualArriveTime.toString());
+        }
+        return true;
     }
 
     /**
@@ -493,7 +539,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 }else {
                     //不存在不执行 并返回失败
                     if(logger.isInfoEnabled()){
-                        logger.info("updateOfBusinessInfo not exist!",JsonHelper.toJson(entity));
+                        logger.info("updateOfBusinessInfo not exist! {}",bizId);
                     }
                     result = Boolean.FALSE;
                 }
@@ -771,8 +817,19 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
-        JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
-        return entityConvertDto(entity);
+        try{
+            JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
+            if(Objects.isNull(entity)) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务为空,bizId={}", bizId);
+                }
+                return null;
+            }
+            return entityConvertDto(entity);
+        }catch (Exception ex) {
+            logger.error("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务服务异常,bizId={},errMsg={}", bizId, ex.getMessage(), ex);
+            throw new JyBizException("查询卸车任务失败");
+        }
     }
 
     @Override

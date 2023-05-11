@@ -223,8 +223,11 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         if (!ObjectHelper.isNotNull(request.getStartSiteId())){
             throw new JyBizException("参数错误：始发场地不能为空！");
         }
-        if (!CollectionUtils.isEmpty(request.getEndSiteIdList())){
+        if (CollectionUtils.isEmpty(request.getEndSiteIdList())){
             throw new JyBizException("参数错误：目的场地不能为空！");
+        }
+        if (request.getEndSiteIdList().size() > 20){
+            throw new JyBizException("参数错误：目的地数量超过查询上限！");
         }
     }
 

@@ -574,10 +574,11 @@ public class JyUnloadVehicleCheckTysService {
                 throw new LoadIllegalException(LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
             }
             request.setBoardCode(board.getCode());
-            request.setNextSiteCode(board.getDestinationId());
+            request.setNextSiteCode(board.getDestinationId());//单流向
             request.setNextSiteName(board.getDestination());
             request.setBoardDestinationId(board.getDestinationId());
-
+            request.setReceiveSiteCode(board.getDestinationId());//板流向
+            request.setReceiveSiteName(board.getDestination());
             response.setBizId(request.getBizId());
             response.setBoardCode(board.getCode());
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
@@ -609,6 +610,10 @@ public class JyUnloadVehicleCheckTysService {
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.FLOW_DISACCORD.getLevel(), UnloadCarWarnEnum.FLOW_DISACCORD.getDesc());
             return false;
+        }
+        if(Objects.isNull(request.getReceiveSiteCode())) {
+            request.setReceiveSiteCode(destinationId);//板流向
+            request.setReceiveSiteName(result.getData().getDestination());
         }
         return true;
     }
@@ -674,13 +679,13 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setBarCode(request.getScanCode());
         boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
-//        if (request.isCreateNewBoard()) {
-        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
-        boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
-//        } else {
-//            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
-//            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
-//        }
+        if (request.isCreateNewBoard()) {
+            boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+            boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+        } else {
+            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
+        }
         boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
         boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
@@ -1553,7 +1558,7 @@ public class JyUnloadVehicleCheckTysService {
             collectDto.setWaybillCode(unloadScanCollectDealDto.getScanCode());
         }else if(ScanCodeTypeEnum.SCAN_PACKAGE.getCode().equals(unloadScanCollectDealDto.getScanCodeType())) {
             //修改扫描code集齐状态、
-            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {//todo update要支持上面init-consumer没处理时的场景
+            if(!jyCollectService.updateSingleCollectStatus(unloadScanCollectDealDto)) {
                 log.error("{} 按包裹扫描修改集齐状态失败，param={}", methodDesc, JsonUtils.toJSONString(unloadScanCollectDealDto));
                 throw new JyBizException("修改集齐状态失败");
             }

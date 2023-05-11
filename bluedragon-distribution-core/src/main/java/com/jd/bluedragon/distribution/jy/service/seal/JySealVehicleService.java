@@ -11,6 +11,8 @@ import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.etms.vos.dto.SealCarDto;
 
@@ -99,4 +101,11 @@ public interface JySealVehicleService {
     InvokeResult cancelSeal(JyCancelSealRequest request);
 
     InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
+
+    /**
+     * 线上获取派车任务简码
+     * @param request
+     * @return
+     */
+    InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
 }

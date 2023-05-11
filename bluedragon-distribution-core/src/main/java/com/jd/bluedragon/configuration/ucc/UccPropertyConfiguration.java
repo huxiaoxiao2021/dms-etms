@@ -497,6 +497,11 @@ public class UccPropertyConfiguration {
      */
     private boolean printCompeteAllPackageUpdateCancel;
 
+    /**
+     * 获取异常完结数据范围限制天数
+     */
+    private int completeExpDayNumLimit;
+
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
     }
@@ -731,6 +736,11 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+
+    private String operateProgressRegions;
+
+    private List<Integer> operateProgressRegionList;
+
     /**
      * 作业工作台解封车任务降级配置
      */
@@ -840,6 +850,23 @@ public class UccPropertyConfiguration {
      *  以,隔开，ALL标识开通全国
      */
     private String volumeExcessIssueSites;
+    /**
+     * 拣运-系统自建滞留任务关闭时间
+     */
+    private Long jySysStrandTaskCloseTime;
+
+    /**
+     * 拣运-人工创建任务关闭时间
+     */
+    private Long jyArtificialStrandTaskCloseTime;
+
+    /**
+     * 拣运-滞留扫描数量上线
+     */
+    private Integer jyStrandScanNumLimit;
+
+
+    private boolean checkTeAnSwitch;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -990,6 +1017,38 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<Integer> getOperateProgressRegionList() {
+        return operateProgressRegionList;
+    }
+
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
+    public String getOperateProgressRegions() {
+        return operateProgressRegions;
+    }
+
+    public void setOperateProgressRegions(String operateProgressRegions) {
+        this.operateProgressRegions = operateProgressRegions;
+        if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+            List<Integer> operateProgressRegionList = new ArrayList<>();
+            if (operateProgressRegions.contains(",")){
+                String[] regionArr =operateProgressRegions.split(",");
+                for (String region:regionArr){
+                    operateProgressRegionList.add(Integer.valueOf(region));
+                }
+            }
+            else {
+                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+            }
+            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+                this.operateProgressRegionList =operateProgressRegionList;
+                Collections.sort(this.operateProgressRegionList);
+            }
+        }
+    }
+
     public boolean getRestApiOuthSwitch() {
         return restApiOuthSwitch;
     }
@@ -1043,6 +1102,11 @@ public class UccPropertyConfiguration {
      * 到车任务切换ES逻辑开关 1：开启
      */
     private Integer jyUnSealTaskSwitchToEs;
+
+    /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
 
     /**
      * 面单举报异常配置
@@ -1179,6 +1243,11 @@ public class UccPropertyConfiguration {
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
     /**
+     * 安卓登录可跳过不处理的逻辑降级开关
+     */
+    private Boolean pdaLoginSkipSwitch;
+
+    /**
      * 设备校准任务时长
      *  单位：毫秒
      */
@@ -1253,7 +1322,16 @@ public class UccPropertyConfiguration {
 
     private boolean batchSendForbiddenSwitch;
 
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
     private boolean createBoardBySendFlowSwitch;
+
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
 
     /**
      * 需要按照岗位码隔离板列表的场地名单
@@ -1274,6 +1352,48 @@ public class UccPropertyConfiguration {
 
     public void setCreateBoardBySendFlowSwitch(boolean createBoardBySendFlowSwitch) {
         this.createBoardBySendFlowSwitch = createBoardBySendFlowSwitch;
+    }
+
+    private boolean loadProgressByVehicleVolume;
+
+    private boolean productOperateProgressSwitch;
+
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
+    }
+
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+    }
+    /**
+     * 组板扫描页刷新定时间隔
+     */
+    private Integer jyComboardRefreshTimerInterval;
+
+    public Integer getJyComboardRefreshTimerInterval() {
+        return jyComboardRefreshTimerInterval;
+    }
+
+    public void setJyComboardRefreshTimerInterval(Integer jyComboardRefreshTimerInterval) {
+        this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
     }
 
     public boolean getBatchSendForbiddenSwitch() {
@@ -1308,6 +1428,7 @@ public class UccPropertyConfiguration {
      * 自动关闭任务配置，转换为对象
      */
     private String autoCloseJyBizTaskConfig;
+    private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
 
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
@@ -1333,6 +1454,12 @@ public class UccPropertyConfiguration {
         this.czOrgForbiddenList = czOrgForbiddenList;
     }
 
+    /**
+     * 异常报废审批级别限定数量
+     *  多个级别以,隔开
+     */
+    private String exScrapApproveLevelCountLimit;
+
     public boolean getSupportMutilScan() {
         return supportMutilScan;
     }
@@ -1352,6 +1479,16 @@ public class UccPropertyConfiguration {
     private String jyCollectSiteWhitelist;
 
 
+
+    private String aggsDataSource;
+
+    public String getAggsDataSource() {
+        return aggsDataSource;
+    }
+
+    public void setAggsDataSource(String aggsDataSource) {
+        this.aggsDataSource = aggsDataSource;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2550,6 +2687,14 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+    }
+
     public Integer getJySendTaskLoadRateUpperLimit() {
         return jySendTaskLoadRateUpperLimit;
     }
@@ -2868,6 +3013,14 @@ public class UccPropertyConfiguration {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 
+    public Boolean getPdaLoginSkipSwitch() {
+        return pdaLoginSkipSwitch;
+    }
+
+    public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+        this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
+    }
+
     public Long getMachineCalibrateTaskDuration() {
         return machineCalibrateTaskDuration;
     }
@@ -3124,14 +3277,77 @@ public class UccPropertyConfiguration {
     }
 
     public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        if(StringUtils.isNotBlank(autoCloseJyBizTaskConfig)){
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigResult = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
-            return autoCloseJyBizTaskConfigResult;
-        }
-        return new AutoCloseJyBizTaskConfig();
+        return autoCloseJyBizTaskConfigObj;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
         this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public Long getJySysStrandTaskCloseTime() {
+        return jySysStrandTaskCloseTime;
+    }
+
+    public void setJySysStrandTaskCloseTime(Long jySysStrandTaskCloseTime) {
+        this.jySysStrandTaskCloseTime = jySysStrandTaskCloseTime;
+    }
+
+    public Long getJyArtificialStrandTaskCloseTime() {
+        return jyArtificialStrandTaskCloseTime;
+    }
+
+    public void setJyArtificialStrandTaskCloseTime(Long jyArtificialStrandTaskCloseTime) {
+        this.jyArtificialStrandTaskCloseTime = jyArtificialStrandTaskCloseTime;
+    }
+
+    public Integer getJyStrandScanNumLimit() {
+        return jyStrandScanNumLimit;
+    }
+
+    public void setJyStrandScanNumLimit(Integer jyStrandScanNumLimit) {
+        this.jyStrandScanNumLimit = jyStrandScanNumLimit;
+    }
+
+    public String getExScrapApproveLevelCountLimit() {
+        return exScrapApproveLevelCountLimit;
+    }
+
+    public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
+        this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
+    }
+
+    public int getCompleteExpDayNumLimit() {
+        return completeExpDayNumLimit;
+    }
+
+    public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
+        this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public boolean isCheckTeAnSwitch() {
+        return checkTeAnSwitch;
+    }
+
+    public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+        this.checkTeAnSwitch = checkTeAnSwitch;
     }
 }

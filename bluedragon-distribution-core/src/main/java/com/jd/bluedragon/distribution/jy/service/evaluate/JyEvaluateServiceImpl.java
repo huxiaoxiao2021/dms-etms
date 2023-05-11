@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
@@ -76,6 +77,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Autowired
     @Qualifier("evaluateTargetInitProducer")
     private DefaultJMQProducer evaluateTargetInitProducer;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
 
     @Override
@@ -100,6 +103,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean checkIsEvaluate(EvaluateTargetReq request) {
+        // 装车评价开关如果关闭，直接返回已评价
+        if (!uccPropertyConfiguration.isLoadCarEvaluateSwitch()) {
+            return Boolean.TRUE;
+        }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
         if (evaluateRecord == null) {
             return Boolean.FALSE;
@@ -196,21 +203,28 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
         // 如果记录为空，代表首次评价
         if (CollectionUtils.isEmpty(recordList)) {
+            request.setTargetBizId(Constants.EMPTY_FILL);
+            targetInitDto.setTargetBizId(Constants.EMPTY_FILL);
             targetInitDto.setFirstEvaluate(Boolean.TRUE);
             JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
             // 派车单号
-            String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
-            // 根据运输封车编码查询对应的发货任务
-            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByTransWorkItemCode(transWorkItemCode);
-            request.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
-            targetInitDto.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
-            targetInitDto.setTargetSiteCode(sendVehicleDetail.getStartSiteId().intValue());
-            targetInitDto.setTargetSiteName(sendVehicleDetail.getStartSiteName());
-            targetInitDto.setSealTime(sendVehicleDetail.getSealCarTime());
-            targetInitDto.setSourceSiteCode(unloadVehicle.getEndSiteId().intValue());
-            targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
-            targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
-            targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
+            String transWorkItemCode = Constants.EMPTY_FILL;
+            if (unloadVehicle != null) {
+                transWorkItemCode = unloadVehicle.getTransWorkItemCode();
+                // 根据运输封车编码查询对应的发货任务
+                JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyEvaluateCommonService.findSendTaskByTransWorkItemCode(transWorkItemCode);
+                if (sendVehicleDetail != null) {
+                    request.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
+                    targetInitDto.setTargetBizId(sendVehicleDetail.getSendVehicleBizId());
+                    targetInitDto.setTargetSiteCode(sendVehicleDetail.getStartSiteId().intValue());
+                    targetInitDto.setTargetSiteName(sendVehicleDetail.getStartSiteName());
+                    targetInitDto.setSealTime(sendVehicleDetail.getSealCarTime());
+                }
+                targetInitDto.setSourceSiteCode(unloadVehicle.getEndSiteId().intValue());
+                targetInitDto.setSourceSiteName(unloadVehicle.getEndSiteName());
+                targetInitDto.setUnsealTime(unloadVehicle.getDesealCarTime());
+                targetInitDto.setVehicleNumber(unloadVehicle.getVehicleNumber());
+            }
             targetInitDto.setTransWorkItemCode(transWorkItemCode);
             return;
         }

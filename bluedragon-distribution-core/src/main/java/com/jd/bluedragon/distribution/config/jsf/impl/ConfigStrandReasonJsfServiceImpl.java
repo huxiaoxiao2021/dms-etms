@@ -76,9 +76,6 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 	 * @return
 	 */
 	public Result<PageDto<ConfigStrandReason>> queryPageList(ConfigStrandReasonQuery query){
-		List<Integer> businessTagList = new ArrayList<>(1);
-		businessTagList.add(StrandReasonBusinessTagEnum.BUSINESS_TAG_DEFAULT.getCode());
-		query.setBusinessTagList(businessTagList);
 		return configStrandReasonService.queryPageList(query);
 	 }
 

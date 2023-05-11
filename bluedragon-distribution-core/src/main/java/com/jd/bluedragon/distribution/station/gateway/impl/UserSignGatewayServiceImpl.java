@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
 
 import java.util.HashMap;
@@ -189,6 +190,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return result;
 	}
 	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithGroup",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithGroup(signInRequest);
 	}

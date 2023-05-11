@@ -1,11 +1,8 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
+import com.jd.bluedragon.dbrouter.NeedChangeDataSources;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
-import com.jd.bluedragon.distribution.jy.api.BizTaskService;
-import com.jd.bluedragon.distribution.jy.api.BizType;
-import com.jd.bluedragon.distribution.jy.api.BizTypeProcessor;
 import com.jd.bluedragon.distribution.jy.constants.JyAggsTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyAggsDto;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyAggsService;
@@ -13,16 +10,15 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
-import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
 
 @Service("jyAggsConsumer")
+@NeedChangeDataSources
 public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyAggsConsumer.class);
 
@@ -45,7 +41,9 @@ public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
             //执行逻辑
         }
         JyAggsService jyAggsService = this.getJyAggsService(jyAggsDto.getJyAggsTypeEnum());
+        logger.info("------------------jyAggsService---------------startAop");
         jyAggsService.saveAggs(message);
+        logger.info("------------------jyAggsService---------------endAop");
     }
 
     private JyAggsService getJyAggsService(JyAggsTypeEnum jyAggsTypeEnum){

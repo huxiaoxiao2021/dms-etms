@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +67,15 @@ public interface JyBizTaskUnloadVehicleService {
      */
     List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
 
+    /**
+     * 获取特安包裹数
+     * @param condition
+     * @param sealCarCodes
+     * @param enums
+     * @return
+     */
+    Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
+
 
     /**
      * 分页返回数据 集合（最大支持滚动到200条数据）
@@ -88,6 +98,11 @@ public interface JyBizTaskUnloadVehicleService {
      */
     boolean changeStatus(JyBizTaskUnloadVehicleEntity entity);
 
+    /**
+     * 初始化实际到达时间 同步修改排序时间
+     * @return
+     */
+    boolean initActualArriveTime(String BizId, Date actualArriveTime);
 
     /**
      * 保存或更新基础信息 注:字段未NULL时不更新此字段
