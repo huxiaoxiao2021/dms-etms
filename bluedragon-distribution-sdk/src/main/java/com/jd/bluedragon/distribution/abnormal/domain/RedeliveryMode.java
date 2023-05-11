@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.qualityControl.domain;
+package com.jd.bluedragon.distribution.abnormal.domain;
 
 /**
  * Created by biyubo on 2019/8/31

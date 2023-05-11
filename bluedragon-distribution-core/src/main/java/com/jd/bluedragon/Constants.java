@@ -1014,6 +1014,11 @@ public class Constants {
     public static final int DELIVERY_DELAY_TIME = 5000;
 
     /**
+     * 组板即发货 延迟1s
+     */
+    public static final int COMBOARD_SEND_DELAY_TIME = 1000;
+
+    /**
      * 始发道口号类型-1-普通
      */
     public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
@@ -1848,6 +1853,11 @@ public class Constants {
      * 租板岗-流向锁前缀
      */
     public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX  = "jy_comboard_sendflow_group_lock_%s_%s_%s";
     /**
      * 租板岗-板锁前缀
      */
