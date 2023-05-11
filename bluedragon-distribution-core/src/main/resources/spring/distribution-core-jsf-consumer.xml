@@ -1271,7 +1271,15 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <!--  快运订单修改接口-jsf  -->
+    <jsf:consumer id="expressOrderServiceWs"
+                  interface="com.jd.merchant.sdk.order.ws.ExpressOrderServiceWs"
+                  alias="${jsf.expressOrderServiceWs.alias}"
+                  timeout="${jsf.expressOrderServiceWs.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!--  四级地址解析服务  -->
     <jsf:consumer id="externalAddressToJDAddressService"
                   interface="com.jd.addresstranslation.api.address.ExternalAddressToJDAddressService"

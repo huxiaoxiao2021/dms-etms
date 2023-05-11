@@ -10,14 +10,18 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.PackageWeightImportResponse;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.PackageWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByPackageService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -26,6 +30,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.jim.cli.Cluster;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -227,6 +232,40 @@ public class WeighByPackageController extends DmsBaseController {
 
         return insertWaybillWeight(vo,null,null);
     }
+    /**
+     * 录入运单称重量方数据
+     *
+     * @param vo WaybillWeightVO
+     * @return InvokeResult<Boolean> 插入结果
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
+    @RequestMapping("/saveWaybillWeightPackage")
+    @ResponseBody
+    @BusinessLog(sourceSys = 1,bizType = 1901,operateType = 1901003)
+    public JdResult<WeightVolumeUploadResult> saveWaybillWeightPackage(PackageWeightVO vo) {
+    	WeightVolumeCondition condition = new WeightVolumeCondition();
+    	condition.setBarCode(vo.getCodeStr());
+    	condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
+    	condition.setOverLengthAndWeightEnable(vo.getOverLengthAndWeightEnable());
+    	condition.setOverLengthAndWeightTypes(vo.getOverLengthAndWeightTypes());
+    	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
+    	//校验成功，上传处理
+    	if(result != null 
+    			&& result.getData() != null
+    			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
+    		InvokeResult<Boolean> uploadResult = insertWaybillWeight(vo,null,null);
+    		if(uploadResult != null 
+    				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE
+    				&& Boolean.TRUE.equals(uploadResult.getData())) {
+    			result.toSuccess();
+    		}else if(uploadResult != null){
+    			result.toFail(uploadResult.getMessage());
+    		} else {
+    			result.toFail("称重上传失败！");
+    		}
+    	}
+        return result;
+    }    
     /**校验是否是包裹号 且包裹号是否存在运单中*/
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/verifyWaybillReality")

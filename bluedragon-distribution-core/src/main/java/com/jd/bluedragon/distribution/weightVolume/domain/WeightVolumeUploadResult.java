@@ -20,6 +20,8 @@ public class WeightVolumeUploadResult implements Serializable {
 	
 	private Boolean overLengthAndWeightFlag;
 	
+	private Boolean needConfirm;
+	
 	private List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect;
 
 	public Boolean getCheckResult() {
@@ -36,6 +38,14 @@ public class WeightVolumeUploadResult implements Serializable {
 
 	public void setOverLengthAndWeightFlag(Boolean overLengthAndWeightFlag) {
 		this.overLengthAndWeightFlag = overLengthAndWeightFlag;
+	}
+
+	public Boolean getNeedConfirm() {
+		return needConfirm;
+	}
+
+	public void setNeedConfirm(Boolean needConfirm) {
+		this.needConfirm = needConfirm;
 	}
 
 	public List<OverLengthAndWeightType> getOverLengthAndWeightTypesToSelect() {

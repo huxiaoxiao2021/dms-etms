@@ -92,6 +92,10 @@ public class WeightVolumeCondition {
      */
     private String machineCode;
     /**
+     * 超重服务-确认标识 
+     */
+    private Boolean overLengthAndWeightConfirmFlag  = Boolean.FALSE;
+    /**
      * 超重服务标识
      */
     private Boolean overLengthAndWeightEnable;
@@ -242,6 +246,14 @@ public class WeightVolumeCondition {
 
 	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
 		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
+
+	public Boolean getOverLengthAndWeightConfirmFlag() {
+		return overLengthAndWeightConfirmFlag;
+	}
+
+	public void setOverLengthAndWeightConfirmFlag(Boolean overLengthAndWeightConfirmFlag) {
+		this.overLengthAndWeightConfirmFlag = overLengthAndWeightConfirmFlag;
 	}
     
 }

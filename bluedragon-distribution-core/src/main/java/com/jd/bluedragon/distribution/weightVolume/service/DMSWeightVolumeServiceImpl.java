@@ -23,11 +23,13 @@ import com.jd.bluedragon.distribution.weightVolume.domain.*;
 import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -466,18 +468,28 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		result.toSuccess();
 		
 		WeightVolumeUploadResult weightVolumeUploadResult = new WeightVolumeUploadResult();
-		weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
+		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		result.setData(weightVolumeUploadResult);
+		
+		WeightVolumeBusinessTypeEnum businessTypeEnum = WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType());
+		if(businessTypeEnum == null) {
+			result.toFail("传入的businessType无效！");
+			return result;
+		}
+		
+		if(WeightVolumeBusinessTypeEnum.BY_BOX.equals(businessTypeEnum)
+				&& Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+			result.toFail("超长超重不支持批量选择，请按照包裹或者运单单个录入！");
+			return result;
+		}
+		String waybillCode = condition.getBarCode();
+		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)){
+			waybillCode = WaybillUtil.getWaybillCode(condition.getBarCode());
+		}
 		
 		boolean overLengthAndWeightFlag = false;
 		Map<String,String> overLengthAndWeightTypesMap = null;
-		overLengthAndWeightTypesMap = new HashMap<String,String>();
-		for(OverLengthAndWeightTypeEnum item: OverLengthAndWeightTypeEnum.values()) {
-			overLengthAndWeightTypesMap.put(item.getCode(), item.getName());
-		}
-		
 		//调用运单接口查询-增值服务信息
-		String waybillCode = condition.getBarCode();
 		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
 		if(vasResult.getData() != null) {
 			WaybillVasDto vasData = vasResult.getData();
@@ -488,26 +500,54 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		if(overLengthAndWeightTypesMap != null && !overLengthAndWeightTypesMap.isEmpty()) {
 			overLengthAndWeightFlag = true;
 		}
-		//无需上传，请求中上传了超重信息
-		if(!overLengthAndWeightFlag && Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
-			result.toFail("此单没有超长超重服务！");
+		//已有超长超重服务信息
+		if(overLengthAndWeightFlag) {
+			result.toSuccess("上传成功，此单已有超长超重服务！");
 			return result;
 		}
-		if(overLengthAndWeightFlag) {
-			//校验上传标识和服务内容
-			if(!Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())
-					|| CollectionUtils.isEmpty(condition.getOverLengthAndWeightTypes())) {
-				setOverLengthAndWeightTypes(overLengthAndWeightTypesMap,weightVolumeUploadResult);
-				result.toFail("请选择超长超重服务！");
-				return result;
+		//按包裹-判断是否需要自动选择超长超重
+		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
+				&& (!NumberHelper.gt0(condition.getVolume()))) {
+			List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
+			
+			if(OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getLength())
+					|| OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getWidth())
+					|| OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getHeight())) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.ONE_SIDE);
 			}
-			//校验选择的服务，是否存在
-			for(String code: condition.getOverLengthAndWeightTypes()) {
-				if(!overLengthAndWeightTypesMap.containsKey(code)) {
-					setOverLengthAndWeightTypes(overLengthAndWeightTypesMap,weightVolumeUploadResult);
-					result.toFail("选择的超长超重服务无效，请重新操作！");
-					return result;
+			if(OverLengthAndWeightTypeEnum.OVER_WEIGHT.isMatch(condition.getWeight())) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.OVER_WEIGHT);
+			}
+			Double threeSide = 0d;
+			if(condition.getLength() != null) {
+				threeSide += condition.getLength();
+			}
+			if(condition.getWidth() != null) {
+				threeSide += condition.getWidth();
+			}
+			if(condition.getHeight() != null) {
+				threeSide += condition.getHeight();
+			}
+			if(OverLengthAndWeightTypeEnum.THREED_SIDE.isMatch(threeSide)) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.THREED_SIDE);
+			}
+			boolean needConfirm = false;
+			if(!matchedTypes.isEmpty() && !condition.getOverLengthAndWeightConfirmFlag()) {
+				needConfirm = true;
+			}
+			if(needConfirm) {
+				weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
+				weightVolumeUploadResult.setNeedConfirm(true);
+				List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
+				for(OverLengthAndWeightTypeEnum type:matchedTypes) {
+					OverLengthAndWeightType typeData = new OverLengthAndWeightType();
+					typeData.setCode(type.getCode());
+					typeData.setName(type.getName());
+					overLengthAndWeightTypesToSelect.add(typeData);
 				}
+				weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
+				result.toSuccess("根据录入信息，此包裹可能为超长超重件，是否按照超长超重件进行称重？");
+				return result;
 			}
 			//校验成功
 			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
@@ -515,16 +555,5 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		}
 		return result;
-	}
-	private void setOverLengthAndWeightTypes(Map<String,String> overLengthAndWeightTypesMap,WeightVolumeUploadResult weightVolumeUploadResult) {
-		weightVolumeUploadResult.setOverLengthAndWeightFlag(true);
-		List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
-		for(String code:overLengthAndWeightTypesMap.keySet()) {
-			OverLengthAndWeightType typeData = new OverLengthAndWeightType();
-			typeData.setCode(code);
-			typeData.setName(overLengthAndWeightTypesMap.get(code));
-			overLengthAndWeightTypesToSelect.add(typeData);
-		}
-		weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
 	}
 }

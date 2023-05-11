@@ -11,6 +11,7 @@
     var CBM_DIV_KG_MAX_LIMIT = 330.0;
     var waybill_weight_validate_url_package     = '/b2b/express/weightpackage/verifyWaybillReality';
     var waybill_weight_insert_url_package='/b2b/express/weightpackage/insertWaybillWeightPackage';
+    var waybill_weight_save_url_package='/b2b/express/weightpackage/saveWaybillWeightPackage';
     var waybill_weight_improtbypackage_url ='/b2b/express/weightpackage/uploadExcelByPackage'; //包裹维度批量导入
 
 
@@ -160,7 +161,83 @@
 
             }
         }
+        /**
+         * 运单存在调用逻辑 抽象出来供批量导入使用
+         * @param insertParam
+         */
+        function existSubmitSavePackage(insertParam,removeFailData,removeIndex){
 
+                involkPostSync(waybill_weight_save_url_package,insertParam,function(res){
+                    // console.log(res);
+                    if(res.code == ERROR_PARAM_RESULT_CODE)
+                    {
+                        $.messager.alert('错误','重量或体积参数输入有误，达到最大值，或者重量体积录入值为0！','error');
+                        $('#waybill-weight-btn').linkbutton('enable');
+                    } else if(res.data == false)
+                    {
+                        /*录入失败*/
+                        $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
+                        $('#waybill-weight-btn').linkbutton('enable');
+                    } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
+                    {
+                        /*MQ服务不可用时，转为task重试*/
+                       /* $.messager.alert('包裹录入结果','进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入','info');
+
+                        insertParam.statusText = '离线录入';
+                        insertParam.memo = '进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入';
+                        involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                            insertParam.waybillCode = res.data;
+                        });
+
+                        $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                        $('#waybill-weight-btn').linkbutton('enable');
+
+                        *//*为方便输入 清空输入内容*//*
+                        clearInputContentsFunc();*/
+                    } else if(res.code == INTERCEPT_CODE)
+                    {
+                        /*录入成功*/
+                        insertParam.statusText = '按包裹维度录入';
+                        insertParam.memo = res.message;
+                        insertParam.waybillCode = insertParam.codeStr;
+                        /*involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                            insertParam.waybillCode = res.data;
+                        });*/
+
+                        $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+                        if(allForcedToSubmit == 0){
+                            $.messager.alert('运单录入结果',res.message);
+                        }
+                        else if(allForcedToSubmit == 1){
+                            b2cCount=b2cCount+1;
+                        }
+                        $('#waybill-weight-btn').linkbutton('enable');
+
+                        /*为方便输入 清空输入内容*/
+                        clearInputContentsFunc();
+                    }else
+                    {
+                        /*录入成功*/
+                        insertParam.statusText = '在线录入';
+                        insertParam.memo = '进行称重量方信息录入时存在运单信息，正常录入';
+                        insertParam.waybillCode = insertParam.codeStr;
+                        /*involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                            insertParam.waybillCode = res.data;
+                        });*/
+
+                        $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+                        if(allForcedToSubmit == 0){
+                            $.messager.alert('运单录入结果','运单称重量方记录已录入成功！','info');
+                        }
+                        $('#waybill-weight-btn').linkbutton('enable');
+
+                        /*为方便输入 清空输入内容*/
+                        clearInputContentsFunc();
+                    }
+                    removeFailData(removeIndex);
+                });
+            }
         /**
          * 运单存在调用逻辑 抽象出来供批量导入使用
          * @param insertParam

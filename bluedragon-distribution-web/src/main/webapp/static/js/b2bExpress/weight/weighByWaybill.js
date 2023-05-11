@@ -15,6 +15,7 @@
 
     var waybill_weight_validate_url     = '/b2b/express/weight/verifyWaybillReality';
     var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';
+    var waybill_weight_save_url       = '/b2b/express/weight/saveWaybillWeight';    
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
     var waybill_weight_improt_url      = '/b2b/express/weight/uploadExcel'; //批量导入
     var SERVER_ERROR_CODE = 500;

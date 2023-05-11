@@ -53,18 +53,30 @@ public class WeightVolumeResource {
      * @return
      */
     @POST
-    @Path("/weightVolume/checkAndUpload")
+    @Path("/weightVolume/checkBeforeUpload")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101803)
+    public JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition) {
+    	return dmsWeightVolumeService.checkBeforeUpload(condition);
+    }    
+    /**
+     * 称重上传校验并上传接口
+     * @param condition
+     * @return
+     */
+    @POST
+    @Path("/weightVolume/checkAndUpload")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101804)
     public JdResult<WeightVolumeUploadResult> checkAndUpload(WeightVolumeCondition condition) {
     	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
     	//校验成功，上传处理
     	if(result != null 
+    			&& result.isSucceed()
     			&& result.getData() != null
     			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
     		InvokeResult<Boolean> uploadResult = upload(condition);
     		if(uploadResult != null 
     				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-    			result.toSuccess();
+    			result.toSuccess("上传成功！");
     		}else if(uploadResult != null){
     			result.toFail(uploadResult.getMessage());
     		} else {

@@ -400,7 +400,11 @@ public class DmsConstants {
      * 返调度-路区：0
      */
     public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";
-
+    /**
+     * 超长超重-标识-1
+     */
+    public static final Integer OVER_LENGTHANDWEIGHT_FLAG = 1;
+    
     public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
     public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
     public static final String WHITE_SPACE = "\\s*";

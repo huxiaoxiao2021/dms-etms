@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class WaybillWeightVO implements Serializable
 {
@@ -50,7 +51,14 @@ public class WaybillWeightVO implements Serializable
 
     /*是否可强制提交 0否 1是*/
     private Integer canSubmit;
-
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
     @Override
     public String toString()
     {
@@ -207,4 +215,20 @@ public class WaybillWeightVO implements Serializable
     {
 
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
 }

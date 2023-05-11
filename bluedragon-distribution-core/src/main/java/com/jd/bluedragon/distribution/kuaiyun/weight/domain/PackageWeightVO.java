@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class PackageWeightVO implements Serializable
 {
@@ -62,7 +63,14 @@ public class PackageWeightVO implements Serializable
     private Double packageWidth;
     /**包裹高cm**/
     private Double packageHigh;
-
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
    /* public String getPackageCode() {
         return packageCode;
     }
@@ -260,4 +268,20 @@ public class PackageWeightVO implements Serializable
     {
 
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
 }
