@@ -16,7 +16,7 @@ public class DmsClientSysConfigAndroidBootImg implements Serializable {
     /**
      * 显示时间，毫秒单位
      */
-    private Long displayTime;
+    private Float displayTime;
 
     /**
      * 生效开始时间
@@ -45,11 +45,11 @@ public class DmsClientSysConfigAndroidBootImg implements Serializable {
 
     public DmsClientSysConfigAndroidBootImg() {}
 
-    public Long getDisplayTime() {
+    public Float getDisplayTime() {
         return displayTime;
     }
 
-    public void setDisplayTime(Long displayTime) {
+    public void setDisplayTime(Float displayTime) {
         this.displayTime = displayTime;
     }
 
