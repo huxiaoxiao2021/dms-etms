@@ -267,6 +267,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             String validateOriginStr = String.format("%s__%s__%s__%s__%s", vehicleArriveDockDataDto.getSiteId(),
                     vehicleArriveDockDataDto.getWorkAreaCode(), vehicleArriveDockDataDto.getWorkGridNo(), vehicleArriveDockDataDto.getDockCode(), uuidStr);
             final String validateStr = this.getValidateStrCacheKey(Md5Helper.encode(validateOriginStr));
+            vehicleArriveDockDataDto.setValidateStr(validateStr);
 
             final VehicleArriveDockDataCacheDto vehicleArriveDockDataCacheDto = new VehicleArriveDockDataCacheDto();
             BeanCopyUtil.copy(vehicleArriveDockDataDto, vehicleArriveDockDataCacheDto);
