@@ -207,32 +207,4 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
     }
 
 
-
-    @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JySendVehicleJsfManagerImpl.querySendVehicleToScanPackageDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Pager<SendVehiclePackageDetailVo> querySendVehicleToScanPackageDetail(Pager<SendVehiclePackageDetailQuery> queryPager) {
-        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_SEND_DETAIL_IS_DEMOTION)){
-            throw new JyDemotionException("发车：查询发车任务待扫包裹列表已降级!");
-        }
-        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJySendVehicleManager.querySendVehicleToScanPackageDetail");
-        try {
-            log.info("查询发车任务待扫包裹列表入参-{}", JSON.toJSONString(queryPager));
-            ServiceResult<Pager<SendVehiclePackageDetailVo>> serviceResult = sendVehicleJsfService.querySendVehicleToScanPackageDetail(queryPager);
-            log.info("查询发车任务待扫包裹列表结果-{}",JSON.toJSONString(serviceResult.getMessage()));
-            if (serviceResult.retSuccess()) {
-                return serviceResult.getData();
-            }
-            else {
-                log.warn("分页查询发车任务待扫包裹列表失败. {}. {}", JsonHelper.toJson(queryPager), JsonHelper.toJson(serviceResult));
-            }
-        }
-        catch (Exception ex) {
-            Profiler.functionError(ump);
-            log.error("分页查询发车任务待扫包裹列表异常. {}", JsonHelper.toJson(queryPager), ex);
-        }
-        Profiler.registerInfoEnd(ump);
-
-        return null;
-    }
-
 }

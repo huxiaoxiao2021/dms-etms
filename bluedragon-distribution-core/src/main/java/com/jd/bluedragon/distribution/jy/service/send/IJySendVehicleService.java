@@ -253,7 +253,7 @@ public interface IJySendVehicleService {
      * @return
      */
     BigDecimal calculateOperateProgress(JySendAggsEntity sendAggsEntity,boolean needSendMsg);
-    }
+
 
     /**
      * 根据发货任务获取特安待扫数量

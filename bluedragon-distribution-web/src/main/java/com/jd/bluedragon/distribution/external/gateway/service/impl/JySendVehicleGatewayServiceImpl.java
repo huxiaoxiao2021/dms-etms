@@ -226,12 +226,6 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
     }
 
-    @Override
-    public JdCResponse<Boolean> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo) {
-        jySendVehicleService.noticeToCanTEANPackage(autoCloseTaskPo);
-        JdCResponse<Boolean> response = new JdCResponse<>();
-        return response;
-    }
 
 
 }
