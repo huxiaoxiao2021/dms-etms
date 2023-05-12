@@ -24,10 +24,6 @@ public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
 
     private String dataSourceType;
 
-    public JyAggsConsumer(String dataSourceType) {
-        this.dataSourceType = dataSourceType;
-    }
-
     public String getDataSourceType() {
         return dataSourceType;
     }
