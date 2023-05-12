@@ -15,7 +15,7 @@ public class JyCacheKeyConstants {
     public static final Integer JY_WAREHOUSE_INSPECTION_CREATE_LOCK_EXPIRED = 10;
     public static final TimeUnit JY_WAREHOUSE_INSPECTION_CREATE_LOCK_EXPIRED_UNIT = TimeUnit.SECONDS;
 
-    public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR = "jy:send:vehicle:dockValidate:lastGenerate:%s";
+    public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR = "jy:send:vehicle:dockValidate:lastGenerate:%s:%s";
     public static final Integer JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_EXPIRED = 50;
     public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR = "jy:send:vehicle:dockValidate:%s:%s:%s";
     public static final Integer JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_EXPIRED = 10;

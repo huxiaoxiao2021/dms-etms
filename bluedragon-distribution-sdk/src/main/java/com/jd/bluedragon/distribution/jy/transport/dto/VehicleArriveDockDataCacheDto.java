@@ -54,6 +54,11 @@ public class VehicleArriveDockDataCacheDto implements Serializable {
     private String dockCode;
 
     /**
+     * 创建用户
+     */
+    private String createUserCode;
+
+    /**
      * 创建时间
      */
     private Long createTimeMillSeconds;
@@ -123,6 +128,14 @@ public class VehicleArriveDockDataCacheDto implements Serializable {
 
     public void setDockCode(String dockCode) {
         this.dockCode = dockCode;
+    }
+
+    public String getCreateUserCode() {
+        return createUserCode;
+    }
+
+    public void setCreateUserCode(String createUserCode) {
+        this.createUserCode = createUserCode;
     }
 
     public Long getCreateTimeMillSeconds() {
