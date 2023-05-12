@@ -142,7 +142,8 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         boardCheckDto.setReceiveSiteName(response.getData().getReceiveSiteName());
         jdcResponse.setData(boardCheckDto);
         // 如果是错组
-        if (SortingResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
+        if(response.getData() != null && response.getData().getSingleStatusInfo() != null 
+                && Objects.equals(response.getData().getSingleStatusInfo().getStatusCode(), SortingResponse.CODE_CROUTER_ERROR)){
             boardCheckDto.setFlowDisaccord(1);
         }
         jdcResponse.setCode(response.getCode());
