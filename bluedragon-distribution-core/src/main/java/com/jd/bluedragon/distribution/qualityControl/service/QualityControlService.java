@@ -698,29 +698,10 @@ public class QualityControlService {
 
     private void QcfindGridAndSendMQ(QcReportJmqDto qcReportJmqDto) {
         try{
-            // 查询登录人提报时间所在网格
-            UserSignQueryRequest condition = new UserSignQueryRequest();
-            condition.setUserCode(qcReportJmqDto.getCreateUser());
-            condition.setSignInTimeEnd(new Date(qcReportJmqDto.getCreateTime()));
-            JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
-            if (!response.isSucceed() || response.getData() == null) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+            String positionCode = getCreateGridCodeByUser(qcReportJmqDto.getCreateUser(), qcReportJmqDto.getCreateTime());
+            if (StringUtils.isEmpty(positionCode)) {
                 return;
             }
-
-            UserSignRecordData userSignRecordData = response.getData();
-            if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
-                return;
-            }
-            
-            //查找网格码
-            String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
-            if (positionCode == null) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
-                return; 
-            }
-            
             // 推送MQ
             abnormalReportRecordMQ body = BeanUtils.copy(qcReportJmqDto, abnormalReportRecordMQ.class);
             body.setCreateGridCode(positionCode);
@@ -819,29 +800,10 @@ public class QualityControlService {
 
     private void QcOutCallfindGridAndSendMQ(QcReportOutCallJmqDto qcReportJmqDto) {
         try{
-            // 查询登录人提报时间所在网格
-            UserSignQueryRequest condition = new UserSignQueryRequest();
-            condition.setUserCode(qcReportJmqDto.getCreateUser());
-            condition.setSignInTimeEnd(new Date(qcReportJmqDto.getCreateTime()));
-            JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
-            if (!response.isSucceed() || response.getData() == null) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+            String positionCode = getCreateGridCodeByUser(qcReportJmqDto.getCreateUser(), qcReportJmqDto.getCreateTime());
+            if (StringUtils.isEmpty(positionCode)) {
                 return;
             }
-
-            UserSignRecordData userSignRecordData = response.getData();
-            if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
-                return;
-            }
-            
-            //查找网格码
-            String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
-            if (positionCode == null) {
-                log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
-                return;
-            }
-
             // 推送MQ
             abnormalReportRecordMQ body = BeanUtils.copy(qcReportJmqDto, abnormalReportRecordMQ.class);
             body.setCreateGridCode(positionCode);
@@ -849,6 +811,32 @@ public class QualityControlService {
         }catch (Exception e) {
             log.error("ualityControlService.QcfindGridAndSendMQ 异常:{}",JsonHelper.toJson(qcReportJmqDto),e);
         }
+    }
+    
+    private String getCreateGridCodeByUser(String createUser, Long createTime) {
+        // 查询登录人提报时间所在网格
+        UserSignQueryRequest condition = new UserSignQueryRequest();
+        condition.setUserCode(createUser);
+        condition.setSignInTimeEnd(new Date(createTime));
+        JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
+        if (!response.isSucceed() || response.getData() == null) {
+            log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+            return null;
+        }
+
+        UserSignRecordData userSignRecordData = response.getData();
+        if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
+            log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
+            return null;
+        }
+
+        //查找网格码
+        String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
+        if (positionCode == null) {
+            log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
+            return null;
+        }
+        return positionCode;
     }
 
     public Result<Void> checkMqParam(QcReportOutCallJmqDto qcReportJmqDto) {
