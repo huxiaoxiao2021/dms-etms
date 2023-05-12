@@ -89,6 +89,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
                 return result.toFail(String.format("未查询到目的场地编码为%s的场地数据", requestDto.getEndNodeCode()));
             }
             final String validateStrCacheVal = redisClientOfJy.get(requestDto.getValidateStr());
+            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, val {}", validateStrCacheVal, requestDto.getValidateStr());
             if(validateStrCacheVal == null){
                 vehicleArriveDockResponseDto.setLegal(false);
                 vehicleArriveDockResponseDto.setValidateMsg("二维码已过期");
@@ -103,6 +104,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             }
             final String validateLastGenerateCacheKey = this.getValidateLastGenerateCacheKey(vehicleArriveDockDataCacheDto.getSiteId(), vehicleArriveDockDataCacheDto.getCreateUserCode());
             final String validateLastGenerateVal = redisClientOfJy.get(validateLastGenerateCacheKey);
+            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, validateLastGenerateVal {}", validateStrCacheVal, requestDto.getValidateStr());
             if (StringUtils.isNotEmpty(validateLastGenerateVal)) {
                 final List<String> validateLastGenerateArrExist = JSON.parseArray(validateLastGenerateVal, String.class);
                 if (!validateLastGenerateArrExist.contains(requestDto.getValidateStr())) {
@@ -281,6 +283,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
                     vehicleArriveDockDataDto.getWorkAreaCode(), vehicleArriveDockDataDto.getWorkGridNo(), vehicleArriveDockDataDto.getDockCode(), uuidStr);
             String validateStr = Md5Helper.encode(validateOriginStr);
             vehicleArriveDockDataDto.setValidateStr(validateStr);
+            log.info("JyTransportSendVehicleServiceImpl.getVehicleArriveDockData generate validateStr {} param {}", validateStr, JSON.toJSONString(qo));
 
             final VehicleArriveDockDataCacheDto vehicleArriveDockDataCacheDto = new VehicleArriveDockDataCacheDto();
             BeanCopyUtil.copy(vehicleArriveDockDataDto, vehicleArriveDockDataCacheDto);
