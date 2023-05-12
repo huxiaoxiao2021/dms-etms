@@ -17,10 +17,19 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Objects;
 
-@Service("jyAggsConsumer")
+//@Service("jyAggsConsumer")
 @NeedChangeDataSources
 public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyAggsConsumer.class);
+
+    private String dataSourceType;
+
+    public String getDataSourceType() {
+        return dataSourceType;
+    }
+    public void setDataSourceType(String dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
 
     @Override
     public void consume(Message message) throws Exception {
@@ -41,9 +50,7 @@ public class JyAggsConsumer extends MessageBaseWithoutUATConsumer {
             //执行逻辑
         }
         JyAggsService jyAggsService = this.getJyAggsService(jyAggsDto.getJyAggsTypeEnum());
-        logger.info("------------------jyAggsService---------------startAop");
         jyAggsService.saveAggs(message);
-        logger.info("------------------jyAggsService---------------endAop");
     }
 
     private JyAggsService getJyAggsService(JyAggsTypeEnum jyAggsTypeEnum){
