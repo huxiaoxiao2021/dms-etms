@@ -60,6 +60,7 @@ public class AggsChooseDataSourceAspect {
             logger.info("==========AggsChooseDataSourceAspect write getTopic============ {}",message.getTopic());
             String group =message.getApp();
             if (ObjectHelper.isNotNull(group) && group.equals(jmq4GroupWeb)){
+              logger.info("AggsChooseDataSourceAspect write group {}",group);
               logger.info("==========AggsChooseDataSourceAspect write dataSourceType============ JY_CORE");
               DynamicDataSourceHolders.putDataSource(DynamicDataSourceType.JY_CORE);
               return;
