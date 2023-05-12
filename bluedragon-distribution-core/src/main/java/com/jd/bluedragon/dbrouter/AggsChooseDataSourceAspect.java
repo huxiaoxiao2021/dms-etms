@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.enums.ReadWriteTypeEnum;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jmq.common.message.Message;
 import java.lang.reflect.Field;
@@ -56,6 +57,9 @@ public class AggsChooseDataSourceAspect {
       else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
         Object target = point.getTarget();
         if (ObjectHelper.isNotNull(target)){
+          if (!BeanUtils.hasField(target,"dataSourceType")){
+            return;
+          }
           Field field =target.getClass().getDeclaredField("dataSourceType");
           field.setAccessible(true);
           String dataSource = (String)field.get(target);
