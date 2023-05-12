@@ -62,11 +62,11 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private final Logger logger = LoggerFactory.getLogger(JyScrappedExceptionServiceImpl.class);
 
     //异常原因一级
-    private final Integer REASON_LEVEL_CODE_ONE = 1;
+    private final Byte REASON_LEVEL_CODE_ONE = 1;
     //异常原因二级
-    private final Integer REASON_LEVEL_CODE_TWO = 2;
+    private final Byte REASON_LEVEL_CODE_TWO = 2;
     //异常原因三级
-    private final Integer REASON_LEVEL_CODE_THREE = 3;
+    private final Byte REASON_LEVEL_CODE_THREE = 3;
 
     private final Integer DMS_ETMS_SOURCE = 19;
 
@@ -269,16 +269,16 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         String bizId = pairResult.right;
 
         // 审批流程是否完结标识
-        // 1、任一节点驳回则审批流程结束 
+        // 1、任一节点驳回则审批流程结束
         // 2、多个节点的审批则最终节点的审批通过为流程结束
         boolean flowEndFlag = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());;
         // 审批流程最终结果:true-审批通过,false-审批驳回
         boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
-        
+
         switch (JyExScrapApproveStageEnum.convertApproveEnum(nodeName)) {
             case FIRST:
                 logger.info("生鲜报废工单号:{}的一级审批结果:{}", bizId, historyApprove.getState());
-                approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount()) 
+                approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount())
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
                 flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount());
                 updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.FIRST.getCode());
@@ -467,7 +467,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         });
         return JdCResponse.ok(dtos);
     }
-    
+
     /**
      * 审批处理
      *
