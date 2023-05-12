@@ -39,7 +39,7 @@ public class VehicleArriveDockRequestDto implements Serializable {
     /**
      * 承运商类型
      */
-    private Long carrierType;
+    private Integer carrierType;
 
     /**
      * 目的地编码
@@ -104,11 +104,11 @@ public class VehicleArriveDockRequestDto implements Serializable {
         this.beginNodeName = beginNodeName;
     }
 
-    public Long getCarrierType() {
+    public Integer getCarrierType() {
         return carrierType;
     }
 
-    public void setCarrierType(Long carrierType) {
+    public void setCarrierType(Integer carrierType) {
         this.carrierType = carrierType;
     }
 
