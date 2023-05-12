@@ -46,6 +46,11 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
      */
     private String timeFormatStr;
 
+    /**
+     * 验证字符刷新间隔
+     */
+    private Integer validateStrRefreshIntervalTime;
+
     public VehicleArriveDockBaseDataDto() {
     }
 
@@ -95,5 +100,13 @@ public class VehicleArriveDockBaseDataDto implements Serializable {
 
     public void setTimeFormatStr(String timeFormatStr) {
         this.timeFormatStr = timeFormatStr;
+    }
+
+    public Integer getValidateStrRefreshIntervalTime() {
+        return validateStrRefreshIntervalTime;
+    }
+
+    public void setValidateStrRefreshIntervalTime(Integer validateStrRefreshIntervalTime) {
+        this.validateStrRefreshIntervalTime = validateStrRefreshIntervalTime;
     }
 }

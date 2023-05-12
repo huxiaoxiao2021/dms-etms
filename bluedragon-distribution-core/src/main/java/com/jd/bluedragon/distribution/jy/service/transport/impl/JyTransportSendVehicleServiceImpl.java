@@ -180,6 +180,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockBaseDataDto.setTimeMillSeconds(System.currentTimeMillis());
             vehicleArriveDockBaseDataDto.setTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
             vehicleArriveDockBaseDataDto.setTimeStr(DateUtil.format(new Date(vehicleArriveDockBaseDataDto.getTimeMillSeconds()), DateUtil.FORMAT_DATE_TIME));
+            vehicleArriveDockBaseDataDto.setValidateStrRefreshIntervalTime(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime());
 
             final BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(qo.getStartSiteId());
             if (baseSiteInfo == null) {
