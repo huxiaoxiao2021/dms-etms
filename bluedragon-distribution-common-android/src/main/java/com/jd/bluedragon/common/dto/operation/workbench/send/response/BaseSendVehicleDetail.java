@@ -38,6 +38,12 @@ public class BaseSendVehicleDetail implements Serializable {
      */
     private String bizId;
 
+    /**
+     * 滑道-笼车
+     */
+    private String crossTableTrolley;
+
+
     public Date getPlanDepartTime() {
         return planDepartTime;
     }
@@ -68,5 +74,21 @@ public class BaseSendVehicleDetail implements Serializable {
 
     public void setSendDetailBizId(String sendDetailBizId) {
         this.sendDetailBizId = sendDetailBizId;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public String getCrossTableTrolley() {
+        return crossTableTrolley;
+    }
+
+    public void setCrossTableTrolley(String crossTableTrolley) {
+        this.crossTableTrolley = crossTableTrolley;
     }
 }

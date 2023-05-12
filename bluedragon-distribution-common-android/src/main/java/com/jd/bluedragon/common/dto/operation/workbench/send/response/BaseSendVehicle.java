@@ -73,11 +73,6 @@ public class BaseSendVehicle implements Serializable {
      */
     private String vehicleMapUrl;
 
-    /**
-     * 滑道-笼车
-     */
-    private String crossTableTrolley;
-
     public String getVehicleNumber() {
         return vehicleNumber;
     }
@@ -188,13 +183,5 @@ public class BaseSendVehicle implements Serializable {
 
     public void setVehicleMapUrl(String vehicleMapUrl) {
         this.vehicleMapUrl = vehicleMapUrl;
-    }
-
-    public String getCrossTableTrolley() {
-        return crossTableTrolley;
-    }
-
-    public void setCrossTableTrolley(String crossTableTrolley) {
-        this.crossTableTrolley = crossTableTrolley;
     }
 }

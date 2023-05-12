@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.jsf.cross.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -94,5 +95,45 @@ public class SortCrossJsfManagerImpl implements SortCrossJsfManager {
             log.error("根据滑道笼车信息获取流向信息失败：{}",JsonHelper.toJson(query),e);
         }
         return null;     
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "SortCrossJsfManagerImpl.queryCrossCodeTableTrolleyBySiteFlow",mState={JProEnum.TP,JProEnum.FunctionError})
+    public JdResult<TableTrolleyJsfResp> queryCrossCodeTableTrolleyBySiteFlow(TableTrolleyQuery query) {
+        final String methodDesc = "SortCrossJsfManagerImpl.queryCrossCodeTableTrolleyBySiteFlow根据场地流向查询滑道笼车信息";
+        JdResult<TableTrolleyJsfResp> res = new JdResult<>();
+        res.toSuccess();
+        try{
+            Result<TableTrolleyJsfResp> jsfRes = sortCrossJsfService.queryCrossCodeTableTrolleyBySiteFlow(query);
+            if(log.isInfoEnabled()) {
+                log.info("{}查询成功：参数={}，返回={}", methodDesc, JsonHelper.toJson(query), JsonHelper.toJson(jsfRes));
+            }
+            res.setData(jsfRes.getData());
+            return res;
+        }catch (Exception e) {
+            log.error("{}，参数={}，errMsg={}", methodDesc, JsonHelper.toJson(query), e.getMessage(), e);
+            res.toError(String.format("根据场地流向查询滑道笼车信息服务异常:%s", e.getMessage()));
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "SortCrossJsfManagerImpl.querySiteFlowByCrossCodeTableTrolley",mState={JProEnum.TP,JProEnum.FunctionError})
+    public JdResult<TableTrolleyJsfResp> querySiteFlowByCrossCodeTableTrolley(TableTrolleyQuery query) {
+        final String methodDesc = "SortCrossJsfManagerImpl.querySiteFlowByCrossCodeTableTrolley根据滑道笼车号查询场地流向";
+        JdResult<TableTrolleyJsfResp> res = new JdResult<>();
+        res.toSuccess();
+        try{
+            Result<TableTrolleyJsfResp> jsfRes = sortCrossJsfService.querySiteFlowByCrossCodeTableTrolley(query);
+            if(log.isInfoEnabled()) {
+                log.info("{}查询成功：参数={}，返回={}", methodDesc, JsonHelper.toJson(query), JsonHelper.toJson(jsfRes));
+            }
+            res.setData(jsfRes.getData());
+            return res;
+        }catch (Exception e) {
+            log.error("{}，参数={}，errMsg={}", methodDesc, JsonHelper.toJson(query), e.getMessage(), e);
+            res.toError(String.format("根据滑道笼车号查询场地流向服务异常:%s", e.getMessage()));
+            return res;
+        }
     }
 }
