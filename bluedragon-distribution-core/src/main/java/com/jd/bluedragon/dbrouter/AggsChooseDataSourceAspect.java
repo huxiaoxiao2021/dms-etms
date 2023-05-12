@@ -55,11 +55,14 @@ public class AggsChooseDataSourceAspect {
         }
       }
       else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
+        logger.info("==========AggsChooseDataSourceAspect write");
         Object target = point.getTarget();
         if (ObjectHelper.isNotNull(target)){
+          logger.info("==========AggsChooseDataSourceAspect write target: {}",target.getClass().getName());
           if (!BeanUtils.hasField(target,"dataSourceType")){
             return;
           }
+          logger.info("==========AggsChooseDataSourceAspect write consumer");
           Field field =target.getClass().getDeclaredField("dataSourceType");
           field.setAccessible(true);
           String dataSource = (String)field.get(target);
