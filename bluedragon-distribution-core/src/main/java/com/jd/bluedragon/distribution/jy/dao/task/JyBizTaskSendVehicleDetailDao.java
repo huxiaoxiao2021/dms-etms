@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,4 +114,9 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByTransWorkCode", entity);
     }
+
+    public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findBySendVehicleBizId", sendVehicleBizId);
+    }
+
 }

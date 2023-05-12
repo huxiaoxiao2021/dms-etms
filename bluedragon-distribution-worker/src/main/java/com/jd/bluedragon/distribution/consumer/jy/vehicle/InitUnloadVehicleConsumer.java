@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -250,6 +251,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }
+        //加工特安标识
+        unloadVehicleEntity.setTeanFlag(unloadVehicleEntity.getTeanFlag());
+
     }
 
 }

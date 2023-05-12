@@ -1930,4 +1930,8 @@ public class Constants {
         topic2DataSource.put("jy_aggs","aggsMain");
         topic2DataSource.put("jy_aggs_slave","aggsSlave");
     }
+    /**
+     * 特安 增值服务编码
+     * */
+    public static final String TE_AN_SERVICE = "ed-a-0047";
 }

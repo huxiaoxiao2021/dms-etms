@@ -323,7 +323,9 @@ public class JyUnloadVehicleCheckTysService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectAndCollectDeal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void inspectionInterceptAndCollectDeal(String barCode, Waybill waybill, UnloadScanDto unloadScanDto, ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult, Integer scanCodeType) throws LoadIllegalException {
         // 加盟商余额校验
-        this.allianceBusiDeliveryCheck(waybill);
+        if (uccPropertyConfiguration.isAllianceBusinessSwitch()) {
+            this.allianceBusiDeliveryCheck(waybill);
+        }
         //处理验货
         this.inspection(barCode, unloadScanDto);
         //验货后处理集齐逻辑

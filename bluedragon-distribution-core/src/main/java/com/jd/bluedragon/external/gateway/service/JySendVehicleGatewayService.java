@@ -168,4 +168,14 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request);
+
+    /**
+     * 获取指定类型的产品类型
+     * @param request
+     * @return
+     */
+    JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
+
+
+
 }

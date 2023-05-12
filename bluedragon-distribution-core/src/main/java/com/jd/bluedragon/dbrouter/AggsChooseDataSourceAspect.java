@@ -4,8 +4,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.enums.ReadWriteTypeEnum;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jmq.common.message.Message;
+import java.lang.reflect.Field;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
@@ -31,6 +33,9 @@ public class AggsChooseDataSourceAspect {
   @Autowired
   UccPropertyConfiguration ucc;
 
+  @Value("${jmq4.dmsWeb.app}")
+  protected String jmq4GroupWeb;
+
   @Pointcut("@within(com.jd.bluedragon.dbrouter.NeedChangeDataSources)")
   public void pointCut() {
   }
@@ -50,22 +55,26 @@ public class AggsChooseDataSourceAspect {
         }
       }
       else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
-        Object[] args =point.getArgs();
-        if (ObjectHelper.isNotNull(args) && args.length>0){
-          Message message =(Message)args[0];
-          if (ObjectHelper.isNotNull(message.getTopic())){
-            logger.info("==========AggsChooseDataSourceAspect write getTopic============ {}",message.getTopic());
-            String dateSourceKey = Constants.topic2DataSource.get(message.getTopic());
-            DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceKey);
+        Object target = point.getTarget();
+        if (ObjectHelper.isNotNull(target)){
+          if (!BeanUtils.hasField(target,"dataSourceType")){
+            return;
+          }
+          Field field =target.getClass().getDeclaredField("dataSourceType");
+          field.setAccessible(true);
+          String dataSource = (String)field.get(target);
+          logger.info("==========AggsChooseDataSourceAspect write dataSource============ {}",dataSource);
+          if (ObjectHelper.isNotNull(dataSource)){
+            DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dataSource);
             if (ObjectHelper.isNotNull(dataSourceType)){
-              logger.info("==========AggsChooseDataSourceAspect write getTopicAndDataSourceType============ {}",dataSourceType);
+              logger.info("==========AggsChooseDataSourceAspect write dataSourceType============ {}",dataSourceType);
               DynamicDataSourceHolders.putDataSource(dataSourceType);
             }
           }
         }
       }
     } catch (Exception e) {
-      logger.error(String.format("aggsDataSourceAspect Choose DataSource error", e));
+      logger.error("aggsDataSourceAspect Choose DataSource error", e);
     }
   }
 

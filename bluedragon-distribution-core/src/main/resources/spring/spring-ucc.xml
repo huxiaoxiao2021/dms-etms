@@ -280,6 +280,11 @@
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
+		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
+		<property name="pdaVersionSwitch" value="${pdaVersionSwitch:true}"/>
+		<property name="dpTransferSwitch" value="${dpTransferSwitch:true}"/>
+		<property name="easyFreezeSwitch" value="${easyFreezeSwitch:true}"/>
+		<property name="allianceBusinessSwitch" value="${allianceBusinessSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -555,6 +560,11 @@
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
 				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
+				<value>uccPropertyConfiguration.pdaVersionSwitch</value>
+				<value>uccPropertyConfiguration.dpTransferSwitch</value>
+				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
+				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
 			</list>
 		</property>
 	</bean>

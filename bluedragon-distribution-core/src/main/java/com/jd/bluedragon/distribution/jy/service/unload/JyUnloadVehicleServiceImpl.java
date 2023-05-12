@@ -103,6 +103,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     private static final int UNLOAD_SCAN_BAR_EXPIRE = 6;
 
+    private static final int TEAN_PACKAGE_FLAG = 1;
+
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -229,9 +231,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                                            JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
         List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
+        Long teanCount = unloadVehicleService.findStatusCountByCondition4StatusAndLineOfTEAN(condition, sealCarCodes, curQueryStatus);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
+        unloadVehicleData.setTolalOfTEAN(teanCount);
 
         // 按车辆状态组装
         makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
@@ -371,6 +375,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
         vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
+        vehicleBaseInfo.setTeanFlag(entity.getTeanFlag());
 
         return vehicleBaseInfo;
     }
@@ -417,6 +422,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return lineTypeList;
     }
 
+
     private LineTypeStatis createLineTypeAgg(JyBizTaskUnloadCountDto countDto) {
         LineTypeStatis lineTypeStatis = new LineTypeStatis();
         lineTypeStatis.setLineType(countDto.getLineType());
@@ -452,6 +458,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
         condition.setTaskType(request.getTaskType());
+        if(Objects.equals(request.getTeanFlag(),TEAN_PACKAGE_FLAG)){
+            condition.setTeanFlag(request.getTeanFlag());
+        }
 
         return condition;
     }
@@ -525,7 +534,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
         // 德邦场地提示
         this.handleDepponMergeCondition(request, result);
-
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
@@ -552,7 +560,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         return result;
     }
-
     private void handleDepponMergeCondition(UnloadScanRequest request, InvokeResult<Integer> result) {
         // 只处理包裹号或运单号
         if(!WaybillUtil.isWaybillCode(request.getBarCode()) && WaybillUtil.isPackageCode(request.getBarCode())){

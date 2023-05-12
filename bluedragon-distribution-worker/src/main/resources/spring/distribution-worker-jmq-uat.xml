@@ -381,13 +381,30 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
     <!--  组板发货岗统计消息  -->
-    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+    <bean id="jyAggsConsumer" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="jyCore"/>
+    </bean>
+    <bean id="jyAggsConsumerMain" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="aggsMain"/>
+    </bean>
+    <bean id="jyAggsConsumerSlave" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="aggsSlave"/>
+    </bean>
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
     </jmq:consumer>
 
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.jyAggsConsumerMain" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumerMain"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.jyAggsConsumerSlave" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumerSlave"/>
     </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
