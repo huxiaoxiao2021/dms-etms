@@ -470,6 +470,9 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
 
+    <bean id="jyAggsConsumer" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="jyCore"/>
+    </bean>
     <!--  组板发货岗统计消息  -->
     <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
