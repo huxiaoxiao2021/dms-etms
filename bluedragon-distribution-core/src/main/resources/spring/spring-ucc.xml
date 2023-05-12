@@ -268,6 +268,10 @@
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
 		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
 		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
+		<property name="pdaVersionSwitch" value="${pdaVersionSwitch:true}"/>
+		<property name="dpTransferSwitch" value="${dpTransferSwitch:true}"/>
+		<property name="easyFreezeSwitch" value="${easyFreezeSwitch:true}"/>
+		<property name="allianceBusinessSwitch" value="${allianceBusinessSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -525,6 +529,10 @@
 				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
 				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
 				<value>uccPropertyConfiguration.boardCombinationRouterSwitch</value>
+				<value>uccPropertyConfiguration.pdaVersionSwitch</value>
+				<value>uccPropertyConfiguration.dpTransferSwitch</value>
+				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
+				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
 			</list>
 		</property>
 	</bean>
