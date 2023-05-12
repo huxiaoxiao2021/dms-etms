@@ -61,7 +61,7 @@ public class WeightVolumeHandlerStrategy {
             BigWaybillDto waybill = waybillService.getWaybill(WaybillUtil.getWaybillCode(entity.getBarCode()));
             if (waybill == null || waybill.getWaybill() == null) {
                 logger.error("获取运单信息失败，无法处理称重交接任务：{}",entity.getBarCode());
-                throw new RuntimeException(MessageFormat.format("称重量方处理器失败，获取运单信息失败，单号为：{0}", entity.getBarCode()));
+                return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "无运单信息!", false);
             }
             if (BusinessUtil.isForeignForward(waybill.getWaybill().getWaybillSign())
                     && BusinessUtil.isAllianceBusi(waybill.getWaybill().getWaybillSign())) {

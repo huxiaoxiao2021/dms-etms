@@ -1348,6 +1348,11 @@ public class UccPropertyConfiguration {
         this.createBoardBySendFlowSwitch = createBoardBySendFlowSwitch;
     }
 
+    /**
+     * 组板路由校验开关
+     */
+    private boolean boardCombinationRouterSwitch;
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -3171,5 +3176,13 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public boolean getBoardCombinationRouterSwitch() {
+        return boardCombinationRouterSwitch;
+    }
+
+    public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+        this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
     }
 }

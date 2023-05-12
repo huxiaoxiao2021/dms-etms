@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * SortBoardGatewayServiceImpl
@@ -140,25 +141,13 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         boardCheckDto.setReceiveSiteCode(response.getData().getReceiveSiteCode());
         boardCheckDto.setReceiveSiteName(response.getData().getReceiveSiteName());
         jdcResponse.setData(boardCheckDto);
-
-        if (!JdCResponse.CODE_SUCCESS.equals(response.getCode())) {
-            jdcResponse.setMessage(convertMessage(response.getData().getStatusInfo()));
-        } else {
-            jdcResponse.setMessage(response.getMessage());
-        }
-
-        // code转化
-        if (response.getCode() > 30000 && response.getCode() < 40000) {
-            // 如果是错组
-            if (SortingResponse.CODE_CROUTER_ERROR.equals(response.getData().getStatusInfo().get(0).getStatusCode())) {
-                boardCheckDto.setFlowDisaccord(1);
-            }
-            jdcResponse.setCode(JdCResponse.CODE_CONFIRM);
-        } else {
-            jdcResponse.setCode(response.getCode());
+        // 如果是错组
+        if(response.getData() != null && response.getData().getSingleStatusInfo() != null 
+                && Objects.equals(response.getData().getSingleStatusInfo().getStatusCode(), SortingResponse.CODE_CROUTER_ERROR)){
+            boardCheckDto.setFlowDisaccord(1);
         }
         jdcResponse.setCode(response.getCode());
-
+        jdcResponse.setMessage(response.getMessage());
         return jdcResponse;
     }
 
