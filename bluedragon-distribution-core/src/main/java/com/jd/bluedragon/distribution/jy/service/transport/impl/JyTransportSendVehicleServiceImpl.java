@@ -6,10 +6,9 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.dock.service.DockService;
-import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.jy.constants.JyCacheKeyConstants;
 import com.jd.bluedragon.distribution.jy.transport.api.JyTransportSendVehicleService;
 import com.jd.bluedragon.distribution.jy.transport.dto.*;
@@ -52,9 +51,6 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
     private DockService dockService;
 
     @Autowired
-    private TransportCommonService transportCommonService;
-
-    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -92,7 +88,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             if (siteEndInfo == null) {
                 return result.toFail(String.format("未查询到目的场地编码为%s的场地数据", requestDto.getEndNodeCode()));
             }
-            final String validateStrCacheVal = redisClientOfJy.get(this.getValidateStrCacheKey(requestDto.getValidateStr()));
+            final String validateStrCacheVal = redisClientOfJy.get(this.getValidateStrCacheKey(siteStartInfo.getSiteCode(), "", requestDto.getValidateStr()));
             if(validateStrCacheVal == null){
                 vehicleArriveDockResponseDto.setLegal(false);
                 vehicleArriveDockResponseDto.setValidateMsg("二维码已过期");
@@ -182,8 +178,8 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockBaseDataDto.setSiteId(baseSiteInfo.getSiteCode());
             vehicleArriveDockBaseDataDto.setSiteName(baseSiteInfo.getSiteName());
             // 查询场地所有月台
-            final InvokeResult<List<DockInfoEntity>> dockListResult = transportCommonService.listAllDockInfoBySiteCode(baseSiteInfo.getSiteCode());
-            if (dockListResult == null || !dockListResult.codeSuccess()) {
+            final Response<List<DockInfoEntity>> dockListResult = dockService.listAllDockInfoBySiteCode(baseSiteInfo.getSiteCode());
+            if (dockListResult == null || !dockListResult.isSucceed()) {
                 return result.toFail(String.format("查询场地的月台数据失败，场地编码%s", qo.getStartSiteCode()));
             }
             final List<DockInfoEntity> dockListData = dockListResult.getData();
@@ -211,6 +207,10 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
         log.info("JyTransportSendVehicleServiceImpl.getVehicleArriveDockData param {}", JSON.toJSONString(qo));
         Result<VehicleArriveDockDataDto> result = Result.success();
         try {
+            final Result<Void> checkResult = this.checkParam4getVehicleArriveDockData(qo);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
             // todo 增加刷新校验
             final VehicleArriveDockDataDto vehicleArriveDockDataDto = new VehicleArriveDockDataDto();
             vehicleArriveDockDataDto.setSiteId(qo.getStartSiteId());
@@ -267,7 +267,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             String validateOriginStr = String.format("%s__%s__%s__%s__%s", vehicleArriveDockDataDto.getSiteId(),
                     vehicleArriveDockDataDto.getWorkAreaCode(), vehicleArriveDockDataDto.getWorkGridNo(), vehicleArriveDockDataDto.getDockCode(), uuidStr);
             String validateStr = Md5Helper.encode(validateOriginStr);
-            final String validateStrCacheKey = this.getValidateStrCacheKey(validateStr);
+            final String validateStrCacheKey = this.getValidateStrCacheKey(qo.getStartSiteId(), qo.getOperateUser().getUserCode(), validateStr);
             vehicleArriveDockDataDto.setValidateStr(validateStr);
 
             final VehicleArriveDockDataCacheDto vehicleArriveDockDataCacheDto = new VehicleArriveDockDataCacheDto();
@@ -277,7 +277,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             redisClientOfJy.setEx(validateStrCacheKey, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
 
             // 将上几次验证字符缓存删除
-            /*int validateLastGenerateStrExpired = uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes() + 5;
+            int validateLastGenerateStrExpired = uccPropertyConfiguration.getJyTransportSendVehicleValidateDockFreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowFreshTimes() + 5;
             List<String> lastGenerateValidateStrArr = new ArrayList<>();
             final String validateLastGenerateVal = redisClientOfJy.get(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR);
             if (StringUtils.isNotEmpty(validateLastGenerateVal)) {
@@ -293,7 +293,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             // 将新的验证码追加到队尾
             lastGenerateValidateStrArr.add(validateStrCacheKey);
             // 存到缓存
-            redisClientOfJy.setEx(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR, JsonHelper.toJSONString(lastGenerateValidateStrArr), validateLastGenerateStrExpired, JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);*/
+            redisClientOfJy.setEx(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR, JsonHelper.toJSONString(lastGenerateValidateStrArr), validateLastGenerateStrExpired, JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
         } catch (Exception e) {
             log.error("JyTransportSendVehicleServiceImpl.getVehicleArriveDockData exception {}", JSON.toJSONString(qo), e);
             result.toFail("系统异常");
@@ -301,7 +301,29 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
         return result;
     }
 
-    private String getValidateStrCacheKey(String validateStr) {
-        return String.format(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR, validateStr);
+    private Result<Void> checkParam4getVehicleArriveDockData(VehicleArriveDockDataQo qo) {
+        Result<Void> result = Result.success();
+
+        if (StringUtils.isEmpty(qo.getDockCode())) {
+            return result.toFail("参数错误，dockCode不能为空");
+        }
+        if (qo.getStartSiteId() == null) {
+            return result.toFail("参数错误，startSiteId不能为空");
+        }
+        final OperateUser operateUser = qo.getOperateUser();
+        if (operateUser == null) {
+            return result.toFail("参数错误，operateUser不能为空");
+        }
+        if (StringUtils.isEmpty(operateUser.getUserCode())) {
+            return result.toFail("参数错误，operateUser.userCode不能为空");
+        }
+        if (StringUtils.isEmpty(operateUser.getUserName())) {
+            return result.toFail("参数错误，operateUser.userName不能为空");
+        }
+        return result;
+    }
+
+    private String getValidateStrCacheKey(Integer siteId, String userCode, String validateStr) {
+        return String.format(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR, siteId, userCode, validateStr);
     }
 }
