@@ -162,7 +162,6 @@ public class BoardCombinationResource {
         // 参数校验
         String errStr = checkCombinationBoardParam(request);
         if (StringHelper.isNotEmpty(errStr)) {
-            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, errStr);
             result.toFail(errStr);
             return result;
         }
@@ -174,7 +173,6 @@ public class BoardCombinationResource {
         boolean flag = inspectionDao.haveInspectionByPackageCode(inspectionQ);
         // 未操作验货不允许组板
         if (!flag) {
-            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此包裹未验货，不允许组板！");
             result.toFail("此包裹未验货，不允许组板！");
             return result;
         }
@@ -187,7 +185,6 @@ public class BoardCombinationResource {
             if (CollectionUtils.isNotEmpty(unloadCarList)) {
                 UnloadCar unloadCar = unloadCarList.get(0);
                 if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCar.getStatus()) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "该卸车任务已完成，无法进行组板操作");
                     result.toFail("该卸车任务已完成，无法进行组板操作");
                     return result;
                 }
@@ -214,8 +211,6 @@ public class BoardCombinationResource {
             } else {
                 // 如果之前已经组板，并且就是现在的板，则提示请勿重复扫描
                 if (oldBoard != null && request.getBoardCode().equals(oldBoard.getCode())) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,
-                            request.getBoxOrPackageCode(), request.getBoardCode()));
                     result.toFail(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,
                             request.getBoxOrPackageCode(), request.getBoardCode()));
                     return result;
@@ -234,7 +229,6 @@ public class BoardCombinationResource {
             }
         } catch (Exception e) {
             log.error("组板失败!", e);
-            boardResponse.addStatusInfo(JdResponse.CODE_ERROR, "组板失败，系统异常！");
             result.toError("组板失败，系统异常！");
         }
         return result;
