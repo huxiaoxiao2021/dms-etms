@@ -200,6 +200,6 @@
 		select count(1) from waybill_cancel 
 		where waybill_code = #{waybillCode, jdbcType=VARCHAR} 
 		and business_type = #{businessType,jdbcType=VARCHAR}
-		and yn = 1
+		and yn = 0
 	</select>
 </mapper>
