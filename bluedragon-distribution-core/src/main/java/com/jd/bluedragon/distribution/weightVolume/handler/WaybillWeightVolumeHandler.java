@@ -78,7 +78,9 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
-        /* 处理称重对象 */
+        //上传-超长超重服务信息
+    	uploadOverWeightInfo(entity);
+    	/* 处理称重对象 */
         entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
 
         WaybillWeightDTO weightDTO = new WaybillWeightDTO();

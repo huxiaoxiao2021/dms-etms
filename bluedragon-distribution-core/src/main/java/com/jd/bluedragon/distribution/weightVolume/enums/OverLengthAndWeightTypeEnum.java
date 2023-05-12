@@ -64,8 +64,8 @@ public enum OverLengthAndWeightTypeEnum {
      * @return
      */
     public boolean isMatch(Double val) {
-    	if(val != null) {
-    		return true;
+    	if(val == null) {
+    		return false;
     	}
         return val > minVal && val <= maxVal;
     }

@@ -1,16 +1,13 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
-import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
@@ -20,20 +17,15 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
-import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
-import com.jd.merchant.sdk.order.dto.BaseInfo;
-import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
-import com.jd.merchant.sdk.product.dto.OverLengthAndWeight;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,11 +66,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("dwsSpotCheckProducer")
     private DefaultJMQProducer dwsSpotCheckProducer;
-    
-    @Autowired
-    @Qualifier("expressOrderServiceWsManager")
-    private ExpressOrderServiceWsManager expressOrderServiceWsManager;
-    
 
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
@@ -133,7 +120,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         // 抽检数据处理
         spotCheckDeal(entity);
-        uploadOverWeightInfo(entity);
+        //上传-超长超重服务信息
+    	uploadOverWeightInfo(entity);
+    	
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
         packOpeDto.setOpeType(1);//分拣操作环节赋值：1
@@ -153,7 +142,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packOpeDetail.setOpeTime(DateHelper.formatDateTime(entity.getOperateTime()));
         packOpeDetail.setLongPackage(entity.getLongPackage());
         packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
-        
         try {
             logger.info("PackageWeightVolumeHandler handlerWeighVolume uploadOpe param: " + JsonHelper.toJson(packOpeDto));
             Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
@@ -184,36 +172,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
         }
     }
-    /**
-     * 上传超长超重服务信息
-     * @param entity
-     */
-    private void uploadOverWeightInfo(WeightVolumeEntity entity) {
-    	if(!Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
-    			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
-    		return;
-    	}
-    	UpdateOrderRequest updateData = new UpdateOrderRequest();
-    	BaseInfo baseInfo = new BaseInfo();
-    	baseInfo.setWaybillCode(entity.getWaybillCode());
-    	updateData.setBaseInfo(baseInfo);
-    	OverLengthAndWeight overLengthAndWeight = new OverLengthAndWeight();
-    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.ONE_SIDE.getCode())) {
-    		overLengthAndWeight.setSingleSideOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
-    	}
-    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.THREED_SIDE.getCode())) {
-    		overLengthAndWeight.setThreeSidesOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
-    	}
-    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.OVER_WEIGHT.getCode())) {
-    		overLengthAndWeight.setOverWeight(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
-    	}
-    	updateData.setOverLengthAndWeight(overLengthAndWeight);
-    	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrder(updateData);
-    	if(result.isError()) {
-    		Log.error("{}超长超重服务上传异常 error",entity.getWaybillCode());
-    		throw new RuntimeException("超长超重服务上传异常 error,expressOrderServiceWsManager.updateOrder");
-    	}
-    }
+
     /**
      * 抽检数据处理
      *  自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
