@@ -31,6 +31,9 @@ public class AggsChooseDataSourceAspect {
   @Autowired
   UccPropertyConfiguration ucc;
 
+  @Value("${jmq4.dmsWeb.app}")
+  protected String jmq4GroupWeb;
+
   @Pointcut("@within(com.jd.bluedragon.dbrouter.NeedChangeDataSources)")
   public void pointCut() {
   }
@@ -55,10 +58,16 @@ public class AggsChooseDataSourceAspect {
           Message message =(Message)args[0];
           if (ObjectHelper.isNotNull(message.getTopic())){
             logger.info("==========AggsChooseDataSourceAspect write getTopic============ {}",message.getTopic());
+            String group =message.getApp();
+            if (ObjectHelper.isNotNull(group) && group.equals(jmq4GroupWeb)){
+              logger.info("==========AggsChooseDataSourceAspect write dataSourceType============ JY_CORE");
+              DynamicDataSourceHolders.putDataSource(DynamicDataSourceType.JY_CORE);
+              return;
+            }
             String dateSourceKey = Constants.topic2DataSource.get(message.getTopic());
             DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceKey);
             if (ObjectHelper.isNotNull(dataSourceType)){
-              logger.info("==========AggsChooseDataSourceAspect write getTopicAndDataSourceType============ {}",dataSourceType);
+              logger.info("==========AggsChooseDataSourceAspect write dataSourceType============ {}",dataSourceType);
               DynamicDataSourceHolders.putDataSource(dataSourceType);
             }
           }
