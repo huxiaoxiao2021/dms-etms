@@ -54,7 +54,7 @@ public class AggsChooseDataSourceAspect {
           }
         }
       }
-      else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
+      /*else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
         Object target = point.getTarget();
         if (ObjectHelper.isNotNull(target)){
           if (!BeanUtils.hasField(target,"dataSourceType")){
@@ -72,7 +72,7 @@ public class AggsChooseDataSourceAspect {
             }
           }
         }
-      }
+      }*/
     } catch (Exception e) {
       logger.error("aggsDataSourceAspect Choose DataSource error", e);
     }
