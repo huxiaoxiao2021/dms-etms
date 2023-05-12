@@ -59,6 +59,10 @@ public class WaybillWeightVO implements Serializable
      * 超重服务类型
      */
     private List<String> overLengthAndWeightTypes;
+    /**
+     * 长包裹 0:普通包裹 1:长包裹
+     * */
+    private Integer longPackage;
     @Override
     public String toString()
     {
@@ -230,5 +234,13 @@ public class WaybillWeightVO implements Serializable
 
 	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
 		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
+
+	public Integer getLongPackage() {
+		return longPackage;
+	}
+
+	public void setLongPackage(Integer longPackage) {
+		this.longPackage = longPackage;
 	}
 }

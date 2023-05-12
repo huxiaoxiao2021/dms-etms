@@ -142,12 +142,15 @@ public class WeighByWaybillController extends DmsBaseController {
     public JdResult<WeightVolumeUploadResult> saveWaybillWeight(WaybillWeightVO vo) {
     	WeightVolumeCondition condition = new WeightVolumeCondition();
     	condition.setBarCode(vo.getCodeStr());
+    	condition.setVolume(vo.getVolume());
+    	condition.setWeight(vo.getWeight());
     	condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
     	condition.setOverLengthAndWeightEnable(vo.getOverLengthAndWeightEnable());
     	condition.setOverLengthAndWeightTypes(vo.getOverLengthAndWeightTypes());
     	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
     	//校验成功，上传处理
     	if(result != null 
+    			&& result.isSucceed()
     			&& result.getData() != null
     			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
     		InvokeResult<Boolean> uploadResult = insertWaybillWeight(vo,null,null);

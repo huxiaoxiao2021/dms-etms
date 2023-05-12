@@ -92,6 +92,10 @@ public class WeightVolumeCondition {
      */
     private String machineCode;
     /**
+     * 按总体积量方
+     */
+    private Boolean totalVolumeFlag  = Boolean.FALSE;    
+    /**
      * 超重服务-确认标识 
      */
     private Boolean overLengthAndWeightConfirmFlag  = Boolean.FALSE;
@@ -254,6 +258,14 @@ public class WeightVolumeCondition {
 
 	public void setOverLengthAndWeightConfirmFlag(Boolean overLengthAndWeightConfirmFlag) {
 		this.overLengthAndWeightConfirmFlag = overLengthAndWeightConfirmFlag;
+	}
+
+	public Boolean getTotalVolumeFlag() {
+		return totalVolumeFlag;
+	}
+
+	public void setTotalVolumeFlag(Boolean totalVolumeFlag) {
+		this.totalVolumeFlag = totalVolumeFlag;
 	}
     
 }

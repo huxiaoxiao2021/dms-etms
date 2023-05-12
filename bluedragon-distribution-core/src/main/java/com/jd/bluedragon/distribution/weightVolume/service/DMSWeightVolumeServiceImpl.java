@@ -507,7 +507,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		}
 		//按包裹-判断是否需要自动选择超长超重
 		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
-				&& (!NumberHelper.gt0(condition.getVolume()))) {
+				&& !Boolean.TRUE.equals(condition.getTotalVolumeFlag())) {
 			List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
 			
 			if(OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getLength())
