@@ -234,7 +234,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             if (validateLastGenerateTimeCacheVal != null) {
                 long validateLastGenerateTimeCacheMillSeconds = Long.parseLong(validateLastGenerateTimeCacheVal);
                 // 限制1个用户3秒内钟刷新一次
-                if (System.currentTimeMillis() < (validateLastGenerateTimeCacheMillSeconds + 3000L)) {
+                if (System.currentTimeMillis() < (validateLastGenerateTimeCacheMillSeconds + 1000L)) {
                     return result.toFail("请勿频繁刷新！");
                 }
             }
