@@ -25,6 +25,11 @@ public class VehicleArriveDockDataQo extends BaseRequest implements Serializable
      */
     private String dockCode;
 
+    /**
+     * 是否手动刷新
+     */
+    private Integer manualRefresh;
+
     public VehicleArriveDockDataQo() {}
 
     public Integer getStartSiteId() {
@@ -41,5 +46,13 @@ public class VehicleArriveDockDataQo extends BaseRequest implements Serializable
 
     public void setDockCode(String dockCode) {
         this.dockCode = dockCode;
+    }
+
+    public Integer getManualRefresh() {
+        return manualRefresh;
+    }
+
+    public void setManualRefresh(Integer manualRefresh) {
+        this.manualRefresh = manualRefresh;
     }
 }
