@@ -476,12 +476,12 @@
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
     </jmq:consumer>
 
-    <jmq:consumer id="jmq.jyAggsConsumerMaster" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    <jmq:consumer id="jmq.jyAggsConsumerMain" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumerMain"/>
     </jmq:consumer>
 
     <jmq:consumer id="jmq.jyAggsConsumerSlave" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumer"/>
+        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumerSlave"/>
     </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
