@@ -160,6 +160,17 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq){
     return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
   }
+  
+  @CacheMethod(key="JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-{0.templateCode}", strategy = "reload", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+  @Override
+  public List<BoardCountDto> boardCountTaskBySendFlowListWithCache(BoardCountReq boardCountReq){
+    return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
+  }
+
+  @CacheMethod(key="JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-{0}", strategy = "remove", cacheBean="redisCache")
+  @Override
+  public void removeBoardCountCache(String templateCode) {
+  }
 
   @Override
   @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})

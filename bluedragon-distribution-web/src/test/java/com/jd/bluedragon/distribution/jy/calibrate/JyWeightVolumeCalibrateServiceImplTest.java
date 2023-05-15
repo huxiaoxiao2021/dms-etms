@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.calibrate;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
@@ -8,14 +9,18 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCa
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -138,6 +143,68 @@ public class JyWeightVolumeCalibrateServiceImplTest {
 
         try {
             InvokeResult<Boolean> result = jyWeightVolumeCalibrateService.regularScanCalibrateTask();
+
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            log.error("服务异常!", e);
+            Assert.fail();
+        }
+    }
+    
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
+
+    @Autowired
+    @Qualifier("redisClientCache")
+    protected Cluster redisClientCache;
+
+    @Test
+    public void cacheMethodTest() {
+
+        try {
+            BoardCountReq boardCountReq = new BoardCountReq();
+            boardCountReq.setStartSiteId(910L);
+            boardCountReq.setEndSiteIdList(Lists.newArrayList(23,39,630105,1437));
+            boardCountReq.setCreateTime(new Date(1672502400000L));
+            boardCountReq.setStatusList(Lists.newArrayList(1,2,3,4));
+            boardCountReq.setComboardSourceList(Lists.newArrayList(1,2));
+            boardCountReq.setTemplateCode("templateCode1");
+            long start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("有缓存耗时：" + (System.currentTimeMillis() - start));
+
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("有缓存耗时：" + (System.currentTimeMillis() - start));
+
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("有缓存耗时：" + (System.currentTimeMillis() - start));
+            
+            String s = redisClientCache.get("JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-templateCode1");
+
+            jyBizTaskComboardService.removeBoardCountCache("templateCode1");
+            
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
+            boardCountReq.setTemplateCode("TemplateCode123");
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
+            boardCountReq.setTemplateCode("TemplateCode321");
+            start = System.currentTimeMillis();
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+            System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
+
+            
+
+            jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
+
+            s = redisClientCache.get("JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-templateCode1");
 
             Assert.assertTrue(true);
         }catch (Exception e){
