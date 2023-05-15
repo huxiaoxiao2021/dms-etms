@@ -565,7 +565,6 @@ public class JyUnloadVehicleCheckTysService {
                 log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
             }
             if(boardCommonRequest.getReceiveSiteCode() == null) {
-                throw new LoadIllegalException("验货成功。获取下一流向为空，无法建板");
                 if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
                     // 首包裹开板，包裹目的地（路由）不存在，则使用约定编码提示前端让其选择目的地
                     scanResult.customMessage(BoardResponse.CODE_SPECIAL_PACK_NO_ROUTER, HintService.getHint(HintCodeConstants.JY_UNLOAD_VEHICLE_PACK_NO_ROUTER));
