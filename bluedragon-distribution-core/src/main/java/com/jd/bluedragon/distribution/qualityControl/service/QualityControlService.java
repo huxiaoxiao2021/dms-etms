@@ -231,13 +231,6 @@ public class QualityControlService {
         return result;
     }
 
-    @Autowired
-    @Qualifier("abnormalReportRecordProducer")
-    private DefaultJMQProducer abnormalReportRecordProducer;
-
-    @Autowired
-    private PositionManager positionManager;
-
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
         List<SendDetail> sendDetails = null;
