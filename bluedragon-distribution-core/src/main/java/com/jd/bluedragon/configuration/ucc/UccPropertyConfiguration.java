@@ -1404,12 +1404,12 @@ public class UccPropertyConfiguration {
     /**
      * 发货运输车辆靠台验证刷新间隔
      */
-    private Integer jyTransportSendVehicleValidateDockFreshTime;
+    private Integer jyTransportSendVehicleValidateDockRefreshTime;
 
     /**
      * 发货运输车辆靠台验证码允许访问上几次验证码个数
      */
-    private Integer jyTransportSendVehicleValidateDockAllowFreshTimes;
+    private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
 
 
@@ -3160,19 +3160,19 @@ public class UccPropertyConfiguration {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
 
-    public Integer getJyTransportSendVehicleValidateDockFreshTime() {
-        return jyTransportSendVehicleValidateDockFreshTime;
+    public Integer getJyTransportSendVehicleValidateDockRefreshTime() {
+        return jyTransportSendVehicleValidateDockRefreshTime;
     }
 
-    public void setJyTransportSendVehicleValidateDockFreshTime(Integer jyTransportSendVehicleValidateDockFreshTime) {
-        this.jyTransportSendVehicleValidateDockFreshTime = jyTransportSendVehicleValidateDockFreshTime;
+    public void setJyTransportSendVehicleValidateDockRefreshTime(Integer jyTransportSendVehicleValidateDockRefreshTime) {
+        this.jyTransportSendVehicleValidateDockRefreshTime = jyTransportSendVehicleValidateDockRefreshTime;
     }
 
-    public Integer getJyTransportSendVehicleValidateDockAllowFreshTimes() {
-        return jyTransportSendVehicleValidateDockAllowFreshTimes;
+    public Integer getJyTransportSendVehicleValidateDockAllowRefreshTimes() {
+        return jyTransportSendVehicleValidateDockAllowRefreshTimes;
     }
 
-    public void setJyTransportSendVehicleValidateDockAllowFreshTimes(Integer jyTransportSendVehicleValidateDockAllowFreshTimes) {
-        this.jyTransportSendVehicleValidateDockAllowFreshTimes = jyTransportSendVehicleValidateDockAllowFreshTimes;
+    public void setJyTransportSendVehicleValidateDockAllowRefreshTimes(Integer jyTransportSendVehicleValidateDockAllowRefreshTimes) {
+        this.jyTransportSendVehicleValidateDockAllowRefreshTimes = jyTransportSendVehicleValidateDockAllowRefreshTimes;
     }
 }
