@@ -1454,6 +1454,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         JyBizTaskComboardEntity record = assembleJyBizTaskComboardParam(request);
         //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
+        // 删除缓存
+        jyBizTaskComboardService.removeBoardCountCache(request.getTemplateCode());
       }
     } finally {
       if (ucc.getCreateBoardBySendFlowSwitch()){
