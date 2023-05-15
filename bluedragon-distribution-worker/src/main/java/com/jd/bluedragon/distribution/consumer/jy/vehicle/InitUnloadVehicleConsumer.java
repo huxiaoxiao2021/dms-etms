@@ -174,12 +174,10 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         if (mqDto.getLineTypeName() != null) {
             unloadVehicleEntity.setLineTypeName(mqDto.getLineTypeName());
         }
+        //加工特安标识
         if(mqDto.getTeanFlag() != null){
             unloadVehicleEntity.setTeanFlag(mqDto.getTeanFlag());
         }
-        //加工特安标识
-        unloadVehicleEntity.setTeanFlag(mqDto.getTeanFlag());
-
 
         // 处理卸车任务标位
         unloadVehicleEntity.setTagsSign(TagSignHelper.initDefaultPlaceholder());
