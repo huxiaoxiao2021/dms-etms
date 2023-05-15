@@ -1451,6 +1451,16 @@ public class UccPropertyConfiguration {
 
 
 
+    private String aggsDataSource;
+
+    public String getAggsDataSource() {
+        return aggsDataSource;
+    }
+
+    public void setAggsDataSource(String aggsDataSource) {
+        this.aggsDataSource = aggsDataSource;
+    }
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }

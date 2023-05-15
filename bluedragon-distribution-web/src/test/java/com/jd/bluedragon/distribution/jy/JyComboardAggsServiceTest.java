@@ -24,6 +24,14 @@ public class JyComboardAggsServiceTest {
     @Autowired
     JyComboardAggsService jyComboardAggsService;
 
+
+    @Test
+    public void testQueryBoardComboardAggs() throws Exception {
+
+        JyComboardAggsEntity b = jyComboardAggsService.queryComboardAggs("888888888");
+        System.out.println(JsonHelper.toJson(b));
+    }
+
     @Test
     public void testQueryComboardAggs() throws Exception {
         JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsService.queryComboardAggs(910, 39);
@@ -37,9 +45,9 @@ public class JyComboardAggsServiceTest {
     }
 
     @Test
-    public void tastInsert(){
+    public void testInsert(){
         Message msg = new Message();
-        msg.setText("{\"bizId\":\"-1\",\"boardCode\":\"-1\",\"createTime\":1670140212085,\"jyAggsTypeEnum\":\"JY_COMBOARD_AGGS\",\"key\":\"40240-910--1--1--1--1\",\"operateSiteId\":\"40240\",\"productType\":\"-1\",\"receiveSiteId\":\"910\",\"scanType\":\"-1\",\"sendFlow\":\"40240-910\",\"waitScanCount\":1}");
+        msg.setText("{\"bizId\":\"-1\",\"boardCode\":\"-500000000\",\"createTime\":1670140212085,\"jyAggsTypeEnum\":\"JY_COMBOARD_AGGS\",\"key\":\"40240-910--1--1--1--1\",\"operateSiteId\":\"40240\",\"productType\":\"-1\",\"receiveSiteId\":\"910\",\"scanType\":\"-1\",\"sendFlow\":\"40240-910\",\"waitScanCount\":1}");
         jyComboardAggsService.saveAggs(msg);
     }
 }
