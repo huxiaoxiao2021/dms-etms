@@ -617,8 +617,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.listSendFlowUnderCTTGroup", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    if (!checkBaseRequest(request) ||
-            (StringUtils.isEmpty(request.getTemplateCode()) && request.getEndSiteId() == null)) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     SendFlowDataResp resp = new SendFlowDataResp();
@@ -657,6 +656,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询多个流向下n天内未封车的板数量
     BoardCountReq boardCountReq = new BoardCountReq();
+    boardCountReq.setTemplateCode(request.getTemplateCode());
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(queryTime);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
@@ -669,7 +669,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
     boardCountReq.setStatusList(statusList);
-    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
+    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
     HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
     // 获取当前流向执行中的板号
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService

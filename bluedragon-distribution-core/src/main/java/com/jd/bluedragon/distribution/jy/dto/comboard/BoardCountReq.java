@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
-import com.jd.jddl.executor.function.scalar.filter.In;
-
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +9,11 @@ import java.util.List;
  */
 public class BoardCountReq {
 
+    /**
+     * 混扫任务编号
+     */
+    private String templateCode;
+    
     private Long startSiteId;
 
     private List<Integer> endSiteIdList;
@@ -59,5 +62,13 @@ public class BoardCountReq {
 
     public void setComboardSourceList(List<Integer> comboardSourceList) {
         this.comboardSourceList = comboardSourceList;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 }
