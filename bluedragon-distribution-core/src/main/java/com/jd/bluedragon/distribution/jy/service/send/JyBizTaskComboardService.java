@@ -72,6 +72,20 @@ public interface JyBizTaskComboardService {
    */
     List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
 
+  /**
+   * 查询流向下板数量(某个流向-7日内所有未封车的板任务列表)
+   *  带缓存的方式查询（删除缓存方法：removeBoardCountCache）
+   * @return
+   */  
+  List<BoardCountDto> boardCountTaskBySendFlowListWithCache(BoardCountReq boardCountReq);
+
+  /**
+   * 删除流向下板数量缓存
+   *  key：boardCountTaskBySendFlowListWithCache的缓存key
+   * @return
+   */
+  void removeBoardCountCache(String templateCode);
+
   JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode);
 
   /**
