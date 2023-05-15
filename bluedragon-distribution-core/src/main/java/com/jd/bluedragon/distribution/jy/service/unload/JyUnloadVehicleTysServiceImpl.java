@@ -794,7 +794,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 人工卸车模式组板校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
                 // 路由校验、生成板号
-                boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
+                boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto, invokeResult);
                 if (!routerCheckResult) {
                     log.info("packageCodeScanNew--路由校验失败：该包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
                     return invokeResult;
@@ -986,9 +986,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             throw new JyBizException("运单已妥投，无法继续操作！");
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
-        scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
-        if(routeNextDto.getFirstNextSiteId() != null){
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextDto.getFirstNextSiteId());
+        // 入参有则取入参的，没有则取路由
+        Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
+        if(scanPackageDto.getNextSiteCode() != null){
+            nextSiteCode = scanPackageDto.getNextSiteCode();
+        }
+        scanPackageDto.setNextSiteCode(nextSiteCode);
+        if(nextSiteCode != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
             if (baseSite != null) {
                 scanPackageDto.setNextSiteName(baseSite.getSiteName());
             }

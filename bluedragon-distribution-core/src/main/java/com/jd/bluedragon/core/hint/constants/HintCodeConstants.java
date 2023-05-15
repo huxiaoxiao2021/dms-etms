@@ -559,6 +559,9 @@ public class HintCodeConstants {
      */
     public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
 
+    // 验货成功。未找到包裹下游流向场地，无法进行建板，可以手动选择包裹目的地，是否确认?
+    public static String JY_UNLOAD_VEHICLE_PACK_NO_ROUTER = "20091";
+
     /*##############################################拦截相关END#########################################################*/
 
 

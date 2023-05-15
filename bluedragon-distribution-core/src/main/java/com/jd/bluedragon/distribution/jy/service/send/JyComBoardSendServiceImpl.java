@@ -503,7 +503,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!CollectionUtils.isEmpty(sendFlowList)) {
       Integer sendFlowSize = sendFlowList.size() + request.getTableTrolleyDtoList().size();
       if (sendFlowSize > ucc.getCttGroupSendFLowLimit()) {
-        throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
+        return new InvokeResult( UPDATE_CTT_GROUP_LIST_CODE, "混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
       }
     }
 
@@ -1090,7 +1090,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
       execComboard(request);
       execSend(request);
-    } catch (JyBizException e) {
+    } catch (NullPointerException e){
+      log.error("JyComBoardSendServiceImpl comboardScan NullPointerException", e);
+      return new InvokeResult<>(CODE_ERROR,"服务器开小差，请联系分拣小秘！");
+    } catch(JyBizException e) {
       log.info("传站组板即发货扫描异常",e);
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){

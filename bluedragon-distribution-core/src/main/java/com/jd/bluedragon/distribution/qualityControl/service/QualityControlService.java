@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -101,17 +102,17 @@ public class QualityControlService {
 
     @Autowired
     private SysConfigService sysConfigService;
-    
+
     @Autowired
     private UserSignRecordService userSignRecordService;
 
     @Autowired
     @Qualifier("abnormalReportRecordProducer")
     private DefaultJMQProducer abnormalReportRecordProducer;
-    
+
     @Autowired
     private PositionManager positionManager;
-    
+
     @Autowired
     private SortingService sortingService;
 
@@ -126,7 +127,7 @@ public class QualityControlService {
 
     /**
      * 协商再投状态校验
-     * 
+     *
      * @param request
      * @return
      */
@@ -229,6 +230,13 @@ public class QualityControlService {
         result.setMessage(QualityControlResponse.MESSAGE_OK);
         return result;
     }
+
+    @Autowired
+    @Qualifier("abnormalReportRecordProducer")
+    private DefaultJMQProducer abnormalReportRecordProducer;
+
+    @Autowired
+    private PositionManager positionManager;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -677,10 +685,10 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
-                
+
                 // 找到操作人登录网格并发送MQ消息
                 QcfindGridAndSendMQ(qcReportJmqDto);
-                
+
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     return result.toFail();
@@ -710,7 +718,7 @@ public class QualityControlService {
             log.error("ualityControlService.QcfindGridAndSendMQ 异常:{}",JsonHelper.toJson(qcReportJmqDto),e);
         }
     }
-    
+
     public Result<Void> checkMqParam(QcReportJmqDto qcReportJmqDto) {
         Result<Void> result = Result.success();
         if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
@@ -783,7 +791,7 @@ public class QualityControlService {
 
                 // 找到操作人登录网格并发送MQ消息
                 QcOutCallfindGridAndSendMQ(qcReportJmqDto);
-                
+
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     return result.toFail();
@@ -812,7 +820,7 @@ public class QualityControlService {
             log.error("ualityControlService.QcfindGridAndSendMQ 异常:{}",JsonHelper.toJson(qcReportJmqDto),e);
         }
     }
-    
+
     private String getCreateGridCodeByUser(String createUser, Long createTime) {
         // 查询登录人提报时间所在网格
         UserSignQueryRequest condition = new UserSignQueryRequest();

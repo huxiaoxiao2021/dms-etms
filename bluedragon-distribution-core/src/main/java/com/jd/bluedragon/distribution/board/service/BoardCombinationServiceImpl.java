@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.board.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -9,8 +10,11 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
@@ -22,26 +26,22 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -49,9 +49,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
@@ -105,10 +106,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private OperationLogService operationLogService;
-
-    @Autowired
-    private JsfSortingResourceService jsfSortingResourceService;
-
+    
     @Autowired
     private SortingService sortingService;
 
@@ -124,6 +122,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Autowired
     @Qualifier("groupBoardManager")
     private GroupBoardManager groupBoardManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
@@ -482,27 +483,34 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             //超上限提示
             if (count >= boardBindingsMaxCount) {
                 log.warn("板号：{}已经绑定的包裹/箱号个数为：{}达到上限.", boardCode, count);
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
-
+                boardResponse.assembleStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
                 return JdResponse.CODE_FAIL;
             }
         }
 
         if (StringUtils.isBlank(request.getBoardCode())) {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBoxOrPackageCode());
-            // 根据当前网点匹配下一网点
-            RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getSiteCode(), waybillCode);
-            Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
-            if (nextSiteCode == null) {
-                log.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!", waybillCode, request.getSiteCode());
-                boardResponse.addStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE,
-                        "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
-                return JdResponse.CODE_FAIL;
+            Integer nextSiteCode = request.getNextSiteCode();
+            if(nextSiteCode == null){
+                // 根据当前网点匹配下一网点
+                RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getSiteCode(), waybillCode);
+                nextSiteCode = routeNextDto.getFirstNextSiteId();
+                if (nextSiteCode == null) {
+                    log.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!", waybillCode, request.getSiteCode());
+                    if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                        // 首包裹开板，包裹目的地（路由）不存在，则使用约定编码提示前端让其选择目的地
+                        boardResponse.assembleStatusInfo(BoardResponse.CODE_SPECIAL_PACK_NO_ROUTER, HintService.getHint(HintCodeConstants.JY_UNLOAD_VEHICLE_PACK_NO_ROUTER));
+                    }else {
+                        boardResponse.assembleStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE,
+                                "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
+                    }
+                    return JdResponse.CODE_FAIL;
+                }
             }
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
             if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
                 log.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
-                boardResponse.addStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
+                boardResponse.assembleStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
                 return JdResponse.CODE_FAIL;
             }
             request.setReceiveSiteCode(nextSiteCode);
@@ -521,8 +529,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             logInfo = "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点：" + request.getSiteCode();
 
             log.warn(logInfo);
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
-
+            boardResponse.assembleStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
             addSystemLog(request, logInfo);
             return JdResponse.CODE_FAIL;
         }
@@ -534,6 +541,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             BoardCombinationRequest checkParam = new BoardCombinationRequest();
             checkParam.setSiteCode(request.getSiteCode());
             checkParam.setReceiveSiteCode(request.getReceiveSiteCode());
+            checkParam.setNextSiteCode(request.getNextSiteCode());
             checkParam.setBusinessType(request.getBusinessType());
             checkParam.setUserCode(request.getUserCode());
             checkParam.setUserName(request.getUserName());
@@ -541,7 +549,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             if (WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
                 checkParam.setBoxOrPackageCode(request.getBoxOrPackageCode());
             } else {
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGECODE_ERROR, BoardResponse.MESSAGE_BOX_PACKAGECODE_ERROR);
+                boardResponse.assembleStatusInfo(BoardResponse.CODE_BOX_PACKAGECODE_ERROR, BoardResponse.MESSAGE_BOX_PACKAGECODE_ERROR);
                 return JdResponse.CODE_FAIL;
             }
 
@@ -563,10 +571,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             if (!response.getCode().equals(200)) {//如果校验不OK
                 if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
-                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    boardResponse.assembleStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_CONFIRM;
                 } else {
-                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    boardResponse.assembleStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_FAIL;
                 }
             }
@@ -577,7 +585,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             // 第一次提示是否要转板
             if (!request.getIsForceCombination()) {
                 String message = "该箱已绑定板" + oldBoard.getCode();
-                boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CHANGE, message + BoardResponse.Message_BOARD_CHANGE);
+                boardResponse.assembleStatusInfo(BoardResponse.CODE_BOARD_CHANGE, message + BoardResponse.Message_BOARD_CHANGE);
                 return JdResponse.CODE_CONFIRM;
                 // 如果用户选择强制转板
             } else {
@@ -592,7 +600,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
                 if(boardMoveResponse == null){
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "组板转移服务异常!");
+                    boardResponse.assembleStatusInfo(JdResponse.CODE_FAIL, "组板转移服务异常!");
                     return JdResponse.CODE_FAIL;
                 }
 
@@ -601,7 +609,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     logInfo = "组板转移失败,原板号：" + boardMoveResponse.getData() + ",新板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                             ",站点：" + request.getSiteCode() + ".失败原因:" + boardMoveResponse.getMesseage();
                     log.warn(logInfo);
-                    boardResponse.addStatusInfo(boardMoveResponse.getCode(), boardMoveResponse.getMesseage());
+                    boardResponse.assembleStatusInfo(boardMoveResponse.getCode(), boardMoveResponse.getMesseage());
                     addSystemLog(request, logInfo);
                     return JdResponse.CODE_FAIL;
                 }
@@ -662,7 +670,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
 
             log.warn(logInfo);
-            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+            boardResponse.assembleStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
             addSystemLog(request, logInfo);
 
             return JdResponse.CODE_FAIL;

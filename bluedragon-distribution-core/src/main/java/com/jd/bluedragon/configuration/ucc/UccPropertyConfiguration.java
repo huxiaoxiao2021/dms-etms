@@ -1416,6 +1416,11 @@ public class UccPropertyConfiguration {
         this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
     }
 
+    /**
+     * 组板路由校验开关
+     */
+    private boolean boardCombinationRouterSwitch;
+
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
     }
@@ -3369,6 +3374,14 @@ public class UccPropertyConfiguration {
 
     public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
         this.checkTeAnSwitch = checkTeAnSwitch;
+    }
+
+    public boolean getBoardCombinationRouterSwitch() {
+        return boardCombinationRouterSwitch;
+    }
+
+    public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+        this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
     }
 
     public boolean isPdaVersionSwitch() {
