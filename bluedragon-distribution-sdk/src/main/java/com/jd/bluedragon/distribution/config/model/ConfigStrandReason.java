@@ -90,6 +90,12 @@ public class ConfigStrandReason implements Serializable {
 	 */
 	private Integer businessTag;
 
+	/**
+	 * 滞留原因来源
+	 * 1：默认分拣；2：运输
+	 */
+	private Integer sourceFrom;
+
 //====================================
 
 	public Long getId() {
@@ -210,5 +216,13 @@ public class ConfigStrandReason implements Serializable {
 
 	public void setBusinessTag(Integer businessTag) {
 		this.businessTag = businessTag;
+	}
+
+	public Integer getSourceFrom() {
+		return sourceFrom;
+	}
+
+	public void setSourceFrom(Integer sourceFrom) {
+		this.sourceFrom = sourceFrom;
 	}
 }

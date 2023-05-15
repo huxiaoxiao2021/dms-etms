@@ -28,6 +28,13 @@ public interface StrandService {
     InvokeResult<List<ConfigStrandReasonData>> queryAllReasonList();
 
     /**
+     * 拣运滞留上报原因
+     *
+     * @return
+     */
+    InvokeResult<List<ConfigStrandReasonData>> queryJyStrandReasons();
+    
+    /**
      * 滞留上报提交
      * 
      * @param request

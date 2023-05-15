@@ -11,7 +11,9 @@ package com.jd.bluedragon.distribution.config.constants;
 public enum StrandReasonBusinessTagEnum {
 
     BUSINESS_TAG_DEFAULT(1,"默认"),
-    BUSINESS_TAG_COLD(2,"冷链");
+    BUSINESS_TAG_COLD(2,"冷链"),
+    BUSINESS_TAG_NEW(3,"新版滞留"),
+    ;
     StrandReasonBusinessTagEnum(Integer code,String name){
         this.code = code;
         this.name = name;

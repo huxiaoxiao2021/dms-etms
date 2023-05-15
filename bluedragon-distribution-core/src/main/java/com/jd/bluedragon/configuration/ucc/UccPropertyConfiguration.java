@@ -816,6 +816,21 @@ public class UccPropertyConfiguration {
      *  以,隔开，ALL标识开通全国
      */
     private String volumeExcessIssueSites;
+    /**
+     * 拣运-系统自建滞留任务关闭时间
+     */
+    private Long jySysStrandTaskCloseTime;
+
+    /**
+     * 拣运-人工创建任务关闭时间
+     */
+    private Long jyArtificialStrandTaskCloseTime;
+
+    /**
+     * 拣运-滞留扫描数量上线
+     */
+    private Integer jyStrandScanNumLimit;
+
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -3246,5 +3261,29 @@ public class UccPropertyConfiguration {
 
     public void setAllianceBusinessSwitch(boolean allianceBusinessSwitch) {
         this.allianceBusinessSwitch = allianceBusinessSwitch;
+    }
+
+    public Long getJySysStrandTaskCloseTime() {
+        return jySysStrandTaskCloseTime;
+    }
+
+    public void setJySysStrandTaskCloseTime(Long jySysStrandTaskCloseTime) {
+        this.jySysStrandTaskCloseTime = jySysStrandTaskCloseTime;
+    }
+
+    public Long getJyArtificialStrandTaskCloseTime() {
+        return jyArtificialStrandTaskCloseTime;
+    }
+    
+    public void setJyArtificialStrandTaskCloseTime(Long jyArtificialStrandTaskCloseTime) {
+        this.jyArtificialStrandTaskCloseTime = jyArtificialStrandTaskCloseTime;
+    }
+
+    public Integer getJyStrandScanNumLimit() {
+        return jyStrandScanNumLimit;
+    }
+
+    public void setJyStrandScanNumLimit(Integer jyStrandScanNumLimit) {
+        this.jyStrandScanNumLimit = jyStrandScanNumLimit;
     }
 }
