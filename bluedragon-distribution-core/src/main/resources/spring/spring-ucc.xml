@@ -265,8 +265,8 @@
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
-		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockFreshTime:10}"/>
-		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowFreshTimes:2}"/>
+		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockRefreshTime:10}"/>
+		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowRefreshTimes:2}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
