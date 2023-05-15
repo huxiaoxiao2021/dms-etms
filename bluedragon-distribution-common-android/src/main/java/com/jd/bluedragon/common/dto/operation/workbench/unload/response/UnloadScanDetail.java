@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+
 import java.io.Serializable;
 
 /**
@@ -46,6 +48,11 @@ public class UnloadScanDetail implements Serializable {
      * 非本场地多扫数量
      */
     private Long moreScanOutCount;
+
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
     public String getBizId() {
         return bizId;
@@ -101,5 +108,13 @@ public class UnloadScanDetail implements Serializable {
 
     public void setMoreScanOutCount(Long moreScanOutCount) {
         this.moreScanOutCount = moreScanOutCount;
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

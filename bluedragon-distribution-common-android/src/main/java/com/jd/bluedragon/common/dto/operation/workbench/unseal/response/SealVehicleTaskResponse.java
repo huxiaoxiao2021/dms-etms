@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unseal.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -37,6 +39,11 @@ public class SealVehicleTaskResponse implements Serializable {
      * 车辆在途数据
      */
     private UnSealCarData<DrivingCarInfo> drivingData;
+
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
     public List<VehicleStatusStatis> getStatusStatis() {
         return statusStatis;
@@ -87,5 +94,13 @@ public class SealVehicleTaskResponse implements Serializable {
                 && (this.toUnloadCarData == null || this.toUnloadCarData.getData() == null || this.toUnloadCarData.getData().size() == 0)
                 && (this.unloadCarData == null || this.unloadCarData.getData() == null || this.unloadCarData.getData().size() == 0)
                 && (this.drivingData == null || this.drivingData.getData() == null || this.drivingData.getData().size() == 0);
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

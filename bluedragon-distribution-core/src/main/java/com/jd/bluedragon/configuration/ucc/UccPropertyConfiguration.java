@@ -1,6 +1,7 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -1401,7 +1402,11 @@ public class UccPropertyConfiguration {
      */
     private String jyCollectSiteWhitelist;
 
-
+    /**
+     * 拣运APP自动刷新时间配置
+     */
+    private String jyWorkAppAutoRefreshConfig;
+    private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3143,5 +3148,37 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public String getJyWorkAppAutoRefreshConfig() {
+        return jyWorkAppAutoRefreshConfig;
+    }
+
+    public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
+        this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
+        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
+    }
+
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return jyWorkAppAutoRefreshConfigList;
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }
+    }
+
+    public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
+        if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
+            final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
+            if(first.isPresent()){
+                return first.get();
+            }
+        }
+        return null;
     }
 }

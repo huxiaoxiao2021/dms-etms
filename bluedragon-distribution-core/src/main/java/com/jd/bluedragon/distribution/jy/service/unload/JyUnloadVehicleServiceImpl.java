@@ -39,6 +39,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -198,6 +199,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
 
             UnloadVehicleTaskResponse response = new UnloadVehicleTaskResponse();
+            // 增加刷新间隔配置
+            response.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
 
             // 封车状态数量统计
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
@@ -950,6 +953,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
 
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
+            // 增加刷新间隔配置
+            if (scanProgress != null) {
+                scanProgress.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
+            }
             result.setData(scanProgress);
             if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_UNLOAD_IS_DEMOTION)){
                 throw new JyDemotionException("卸车进度不准，flink降级!");

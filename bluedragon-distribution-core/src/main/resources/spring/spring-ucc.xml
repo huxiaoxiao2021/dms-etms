@@ -156,7 +156,7 @@
 		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
-		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
@@ -254,7 +254,7 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
-		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:}"/>
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
@@ -265,6 +265,7 @@
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
+		<property name="jyWorkAppAutoRefreshConfig" value="${jyWorkAppAutoRefreshConfig:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -519,6 +520,7 @@
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
+				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
 			</list>
 		</property>
 	</bean>
