@@ -2,7 +2,9 @@ package com.jd.bluedragon;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -1910,4 +1912,10 @@ public class Constants {
      * DB 执行in 限制最大数量
      */
     public static final Integer DB_IN_MAX_SIZE  = 100;
+
+    public static Map<String, String> topic2DataSource =new HashMap<>();
+    static {
+        topic2DataSource.put("jy_aggs","aggsMain");
+        topic2DataSource.put("jy_aggs_slave","aggsSlave");
+    }
 }
