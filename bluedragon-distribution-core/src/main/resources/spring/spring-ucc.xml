@@ -265,8 +265,8 @@
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
-		<property name="jyTransportSendVehicleValidateDockFreshTime" value="${jyTransportSendVehicleValidateDockFreshTime:10}"/>
-		<property name="jyTransportSendVehicleValidateDockAllowFreshTimes" value="${jyTransportSendVehicleValidateDockAllowFreshTimes:2}"/>
+		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockFreshTime:10}"/>
+		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowFreshTimes:2}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -521,8 +521,8 @@
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
 				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
-				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockFreshTime</value>
-				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowFreshTimes</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockRefreshTime</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
 			</list>
 		</property>
 	</bean>
