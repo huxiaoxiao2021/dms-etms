@@ -277,6 +277,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
     public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
 
+    public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
+    public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

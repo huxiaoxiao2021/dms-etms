@@ -2024,7 +2024,16 @@ public class WaybillResource {
         if(log.isDebugEnabled()){
             log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
         }
-
+		
+		log.info("开始校验运单是否撤销拦截：{}",request.getWaybillCode());
+		if (request.getNeedCheckRevokeIntercept() != null && 
+				request.getNeedCheckRevokeIntercept() && 
+				waybillCancelService.checkWaybillRevokeIntercept(request.getWaybillCode())){
+			invokeResult.setCode(InvokeResult.REVOKE_INTERCEPT_CONFIRM_CODE);
+			invokeResult.setMessage(InvokeResult.REVOKE_INTERCEPT_CONFIRM_MESSAGE);
+			return invokeResult;
+		}
+		
 		try {
 			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
