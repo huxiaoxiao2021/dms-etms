@@ -7,7 +7,7 @@
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
 
-    <bean id="jyCore" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+    <!--<bean id="jyCore" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.write.mysql.db.jy.core.url}"/>
         <property name="username" value="${db.mysql.jy.core.username}"/>
         <property name="password" value="${db.mysql.jy.core.password}"/>
@@ -27,7 +27,7 @@
         <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.jy.core.minEvictableIdleTimeMillis}"/>
         <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.jy.core.timeBetweenEvictionRunsMillis}"/>
         <property name="poolPreparedStatements" value="false" />
-    </bean>
+    </bean>-->
 
     <bean id="aggsMain" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.write.mysql.db.jy.core.agg.main.url}"/>
@@ -77,7 +77,7 @@
 
     <bean id="dynamicDataSource" class="com.jd.bluedragon.dbrouter.AggsDataSources">
         <property name="defaultDataSource" ref="aggsSlave" />
-        <property name="jyCore" ref="jyCore" />
+        <property name="jyCore" ref="jy_core" />
         <property name="aggsMain" ref="aggsMain" />
         <property name="aggsSlave" ref="aggsSlave" />
     </bean>

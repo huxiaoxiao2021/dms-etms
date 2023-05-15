@@ -9,11 +9,14 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
@@ -544,7 +547,8 @@ public class JyUnloadVehicleCheckTysService {
      * @return ture:  校验成功，   false  校验失败
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.routerCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public boolean routerCheck(ScanPackageRespDto response, ScanPackageDto request) throws LoadIllegalException {
+    public boolean routerCheck(ScanPackageRespDto response, ScanPackageDto request,
+                               InvokeResult<ScanPackageRespDto> scanResult) throws LoadIllegalException {
         if (StringUtils.isEmpty(request.getBoardCode())) {
             //第一次则生成板号
             BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -562,6 +566,13 @@ public class JyUnloadVehicleCheckTysService {
             }
             if(boardCommonRequest.getReceiveSiteCode() == null) {
                 throw new LoadIllegalException("验货成功。获取下一流向为空，无法建板");
+                if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                    // 首包裹开板，包裹目的地（路由）不存在，则使用约定编码提示前端让其选择目的地
+                    scanResult.customMessage(BoardResponse.CODE_SPECIAL_PACK_NO_ROUTER, HintService.getHint(HintCodeConstants.JY_UNLOAD_VEHICLE_PACK_NO_ROUTER));
+                    return false;
+                }else {
+                    throw new LoadIllegalException("验货成功。未找到包裹下游流向场地，无法进行建板");
+                }
             }
             if(BusinessUtil.isBoxcode(request.getScanCode())) {
                 invokeResult = boardCommonManager.createBoardCodeByBox(boardCommonRequest);
@@ -592,13 +603,17 @@ public class JyUnloadVehicleCheckTysService {
             return true;
 
         }
-        // 非第一次则校验目的地是否一致
-        String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
+
+        // 非首包裹无路由场景
         if (request.getNextSiteCode() == null) {
+            if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                return true;
+            }
             // 此处直接返回，因为ver组板校验链会判断
-//            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
             throw new UnloadPackageBoardException("验货成功，未找到包裹下游流向场地，是否强制继续组板？");
         }
+
+        // 非第一次则校验目的地是否一致
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
         if (result != null && result.getCode() == ResponseEnum.SUCCESS.getIndex() && result.getData() != null) {

@@ -114,6 +114,9 @@ public class JdResponse<E> extends JdObject {
 	public void toFail(String message) {
 		init(CODE_FAIL,message);
 	}
+	public void toFail(Integer code, String message) {
+		init(code, message);
+	}
 	public void toError() {
 		init(CODE_ERROR);
 	}
@@ -126,7 +129,6 @@ public class JdResponse<E> extends JdObject {
 	}
 	public void toConfirm(String message){
 		init(CODE_CONFIRM,message);
-
 	}
 
 	/**
