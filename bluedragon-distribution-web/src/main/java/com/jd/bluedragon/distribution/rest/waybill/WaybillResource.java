@@ -2020,7 +2020,9 @@ public class WaybillResource {
         }
 		
 		log.info("开始校验运单是否撤销拦截：{}",request.getWaybillCode());
-		if (request.getNeedCheckRevokeIntercept() && waybillCancelService.checkWaybillRevokeIntercept(request.getWaybillCode())){
+		if (request.getNeedCheckRevokeIntercept() != null && 
+				request.getNeedCheckRevokeIntercept() && 
+				waybillCancelService.checkWaybillRevokeIntercept(request.getWaybillCode())){
 			invokeResult.setCode(InvokeResult.REVOKE_INTERCEPT_CONFIRM_CODE);
 			invokeResult.setMessage(InvokeResult.REVOKE_INTERCEPT_CONFIRM_MESSAGE);
 			return invokeResult;
