@@ -41,11 +41,6 @@ public class Request implements Serializable {
     private String receiveSiteName;
 
     /**
-     * 包裹目的地
-     */
-    private Integer nextSiteCode;
-
-    /**
      * 箱号或包裹号
      */
     private String boxOrPackageCode;
@@ -135,13 +130,5 @@ public class Request implements Serializable {
 
     public void setFlowDisaccord(Integer flowDisaccord) {
         this.flowDisaccord = flowDisaccord;
-    }
-
-    public Integer getNextSiteCode() {
-        return nextSiteCode;
-    }
-
-    public void setNextSiteCode(Integer nextSiteCode) {
-        this.nextSiteCode = nextSiteCode;
     }
 }
