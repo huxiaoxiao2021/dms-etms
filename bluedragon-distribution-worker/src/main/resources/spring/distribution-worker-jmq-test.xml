@@ -470,12 +470,16 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
     <!--  组板发货岗统计消息  -->
-    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
     </jmq:consumer>
 
+    <jmq:consumer id="jmq.jyAggsConsumerMain" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumerMain"/>
+    </jmq:consumer>
+
     <jmq:consumer id="jmq.jyAggsConsumerSlave" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumer"/>
+        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumerSlave"/>
     </jmq:consumer>
     <!--  分拣发邮政消息处理  -->
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
