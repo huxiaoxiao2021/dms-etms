@@ -191,17 +191,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<Void> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq) {
+    public JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
         return null;
     }
 
     @Override
-    public JdCResponse deleteMixScanTask(MixScanTaskReq mixScanTaskReq) {
+    public JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
         return null;
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> removeMixScanTaskFlow(MixScanTaskReq mixScanTaskReq) {
+    public JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq) {
         return null;
     }
 
@@ -221,7 +221,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskFlowRes> getMixScanTaskFlowListPage(MixScanTaskQueryReq mixScanTaskQueryReq) {
+    public JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailPage(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
         return null;
     }
 

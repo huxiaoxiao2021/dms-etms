@@ -79,24 +79,24 @@ public interface JyWarehouseSendGatewayService {
     /**
      * 混扫任务追加流向信息
      * todo addCTT2Group
-     * @param mixScanTaskReq
+     * @param appendMixScanTaskFlowReq
      * @return
      */
-    JdCResponse<Void> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq);
     /**
      * 删除混扫任务
      * todo deleteCTTGroup
-     * @param mixScanTaskReq
+     * @param deleteMixScanTaskReq
      * @return
      */
-    JdCResponse deleteMixScanTask(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq);
     /**
      * 删除混扫任务流向
      * todo removeCTTFromGroup
-     * @param mixScanTaskReq
+     * @param removeMixScanTaskFlowReq
      * @return
      */
-    JdCResponse<MixScanTaskRes> removeMixScanTaskFlow(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq);
     /**
      * 混扫任务完成
      * @param mixScanTaskReq
@@ -118,13 +118,10 @@ public interface JyWarehouseSendGatewayService {
     JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskQueryReq mixScanTaskQueryReq);
     /**
      * 获取混扫任务下流向信息
-     * todo listSendFlowUnderCTTGroup
-     * @param mixScanTaskQueryReq
+     * @param mixScanTaskFlowReq
      * @return
      */
-    JdCResponse<MixScanTaskFlowRes> getMixScanTaskFlowListPage(MixScanTaskQueryReq mixScanTaskQueryReq);
-
-
+    JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailPage(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
 
 
     /**

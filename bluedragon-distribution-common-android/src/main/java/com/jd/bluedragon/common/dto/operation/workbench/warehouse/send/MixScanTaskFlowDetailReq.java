@@ -2,26 +2,26 @@ package com.jd.bluedragon.common.dto.operation.workbench.warehouse.send;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
-import java.io.Serializable;
-
-public class MixScanTaskQueryReq extends BaseReq implements Serializable {
-
-    private static final long serialVersionUID = -5809332610524693231L;
+/**
+ * @author liwenji
+ * @date 2023-05-16 14:11
+ */
+public class MixScanTaskFlowDetailReq extends BaseReq {
 
     /**
-     * 查询条件 包裹号|箱号|目的地ID|滑道笼车号
+     * 混扫任务编号
      */
-    private String barCode;
+    private String templateCode;
 
     private Integer pageNo;
     private Integer pageSize;
-
-    public String getBarCode() {
-        return barCode;
+    
+    public String getTemplateCode() {
+        return templateCode;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 
     public Integer getPageNo() {
