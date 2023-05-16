@@ -624,4 +624,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 拣运app-滞留上报网关服务   -->
+    <jsf:provider id="jsfJyStrandReportGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyStrandReportGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyStrandReportGatewayService"
+                  server="dmsjsf" />
+
 </beans>

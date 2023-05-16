@@ -1918,4 +1918,9 @@ public class Constants {
         topic2DataSource.put("jy_aggs","aggsMain");
         topic2DataSource.put("jy_aggs_slave","aggsSlave");
     }
+
+    /**
+     * 拣运滞留任务biz前缀
+     */
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
 }

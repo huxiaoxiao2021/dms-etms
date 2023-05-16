@@ -263,6 +263,9 @@
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
 		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
+		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
+		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -536,6 +539,9 @@
 				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
 				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
 				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
 			</list>
 		</property>
 	</bean>
