@@ -550,6 +550,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 运输发货车辆相关服务 -->
+    <jsf:provider id="jsfJyTransportSendVehicleService"
+                  interface="com.jd.bluedragon.distribution.jy.transport.api.JyTransportSendVehicleService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTransportSendVehicleService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--  提供给逆向集约接口   -->
     <jsf:provider id="reverseIntensiveServiceJsf"
                   interface="com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService"

@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd ">
 
-	<!-- ucc 配置  -->
+	<!-- ucc 配置 -->
 	<bean id="uccConfigInsPostProcessor" class="com.jd.coo.ucc.client.service.UccConfigInsPostProcessor"/>
 
 	<bean id="uccConfigCenter" class="com.jd.coo.ucc.client.service.UccConfigCenter" lazy-init="false">
@@ -237,9 +237,6 @@
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
 		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
 		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
-
-
-
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
 		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
@@ -274,10 +271,8 @@
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
-
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
-
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
@@ -285,8 +280,9 @@
 		<property name="dpTransferSwitch" value="${dpTransferSwitch:true}"/>
 		<property name="easyFreezeSwitch" value="${easyFreezeSwitch:true}"/>
 		<property name="allianceBusinessSwitch" value="${allianceBusinessSwitch:true}"/>
-
 		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
+		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockRefreshTime:10}"/>
+		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowRefreshTimes:2}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -568,6 +564,9 @@
 				<value>uccPropertyConfiguration.dpTransferSwitch</value>
 				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
 				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
+				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockRefreshTime</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
 			</list>
 		</property>
 	</bean>
