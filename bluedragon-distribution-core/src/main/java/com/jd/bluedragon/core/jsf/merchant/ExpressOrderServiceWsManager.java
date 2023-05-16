@@ -17,5 +17,5 @@ public interface ExpressOrderServiceWsManager {
      * @param dto
      * @return
      */
-	JdResult<Boolean> updateOrder(UpdateOrderRequest dto);
+	JdResult<Boolean> updateOrderSelective(UpdateOrderRequest dto);
 }

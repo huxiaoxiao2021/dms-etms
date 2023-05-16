@@ -34,15 +34,15 @@ public class ExpressOrderServiceWsManagerImpl implements ExpressOrderServiceWsMa
     private ExpressOrderServiceWs expressOrderServiceWs;
     
 	@Override
-	public JdResult<Boolean> updateOrder(UpdateOrderRequest dto) {
-    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "updateOrder");
+	public JdResult<Boolean> updateOrderSelective(UpdateOrderRequest dto) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "updateOrderSelective");
 		JdResult<Boolean> result = new JdResult<Boolean>();
 		result.setData(Boolean.FALSE);
 		try {
 			if(log.isInfoEnabled()){
 				log.info("修改订单-超长超重服务信息req："+JsonHelper.toJson(dto));
 			}
-			ResultDTO<UpdateOrderResultDto>  rpcResult = expressOrderServiceWs.updateOrder(dto);
+			ResultDTO<UpdateOrderResultDto>  rpcResult = expressOrderServiceWs.updateOrderSelective(dto);
 			if(log.isInfoEnabled()){
 				log.info("修改订单-超长超重服务信息resp："+JsonHelper.toJson(rpcResult));
 			}

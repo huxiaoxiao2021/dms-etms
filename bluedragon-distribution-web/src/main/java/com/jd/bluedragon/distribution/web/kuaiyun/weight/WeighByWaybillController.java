@@ -136,35 +136,20 @@ public class WeighByWaybillController extends DmsBaseController {
      * @return InvokeResult<Boolean> 插入结果
      */
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
-    @RequestMapping("/saveWaybillWeight")
+    @RequestMapping("/checkBeforeSaveWaybillWeight")
     @ResponseBody
     @BusinessLog(sourceSys = 1,bizType = 1901,operateType = 1901002)
-    public JdResult<WeightVolumeUploadResult> saveWaybillWeight(WaybillWeightVO vo) {
+    public JdResult<WeightVolumeUploadResult> checkBeforeSaveWaybillWeight(WaybillWeightVO vo) {
     	WeightVolumeCondition condition = new WeightVolumeCondition();
     	condition.setBarCode(vo.getCodeStr());
     	condition.setVolume(vo.getVolume());
     	condition.setWeight(vo.getWeight());
     	condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
     	condition.setOverLengthAndWeightEnable(vo.getOverLengthAndWeightEnable());
-    	condition.setOverLengthAndWeightTypes(vo.getOverLengthAndWeightTypes());
-    	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
-    	//校验成功，上传处理
-    	if(result != null 
-    			&& result.isSucceed()
-    			&& result.getData() != null
-    			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
-    		InvokeResult<Boolean> uploadResult = insertWaybillWeight(vo,null,null);
-    		if(uploadResult != null 
-    				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE
-    				&& Boolean.TRUE.equals(uploadResult.getData())) {
-    			result.toSuccess();
-    		}else if(uploadResult != null){
-    			result.toFail(uploadResult.getMessage());
-    		} else {
-    			result.toFail("称重上传失败！");
-    		}
+    	if(StringUtils.isNotBlank(vo.getOverLengthAndWeightTypesStr())) {
+    		condition.setOverLengthAndWeightTypes(JsonHelper.jsonToList(vo.getOverLengthAndWeightTypesStr(), String.class));
     	}
-        return result;
+    	return dmsWeightVolumeService.checkBeforeUpload(condition);
     }
     private InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo,ErpUserClient.ErpUser erpUser, BaseStaffSiteOrgDto baseStaffSiteOrgDto) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
@@ -172,7 +157,9 @@ public class WeighByWaybillController extends DmsBaseController {
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         result.setData(true);
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-
+    	if(StringUtils.isNotBlank(vo.getOverLengthAndWeightTypesStr())) {
+    		vo.setOverLengthAndWeightTypes(JsonHelper.jsonToList(vo.getOverLengthAndWeightTypesStr(), String.class));
+    	}
         /*参数校验*/
         boolean isValid = this.validateParam(vo);
         if (!isValid) {

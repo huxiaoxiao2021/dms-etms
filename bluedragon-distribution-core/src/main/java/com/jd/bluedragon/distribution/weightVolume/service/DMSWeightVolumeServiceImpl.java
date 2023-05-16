@@ -502,6 +502,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		}
 		//已有超长超重服务信息
 		if(overLengthAndWeightFlag) {
+			weightVolumeUploadResult.setHasOverLengthAndWeight(true);
 			result.toSuccess("上传成功，此单已有超长超重服务！");
 			return result;
 		}

@@ -21,6 +21,10 @@ public class WeightVolumeUploadResult implements Serializable {
 	private Boolean overLengthAndWeightFlag;
 	
 	private Boolean needConfirm;
+	/**
+	 * 是否已有-超重信息
+	 */
+	private Boolean hasOverLengthAndWeight = Boolean.FALSE;	
 	
 	private List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect;
 
@@ -54,6 +58,14 @@ public class WeightVolumeUploadResult implements Serializable {
 
 	public void setOverLengthAndWeightTypesToSelect(List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect) {
 		this.overLengthAndWeightTypesToSelect = overLengthAndWeightTypesToSelect;
+	}
+
+	public Boolean getHasOverLengthAndWeight() {
+		return hasOverLengthAndWeight;
+	}
+
+	public void setHasOverLengthAndWeight(Boolean hasOverLengthAndWeight) {
+		this.hasOverLengthAndWeight = hasOverLengthAndWeight;
 	}
 
 }

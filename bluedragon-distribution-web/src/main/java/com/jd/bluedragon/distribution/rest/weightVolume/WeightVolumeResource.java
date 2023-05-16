@@ -73,6 +73,11 @@ public class WeightVolumeResource {
     			&& result.isSucceed()
     			&& result.getData() != null
     			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
+    		//已有-超重信息，本次不上传超重信息
+    		if(Boolean.TRUE.equals(result.getData().getHasOverLengthAndWeight())) {
+    			condition.setOverLengthAndWeightEnable(false);
+    			condition.setLongPackage(0);
+    		}
     		InvokeResult<Boolean> uploadResult = upload(condition);
     		if(uploadResult != null 
     				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {

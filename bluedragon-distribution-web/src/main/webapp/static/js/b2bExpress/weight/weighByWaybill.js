@@ -80,6 +80,14 @@
         $('#waybill-weight-kg-input').numberbox('clear');
         $('#waybill-weight-cbm-input').numberbox('clear');
         $("input",$("#waybill-weight-code-input").next("span")).focus();
+        $('#over-enable-input').prop('disabled','');
+        $('#over-enable-input').prop('checked','');
+        $('#one-side-input').prop('disabled','disabled');
+        $('#one-side-input').prop('checked','');
+        $('#three-side-input').prop('disabled','disabled');
+        $('#three-side-input').prop('checked','');
+        $('#over-weight-input').prop('disabled','disabled');
+        $('#over-weight-input').prop('checked','');        
     };
 
 /**************************************************************************************/
@@ -134,7 +142,25 @@
             validateCodeFunc(codeStr,successFunc);
         }
     });
-
+    $('#over-enable-input').change(function(){
+        var selected = $('#over-enable-input').prop('checked');
+        if(selected){
+            $('#one-side-input').prop('disabled','');
+            $('#one-side-input').prop('checked','');
+            $('#three-side-input').prop('disabled','');
+            $('#three-side-input').prop('checked','');
+            $('#over-weight-input').prop('disabled','');
+            $('#over-weight-input').prop('checked','');
+        }else{
+            $('#one-side-input').prop('disabled','disabled');
+            $('#one-side-input').prop('checked','');
+            $('#three-side-input').prop('disabled','disabled');
+            $('#three-side-input').prop('checked','');
+            $('#over-weight-input').prop('disabled','disabled');
+            $('#over-weight-input').prop('checked','');
+        }
+    });
+    
     /*重量输入*/
     $('#waybill-weight-kg-input').numberbox({
         value:null,
@@ -218,13 +244,20 @@
         var codeStr = $('#waybill-weight-code-input').textbox('getValue').trim();
         var weight = $('#waybill-weight-kg-input').numberbox('getValue');
         var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
-
+        var selected = $('#over-enable-input').prop('checked');
+        var selected1 = $('#one-side-input').prop('checked');
+        var selected2 = $('#three-side-input').prop('checked');
+        var selected3 = $('#over-weight-input').prop('checked');
+        if(selected && (!selected1 && !selected2 && !selected3)){
+            $.messager.alert('验证结果','您好，超长超重货物需勾选具体超规格项！','warning');
+            return;
+        }
         var insertParam = {
             codeStr:codeStr,
             weight:weight,
             volume:cbm
         };
-
+        setOverDataInfo(insertParam);
         doWaybillWeight(insertParam,function(){});
 
     };
@@ -569,7 +602,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             volume:volume,
             status:status
         };
-
+        setOverDataInfo(insertParam);
         if(allForcedToSubmit == 1){
             // 批量强制提交 调用的时候
             if(isExist){
@@ -608,7 +641,27 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
 
     }
-
+function setOverDataInfo(insertParam){
+        var selected = $('#over-enable-input').prop('checked');
+        var selected1 = $('#one-side-input').prop('checked');
+        var selected2 = $('#three-side-input').prop('checked');
+        var selected3 = $('#over-weight-input').prop('checked');
+        if(selected){
+            insertParam.overLengthAndWeightEnable = true;
+            var overLengthAndWeightTypes = [];
+            if(selected1){
+                overLengthAndWeightTypes.push($('#one-side-input').prop('value'));
+            }
+            if(selected2){
+                overLengthAndWeightTypes.push($('#three-side-input').prop('value'));
+            }
+            if(selected3){
+                overLengthAndWeightTypes.push($('#over-weight-input').prop('value'));
+            }            
+            insertParam.overLengthAndWeightTypesStr = JSON.stringify(overLengthAndWeightTypes);
+            insertParam.longPackage = 2;
+        }
+}
 
 function removeFailDataFunc(key){
         //防止删除后 数组索引发生变化  原函数索引未改变

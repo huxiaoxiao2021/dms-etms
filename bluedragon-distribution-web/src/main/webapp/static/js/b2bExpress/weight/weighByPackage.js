@@ -11,7 +11,7 @@
     var CBM_DIV_KG_MAX_LIMIT = 330.0;
     var waybill_weight_validate_url_package     = '/b2b/express/weightpackage/verifyWaybillReality';
     var waybill_weight_insert_url_package='/b2b/express/weightpackage/insertWaybillWeightPackage';
-    var waybill_weight_save_url_package='/b2b/express/weightpackage/saveWaybillWeightPackage';
+    var waybill_weight_check_before_save_url_package='/b2b/express/weightpackage/checkBeforeSaveWaybillWeightPackage';
     var waybill_weight_improtbypackage_url ='/b2b/express/weightpackage/uploadExcelByPackage'; //包裹维度批量导入
 
 

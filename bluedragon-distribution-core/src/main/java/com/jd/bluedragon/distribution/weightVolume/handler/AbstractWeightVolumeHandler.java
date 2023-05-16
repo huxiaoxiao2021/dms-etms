@@ -112,6 +112,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     	UpdateOrderRequest updateData = new UpdateOrderRequest();
     	BaseInfo baseInfo = new BaseInfo();
     	baseInfo.setWaybillCode(entity.getWaybillCode());
+    	baseInfo.setUpdateTime(entity.getOperateTime());
+    	baseInfo.setUpdateUser(entity.getOperatorCode());
     	updateData.setBaseInfo(baseInfo);
     	OverLengthAndWeight overLengthAndWeight = new OverLengthAndWeight();
     	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.ONE_SIDE.getCode())) {
@@ -124,7 +126,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     		overLengthAndWeight.setOverWeight(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
     	}
     	updateData.setOverLengthAndWeight(overLengthAndWeight);
-    	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrder(updateData);
+    	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
     	if(result.isError()) {
     		Log.error("{}超长超重服务上传异常 error",entity.getWaybillCode());
     		throw new RuntimeException("超长超重服务上传异常 error,expressOrderServiceWsManager.updateOrder");
