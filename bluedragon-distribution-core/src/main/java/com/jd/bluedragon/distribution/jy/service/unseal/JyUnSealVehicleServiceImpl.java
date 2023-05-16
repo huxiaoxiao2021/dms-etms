@@ -252,16 +252,17 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 }
             }
 
+            SealVehicleTaskResponse response = new SealVehicleTaskResponse();
+            result.setData(response);
+
+            // 增加刷新间隔配置
+            response.setClientAutoRefreshConfig(uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNSEAL_TASK_LIST.name()));
+
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
                     jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
-
-            SealVehicleTaskResponse response = new SealVehicleTaskResponse();
-            result.setData(response);
-            // 增加刷新间隔配置
-            response.setClientAutoRefreshConfig(uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNSEAL_TASK_LIST.name()));
 
             // 按状态统计到车任务
             assembleUnSealVehicleStatusAgg(vehicleStatusAggList, response);
