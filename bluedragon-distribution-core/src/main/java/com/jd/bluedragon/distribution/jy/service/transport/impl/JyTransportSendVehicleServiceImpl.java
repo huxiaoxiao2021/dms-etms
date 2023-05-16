@@ -254,6 +254,9 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
                 return result.toFail(String.format("未查询到场地编码为%s的场地数据", qo.getStartSiteId()));
             }
 
+            vehicleArriveDockDataDto.setSiteCode(baseSiteInfo.getDmsSiteCode());
+            vehicleArriveDockDataDto.setSiteName(baseSiteInfo.getSiteName());
+
             // 根据月台号查询月台信息
             DockInfoEntity dockInfoEntity = new DockInfoEntity();
             dockInfoEntity.setDockCode(qo.getDockCode());
@@ -268,26 +271,22 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             final WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
             workStationGridQuery.setDockCode(qo.getDockCode());
             workStationGridQuery.setSiteCode(qo.getStartSiteId());
-            final com.jdl.basic.common.utils.Result<Long> workStationGridResult = workStationGridManager.queryCount(workStationGridQuery);
-            if (workStationGridResult == null || !workStationGridResult.isSuccess()) {
-                log.warn("JyTransportSendVehicleServiceImpl.getVehicleArriveDockData queryCount fail {},月台号{}，场地ID{}", JsonHelper.toJSONString(workStationGridResult), qo.getDockCode(), qo.getStartSiteId());
-                return result.toFail(String.format("查询场地的月台作业区数据失败，月台号%s，场地ID%s", qo.getDockCode(), qo.getStartSiteId()));
-            }
             workStationGridQuery.setPageSize(1);
             final com.jdl.basic.common.utils.Result<PageDto<WorkStationGrid>> workStationGridPageResult = workStationGridManager.queryPageList(workStationGridQuery);
             if (workStationGridPageResult == null || !workStationGridPageResult.isSuccess()) {
                 log.warn("JyTransportSendVehicleServiceImpl.getVehicleArriveDockData queryCount fail {},月台号{}，场地ID{}", JsonHelper.toJSONString(workStationGridPageResult), qo.getDockCode(), qo.getStartSiteId());
                 return result.toFail(String.format("查询场地的月台作业区数据失败，月台号%s，场地ID%s", qo.getDockCode(), qo.getStartSiteId()));
             }
+
             final PageDto<WorkStationGrid> workStationGridPageData = workStationGridPageResult.getData();
             if (workStationGridPageData != null && CollectionUtils.isNotEmpty(workStationGridPageData.getResult())) {
                 final WorkStationGrid workStationGrid = workStationGridPageData.getResult().get(0);
-                vehicleArriveDockDataDto.setSiteCode(baseSiteInfo.getDmsSiteCode());
-                vehicleArriveDockDataDto.setSiteName(baseSiteInfo.getSiteName());
                 vehicleArriveDockDataDto.setWorkGridNo(workStationGrid.getGridNo());
                 vehicleArriveDockDataDto.setWorkGridName(workStationGrid.getWorkName());
                 vehicleArriveDockDataDto.setWorkAreaCode(workStationGrid.getAreaCode());
                 vehicleArriveDockDataDto.setWorkAreaName(workStationGrid.getGridName());
+            } else {
+                return result;
             }
 
             // 生成验证字符串
