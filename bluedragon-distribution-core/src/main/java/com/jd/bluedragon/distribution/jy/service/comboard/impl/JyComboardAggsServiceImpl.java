@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.dbrouter.DataSources;
+import com.jd.bluedragon.dbrouter.DynamicDataSourceType;
+import com.jd.bluedragon.dbrouter.NeedChangeDataSources;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
@@ -35,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @JyAggsType(JyAggsTypeEnum.JY_COMBOARD_AGGS)
+@NeedChangeDataSources
 @Slf4j
 public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 

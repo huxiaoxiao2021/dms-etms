@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialTypeEnum;
 import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
+import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -49,6 +50,9 @@ public class RecyclingBoxInOutResource {
 
     @Autowired
     private MaterialServiceFactory materialServiceFactory;
+    
+    @Autowired
+    private RecycleMaterialService recycleMaterialService;
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
     private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
@@ -94,36 +98,7 @@ public class RecyclingBoxInOutResource {
     @Path("/recyclingBox/outbound")
     @JProfiler(jKey = "DMS.WEB.RecyclingBoxInOutResource.recyclingBoxOutbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<RecyclingBoxInOutResponse> recyclingBoxOutbound(RecyclingBoxInOutboundRequest request) {
-        JdResult<RecyclingBoxInOutResponse> response = new JdResult<>();
-        response.toSuccess();
-
-        //青流箱出库参数校验
-        response = this.checkParam(request);
-        if (!response.isSucceed()) {
-            return response;
-        }
-
-        try {
-            List<DmsMaterialSend> materialSends = new ArrayList<>();
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(request.getSiteCode());
-            for (String tagNo : request.getTagNos()) {
-                materialSends.add(this.createMaterialSendFromRequest(tagNo, baseStaffSiteOrgDto, request));
-            }
-            JdResult<Boolean> result = materialServiceFactory.findMaterialOperationService(SEND_MODE)
-                    .saveMaterialSend(materialSends, false);
-            response.setCode(result.getCode());
-            response.setMessage(result.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("青流箱出库失败. req:[{}]", JsonHelper.toJson(request), e);
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("青流箱出库参数. req:[{}]", JsonHelper.toJson(request));
-        }
-
-        return  response;
+        return recycleMaterialService.recyclingBoxOutbound(request);
     }
 
     public JdResult<RecyclingBoxInOutResponse> checkParam(RecyclingBoxInOutboundRequest request) {
@@ -153,7 +128,9 @@ public class RecyclingBoxInOutResource {
         materialReceive.setMaterialCode(tagNo);
         materialReceive.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialReceive.setCreateSiteCode(request.getSiteCode().longValue());
-        materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialReceive.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialReceive.setReceiveCode(StringUtils.EMPTY);
         materialReceive.setReceiveType(MaterialReceiveTypeEnum.RECEIVE_BY_SINGLE_MATERIAL.getCode());
         materialReceive.setReceiveNum(DEFAULT_RECEIVE_NUM);
@@ -172,7 +149,9 @@ public class RecyclingBoxInOutResource {
         materialSend.setMaterialCode(tagNo);
         materialSend.setMaterialType(MaterialTypeEnum.TAG_NO.getCode());
         materialSend.setCreateSiteCode(request.getSiteCode().longValue());
-        materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        if (baseStaffSiteOrgDto != null) {
+            materialSend.setCreateSiteType(baseStaffSiteOrgDto.getSiteType());
+        }
         materialSend.setSendCode(StringUtils.EMPTY);
         materialSend.setSendType(MaterialSendTypeEnum.SEND_BY_SINGLE_MATERIAL.getCode());
         materialSend.setSendNum(DEFAULT_RECEIVE_NUM);

@@ -1284,6 +1284,26 @@ public class UccPropertyConfiguration {
 
     private int onlineGetTaskSimpleCodeThreshold;
 
+    /**
+     * PDA新老互斥开关
+     */
+    private boolean pdaVersionSwitch;
+
+    /**
+     * 交接至德邦校验开关
+     */
+    private boolean dpTransferSwitch;
+
+    /**
+     * 易冻品校验开关
+     */
+    private boolean easyFreezeSwitch;
+
+    /**
+     * 加盟商余额校验开关
+     */
+    private boolean allianceBusinessSwitch;
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -1324,6 +1344,34 @@ public class UccPropertyConfiguration {
     public void setJyComboardRefreshTimerInterval(Integer jyComboardRefreshTimerInterval) {
         this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
     }
+
+    private boolean createBoardBySendFlowSwitch;
+
+    /**
+     * 需要按照岗位码隔离板列表的场地名单
+     */
+    private String needIsolateBoardByGroupCodeSiteList;
+
+    public String getNeedIsolateBoardByGroupCodeSiteList() {
+        return needIsolateBoardByGroupCodeSiteList;
+    }
+
+    public void setNeedIsolateBoardByGroupCodeSiteList(String needIsolateBoardByGroupCodeSiteList) {
+        this.needIsolateBoardByGroupCodeSiteList = needIsolateBoardByGroupCodeSiteList;
+    }
+
+    public boolean getCreateBoardBySendFlowSwitch() {
+        return createBoardBySendFlowSwitch;
+    }
+
+    public void setCreateBoardBySendFlowSwitch(boolean createBoardBySendFlowSwitch) {
+        this.createBoardBySendFlowSwitch = createBoardBySendFlowSwitch;
+    }
+
+    /**
+     * 组板路由校验开关
+     */
+    private boolean boardCombinationRouterSwitch;
 
     public boolean getBatchSendForbiddenSwitch() {
         return batchSendForbiddenSwitch;
@@ -1412,6 +1460,16 @@ public class UccPropertyConfiguration {
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
 
+
+    private String aggsDataSource;
+
+    public String getAggsDataSource() {
+        return aggsDataSource;
+    }
+
+    public void setAggsDataSource(String aggsDataSource) {
+        this.aggsDataSource = aggsDataSource;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3158,6 +3216,46 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public boolean getBoardCombinationRouterSwitch() {
+        return boardCombinationRouterSwitch;
+    }
+
+    public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+        this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
+    }
+
+    public boolean isPdaVersionSwitch() {
+        return pdaVersionSwitch;
+    }
+
+    public void setPdaVersionSwitch(boolean pdaVersionSwitch) {
+        this.pdaVersionSwitch = pdaVersionSwitch;
+    }
+
+    public boolean isDpTransferSwitch() {
+        return dpTransferSwitch;
+    }
+
+    public void setDpTransferSwitch(boolean dpTransferSwitch) {
+        this.dpTransferSwitch = dpTransferSwitch;
+    }
+
+    public boolean isEasyFreezeSwitch() {
+        return easyFreezeSwitch;
+    }
+
+    public void setEasyFreezeSwitch(boolean easyFreezeSwitch) {
+        this.easyFreezeSwitch = easyFreezeSwitch;
+    }
+
+    public boolean isAllianceBusinessSwitch() {
+        return allianceBusinessSwitch;
+    }
+
+    public void setAllianceBusinessSwitch(boolean allianceBusinessSwitch) {
+        this.allianceBusinessSwitch = allianceBusinessSwitch;
     }
 
     public Integer getJyTransportSendVehicleValidateDockRefreshTime() {

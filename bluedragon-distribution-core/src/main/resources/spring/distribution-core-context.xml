@@ -15,6 +15,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-aggs.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core-agg-bak.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core-agg-main.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
@@ -54,7 +55,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.ws" />
-    <context:component-scan base-package="com.jd.bluedragon" />
+	<context:component-scan base-package="com.jd.bluedragon" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.producer" />
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />

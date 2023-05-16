@@ -48,6 +48,7 @@
         <result property="ts" column="ts"/>
         <result property="taskType" column="task_type"/>
         <result property="railwayPfNo" column="railway_pf_no"/>
+        <result property="teanFlag" column="te_an_flag"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -688,6 +689,9 @@
             </if>
             <if test="refGroupCode != null">
                 ref_group_code =#{refGroupCode},
+            </if>
+            <if test="teanFlag != null">
+                te_an_flag=##{teanFlag},
             </if>
         </set>
         <where>

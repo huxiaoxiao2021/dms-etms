@@ -49,6 +49,8 @@ public class BoardResponse implements Serializable{
     public static final Integer CODE_BOARD_CHANGE = 39999;
     public static final String Message_BOARD_CHANGE = "  确定绑到新板上？";
 
+    // 包裹首次开板无路由提示前端特定编码值
+    public static final Integer CODE_SPECIAL_PACK_NO_ROUTER = 30003;
 
     /** 板号 */
     private String boardCode;
@@ -77,9 +79,14 @@ public class BoardResponse implements Serializable{
 
 
     /**
-     * 提示信息
+     * 多提示信息
      */
     private List<JdResponseStatusInfo> statusInfo;
+
+    /**
+     * 单个提示信息
+     */
+    private JdResponseStatusInfo singleStatusInfo;
 
 
     public String getBoardCode() {
@@ -130,8 +137,16 @@ public class BoardResponse implements Serializable{
         this.statusInfo = statusInfo;
     }
 
+    public JdResponseStatusInfo getSingleStatusInfo() {
+        return singleStatusInfo;
+    }
+
+    public void setSingleStatusInfo(JdResponseStatusInfo singleStatusInfo) {
+        this.singleStatusInfo = singleStatusInfo;
+    }
+
     /**
-     * 添加一种提示信息
+     * 添加多种提示信息
      * @param code
      * @param message
      */
@@ -140,6 +155,15 @@ public class BoardResponse implements Serializable{
             statusInfo = new ArrayList<JdResponseStatusInfo>();
         }
         statusInfo.add(new JdResponseStatusInfo(code,message));
+    }
+
+    /**
+     * 组装提示信息
+     * @param code
+     * @param message
+     */
+    public void assembleStatusInfo(Integer code,String message){
+        singleStatusInfo = new JdResponseStatusInfo(code, message);
     }
 
 
