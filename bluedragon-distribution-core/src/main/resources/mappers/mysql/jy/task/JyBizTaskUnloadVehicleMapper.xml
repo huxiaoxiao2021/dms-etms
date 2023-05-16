@@ -764,7 +764,7 @@
                 ref_group_code =#{refGroupCode},
             </if>
             <if test="teanFlag != null">
-                te_an_flag=##{teanFlag},
+                te_an_flag =#{teanFlag},
             </if>
         </set>
         <where>
