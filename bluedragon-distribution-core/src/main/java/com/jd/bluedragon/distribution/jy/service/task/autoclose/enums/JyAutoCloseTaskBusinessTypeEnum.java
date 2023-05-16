@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose.enums;
 
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandScanTypeEnum;
-
 import java.util.*;
 
 /**
