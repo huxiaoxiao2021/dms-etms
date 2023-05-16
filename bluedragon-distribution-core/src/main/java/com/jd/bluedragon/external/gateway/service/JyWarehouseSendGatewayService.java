@@ -61,10 +61,9 @@ public interface JyWarehouseSendGatewayService {
 
     /**
      * 获取混扫任务默认名称
-     * todo getDefaultGroupCTTName
      * @return
      */
-    JdCResponse<MixScanTaskRes> getMixScanTaskDefaultName(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<String> getMixScanTaskDefaultName(MixScanTaskDefaultNameQueryReq mixScanTaskDefaultNameQueryReq);
     /**
      * 新增混扫任务
      * todo createGroupCTTData

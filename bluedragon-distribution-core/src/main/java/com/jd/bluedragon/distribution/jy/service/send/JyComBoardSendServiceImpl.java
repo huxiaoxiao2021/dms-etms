@@ -385,7 +385,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.getDefaultGroupCTTName", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
     CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
-    String groupName = String.format(GROUP_NAME_PREFIX, this.genObjectId.getObjectId(JyGroupSortCrossDetailEntity.class.getName()));
+    String groupName = jyGroupSortCrossDetailService.getMixScanTaskDefaultName(GROUP_NAME_PREFIX);
     createGroupCTTResp.setTemplateName(groupName);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
   }

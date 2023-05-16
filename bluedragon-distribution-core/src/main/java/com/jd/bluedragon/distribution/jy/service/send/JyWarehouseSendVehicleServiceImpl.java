@@ -2,17 +2,18 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -36,20 +37,64 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     private static final Logger log = LoggerFactory.getLogger(JyWarehouseSendVehicleServiceImpl.class);
 
+    /**
+     * DB不做分页时，查询limit最大数量限制
+     */
+    public static final Integer DB_LIMIT_DEFAULT_MAX = 100;
+    /**
+     * DB不做分页时，查询limit默认数量
+     */
+    public static final Integer DB_LIMIT_DEFAULT = 30;
+    /**
+     * 混扫任务默认流向数量
+     */
+    public static final Integer MIX_SCAN_TASK_DEFAULT_FLOW_NUM = 10;
+
+
     @Autowired
     private SortCrossJsfManager sortCrossJsfManager;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
-
-
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
 
     @Override
-    public InvokeResult<SendVehicleTaskResponse> toSendVehicleTaskPage(SendVehicleTaskRequest request) {
-        InvokeResult<SendVehicleTaskResponse> superRes = super.fetchSendVehicleTask(request);
-        fillWareHouseFocusField(request, superRes);
-        return superRes;
+    public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
+
+        InvokeResult<SendVehicleTaskResponse> invokeResult = super.fetchSendVehicleTask(request);
+        setMixScanTaskSiteFlowMaxNum(request, invokeResult);
+        //车辆状态差异化查询
+        if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
+            fillWareHouseFocusField(request, invokeResult);
+        }
+
+        return invokeResult;
+    }
+
+    /**
+     * 混扫任务内配置最大流向数量
+     * @param invokeResult
+     */
+    private void setMixScanTaskSiteFlowMaxNum(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
+        if(!Objects.isNull(invokeResult) && !Objects.isNull(invokeResult.getData()) && !Objects.isNull(invokeResult.getData().getToSealVehicleData())) {
+            int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
+            Integer currentSiteCode = request.getCurrentOperate().getSiteCode();
+            String mixScanTaskFlowNumConfig = uccPropertyConfiguration.getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
+
+            String configKey = String.format("%s%s%s", Constants.SEPARATOR_COMMA, currentSiteCode, Constants.SEPARATOR_COLON);
+            if(StringUtils.isNotBlank(mixScanTaskFlowNumConfig) && mixScanTaskFlowNumConfig.contains(configKey)) {
+                String[] configArr = mixScanTaskFlowNumConfig.split(Constants.SEPARATOR_COMMA);
+                for(String conf : configArr) {
+                    String[] keyValue = conf.split(Constants.SEPARATOR_COLON);
+                    if(currentSiteCode.toString().equals(keyValue[0]) && StringUtils.isNotBlank(keyValue[1])) {
+                        mixScanTaskFlowNum = Integer.valueOf(keyValue[1]);
+                        break;
+                    }
+                }
+            }
+            invokeResult.getData().getToSealVehicleData().setMixScanTaskSiteFlowMaxNum(mixScanTaskFlowNum);
+        }
     }
 
     /**
@@ -263,15 +308,23 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     /**
      * 根据流向获取派车任务Id list
-     * 接货仓发货岗根据滑道笼车号可能查出多个流向，按照流向list查避免查询结果过多，服务端风险规避，仅支持查limit 30   按关键字查询此处不考虑分页
+     * 接货仓发货岗根据滑道笼车号可能查出多个流向，按照流向list查避免查询结果过多，服务端风险规避，limit数量限制   按关键字查询此处暂时不考虑分页
      * @param startSiteId
      * @param nextSiteIdList
      * @return
      */
     private List<String> getSendVehicleBizIdList(long startSiteId, List<Long> nextSiteIdList) {
-        final Integer pageSize = 30;
-        //        todo zcf
-        List<String> res = new ArrayList<>();
-        return res;
+        Integer pageSize = DB_LIMIT_DEFAULT;
+        Integer defaultLimitSize = uccPropertyConfiguration.getJyWarehouseSendVehicleDetailQueryDefaultLimitSize();
+        if(!Objects.isNull(defaultLimitSize) && defaultLimitSize > 0 && defaultLimitSize <= DB_LIMIT_DEFAULT_MAX) {
+            pageSize = defaultLimitSize;
+        }
+
+        JyBizTaskSendVehicleDetailQueryEntity queryEntity = new JyBizTaskSendVehicleDetailQueryEntity();
+        queryEntity.setStartSiteId(startSiteId);
+        queryEntity.setEndSiteIdList(nextSiteIdList);
+        queryEntity.setPageSize(pageSize);
+        List<String> bizIds = taskSendVehicleDetailService.findBizIdsBySiteFlows(queryEntity);
+        return bizIds;
     }
 }

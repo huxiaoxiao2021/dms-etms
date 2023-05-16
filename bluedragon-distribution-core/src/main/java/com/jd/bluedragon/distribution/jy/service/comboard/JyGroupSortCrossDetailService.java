@@ -72,4 +72,10 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     boolean deleteByIds(JyCTTGroupUpdateReq jyCTTGroupUpdateReq);
+
+    /**
+     * 获取混扫任务默认名称
+     * @return
+     */
+    String getMixScanTaskDefaultName(String defaultPrefix);
 }

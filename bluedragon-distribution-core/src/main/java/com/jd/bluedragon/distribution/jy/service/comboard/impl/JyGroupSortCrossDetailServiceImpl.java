@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
@@ -43,6 +44,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
 
     @Autowired
     private JyGroupSortCrossDetailDao jyGroupSortCrossDetailDao;
+    @Autowired
+    private IGenerateObjectId genObjectId;
+
 
     public static final String COM_BOARD_SEND = "CTT%s";
 
@@ -207,4 +211,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public boolean deleteByIds(JyCTTGroupUpdateReq jyCTTGroupUpdateReq) {
         return jyGroupSortCrossDetailDao.deleteByIds(jyCTTGroupUpdateReq) > 0;
     }
+
+    @Override
+    public String getMixScanTaskDefaultName(String defaultPrefix) {
+        return String.format(defaultPrefix, this.genObjectId.getObjectId(JyGroupSortCrossDetailEntity.class.getName()));
+    }
+
+
 }

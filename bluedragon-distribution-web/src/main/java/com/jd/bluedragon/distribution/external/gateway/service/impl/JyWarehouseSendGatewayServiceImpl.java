@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -21,12 +23,14 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +45,29 @@ import java.util.Objects;
 public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGatewayService {
     private static final Logger log = LoggerFactory.getLogger(JyWarehouseSendGatewayServiceImpl.class);
 
+
+    private static final String GROUP_NAME_PREFIX= "混扫%s";
+
     @Autowired
     private JyWarehouseSendVehicleServiceImpl jyWarehouseSendVehicleService;
+    @Autowired
+    private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
+
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    private void checkUser(User user) {
+        if(Objects.isNull(user) || StringUtils.isBlank(user.getUserErp())) {
+            throw new JyBizException("操作人ero为空");
+        }
+
+    }
+    private void checkCurrentOperate(CurrentOperate currentOperate) {
+        if(Objects.isNull(currentOperate) || Objects.isNull(currentOperate.getSiteCode())) {
+            throw new JyBizException("操作场地编码为空");
+        }
     }
 
     @Override
@@ -104,12 +126,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if(!illegalVehicleStatusRes.isSucceed()) {
                 return new JdCResponse<>(illegalVehicleStatusRes.getCode(), illegalVehicleStatusRes.getMessage(), null);
             }
-            //车辆状态差异化查询
-            if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
-                return retJdCResponse(jyWarehouseSendVehicleService.toSendVehicleTaskPage(request));
-            }else {
-                return retJdCResponse(jyWarehouseSendVehicleService.fetchSendVehicleTask(request));
-            }
+            return retJdCResponse(jyWarehouseSendVehicleService.fetchSendVehicleTask(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -154,8 +171,19 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> getMixScanTaskDefaultName(MixScanTaskReq mixScanTaskReq) {
-        return null;
+    public JdCResponse<String> getMixScanTaskDefaultName(MixScanTaskDefaultNameQueryReq request) {
+        JdCResponse<String> res = new JdCResponse<>();
+        res.toSucceed();
+        try{
+            checkUser(request.getUser());
+            checkCurrentOperate(request.getCurrentOperate());
+            res.setData(jyGroupSortCrossDetailService.getMixScanTaskDefaultName(GROUP_NAME_PREFIX));
+            return res;
+        }catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl.getMixScanTaskDefaultName:获取混扫任务名称失败，errMsg={}", e.getMessage(), e);
+            res.setData("混扫");
+            return res;
+        }
     }
 
     @Override

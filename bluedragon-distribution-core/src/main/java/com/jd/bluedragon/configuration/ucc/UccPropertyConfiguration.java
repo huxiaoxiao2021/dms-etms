@@ -1284,6 +1284,16 @@ public class UccPropertyConfiguration {
 
     private int onlineGetTaskSimpleCodeThreshold;
 
+    /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3148,5 +3158,21 @@ public class UccPropertyConfiguration {
 
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+        return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+        JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+        return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+        JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
     }
 }
