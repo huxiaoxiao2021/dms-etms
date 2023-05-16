@@ -115,7 +115,7 @@ public interface JyWarehouseSendGatewayService {
      * todo listCTTGroupData
      * todo queryCTTGroupByBarCode
      */
-    JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskQueryReq mixScanTaskQueryReq);
+    JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskListQueryReq mixScanTaskListQueryReq);
     /**
      * 获取混扫任务下流向信息
      * @param mixScanTaskFlowReq

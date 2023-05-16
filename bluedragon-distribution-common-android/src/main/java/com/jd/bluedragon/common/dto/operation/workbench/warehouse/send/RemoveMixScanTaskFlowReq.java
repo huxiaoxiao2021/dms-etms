@@ -17,9 +17,9 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
     private String templateCode;
 
     /**
-     * 派车明细任务
+     * 发货明细流向ID
      */
-    private String transWorkItemCode;
+    private String sendVehicleDetailBizId;
 
     /**
      * 目的地站点
@@ -35,11 +35,11 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
     }
 
     public String getTransWorkItemCode() {
-        return transWorkItemCode;
+        return sendVehicleDetailBizId;
     }
 
     public void setTransWorkItemCode(String transWorkItemCode) {
-        this.transWorkItemCode = transWorkItemCode;
+        this.sendVehicleDetailBizId = transWorkItemCode;
     }
 
     public Integer getEndSiteId() {

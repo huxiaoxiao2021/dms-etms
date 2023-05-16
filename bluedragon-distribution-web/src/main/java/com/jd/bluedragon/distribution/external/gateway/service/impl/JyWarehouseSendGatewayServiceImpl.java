@@ -216,7 +216,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskQueryReq mixScanTaskQueryReq) {
+    public JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         return null;
     }
 
