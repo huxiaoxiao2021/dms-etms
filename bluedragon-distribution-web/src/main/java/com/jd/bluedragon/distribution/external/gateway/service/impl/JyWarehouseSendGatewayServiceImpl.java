@@ -20,7 +20,6 @@ import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -156,7 +155,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<SendVehicleTaskResponse> fetchToSendAndSendingTaskPage(SendVehicleTaskRequest request) {
+    public JdCResponse<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request) {
         return null;
     }
 
@@ -192,7 +191,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq) {
+    public JdCResponse<Void> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq) {
         return null;
     }
 

@@ -2,8 +2,14 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
@@ -42,7 +48,7 @@ public interface JyWarehouseSendGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<SendVehicleTaskResponse> fetchToSendAndSendingTaskPage(SendVehicleTaskRequest request);
+    JdCResponse<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request);
     /**
      * 发货统计
      * todo loadProgress
@@ -76,7 +82,7 @@ public interface JyWarehouseSendGatewayService {
      * @param mixScanTaskReq
      * @return
      */
-    JdCResponse<MixScanTaskRes> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> appendMixScanTaskFlow(MixScanTaskReq mixScanTaskReq);
     /**
      * 删除混扫任务
      * todo deleteCTTGroup
