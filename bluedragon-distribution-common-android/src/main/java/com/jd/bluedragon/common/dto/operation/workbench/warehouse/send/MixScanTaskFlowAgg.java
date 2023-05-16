@@ -1,28 +1,15 @@
 package com.jd.bluedragon.common.dto.operation.workbench.warehouse.send;
 
-import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author liwenji
  * @description
  * @date 2023-05-16 14:37
  */
-public class MixScanTaskFlowDto {
-    private Integer startSiteId;
-    private Integer endSiteId;
-    private String endSiteName;
-    /**
-     * 滑道编号
-     */
-    private String crossCode;
-    /**
-     * 笼车编号
-     */
-    private String tableTrolleyCode;
+public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializable {
+    
     /**
      * 该流向拦截数量
      */
@@ -40,12 +27,7 @@ public class MixScanTaskFlowDto {
      * 该流向待扫数量
      */
     private Integer waitScanCount;
-
-    /**
-     * 关注状态
-     */
-    private Integer focus;
-
+    
     /**
      * 关注数量
      */
@@ -76,51 +58,6 @@ public class MixScanTaskFlowDto {
      */
     private BigDecimal loadWeight = BigDecimal.ZERO;
     
-    /**
-     * 派车明细任务
-     */
-    private String transWorkItemCode;
-
-    
-    public Integer getStartSiteId() {
-        return startSiteId;
-    }
-
-    public void setStartSiteId(Integer startSiteId) {
-        this.startSiteId = startSiteId;
-    }
-
-    public Integer getEndSiteId() {
-        return endSiteId;
-    }
-
-    public void setEndSiteId(Integer endSiteId) {
-        this.endSiteId = endSiteId;
-    }
-
-    public String getEndSiteName() {
-        return endSiteName;
-    }
-
-    public void setEndSiteName(String endSiteName) {
-        this.endSiteName = endSiteName;
-    }
-
-    public String getCrossCode() {
-        return crossCode;
-    }
-
-    public void setCrossCode(String crossCode) {
-        this.crossCode = crossCode;
-    }
-
-    public String getTableTrolleyCode() {
-        return tableTrolleyCode;
-    }
-
-    public void setTableTrolleyCode(String tableTrolleyCode) {
-        this.tableTrolleyCode = tableTrolleyCode;
-    }
 
     public Integer getInterceptCount() {
         return interceptCount;
@@ -152,14 +89,6 @@ public class MixScanTaskFlowDto {
 
     public void setWaitScanCount(Integer waitScanCount) {
         this.waitScanCount = waitScanCount;
-    }
-
-    public Integer getFocus() {
-        return focus;
-    }
-
-    public void setFocus(Integer focus) {
-        this.focus = focus;
     }
 
     public BigDecimal getLoadRate() {
@@ -210,11 +139,4 @@ public class MixScanTaskFlowDto {
         this.focusCount = focusCount;
     }
 
-    public String getTransWorkItemCode() {
-        return transWorkItemCode;
-    }
-
-    public void setTransWorkItemCode(String transWorkItemCode) {
-        this.transWorkItemCode = transWorkItemCode;
-    }
 }

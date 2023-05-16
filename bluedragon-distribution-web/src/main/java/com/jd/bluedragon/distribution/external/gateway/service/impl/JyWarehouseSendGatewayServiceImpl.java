@@ -211,7 +211,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> mixScanTaskFocus(MixScanTaskReq mixScanTaskReq) {
+    public JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
         return null;
     }
 
@@ -221,7 +221,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailPage(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
+    public JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
         return null;
     }
 

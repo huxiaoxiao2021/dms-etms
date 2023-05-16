@@ -105,10 +105,10 @@ public interface JyWarehouseSendGatewayService {
     JdCResponse<MixScanTaskRes> mixScanTaskComplete(MixScanTaskReq mixScanTaskReq);
     /**
      * 混扫任务关注/取消关注
-     * @param mixScanTaskReq
+     * @param mixScanTaskFocusReq
      * @return
      */
-    JdCResponse<MixScanTaskRes> mixScanTaskFocus(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq);
     /**
      * 混扫任务列表查询-分页
      * 适用场景：（1）发货中任务点击查询跳转；（2）混扫任务主页展示；（3）混扫任务主页按条件查询
@@ -121,7 +121,7 @@ public interface JyWarehouseSendGatewayService {
      * @param mixScanTaskFlowReq
      * @return
      */
-    JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailPage(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
+    JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
     /**
      * 获取混扫任务下流向信息(根据业务场景，无需支持分页)
      * @param mixScanTaskQueryReq

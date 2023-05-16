@@ -12,13 +12,13 @@ public class MixScanTaskFlowDetailRes {
     /**
      * 流向详情
      */
-    private List<MixScanTaskFlowDto> mixScanTaskFlowDtoList;
+    private List<MixScanTaskFlowAgg> mixScanTaskFlowDtoList;
 
-    public List<MixScanTaskFlowDto> getMixScanTaskFlowDtoList() {
+    public List<MixScanTaskFlowAgg> getMixScanTaskFlowDtoList() {
         return mixScanTaskFlowDtoList;
     }
 
-    public void setMixScanTaskFlowDtoList(List<MixScanTaskFlowDto> mixScanTaskFlowDtoList) {
+    public void setMixScanTaskFlowDtoList(List<MixScanTaskFlowAgg> mixScanTaskFlowDtoList) {
         this.mixScanTaskFlowDtoList = mixScanTaskFlowDtoList;
     }
 }

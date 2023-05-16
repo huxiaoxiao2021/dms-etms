@@ -7,10 +7,9 @@ import java.io.Serializable;
 /**
  * @author liwenji
  * @description 
- * @date 2023-05-16 16:29
+ * @date 2023-05-16 18:19
  */
-public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
-
+public class MixScanTaskFocusReq extends BaseReq implements Serializable {
     /**
      * 混扫任务编号
      */
@@ -25,6 +24,11 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
      * 目的地站点
      */
     private Integer endSiteId;
+
+    /**
+     * 0: 关注 1: 不关注
+     */
+    private Integer focus;
 
     public String getTemplateCode() {
         return templateCode;
@@ -48,5 +52,13 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
 
     public void setEndSiteId(Integer endSiteId) {
         this.endSiteId = endSiteId;
+    }
+
+    public Integer getFocus() {
+        return focus;
+    }
+
+    public void setFocus(Integer focus) {
+        this.focus = focus;
     }
 }

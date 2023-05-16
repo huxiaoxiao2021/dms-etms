@@ -16,15 +16,6 @@ public class DeleteMixScanTaskReq extends BaseReq implements Serializable {
      */
     private String templateCode;
     
-    /**
-     * 派车明细任务
-     */
-    private String transWorkItemCode;
-
-    /**
-     * 目的地站点
-     */
-    private Integer endSiteId;
     
     public String getTemplateCode() {
         return templateCode;
@@ -34,19 +25,4 @@ public class DeleteMixScanTaskReq extends BaseReq implements Serializable {
         this.templateCode = templateCode;
     }
 
-    public String getTransWorkItemCode() {
-        return transWorkItemCode;
-    }
-
-    public void setTransWorkItemCode(String transWorkItemCode) {
-        this.transWorkItemCode = transWorkItemCode;
-    }
-
-    public Integer getEndSiteId() {
-        return endSiteId;
-    }
-
-    public void setEndSiteId(Integer endSiteId) {
-        this.endSiteId = endSiteId;
-    }
 }
