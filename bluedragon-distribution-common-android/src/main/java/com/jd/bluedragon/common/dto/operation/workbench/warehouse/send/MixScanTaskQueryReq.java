@@ -7,6 +7,10 @@ import java.io.Serializable;
 public class MixScanTaskQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = -5809332610524693231L;
+    /**
+     * 混扫任务编码
+     */
+    private String templateCode;
 
     /**
      * 查询条件 包裹号|箱号|目的地ID|滑道笼车号
@@ -18,6 +22,9 @@ public class MixScanTaskQueryReq extends BaseReq implements Serializable {
 
     public String getBarCode() {
         return barCode;
+    }
+    public String getTemplateCode() {
+        return templateCode;
     }
 
     public void setBarCode(String barCode) {
@@ -38,5 +45,8 @@ public class MixScanTaskQueryReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 }

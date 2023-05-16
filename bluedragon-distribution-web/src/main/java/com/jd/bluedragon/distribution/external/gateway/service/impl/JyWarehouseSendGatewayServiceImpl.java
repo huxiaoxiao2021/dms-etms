@@ -226,6 +226,41 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.getMixScanTaskDetailList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<MixScanTaskDetailRes> getMixScanTaskDetailList(MixScanTaskQueryReq request) {
+        JdCResponse<MixScanTaskDetailRes> res = new JdCResponse<>();
+        res.toSucceed();
+        final String methodDesc = "JySendVehicleGatewayService.getMixScanTaskFlowList:查询混扫任务下流向信息：";
+        try{
+            //参数校验
+            if(Objects.isNull(request)){
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkUser(request.getUser());
+            checkCurrentOperate(request.getCurrentOperate());
+            if(StringUtils.isBlank(request.getGroupCode())) {
+                res.toFail("岗位小组参数为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getTemplateCode())) {
+                res.toFail("混扫任务编码参数为空");
+                return res;
+            }
+            return retJdCResponse(jyWarehouseSendVehicleService.getMixScanTaskDetailList(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
+        }
+    }
+
+    @Override
     public JdCResponse<ToSealDestAgg> selectMixScanTaskSealDest(SelectSealDestRequest request) {
         return null;
     }

@@ -20,6 +20,10 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="func_type" jdbcType="VARCHAR" property="funcType" />
+    <result column="focus" jdbcType="BIT" property="focus" />
+    <result column="send_vehicle_detail_biz_id" jdbcType="VARCHAR" property="sendVehicleDetailBizId" />
+
   </resultMap>
   <resultMap id="cttGroupDtoMap" type="com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto">
     <result column="template_code" jdbcType="VARCHAR" property="templateCode" />
@@ -33,7 +37,7 @@
   <sql id="Base_Column_List">
     id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id,
     start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp,
-    update_user_name, create_time, update_time, yn, ts
+    update_user_name, create_time, update_time, yn, ts, func_type, focus, send_vehicle_detail_biz_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select

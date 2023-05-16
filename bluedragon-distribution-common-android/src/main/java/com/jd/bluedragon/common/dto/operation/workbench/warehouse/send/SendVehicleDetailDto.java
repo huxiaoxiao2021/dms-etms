@@ -42,7 +42,7 @@ public class SendVehicleDetailDto implements Serializable {
     private String crossTableTrolley;
 
     /**
-     * 混扫任务进行中
+     * 混扫任务进行中:true 已经添加的
      */
     private Boolean mixScanTaskProcess;
 

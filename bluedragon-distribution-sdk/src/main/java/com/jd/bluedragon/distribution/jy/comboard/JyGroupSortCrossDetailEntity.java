@@ -39,6 +39,20 @@ public class JyGroupSortCrossDetailEntity {
     private Boolean yn;
 
     private Date ts;
+
+    /**
+     * 发车任务明细bizId
+     */
+    private String sendVehicleDetailBizId;
+    /**
+     * 是否关注
+     */
+    private Integer focus;
+    /**
+     * 功能类型
+     * com.jd.bluedragon.distribution.jy.constants.JyPostEnum
+     */
+    private String funcType;
     
     private transient List<String> templateCodeList;
 
@@ -192,5 +206,29 @@ public class JyGroupSortCrossDetailEntity {
 
     public void setTemplateCodeList(List<String> templateCodeList) {
         this.templateCodeList = templateCodeList;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
+
+    public Integer getFocus() {
+        return focus;
+    }
+
+    public void setFocus(Integer focus) {
+        this.focus = focus;
+    }
+
+    public String getFuncType() {
+        return funcType;
+    }
+
+    public void setFuncType(String funcType) {
+        this.funcType = funcType;
     }
 }

@@ -2,15 +2,22 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailRes;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskQueryReq;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
@@ -57,7 +64,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration ;
-
+    @Autowired
+    private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -326,5 +334,39 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         queryEntity.setPageSize(pageSize);
         List<String> bizIds = taskSendVehicleDetailService.findBizIdsBySiteFlows(queryEntity);
         return bizIds;
+    }
+
+    @Override
+    public InvokeResult<MixScanTaskDetailRes> getMixScanTaskDetailList(MixScanTaskQueryReq request) {
+        InvokeResult<MixScanTaskDetailRes> res = new InvokeResult<>();
+        res.success();
+        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        entity.setGroupCode(request.getGroupCode());
+        entity.setTemplateCode(request.getTemplateCode());
+        entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+        if(CollectionUtils.isEmpty(entityList)) {
+            res.setMessage("查询为空");
+            return res;
+        }
+        List<MixScanTaskDetailDto> sendVehicleDetailDtoList = new ArrayList<>();
+        entityList.forEach(en -> {
+            MixScanTaskDetailDto dto = new MixScanTaskDetailDto();
+            dto.setStartSiteId(en.getStartSiteId());
+            dto.setStartSiteName(en.getStartSiteName());
+            dto.setCrossCode(en.getCrossCode());
+            dto.setTabletrolleyCode(en.getTabletrolleyCode());
+            dto.setTemplateName(en.getTemplateName());
+            dto.setTemplateCode(en.getTemplateCode());
+            dto.setEndSiteId(en.getEndSiteId());
+            dto.setEndSiteName(en.getEndSiteName());
+            dto.setSendVehicleDetailBizId(en.getSendVehicleDetailBizId());
+            dto.setFocus(en.getFocus());
+            sendVehicleDetailDtoList.add(dto);
+        });
+        MixScanTaskDetailRes resData = new MixScanTaskDetailRes();
+        resData.setMixScanTaskDetailDtoList(sendVehicleDetailDtoList);
+        res.setData(resData);
+        return res;
     }
 }

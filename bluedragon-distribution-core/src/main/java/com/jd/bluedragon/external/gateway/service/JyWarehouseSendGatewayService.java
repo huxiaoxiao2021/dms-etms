@@ -122,6 +122,12 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailPage(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
+    /**
+     * 获取混扫任务下流向信息(根据业务场景，无需支持分页)
+     * @param mixScanTaskQueryReq
+     * @return
+     */
+    JdCResponse<MixScanTaskDetailRes> getMixScanTaskDetailList(MixScanTaskQueryReq mixScanTaskQueryReq);
 
 
     /**

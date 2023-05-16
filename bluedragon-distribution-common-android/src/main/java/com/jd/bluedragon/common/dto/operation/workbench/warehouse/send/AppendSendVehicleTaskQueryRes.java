@@ -17,6 +17,10 @@ public class AppendSendVehicleTaskQueryRes extends BaseReq implements Serializab
      */
     private Integer mixScanTaskSiteFlowMaxNum;
     /**
+     * 混扫任务已添加的场地流向数量
+     */
+    private Integer mixScanTaskSiteFlowNum;
+    /**
      * 发货任务（待发货、发货中）
      */
     private List<SendVehicleDto> sendVehicleDtoList;
@@ -36,5 +40,13 @@ public class AppendSendVehicleTaskQueryRes extends BaseReq implements Serializab
 
     public void setSendVehicleDtoList(List<SendVehicleDto> sendVehicleDtoList) {
         this.sendVehicleDtoList = sendVehicleDtoList;
+    }
+
+    public Integer getMixScanTaskSiteFlowNum() {
+        return mixScanTaskSiteFlowNum;
+    }
+
+    public void setMixScanTaskSiteFlowNum(Integer mixScanTaskSiteFlowNum) {
+        this.mixScanTaskSiteFlowNum = mixScanTaskSiteFlowNum;
     }
 }
