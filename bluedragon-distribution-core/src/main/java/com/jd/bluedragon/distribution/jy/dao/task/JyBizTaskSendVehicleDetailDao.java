@@ -119,6 +119,6 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         Map<String,Object> params = new HashMap<>();
         params.put("entity", queryEntity);
 
-        return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBiz", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".findBizIdsBySiteFlows", params);
     }
 }
