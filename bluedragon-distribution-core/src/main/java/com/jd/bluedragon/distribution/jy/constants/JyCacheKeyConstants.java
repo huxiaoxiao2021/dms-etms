@@ -17,7 +17,7 @@ public class JyCacheKeyConstants {
 
     public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR = "jy:send:vehicle:dockValidate:lastGenerate:%s:%s";
     public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_TIME_KEY = "jy:send:vehicle:dockValidate:lastGenerateTime:%s:%s";
-    public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR = "jy:send:vehicle:dockValidate:%s:%s";
+    public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR = "jy:send:vehicle:dockValidate:%s";
     public static final TimeUnit JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT = TimeUnit.SECONDS;
 
 }

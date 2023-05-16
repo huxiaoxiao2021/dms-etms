@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
@@ -89,29 +91,29 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             if (siteEndInfo == null) {
                 return result.toFail(String.format("未查询到目的场地编码为%s的场地数据", requestDto.getEndNodeCode()));
             }
-            final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(siteStartInfo.getSiteCode(), requestDto.getValidateStr());
+            final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(requestDto.getValidateStr());
             final String validateStrCacheVal = redisClientOfJy.get(validateStrGenerateCacheKey);
-            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, val {}", validateStrCacheVal, requestDto.getValidateStr());
+            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, val {}", requestDto.getValidateStr(), validateStrCacheVal);
             if(validateStrCacheVal == null){
                 vehicleArriveDockResponseDto.setLegal(false);
-                vehicleArriveDockResponseDto.setValidateMsg("二维码已过期");
+                vehicleArriveDockResponseDto.setValidateMsg(HintService.getHint(HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG, HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED));
                 return result;
             }
             // 从缓存取数据
             final VehicleArriveDockDataCacheDto vehicleArriveDockDataCacheDto = JSON.parseObject(validateStrCacheVal, VehicleArriveDockDataCacheDto.class);
             if (!Objects.equals(siteStartInfo.getSiteCode(), vehicleArriveDockDataCacheDto.getSiteId())) {
                 vehicleArriveDockResponseDto.setLegal(false);
-                vehicleArriveDockResponseDto.setValidateMsg("校验失败，场地不一致！");
+                vehicleArriveDockResponseDto.setValidateMsg(HintService.getHint(HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED_MSG, HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED));
                 return result;
             }
             final String validateLastGenerateCacheKey = this.getValidateLastGenerateCacheKey(vehicleArriveDockDataCacheDto.getSiteId(), vehicleArriveDockDataCacheDto.getCreateUserCode());
             final String validateLastGenerateVal = redisClientOfJy.get(validateLastGenerateCacheKey);
-            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, validateLastGenerateVal {}", validateStrCacheVal, requestDto.getValidateStr());
+            log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, validateLastGenerateVal {}", requestDto.getValidateStr(), validateStrCacheVal);
             if (StringUtils.isNotEmpty(validateLastGenerateVal)) {
                 final List<String> validateLastGenerateArrExist = JSON.parseArray(validateLastGenerateVal, String.class);
                 if (!validateLastGenerateArrExist.contains(requestDto.getValidateStr())) {
                     vehicleArriveDockResponseDto.setLegal(false);
-                    vehicleArriveDockResponseDto.setValidateMsg("二维码已过期");
+                    vehicleArriveDockResponseDto.setValidateMsg(HintService.getHint(HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG, HintCodeConstants.TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED));
                     return result;
                 }
             }
@@ -302,7 +304,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockDataCacheDto.setCreateTimeMillSeconds(System.currentTimeMillis());
             vehicleArriveDockDataCacheDto.setCreateUserCode(operateUser.getUserCode());
             // 保存10分钟缓存，验证码的信息
-            final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(qo.getStartSiteId(), validateStr);
+            final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(validateStr);
             redisClientOfJy.setEx(validateStrGenerateCacheKey, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockRefreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowRefreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
 
             // 将上几次验证字符缓存删除，来验证有效性
@@ -354,8 +356,8 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
         return result;
     }
 
-    private String getValidateGenerateCacheKey(Integer siteId, String validateStr) {
-        return String.format(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR, siteId, validateStr);
+    private String getValidateGenerateCacheKey(String validateStr) {
+        return String.format(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR, validateStr);
     }
     private String getValidateLastGenerateCacheKey(Integer siteId, String userCode) {
         return String.format(JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_LAST_GENERATE_STR, siteId, userCode);
