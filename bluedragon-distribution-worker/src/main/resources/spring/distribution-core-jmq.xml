@@ -835,9 +835,6 @@
         <property name="timeout" value="1000" />
     </bean>
 
-    <bean id="jyAggsConsumer" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
-        <property name="dataSourceType" value="jyCore"/>
-    </bean>
     <bean id="jyAggsConsumerMain" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
         <property name="dataSourceType" value="aggsMain"/>
     </bean>

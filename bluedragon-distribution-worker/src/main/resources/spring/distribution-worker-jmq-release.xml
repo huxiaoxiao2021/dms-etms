@@ -472,10 +472,6 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="repeatWaybillCodeCanceltConsumer"/>
     </jmq:consumer>
     <!--  组板发货岗统计消息  -->
-    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
-    </jmq:consumer>
-
     <jmq:consumer id="jmq.jyAggsConsumerMain" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumerMain"/>
     </jmq:consumer>
@@ -607,7 +603,7 @@
     <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
     </jmq:consumer>
-    
+
     <!--  拣运-滞留扫描容器处理消费  -->
     <jmq:consumer id="jmq.jyStrandScanContainerDealConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.strandScan.containerDeal}" listener="jyStrandScanContainerDealConsumer"/>
@@ -616,6 +612,6 @@
     <jmq:consumer id="jmq.transportRejectAddCarApplyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
     </jmq:consumer>
-    
+
 </beans>
 
