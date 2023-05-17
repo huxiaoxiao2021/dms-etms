@@ -1,6 +1,7 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -1303,7 +1304,7 @@ public class UccPropertyConfiguration {
     private boolean  supportMutilScan;
 
     private String dpSpringSiteCode;
-    private List<Integer> dpSpringSiteCodeList;
+    private List<Integer> dpSpringSiteCodeList = new ArrayList<>();
 
     /**
      * 传站拦截-- 场地黑名单
@@ -1513,8 +1514,6 @@ public class UccPropertyConfiguration {
      */
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
-
-
     private String aggsDataSource;
 
     public String getAggsDataSource() {
@@ -1524,6 +1523,11 @@ public class UccPropertyConfiguration {
     public void setAggsDataSource(String aggsDataSource) {
         this.aggsDataSource = aggsDataSource;
     }
+    /**
+     * 拣运APP自动刷新时间配置
+     */
+    private String jyWorkAppAutoRefreshConfig;
+    private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3263,23 +3267,18 @@ public class UccPropertyConfiguration {
 
     public void setDpSpringSiteCode(String dpSpringSiteCode) {
         this.dpSpringSiteCode = dpSpringSiteCode;
-    }
 
-    public List<Integer> getDpSpringSiteCodeList() {
-        if(dpSpringSiteCodeList != null){
-            return dpSpringSiteCodeList;
-        } else {
-            dpSpringSiteCodeList = new ArrayList<>();
-        }
-        final String dpSpringSiteCodes = this.getDpSpringSiteCode();
         List<String> dpSpringSiteCodeList = new ArrayList<>();
-        if(StringUtils.isNotBlank(dpSpringSiteCodes)){
-            final String[] split = dpSpringSiteCodes.split(Constants.SEPARATOR_COMMA);
+        if(StringUtils.isNotBlank(dpSpringSiteCode)){
+            final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
         return this.dpSpringSiteCodeList;
     }
 
@@ -3440,5 +3439,37 @@ public class UccPropertyConfiguration {
 
     public void setJyTransportSendVehicleValidateDockAllowRefreshTimes(Integer jyTransportSendVehicleValidateDockAllowRefreshTimes) {
         this.jyTransportSendVehicleValidateDockAllowRefreshTimes = jyTransportSendVehicleValidateDockAllowRefreshTimes;
+    }
+
+    public String getJyWorkAppAutoRefreshConfig() {
+        return jyWorkAppAutoRefreshConfig;
+    }
+
+    public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
+        this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
+        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
+    }
+
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return jyWorkAppAutoRefreshConfigList;
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }
+    }
+
+    public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
+        if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
+            final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
+            if(first.isPresent()){
+                return first.get();
+            }
+        }
+        return null;
     }
 }

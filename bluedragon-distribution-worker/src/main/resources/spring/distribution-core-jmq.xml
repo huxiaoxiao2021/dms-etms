@@ -780,6 +780,12 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--发送作业任务自动关闭消息 -->
+    <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
     <!--装车评价报表初始化信息 -->
     <bean id="evaluateTargetInitProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.evaluate.target.init}" />
@@ -835,12 +841,6 @@
         <property name="timeout" value="1000" />
     </bean>
 
-    <!-- 拣运-滞留扫描：容器处理 -->
-    <bean id="jyStrandScanContainerDealProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.strandScan.containerDeal}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-
     <!--  异常提报消息  -->
     <bean id="abnormalReportRecordProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.abnormal.report.record}" />
@@ -881,10 +881,15 @@
         <property name="dataSourceType" value="aggsSlave"/>
     </bean>
 
-
     <!--逆向vmi推送消息 仅在worker中使用配置即可 -->
     <bean id="outStoreVmiProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.out.big.store.down.stream.vmi.dtc}" />
         <property name="timeout" value="1000" />
+    </bean>
+
+    <!-- 拣运-滞留扫描：容器处理 -->
+    <bean id="jyStrandScanContainerDealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strandScan.containerDeal}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 </beans>
