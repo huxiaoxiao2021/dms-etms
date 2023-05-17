@@ -828,4 +828,26 @@
         <property name="topic" value="${jmq.topic.jy.operation.progress}" />
         <property name="timeout" value="3000" />
     </bean>
+
+    <!--  异常提报消息  -->
+    <bean id="abnormalReportRecordProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.abnormal.report.record}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <bean id="jyAggsConsumer" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="jyCore"/>
+    </bean>
+    <bean id="jyAggsConsumerMain" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="aggsMain"/>
+    </bean>
+    <bean id="jyAggsConsumerSlave" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
+        <property name="dataSourceType" value="aggsSlave"/>
+    </bean>
+
+    <!-- 拣运-滞留扫描：容器处理 -->
+    <bean id="jyStrandScanContainerDealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strandScan.containerDeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

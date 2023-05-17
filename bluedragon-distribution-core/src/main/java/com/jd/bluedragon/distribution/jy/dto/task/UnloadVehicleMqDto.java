@@ -181,6 +181,11 @@ public class UnloadVehicleMqDto implements Serializable {
      */
     private Integer version;
 
+    /**
+     * 0-非特安；1-特安
+     */
+    private Integer teanFlag;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -499,5 +504,13 @@ public class UnloadVehicleMqDto implements Serializable {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getTeanFlag() {
+        return teanFlag;
+    }
+
+    public void setTeanFlag(Integer teanFlag) {
+        this.teanFlag = teanFlag;
     }
 }
