@@ -1048,7 +1048,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isVmi(Map<String, Object> sendPayMap){
-        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_840), SendPayConstants.CHAR_840_1);
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_840), SendPayConstants.STR_840_1);
     }
 
     /**

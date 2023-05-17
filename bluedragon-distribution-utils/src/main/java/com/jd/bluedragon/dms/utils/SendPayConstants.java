@@ -117,6 +117,6 @@ public interface SendPayConstants {
 	/**
 	 * vmi标识
 	 */
-	int POSITION_840 = 840;
-	char CHAR_840_1 = '1';
+	String POSITION_840 = "840";
+	String STR_840_1 = "1";
 }
