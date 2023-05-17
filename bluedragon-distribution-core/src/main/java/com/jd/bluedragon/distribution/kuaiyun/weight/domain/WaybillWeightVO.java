@@ -65,6 +65,11 @@ public class WaybillWeightVO implements Serializable
      * 长包裹 0:普通包裹 1:长包裹
      * */
     private Integer longPackage;
+    /**
+     * 处理类型
+     * @see com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum
+     */
+    private String businessType;    
     @Override
     public String toString()
     {
@@ -252,5 +257,13 @@ public class WaybillWeightVO implements Serializable
 
 	public void setOverLengthAndWeightTypesStr(String overLengthAndWeightTypesStr) {
 		this.overLengthAndWeightTypesStr = overLengthAndWeightTypesStr;
+	}
+
+	public String getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
 	}
 }

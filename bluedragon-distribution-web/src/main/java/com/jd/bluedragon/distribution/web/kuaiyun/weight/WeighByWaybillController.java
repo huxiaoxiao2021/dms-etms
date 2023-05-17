@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInte
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightCheckResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightImportResponse;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
@@ -139,17 +140,38 @@ public class WeighByWaybillController extends DmsBaseController {
     @RequestMapping("/checkBeforeSaveWaybillWeight")
     @ResponseBody
     @BusinessLog(sourceSys = 1,bizType = 1901,operateType = 1901002)
-    public JdResult<WeightVolumeUploadResult> checkBeforeSaveWaybillWeight(WaybillWeightVO vo) {
-    	WeightVolumeCondition condition = new WeightVolumeCondition();
-    	condition.setBarCode(vo.getCodeStr());
-    	condition.setVolume(vo.getVolume());
-    	condition.setWeight(vo.getWeight());
-    	condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
-    	condition.setOverLengthAndWeightEnable(vo.getOverLengthAndWeightEnable());
-    	if(StringUtils.isNotBlank(vo.getOverLengthAndWeightTypesStr())) {
-    		condition.setOverLengthAndWeightTypes(JsonHelper.jsonToList(vo.getOverLengthAndWeightTypesStr(), String.class));
+    public JdResult<WaybillWeightCheckResult> checkBeforeSaveWaybillWeight(WaybillWeightVO vo) {
+    	JdResult<WaybillWeightCheckResult> result = new JdResult<WaybillWeightCheckResult>();
+    	result.toSuccess();
+    	WaybillWeightCheckResult checkData = new WaybillWeightCheckResult();
+    	result.setData(checkData);
+    	
+    	InvokeResult<Boolean> verifyResult = this.verifyWaybillReality(vo.getCodeStr());
+    	if(verifyResult != null) {
+    		checkData.setIsExists(verifyResult.getData());
+    		checkData.setVerifyCode(verifyResult.getCode());
+    		checkData.setVerifyMessage(verifyResult.getMessage());
     	}
-    	return dmsWeightVolumeService.checkBeforeUpload(condition);
+    	if(vo.getVolume() != null || vo.getWeight() != null) {
+    		WeightVolumeCondition condition = new WeightVolumeCondition();
+        	condition.setBarCode(vo.getCodeStr());
+        	condition.setVolume(vo.getVolume());
+        	condition.setWeight(vo.getWeight());
+        	if(WaybillUtil.isPackageCode(vo.getCodeStr())) {
+        		condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
+        	}else {
+        		condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
+        	}
+        	condition.setOverLengthAndWeightEnable(vo.getOverLengthAndWeightEnable());
+        	if(StringUtils.isNotBlank(vo.getOverLengthAndWeightTypesStr())) {
+        		condition.setOverLengthAndWeightTypes(JsonHelper.jsonToList(vo.getOverLengthAndWeightTypesStr(), String.class));
+        	}
+        	JdResult<WeightVolumeUploadResult> weightVolumeCheckResult = dmsWeightVolumeService.checkBeforeUpload(condition);
+        	if(weightVolumeCheckResult != null) {
+        		checkData.setWeightVolumeCheckResult(weightVolumeCheckResult.getData());
+        	}
+    	}
+    	return result;
     }
     private InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo,ErpUserClient.ErpUser erpUser, BaseStaffSiteOrgDto baseStaffSiteOrgDto) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();

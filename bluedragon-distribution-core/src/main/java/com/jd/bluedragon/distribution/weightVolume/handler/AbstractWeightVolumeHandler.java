@@ -25,9 +25,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
 import com.jd.merchant.sdk.order.dto.BaseInfo;
 import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
 import com.jd.merchant.sdk.product.dto.OverLengthAndWeight;
+import com.jd.merchant.sdk.product.dto.ChannelInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
@@ -115,6 +117,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     	baseInfo.setUpdateTime(entity.getOperateTime());
     	baseInfo.setUpdateUser(entity.getOperatorCode());
     	updateData.setBaseInfo(baseInfo);
+    	ChannelInfo channelInfo = new ChannelInfo();
+    	channelInfo.setSystemCaller(SystemCallerEnum.DMS_ETMS.getSystemCaller());
+    	updateData.setChannelInfo(channelInfo);
     	OverLengthAndWeight overLengthAndWeight = new OverLengthAndWeight();
     	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.ONE_SIDE.getCode())) {
     		overLengthAndWeight.setSingleSideOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);

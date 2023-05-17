@@ -13,9 +13,8 @@
     var CBM_DIV_KG_MIN_LIMIT = 168.0;
     var CBM_DIV_KG_MAX_LIMIT = 330.0;
 
-    var waybill_weight_validate_url     = '/b2b/express/weight/verifyWaybillReality';
-    var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';
-    var waybill_weight_save_url       = '/b2b/express/weight/saveWaybillWeight';    
+    var waybill_weight_validate_url     = '/b2b/express/weight/checkBeforeSaveWaybillWeight';
+    var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';   
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
     var waybill_weight_improt_url      = '/b2b/express/weight/uploadExcel'; //批量导入
     var SERVER_ERROR_CODE = 500;
@@ -268,10 +267,20 @@
  */
 function doWaybillWeight(insertParam,removeFailData,removeIndex){
         /*调用验证方法验证单号是否合法、是否存在*/
-        involkPostSync(waybill_weight_validate_url,{codeStr:insertParam.codeStr},function (res) {
+        involkPostSync(waybill_weight_validate_url,insertParam,function (res) {
 
-            var isExists = res.data;
-
+            var isExists = res.data.isExists;
+            var verifyCode = res.data.verifyCode;
+            var verifyMessage = res.data.verifyMessage;
+            var weightVolumeCheckResult = res.data.weightVolumeCheckResult;
+            var hasOverLengthAndWeight = false;
+            if(weightVolumeCheckResult != null){
+                hasOverLengthAndWeight = weightVolumeCheckResult.hasOverLengthAndWeight;
+            }
+            if(hasOverLengthAndWeight){
+                insertParam.overLengthAndWeightEnable = true;
+                insertParamoverLengthAndWeightTypes = [];
+            }
             if(isExists)
             {
                 /*******************************************************************************/
@@ -291,29 +300,29 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                 /*******************************************************************************/
 
                 /*单号不合法*/
-                if(res.code == ERROR_PARAM_RESULT_CODE)
+                if(verifyCode == ERROR_PARAM_RESULT_CODE)
                 {
                     $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
                     return;
                 }
 
-                if(res.code == NO_NEED_WEIGHT){
-                    $.messager.alert('提示',res.message,'warning');
+                if(verifyCode == NO_NEED_WEIGHT){
+                    $.messager.alert('提示',verifyMessage,'warning');
                     return ;
                 }
                 //KA运单
-                if(res.code == KAWAYBILL_NEEDPACKAGE_WEIGHT){
-                    $.messager.alert('提示',res.message,'error');
+                if(verifyCode == KAWAYBILL_NEEDPACKAGE_WEIGHT){
+                    $.messager.alert('提示',verifyMessage,'error');
                     $('#waybill-weight-btn').linkbutton('disable');
                     $('#waybill-weight-import-btn').linkbutton('disable');
                     return ;
                 }
-                if(res.code === JP_FORBID_WEIGHT){
-                    $.messager.alert('提示', res.message, 'error');
+                if(verifyCode === JP_FORBID_WEIGHT){
+                    $.messager.alert('提示', verifyMessage, 'error');
                     return ;
                 }
-                if(res.code == WAYBILL_STATES_FINISHED){
-                    $.messager.alert('提示',res.message,'error');
+                if(verifyCode == WAYBILL_STATES_FINISHED){
+                    $.messager.alert('提示',verifyMessage,'error');
                     return ;
                 }
                 /*单号通过正则校验、但单号对应运单不存在*/
