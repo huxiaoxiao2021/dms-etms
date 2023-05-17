@@ -1072,6 +1072,16 @@ public class BusinessHelper {
     public static boolean isSpecialOrder(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_596), SendPayConstants.STR_596_1);
     }
+
+    /**
+     * 是否 vmi订单
+     * @param sendPayMap  840位 == 1
+     * @return
+     */
+    public static boolean isVmi(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_840), SendPayConstants.STR_840_1);
+    }
+
     /**
      * 
      * @param extendMap

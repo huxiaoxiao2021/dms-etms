@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.utils.*;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -24,11 +28,6 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.DtcDataReceiverManager;
-import com.jd.bluedragon.core.base.EclpItemManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -41,22 +40,6 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.GuestBackSubTypeEnum;
-import com.jd.bluedragon.distribution.reverse.domain.MovingWarehouseInnerWaybill;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMCS;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToCLPS;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailStatusEnum;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailTypeEnum;
-import com.jd.bluedragon.distribution.reverse.domain.WaybillOrderCodeDto;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -75,14 +58,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -119,6 +94,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Qualifier("bdDmsReverseSendMQ")
     private DefaultJMQProducer bdDmsReverseSendMQ;
 
+    @Autowired
+    @Qualifier("outStoreVmiProducer")
+    private DefaultJMQProducer outStoreVmiProducer;
     @Autowired
     WaybillQueryManager waybillQueryManager;
 
@@ -1118,6 +1096,23 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         this.log.info("仓储逆向发货XML为：{}", messageValue);
         this.log.info("仓储逆向发货target为：{}", target);
         com.jd.staig.receiver.rpc.Result result = null;
+
+        /**
+         * vmi 业务场景特殊 因为需要sendPayMap 并且 还要求与dtc通知的报文内容保持一致，所以写在此处，待迁移集约系统后可下线
+        */
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(wallBillCode);
+        if ( waybill != null && waybill.getWaybillExt() != null && BusinessHelper.isVmi(JsonHelper.json2MapByJSON(waybill.getWaybillExt().getSendPayMap()))) {
+            if(vmiHandle(target, outboundType, send, source, outboundNo)){
+                if (!send.isSickWaybill()) {//病单屏蔽报丢报损MQ
+                    //向报丢系统发送订单消息，锁定报丢，不再允许报丢，直至被驳回
+                    this.log.info("回传MQ消息给报损系统，锁定定单不让再提报损，运单号为:{}", wallBillCode);
+                    sendReportLoss(wallBillCode, RECEIVE_TYPE_WMS, sendM.getCreateSiteCode(), sendM.getReceiveSiteCode());
+                }
+                return true;
+            }
+            return false;
+        }
+
         try {
             result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
             try {
@@ -1201,6 +1196,45 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         return true;
     }
 
+    /**
+     * 推送VMI
+     * @param target
+     * @param outboundType
+     * @param messageValue
+     * @param source
+     * @param outboundNo
+     * @return
+     */
+    private boolean vmiHandle(String target, String outboundType, ReverseSendWms messageValue, String source, String outboundNo) {
+
+        VmiDownStreamDtcDto vimDto = new VmiDownStreamDtcDto();
+        VmiDownStreamDtcMessage vimMessageDto = new VmiDownStreamDtcMessage();
+        vimDto.setMessageValue(vimMessageDto);
+        vimDto.setSource(source);
+        vimDto.setTarget(target);
+        vimDto.setOutboundType(outboundType);
+        vimDto.setOutboundNo(outboundNo);
+        vimDto.setPriority(DtcDataReceiverManagerImpl.PRIORITY);
+        // 内部报文参数
+        BeanCopyUtil.copy(messageValue,vimMessageDto);
+        vimMessageDto.setOrderId(Long.valueOf(messageValue.getOrderId()));
+        vimMessageDto.setDownStreamDtcProducts(new VmiDownStreamDtcProducts());
+        for(com.jd.bluedragon.distribution.reverse.domain.Product  product :messageValue.getProList()){
+            VmiDownStreamDtcProduct vmiProduct = new VmiDownStreamDtcProduct();
+            BeanCopyUtil.copy(product,vmiProduct);
+            vimMessageDto.getDownStreamDtcProducts().addDownStreamDtcProduct(vmiProduct);
+        }
+
+        try {
+            String mqBody = JsonHelper.toJson(vimDto);
+            log.info("运单号：{} VMI，不执行DTC退库接口,推送MQ,{}", messageValue.getBusiOrderCode(),mqBody);
+            outStoreVmiProducer.send(messageValue.getBusiOrderCode(),mqBody);
+        } catch (JMQException e) {
+            log.error("outStoreVmiProducer send fail!,{}",messageValue.getBusiOrderCode(),e);
+            return false;
+        }
+        return true;
+    }
 
     @SuppressWarnings("rawtypes")
     public boolean sendAsiaWMS(ReverseSendAsiaWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
@@ -2050,6 +2084,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             return Boolean.TRUE;
         }
+
 
         return Boolean.FALSE;
     }
