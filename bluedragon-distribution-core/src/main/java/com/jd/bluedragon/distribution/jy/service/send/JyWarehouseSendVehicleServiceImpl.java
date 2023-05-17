@@ -1,18 +1,19 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailRes;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskQueryReq;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
@@ -21,10 +22,12 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.TableTrolleyJsfDto;
@@ -66,6 +69,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private UccPropertyConfiguration uccPropertyConfiguration ;
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
+    @Autowired
+    private JdiQueryWSManager jdiQueryWSManager;
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -124,27 +129,20 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             //派车任务
             for(ToSendVehicle toSendVehicle : toSendVehicleList) {
                 String bizId = toSendVehicle.getSendVehicleBizId();
-                if(!Objects.isNull(toSendVehicle) && CollectionUtils.isNotEmpty(toSendVehicle.getSendDestList())) {
-                    //派车任务明细
-                    for(SendVehicleDetail sendVehicleDetail : toSendVehicle.getSendDestList()) {
-                        //派车任务bizId
-                        if(StringUtils.isBlank(sendVehicleDetail.getBizId())) {
-                            sendVehicleDetail.setBizId(bizId);
-                        }
-                        //滑道笼车号
-                        if(StringUtils.isBlank(sendVehicleDetail.getCrossTableTrolley())) {
-                            if(StringUtils.isNotBlank(crossTableTrolleyMap.get(sendVehicleDetail.getEndSiteId()))) {
-                                sendVehicleDetail.setCrossTableTrolley(crossTableTrolleyMap.get(sendVehicleDetail.getEndSiteId()));
-                            }else {
-                                String crossTableTrolley = fetchCrossTableTrolley(request, sendVehicleDetail);
-                                if(StringUtils.isNotBlank(crossTableTrolley)) {
-                                    sendVehicleDetail.setCrossTableTrolley(crossTableTrolley);
-                                    crossTableTrolleyMap.put(sendVehicleDetail.getEndSiteId(), crossTableTrolley);
-                                }else {
-                                    sendVehicleDetail.setCrossTableTrolley(unknownCrossTableTrolley(request, sendVehicleDetail));
-                                }
-                            }
-                        }
+                if(Objects.isNull(toSendVehicle) || CollectionUtils.isEmpty(toSendVehicle.getSendDestList())) {
+                    continue;
+                }
+                //派车任务明细
+                for(SendVehicleDetail sendVehicleDetail : toSendVehicle.getSendDestList()) {
+                    //派车任务bizId
+                    if(StringUtils.isBlank(sendVehicleDetail.getBizId())) {
+                        sendVehicleDetail.setBizId(bizId);
+                    }
+                    //滑道笼车号
+                    if(StringUtils.isBlank(sendVehicleDetail.getCrossTableTrolley())) {
+                        sendVehicleDetail.setCrossTableTrolley(this.getCrossTableTrolley(
+                                request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId(), crossTableTrolleyMap)
+                        );
                     }
                 }
             }
@@ -158,14 +156,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 返回值要么正确，要么null, null由调用方自己处理默认值
      * @return
      */
-    private String fetchCrossTableTrolley(SendVehicleTaskRequest request, SendVehicleDetail sendVehicleDetail) {
+    private String fetchCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchCrossTableTrolley:获取滑道笼车号：";
-        Integer currentSiteCode = null;
-        Integer nextSiteCode = null;
         try{
-            currentSiteCode = request.getCurrentOperate().getSiteCode();
-            nextSiteCode = sendVehicleDetail.getEndSiteId().intValue();
-
             TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
             tableTrolleyQuery.setDmsId(currentSiteCode);
             tableTrolleyQuery.setSiteCode(nextSiteCode);
@@ -175,26 +168,23 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
             if(StringUtils.isBlank(crossCode) || StringUtils.isBlank(tableTrolleyCode)) {
                 if(log.isInfoEnabled()) {
-                    log.info("{}查询滑道号或笼车号为空，参数={}，滑道笼车信息返回={}", methodDesc,
-                            JsonHelper.toJson(sendVehicleDetail), JsonHelper.toJson(jdResult));
+                    log.info("{}查询滑道号或笼车号为空，参数={}|{}，滑道笼车信息返回={}", methodDesc,
+                            currentSiteCode, nextSiteCode, JsonHelper.toJson(jdResult));
                 }
                 return null;
             }
             return String.format("%s-%s", crossCode, tableTrolleyCode);
         }catch (Exception e) {
-            log.error("{}服务异常，errMsg={},接货仓发货岗派车任务主页展示滑道笼车号，不卡实操流程，request={]",
-                    methodDesc, e.getMessage(), JsonHelper.toJson(sendVehicleDetail));
+            log.error("{}服务异常，errMsg={},接货仓发货岗派车任务主页展示滑道笼车号，不卡实操流程，request={]|{}",
+                    methodDesc, e.getMessage(), currentSiteCode, nextSiteCode);
         }
         return null;
     }
     //默认滑道笼车号
-    private String unknownCrossTableTrolley(SendVehicleTaskRequest request, SendVehicleDetail sendVehicleDetail) {
-        if(Objects.isNull(request) || Objects.isNull(request.getCurrentOperate())
-                || Objects.isNull(sendVehicleDetail) || Objects.isNull(sendVehicleDetail.getEndSiteId())) {
+    private String unknownCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
+        if(Objects.isNull(currentSiteCode) || Objects.isNull(nextSiteCode)) {
             return "未知滑道笼车号";
         }
-        Integer currentSiteCode = request.getCurrentOperate().getSiteCode();
-        Integer nextSiteCode = sendVehicleDetail.getEndSiteId().intValue();
         return String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode);
     }
 
@@ -219,20 +209,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if (WaybillUtil.isPackageCode(queryTaskSendDto.getKeyword())) {
             endSiteId = getWaybillNextRouter(WaybillUtil.getWaybillCode(queryTaskSendDto.getKeyword()), startSiteId);
         }
-        else if (BusinessUtil.isBoxcode(queryTaskSendDto.getKeyword())
-                && JyComboardLineTypeEnum.TRANSFER.getCode().equals(queryTaskSendDto.getLineType())){
-            endSiteId = getBoxEndSiteId(queryTaskSendDto.getKeyword());
-        }
+//        else if (BusinessUtil.isBoxcode(queryTaskSendDto.getKeyword())
+//                && JyComboardLineTypeEnum.TRANSFER.getCode().equals(queryTaskSendDto.getLineType())){
+//            endSiteId = getBoxEndSiteId(queryTaskSendDto.getKeyword());
+//        }
         else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
             endSiteId = Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(queryTaskSendDto.getKeyword()));
-        } else if (BusinessUtil.isTaskSimpleCode(queryTaskSendDto.getKeyword())) {
-            List<String> sendVehicleBizList = querySendVehicleBizIdByTaskSimpleCode(queryTaskSendDto);
-            if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
-                return sendVehicleBizList;
-            }
-            result.hintMessage("未检索到相应的发货任务数据！");
-            return null;
-        } else {
+        }  else {
             //车牌号后四位检索
             if (queryTaskSendDto.getKeyword().length() == VEHICLE_NUMBER_FOUR) {
                 List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
@@ -369,4 +352,138 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         res.setData(resData);
         return res;
     }
+
+    @Override
+    public InvokeResult<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request) {
+        InvokeResult<AppendSendVehicleTaskQueryRes> result = new InvokeResult<>();
+        try {
+            QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
+            queryTaskSendDto.setKeyword(request.getKeyword());
+            queryTaskSendDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            List<String> sendVehicleBizList = resolveSearchKeyword(result, queryTaskSendDto);
+            if (!result.codeSuccess()) {
+                return result;
+            }
+            List<JyBizTaskSendVehicleEntity> vehiclePageList = getToSendAndSendingSendVehiclePage(request, sendVehicleBizList);
+
+            if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage("查询数据为空");
+                return result;
+            }
+            AppendSendVehicleTaskQueryRes resData = new AppendSendVehicleTaskQueryRes();
+            result.setData(resData);
+
+            List<SendVehicleDto> sendVehicleDtoList = new ArrayList<>();
+            //K-流向 V-滑道笼车号  map存储滑道笼车号减少不同派车任务中存在相同流向时的资源消耗
+            HashMap<Long, String> crossTableTrolleyMap = new HashMap<>();
+            vehiclePageList.forEach(entity -> {
+                SendVehicleDto dto = new SendVehicleDto();
+                dto.setSendVehicleBizId(entity.getBizId());
+                dto.setVehicleStatus(entity.getVehicleStatus());
+                //获取车牌号
+                dto.setVehicleNumber(this.getVehicleNumber(entity));
+                //获取明细
+                dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request, crossTableTrolleyMap));
+                sendVehicleDtoList.add(dto);
+            });
+
+            result.setData(resData);
+        } catch (Exception e) {
+            log.error("查询发车任务异常. {}", JsonHelper.toJson(request), e);
+            result.error("查询发车任务异常，请咚咚联系分拣小秘！");
+        }
+
+        return result;
+    }
+
+    private List<SendVehicleDetailDto> getSendVehicleDetailDto(JyBizTaskSendVehicleEntity entity,
+                                                               AppendSendVehicleTaskQueryReq request,
+                                                               HashMap<Long, String> crossTableTrolleyMap) {
+        // 根据路由下一节点查询发货流向的任务
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(entity.getStartSiteId(), entity.getBizId());
+
+        List<Integer> vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode(), JyBizTaskSendStatusEnum.SENDING.getCode());
+
+        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findBySiteAndStatus(detailQ, vehicleStatuses);
+        List<SendVehicleDetailDto> res = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(vehicleDetailList)) {
+            vehicleDetailList.forEach(detailEntity -> {
+                SendVehicleDetailDto dto = new SendVehicleDetailDto();
+                dto.setBizId(entity.getBizId());
+                dto.setSendDetailBizId(detailEntity.getSendVehicleBizId());
+                dto.setEndSiteId(detailEntity.getEndSiteId());
+                dto.setEndSiteName(detailEntity.getEndSiteName());
+                dto.setItemStatus(detailEntity.getVehicleStatus());
+                dto.setItemStatusDesc(JyBizTaskSendStatusEnum.getNameByCode(detailEntity.getVehicleStatus()));
+                //获取滑道笼车号
+                dto.setCrossTableTrolley(this.getCrossTableTrolley(request.getCurrentOperate().getSiteCode(),
+                        detailEntity.getEndSiteId(), crossTableTrolleyMap));
+                //是否已添加到混扫任务中
+                dto.setMixScanTaskProcess(this.isMixScanProcess(detailEntity, request));
+                res.add(dto);
+            });
+        }
+        return res;
+    }
+
+    /**
+     * 获取滑道笼车号
+     * @param startSiteId
+     * @param endSiteId
+     * @param crossTableTrolleyMap  调用方必传对象，不允许为空
+     * @return
+     */
+    private String getCrossTableTrolley(Integer startSiteId, Long endSiteId, HashMap<Long, String> crossTableTrolleyMap) {
+        //滑道笼车号
+        if(StringUtils.isNotBlank(crossTableTrolleyMap.get(endSiteId))) {
+            return crossTableTrolleyMap.get(endSiteId);
+        }else {
+            String crossTableTrolley = fetchCrossTableTrolley(startSiteId, endSiteId.intValue());
+            if(StringUtils.isNotBlank(crossTableTrolley)) {
+                crossTableTrolleyMap.put(endSiteId, crossTableTrolley);
+                return crossTableTrolley;
+            }else {
+                return unknownCrossTableTrolley(startSiteId, endSiteId.intValue());
+            }
+        }
+    }
+
+    /**
+     * 是否混扫任务进行中
+     * @param entity
+     * @param request
+     * @return
+     */
+    private Boolean isMixScanProcess(JyBizTaskSendVehicleDetailEntity entity, AppendSendVehicleTaskQueryReq request) {
+        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity = new JyGroupSortCrossDetailEntity();
+        jyGroupSortCrossDetailEntity.setGroupCode(request.getGroupCode());
+        jyGroupSortCrossDetailEntity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        jyGroupSortCrossDetailEntity.setTemplateCode(request.getMixScanTaskCode());
+        jyGroupSortCrossDetailEntity.setSendVehicleDetailBizId(entity.getBizId());
+        return jyGroupSortCrossDetailService.isMixScanProcess(jyGroupSortCrossDetailEntity);
+
+    }
+
+    /**
+     * 获取派车任务车牌号
+     * @param entity
+     * @return
+     */
+    private String getVehicleNumber(JyBizTaskSendVehicleEntity entity){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
+        return transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber();
+    }
+
+    private List<JyBizTaskSendVehicleEntity> getToSendAndSendingSendVehiclePage(AppendSendVehicleTaskQueryReq request, List<String> sendVehicleBizList){
+        JyBizTaskSendVehicleEntity queryEntity = new JyBizTaskSendVehicleEntity();
+        queryEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+
+        List<Integer> vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode(),
+                JyBizTaskSendStatusEnum.SENDING.getCode());
+
+         return taskSendVehicleService.querySendTaskOfPage(
+                queryEntity, sendVehicleBizList, null, request.getPageNo(), request.getPageSize(), vehicleStatuses);
+    }
+
+
 }

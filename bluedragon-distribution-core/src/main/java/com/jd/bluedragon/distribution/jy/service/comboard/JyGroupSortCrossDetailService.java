@@ -78,4 +78,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     String getMixScanTaskDefaultName(String defaultPrefix);
+
+    /**
+     * 查询派车任务是否在已经添加到混扫任务中
+     * @param jyGroupSortCrossDetailEntity
+     * @return
+     */
+    Boolean isMixScanProcess(JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity);
 }

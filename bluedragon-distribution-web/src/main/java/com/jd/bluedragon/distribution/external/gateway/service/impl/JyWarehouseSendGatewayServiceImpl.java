@@ -46,6 +46,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
 
     private static final String GROUP_NAME_PREFIX= "混扫%s";
+    private static final Integer DEFAULT_PAGE_MAXSIZE = 100;
 
     @Autowired
     private JyWarehouseSendVehicleServiceImpl jyWarehouseSendVehicleService;
@@ -156,7 +157,42 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     @Override
     public JdCResponse<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request) {
-        return null;
+        final String methodDesc = "JySendVehicleGatewayService.fetchToSendAndSendingTaskPage:接货仓发货岗查询待发货和发货中派车任务信息：";
+        try{
+            //参数校验
+            if(Objects.isNull(request)){
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkCurrentOperate(request.getCurrentOperate());
+            checkUser(request.getUser());
+
+            JdCResponse<AppendSendVehicleTaskQueryRes> res = new JdCResponse<>();
+            res.toSucceed();
+
+            if(StringUtils.isBlank(request.getMixScanTaskCode())) {
+                res.toFail("混扫任务编码参数为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getGroupCode())) {
+                res.toFail("岗位小组参数为空");
+                return res;
+            }
+            if(Objects.isNull(request.getPageNo()) || Objects.isNull(request.getPageSize())
+                    || request.getPageNo() <= 0 || request.getPageSize() <= 0 || DEFAULT_PAGE_MAXSIZE > DEFAULT_PAGE_MAXSIZE) {
+                res.toFail("分页参数错误");
+                return res;
+            }
+            return retJdCResponse(jyWarehouseSendVehicleService.fetchToSendAndSendingTaskPage(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
+        }
     }
 
     @Override

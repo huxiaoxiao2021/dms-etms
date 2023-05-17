@@ -217,5 +217,15 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         return String.format(defaultPrefix, this.genObjectId.getObjectId(JyGroupSortCrossDetailEntity.class.getName()));
     }
 
+    @Override
+    public Boolean isMixScanProcess(JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity) {
+        List<JyGroupSortCrossDetailEntity> groupSortCrossDetailEntityList = jyGroupSortCrossDetailDao
+                .listSendFlowByTemplateCodeOrEndSiteCode(jyGroupSortCrossDetailEntity);
+        if(CollectionUtils.isEmpty(groupSortCrossDetailEntityList)) {
+            return false;
+        }
+        return true;
+    }
+
 
 }
