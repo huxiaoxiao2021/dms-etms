@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -251,14 +252,17 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 }
             }
 
+            SealVehicleTaskResponse response = new SealVehicleTaskResponse();
+            result.setData(response);
+
+            // 增加刷新间隔配置
+            response.setClientAutoRefreshConfig(uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNSEAL_TASK_LIST.name()));
+
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
                     jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
-
-            SealVehicleTaskResponse response = new SealVehicleTaskResponse();
-            result.setData(response);
 
             // 按状态统计到车任务
             assembleUnSealVehicleStatusAgg(vehicleStatusAggList, response);
