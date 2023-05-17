@@ -32,6 +32,11 @@ public class JySendSealCodeServiceImpl implements JySendSealCodeService{
     }
 
     @Override
+    public List<JySendSealCodeEntity> countByBizList(List<String> sendVehicleBizIdList) {
+        return jySendSealCodeDao.countByBizList(sendVehicleBizIdList);
+    }
+
+    @Override
     public boolean deleteBySendVehicleBizId(JySendSealCodeEntity jySendSealCode) {
         return jySendSealCodeDao.deleteBySendVehicleBizId(jySendSealCode) > 0;
     }

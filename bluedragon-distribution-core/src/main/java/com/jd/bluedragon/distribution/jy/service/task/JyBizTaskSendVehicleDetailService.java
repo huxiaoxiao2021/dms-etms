@@ -27,6 +27,13 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
+    /**
+     * 根据条件批量查询发车任务明细
+     * @param entity
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetailByBatch(JyBizTaskSendVehicleDetailEntity entity);
+
     List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity);
 
     /**

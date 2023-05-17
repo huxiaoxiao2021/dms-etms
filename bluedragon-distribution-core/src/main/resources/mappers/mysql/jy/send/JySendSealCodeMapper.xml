@@ -16,6 +16,7 @@
         <result property="updateUserName" column="update_user_name"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="count" column="count"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
     </resultMap>
@@ -225,6 +226,18 @@
         WHERE
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBiz}
+    </select>
+
+    <select id="countByBizList" parameterType="java.util.List" resultMap="jySendSealCodeMap">
+        SELECT
+            send_vehicle_biz_id,COUNT(*)
+        FROM jy_send_seal_code
+        WHERE
+            yn = 1 AND send_vehicle_biz_id IN
+            <foreach collection="sendVehicleBizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+            group by send_vehicle_biz_id
     </select>
 
     <update id="deleteBySendVehicleBizId" parameterType="JySendSealCodeEntity">

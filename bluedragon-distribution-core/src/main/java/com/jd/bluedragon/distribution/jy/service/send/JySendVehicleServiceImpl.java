@@ -509,40 +509,149 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private void assemblePageSendTaskList(QueryTaskSendDto queryTaskSendDto, List<BaseSendVehicle> vehicleList,
                                           JyBizTaskSendStatusEnum curQueryStatus, List<JyBizTaskSendVehicleEntity> vehiclePageList) {
-        for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
-            // 初始化基础字段
-            BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
+        // 转换主任务列表为map  <sendVehicleBizId, 发货任务>
+        Map<String, JyBizTaskSendVehicleEntity> sendVehicleMap = transformListToMap(vehiclePageList);
+        // 获取sendVehicleBizIdList
+        List<String> sendVehicleBizIdList = new ArrayList<>(sendVehicleMap.keySet());
+        // 根据biz列表批量获取对应的发货流向列表  <sendVehicleBizId, 发货流向列表>
+        Map<String, List<SendVehicleDetail>> map = getSendVehicleDetailMap(queryTaskSendDto, sendVehicleBizIdList);
 
-            // 设置个性化字段
-            switch (curQueryStatus) {
-                case TO_SEND:
+        // 设置个性化字段
+        switch (curQueryStatus) {
+            case TO_SEND:
+                for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
+                    // 初始化基础字段
+                    BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     ToSendVehicle toSendVehicle = (ToSendVehicle) baseSendVehicle;
-                    toSendVehicle.setSendDestList(this.getSendVehicleDetail(queryTaskSendDto, curQueryStatus, entity));
-
+                    toSendVehicle.setSendDestList(map.get(entity.getBizId()));
                     vehicleList.add(toSendVehicle);
-                    break;
-                case SENDING:
+                }
+                break;
+            case SENDING:
+                // 根据biz列表批量获取对应的装载率
+                Map<String, BigDecimal> loadRateMap = getLoadRateMap(sendVehicleMap, sendVehicleBizIdList);
+                for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
+                    // 初始化基础字段
+                    BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     SendingVehicle sendingVehicle = (SendingVehicle) baseSendVehicle;
-                    sendingVehicle.setLoadRate(this.dealLoadRate(entity));
-                    sendingVehicle.setSendDestList(this.getSendVehicleDetail(queryTaskSendDto, curQueryStatus, entity));
-
+                    BigDecimal loadRate = loadRateMap.get(entity.getBizId());
+                    sendingVehicle.setLoadRate(loadRate == null ? BigDecimal.ZERO : loadRate);
+                    sendingVehicle.setSendDestList(map.get(entity.getBizId()));
                     vehicleList.add(sendingVehicle);
-                    break;
-                case TO_SEAL:
+                }
+                break;
+            case TO_SEAL:
+                for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
+                    // 初始化基础字段
+                    BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     ToSealVehicle toSealVehicle = (ToSealVehicle) baseSendVehicle;
-                    toSealVehicle.setSendDestList(this.getSendVehicleDetail(queryTaskSendDto, curQueryStatus, entity));
-
+                    toSealVehicle.setSendDestList(map.get(entity.getBizId()));
                     vehicleList.add(toSealVehicle);
-                    break;
-                case SEALED:
+                }
+                break;
+            case SEALED:
+                // 根据biz列表批量获取对应的封签数
+                List<JySendSealCodeEntity> sealCodeEntityList = sendSealCodeService.countByBizList(sendVehicleBizIdList);
+                Map<String, Integer> sealCodeCountMap = transformSealCodeListToMap(sealCodeEntityList);
+                for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
+                    // 初始化基础字段
+                    BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     SealedVehicle sealedVehicle = (SealedVehicle) baseSendVehicle;
-                    sealedVehicle.setSealCodeCount(sendSealCodeService.countByBiz(entity.getBizId()));
-                    sealedVehicle.setSendDestList(this.getSendVehicleDetail(queryTaskSendDto, curQueryStatus, entity));
-
+                    Integer sealCodeCount = sealCodeCountMap.get(entity.getBizId());
+                    sealedVehicle.setSealCodeCount(sealCodeCount == null ? Constants.NUMBER_ZERO : sealCodeCount);
+                    sealedVehicle.setSendDestList(map.get(entity.getBizId()));
                     vehicleList.add(sealedVehicle);
-                    break;
+                }
+                break;
+        }
+    }
+
+    private Map<String, Integer> transformSealCodeListToMap(List<JySendSealCodeEntity> sealCodeEntityList) {
+        Map<String, Integer> sealCodeCountMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(sealCodeEntityList)) {
+            return sealCodeCountMap;
+        }
+        for (JySendSealCodeEntity entity : sealCodeEntityList) {
+            sealCodeCountMap.put(entity.getSendVehicleBizId(), entity.getCount());
+        }
+        return sealCodeCountMap;
+    }
+
+    private Map<String, JyBizTaskSendVehicleEntity> transformListToMap(List<JyBizTaskSendVehicleEntity> vehiclePageList) {
+        Map<String, JyBizTaskSendVehicleEntity> sendVehicleMap = new HashMap<>();
+        for (JyBizTaskSendVehicleEntity entity : vehiclePageList) {
+            sendVehicleMap.put(entity.getBizId(), entity);
+        }
+        return sendVehicleMap;
+    }
+
+    public Map<String, List<SendVehicleDetail>> getSendVehicleDetailMap(QueryTaskSendDto queryTaskSendDto, List<String> sendVehicleBizIdList) {
+        // <sendVehicleBizId, 发货流向列表>
+        Map<String, List<SendVehicleDetail>> map = new HashMap<>();
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId());
+        detailQ.setSendVehicleBizIdList(sendVehicleBizIdList);
+        // 根据biz列表批量获取对应的发货流向列表
+        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetailByBatch(detailQ);
+        if (CollectionUtils.isEmpty(vehicleDetailList)) {
+            return map;
+        }
+
+        for (JyBizTaskSendVehicleDetailEntity vehicleDetail : vehicleDetailList) {
+            // 主任务bizId
+            String sendVehicleBizId = vehicleDetail.getSendVehicleBizId();
+            // 主任务对应的明细任务列表
+            List<SendVehicleDetail> sendDestList = map.computeIfAbsent(sendVehicleBizId, k -> new ArrayList<>());
+            // 组装明细任务
+            SendVehicleDetail detailVo = new SendVehicleDetail();
+            detailVo.setItemStatus(vehicleDetail.getVehicleStatus());
+            detailVo.setItemStatusDesc(this.setDetailStatusShowDesc(vehicleDetail));
+            detailVo.setPlanDepartTime(vehicleDetail.getPlanDepartTime());
+            detailVo.setEndSiteId(vehicleDetail.getEndSiteId());
+            detailVo.setEndSiteName(vehicleDetail.getEndSiteName());
+            detailVo.setSendDetailBizId(vehicleDetail.getBizId());
+
+            sendDestList.add(detailVo);
+        }
+
+        return map;
+    }
+
+    private Map<String, BigDecimal> getLoadRateMap(Map<String, JyBizTaskSendVehicleEntity> sendVehicleMap, List<String> sendVehicleBizIdList) {
+        // <sendVehicleBizId, 装载率>
+        Map<String, BigDecimal> map = new HashMap<>();
+        // 根据biz列表批量获取对应的发货统计指标列表
+        List<JySendAggsEntity> sendAggList = sendAggService.getSendStatisticsByBizList(sendVehicleBizIdList);
+        if (CollectionUtils.isEmpty(sendAggList)) {
+            return map;
+        }
+        for (JySendAggsEntity sendAgg : sendAggList) {
+            String sendVehicleBizId = sendAgg.getSendVehicleBizId();
+            BigDecimal loadRate = map.get(sendVehicleBizId);
+            if (loadRate == null) {
+                if (!NumberHelper.gt0(sendAgg.getTotalScannedWeight())) {
+                    loadRate = BigDecimal.ZERO;
+                    map.put(sendVehicleBizId, loadRate);
+                    continue;
+                }
+                Integer vehicleType = sendVehicleMap.get(sendVehicleBizId).getVehicleType();
+                if (!NumberHelper.gt0(vehicleType)) {
+                    loadRate = BigDecimal.ZERO;
+                    map.put(sendVehicleBizId, loadRate);
+                    continue;
+                }
+                // 根据车型从运输获得车型满载体积
+                BasicVehicleTypeDto basicVehicleType = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+                if (basicVehicleType == null || basicVehicleType.getWeight() == null) {
+                    log.warn("从运输基础资料获取车型失败. {}", vehicleType);
+                    loadRate = BigDecimal.ZERO;
+                    map.put(sendVehicleBizId, loadRate);
+                    continue;
+                }
+                loadRate = dealLoadRate(sendAgg.getTotalScannedWeight(), convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())));
+                map.put(sendVehicleBizId, loadRate);
             }
         }
+        return map;
     }
 
     /**

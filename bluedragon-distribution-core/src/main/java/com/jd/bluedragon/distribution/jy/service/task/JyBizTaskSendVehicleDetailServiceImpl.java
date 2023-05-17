@@ -62,6 +62,11 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetailByBatch(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBizByBatch(entity, null);
+    }
+
+    @Override
     public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDetailDao.findSendVehicleDetailByTransWorkCode(entity);
     }

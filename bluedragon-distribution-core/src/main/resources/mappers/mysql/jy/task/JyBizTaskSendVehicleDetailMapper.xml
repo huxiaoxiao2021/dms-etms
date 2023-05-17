@@ -423,6 +423,37 @@
 
     </select>
 
+    <select id="findByMainVehicleBizByBatch" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="entity.sendVehicleBizIdList != null and entity.sendVehicleBizIdList.size() > 0">
+            AND send_vehicle_biz_id IN
+            <foreach collection="entity.sendVehicleBizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.vehicleStatus != null">
+            AND vehicle_status = #{entity.vehicleStatus}
+        </if>
+        <if test="entity.endSiteId != null">
+            AND end_site_id = #{entity.endSiteId}
+        </if>
+        <if test="statuses != null and statuses.size() > 0">
+            AND vehicle_status IN
+            <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.lineType!=null">
+            AND line_type =#{entity.lineType}
+        </if>
+
+    </select>
+
     <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
         UPDATE jy_biz_task_send_vehicle_detail
         <set>

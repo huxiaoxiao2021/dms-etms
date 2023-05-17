@@ -68,6 +68,11 @@ public class JySendSealCodeEntity implements Serializable {
 	 */
 	private Date ts;
 
+	/**
+	 * 封签号数量
+	 */
+	private transient Integer count;
+
 	public Long getId() {
 		return id;
 	}
@@ -170,5 +175,13 @@ public class JySendSealCodeEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 }

@@ -56,6 +56,15 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBiz", params);
     }
 
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBizByBatch(JyBizTaskSendVehicleDetailEntity entity, List<Integer> statuses) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (CollectionUtils.isNotEmpty(statuses)) {
+            params.put("statuses", statuses);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBizByBatch", params);
+    }
+
     public int updateByBiz(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBiz", entity);
     }

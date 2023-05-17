@@ -38,6 +38,10 @@ public class JySendSealCodeDao extends BaseDao<JySendSealCodeEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".countByBiz", sendVehicleBiz);
     }
 
+    public List<JySendSealCodeEntity> countByBizList(List<String> sendVehicleBizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".countByBizList", sendVehicleBizIdList);
+    }
+
     public int deleteBySendVehicleBizId(JySendSealCodeEntity jySendSealCodeEntity) {
         return this.getSqlSession().update(NAMESPACE + ".deleteBySendVehicleBizId", jySendSealCodeEntity);
     }
