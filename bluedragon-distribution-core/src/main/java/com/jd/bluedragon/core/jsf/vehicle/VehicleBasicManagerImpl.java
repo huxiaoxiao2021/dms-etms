@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.jsf.vehicle;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
 import com.jdl.basic.api.service.vehicle.VehicleVolumeDicJsfService;
@@ -20,6 +21,9 @@ public class VehicleBasicManagerImpl implements VehicleBasicManager{
   public VehicleVolumeDicResp queryVolumeByVehicleType(VehicleVolumeDicReq req) {
     try {
       Result<VehicleVolumeDicResp> result= vehicleVolumeDicJsfService.queryVolumeByVehicleType(req);
+      if (log.isInfoEnabled()){
+        log.info("queryVolumeByVehicleType req: {},resp:{}", JsonHelper.toJson(req),JsonHelper.toJson(result));
+      }
       if (result != null && result.isSuccess()){
         return result.getData();
       }
