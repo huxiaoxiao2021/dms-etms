@@ -1464,6 +1464,16 @@ public class UccPropertyConfiguration {
      */
     private String jyCollectSiteWhitelist;
 
+    /**
+     * 发货运输车辆靠台验证刷新间隔
+     */
+    private Integer jyTransportSendVehicleValidateDockRefreshTime;
+
+    /**
+     * 发货运输车辆靠台验证码允许访问上几次验证码个数
+     */
+    private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
+
 
 
     private String aggsDataSource;
@@ -3274,7 +3284,7 @@ public class UccPropertyConfiguration {
     public Long getJyArtificialStrandTaskCloseTime() {
         return jyArtificialStrandTaskCloseTime;
     }
-    
+
     public void setJyArtificialStrandTaskCloseTime(Long jyArtificialStrandTaskCloseTime) {
         this.jyArtificialStrandTaskCloseTime = jyArtificialStrandTaskCloseTime;
     }
@@ -3285,5 +3295,21 @@ public class UccPropertyConfiguration {
 
     public void setJyStrandScanNumLimit(Integer jyStrandScanNumLimit) {
         this.jyStrandScanNumLimit = jyStrandScanNumLimit;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockRefreshTime() {
+        return jyTransportSendVehicleValidateDockRefreshTime;
+    }
+
+    public void setJyTransportSendVehicleValidateDockRefreshTime(Integer jyTransportSendVehicleValidateDockRefreshTime) {
+        this.jyTransportSendVehicleValidateDockRefreshTime = jyTransportSendVehicleValidateDockRefreshTime;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockAllowRefreshTimes() {
+        return jyTransportSendVehicleValidateDockAllowRefreshTimes;
+    }
+
+    public void setJyTransportSendVehicleValidateDockAllowRefreshTimes(Integer jyTransportSendVehicleValidateDockAllowRefreshTimes) {
+        this.jyTransportSendVehicleValidateDockAllowRefreshTimes = jyTransportSendVehicleValidateDockAllowRefreshTimes;
     }
 }
