@@ -2964,13 +2964,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
-        vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
-        VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
+        BigDecimal loadRate = null;
+        try {
+            VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
+            vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
+            VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
 
-        BigDecimal loadRate = vehicleVolumeDicResp == null ?
-            dealLoadRate(finalScannedWeight, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())))
-            : dealLoadRate(finalScannedCount, getVehicleVolume(taskSend, vehicleVolumeDicResp));
+            if (ObjectHelper.isEmpty(vehicleVolumeDicResp) && ObjectHelper.isEmpty(basicVehicleType) && ObjectHelper.isEmpty(basicVehicleType.getWeight())){
+                log.error("未获取到车辆的容量数据和承载重量数据,无法计算装车进度");
+                return null;
+            }
+
+            loadRate = vehicleVolumeDicResp == null ?
+                dealLoadRate(finalScannedWeight, convertTonToKg(BigDecimal.valueOf(basicVehicleType.getWeight())))
+                : dealLoadRate(finalScannedCount, getVehicleVolume(taskSend, vehicleVolumeDicResp));
+        } catch (Exception e) {
+            log.error("calculateLoadRate异常",e);
+        }
         return loadRate;
     }
 
