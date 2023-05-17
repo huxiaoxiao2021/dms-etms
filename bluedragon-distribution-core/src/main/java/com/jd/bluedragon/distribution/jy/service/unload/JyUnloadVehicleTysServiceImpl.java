@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -48,10 +50,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -210,6 +209,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return new InvokeResult<>(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
         UnloadVehicleTaskRespDto respDto = new UnloadVehicleTaskRespDto();
+        this.setAutoRefreshConfig(respDto);
         initCountToResp(respDto, unloadCountDtos);
         //查询卸车任务列表
         PageHelper.startPage(unloadVehicleTaskReqDto.getPageNo(), unloadVehicleTaskReqDto.getPageSize());
@@ -314,6 +314,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return lineTypeStatis;
     }
 
+    private void setAutoRefreshConfig(UnloadVehicleTaskRespDto respDto){
+        // 增加刷新间隔配置
+        try {
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_TASK_LIST.name());
+            if (jyWorkAppAutoRefreshConfig != null) {
+                final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
+                BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);
+                respDto.setClientAutoRefreshConfig(clientAutoRefreshConfig);
+            }
+        } catch (Exception e) {
+            log.error("JyUnloadVehicleTysServiceImpl.setAutoRefreshConfig error ", e);
+        }
+    }
 
     private void initCountToResp(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<JyBizTaskUnloadCountDto> unloadCountDtos) {
         for (JyBizTaskUnloadCountDto unloadCountDto : unloadCountDtos) {

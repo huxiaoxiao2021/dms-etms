@@ -99,6 +99,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   JySealVehicleService jySealVehicleService;
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.sendDestDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
     InvokeResult<List<SendDestDetail>> invokeResult = new InvokeResult<>();
 

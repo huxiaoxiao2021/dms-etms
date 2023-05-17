@@ -11,11 +11,15 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.*;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.*;
+import com.jd.bluedragon.distribution.client.constants.ConfigConstants;
+import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
+import com.jd.bluedragon.distribution.client.dto.config.DmsClientSysConfigAndroidBootImg;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -69,7 +73,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
 
@@ -78,7 +82,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
     @Autowired
     SysConfigService sysConfigService;
-	
+
 	@Autowired
 	@Qualifier("basicMixedWS")
 	BasicMixedWS basicMixedWS;
@@ -88,7 +92,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
 	@Autowired
 	private ProductService productService;
-	
+
 	@Autowired
 	@Qualifier("basicPrimaryWS")
 	private BasicPrimaryWS basicPrimaryWS;
@@ -173,7 +177,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	public List<SysConfig> queryConfigByKey(Map<String, Object> params) {
 		return sysConfigDao.queryByKey(params);
 	}
-	
+
 	public List<SysConfig> queryConfigByKey(String key) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("configName", key);
@@ -227,19 +231,19 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			// return (List<T>)basicMajorServiceProxy.getBaseSiteAllByOrgId(id);
 			/** 包括库房信息 */
 			List<BaseStaffSiteOrgDto> resultal = new ArrayList<BaseStaffSiteOrgDto>();
-			
+
 			List<BaseStaffSiteOrgDto> staff = basicPrimaryWSProxy
 			        .getBaseSiteAllByOrgIdAndTime(orgid ,null,null);
-			
+
 			resultal.addAll(staff);
-			
+
 			List<BaseStoreInfoDto> store = basicPrimaryWSProxy
 			        .getBaseStoreInfoByOrgIdAndTime(orgid ,null,null);
-			
+
 			for(BaseStoreInfoDto dto : store){
 				resultal.add(getBaseStaffSiteOrgDtoFromStore(dto));
 			}
-			
+
 			if (resultal != null) {
 				return resultal.toArray(new BaseStaffSiteOrgDto[0]);
 			}
@@ -336,7 +340,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		}
 		return null;
 	}
-	
+
 	/**
 	 * basicQueryWSManager.getDictList()接口，获取字典数据
 	 * add by lhc
@@ -373,7 +377,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 承运商列表
 	 * add by lhc
@@ -499,7 +503,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		}
 		return reverseSendWms;
 	}
-	
+
 	/**
 	 * 转换运单基本信息
 	 *
@@ -563,9 +567,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			} catch (Exception e) {
 				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：{}",waybillWS.getVendorId(), e);
 			}
-			
+
 		}
-		
+
 
 		/*************************************************************************************/
 		reverseSendWms.setCky2(bigWaybillDto.getWaybillState().getCky2());
@@ -598,7 +602,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	 * @param popCode
 	 */
 	@Override
-	@Cache(key = "baseMinorServiceProxy.getTraderInfoByPopCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMinorServiceProxy.getTraderInfoByPopCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public String getPopBusinessNameByCode(String popCode) {
 		try {
@@ -668,7 +672,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	public Integer totalSysconfigSizeByParams(String key){
 		return sysConfigDao.totalSysconfigSizeByParams(key+"%");
 	}
-	
+
 	/**
 	 * 初始化任务写入的源类型 1-redis 2-db
 	 */
@@ -677,7 +681,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		try {
 			String taskMode = null;//本地配置的基础资料系统中的标识ID
 			Integer taskModeNum = null;
-			
+
 			//1.获取基础资料中源类型的标识ID
 			try {
 				taskMode = PropertiesHelper.newInstance().getValue(Constants.TASK_MODE_KEY);
@@ -710,8 +714,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			return TaskMode.DB;
 		}
 	}
-	
-	
+
+
 	@Override
 	public String getSiteNameBySiteID(Integer siteid) {
 		BaseStaffSiteOrgDto site =this.getSiteBySiteID(siteid);
@@ -720,12 +724,12 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		}else{
 			return site.getSiteName();
 		}
-		
+
 	}
-	
+
 
 	@Override
-	@Cache(key = "basicSafInterface.getSiteSelfDBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "basicSafInterface.getSiteSelfDBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.basicMixedWS.getSiteSelfDBySiteCode",mState={JProEnum.TP,JProEnum.FunctionError})
 	public Integer getSiteSelfDBySiteCode(Integer sitecode){
@@ -733,16 +737,16 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		if(result==null){
 			return -1;
 		}
-		
+
 		if(result.getData() == null){
 			return -1;
 		}
-		
+
 		return result.getData().getBelongCode();
 	}
 
 	/**
-	 * 
+	 *
 	 * 分拣细分，分拣中心ID与目的地 获取货柜信息
 	 * */
 	@Override
@@ -786,21 +790,21 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		}else{
 			electronSite.setCode(electronSite.CODE_OK_NULL);
 			electronSite.setMessage(electronSite.MESSAGE_OK_NULL);
-			
+
 		}
 		return electronSite;
 	}
-	
+
 	public static void main(String[] args){
-		
+
 		BigWaybillDto bigWaybillDto = new BigWaybillDto();
 		List<Goods> goodsList = new ArrayList<Goods>();
 		Goods goodx = new Goods();
 		goodx.setGoodPrice("12");
 		goodsList.add(goodx);
 		bigWaybillDto.setGoodsList(goodsList);
-		
-		
+
+
 		List<Product> proList = new ArrayList<Product>();
 		//首先检查运单中的商品信息是否为空,如为空则从订单中间件取得商品信息
 		if(bigWaybillDto.getGoodsList()!=null&&bigWaybillDto.getGoodsList().size()>0){
@@ -823,12 +827,12 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			temp1.setPrice(BigDecimal.valueOf(1100.00));
 			temp1.setProductId("5");
 			temp1.setQuantity(1);
-			
+
 			temp2.setName("手机2");
 			temp2.setPrice(BigDecimal.valueOf(1200.00));
 			temp2.setProductId("2");
 			temp2.setQuantity(2);
-			
+
 			temp3.setName("手机3");
 			temp3.setPrice(BigDecimal.valueOf(1300.01));
 			temp3.setProductId("3");
@@ -836,7 +840,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			productList.add(temp1);
 			productList.add(temp2);
 			productList.add(temp3);
-			
+
 			for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
 				Product product = new Product();
 				product.setProductId(prod.getProductId());
@@ -846,7 +850,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 				product.setProductLoss("0");
 				proList.add(product);
 			}
-		}		
+		}
 	}
 
 	@Override
@@ -1192,6 +1196,38 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             pagerData.setTotal(queryPagerData.getTotal());
         } catch (Exception e) {
             log.error("BaseServiceImpl.selectSiteList error ", e);
+            return result.toFail("接口异常");
+        }
+        return result;
+    }
+
+    /**
+     * 获取安卓初始化数据
+     * @param deviceInfo 设备信息
+     * @return 初始化数据
+     * @author fanggang7
+     * @time 2023-05-04 18:41:33 周四
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
+        log.info("BaseServiceImpl.selectSiteList param {}", JsonHelper.toJson(deviceInfo));
+        com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        final ClientInitDataDto clientInitDataDto = new ClientInitDataDto();
+        result.setData(clientInitDataDto);
+
+        try {
+            clientInitDataDto.setTimeMillSeconds(System.currentTimeMillis());
+            clientInitDataDto.setTimeStr(DateUtil.format(new Date(clientInitDataDto.getTimeMillSeconds()), DateUtil.FORMAT_DATE_TIME));
+            clientInitDataDto.setTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
+
+            final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(ConfigConstants.DMS_CLIENT_SYS_CONFIG_ANDROID_BOOT_IMG);
+            if (sysConfigByCode != null) {
+                final DmsClientSysConfigAndroidBootImg dmsClientSysConfigAndroidBootImg = JSON.parseObject(sysConfigByCode.getConfigContent(), DmsClientSysConfigAndroidBootImg.class);
+                clientInitDataDto.setBootImg(dmsClientSysConfigAndroidBootImg);
+            }
+        } catch (Exception e) {
+            log.error("BaseServiceImpl.getAndroidInitData error ", e);
             return result.toFail("接口异常");
         }
         return result;
