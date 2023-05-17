@@ -1901,14 +1901,6 @@ public class Constants {
     public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
 
     /**
-     * 数字
-     */
-    public static final class Numbers {
-        public static final Integer INTEGER_ZERO = 0;
-    }
-
-
-    /**
      * 集齐加锁前缀
      */
     public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
@@ -1941,9 +1933,4 @@ public class Constants {
      * 特安 增值服务编码
      * */
     public static final String TE_AN_SERVICE = "ed-a-0047";
-
-    /**
-     * 拣运滞留任务biz前缀
-     */
-    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
 }
