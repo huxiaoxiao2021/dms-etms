@@ -8,7 +8,9 @@ import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.GlobalFuncUsageControlDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.redis.TaskMode;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -307,4 +309,13 @@ public interface BaseService{
      * @time 2022-10-11 14:59:04 周二
      */
     Result<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request);
+
+    /**
+     * 获取安卓初始化数据
+     * @param deviceInfo 设备信息
+     * @return 初始化数据
+     * @author fanggang7
+     * @time 2023-05-04 18:41:33 周四
+     */
+    com.jd.dms.java.utils.sdk.base.Result <ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
 }
