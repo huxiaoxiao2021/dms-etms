@@ -14,7 +14,7 @@ public class DtcDataReceiverManagerImpl implements DtcDataReceiverManager {
 
 	private Logger log = LoggerFactory.getLogger(DtcDataReceiverManagerImpl.class);
 	
-	private static final int PRIORITY = 2;
+	public static final int PRIORITY = 2;
 
 	@Autowired
 	@Qualifier("dtcDataReceiverServiceJsf")
