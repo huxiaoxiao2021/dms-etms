@@ -572,7 +572,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return sealCodeCountMap;
         }
         for (JySendSealCodeEntity entity : sealCodeEntityList) {
-            sealCodeCountMap.put(entity.getSendVehicleBizId(), entity.getCount());
+            sealCodeCountMap.put(entity.getSendVehicleBizId(), entity.getSealCodeCount());
         }
         return sealCodeCountMap;
     }

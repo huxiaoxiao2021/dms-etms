@@ -71,7 +71,7 @@ public class JySendSealCodeEntity implements Serializable {
 	/**
 	 * 封签号数量
 	 */
-	private transient Integer count;
+	private Integer sealCodeCount;
 
 	public Long getId() {
 		return id;
@@ -177,11 +177,11 @@ public class JySendSealCodeEntity implements Serializable {
 		this.ts = ts;
 	}
 
-	public Integer getCount() {
-		return count;
+	public Integer getSealCodeCount() {
+		return sealCodeCount;
 	}
 
-	public void setCount(Integer count) {
-		this.count = count;
+	public void setSealCodeCount(Integer sealCodeCount) {
+		this.sealCodeCount = sealCodeCount;
 	}
 }
