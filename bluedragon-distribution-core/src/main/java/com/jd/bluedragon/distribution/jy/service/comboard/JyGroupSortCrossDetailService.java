@@ -120,4 +120,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     Boolean isMixScanProcess(JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity);
+
+    /**
+     * 混扫任务添加流向
+     * @param appendMixScanTaskFlowReq
+     * @return
+     */
+    boolean appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq);
 }

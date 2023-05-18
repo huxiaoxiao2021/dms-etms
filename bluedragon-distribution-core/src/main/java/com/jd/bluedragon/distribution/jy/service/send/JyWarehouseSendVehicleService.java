@@ -15,4 +15,11 @@ public interface JyWarehouseSendVehicleService {
      * @return
      */
     InvokeResult<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request);
+
+    /**
+     * 获取场地混扫流向限制
+     * @param siteCode
+     * @return
+     */
+    Integer getFlowMaxBySiteCode(Integer siteCode);
 }

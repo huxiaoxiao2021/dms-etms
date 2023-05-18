@@ -45,10 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
@@ -248,6 +245,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkUser(createMixScanTaskReq.getUser());
             checkCurrentOperate(createMixScanTaskReq.getCurrentOperate());
             checkGroupCode(createMixScanTaskReq.getGroupCode());
+            // 混扫任务流向校验
+            checkFlowMaxAndEndSite(createMixScanTaskReq);
             
             String templateCode = jyGroupSortCrossDetailService.createMixScanTask(createMixScanTaskReq);
             if (templateCode == null) {
@@ -267,9 +266,73 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         }
     }
 
+    private void checkFlowMaxAndEndSite(CreateMixScanTaskReq createMixScanTaskReq) {
+        
+        Integer max = jyWarehouseSendVehicleService.getFlowMaxBySiteCode(createMixScanTaskReq.getCurrentOperate().getSiteCode());
+        if (max < createMixScanTaskReq.getSendFlowList().size()) {
+            throw new JyBizException("流向不能超过" + max + "个,请重新选择!");
+        }
+        
+        // 混扫任务不能存在相同流向
+        HashSet<Long> endSiteSet = new HashSet<>();
+        for (MixScanTaskDetailDto detailDto : createMixScanTaskReq.getSendFlowList()) {
+            if (endSiteSet.contains(detailDto.getEndSiteId())) {
+                throw new JyBizException("混扫任务不能包含相同流向: " + detailDto.getEndSiteName());
+            }
+            endSiteSet.add(detailDto.getEndSiteId());
+        }
+    }
+
     @Override
     public JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
-        return null;
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(appendMixScanTaskFlowReq.getUser());
+            checkCurrentOperate(appendMixScanTaskFlowReq.getCurrentOperate());
+            checkGroupCode(appendMixScanTaskFlowReq.getGroupCode());
+            // 混扫任务流向校验
+            appendCheckMaxAndFlow(appendMixScanTaskFlowReq);
+
+            if (!jyGroupSortCrossDetailService.appendMixScanTaskFlow(appendMixScanTaskFlowReq)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,"新增流向失败！");
+            }
+            return response;
+        } catch (JyBizException e) {
+            log.info("新增流向失败：{}", JsonHelper.toJson(appendMixScanTaskFlowReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 新增流向异常 {}", JsonHelper.toJson(appendMixScanTaskFlowReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "新增流向异常！");
+        }
+    }
+
+    private void appendCheckMaxAndFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
+        
+        if (CollectionUtils.isEmpty(appendMixScanTaskFlowReq.getSendFlowList())) {
+            throw new JyBizException("未获取到流向信息！");
+        }
+        
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setGroupCode(appendMixScanTaskFlowReq.getGroupCode());
+        condition.setStartSiteId(Long.valueOf(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
+        condition.setTemplateCode(appendMixScanTaskFlowReq.getTemplateCode());
+        List<JyGroupSortCrossDetailEntity> detailList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+        
+        Integer max = jyWarehouseSendVehicleService.getFlowMaxBySiteCode(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
+        if (max < (appendMixScanTaskFlowReq.getSendFlowList().size() + detailList.size() )) {
+            throw new JyBizException("流向不能超过" + max + "个,请重新选择!");
+        }
+        
+        HashSet<Long> endSiteSet = new HashSet<>();
+        detailList.forEach(item -> endSiteSet.add(item.getEndSiteId()));
+        
+        appendMixScanTaskFlowReq.getSendFlowList().forEach(item -> {
+            if (endSiteSet.contains(item.getEndSiteId())) {
+                throw new JyBizException("包含重复流向！请重新选择新增流向");
+            }
+            endSiteSet.add(item.getEndSiteId());
+        });
     }
 
     @Override

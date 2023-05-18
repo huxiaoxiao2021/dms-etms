@@ -139,12 +139,12 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             if (jyGroupSortCrossDetailDao.batchInsert(entities) > 0) {
                 return true;
             } else {
-                log.error("新增本场地常用的笼车集合失败：{}", JsonHelper.toJson(entities));
-                throw new JyBizException("新增本场地常用的笼车集合失败");
+                log.error("新增流向失败：{}", JsonHelper.toJson(entities));
+                throw new JyBizException("新增流向失败！");
             }
         } catch (Exception e) {
-            log.error("新增本场地常用的笼车集合异常: {}{}", JsonHelper.toJson(entities), e);
-            throw new JyBizException("新增本场地常用的笼车集合异常");
+            log.error("新增流向异常: {}{}", JsonHelper.toJson(entities), e);
+            throw new JyBizException("新增流向异常！");
         }
     }
 
@@ -313,7 +313,12 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
             entity.setStartSiteName(request.getCurrentOperate().getSiteName());
             entity.setEndSiteId(item.getEndSiteId());
-            
+            entity.setEndSiteName(item.getEndSiteName());
+            entity.setTabletrolleyCode(item.getTabletrolleyCode());
+            entity.setCrossCode(item.getCrossCode());
+            entity.setCreateUserName(request.getUser().getUserName());
+            entity.setCreateUserErp(request.getUser().getUserErp());
+            entity.setCreateTime(new Date());
             entity.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
             entity.setTemplateName(request.getTemplateName());
             entity.setFocus(FocusEnum.FOCUS.getCode());
@@ -362,6 +367,36 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
+        List<JyGroupSortCrossDetailEntity> entities = getAppendMixScanTaskFlowList(appendMixScanTaskFlowReq);
+        return this.batchAddGroup(entities);
+    }
+
+    
+    private List<JyGroupSortCrossDetailEntity> getAppendMixScanTaskFlowList(AppendMixScanTaskFlowReq request) {
+        List<JyGroupSortCrossDetailEntity> list = request.getSendFlowList().stream().map(item -> {
+            JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+            entity.setSendVehicleDetailBizId(item.getSendVehicleDetailBizId());
+            entity.setGroupCode(request.getGroupCode());
+            entity.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            entity.setStartSiteName(request.getCurrentOperate().getSiteName());
+            entity.setEndSiteId(item.getEndSiteId());
+            entity.setEndSiteName(item.getEndSiteName());
+            entity.setTabletrolleyCode(item.getTabletrolleyCode());
+            entity.setCrossCode(item.getCrossCode());
+            entity.setCreateUserName(request.getUser().getUserName());
+            entity.setCreateUserErp(request.getUser().getUserErp());
+            entity.setCreateTime(new Date());
+            entity.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+            entity.setTemplateName(request.getTemplateName());
+            entity.setFocus(FocusEnum.FOCUS.getCode());
+            entity.setTemplateCode(request.getTemplateCode());
+            return entity;
+        }).collect(Collectors.toList());
+        return list;
     }
 
 

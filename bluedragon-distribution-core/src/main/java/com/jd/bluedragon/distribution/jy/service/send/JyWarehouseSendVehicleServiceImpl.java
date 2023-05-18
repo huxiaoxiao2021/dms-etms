@@ -91,25 +91,27 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      */
     private void setMixScanTaskSiteFlowMaxNum(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
         if(!Objects.isNull(invokeResult) && !Objects.isNull(invokeResult.getData()) && !Objects.isNull(invokeResult.getData().getToSealVehicleData())) {
-            int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
-            Integer currentSiteCode = request.getCurrentOperate().getSiteCode();
-            String mixScanTaskFlowNumConfig = uccPropertyConfiguration.getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
-
-            String configKey = String.format("%s%s%s", Constants.SEPARATOR_COMMA, currentSiteCode, Constants.SEPARATOR_COLON);
-            if(StringUtils.isNotBlank(mixScanTaskFlowNumConfig) && mixScanTaskFlowNumConfig.contains(configKey)) {
-                String[] configArr = mixScanTaskFlowNumConfig.split(Constants.SEPARATOR_COMMA);
-                for(String conf : configArr) {
-                    String[] keyValue = conf.split(Constants.SEPARATOR_COLON);
-                    if(currentSiteCode.toString().equals(keyValue[0]) && StringUtils.isNotBlank(keyValue[1])) {
-                        mixScanTaskFlowNum = Integer.valueOf(keyValue[1]);
-                        break;
-                    }
-                }
-            }
-            invokeResult.getData().getToSealVehicleData().setMixScanTaskSiteFlowMaxNum(mixScanTaskFlowNum);
+            invokeResult.getData().getToSealVehicleData().setMixScanTaskSiteFlowMaxNum(getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
         }
     }
 
+    public Integer getFlowMaxBySiteCode(Integer siteCode) {
+        int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
+        String mixScanTaskFlowNumConfig = uccPropertyConfiguration.getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
+
+        String configKey = String.format("%s%s%s", Constants.SEPARATOR_COMMA, siteCode, Constants.SEPARATOR_COLON);
+        if(StringUtils.isNotBlank(mixScanTaskFlowNumConfig) && mixScanTaskFlowNumConfig.contains(configKey)) {
+            String[] configArr = mixScanTaskFlowNumConfig.split(Constants.SEPARATOR_COMMA);
+            for(String conf : configArr) {
+                String[] keyValue = conf.split(Constants.SEPARATOR_COLON);
+                if(siteCode.toString().equals(keyValue[0]) && StringUtils.isNotBlank(keyValue[1])) {
+                    mixScanTaskFlowNum = Integer.valueOf(keyValue[1]);
+                    break;
+                }
+            }
+        }
+        return mixScanTaskFlowNum;
+    }
     /**
      * 填充接货仓发货岗关注字段
      * @param request
