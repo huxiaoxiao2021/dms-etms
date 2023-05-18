@@ -3027,8 +3027,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
             VehicleVolumeDicResp vehicleVolumeDicResp =vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
 
-            if (ObjectHelper.isEmpty(vehicleVolumeDicResp) && ObjectHelper.isEmpty(basicVehicleType) && ObjectHelper.isEmpty(basicVehicleType.getWeight())){
-                log.error("未获取到车辆的容量数据和承载重量数据,无法计算装车进度");
+            if (ObjectHelper.isEmpty(vehicleVolumeDicResp) && (ObjectHelper.isEmpty(basicVehicleType) || ObjectHelper.isEmpty(basicVehicleType.getWeight()))){
+                log.info("未获取到车辆的容量数据和承载重量数据,无法计算装车进度:{}",JsonHelper.toJson(taskSend));
                 return null;
             }
 
