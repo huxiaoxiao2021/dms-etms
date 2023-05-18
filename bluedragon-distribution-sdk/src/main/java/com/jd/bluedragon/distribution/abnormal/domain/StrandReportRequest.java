@@ -22,6 +22,11 @@ public class StrandReportRequest extends JdRequest {
      */
     private Integer syncFlag;
 
+    /**
+     * 容器号
+     */
+    private String containerCode;
+
     public Integer getReasonCode() {
         return reasonCode;
     }
@@ -61,4 +66,12 @@ public class StrandReportRequest extends JdRequest {
 	public void setSyncFlag(Integer syncFlag) {
 		this.syncFlag = syncFlag;
 	}
+
+    public String getContainerCode() {
+        return containerCode;
+    }
+
+    public void setContainerCode(String containerCode) {
+        this.containerCode = containerCode;
+    }
 }

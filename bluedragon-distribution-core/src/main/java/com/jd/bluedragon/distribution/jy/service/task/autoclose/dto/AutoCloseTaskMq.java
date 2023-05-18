@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose.dto;
 
-import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 
 import java.io.Serializable;
 
@@ -15,6 +15,10 @@ public class AutoCloseTaskMq implements Serializable {
 
     private static final long serialVersionUID = -4576318467164943434L;
 
+    /**
+     * 任务业务类型
+     * @see JyAutoCloseTaskBusinessTypeEnum
+     */
     private Integer taskBusinessType;
 
     /**

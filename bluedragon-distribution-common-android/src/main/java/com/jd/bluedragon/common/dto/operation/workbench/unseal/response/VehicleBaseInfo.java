@@ -1,6 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unseal.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @ClassName VehicleBaseInfo
@@ -61,6 +64,11 @@ public class VehicleBaseInfo implements Serializable {
      * 抽检类型
      */
     private Integer spotCheckType;
+
+    /**
+     * 单号标签集合
+     */
+    private List<LabelOption> tags;
 
     /**
      * 排序
@@ -146,6 +154,14 @@ public class VehicleBaseInfo implements Serializable {
 	public void setSpotCheckType(Integer spotCheckType) {
 		this.spotCheckType = spotCheckType;
 	}
+
+    public List<LabelOption> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<LabelOption> tags) {
+        this.tags = tags;
+    }
 
     public Integer getOrderIndex() {
         return orderIndex;

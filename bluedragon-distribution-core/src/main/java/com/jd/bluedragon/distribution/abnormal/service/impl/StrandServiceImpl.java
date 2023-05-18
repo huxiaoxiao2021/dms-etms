@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
@@ -137,6 +138,25 @@ public class StrandServiceImpl implements StrandService {
         return this.queryBaseReasonList(businessTagSet);
     }
 
+    @Override
+    public InvokeResult<List<ConfigStrandReasonData>> queryJyStrandReasons() {
+        InvokeResult<List<ConfigStrandReasonData>> result = new InvokeResult<>();
+        List<ConfigStrandReasonData> list = Lists.newArrayList();
+        Set<Integer> businessTagSet = new HashSet<>(1);
+        businessTagSet.add(StrandReasonBusinessTagEnum.BUSINESS_TAG_NEW.getCode());
+        InvokeResult<List<ConfigStrandReasonData>> totalResult = queryBaseReasonList(businessTagSet);
+        // 过滤非分拣滞留原因
+        if(CollectionUtils.isNotEmpty(totalResult.getData())){
+            for (ConfigStrandReasonData item : totalResult.getData()) {
+                if(Objects.equals(item.getSourceFrom(), Constants.NUMBER_ONE)){
+                    list.add(item);
+                }
+            }
+        }
+        result.setData(list);
+        return result;
+    }
+
     /**
      * businessTag为空默认查全部
      * @param businessTagSet 业务标识，1：默认，2：冷链
@@ -181,6 +201,7 @@ public class StrandServiceImpl implements StrandService {
                 tmp.setSyncFlag(vo.getSyncFlag());
                 tmp.setRemark(vo.getRemark());
                 tmp.setOrderNum(vo.getOrderNum());
+                tmp.setSourceFrom(vo.getSourceFrom());
                 list.add(tmp);
             }
         }
@@ -581,6 +602,8 @@ public class StrandServiceImpl implements StrandService {
         	strandDetailMessage.setWaybillAgainVolume(waybillStrandDetailMessage.getWaybillAgainVolume());
         	strandDetailMessage.setRouterNextSiteCode(waybillStrandDetailMessage.getRouterNextSiteCode());
         }
+        /* 容器号*/
+        strandDetailMessage.setContainerCode(request.getContainerCode());
         return strandDetailMessage;
     }
 

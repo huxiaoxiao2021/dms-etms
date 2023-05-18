@@ -650,7 +650,7 @@ public class QualityControlService {
             }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
-                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
+                log.error("handleQcReportConsume 未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 
@@ -820,23 +820,17 @@ public class QualityControlService {
         condition.setSignInTimeEnd(new Date(createTime));
         JdCResponse<UserSignRecordData> response = userSignRecordService.queryLastUserSignRecordData(condition);
         if (!response.isSucceed() || response.getData() == null) {
-            log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
+            log.warn("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录时间失败:{} {}",JsonHelper.toJson(condition),response.getMessage());
             return null;
         }
 
         UserSignRecordData userSignRecordData = response.getData();
         if (StringUtils.isEmpty(userSignRecordData.getRefGridKey())) {
-            log.error("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
+            log.warn("ualityControlService.QcfindGridAndSendMQ 查询操作人最近一次登录未获取到网格:{}",JsonHelper.toJson(condition));
             return null;
         }
-
-        //查找网格码
-        String positionCode = positionManager.queryPositionCodeByRefGridKey(userSignRecordData.getRefGridKey());
-        if (positionCode == null) {
-            log.error("ualityControlService.QcfindGridAndSendMQ 根据业务主键查询岗位码失败:{}",userSignRecordData.getRefGridKey());
-            return null;
-        }
-        return positionCode;
+        
+        return userSignRecordData.getRefGridKey();
     }
 
     public Result<Void> checkMqParam(QcReportOutCallJmqDto qcReportJmqDto) {
