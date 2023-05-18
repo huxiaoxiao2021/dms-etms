@@ -177,9 +177,13 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
         log.info("JyTransportSendVehicleServiceImpl.getVehicleArriveDockBaseData param {}", JSON.toJSONString(qo));
         Result<VehicleArriveDockBaseDataDto> result = Result.success();
         try {
+            final Result<Void> checkResult = this.checkParam4getVehicleArriveDockBaseData(qo);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+
             final VehicleArriveDockBaseDataDto vehicleArriveDockBaseDataDto = new VehicleArriveDockBaseDataDto();
             result.setData(vehicleArriveDockBaseDataDto);
-
 
             List<DockInfoEntity> dockList = new ArrayList<>();
             vehicleArriveDockBaseDataDto.setDockList(dockList);
@@ -206,6 +210,25 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
         } catch (Exception e) {
             log.error("JyTransportSendVehicleServiceImpl.getVehicleArriveDockBaseData exception {}", JSON.toJSONString(qo), e);
             result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4getVehicleArriveDockBaseData(VehicleArriveDockBaseDataQo qo) {
+        Result<Void> result = Result.success();
+
+        if (qo.getStartSiteId() == null) {
+            return result.toFail("参数错误，startSiteId不能为空");
+        }
+        final OperateUser operateUser = qo.getOperateUser();
+        if (operateUser == null) {
+            return result.toFail("参数错误，operateUser不能为空");
+        }
+        if (StringUtils.isEmpty(operateUser.getUserCode())) {
+            return result.toFail("参数错误，operateUser.userCode不能为空");
+        }
+        if (StringUtils.isEmpty(operateUser.getUserName())) {
+            return result.toFail("参数错误，operateUser.userName不能为空");
         }
         return result;
     }
