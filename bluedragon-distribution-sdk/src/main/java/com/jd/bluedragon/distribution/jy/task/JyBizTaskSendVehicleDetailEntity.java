@@ -139,6 +139,7 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
 	private transient List<String> transWorkCodeList;
+	private transient List<String> sendVehicleBizIdList;
 	/**
 	 * 迁入迁出标识
 	 * 1 source（出） 2 target （入）
@@ -187,6 +188,14 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setTransWorkCodeList(List<String> transWorkCodeList) {
 		this.transWorkCodeList = transWorkCodeList;
+	}
+
+	public List<String> getSendVehicleBizIdList() {
+		return sendVehicleBizIdList;
+	}
+
+	public void setSendVehicleBizIdList(List<String> sendVehicleBizIdList) {
+		this.sendVehicleBizIdList = sendVehicleBizIdList;
 	}
 
 	public Integer getPreVehicleStatus() {
