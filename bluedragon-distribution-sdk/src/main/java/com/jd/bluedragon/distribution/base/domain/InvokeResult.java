@@ -51,7 +51,7 @@ public class InvokeResult<T> implements Serializable {
     //普通拦截
     public static final Integer CODE_HINT = 30002;
     //特殊展示拦截
-    public static final Integer CODE_SPECIAL_INTERCEPT = 30003;
+    public static final Integer CODE_SPECIAL_INTERCEPT = 30063;
 
     public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
     public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
