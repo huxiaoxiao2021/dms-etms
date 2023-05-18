@@ -15,6 +15,10 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
      * 搜索关键字
      */
     private String keyword;
+    /**
+     * 混扫任务编码
+     */
+    private String mixScanTaskCode;
 
     private Integer pageSize;
     private Integer pageNo;
@@ -42,5 +46,13 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
 
     public void setPageNo(Integer pageNo) {
         this.pageNo = pageNo;
+    }
+
+    public String getMixScanTaskCode() {
+        return mixScanTaskCode;
+    }
+
+    public void setMixScanTaskCode(String mixScanTaskCode) {
+        this.mixScanTaskCode = mixScanTaskCode;
     }
 }

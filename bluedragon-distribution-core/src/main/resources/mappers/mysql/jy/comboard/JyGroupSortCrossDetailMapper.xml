@@ -343,6 +343,9 @@
       and end_site_id = #{endSiteId}
     </if>
     AND start_site_id = #{startSiteId}
+    <if test="sendVehicleDetailBizId !=null and sendVehicleDetailBizId!=''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId}
+    </if>
     AND yn = 1
   </select>
   <select id="listGroupByEndSiteCodeOrCTTCode"

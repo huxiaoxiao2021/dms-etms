@@ -44,7 +44,7 @@ public interface JyWarehouseSendGatewayService {
     JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTaskPage(SendVehicleTaskRequest request);
     /**
      * 查询待发和发货中的任务数据
-     * todo fetchSendVehicleTaskPage方法是四个状态隔离，涉及其他功能，重逻辑， 本接口是待发货和发货中的轻量级接口
+     *  fetchSendVehicleTaskPage方法是四个状态隔离，涉及其他功能，重逻辑， 本接口是待发货和发货中的轻量级接口
      * @param request
      * @return
      */
