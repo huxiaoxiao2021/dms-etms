@@ -523,7 +523,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 初始化基础字段
                     BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     ToSendVehicle toSendVehicle = (ToSendVehicle) baseSendVehicle;
-                    toSendVehicle.setSendDestList(map.get(entity.getBizId()));
+                    // 流向列表
+                    List<SendVehicleDetail> sendDestList = map.get(entity.getBizId());
+                    toSendVehicle.setSendDestList(sendDestList == null ? new ArrayList<>() : sendDestList);
                     vehicleList.add(toSendVehicle);
                 }
                 break;
@@ -537,7 +539,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 装载率
                     BigDecimal loadRate = loadRateMap.get(entity.getBizId());
                     sendingVehicle.setLoadRate(loadRate == null ? BigDecimal.ZERO : loadRate);
-                    sendingVehicle.setSendDestList(map.get(entity.getBizId()));
+                    // 流向列表
+                    List<SendVehicleDetail> sendDestList = map.get(entity.getBizId());
+                    sendingVehicle.setSendDestList(sendDestList == null ? new ArrayList<>() : sendDestList);
                     vehicleList.add(sendingVehicle);
                 }
                 break;
@@ -546,7 +550,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 初始化基础字段
                     BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     ToSealVehicle toSealVehicle = (ToSealVehicle) baseSendVehicle;
-                    toSealVehicle.setSendDestList(map.get(entity.getBizId()));
+                    // 流向列表
+                    List<SendVehicleDetail> sendDestList = map.get(entity.getBizId());
+                    toSealVehicle.setSendDestList(sendDestList == null ? new ArrayList<>() : sendDestList);
                     vehicleList.add(toSealVehicle);
                 }
                 break;
@@ -561,7 +567,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 封签数
                     Integer sealCodeCount = sealCodeCountMap.get(entity.getBizId());
                     sealedVehicle.setSealCodeCount(sealCodeCount == null ? Constants.NUMBER_ZERO : sealCodeCount);
-                    sealedVehicle.setSendDestList(map.get(entity.getBizId()));
+                    // 流向列表
+                    List<SendVehicleDetail> sendDestList = map.get(entity.getBizId());
+                    sealedVehicle.setSendDestList(sendDestList == null ? new ArrayList<>() : sendDestList);
                     vehicleList.add(sealedVehicle);
                 }
                 break;

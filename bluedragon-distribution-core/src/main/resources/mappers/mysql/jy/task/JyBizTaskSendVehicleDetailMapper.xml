@@ -430,12 +430,10 @@
         WHERE
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="entity.sendVehicleBizIdList != null and entity.sendVehicleBizIdList.size() > 0">
-            AND send_vehicle_biz_id IN
-            <foreach collection="entity.sendVehicleBizIdList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
+        AND send_vehicle_biz_id IN
+        <foreach collection="entity.sendVehicleBizIdList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
         <if test="entity.vehicleStatus != null">
             AND vehicle_status = #{entity.vehicleStatus}
         </if>
