@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.comboard.request.AddCTTReq;
 import com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq;
 import com.jd.bluedragon.common.dto.comboard.request.CreateGroupCTTReq;
@@ -9,14 +10,23 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.constants.FocusEnum;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.etms.waybill.domain.Waybill;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +38,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
+import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_DMS;
+import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
 
 /**
  * @author liwenji
@@ -46,26 +61,26 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     private JyGroupSortCrossDetailDao jyGroupSortCrossDetailDao;
     @Autowired
     private IGenerateObjectId genObjectId;
-
-
+    
     public static final String COM_BOARD_SEND = "CTT%s";
 
     @Override
-    public CreateGroupCTTResp batchInsert(CreateGroupCTTReq request) {
-        CreateGroupCTTResp resp = new CreateGroupCTTResp();
+    public String createGroup(CreateGroupCTTReq request) {
         String templateCode = getTemplateCode();
-        List<JyGroupSortCrossDetailEntity> jyGroupSortCrossDetailEntityList = getJyGroupSortCrossDetailEntityList(templateCode, request.getTemplateName(), request, request.getTableTrolleyDtoList());
-        try {
-            if (jyGroupSortCrossDetailDao.batchInsert(jyGroupSortCrossDetailEntityList) > 0) {
-                resp.setTemplateCode(templateCode);
-                return resp;
-            } else {
-                log.error("保存本场地常用的笼车集合失败：{}", JsonHelper.toJson(jyGroupSortCrossDetailEntityList));
-                return null;
-            }
-        } catch (Exception e) {
-            log.error("保存本场地常用的笼车集合失败: {}{}", JsonHelper.toJson(jyGroupSortCrossDetailEntityList), e);
-            return null;
+        List<JyGroupSortCrossDetailEntity> jyGroupSortCrossDetailEntityList = 
+                getJyGroupSortCrossDetailEntityList(templateCode, request.getTemplateName(), request, request.getTableTrolleyDtoList());
+        if (this.createCTTGroup(jyGroupSortCrossDetailEntityList)) {
+            return templateCode;
+        }
+        return null;
+    }
+
+    private boolean createCTTGroup(List<JyGroupSortCrossDetailEntity> jyGroupSortCrossDetailEntityList) {
+        if (jyGroupSortCrossDetailDao.batchInsert(jyGroupSortCrossDetailEntityList) > 0) {
+            return true;
+        } else {
+            log.error("创建混扫任务失败：{}", JsonHelper.toJson(jyGroupSortCrossDetailEntityList));
+            return false;
         }
     }
 
@@ -85,6 +100,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
             entity.setStartSiteName(request.getCurrentOperate().getSiteName());
             entity.setTabletrolleyCode(tableTrolleyDto.getTableTrolleyCode());
+            entity.setFuncType(SEND_SEAL_DMS.getCode());
             list.add(entity);
         }
         return list;
@@ -101,6 +117,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         List<CTTGroupDto> cttGroupDtos;
         JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        entity.setFuncType(SEND_SEAL_DMS.getCode());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
@@ -114,16 +131,20 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     @Override
     public boolean addCTTGroup(AddCTTReq request) {
         List<JyGroupSortCrossDetailEntity> entities = getJyGroupSortCrossDetailEntityList(request.getTemplateCode(), request.getTemplateName(), request, request.getTableTrolleyDtoList());
+        return this.batchAddGroup(entities);
+    }
+
+    private boolean batchAddGroup(List<JyGroupSortCrossDetailEntity> entities) {
         try {
             if (jyGroupSortCrossDetailDao.batchInsert(entities) > 0) {
                 return true;
             } else {
                 log.error("新增本场地常用的笼车集合失败：{}", JsonHelper.toJson(entities));
-                return false;
+                throw new JyBizException("新增本场地常用的笼车集合失败");
             }
         } catch (Exception e) {
-            log.error("新增本场地常用的笼车集合失败: {}{}", JsonHelper.toJson(entities), e);
-            return false;
+            log.error("新增本场地常用的笼车集合异常: {}{}", JsonHelper.toJson(entities), e);
+            throw new JyBizException("新增本场地常用的笼车集合异常");
         }
     }
 
@@ -138,7 +159,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             query.setGroupCode(request.getGroupCode());
             query.setTemplateCode(request.getTemplateCode());
             query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
-            JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
+            query.setFuncType(SEND_SEAL_DMS.getCode());
+            JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(query);
             if (entity == null) {
                 log.error("未查询到该流向：{}", JsonHelper.toJson(query));
                 return false;
@@ -146,12 +168,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             ids.add(entity.getId());
         }
         
-        updateReq.setIds(ids);
-        updateReq.setUpdateUserErp(request.getUser().getUserErp());
-        updateReq.setUpdateUserName(request.getUser().getUserName());
-        updateReq.setUpdateTime(new Date());
         try {
-            if (jyGroupSortCrossDetailDao.deleteByIds(updateReq) > 0) {
+            if (jyGroupSortCrossDetailDao.deleteByIds(assembleUpdateReq(request.getUser(),ids)) > 0) {
                 return true;
             } else {
                 log.error("删除本场地常用的笼车集合失败：{}", JsonHelper.toJson(ids));
@@ -203,8 +221,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     @Override
-    public JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query) {
-        return jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
+    public JyGroupSortCrossDetailEntity selectOneByFlowAndTemplateCode(JyGroupSortCrossDetailEntity query) {
+        return jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(query);
     }
 
     @Override
@@ -215,6 +233,125 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     @Override
     public String getMixScanTaskDefaultName(String defaultPrefix) {
         return String.format(defaultPrefix, this.genObjectId.getObjectId(JyGroupSortCrossDetailEntity.class.getName()));
+    }
+
+    @Override
+    public boolean deleteMixScanTask(DeleteMixScanTaskReq request) {
+        // 获取混扫任务下的流向信息
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        condition.setTemplateCode(request.getTemplateCode());
+        condition.setGroupCode(request.getGroupCode());
+        List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailDao.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+
+        if (CollectionUtils.isEmpty(entityList)) {
+            throw new JyBizException("任务已删除,请刷新页面！");
+        }
+
+        List<Long> ids = new ArrayList<>();
+        for (JyGroupSortCrossDetailEntity entity : entityList) {
+            ids.add(entity.getId());
+        }
+        return jyGroupSortCrossDetailDao.deleteByIds(assembleUpdateReq(request.getUser(),ids)) > 0;   
+    }
+
+    @Override
+    public boolean removeMixScanTaskFlow(RemoveMixScanTaskFlowReq request) {
+        // 校验是否包含当前流向
+        List<Long> ids = new ArrayList<>();
+        JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(assembleFlowReq(request));
+        
+        if (entity == null) {
+            throw new JyBizException("该流向已被移除，请刷新页面");
+        }
+        
+        ids.add(entity.getId());
+        return jyGroupSortCrossDetailDao.deleteByIds(assembleUpdateReq(request.getUser(),ids)) > 0;
+    }
+
+    @Override
+    public CTTGroupDataResp getMixScanTaskListPage(JyGroupSortCrossDetailEntity entity) {
+        CTTGroupDataResp resp = new CTTGroupDataResp();
+        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
+        resp.setCttGroupDtolist(cttGroupDtos);
+        return resp;
+    }
+
+    @Override
+    public boolean mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
+
+        JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(assembleFocusReq(mixScanTaskFocusReq));
+
+        if (entity == null) {
+            throw new JyBizException("该流向已被移除，请刷新页面");
+        }
+        if (entity.getFocus().equals(mixScanTaskFocusReq.getFocus())) {
+            return true;
+        }
+        
+        JyGroupSortCrossDetailEntity updateData = new JyGroupSortCrossDetailEntity();
+        updateData.setId(entity.getId());
+        updateData.setFocus(mixScanTaskFocusReq.getFocus());
+        return jyGroupSortCrossDetailDao.updateByPrimaryKeySelective(updateData) > 0;
+    }
+
+    @Override
+    public String createMixScanTask(CreateMixScanTaskReq request) {
+        String templateCode = getTemplateCode();
+        List<JyGroupSortCrossDetailEntity> entities = getMixScanTaskList(templateCode, request);
+        if (this.createCTTGroup(entities)) {
+            return templateCode;
+        }
+        return null;
+    }
+
+    private List<JyGroupSortCrossDetailEntity> getMixScanTaskList(String templateCode, CreateMixScanTaskReq request) {
+        List<JyGroupSortCrossDetailEntity> list = request.getSendFlowList().stream().map(item -> {
+            JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+            entity.setSendVehicleDetailBizId(item.getSendVehicleDetailBizId());
+            entity.setGroupCode(request.getGroupCode());
+            entity.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            entity.setStartSiteName(request.getCurrentOperate().getSiteName());
+            entity.setEndSiteId(item.getEndSiteId());
+            
+            entity.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+            entity.setTemplateName(request.getTemplateName());
+            entity.setFocus(FocusEnum.FOCUS.getCode());
+            entity.setTemplateCode(templateCode);
+            return entity;
+        }).collect(Collectors.toList());
+        return list;
+    }
+
+    private JyGroupSortCrossDetailEntity assembleFocusReq(MixScanTaskFocusReq request) {
+        JyGroupSortCrossDetailEntity codition = new JyGroupSortCrossDetailEntity();
+        codition.setTemplateCode(request.getTemplateCode());
+        codition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        codition.setEndSiteId(request.getEndSiteId().longValue());
+        codition.setGroupCode(request.getGroupCode());
+        codition.setSendVehicleDetailBizId(request.getSendVehicleDetailBizId());
+        codition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        return codition;
+    }
+
+    private JyCTTGroupUpdateReq assembleUpdateReq(User user, List<Long> ids) {
+        JyCTTGroupUpdateReq updateReq = new JyCTTGroupUpdateReq();
+        updateReq.setIds(ids);
+        updateReq.setUpdateUserErp(user.getUserErp());
+        updateReq.setUpdateUserName(user.getUserName());
+        updateReq.setUpdateTime(new Date());
+        return updateReq;
+    }
+
+    private JyGroupSortCrossDetailEntity assembleFlowReq(RemoveMixScanTaskFlowReq request) {
+        JyGroupSortCrossDetailEntity codition = new JyGroupSortCrossDetailEntity();
+        codition.setTemplateCode(request.getTemplateCode());
+        codition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        codition.setEndSiteId(request.getEndSiteId().longValue());
+        codition.setGroupCode(request.getGroupCode());
+        codition.setSendVehicleDetailBizId(request.getSendVehicleDetailBizId());
+        codition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        return codition;
     }
 
 

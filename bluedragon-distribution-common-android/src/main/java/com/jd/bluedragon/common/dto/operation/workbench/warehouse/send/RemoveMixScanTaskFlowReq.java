@@ -33,14 +33,7 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
     }
-
-    public String getTransWorkItemCode() {
-        return sendVehicleDetailBizId;
-    }
-
-    public void setTransWorkItemCode(String transWorkItemCode) {
-        this.sendVehicleDetailBizId = transWorkItemCode;
-    }
+    
 
     public Integer getEndSiteId() {
         return endSiteId;
@@ -48,5 +41,13 @@ public class RemoveMixScanTaskFlowReq extends BaseReq implements Serializable {
 
     public void setEndSiteId(Integer endSiteId) {
         this.endSiteId = endSiteId;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 }

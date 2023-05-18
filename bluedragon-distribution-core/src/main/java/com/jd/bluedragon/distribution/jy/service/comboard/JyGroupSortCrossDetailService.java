@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq;
 import com.jd.bluedragon.common.dto.comboard.request.CreateGroupCTTReq;
 import com.jd.bluedragon.common.dto.comboard.request.RemoveCTTReq;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
-import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 
@@ -22,7 +22,7 @@ public interface JyGroupSortCrossDetailService {
      * @param request
      * @return
      */
-    CreateGroupCTTResp batchInsert(CreateGroupCTTReq request);
+    String createGroup(CreateGroupCTTReq request);
 
     /**
      * 查询(本岗位或本场地)常用滑道笼车流向集合
@@ -64,7 +64,7 @@ public interface JyGroupSortCrossDetailService {
      * @param query
      * @return
      */
-    JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query);
+    JyGroupSortCrossDetailEntity selectOneByFlowAndTemplateCode(JyGroupSortCrossDetailEntity query);
 
     /**
      * 根据ID批量删除
@@ -78,4 +78,39 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     String getMixScanTaskDefaultName(String defaultPrefix);
+
+    /**
+     * 删除混扫任务
+     * @param deleteMixScanTaskReq
+     * @return
+     */
+    boolean deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq);
+
+    /**
+     * 移除流向
+     * @param removeMixScanTaskFlowReq
+     * @return
+     */
+    boolean removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq);
+
+    /**
+     * 根据条件查询混扫任务
+     * @param entity
+     * @return
+     */
+    CTTGroupDataResp getMixScanTaskListPage(JyGroupSortCrossDetailEntity entity);
+
+    /**
+     * 关注、取消关注流向
+     * @param mixScanTaskFocusReq
+     * @return
+     */
+    boolean mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq);
+
+    /**
+     * 创建混扫任务
+     * @param createMixScanTaskReq
+     * @return
+     */
+    String createMixScanTask(CreateMixScanTaskReq createMixScanTaskReq);
 }

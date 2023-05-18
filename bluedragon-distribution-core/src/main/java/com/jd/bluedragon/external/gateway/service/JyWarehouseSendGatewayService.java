@@ -75,7 +75,7 @@ public interface JyWarehouseSendGatewayService {
      * todo createGroupCTTData
      * @return  新增的混扫任务信息返回
      */
-    JdCResponse<MixScanTaskRes> createMixScanTaskAndAddFlow(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<CreateMixScanTaskRes> createMixScanTask(CreateMixScanTaskReq createMixScanTaskReq);
     /**
      * 混扫任务追加流向信息
      * todo addCTT2Group

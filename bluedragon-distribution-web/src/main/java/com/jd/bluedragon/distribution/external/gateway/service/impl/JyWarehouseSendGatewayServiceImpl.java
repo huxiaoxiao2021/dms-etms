@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
@@ -19,13 +20,22 @@ import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,6 +49,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
+import static com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendServiceImpl.checkCTTCode;
 
 @Service
 public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGatewayService {
@@ -52,6 +66,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BoxService boxService;
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
@@ -186,8 +205,30 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> createMixScanTaskAndAddFlow(MixScanTaskReq mixScanTaskReq) {
-        return null;
+    public JdCResponse<CreateMixScanTaskRes> createMixScanTask(CreateMixScanTaskReq createMixScanTaskReq) {
+        JdCResponse<CreateMixScanTaskRes> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(createMixScanTaskReq.getUser());
+            checkCurrentOperate(createMixScanTaskReq.getCurrentOperate());
+            checkGroupCode(createMixScanTaskReq.getGroupCode());
+            
+            String templateCode = jyGroupSortCrossDetailService.createMixScanTask(createMixScanTaskReq);
+            if (templateCode == null) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,"创建混扫任务失败");
+            }
+            
+            CreateMixScanTaskRes res = new CreateMixScanTaskRes();
+            res.setTemplateCode(templateCode);
+            response.setData(res);
+            return response;
+        } catch (JyBizException e) {
+            log.info("创建混扫任务失败：{}", JsonHelper.toJson(createMixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 创建混扫任务异常 {}", JsonHelper.toJson(createMixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "创建混扫任务异常！");
+        }
     }
 
     @Override
@@ -196,13 +237,57 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.deleteMixScanTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
-        return null;
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(deleteMixScanTaskReq.getUser());
+            checkCurrentOperate(deleteMixScanTaskReq.getCurrentOperate());
+            checkGroupCode(deleteMixScanTaskReq.getGroupCode());
+            if (!jyGroupSortCrossDetailService.deleteMixScanTask(deleteMixScanTaskReq)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,"删除混扫任务失败");
+            }
+        } catch (JyBizException e) {
+            log.info("删除混扫任务失败：{}", JsonHelper.toJson(deleteMixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 删除混扫任务失败 {}", JsonHelper.toJson(deleteMixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "删除混扫任务异常！");
+        }
+        return response;   
+    }
+
+    /**
+     * 校验组号
+     * @param groupCode
+     */
+    private void checkGroupCode(String groupCode) {
+        if (StringUtils.isEmpty(groupCode)) {
+            throw  new JyBizException("操作人组号为空");
+        }
     }
 
     @Override
     public JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq) {
-        return null;
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(removeMixScanTaskFlowReq.getUser());
+            checkCurrentOperate(removeMixScanTaskFlowReq.getCurrentOperate());
+            checkGroupCode(removeMixScanTaskFlowReq.getGroupCode());
+            if (!jyGroupSortCrossDetailService.removeMixScanTaskFlow(removeMixScanTaskFlowReq)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,"移除流向失败！");
+            }
+        } catch (JyBizException e) {
+            log.info("移除流向失败：{}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 移除流向失败 {}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "移除流向异常！");
+        }
+        return response;
     }
 
     @Override
@@ -212,12 +297,96 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     @Override
     public JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
-        return null;
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(mixScanTaskFocusReq.getUser());
+            checkCurrentOperate(mixScanTaskFocusReq.getCurrentOperate());
+            checkGroupCode(mixScanTaskFocusReq.getGroupCode());
+            if (mixScanTaskFocusReq.getFocus() == null || mixScanTaskFocusReq.getFocus() < 0) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,"缺少关注参数!");
+            }
+            
+            if (!jyGroupSortCrossDetailService.mixScanTaskFocus(mixScanTaskFocusReq)){
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,mixScanTaskFocusReq.getFocus() == 1 ? "关注失败！" : "取消关注失败！");
+            }
+        } catch (JyBizException e) {
+            log.info("更新关注状态失败：{}", JsonHelper.toJson(mixScanTaskFocusReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 更新关注状态异常 {}", JsonHelper.toJson(mixScanTaskFocusReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "更新关注状态异常！");
+        }
+        return response;
     }
 
     @Override
     public JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
-        return null;
+        JdCResponse<MixScanTaskQueryRes> response = new JdCResponse<>();
+        response.toSucceed();
+        try{
+            checkUser(mixScanTaskListQueryReq.getUser());
+            checkCurrentOperate(mixScanTaskListQueryReq.getCurrentOperate());
+            checkGroupCode(mixScanTaskListQueryReq.getGroupCode());
+            MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
+            response.setData(result);
+        } catch (JyBizException e) {
+            log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 查询混扫任务异常 {}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询混扫任务异常！");
+        }
+        return response;
+    }
+
+    private MixScanTaskQueryRes getMixScanTaskPage(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
+        MixScanTaskQueryRes mixScanTaskQueryRes = new MixScanTaskQueryRes();
+        CTTGroupDataResp groupDataResp = jyGroupSortCrossDetailService.getMixScanTaskListPage(assembleCondition(mixScanTaskListQueryReq));
+        if (groupDataResp != null && !CollectionUtils.isEmpty(groupDataResp.getCttGroupDtolist())) {
+            List<MixScanTaskDto> mixScanTaskDtoList = groupDataResp.getCttGroupDtolist().stream()
+                    .map(item -> BeanUtils.copy(item, MixScanTaskDto.class)).collect(Collectors.toList());
+            mixScanTaskQueryRes.setMixScanTaskDtoList(mixScanTaskDtoList);
+        }
+        return mixScanTaskQueryRes;
+    }
+
+    private JyGroupSortCrossDetailEntity assembleCondition(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
+        String barCode = mixScanTaskListQueryReq.getBarCode();
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+
+        if (WaybillUtil.isPackageCode(barCode)) {
+            final Waybill waybill = waybillQueryManager
+                    .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+            if (waybill == null) {
+                throw new JyBizException("未查找到运单数据");
+            }
+            if (waybill.getOldSiteId() == null) {
+                throw new JyBizException("运单对应的预分拣站点为空");
+            }
+            condition.setEndSiteId(waybill.getOldSiteId().longValue());
+        } else if (BusinessHelper.isBoxcode(barCode)) {
+            final Box box = boxService.findBoxByCode(barCode);
+            if (box == null) {
+                throw new JyBizException("未找到对应箱号，请检查");
+            }
+            condition.setEndSiteId(box.getReceiveSiteCode().longValue());
+        } else if (checkCTTCode(barCode)) {
+            int index = barCode.indexOf("-");
+            condition.setCrossCode(barCode.substring(0, index));
+            condition.setTabletrolleyCode(barCode.substring(index + 1));
+        }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+            // 目的地站点
+            condition.setEndSiteId(Long.valueOf(barCode));
+        }
+
+        condition.setGroupCode(mixScanTaskListQueryReq.getGroupCode());
+        condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
+        condition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        if (!StringUtils.isEmpty(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+            condition.setSendVehicleDetailBizId(mixScanTaskListQueryReq.getSendVehicleDetailBizId());
+        }
+        return condition;
     }
 
     @Override

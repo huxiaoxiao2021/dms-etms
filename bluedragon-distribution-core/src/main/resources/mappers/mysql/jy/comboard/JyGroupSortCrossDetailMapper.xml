@@ -232,6 +232,9 @@
       <if test="ts != null">
         ts = #{ts,jdbcType=TIMESTAMP},
       </if>
+      <if test="focus != null">
+        focus = #{focus,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -279,10 +282,25 @@
     <if test="groupCode != null and groupCode != ''">
       and group_code = #{groupCode,jdbcType=VARCHAR}
     </if>
+    <if test="funcType != null and funcType != ''">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
+    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+    </if>
+    <if test="endSiteId !=null and endSiteId!=''">
+      and end_site_id = #{endSiteId}
+    </if>
+    <if test="crossCode != null and crossCode!=''">
+      and cross_code = #{crossCode,jdbcType=VARCHAR}
+    </if>
+    <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
+      and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
+    </if>
     group by template_code
     order by cross_code ,tabletrolley_code
   </select>
-  <select id="selectOneByGroupCrossTableTrolley"
+  <select id="selectOneByFlowAndTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
     select
@@ -291,6 +309,12 @@
     and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
     and template_code = #{templateCode,jdbcType=VARCHAR}
     and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+    </if>
+    <if test="funcType != null and funcType != ''">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
   </select>
   <select id="queryTemplateName" parameterType="java.lang.String" resultType="java.lang.String">
     select template_name

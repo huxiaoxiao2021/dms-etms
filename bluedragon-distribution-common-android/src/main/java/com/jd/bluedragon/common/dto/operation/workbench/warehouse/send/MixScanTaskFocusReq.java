@@ -18,7 +18,7 @@ public class MixScanTaskFocusReq extends BaseReq implements Serializable {
     /**
      * 派车明细任务
      */
-    private String transWorkItemCode;
+    private String sendVehicleDetailBizId;
 
     /**
      * 目的地站点
@@ -37,14 +37,7 @@ public class MixScanTaskFocusReq extends BaseReq implements Serializable {
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
     }
-
-    public String getTransWorkItemCode() {
-        return transWorkItemCode;
-    }
-
-    public void setTransWorkItemCode(String transWorkItemCode) {
-        this.transWorkItemCode = transWorkItemCode;
-    }
+    
 
     public Integer getEndSiteId() {
         return endSiteId;
@@ -60,5 +53,13 @@ public class MixScanTaskFocusReq extends BaseReq implements Serializable {
 
     public void setFocus(Integer focus) {
         this.focus = focus;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 }

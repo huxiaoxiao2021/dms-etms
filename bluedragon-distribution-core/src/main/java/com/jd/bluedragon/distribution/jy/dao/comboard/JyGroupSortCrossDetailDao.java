@@ -60,8 +60,8 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
      * @param query
      * @return
      */
-    public JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByGroupCrossTableTrolley", query);
+    public JyGroupSortCrossDetailEntity selectOneByFlowAndTemplateCode(JyGroupSortCrossDetailEntity query) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByFlowAndTemplateCode", query);
     }
 
     /**

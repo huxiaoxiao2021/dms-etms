@@ -14,7 +14,12 @@ public class MixScanTaskListQueryReq extends BaseReq implements Serializable {
      * 查询条件 包裹号|箱号|目的地ID|滑道笼车号
      */
     private String barCode;
-
+    
+    /**
+     * 发货明细流向ID
+     */
+    private String sendVehicleDetailBizId;
+    
     private Integer pageNo;
     private Integer pageSize;
 
@@ -40,5 +45,13 @@ public class MixScanTaskListQueryReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 }
