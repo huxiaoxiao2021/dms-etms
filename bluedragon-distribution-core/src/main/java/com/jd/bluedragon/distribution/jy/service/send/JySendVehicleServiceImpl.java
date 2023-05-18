@@ -534,6 +534,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 初始化基础字段
                     BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     SendingVehicle sendingVehicle = (SendingVehicle) baseSendVehicle;
+                    // 装载率
                     BigDecimal loadRate = loadRateMap.get(entity.getBizId());
                     sendingVehicle.setLoadRate(loadRate == null ? BigDecimal.ZERO : loadRate);
                     sendingVehicle.setSendDestList(map.get(entity.getBizId()));
@@ -557,6 +558,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     // 初始化基础字段
                     BaseSendVehicle baseSendVehicle = assembleBaseSendVehicle(curQueryStatus, entity);
                     SealedVehicle sealedVehicle = (SealedVehicle) baseSendVehicle;
+                    // 封签数
                     Integer sealCodeCount = sealCodeCountMap.get(entity.getBizId());
                     sealedVehicle.setSealCodeCount(sealCodeCount == null ? Constants.NUMBER_ZERO : sealCodeCount);
                     sealedVehicle.setSendDestList(map.get(entity.getBizId()));
