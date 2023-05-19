@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
@@ -13,10 +14,8 @@ import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
-import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -27,6 +26,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ql.erp.util.BeanUtils;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -488,4 +488,40 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
 
+    @Override
+    public JdVerifyResponse<SendScanRes> scan(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
+        //
+        warehouseSendScanBeforeHandler(request, response);
+        if(!response.codeSuccess()) {
+            return response;
+        }
+        JdVerifyResponse<SendScanResponse> scanRes = super.sendScan(request);
+        response.setCode(scanRes.getCode());
+        response.setMessage(scanRes.getMessage());
+        if(!Objects.isNull(scanRes.getData())) {
+            SendScanRes resData = new SendScanRes();
+            BeanUtils.copyProperties(scanRes.getData(), resData);
+            warehouseSendScanResponseHandler(resData);
+            response.setData(resData);
+        }
+        return response;
+    }
+
+    /**
+     * 接货仓发货岗发货前逻辑
+     * @param request
+     * @param response
+     */
+    private void warehouseSendScanBeforeHandler(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
+        //根据设备编码
+
+    }
+
+    /**
+     * 接货仓发货岗扫描结果集逻辑处理
+     * @param resData
+     */
+    private void warehouseSendScanResponseHandler(SendScanRes resData) {
+
+    }
 }

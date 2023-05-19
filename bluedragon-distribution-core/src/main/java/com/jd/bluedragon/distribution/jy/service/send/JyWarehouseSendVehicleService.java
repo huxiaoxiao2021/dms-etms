@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.AppendSendVehicleTaskQueryReq;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.AppendSendVehicleTaskQueryRes;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailRes;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskQueryReq;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 public interface JyWarehouseSendVehicleService {
@@ -22,4 +20,6 @@ public interface JyWarehouseSendVehicleService {
      * @return
      */
     Integer getFlowMaxBySiteCode(Integer siteCode);
+
+    JdVerifyResponse<SendScanRes> scan(SendScanReq request, JdVerifyResponse<SendScanRes> response);
 }

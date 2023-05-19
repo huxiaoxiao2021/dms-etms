@@ -3,10 +3,8 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
@@ -61,8 +59,32 @@ public interface JyWarehouseSendGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request);
+    JdVerifyResponse<SendScanRes> sendScan(SendScanReq request);
+    /**
+     * 取消发货
+     * @param request 请求参数
+     * @return 取消详情
+     */
+    JdCResponse<SendCancelScanRes> cancelSendScan(CancelSendScanReq request);
 
+    /**
+     * 不齐运单查询-分页
+     * @param request
+     * @return
+     */
+    JdCResponse<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request);
+    /**
+     * 不齐包裹查询-分页
+     * @param request
+     * @return
+     */
+    JdCResponse<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request);
+    /**
+     * 取消发货
+     * @param request 请求参数
+     * @return 取消详情
+     */
+    JdCResponse<Void> buQiCancelSendScan(BuQiCancelSendScanReq request);
 
 
     /**

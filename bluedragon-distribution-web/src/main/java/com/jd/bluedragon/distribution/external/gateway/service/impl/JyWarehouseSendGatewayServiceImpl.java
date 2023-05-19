@@ -9,10 +9,8 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
@@ -217,7 +215,57 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
+    public JdVerifyResponse<SendScanRes> sendScan(SendScanReq request) {
+        final String methodDesc = "JySendVehicleGatewayService.sendScan:接货仓发货岗扫描：";
+        try{
+            //参数校验
+            if(Objects.isNull(request)){
+                return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkCurrentOperate(request.getCurrentOperate());
+            checkUser(request.getUser());
+
+            JdVerifyResponse<SendScanRes> res = new JdVerifyResponse<>();
+            res.toSuccess();
+            if(StringUtils.isBlank(request.getMixScanTaskCode())) {
+                res.toFail("混扫任务编码参数为空");
+                return res;
+            }
+
+            if(StringUtils.isBlank(request.getMachineCode())) {
+                res.toFail("设备编码参数为空");
+                return res;
+            }
+            return jyWarehouseSendVehicleService.scan(request, res);
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdVerifyResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    public JdCResponse<SendCancelScanRes> cancelSendScan(CancelSendScanReq request) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> buQiCancelSendScan(BuQiCancelSendScanReq request) {
         return null;
     }
 
