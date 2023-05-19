@@ -1662,6 +1662,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 		//缓存当前扫描的包裹信息
 		redisManager.setex(cachedKey,CACHE_WAYBILL_INFO_EXPIRE_SCONDS,waybillCode);
+		log.info("cachedKey-{} ;waybillCode-{}",cachedKey,waybillCode);
 		log.info("sortingJsfResponse -{}",JSON.toJSONString(sortingJsfResponse));
 		return sortingJsfResponse;
 	}
