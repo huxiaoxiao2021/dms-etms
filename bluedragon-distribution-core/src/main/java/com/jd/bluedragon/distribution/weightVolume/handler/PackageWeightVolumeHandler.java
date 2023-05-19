@@ -120,7 +120,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         // 抽检数据处理
         spotCheckDeal(entity);
-
+        //上传-超长超重服务信息
+    	uploadOverWeightInfo(entity);
+    	
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
         packOpeDto.setOpeType(1);//分拣操作环节赋值：1

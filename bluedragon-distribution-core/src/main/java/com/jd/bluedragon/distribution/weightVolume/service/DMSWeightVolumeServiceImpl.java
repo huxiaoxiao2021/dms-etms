@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -19,14 +20,19 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
 import com.jd.bluedragon.distribution.weightVolume.domain.*;
+import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
@@ -40,7 +46,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -450,4 +461,104 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         return isCInternet;
     }
+
+	@Override
+	public JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition) {
+		JdResult<WeightVolumeUploadResult> result= new JdResult<WeightVolumeUploadResult>();
+		result.toSuccess();
+		
+		WeightVolumeUploadResult weightVolumeUploadResult = new WeightVolumeUploadResult();
+		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+		result.setData(weightVolumeUploadResult);
+		
+		WeightVolumeBusinessTypeEnum businessTypeEnum = WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType());
+		if(businessTypeEnum == null) {
+			result.toFail("传入的businessType无效！");
+			return result;
+		}
+		if(WeightVolumeBusinessTypeEnum.BY_BOX.equals(businessTypeEnum)
+				&& Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+			result.toFail("超长超重不支持批量选择，请按照包裹或者运单单个录入！");
+			return result;
+		}
+		String waybillCode = condition.getBarCode();
+		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)){
+			waybillCode = WaybillUtil.getWaybillCode(condition.getBarCode());
+		}
+		//是否已有超长超重信息
+		boolean hasOverLengthAndWeight = false;
+		boolean isPackageAndOverFlag = false;
+		List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
+		//按包裹-判断是否需要自动选择超长超重
+		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
+				&& !Boolean.TRUE.equals(condition.getTotalVolumeFlag())) {
+			
+			if(OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getLength())
+					|| OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getWidth())
+					|| OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getHeight())) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.ONE_SIDE);
+			}
+			if(OverLengthAndWeightTypeEnum.OVER_WEIGHT.isMatch(condition.getWeight())) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.OVER_WEIGHT);
+			}
+			Double threeSide = 0d;
+			if(condition.getLength() != null) {
+				threeSide += condition.getLength();
+			}
+			if(condition.getWidth() != null) {
+				threeSide += condition.getWidth();
+			}
+			if(condition.getHeight() != null) {
+				threeSide += condition.getHeight();
+			}
+			if(OverLengthAndWeightTypeEnum.THREED_SIDE.isMatch(threeSide)) {
+				matchedTypes.add(OverLengthAndWeightTypeEnum.THREED_SIDE);
+			}
+			if(matchedTypes.size() > 0) {
+				isPackageAndOverFlag = true;
+			}
+		}
+		if(!isPackageAndOverFlag && !Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+			result.toSuccess("验证成功！");
+			return result;
+		}
+		Map<String,String> overLengthAndWeightTypesMap = null;
+		//调用运单接口查询-增值服务信息
+		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
+		if(vasResult.getData() != null) {
+			WaybillVasDto vasData = vasResult.getData();
+			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
+				overLengthAndWeightTypesMap = vasData.getExtendMap();
+				hasOverLengthAndWeight = true;
+			}
+		}
+		//已有超长超重服务信息
+		if(hasOverLengthAndWeight) {
+			weightVolumeUploadResult.setHasOverLengthAndWeight(true);
+			result.toSuccess("上传成功，此单已有超长超重服务！");
+			return result;
+		}
+		//包裹自动匹配，需要提示
+		boolean needConfirm = false;
+		if(isPackageAndOverFlag && !condition.getOverLengthAndWeightConfirmFlag()) {
+			needConfirm = true;
+		}
+		if(needConfirm) {
+			weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
+			weightVolumeUploadResult.setNeedConfirm(true);
+			List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
+			for(OverLengthAndWeightTypeEnum type:matchedTypes) {
+				OverLengthAndWeightType typeData = new OverLengthAndWeightType();
+				typeData.setCode(type.getCode());
+				typeData.setName(type.getName());
+				overLengthAndWeightTypesToSelect.add(typeData);
+			}
+			weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
+			result.toSuccess("根据录入信息，此包裹可能为超长超重件，是否按照超长超重件进行称重？");
+			return result;
+		}
+		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+		return result;
+	}
 }

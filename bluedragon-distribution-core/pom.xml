@@ -2130,7 +2130,12 @@
 			<artifactId>jdwdata</artifactId>
 			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.merchant</groupId>
+            <artifactId>platform-sdk</artifactId>
+            <!-- 测试环境1.0.0-TEST-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
+            <version>1.0.0-TEST-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
