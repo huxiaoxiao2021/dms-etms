@@ -1,28 +1,40 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
+import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
+import com.jd.merchant.sdk.order.dto.BaseInfo;
+import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
+import com.jd.merchant.sdk.product.dto.OverLengthAndWeight;
+import com.jd.merchant.sdk.product.dto.ChannelInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +73,10 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     @Qualifier("dmsWeightVolumeCheckService")
     @Autowired
     private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
+    
+    @Autowired
+    @Qualifier("expressOrderServiceWsManager")
+    private ExpressOrderServiceWsManager expressOrderServiceWsManager;    
 
     @Override
     public InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity) {
@@ -86,7 +102,41 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         BeanHelper.copyProperties(weightVolumeEntity, entity);
         weightVolumeFlowJSFService.recordWeightVolumeFlow(weightVolumeEntity);
     }
-
+    /**
+     * 上传超长超重服务信息
+     * @param entity
+     */
+    protected void uploadOverWeightInfo(WeightVolumeEntity entity) {
+    	if(!Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
+    			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
+    		return;
+    	}
+    	UpdateOrderRequest updateData = new UpdateOrderRequest();
+    	BaseInfo baseInfo = new BaseInfo();
+    	baseInfo.setWaybillCode(entity.getWaybillCode());
+    	baseInfo.setUpdateTime(entity.getOperateTime());
+    	baseInfo.setUpdateUser(entity.getOperatorCode());
+    	updateData.setBaseInfo(baseInfo);
+    	ChannelInfo channelInfo = new ChannelInfo();
+    	channelInfo.setSystemCaller(SystemCallerEnum.DMS_ETMS.getSystemCaller());
+    	updateData.setChannelInfo(channelInfo);
+    	OverLengthAndWeight overLengthAndWeight = new OverLengthAndWeight();
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.ONE_SIDE.getCode())) {
+    		overLengthAndWeight.setSingleSideOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.THREED_SIDE.getCode())) {
+    		overLengthAndWeight.setThreeSidesOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.OVER_WEIGHT.getCode())) {
+    		overLengthAndWeight.setOverWeight(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	updateData.setOverLengthAndWeight(overLengthAndWeight);
+    	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
+    	if(result.isError()) {
+    		Log.error("{}超长超重服务上传异常 error",entity.getWaybillCode());
+    		throw new RuntimeException("超长超重服务上传异常 error,expressOrderServiceWsManager.updateOrder");
+    	}
+    }
     @Override
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         InvokeResult<Boolean> result = new  InvokeResult<Boolean>();
