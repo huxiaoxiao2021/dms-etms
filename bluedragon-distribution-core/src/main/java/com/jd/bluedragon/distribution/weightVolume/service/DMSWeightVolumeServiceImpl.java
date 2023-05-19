@@ -519,7 +519,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			}
 		}
 		if(!isPackageAndOverFlag && !Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
-			
+			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+			result.toSuccess("验证成功！");
+			return result;
 		}
 		Map<String,String> overLengthAndWeightTypesMap = null;
 		//调用运单接口查询-增值服务信息

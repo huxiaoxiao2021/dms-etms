@@ -85,7 +85,7 @@ public class WeightVolumeResource {
     				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
     			result.toSuccess("上传成功！");
     			if(showHasOverMsg) {
-    				result.toSuccess("上传成功，此单已有超长超重服务！");
+    				result.toSuccess("上传成功，此单已有超长超重服务，只上传称重信息！");
     			}
     		}else if(uploadResult != null){
     			result.toFail(uploadResult.getMessage());
