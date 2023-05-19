@@ -21,9 +21,7 @@ import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
-import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
-import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.domain.*;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
@@ -621,7 +619,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
         filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
-
         return filterContext;
     }
 

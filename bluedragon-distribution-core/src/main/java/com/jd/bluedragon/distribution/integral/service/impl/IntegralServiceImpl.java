@@ -125,7 +125,7 @@ public class IntegralServiceImpl implements IntegralService {
         query.setUserCode(userErp);
         query.setSiteCode(siteCode.intValue());
         try {
-            UserSignRecord userSignRecord = userSignRecordDao.queryLastSignRecord(query);
+            UserSignRecord userSignRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
             if (Objects.nonNull(userSignRecord)) {
                 result.setAttendanceTime(userSignRecord.getSignInTime().getTime());
             } else {

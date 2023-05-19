@@ -113,6 +113,16 @@ public class BeanUtils {
         return type;
     }
 
+    public static boolean hasField(Object obj, String filedName) {
+        Field[] fields = obj.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            if (filedName.equals(f.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
 

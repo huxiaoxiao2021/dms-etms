@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.jsf.workStation;
 
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridCountVo;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.common.utils.PageDto;
 import com.jdl.basic.common.utils.Result;
 
 /**
@@ -24,4 +26,18 @@ public interface WorkStationGridManager {
      * @return
      */
     Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
+
+    /**
+     * 分页查询
+     * @param workStationGridQuery 查询入参
+     * @return 分页结果
+     */
+    Result<PageDto<WorkStationGrid>> queryPageList(WorkStationGridQuery workStationGridQuery);
+
+    /**
+     * 按条件查询统计信息
+     * @param workStationGridQuery 查询入参
+     * @return 查询结果
+     */
+    Result<Long> queryCount(WorkStationGridQuery workStationGridQuery);
 }

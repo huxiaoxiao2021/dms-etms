@@ -2,7 +2,9 @@ package com.jd.bluedragon;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -1012,6 +1014,11 @@ public class Constants {
     public static final int DELIVERY_DELAY_TIME = 5000;
 
     /**
+     * 组板即发货 延迟1s
+     */
+    public static final int COMBOARD_SEND_DELAY_TIME = 1000;
+
+    /**
      * 始发道口号类型-1-普通
      */
     public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
@@ -1846,6 +1853,11 @@ public class Constants {
      * 租板岗-流向锁前缀
      */
     public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX  = "jy_comboard_sendflow_group_lock_%s_%s_%s";
     /**
      * 租板岗-板锁前缀
      */
@@ -1900,4 +1912,15 @@ public class Constants {
      * DB 执行in 限制最大数量
      */
     public static final Integer DB_IN_MAX_SIZE  = 100;
+
+    public static Map<String, String> topic2DataSource =new HashMap<>();
+    static {
+        topic2DataSource.put("jy_aggs","aggsMain");
+        topic2DataSource.put("jy_aggs_slave","aggsSlave");
+    }
+
+    /**
+     * 拣运滞留任务biz前缀
+     */
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
 }

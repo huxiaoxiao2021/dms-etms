@@ -24,6 +24,7 @@
                 <entry key="jy_comboard" value-ref="jy_comboard_bean" />
                 <entry key="collection_record" value-ref="collection_record_bean" />
                 <entry key="collection_record_detail" value-ref="collection_record_detail_bean" />
+                <entry key="jy_attachment_detail" value-ref="jy_attachment_bean" />
             </map>
         </property>
     </bean>
@@ -294,6 +295,23 @@
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#collection_code, 1_string,1024#));
+            </value>
+        </property>
+        <property name="allowFullTableScan" value="true"/>
+    </bean>
+
+    <bean id="jy_attachment_bean" class="com.jd.jddl.interact.rule.TableRule">
+        <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbInstanceIndex((#site_code, 1, 1024#).longValue());
+            </value>
+        </property>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_attachment_detail"/>
+        <property name="tbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbPartitionIndex((#site_code, 1, 1024#).longValue());
             </value>
         </property>
         <property name="allowFullTableScan" value="true"/>

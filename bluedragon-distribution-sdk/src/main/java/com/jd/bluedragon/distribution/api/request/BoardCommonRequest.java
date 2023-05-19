@@ -75,7 +75,12 @@ public class BoardCommonRequest implements Serializable {
     /**
      * 操作者id
      */
-	private String operatorId;    
+	private String operatorId;
+
+    /**
+     * 跳过路由校验标识
+     */
+    private boolean skipRouterCheckFlag;
 
     public String getBoardCode() {
         return boardCode;
@@ -196,4 +201,12 @@ public class BoardCommonRequest implements Serializable {
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
 	}
+
+    public boolean getSkipRouterCheckFlag() {
+        return skipRouterCheckFlag;
+    }
+
+    public void setSkipRouterCheckFlag(boolean skipRouterCheckFlag) {
+        this.skipRouterCheckFlag = skipRouterCheckFlag;
+    }
 }

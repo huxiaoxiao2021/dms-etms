@@ -6,10 +6,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
-import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptModeEnum;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
+import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.ump.annotation.JProEnum;
@@ -24,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.jd.bluedragon.distribution.waybill.domain.CancelWaybill.BUSINESS_TYPE_REVOKE;
 
 @Service
 public class WaybillCancelServiceImpl implements WaybillCancelService {
@@ -180,5 +179,10 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
             log.error("checkWaybillCancelInterceptType99 exception waybillCode: {}", waybillCode, e);
         }
         return false;
+    }
+    
+    @Override
+    public boolean checkWaybillRevokeIntercept(String waybillCode) {
+        return cancelWaybillDao.countByWaybillAndBusinessType(waybillCode, BUSINESS_TYPE_REVOKE) > 0;
     }
 }

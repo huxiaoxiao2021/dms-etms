@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
@@ -88,7 +90,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
     @Autowired
-    private UccPropertyConfiguration ucc;
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -228,7 +230,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             offset = (pageNum - 1) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
-        if (offset + limit > ucc.getJyTaskPageMax()) {
+        if (offset + limit > uccPropertyConfiguration.getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
@@ -792,8 +794,19 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
-        JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
-        return entityConvertDto(entity);
+        try{
+            JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
+            if(Objects.isNull(entity)) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务为空,bizId={}", bizId);
+                }
+                return null;
+            }
+            return entityConvertDto(entity);
+        }catch (Exception ex) {
+            logger.error("JyBizTaskUnloadVehicleServiceImpl.queryTaskDataByBizId:根据Biz查卸车任务服务异常,bizId={},errMsg={}", bizId, ex.getMessage(), ex);
+            throw new JyBizException("查询卸车任务失败");
+        }
     }
 
     @Override
@@ -824,11 +837,26 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
     }
 
+    private void setAutoRefreshConfig(ScanStatisticsDto scanStatisticsDto){
+        // 增加刷新间隔配置
+        try {
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_PROGRESS.name());
+            if (jyWorkAppAutoRefreshConfig != null) {
+                final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
+                BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);
+                scanStatisticsDto.setClientAutoRefreshConfig(clientAutoRefreshConfig);
+            }
+        } catch (Exception e) {
+            logger.error("JyBizTaskUnloadVehicleServiceImpl.setAutoRefreshConfig error ", e);
+        }
+    }
+
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
         if(logger.isInfoEnabled()) {
             logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--req:entity={}", JsonUtils.toJSONString(entity));
         }
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
+        this.setAutoRefreshConfig(scanStatisticsDto);
         Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (int)(entity.getTotalScannedPackageCount() * 100.0 / entity.getTotalSealPackageCount());
         scanStatisticsDto.setProcessPercent(processPercent);
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {

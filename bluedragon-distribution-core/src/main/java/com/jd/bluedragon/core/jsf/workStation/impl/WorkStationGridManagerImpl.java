@@ -9,6 +9,7 @@ import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.api.service.workStation.WorkStationGridJsfService;
+import com.jdl.basic.common.utils.PageDto;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,36 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         try {
             log.info("三定场地网格工序管理 queryByGridKey WorkStationGridQuery 入参:"+ JSON.toJSONString(workStationGridCheckQuery));
             return basicWorkStationGridJsfService.queryByGridKey(workStationGridCheckQuery);
+        } catch (Exception e) {
+            log.error("获取三定场地网格工序数据异常 {}",  e.getMessage(),e);
+            result.toFail("获取三定场地网格工序异常!");
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryPageList",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Result<PageDto<WorkStationGrid>> queryPageList(WorkStationGridQuery workStationGridQuery) {
+        Result<PageDto<WorkStationGrid>> result = new Result<>();
+        result.toFail("获取三定场地网格工序数据失败");
+        try {
+            log.info("三定场地网格工序管理 queryPageList param:"+ JSON.toJSONString(workStationGridQuery));
+            return basicWorkStationGridJsfService.queryPageList(workStationGridQuery);
+        } catch (Exception e) {
+            log.error("获取三定场地网格工序数据异常 {}",  e.getMessage(),e);
+            result.toFail("获取三定场地网格工序异常!");
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryCount",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Result<Long> queryCount(WorkStationGridQuery workStationGridQuery) {
+        Result<Long> result = new Result<>();
+        result.toFail("获取三定场地网格工序数据失败");
+        try {
+            log.info("三定场地网格工序管理 queryCount param:"+ JSON.toJSONString(workStationGridQuery));
+            return basicWorkStationGridJsfService.queryCount(workStationGridQuery);
         } catch (Exception e) {
             log.error("获取三定场地网格工序数据异常 {}",  e.getMessage(),e);
             result.toFail("获取三定场地网格工序异常!");

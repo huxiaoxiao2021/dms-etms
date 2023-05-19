@@ -156,7 +156,7 @@
 		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
-		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
@@ -254,7 +254,7 @@
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
-		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:''}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:}"/>
 		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
 		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
 		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
@@ -262,7 +262,23 @@
 		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
+		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
+		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
+		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
+		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
+		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
+		<property name="pdaVersionSwitch" value="${pdaVersionSwitch:true}"/>
+		<property name="dpTransferSwitch" value="${dpTransferSwitch:true}"/>
+		<property name="easyFreezeSwitch" value="${easyFreezeSwitch:true}"/>
+		<property name="allianceBusinessSwitch" value="${allianceBusinessSwitch:true}"/>
+		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
+		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockRefreshTime:10}"/>
+		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowRefreshTimes:2}"/>
+		<property name="jyWorkAppAutoRefreshConfig" value="${jyWorkAppAutoRefreshConfig:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -515,6 +531,22 @@
 				<value>uccPropertyConfiguration.operateProgressRegions</value>
 				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
 				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
+				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
+				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
+				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
+				<value>uccPropertyConfiguration.boardCombinationRouterSwitch</value>
+				<value>uccPropertyConfiguration.pdaVersionSwitch</value>
+				<value>uccPropertyConfiguration.dpTransferSwitch</value>
+				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
+				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
+				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockRefreshTime</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
+				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
 			</list>
 		</property>
 	</bean>

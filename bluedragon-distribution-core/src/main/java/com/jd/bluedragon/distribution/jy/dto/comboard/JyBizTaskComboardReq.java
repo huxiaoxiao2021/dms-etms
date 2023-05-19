@@ -9,7 +9,7 @@ import java.util.List;
  * @date 2022-11-23 11:56
  */
 public class JyBizTaskComboardReq {
-    
+
     /**
      * 更新人姓名
      */
@@ -39,7 +39,17 @@ public class JyBizTaskComboardReq {
      * 组板入口
      */
     private transient List<Integer> comboardSourceList;
-    
+
+    private String groupCode;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
     public String getUpdateUserErp() {
         return updateUserErp;
     }

@@ -42,6 +42,7 @@
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
+		<fusionds-lib.version>1.4.1</fusionds-lib.version>
 	</properties>
 
 	<dependencies>
@@ -240,7 +241,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.8-SNAPSHOT</version>
+			<version>2.0.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -274,7 +275,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.6-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -603,7 +604,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.7.4-HOTFIX-T5</version>
+			<version>1.7.4-HOTFIX-T8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -1898,6 +1899,12 @@
 		<dependency>
 			<groupId>com.jd.ssa</groupId>
 			<artifactId>oidc-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ea</groupId>
@@ -2373,7 +2380,7 @@
 		<dependency>
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<!--查询冷链耗材-->
 		<dependency>
@@ -2647,7 +2654,11 @@
 			<artifactId>block-presort-rpc-aoi-api</artifactId>
 			<version>${block-presort-rpc-aoi-api.version}</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.fds</groupId>
+            <artifactId>fusionds-lib</artifactId>
+            <version>${fusionds-lib.version}</version>
+        </dependency>
     </dependencies>
 
 	<profiles>
