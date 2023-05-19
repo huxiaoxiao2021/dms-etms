@@ -476,7 +476,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			result.toFail("传入的businessType无效！");
 			return result;
 		}
-		
 		if(WeightVolumeBusinessTypeEnum.BY_BOX.equals(businessTypeEnum)
 				&& Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
 			result.toFail("超长超重不支持批量选择，请按照包裹或者运单单个录入！");
@@ -486,30 +485,13 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)){
 			waybillCode = WaybillUtil.getWaybillCode(condition.getBarCode());
 		}
-		
-		boolean overLengthAndWeightFlag = false;
-		Map<String,String> overLengthAndWeightTypesMap = null;
-		//调用运单接口查询-增值服务信息
-		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
-		if(vasResult.getData() != null) {
-			WaybillVasDto vasData = vasResult.getData();
-			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
-				overLengthAndWeightTypesMap = vasData.getExtendMap();
-			}
-		}
-		if(overLengthAndWeightTypesMap != null && !overLengthAndWeightTypesMap.isEmpty()) {
-			overLengthAndWeightFlag = true;
-		}
-		//已有超长超重服务信息
-		if(overLengthAndWeightFlag) {
-			weightVolumeUploadResult.setHasOverLengthAndWeight(true);
-			result.toSuccess("上传成功，此单已有超长超重服务！");
-			return result;
-		}
+		//是否已有超长超重信息
+		boolean hasOverLengthAndWeight = false;
+		boolean isPackageAndOverFlag = false;
+		List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
 		//按包裹-判断是否需要自动选择超长超重
 		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
 				&& !Boolean.TRUE.equals(condition.getTotalVolumeFlag())) {
-			List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
 			
 			if(OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getLength())
 					|| OverLengthAndWeightTypeEnum.ONE_SIDE.isMatch(condition.getWidth())
@@ -532,29 +514,49 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			if(OverLengthAndWeightTypeEnum.THREED_SIDE.isMatch(threeSide)) {
 				matchedTypes.add(OverLengthAndWeightTypeEnum.THREED_SIDE);
 			}
-			boolean needConfirm = false;
-			if(!matchedTypes.isEmpty() && !condition.getOverLengthAndWeightConfirmFlag()) {
-				needConfirm = true;
+			if(matchedTypes.size() > 0) {
+				isPackageAndOverFlag = true;
 			}
-			if(needConfirm) {
-				weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
-				weightVolumeUploadResult.setNeedConfirm(true);
-				List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
-				for(OverLengthAndWeightTypeEnum type:matchedTypes) {
-					OverLengthAndWeightType typeData = new OverLengthAndWeightType();
-					typeData.setCode(type.getCode());
-					typeData.setName(type.getName());
-					overLengthAndWeightTypesToSelect.add(typeData);
-				}
-				weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
-				result.toSuccess("根据录入信息，此包裹可能为超长超重件，是否按照超长超重件进行称重？");
-				return result;
-			}
-			//校验成功
-			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
-		}else {
-			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		}
+		if(!isPackageAndOverFlag && !Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+			
+		}
+		Map<String,String> overLengthAndWeightTypesMap = null;
+		//调用运单接口查询-增值服务信息
+		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
+		if(vasResult.getData() != null) {
+			WaybillVasDto vasData = vasResult.getData();
+			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
+				overLengthAndWeightTypesMap = vasData.getExtendMap();
+				hasOverLengthAndWeight = true;
+			}
+		}
+		//已有超长超重服务信息
+		if(hasOverLengthAndWeight) {
+			weightVolumeUploadResult.setHasOverLengthAndWeight(true);
+			result.toSuccess("上传成功，此单已有超长超重服务！");
+			return result;
+		}
+		//包裹自动匹配，需要提示
+		boolean needConfirm = false;
+		if(isPackageAndOverFlag && !condition.getOverLengthAndWeightConfirmFlag()) {
+			needConfirm = true;
+		}
+		if(needConfirm) {
+			weightVolumeUploadResult.setCheckResult(Boolean.FALSE);
+			weightVolumeUploadResult.setNeedConfirm(true);
+			List<OverLengthAndWeightType> overLengthAndWeightTypesToSelect = new ArrayList<OverLengthAndWeightType>();
+			for(OverLengthAndWeightTypeEnum type:matchedTypes) {
+				OverLengthAndWeightType typeData = new OverLengthAndWeightType();
+				typeData.setCode(type.getCode());
+				typeData.setName(type.getName());
+				overLengthAndWeightTypesToSelect.add(typeData);
+			}
+			weightVolumeUploadResult.setOverLengthAndWeightTypesToSelect(overLengthAndWeightTypesToSelect);
+			result.toSuccess("根据录入信息，此包裹可能为超长超重件，是否按照超长超重件进行称重？");
+			return result;
+		}
+		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		return result;
 	}
 }

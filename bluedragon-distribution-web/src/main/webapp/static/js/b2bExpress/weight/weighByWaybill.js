@@ -277,9 +277,12 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
             if(weightVolumeCheckResult != null){
                 hasOverLengthAndWeight = weightVolumeCheckResult.hasOverLengthAndWeight;
             }
+            //已有超重信息，取消选择
             if(hasOverLengthAndWeight){
-                insertParam.overLengthAndWeightEnable = true;
-                insertParamoverLengthAndWeightTypes = [];
+                insertParam.overLengthAndWeightEnable = false;
+                insertParam.overLengthAndWeightTypes = [];
+                insertParam.longPackage = 0;
+                $.messager.alert('提示','此单已有超长超重服务，只上传称重信息！','warning');
             }
             if(isExists)
             {

@@ -97,11 +97,11 @@
 	            </div> 
 	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
 	                <input id="three-side-input" disabled="disabled" style="height:100%;margin-top: 1px;" type="checkbox" value="threeSide">
-	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>5.5m&gt;单边&lt;=6.3m</span>
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>5.5m&gt;三边和&lt;=6.3m</span>
 	            </div>
 	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
 	                <input id="over-weight-input" disabled="disabled" style="height:100%;margin-top: 1px;" type="checkbox" value="overWeight">
-	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>300kg&gt;单边&lt;=1000kg</span>
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>300kg&gt;单件&lt;=1000kg</span>
 	            </div>
             </div>                                   
         </form>

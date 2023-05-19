@@ -74,14 +74,19 @@ public class WeightVolumeResource {
     			&& result.getData() != null
     			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
     		//已有-超重信息，本次不上传超重信息
+    		boolean showHasOverMsg = false;
     		if(Boolean.TRUE.equals(result.getData().getHasOverLengthAndWeight())) {
     			condition.setOverLengthAndWeightEnable(false);
     			condition.setLongPackage(0);
+    			showHasOverMsg = true;
     		}
     		InvokeResult<Boolean> uploadResult = upload(condition);
     		if(uploadResult != null 
     				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
     			result.toSuccess("上传成功！");
+    			if(showHasOverMsg) {
+    				result.toSuccess("上传成功，此单已有超长超重服务！");
+    			}
     		}else if(uploadResult != null){
     			result.toFail(uploadResult.getMessage());
     		} else {

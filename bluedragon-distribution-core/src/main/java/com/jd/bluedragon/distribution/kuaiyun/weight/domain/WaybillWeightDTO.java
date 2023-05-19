@@ -36,7 +36,15 @@ public class WaybillWeightDTO
     /**
      * 长包裹 0:普通包裹 1:长包裹
      * */
-    private Integer longPackage;    
+    private Integer longPackage;
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;    
 
     @Override
     public String toString()
@@ -169,5 +177,21 @@ public class WaybillWeightDTO
 
 	public void setLongPackage(Integer longPackage) {
 		this.longPackage = longPackage;
+	}
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
 	}
 }
