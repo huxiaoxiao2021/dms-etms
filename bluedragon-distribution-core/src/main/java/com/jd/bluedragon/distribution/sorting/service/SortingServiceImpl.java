@@ -71,6 +71,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
@@ -187,6 +188,11 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+
+	@Autowired
+	@Qualifier("redisClientCache")
+	private Cluster redisClient;
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -1633,7 +1639,7 @@ public class SortingServiceImpl implements SortingService {
 		String cachedKey = String.format(CacheKeyConstants.CACHE_KEY_JY_TEAN_WAYBILL, pdaOperateRequest.getCreateSiteCode(), pdaOperateRequest.getBoxCode());
 
 		//获取缓存中的运单 如果没有值说明是第一次扫描包裹 ，有值说明不是第一次扫包裹
-		String cacheWaybill = redisManager.get(cachedKey);
+		String cacheWaybill = redisClient.get(cachedKey);
 		log.info("cacheWaybill -{}",cacheWaybill);
 		if(StringUtils.isNotBlank(cacheWaybill)){
 			//根据运单校验是否是特安包裹
@@ -1661,7 +1667,7 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 		//缓存当前扫描的包裹信息
-		redisManager.setex(cachedKey,CACHE_WAYBILL_INFO_EXPIRE_SCONDS,waybillCode);
+		redisClient.setEx(cachedKey,waybillCode,CACHE_WAYBILL_INFO_EXPIRE_SCONDS,TimeUnit.SECONDS);
 		log.info("cachedKey-{} ;waybillCode-{}",cachedKey,waybillCode);
 		log.info("sortingJsfResponse -{}",JSON.toJSONString(sortingJsfResponse));
 		return sortingJsfResponse;
