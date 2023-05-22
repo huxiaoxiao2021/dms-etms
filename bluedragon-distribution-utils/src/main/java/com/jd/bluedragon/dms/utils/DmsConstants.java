@@ -416,6 +416,15 @@ public class DmsConstants {
     public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_BATCH_DELIVERY  = "executeBatchDelivery";
 
     /**
+     * 运单-称重-longPackage:0-默认值
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_DEFAULT = 0;
+    /**
+     * 运单-称重-longPackage:2-超长超重服务
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
+    
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {
