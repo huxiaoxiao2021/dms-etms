@@ -408,6 +408,16 @@ public class DmsConstants {
     public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
     public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
     public static final String WHITE_SPACE = "\\s*";
+    
+    /**
+     * 运单-称重-longPackage:0-默认值
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_DEFAULT = 0;
+    /**
+     * 运单-称重-longPackage:2-超长超重服务
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
+    
     /**
      * 暂存类型枚举值
      */

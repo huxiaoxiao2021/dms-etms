@@ -106,10 +106,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * 上传超长超重服务信息
      * @param entity
      */
-    protected void uploadOverWeightInfo(WeightVolumeEntity entity) {
+    protected boolean uploadOverWeightInfo(WeightVolumeEntity entity) {
     	if(!Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
-    		return;
+    		restLongPackage(entity);
+    		return false;
     	}
     	UpdateOrderRequest updateData = new UpdateOrderRequest();
     	BaseInfo baseInfo = new BaseInfo();
@@ -132,10 +133,21 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     	}
     	updateData.setOverLengthAndWeight(overLengthAndWeight);
     	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
-    	if(result.isError()) {
-    		Log.error("{}超长超重服务上传异常 error",entity.getWaybillCode());
-    		throw new RuntimeException("超长超重服务上传异常 error,expressOrderServiceWsManager.updateOrder");
+    	
+    	if(result.isSucceed()) {
+    		Log.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
+    		return true;
+    	}else {
+    		Log.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
+    		restLongPackage(entity);
     	}
+    	return false;
+    }
+    private void restLongPackage(WeightVolumeEntity entity){
+        if(DmsConstants.WAYBILL_LONG_PACKAGE_OVER_WEIGHT.equals(entity.getLongPackage())) {
+        	entity.setLongPackage(DmsConstants.WAYBILL_LONG_PACKAGE_DEFAULT);
+        	Log.warn("{}重置超长超重标longPackage识为0！",entity.getWaybillCode());
+        }
     }
     @Override
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
