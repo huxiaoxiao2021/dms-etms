@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq;
-import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEntity> {
@@ -93,5 +91,13 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
 
     public List<CTTGroupDto> listCountByTemplateCode(JyGroupSortCrossDetailEntity condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".listCountByTemplateCode",condition);
+    }
+
+
+    /**
+     * 按参数查询
+     */
+    public List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".selectByCondition", query);
     }
 }

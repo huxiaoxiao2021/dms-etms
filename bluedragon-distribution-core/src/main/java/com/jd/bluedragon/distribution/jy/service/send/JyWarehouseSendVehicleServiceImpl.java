@@ -1,19 +1,36 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
+import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -22,12 +39,16 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.erp.util.BeanUtils;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.TableTrolleyJsfDto;
@@ -71,6 +92,19 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;
+    /* 运单查询 */
+    @Autowired
+    private WaybillCommonService waybillCommonService;
+    @Autowired
+    private RouterService routerService;
+    @Autowired
+    private BaseService baseService;
+    @Autowired
+    private AreaDestJsfService areaDestJsfService;
+    @Autowired
+    private BoxService boxService;
+    @Autowired
+    private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -95,6 +129,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
     }
 
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.getFlowMaxBySiteCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Integer getFlowMaxBySiteCode(Integer siteCode) {
         int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
         String mixScanTaskFlowNumConfig = uccPropertyConfiguration.getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
@@ -322,6 +359,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.getMixScanTaskDetailList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<MixScanTaskDetailRes> getMixScanTaskDetailList(MixScanTaskQueryReq request) {
         InvokeResult<MixScanTaskDetailRes> res = new InvokeResult<>();
         res.success();
@@ -356,6 +395,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request) {
         InvokeResult<AppendSendVehicleTaskQueryRes> result = new InvokeResult<>();
         try {
@@ -489,18 +530,26 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.scan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanRes> scan(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
-        //
+
+        //调用发货前接货仓发货岗单独逻辑加工
         warehouseSendScanBeforeHandler(request, response);
         if(!response.codeSuccess()) {
             return response;
         }
-        JdVerifyResponse<SendScanResponse> scanRes = super.sendScan(request);
+        SendScanRequest sendScanRequest = new SendScanRequest();
+        BeanUtils.copyProperties(request, sendScanRequest);
+        JdVerifyResponse<SendScanResponse> scanRes = super.sendScan(sendScanRequest);
+
         response.setCode(scanRes.getCode());
         response.setMessage(scanRes.getMessage());
+        response.setMsgBoxes(scanRes.getMsgBoxes());
         if(!Objects.isNull(scanRes.getData())) {
             SendScanRes resData = new SendScanRes();
             BeanUtils.copyProperties(scanRes.getData(), resData);
+            //调用发货后接货仓发货岗单独逻辑处理
             warehouseSendScanResponseHandler(resData);
             response.setData(resData);
         }
@@ -513,8 +562,229 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param response
      */
     private void warehouseSendScanBeforeHandler(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
-        //根据设备编码
 
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.warehouseSendScanBeforeHandler", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        Profiler.registerInfoEnd(info);
+        //根据发货方式获取流向
+        InvokeResult<List<Integer>> nextSiteCodeRes = fetchNextSiteId(request);
+        if(!nextSiteCodeRes.codeSuccess()) {
+            log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
+            response.toFail(StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage());
+            return;
+        }
+        List<Long> endSiteIdList = new ArrayList<>();
+        nextSiteCodeRes.getData().forEach(siteId ->{
+            endSiteIdList.add((long)siteId);
+        });
+        //根据发货流向匹配混扫任务明细，获取派车任务信息
+        JyGroupSortCrossDetailEntityQueryDto entityQueryParam = new JyGroupSortCrossDetailEntityQueryDto();
+        entityQueryParam.setGroupCode(request.getGroupCode());
+        entityQueryParam.setTemplateCode(request.getMixScanTaskCode());
+        entityQueryParam.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        entityQueryParam.setEndSiteIdList(endSiteIdList);
+        entityQueryParam.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
+        if(CollectionUtils.isEmpty(resEntityList)) {
+            log.warn("接货仓发货岗按流向{}匹配混扫任务明细为空,request={},派车信息={}", JsonHelper.toJson(endSiteIdList),
+                        JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
+            response.toBizError();
+            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
+            response.addInterceptBox(0, customMsg);
+            return;
+        }
+        if(log.isInfoEnabled()) {
+            log.info("接货仓发货岗按流向{}匹配混扫任务明细,request={},混扫明细={}", JsonHelper.toJson(endSiteIdList),
+                    JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
+        }
+        request.setSendVehicleDetailBizId(resEntityList.get(0).getSendVehicleDetailBizId());
+        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(resEntityList.get(0).getSendVehicleDetailBizId());
+        request.setSendVehicleBizId(entity.getSendVehicleBizId());
+        Profiler.registerInfoEnd(info);
+    }
+
+    /**
+     * 查询下一流向
+     * 按箱查询时，返回是箱号下一流向
+     * 按包裹或运单查询时，返回get(0)是预分拣站点，其他为流向
+     * @param request
+     * @return
+     */
+    private InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request) {
+
+        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+            return fetchNextSiteIdByBox(request);
+        }else if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
+            return fetchNextSiteIdByWaybillOrPackage(request);
+        }else {
+            return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "只支持扫描包裹、运单和箱号");
+        }
+    }
+
+    /**
+     * 获取箱号下一流向
+     * @param request
+     * @return
+     */
+    private InvokeResult<List<Integer>> fetchNextSiteIdByBox(SendScanReq request) {
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByBox:获取箱号下一流向：";
+        InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+        if(log.isInfoEnabled()) {
+            log.info("{},参数={}", methodDesc, JsonHelper.toJson(request));
+        }
+        Box box = boxService.findBoxByCode(request.getBarCode());
+        if (box == null) {
+            result.setMessage(HintService.getHint(HintCodeConstants.BOX_NOT_EXIST));
+            result.setCode(BoxResponse.CODE_BOX_NOT_FOUND);
+            return result;
+        }
+        result.setData(Arrays.asList(box.getReceiveSiteCode()));
+        return result;
+    }
+
+    /**
+     * 扫描包裹或运单获取预分拣站点及下一流向
+     * @param request
+     * @return
+     */
+    private InvokeResult<List<Integer>> fetchNextSiteIdByWaybillOrPackage(SendScanReq request) {
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByWaybillOrPackage:获取运单可能下一流向：";
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByWaybillOrPackage", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+            if (log.isInfoEnabled()) {
+                log.info("{},参数={}", methodDesc, JsonHelper.toJson(request));
+            }
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+            Integer operateSiteCode = request.getCurrentOperate().getSiteCode();
+            long operateTime = request.getCurrentOperate().getOperateTime().getTime();
+            /* 获取预分拣站点 */
+            InvokeResult<Integer> oldSiteIdRes = waybillCommonService.fetchOldSiteId(waybillCode);
+            if (!oldSiteIdRes.codeSuccess()) {
+                result.error(oldSiteIdRes.getMessage());
+                return result;
+            }
+
+            Integer siteCode = oldSiteIdRes.getData();
+
+            /* 路由站点关系 index:0 表示预分拣站点；index:>0 表示可能的下一跳的路由 */
+            List<Integer> siteRouters = new ArrayList<Integer>();
+            Set<Integer> nextRouters = new HashSet<Integer>();
+            siteRouters.add(siteCode);
+            siteRouters.addAll(nextRouters);
+            result.setData(siteRouters);
+            /* 根据operateType判断是否走路由，还是走分拣的配置 */
+            if (request.getOperateType().equals(JySendFlowConfigEnum.ROUTER.getCode())) {
+                /* 通过路由调用 */
+                result = this.getSiteRoutersFromRouterJsf(operateSiteCode, waybillCode, nextRouters);
+                if (nextRouters.size() == 1) {
+                    result.error("获取路由数据失败");
+                }
+                return result;
+            } else {
+                /* 按龙门架时需要先获取大小站逻辑 */
+                Integer receiveSite = siteCode;
+                Integer selfSite = baseService.getMappingSite(siteCode);
+                if (selfSite != null) {
+                    receiveSite = selfSite;
+                }
+                /* 通过发货配置jsf接口调用 */
+                return getSiteRoutersFromDMSAutoJsf(request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
+            }
+        }catch (Exception e) {
+            log.info("{},请求={}", methodDesc, JsonHelper.toJson(request), e);
+            throw new JyBizException("查询发货流向服务异常");
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+
+
+    /**
+     * 按路由获取下一流向
+     */
+    private InvokeResult<List<Integer>> getSiteRoutersFromRouterJsf
+    (Integer operateSiteCode, String waybillCode,Set<Integer> nextRouters) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.getSiteRoutersFromRouterJsf", Constants.UMP_APP_NAME_DMSWEB,false, true);
+
+        InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+        try {
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(operateSiteCode,waybillCode);
+            if(routeNextDto.isRoutExistCurrentSite()){
+                nextRouters.add(routeNextDto.getFirstNextSiteId());
+            }
+        } catch (Exception e) {
+            log.error("JyWarehouseSendVehicleServiceImpl.getSiteRoutersFromRouterJsf-->路由接口调用异常,单号为：{}" , waybillCode,e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(HintService.getHint(HintCodeConstants.GET_ROUTER_BY_WAYBILL_ERROR));
+            return result;
+        }
+        Profiler.registerInfoEnd(info);
+        return  result;
+    }
+
+    /**
+     * 按分拣龙门架配置获取下一流向
+     * @return
+     */
+    private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
+    (String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+
+        InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+
+        AreaDestJsfRequest jsfRequest = new AreaDestJsfRequest();
+        jsfRequest.setOriginalSiteCode(operateSiteCode);
+        jsfRequest.setDestinationSiteCode(destinationSiteCode);
+        jsfRequest.setOperateTime(operateTime);
+        jsfRequest.setMachineId(machineCode);
+        jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
+        BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.getSiteRoutersFromDMSAutoJsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            /* 调用发货配置jsf接口 */
+            jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            log.error("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->配置接口调用异常,单号为：{}" , waybillCode,e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(HintService.getHint(HintCodeConstants.GET_AREA_DEST_ERROR));
+            return result;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+        if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE
+                || jsfResponse.getData() == null) {
+            if (log.isWarnEnabled()) {
+                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:{}"
+                        , JsonHelper.toJson(jsfResponse));
+            }
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("未配置发货关系");
+            return result;
+        }
+        for (AreaDestJsfVo areaDestJsfVo : jsfResponse.getData()) {
+            if (!operateSiteCode.equals(areaDestJsfVo.getCreateSiteCode())) {
+                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->areaDestJsfService接口数据获取错误");
+                continue;
+            }
+            /*
+             * 如果中转场编号为空，或者为0，或者为当前分拣中心，则选receiveSiteCode作为下一跳
+             * 否则直接将中转场编号作为下一跳
+             * 如果返回的记录中有多条符合则拼接到siteRouters的后面
+             */
+            if (areaDestJsfVo.getTransferSiteCode() == null
+                    || operateSiteCode.equals(areaDestJsfVo.getTransferSiteCode())
+                    || areaDestJsfVo.getTransferSiteCode() <= 0) {
+                if (null != areaDestJsfVo.getReceiveSiteCode() && areaDestJsfVo.getReceiveSiteCode() > 0) {
+                    nextRouters.add(areaDestJsfVo.getReceiveSiteCode());
+                }
+            } else {
+                nextRouters.add(areaDestJsfVo.getTransferSiteCode());
+            }
+        }
+        return result;
     }
 
     /**

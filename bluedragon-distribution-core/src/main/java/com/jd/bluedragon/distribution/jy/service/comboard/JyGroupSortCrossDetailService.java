@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.comboard.request.RemoveCTTReq;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 
 import java.util.List;
@@ -127,4 +128,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     boolean appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq);
+
+    /**
+     * 按条件查询
+     * @param entityQueryDto
+     * @return
+     */
+    List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto entityQueryDto);
 }

@@ -378,4 +378,31 @@
     and yn = 1
     group by template_code
   </select>
+
+  <select id="selectByCondition"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
+          resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from jy_group_sort_cross_detail
+    where yn = 1
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+      and template_code = #{templateCode,jdbcType=VARCHAR}
+      <if test="endSiteId !=null and endSiteId!=''">
+        and end_site_id = #{endSiteId}
+      </if>
+      <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+        and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+      </if>
+      <if test="funcType != null and funcType != ''">
+        and func_type = #{funcType,jdbcType=BIT}
+      </if>
+      <if test="endSiteIdList != null and endSiteIdList.size() > 0">
+        and end_site_id in
+        <foreach collection="endSiteIdList" item="item" index="index" open="(" separator="," close=")">
+          #{item,jdbcType=BIGINT}
+        </foreach>
+      </if>
+  </select>
+
 </mapper>

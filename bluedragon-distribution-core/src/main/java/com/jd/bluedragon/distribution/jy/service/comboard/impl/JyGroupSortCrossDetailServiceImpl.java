@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.FocusEnum;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
@@ -400,4 +401,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
 
+    @Override
+    public List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto entityQueryDto) {
+        return jyGroupSortCrossDetailDao.selectByCondition(entityQueryDto);
+    }
 }

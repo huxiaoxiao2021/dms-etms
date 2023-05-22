@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
@@ -81,6 +82,9 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private void checkCurrentOperate(CurrentOperate currentOperate) {
         if(Objects.isNull(currentOperate) || Objects.isNull(currentOperate.getSiteCode())) {
             throw new JyBizException("操作场地编码为空");
+        }
+        if(Objects.isNull(currentOperate.getOperateTime())) {
+            throw new JyBizException("操作时间为空");
         }
     }
 
@@ -227,6 +231,9 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
             checkCurrentOperate(request.getCurrentOperate());
             checkUser(request.getUser());
+            if(Objects.isNull(request.getOperateType())) {
+                request.setOperateType(JySendFlowConfigEnum.GANTRY.getCode());
+            }
 
             JdVerifyResponse<SendScanRes> res = new JdVerifyResponse<>();
             res.toSuccess();

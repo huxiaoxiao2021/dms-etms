@@ -14,6 +14,13 @@ public class SendScanReq extends SendScanRequest {
      */
     private String machineCode;
 
+    /**
+     * 操作类型（2种）
+     * com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum
+     */
+    private Integer operateType;
+
+
 
     public String getMixScanTaskCode() {
         return mixScanTaskCode;
@@ -29,5 +36,13 @@ public class SendScanReq extends SendScanRequest {
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public Integer getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(Integer operateType) {
+        this.operateType = operateType;
     }
 }
