@@ -1,5 +1,6 @@
 package com.jd.bluedragon;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1923,4 +1924,22 @@ public class Constants {
      * 拣运滞留任务biz前缀
      */
     public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
+
+
+    /**
+     * 标准B网车队配置匹配接口常量
+     */
+    //订单类别
+    public static final Integer B2BSUPPORT_ORDER_TYPE = 1;
+    //订单业务类型
+    public static final Integer B2BSUPPORT_ORDER_BUSINESS_TYPE = 2;
+    //行业类型
+    public static final Integer B2BSUPPORT_INDUSTRY_TYPE = 0;
+    //商家id(青龙业主号对应id)
+    public static final Long B2BSUPPORT_VENDOR_ID = 0L;
+    //期望配送方式
+    public static final Integer B2BSUPPORT_REQUIRE_TRANS_MODE = 1;
+    //是否冷链
+    public static final Integer B2BSUPPORT_COLD_CHAIN = 0;
+
 }
