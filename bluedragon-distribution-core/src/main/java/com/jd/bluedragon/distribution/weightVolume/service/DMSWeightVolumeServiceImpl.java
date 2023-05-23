@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume.service;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -90,7 +91,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     @Autowired
     private BaseMinorManager baseMinorManager;
-
+    
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
@@ -471,6 +474,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		result.setData(weightVolumeUploadResult);
 		
+    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()) {
+			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+			result.toSuccess("验证成功！");
+			return result;
+    	}
 		WeightVolumeBusinessTypeEnum businessTypeEnum = WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType());
 		if(businessTypeEnum == null) {
 			result.toFail("传入的businessType无效！");
