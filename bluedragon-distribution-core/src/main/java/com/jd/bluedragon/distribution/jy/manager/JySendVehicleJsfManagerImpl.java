@@ -90,7 +90,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
         try {
             log.info("查询发车任务待扫包裹列表入参-{}", JSON.toJSONString(queryPager));
             ServiceResult<Pager<SendVehiclePackageDetailVo>> serviceResult = sendVehicleJsfService.querySendVehicleToScanPackageDetail(queryPager);
-            log.info("查询发车任务待扫包裹列表结果-{}",JSON.toJSONString(serviceResult));
+            log.info("查询发车任务待扫包裹列表结果-{}",JSON.toJSONString(serviceResult.getMessage()));
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
             }
@@ -177,6 +177,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
         }
         return null;
     }
+
     private ExcepScanLabelEnum resolveExcepScanLabelEnum(SendPackageEsDto sendPackageEsDto, Integer queryBarCodeFlag) {
         if (ObjectHelper.isNotNull(queryBarCodeFlag)){
             switch (queryBarCodeFlag) {

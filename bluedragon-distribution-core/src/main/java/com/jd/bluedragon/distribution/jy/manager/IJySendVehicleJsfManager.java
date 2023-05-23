@@ -7,6 +7,7 @@ import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
+
 /**
  * @ClassName IJySendVehicleJsfManager
  * @Description
