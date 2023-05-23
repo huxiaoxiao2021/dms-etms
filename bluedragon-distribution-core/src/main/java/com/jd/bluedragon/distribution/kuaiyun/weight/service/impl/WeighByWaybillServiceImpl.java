@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -150,7 +151,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Autowired
     @Qualifier("expressOrderServiceWsManager")
     private ExpressOrderServiceWsManager expressOrderServiceWsManager;
-
+    
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
      *
@@ -320,7 +323,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WaybillWeightDTO entity) {
-    	if(!Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
+    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()
+    			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);
     		return false;
@@ -347,10 +351,10 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     	updateData.setOverLengthAndWeight(overLengthAndWeight);
     	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
     	if(result.isSucceed()) {
-    		Log.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
+    		log.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
     		return true;
     	}else {
-    		Log.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
+    		log.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
     		restLongPackage(entity);
     	}  
     	return false;
@@ -358,7 +362,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     private void restLongPackage(WaybillWeightDTO entity){
         if(DmsConstants.WAYBILL_LONG_PACKAGE_OVER_WEIGHT.equals(entity.getLongPackage())) {
         	entity.setLongPackage(DmsConstants.WAYBILL_LONG_PACKAGE_DEFAULT);
-        	Log.warn("{}重置超长超重标longPackage识为0！",entity.getWaybillCode());
+        	log.warn("{}重置超长超重标longPackage识为0！",entity.getWaybillCode());
         }
     }
     /**
