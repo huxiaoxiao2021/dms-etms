@@ -1923,4 +1923,8 @@ public class Constants {
      * 拣运滞留任务biz前缀
      */
     public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
+    /**
+     * 特安 增值服务编码
+     * */
+    public static final String TE_AN_SERVICE = "ed-a-0047";
 }

@@ -387,6 +387,12 @@ public class CacheKeyConstants {
     public static final String CACHE_KEY_BATCH_ABOLISH_RECYCLE_BASKET = "abolishRecycleBasket:%s";
 
     /**
+     * 特安件缓存Key
+     */
+    public static final String CACHE_KEY_JY_TEAN_WAYBILL = JY_CACHE_PREFIX + "jyTEANWaybill:%s:%s";
+
+
+    /**
      * 拣运-滞留扫描
      */
     public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";

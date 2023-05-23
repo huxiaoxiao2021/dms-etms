@@ -569,6 +569,10 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_BOARD_ROUTER_EMPTY_ERROR="未查询到路由请核查是否错发，是否强制组板？";
     public static final String MESSAGE_BOARD_ERROR="组板目的地与此订单预分拣站点不一致，是否继续？";
 
+    public static final Integer CODE_40008 = 40008;
+    public static final String MESSAGE_40008_1 = "此单为特安包裹，请勿与普通件进行混包！";
+    public static final String MESSAGE_40008_2 = "此单为非特安包裹，请勿与特安件进行混包！";
+
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
     public static final Integer MESSAGE_SHOW_TYPE_INTERCEPT = 3;

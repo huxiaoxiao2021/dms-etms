@@ -104,6 +104,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     private static final int UNLOAD_SCAN_BAR_EXPIRE = 6;
 
+    private static final int TEAN_PACKAGE_FLAG = 1;
+
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -232,9 +234,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                                            JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
         List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
+        Long teanCount = unloadVehicleService.findStatusCountByCondition4StatusAndLineOfTEAN(condition, sealCarCodes, curQueryStatus);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
+        unloadVehicleData.setTotalOfTEAN(teanCount);
 
         // 按车辆状态组装
         makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
@@ -375,6 +379,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
         vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
+        vehicleBaseInfo.setTeanFlag(entity.getTeanFlag());
 
         return vehicleBaseInfo;
     }
@@ -421,6 +426,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return lineTypeList;
     }
 
+
     private LineTypeStatis createLineTypeAgg(JyBizTaskUnloadCountDto countDto) {
         LineTypeStatis lineTypeStatis = new LineTypeStatis();
         lineTypeStatis.setLineType(countDto.getLineType());
@@ -456,6 +462,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
         condition.setTaskType(request.getTaskType());
+        if(Objects.equals(request.getTeanFlag(),TEAN_PACKAGE_FLAG)){
+            condition.setTeanFlag(request.getTeanFlag());
+        }
 
         return condition;
     }
