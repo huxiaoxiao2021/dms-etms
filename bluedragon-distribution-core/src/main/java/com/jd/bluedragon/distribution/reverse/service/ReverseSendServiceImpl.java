@@ -1212,6 +1212,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         vimDto.setMessageValue(vimMessageDto);
         vimDto.setSource(source);
         vimDto.setTarget(target);
+        vimDto.setMethodName(outboundType);
         vimDto.setOutboundType(outboundType);
         vimDto.setOutboundNo(outboundNo);
         vimDto.setPriority(DtcDataReceiverManagerImpl.PRIORITY);
@@ -1222,6 +1223,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         for(com.jd.bluedragon.distribution.reverse.domain.Product  product :messageValue.getProList()){
             VmiDownStreamDtcProduct vmiProduct = new VmiDownStreamDtcProduct();
             BeanCopyUtil.copy(product,vmiProduct);
+            vmiProduct.setProductId(StringUtils.isNotBlank(product.getProductId())?Long.valueOf(product.getProductId()):Constants.LONG_ZERO);
+            vmiProduct.setProductLoss(StringUtils.isNotBlank(product.getProductLoss())?Integer.valueOf(product.getProductLoss()):Constants.NUMBER_ZERO);
             vimMessageDto.getDownStreamDtcProducts().addDownStreamDtcProduct(vmiProduct);
         }
 
