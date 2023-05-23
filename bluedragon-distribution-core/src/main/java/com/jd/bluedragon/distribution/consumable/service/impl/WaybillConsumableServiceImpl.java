@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
+import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumablePackConfirmRequest;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumablePDAService;
@@ -10,11 +11,14 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableServic
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 包装确认
@@ -37,6 +41,21 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
         try {
             WaybillConsumablePackConfirmReq confirmReq = new WaybillConsumablePackConfirmReq();
             BeanUtils.copyProperties(request, confirmReq);
+            // 查询运单耗材信息
+            JdCResponse<List<WaybillConsumablePackConfirmRes>> consumableResponse = waybillConsumablePDAService.getWaybillConsumableInfo(confirmReq);
+            if (!JdCResponse.CODE_SUCCESS.equals(consumableResponse.getCode())) {
+                LOGGER.warn("doWaybillConsumablePackConfirm|查询耗材信息失败:request={},response={}", JsonHelper.toJson(request), JsonHelper.toJson(consumableResponse));
+                result.setCode(consumableResponse.getCode());
+                result.setMessage(consumableResponse.getMessage());
+                return result;
+            }
+            List<WaybillConsumablePackConfirmRes> consumableList = consumableResponse.getData();
+            if (CollectionUtils.isEmpty(consumableList)) {
+                result.parameterError("查询耗材信息为空");
+                return result;
+            }
+
+            // 执行耗材确认
             JdCResponse<Boolean> response = waybillConsumablePDAService.doWaybillConsumablePackConfirm(confirmReq);
             result.setCode(response.getCode());
             result.setMessage(response.getMessage());
