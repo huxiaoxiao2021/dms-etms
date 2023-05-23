@@ -812,7 +812,15 @@ public class UccPropertyConfiguration {
      */
     private String volumeExcessIssueSites;
 
+    /**
+     * 分拣理货开关
+     */
     private boolean checkTeAnSwitch;
+
+    /**
+     * 特安场地列表
+     */
+    private String teAnSiteWhitelist;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -3012,5 +3020,13 @@ public class UccPropertyConfiguration {
 
     public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
         this.checkTeAnSwitch = checkTeAnSwitch;
+    }
+
+    public String getTeAnSiteWhitelist() {
+        return teAnSiteWhitelist;
+    }
+
+    public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
+        this.teAnSiteWhitelist = teAnSiteWhitelist;
     }
 }

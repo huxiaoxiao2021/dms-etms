@@ -3354,6 +3354,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         InvokeResult<SendVehicleProductTypeAgg> invokeResult = new InvokeResult<>();
         invokeResult.setCode(RESULT_SUCCESS_CODE);
         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+
+        Long toScanCountSumOfTeAn = 0L;
+        SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
+        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
+        productTypeAgg.setCount(toScanCountSumOfTeAn);
+        //场地白名单
+        String teAnSiteWhitelist = uccConfig.getTeAnSiteWhitelist();
+        if(StringUtils.isNotBlank(teAnSiteWhitelist) && !teAnSiteWhitelist.contains(String.format("%s%s%s", ",", request.getCurrentOperate().getSiteCode(), ","))){
+            log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
+            invokeResult.setData(productTypeAgg);
+            return invokeResult;
+        }
         if (request.getCurrentOperate()== null
             ||  Objects.isNull(request.getCurrentOperate().getSiteCode())
             || StringUtils.isBlank(request.getSendVehicleBizId()) ) {
@@ -3363,11 +3376,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setSendVehicleBizId(request.getSendVehicleBizId());
         List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
-        Long toScanCountSumOfTeAn = 0L;
-        SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
-        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
-        productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
-        productTypeAgg.setCount(0L);
+
         if(CollectionUtils.isNotEmpty(receiveIds)){
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));

@@ -268,6 +268,10 @@ public class InvokeResult<T> implements Serializable {
     public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
     public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
 
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
