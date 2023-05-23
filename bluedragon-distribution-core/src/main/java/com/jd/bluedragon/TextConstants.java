@@ -337,4 +337,9 @@ public class TextConstants {
      * 医药专送
      */
     public static final String COMMON_TEXT_MEDICINE_DELIVET = "医药专送";
+
+    /**
+     * NC
+     */
+    public static final String SPECIAL_MARK_NC ="NC";
 }
