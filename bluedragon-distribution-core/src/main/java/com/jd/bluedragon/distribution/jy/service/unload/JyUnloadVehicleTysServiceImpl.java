@@ -2112,9 +2112,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }
             if(!collectDemoteSwitch(reqDto)) {
-                if(log.isInfoEnabled()) {
-                    log.info("{},当前场地不在试点场地范围，或者降级处理中;req={}", methodDesc, JsonHelper.toJson(reqDto));
-                }
                 ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
                 resData.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
                 resData.setWaybillBuQiNum(0);
