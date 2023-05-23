@@ -194,14 +194,14 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
 
             final BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(qo.getStartSiteId());
             if (baseSiteInfo == null) {
-                return result.toFail(String.format("未查询到场地编码为%s的场地数据", qo.getStartSiteCode()));
+                return result.toFail(String.format("未查询到场地编码为%s的场地数据", qo.getStartSiteId()));
             }
             vehicleArriveDockBaseDataDto.setSiteId(baseSiteInfo.getSiteCode());
             vehicleArriveDockBaseDataDto.setSiteName(baseSiteInfo.getSiteName());
             // 查询场地所有月台
             final Response<List<DockInfoEntity>> dockListResult = dockService.listAllDockInfoBySiteCode(baseSiteInfo.getSiteCode());
             if (dockListResult == null || !dockListResult.isSucceed()) {
-                return result.toFail(String.format("查询场地的月台数据失败，场地编码%s", qo.getStartSiteCode()));
+                return result.toFail(String.format("查询场地的月台数据失败，场地编码%s", qo.getStartSiteId()));
             }
             final List<DockInfoEntity> dockListData = dockListResult.getData();
             if (CollectionUtils.isNotEmpty(dockListData)) {

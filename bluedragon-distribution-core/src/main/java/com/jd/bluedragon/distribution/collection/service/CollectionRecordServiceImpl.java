@@ -1350,6 +1350,7 @@ public class CollectionRecordServiceImpl implements CollectionRecordService{
 
 
     @Override
+    @JProfiler(jKey = "DMS.WEB.CollectionRecordService..getCollectionCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public String getCollectionCode(CollectionCodeEntity codeEntity, String erp) {
         String code = this.getOrGenJQCodeByBusinessType(codeEntity,erp);
         if(StringUtils.isBlank(code)) {
