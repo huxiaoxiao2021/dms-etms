@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
@@ -2110,13 +2111,24 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if(log.isInfoEnabled()) {
                 log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
             }
+            if(!collectDemoteSwitch(reqDto)) {
+                if(log.isInfoEnabled()) {
+                    log.info("{},当前场地不在试点场地范围，或者降级处理中;req={}", methodDesc, JsonHelper.toJson(reqDto));
+                }
+                ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
+                resData.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+                resData.setWaybillBuQiNum(0);
+                res.setData(resData);
+                res.setMessage("当前场地不在试点场地范围，或者降级处理中，默认返回0");
+                return res;
+            }
             if(getManualCreateTaskFlag(reqDto.getBizId())) {
                 reqDto.setManualCreateTaskFlag(Boolean.TRUE);
             }
             //不齐运单数量
             InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNumRes = jyCollectService.collectWaitWaybillNum(reqDto);
             if(!collectWaitWaybillNumRes.codeSuccess()) {
-                log.info("{}不齐运单数量查询错误，param={},res={}", methodDesc, reqDto, JsonUtils.toJSONString(collectWaitWaybillNumRes));
+                log.warn("{}不齐运单数量查询错误，param={},res={}", methodDesc, reqDto, JsonUtils.toJSONString(collectWaitWaybillNumRes));
                 res.error(collectWaitWaybillNumRes.getMessage());
                 return res;
             }
@@ -2127,6 +2139,45 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return res;
         }
     }
+
+    /**
+     * 是否走集齐逻辑
+     * true: 放行
+     * false: 禁止
+     * @param req
+     * @return
+     */
+    private boolean collectDemoteSwitch(CollectStatisticsQueryDto req) {
+        try{
+            if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+                //默认关闭开关，手动开启降级 true
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运集齐功能降级处理中");
+                }
+                return false;
+            }
+            String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
+            if(org.apache.commons.lang.StringUtils.isBlank(siteWhitelist)) {
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(req));
+                }
+                return true;
+            }else if(siteWhitelist.contains(String.format("%s%s%s", ",", req.getCurrentOperate().getSiteCode(), ","))){
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
+                }
+                return true;
+            }
+            return false;
+        }catch (Exception e) {
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：集齐降级开关异常，默认不执行降级");
+            }
+            return true;
+        }
+
+    }
+
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
