@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
+import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePdaDto;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumablePackConfirmRequest;
@@ -18,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +56,9 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
                 result.parameterError("查询耗材信息为空");
                 return result;
             }
-
+            // 组装转换耗材请求参数
+            List<WaybillConsumablePdaDto> waybillConsumablePdaRequestList = getWaybillConsumablePdaDtoList(consumableList);
+            confirmReq.setWaybillConsumableDtoList(waybillConsumablePdaRequestList);
             // 执行耗材确认
             JdCResponse<Boolean> response = waybillConsumablePDAService.doWaybillConsumablePackConfirm(confirmReq);
             result.setCode(response.getCode());
@@ -66,4 +70,18 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
         }
         return result;
     }
+
+    private List<WaybillConsumablePdaDto> getWaybillConsumablePdaDtoList(List<WaybillConsumablePackConfirmRes> consumableList) {
+        List<WaybillConsumablePdaDto> waybillConsumablePdaRequestList = new ArrayList<>();
+        for (WaybillConsumablePackConfirmRes confirmRes : consumableList) {
+            WaybillConsumablePdaDto pdaRequest = new WaybillConsumablePdaDto();
+            pdaRequest.setConsumableCode(confirmRes.getConsumableCode());
+            pdaRequest.setConsumableTypeCode(confirmRes.getConsumableTypeCode());
+            pdaRequest.setConfirmQuantity(confirmRes.getReceiveQuantity());
+            // todo pdaRequest.setConfirmVolume();
+            waybillConsumablePdaRequestList.add(pdaRequest);
+        }
+        return waybillConsumablePdaRequestList;
+    }
+
 }
