@@ -23,6 +23,7 @@
     <result column="func_type" jdbcType="VARCHAR" property="funcType" />
     <result column="focus" jdbcType="BIT" property="focus" />
     <result column="send_vehicle_detail_biz_id" jdbcType="VARCHAR" property="sendVehicleDetailBizId" />
+    <result column="complete_status" jdbcType="VARCHAR" property="completeStatus" />
 
   </resultMap>
   <resultMap id="cttGroupDtoMap" type="com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto">
@@ -37,7 +38,8 @@
   <sql id="Base_Column_List">
     id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id,
     start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp,
-    update_user_name, create_time, update_time, yn, ts, func_type, focus, send_vehicle_detail_biz_id
+    update_user_name, create_time, update_time, yn, ts, func_type, focus, send_vehicle_detail_biz_id,
+    complete_status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -392,13 +394,13 @@
       and start_site_id = #{startSiteId,jdbcType=BIGINT}
       and group_code = #{groupCode,jdbcType=VARCHAR}
       and template_code = #{templateCode,jdbcType=VARCHAR}
-      <if test="endSiteId !=null and endSiteId!=''">
+      <if test="endSiteId != null">
         and end_site_id = #{endSiteId}
       </if>
       <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
         and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
       </if>
-      <if test="funcType != null and funcType != ''">
+      <if test="funcType != null">
         and func_type = #{funcType,jdbcType=BIT}
       </if>
       <if test="endSiteIdList != null and endSiteIdList.size() > 0">
@@ -407,10 +409,31 @@
           #{item,jdbcType=BIGINT}
         </foreach>
       </if>
+      <if test="completeStatus != null">
+        and complete_status = #{completeStatus,jdbcType=BIT}
+      </if>
   </select>
 
   <update id="mixScanTaskComplete" 
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
     update jy_group_sort_cross_detail set complete = 1 where template_code = #{templateCode,jdbcType=VARCHAR}
   </update>
+
+
+  <select id="countByCondition"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
+          resultType="int">
+    select count(*)
+    from jy_group_sort_cross_detail
+    where yn = 1
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and group_code = #{groupCode,jdbcType=VARCHAR}
+    and template_code = #{templateCode,jdbcType=VARCHAR}
+    <if test="funcType != null">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
+    <if test="completeStatus != null">
+      and complete_status = #{completeStatus,jdbcType=BIT}
+    </if>
+  </select>
 </mapper>

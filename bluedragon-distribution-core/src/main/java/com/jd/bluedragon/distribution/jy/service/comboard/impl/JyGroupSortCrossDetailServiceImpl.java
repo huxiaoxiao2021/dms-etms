@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_DMS;
@@ -52,6 +49,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     private JyGroupSortCrossDetailDao jyGroupSortCrossDetailDao;
     @Autowired
     private IGenerateObjectId genObjectId;
+    @Autowired
+    private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
     
     public static final String COM_BOARD_SEND = "CTT%s";
 
@@ -401,5 +400,28 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         condition.setTemplateCode(templateCode);
         return jyGroupSortCrossDetailDao.mixScanTaskComplete(condition) > 0;
+    }
+
+    @Override
+    public int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        return jyGroupSortCrossDetailDao.countByCondition(queryDto);
+    }
+
+    /**
+     * 接货仓发货岗发货前校验逻辑
+     * @param queryDto
+     * @return true: 已完成
+     */
+    @Override
+    public boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        //混扫任务状态校验
+        if(!jyGroupSortCrossDetailCacheService.existMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode())){
+            return true;
+        }
+        if(this.countByCondition(queryDto) > 0) {
+            jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode());
+            return true;
+        }
+        return false;
     }
 }

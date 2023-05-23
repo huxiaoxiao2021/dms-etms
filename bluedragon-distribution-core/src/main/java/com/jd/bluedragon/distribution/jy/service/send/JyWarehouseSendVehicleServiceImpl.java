@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
+import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -61,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 @Service("jyWarehouseSendVehicleServiceImpl")
@@ -533,8 +535,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.scan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanRes> scan(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
-
-        //调用发货前接货仓发货岗单独逻辑加工
+        //发货前执行逻辑
         warehouseSendScanBeforeHandler(request, response);
         if(!response.codeSuccess()) {
             return response;
@@ -562,14 +563,51 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param response
      */
     private void warehouseSendScanBeforeHandler(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
+        //混扫任务状态校验
+        if(mixScanTaskStatusComplete(request)) {
+            response.toBizError();
+            response.addInterceptBox(0, "当前混扫任务已经结束，请重新选择混扫任务");
+            return ;
+        }
+        //扫描单据关联派车任务查询
+        fetchBarCodeBindSendVehicleTask(request, response);
+        if(!response.codeSuccess()) {
+            return;
+        }
 
-        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.warehouseSendScanBeforeHandler", Constants.UMP_APP_NAME_DMSWEB,false, true);
-        Profiler.registerInfoEnd(info);
+    }
+
+
+    /**
+     * 接货仓发货岗发货前校验逻辑
+     * @param request
+     * @return true: 已完成
+     */
+    private boolean mixScanTaskStatusComplete(SendScanReq request) {
+        JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+        queryDto.setGroupCode(request.getGroupCode());
+        queryDto.setTemplateCode(request.getMixScanTaskCode());
+        queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+        return jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto);
+    }
+
+    /**
+     * 获取当前扫描单据关联的派车任务信息（bizId）
+     * @param request
+     * @param response
+     */
+    private void fetchBarCodeBindSendVehicleTask(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.fetchBarCodeBindSendVehicleTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         //根据发货方式获取流向
         InvokeResult<List<Integer>> nextSiteCodeRes = fetchNextSiteId(request);
         if(!nextSiteCodeRes.codeSuccess()) {
             log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
-            response.toFail(StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage());
+            response.toBizError();
+            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
+            response.addInterceptBox(0, customMsg);
             return;
         }
         List<Long> endSiteIdList = new ArrayList<>();
@@ -586,9 +624,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
         if(CollectionUtils.isEmpty(resEntityList)) {
             log.warn("接货仓发货岗按流向{}匹配混扫任务明细为空,request={},派车信息={}", JsonHelper.toJson(endSiteIdList),
-                        JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
+                    JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
             response.toBizError();
-            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
+            String customMsg = MessageFormat.format("没有单据{0}对应的派车任务，请先添加该流向派车任务！", request.getBarCode());
             response.addInterceptBox(0, customMsg);
             return;
         }
@@ -601,6 +639,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
         Profiler.registerInfoEnd(info);
     }
+
 
     /**
      * 查询下一流向

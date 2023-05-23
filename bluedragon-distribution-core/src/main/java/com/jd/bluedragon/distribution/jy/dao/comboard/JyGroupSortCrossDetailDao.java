@@ -109,4 +109,13 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     public int mixScanTaskComplete(JyGroupSortCrossDetailEntity condition) {
         return this.getSqlSession().update(NAMESPACE + ".mixScanTaskComplete", condition);
     }
+
+    /**
+     * 按条件统计条数
+     * @param queryDto
+     * @return
+     */
+    public int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", queryDto);
+    }
 }

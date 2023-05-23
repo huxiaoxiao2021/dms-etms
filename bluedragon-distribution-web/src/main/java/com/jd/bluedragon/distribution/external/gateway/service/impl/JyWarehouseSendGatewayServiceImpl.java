@@ -25,13 +25,15 @@ import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
@@ -39,9 +41,6 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.jim.cli.Cluster;
-import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -82,6 +80,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     @Autowired
     JimDbLock jimDbLock;
+    @Autowired
+    private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
@@ -485,31 +485,48 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
-        String key = String.format(MIX_SCAN_TASK_KEY, mixScanTaskReq.getTemplateCode());
         try {
             checkUser(mixScanTaskReq.getUser());
             checkCurrentOperate(mixScanTaskReq.getCurrentOperate());
             checkGroupCode(mixScanTaskReq.getGroupCode());
             if (StringUtils.isEmpty(mixScanTaskReq.getTemplateCode())) {
-                throw new JyBizException("未获取到混扫任务编号！");
+                response.toFail("未获取到混扫任务编号！");
+                return response;
             }
-
-            if (jimDbLock.lock(key, mixScanTaskReq.getTemplateCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "系统繁忙，请稍后再试！");
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(mixScanTaskReq.getGroupCode());
+            queryDto.setTemplateCode(mixScanTaskReq.getTemplateCode());
+            queryDto.setStartSiteId((long)mixScanTaskReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
             }
-
+            if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode())) {
+                response.toFail("系统繁忙，请稍后再试！");
+                return response;
+            }
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
+            }
             // 完成混扫任务
             if (!jyGroupSortCrossDetailService.mixScanTaskComplete(mixScanTaskReq.getTemplateCode())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "完成混扫任务失败！");
+                response.toFail("完成混扫任务失败！");
+                return response;
             }
+
+            jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
+
         } catch (JyBizException e) {
-            log.info("完成混扫任务失败：{}", JsonHelper.toJson(mixScanTaskReq), e);
+            log.info("完成混扫任务失败：{}", JsonHelper.toJson(mixScanTaskReq));
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl mixScanTaskComplete 完成混扫任务异常 {}", JsonHelper.toJson(mixScanTaskReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "完成混扫任务异常！");
         }finally {
-            jimDbLock.releaseLock(key, mixScanTaskReq.getTemplateCode());
+            jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
         }
         return response;
     }
@@ -599,7 +616,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         
         condition.setGroupCode(mixScanTaskListQueryReq.getGroupCode());
         condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
-        condition.setCompleteStatus(JyMixScanTaskCompleteEnum.SEND_SEAL_DMS.getCode());
+        condition.setCompleteStatus(JyMixScanTaskCompleteEnum.DOING.getCode());
         condition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
         if (!StringUtils.isEmpty(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
             condition.setSendVehicleDetailBizId(mixScanTaskListQueryReq.getSendVehicleDetailBizId());

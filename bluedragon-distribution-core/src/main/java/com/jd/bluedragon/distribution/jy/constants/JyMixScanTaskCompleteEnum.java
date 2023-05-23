@@ -7,8 +7,8 @@ package com.jd.bluedragon.distribution.jy.constants;
  */
 public enum JyMixScanTaskCompleteEnum {
 
-    SEND_SEAL_DMS(0,"未完成"),
-    SEND_SEAL_TYS(1,"完成");
+    DOING(0,"未完成"),
+    COMPLETE(1,"完成");
     
     private Integer code;
     private String msg;
