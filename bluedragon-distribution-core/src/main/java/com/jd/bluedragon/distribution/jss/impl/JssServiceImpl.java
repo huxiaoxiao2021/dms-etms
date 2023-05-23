@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -188,6 +187,21 @@ public class JssServiceImpl implements JssService {
             log.info("文件 {} 生成的URL为 {}",key,url);
             return url;
         } catch (Exception e) {
+            log.error("异常上行处理异常:", e);
+        }
+        return null;
+    }
+
+    @Override
+    public String uploadFileWithName(String bucket, byte[] bytes, String fileName) {
+        ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+        try {
+            if (bytes.length==0) {
+                log.info("上传的数据为空");
+                return null;
+            }
+            return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream, bucket, fileName, bytes.length,365); 
+        }catch (Exception e){
             log.error("异常上行处理异常:", e);
         }
         return null;

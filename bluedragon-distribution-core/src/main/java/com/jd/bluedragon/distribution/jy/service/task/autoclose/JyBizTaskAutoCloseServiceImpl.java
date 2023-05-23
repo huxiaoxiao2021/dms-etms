@@ -1,18 +1,18 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.service.strand.JyBizTaskStrandReportService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.strategy.JyBizTaskCloseServiceStrategy;
+import com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +41,10 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
     private JyBizTaskCloseServiceStrategy jyBizTaskCloseServiceStrategy;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
-
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JyBizTaskStrandReportService jyBizTaskStrandReportService;
 
     @Autowired
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
@@ -73,6 +70,9 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
                 case UNLOADING_NOT_FINISH:
                     result.setData(unloadTaskAutoCloseDeal(autoCloseTaskMq));
                     break;
+                case STRAND_NOT_SUBMIT:
+                    result.setData(strandTaskAutoCloseDeal(autoCloseTaskMq));
+                    break;
                 case CREATE_SEND_VEHICLE_TASK:
                     result.setData(sendVehicleDetailTaskDeal(autoCloseTaskMq));
                     break;
@@ -85,6 +85,7 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
         }
         return result;
     }
+
 
     private boolean sendVehicleDetailTaskDeal(AutoCloseTaskMq autoCloseTaskMq){
         JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskMq.getBizId());
@@ -110,7 +111,14 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
         return false;
     }
 
-
+    private boolean strandTaskAutoCloseDeal(AutoCloseTaskMq autoCloseTaskMq) {
+        JyBizTaskStrandReportEntity taskEntity = jyBizTaskStrandReportService.queryOneByBiz(autoCloseTaskMq.getBizId());
+        if(taskEntity == null){
+            log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
+            return false;
+        }
+        return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4StrandNotFinish(autoCloseTaskMq, taskEntity);
+    }
 
     /**
      * 自动关闭任务

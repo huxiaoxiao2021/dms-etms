@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -88,4 +89,17 @@ public interface JyGroupMemberService {
 	 * @return
 	 */
 	JyGroupMemberEntity queryBySignRecordId(Long signRecordId);
+	/**
+	 * 流程-添加组员
+	 * @param addMemberRequest
+	 * @return
+	 */
+	JdResult<Boolean> addMemberForFlow(GroupMemberRequest addMemberRequest);
+	/**
+	 * 流程-作废组员
+	 * @param removeMemberRequest
+	 * @return
+	 */
+	JdResult<Boolean> deleteMemberForFlow(GroupMemberRequest removeMemberRequest);
+
 }

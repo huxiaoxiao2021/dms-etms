@@ -326,7 +326,12 @@
                   ref="userSignRecordJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <jsf:provider id="userSignRecordFlowJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.UserSignRecordFlowJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="userSignRecordFlowJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!-- 上岗码查询JSF服务 -->
     <jsf:provider id="positionQueryJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
@@ -511,6 +516,31 @@
       alias="${dms.jsf.alias}"
       ref="dmsComboardService"
       server="dmsjsf">
+    </jsf:provider>
+    
+    <!--  抽检服务   -->
+    <jsf:provider id="jsfSpotCheckDealService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckDealService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 运输发货车辆相关服务 -->
+    <jsf:provider id="jsfJyTransportSendVehicleService"
+                  interface="com.jd.bluedragon.distribution.jy.transport.api.JyTransportSendVehicleService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTransportSendVehicleService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
+
+    <!--  提供给逆向集约接口   -->
+    <jsf:provider id="reverseIntensiveServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService"
+                  alias="${dms.jsf.alias}"
+                  ref="reverseIntensiveService"
+                  server="dmsjsf">
     </jsf:provider>
 
 </beans>

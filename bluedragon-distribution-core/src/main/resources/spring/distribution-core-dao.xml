@@ -454,7 +454,7 @@
     </bean>
     <bean id="preSealBatchDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealBatchDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>              
+    </bean>
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -701,6 +701,17 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+    <!--  collection_record 待集齐集合表  -->
+    <bean id="collectionRecordDao" class="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+    <!--  collection_record_detail 待集齐集合明细表  -->
+    <bean id="collectionRecordDetailDao" class="com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+
     <!--  分拣箱号关联  -->
     <bean id="boxRelationDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
@@ -721,7 +732,10 @@
     </bean>
     <bean id="userSignRecordDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
-    </bean>                
+    </bean>
+    <bean id="userSignRecordFlowDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordFlowDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
@@ -753,11 +767,11 @@
 
     <bean id="materialSendFlowDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
-          
+
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
     <bean id="businessReturnAdressDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />                    
+          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 
 
@@ -854,7 +868,7 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyComboardAggsDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+        <property name="sqlSession" ref="dynamicSqlSessionTemplate"/>
     </bean>
     <bean id="jyGroupSortCrossDetailDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
@@ -891,6 +905,16 @@
     </bean>
     <bean id="jyEvaluateRecordDao" class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="jyBizTaskStrandReportDao" class="com.jd.bluedragon.distribution.jy.dao.strand.JyBizTaskStrandReportDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizStrandReportDetailDao" class="com.jd.bluedragon.distribution.jy.dao.strand.JyBizStrandReportDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAttachmentDetailDao" class="com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
     <!--################################## jy_core 相关DAO END ############################################ -->

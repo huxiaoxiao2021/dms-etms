@@ -32,6 +32,10 @@ public class JyBizTaskCloseServiceStrategy {
     private JyBizTaskCloseSendTaskServiceImpl jyBizTaskCloseSendTaskService;
 
     @Resource
+    @Qualifier("jyBizTaskCloseStrandService")
+    private JyBizTaskCloseStrandServiceImpl jyBizTaskCloseStrandService;
+
+    @Resource
     @Qualifier("jySendVehicleService")
     private IJySendVehicleService jySendVehicleService;
 
@@ -54,6 +58,10 @@ public class JyBizTaskCloseServiceStrategy {
             // 卸车任务
             if(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){
                 return jyBizTaskCloseUnloadTaskService.closeTask(autoCloseTaskPo);
+            }
+            // 滞留任务
+            if(JyAutoCloseTaskBusinessTypeEnum.STRAND_NOT_SUBMIT.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){
+                return jyBizTaskCloseStrandService.closeTask(autoCloseTaskPo);
             }
             //发车任务
             if(JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode().equals(autoCloseTaskPo.getTaskBusinessType())){

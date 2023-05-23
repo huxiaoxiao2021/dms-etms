@@ -21,11 +21,14 @@ public enum JyAutoCloseTaskBusinessTypeEnum {
     UNLOADING_NOT_FINISH(2, "卸车后未卸车完成"),
 
     /**
+     * 滞留任务-未提交
+     */
+    STRAND_NOT_SUBMIT(3, "滞留任务未提交"),
+
+    /**
      * 创建发货任务
      */
     CREATE_SEND_VEHICLE_TASK(4,"创建发货任务"),
-
-
 
     UNKNOWN(-1, "未知"),
     ;

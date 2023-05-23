@@ -111,6 +111,10 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByTransWorkItemCode", query);
     }
 
+    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByTransWorkCode", entity);
+    }
+
     public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findBySendVehicleBizId", sendVehicleBizId);
     }

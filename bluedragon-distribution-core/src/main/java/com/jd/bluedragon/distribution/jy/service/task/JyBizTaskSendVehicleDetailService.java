@@ -29,6 +29,8 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
+    List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity);
+
     /**
      * 按条件查询未封车的流向任务
      * @param entity

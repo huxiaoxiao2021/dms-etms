@@ -112,10 +112,10 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
     }
 
     private Integer getBarCodeType(String barCode) {
-        if (WaybillUtil.isWaybillCode(barCode)) {
-            return ComboardBarCodeTypeEnum.WAYBILL.getCode();
-        } else if (WaybillUtil.isPackageCode(barCode)) {
+        if (WaybillUtil.isPackageCode(barCode)) {
             return ComboardBarCodeTypeEnum.PACKAGE.getCode();
+        } else if (WaybillUtil.isWaybillCode(barCode)) {
+            return ComboardBarCodeTypeEnum.WAYBILL.getCode();
         } else {
             return ComboardBarCodeTypeEnum.BOX.getCode();
         }

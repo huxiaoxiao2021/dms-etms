@@ -216,6 +216,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleGatewayServiceImpl.getSendVehicleToScanPackageDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
     }

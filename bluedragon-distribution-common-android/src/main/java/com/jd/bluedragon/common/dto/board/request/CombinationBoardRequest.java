@@ -43,6 +43,11 @@ public class CombinationBoardRequest implements Serializable {
     private String receiveSiteName;
 
     /**
+     * 包裹目的地
+     */
+    private Integer nextSiteCode;
+
+    /**
      * 箱号或包裹号
      */
     private String boxOrPackageCode;
@@ -65,7 +70,7 @@ public class CombinationBoardRequest implements Serializable {
      * 任务ID
      */
     private Long taskId;
-
+    
     @Override
     public String toString() {
         return "CombinationBoardRequest{" +
@@ -119,6 +124,14 @@ public class CombinationBoardRequest implements Serializable {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public Integer getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Integer nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
     }
 
     public String getBoxOrPackageCode() {

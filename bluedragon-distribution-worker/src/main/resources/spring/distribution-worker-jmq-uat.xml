@@ -166,7 +166,7 @@
     <!--调度信息数据-->
     <jmq:consumer id="jmq.bdWaybillScheduleMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.bdWaybillScheduleMqListener}" listener="bdWaybillScheduleMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
@@ -376,8 +376,16 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
     <!--  组板发货岗统计消息  -->
-    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyAggsConsumer" transport="jmq4.dmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.jyAggsConsumerMain" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumerMain"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.jyAggsConsumerSlave" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs.slave}" listener="jyAggsConsumerSlave"/>
     </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
@@ -485,5 +493,42 @@
         <jmq:listener topic="${jmq.topic.evaluate.target.init}" listener="jyEvaluateTargetInitConsumer"/>
     </jmq:consumer>
 
+    <!--  周转筐批量作废异步处理  -->
+    <jmq:consumer id="jmq.recycleBasketAbolishConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.recycleBasket.batchAbolish}" listener="recycleBasketAbolishConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐初始化拆分批消费 -->
+    <jmq:consumer id="jmq.jyCollectDataInitSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.data.init.split}" listener="jyCollectDataInitSplitConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐数据批量修改 -->
+    <jmq:consumer id="jmq.jyCollectBatchUpdateStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update}" listener="jyCollectBatchUpdateStatusConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐拆分批初始化消费 -->
+    <jmq:consumer id="jmq.JyCollectDataSplitBatchInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.data.page.init}" listener="JyCollectDataSplitBatchInitConsumer"/>
+    </jmq:consumer>
+    <!-- 集齐数据批量修改按运单拆分 -->
+    <jmq:consumer id="jmq.jyCollectStatusBatchUpdateWaybillSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update.split}" listener="jyCollectStatusBatchUpdateWaybillSplitConsumer"/>
+    </jmq:consumer>
+    <!--  验货修改集齐状态补偿方案  -->
+    <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
+    </jmq:consumer>
+    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运-滞留扫描容器处理消费  -->
+    <jmq:consumer id="jmq.jyStrandScanContainerDealConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strandScan.containerDeal}" listener="jyStrandScanContainerDealConsumer"/>
+    </jmq:consumer>
+    <!--  拣运-滞留:运输驳回自建滞留任务  -->
+    <jmq:consumer id="jmq.transportRejectAddCarApplyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
+    </jmq:consumer>
+    
 </beans>
 

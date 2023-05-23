@@ -6,8 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -19,16 +18,19 @@ import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.*;
+import com.jd.bluedragon.distribution.jy.dto.collect.*;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
-import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.collect.JyCollectService;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -46,10 +48,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -160,6 +159,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyGroupService")
     private JyGroupService jyGroupService;
+    @Autowired
+    private JyCollectService jyCollectService;
 
 
     @Override
@@ -196,6 +197,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return new InvokeResult<>(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
         UnloadVehicleTaskRespDto respDto = new UnloadVehicleTaskRespDto();
+        this.setAutoRefreshConfig(respDto);
         initCountToResp(respDto, unloadCountDtos);
         //查询卸车任务列表
         PageHelper.startPage(unloadVehicleTaskReqDto.getPageNo(), unloadVehicleTaskReqDto.getPageSize());
@@ -300,6 +302,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return lineTypeStatis;
     }
 
+    private void setAutoRefreshConfig(UnloadVehicleTaskRespDto respDto){
+        // 增加刷新间隔配置
+        try {
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_TASK_LIST.name());
+            if (jyWorkAppAutoRefreshConfig != null) {
+                final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
+                BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);
+                respDto.setClientAutoRefreshConfig(clientAutoRefreshConfig);
+            }
+        } catch (Exception e) {
+            log.error("JyUnloadVehicleTysServiceImpl.setAutoRefreshConfig error ", e);
+        }
+    }
 
     private void initCountToResp(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<JyBizTaskUnloadCountDto> unloadCountDtos) {
         for (JyBizTaskUnloadCountDto unloadCountDto : unloadCountDtos) {
@@ -638,17 +653,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
-                // 新老版本互斥
-                InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
-                    log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
-                    return invokeResult;
-                }
-                if (Boolean.FALSE.equals(permissionResult.getData())) {
-                    log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
-                    return invokeResult;
+                if (uccPropertyConfiguration.isPdaVersionSwitch()) {
+                    // 新老版本互斥
+                    InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
+                    if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
+                        log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                        invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                        return invokeResult;
+                    }
+                    if (Boolean.FALSE.equals(permissionResult.getData())) {
+                        log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                        invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
+                        return invokeResult;
+                    }
                 }
             }
             return startScanningProcess(scanPackageDto, invokeResult);
@@ -718,9 +735,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 barCode, waybill.getWaybillSign(),scanPackageRespDto);
 
         //德邦单号场地转发提醒
-        if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), operateSiteCode, waybill.getOldSiteId())) {
-            Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
-            warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
+        if (uccPropertyConfiguration.isDpTransferSwitch()) {
+            if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), operateSiteCode, waybill.getOldSiteId())) {
+                Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
+            }
         }
 
         // 判断是否是跨越的取消订单
@@ -735,8 +754,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
 
         //易冻品校验
-        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
-
+        if (uccPropertyConfiguration.isEasyFreezeSwitch()) {
+            checkEasyFreezeResult(waybillCode, scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageRespDto);
+        }
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
@@ -745,7 +765,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 jyUnloadVehicleCheckTysService.boardCountCheck(scanPackageDto, unloadScanDto.getStageBizId());
             }
             // 加盟商余额校验 + 推验货任务
-            jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_PACKAGE.getCode());
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -771,7 +791,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 人工卸车模式组板校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
                 // 路由校验、生成板号
-                boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
+                boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto, invokeResult);
                 if (!routerCheckResult) {
                     log.info("packageCodeScanNew--路由校验失败：该包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
                     return invokeResult;
@@ -855,13 +875,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
 
         //德邦单号场地转发提醒
-        if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), scanPackageDto.getCurrentOperate().getSiteCode(), waybill.getOldSiteId())) {
-            Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
-            warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
+        if (uccPropertyConfiguration.isDpTransferSwitch()) {
+            if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), scanPackageDto.getCurrentOperate().getSiteCode(), waybill.getOldSiteId())) {
+                Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
+            }
         }
 
         //易冻损校验
-        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
+        if (uccPropertyConfiguration.isEasyFreezeSwitch()) {
+            checkEasyFreezeResult(waybillCode, scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageRespDto);
+        }
         //特保单校验
         checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
                 barCode, waybill.getWaybillSign(),scanPackageRespDto);
@@ -888,7 +912,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
         // 验货校验
-        jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+        jyUnloadVehicleCheckTysService.inspectionInterceptAndCollectDeal(barCode, waybill, unloadScanDto, scanPackageDto, invokeResult, ScanCodeTypeEnum.SCAN_WAYBILL.getCode());
         // 组装返回数据
         jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
         // 设置拦截缓存
@@ -960,9 +984,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             throw new JyBizException("运单已妥投，无法继续操作！");
         }
         RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(scanPackageDto.getCurrentOperate().getSiteCode(), scanCode, null);
-        scanPackageDto.setNextSiteCode(routeNextDto.getFirstNextSiteId());
-        if(routeNextDto.getFirstNextSiteId() != null){
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextDto.getFirstNextSiteId());
+        // 入参有则取入参的，没有则取路由
+        Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
+        if(scanPackageDto.getNextSiteCode() != null){
+            nextSiteCode = scanPackageDto.getNextSiteCode();
+        }
+        scanPackageDto.setNextSiteCode(nextSiteCode);
+        if(nextSiteCode != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
             if (baseSite != null) {
                 scanPackageDto.setNextSiteName(baseSite.getSiteName());
             }
@@ -1099,17 +1128,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
-                // 新老版本互斥
-                InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
-                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
-                    return invokeResult;
-                }
-                if (Boolean.FALSE.equals(permissionResult.getData())) {
-                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
-                    return invokeResult;
+                if (uccPropertyConfiguration.isPdaVersionSwitch()) {
+                    // 新老版本互斥
+                    InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
+                    if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
+                        log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                        invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                        return invokeResult;
+                    }
+                    if (Boolean.FALSE.equals(permissionResult.getData())) {
+                        log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                        invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
+                        return invokeResult;
+                    }
                 }
             }
             return startScanningProcess(scanPackageDto, invokeResult);
@@ -2063,6 +2094,198 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }catch (Exception e) {
             log.error("{}--MQ发送异常businessId={}，msg={},errMsg={}", methodDesc, businessId, msg, e.getMessage(), e);
         }
+    }
+
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryCollectStatisticsByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<ScanCollectStatisticsDto> queryCollectStatisticsByDiffDimension(CollectStatisticsQueryDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.queryCollectStatisticsByDiffDimension--不齐维度统计数据查询：";
+        InvokeResult<ScanCollectStatisticsDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(!collectDemoteSwitch(reqDto)) {
+                ScanCollectStatisticsDto resData = new ScanCollectStatisticsDto();
+                resData.setCollectType(CollectTypeEnum.WAYBILL_BUQI.getCode());
+                resData.setWaybillBuQiNum(0);
+                res.setData(resData);
+                res.setMessage("当前场地不在试点场地范围，或者降级处理中，默认返回0");
+                return res;
+            }
+            if(getManualCreateTaskFlag(reqDto.getBizId())) {
+                reqDto.setManualCreateTaskFlag(Boolean.TRUE);
+            }
+            //不齐运单数量
+            InvokeResult<ScanCollectStatisticsDto> collectWaitWaybillNumRes = jyCollectService.collectWaitWaybillNum(reqDto);
+            if(!collectWaitWaybillNumRes.codeSuccess()) {
+                log.warn("{}不齐运单数量查询错误，param={},res={}", methodDesc, reqDto, JsonUtils.toJSONString(collectWaitWaybillNumRes));
+                res.error(collectWaitWaybillNumRes.getMessage());
+                return res;
+            }
+            return collectWaitWaybillNumRes;
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("不齐维度统计数据查询服务异常" + ex.getMessage());
+            return res;
+        }finally {
+            if(log.isInfoEnabled()) {
+                log.info("{}req={};res={}", methodDesc, JsonHelper.toJson(reqDto), JsonHelper.toJson(res));
+            }
+        }
+    }
+
+    /**
+     * 是否走集齐逻辑
+     * true: 放行
+     * false: 禁止
+     * @param req
+     * @return
+     */
+    private boolean collectDemoteSwitch(CollectStatisticsQueryDto req) {
+        try{
+            if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+                //默认关闭开关，手动开启降级 true
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运集齐功能降级处理中");
+                }
+                return false;
+            }
+            String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
+            if(org.apache.commons.lang.StringUtils.isBlank(siteWhitelist)) {
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(req));
+                }
+                return true;
+            }else if(siteWhitelist.contains(String.format("%s%s%s", ",", req.getCurrentOperate().getSiteCode(), ","))){
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务试点场地，集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
+                }
+                return true;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
+            }
+            return false;
+        }catch (Exception e) {
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：集齐降级开关异常，默认不执行降级");
+            }
+            return true;
+        }
+
+    }
+
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportResDto> findCollectReportPage(CollectReportReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportPage--PDA查询不齐报表数据：";
+        InvokeResult<CollectReportResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectInfo(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA查询不齐报表数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportDetailPage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportDetailResDto> findCollectReportDetailPage(CollectReportReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportDetailPage--PDA查询不齐报表明细数据：";
+        InvokeResult<CollectReportDetailResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if (StringUtils.isEmpty(reqDto.getCollectionCode())) {
+                res.error("该运单所在待集齐列表不存在");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectDetail(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA查询不齐报表明细数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.findCollectReportByScanCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<CollectReportResDto> findCollectReportByScanCode(CollectReportQueryParamReqDto reqDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.findCollectReportByScanCode--PDA按面单查询不齐报表数据：";
+        InvokeResult<CollectReportResDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(reqDto == null) {
+                res.error("参数为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求开始，param={}", methodDesc, JsonUtils.toJSONString(reqDto));
+            }
+
+            if(StringUtils.isBlank(reqDto.getScanCode())) {
+                res.error("扫描数据为空");
+                return res;
+            }
+            if(reqDto.getManualCreateTaskFlag() == null) {
+                reqDto.setManualCreateTaskFlag(getManualCreateTaskFlag(reqDto.getBizId()));
+            }
+            return jyCollectService.findCollectReportByScanCode(reqDto);
+        }catch (Exception ex) {
+            log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
+            res.error("PDA按面单查询不齐报表数据服务异常" + ex.getMessage());
+            return res;
+        }
+    }
+
+    private boolean getManualCreateTaskFlag(String bizId) {
+        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(bizId);
+        if(unloadVehicleEntity != null && unloadVehicleEntity.getManualCreatedFlag().equals(1)) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+
+    @Override
+    public InvokeResult<ScanPackageRespDto> privateCollectDeal(UnloadScanCollectDealDto unloadScanCollectDealDto) {
+        InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
+
+        ScanPackageRespDto data = new ScanPackageRespDto();
+        invokeResult.setData(data);
+        invokeResult.success();
+        jyUnloadVehicleCheckTysService.collectDeal(unloadScanCollectDealDto, invokeResult);
+        return invokeResult;
     }
 
 }

@@ -200,6 +200,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                     JyLineTypeEnum detailLineType = TmsLineTypeEnum.getLineType(workItemDto.getTransType());
                     taskSendVehicleDetailEntity.setLineType(detailLineType.getCode());
                     taskSendVehicleDetailEntity.setLineTypeName(detailLineType.getName());
+                    checkIfNeedSaveTaskSimpleCode(taskSendVehicleDetailEntity);
                     transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
                     // 发送任务明细mq
                     sendVehicleDetailTaskMQ(taskSendVehicleDetailEntity, workItemDto.getOperateType());
@@ -242,6 +243,20 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         }
         finally {
             redisClientOfJy.del(mutexKey);
+        }
+    }
+
+    private void checkIfNeedSaveTaskSimpleCode(JyBizTaskSendVehicleDetailEntity detailEntity) {
+        try {
+            if (ObjectHelper.isNotNull(detailEntity)){
+                String key = String.format(Constants.JY_TMS_SIMPLE_TASK_CODE_PREFIX, detailEntity.getTransWorkItemCode());
+                String taskSimpleCode =redisClientOfJy.get(key);
+                if (ObjectHelper.isNotNull(taskSimpleCode)){
+                    detailEntity.setTaskSimpleCode(taskSimpleCode);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("获取任务简码缓存信息异常",e);
         }
     }
 

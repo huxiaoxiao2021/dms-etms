@@ -1,13 +1,21 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
+
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyNoTaskSendService;
 import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,14 +70,23 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.cancelSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
-        return retJdCResponse(jyNoTaskSendService.cancelSendTask(request));
+        try {
+            return retJdCResponse(jyNoTaskSendService.cancelSendTask(request));
+        } catch (JyBizException exception) {
+            if (ObjectHelper.isNotNull(exception.getCode())){
+                return new JdCResponse(exception.getCode(), exception.getMessage());
+            }
+            return new JdCResponse(CODE_ERROR, exception.getMessage());
+        }
     }
 
     @Override
     public JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq) {
         return null;
     }
+
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }

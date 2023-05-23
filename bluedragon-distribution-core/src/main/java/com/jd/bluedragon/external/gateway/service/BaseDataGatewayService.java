@@ -11,6 +11,8 @@ import com.jd.bluedragon.common.dto.sysConfig.response.GlobalFuncUsageControlDto
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;
@@ -76,4 +78,13 @@ public interface BaseDataGatewayService {
      * @return
      */
     JdCResponse<HintVoiceResp> getCommonHintVoice(HintVoiceReq hintVoiceReq);
+
+    /**
+     * 获取安卓初始化数据
+     * @param deviceInfo 设备信息
+     * @return 初始化数据
+     * @author fanggang7
+     * @time 2023-05-04 18:41:33 周四
+     */
+    JdCResponse<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
 }

@@ -4,12 +4,15 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRequest;
+import com.jd.bluedragon.distribution.external.domain.QueryLoadingRateRespone;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.AbstractMap;
 import java.util.List;
+import javax.management.Query;
 
 /**
  * 发往物流网关的接口不要在此类中加方法
@@ -67,5 +70,13 @@ public interface DmsDeliveryService {
      * @time 2023-01-12 21:40:26 周四
      */
     Result<List<SendDetail>> getCancelSendByBox(String boxCode);
+
+
+    /**
+     * 查询装载率
+     * @param request
+     * @return
+     */
+    InvokeResult<QueryLoadingRateRespone>  queryLoadingRate(QueryLoadingRateRequest request);
 
 }
