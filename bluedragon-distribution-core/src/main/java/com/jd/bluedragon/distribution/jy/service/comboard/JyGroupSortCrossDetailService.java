@@ -135,4 +135,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto entityQueryDto);
+
+    /**
+     * 完成混扫任务
+     * @param templateCode
+     * @return
+     */
+    boolean mixScanTaskComplete(String templateCode);
 }

@@ -8,28 +8,19 @@ import com.jd.bluedragon.common.dto.comboard.request.CreateGroupCTTReq;
 import com.jd.bluedragon.common.dto.comboard.request.RemoveCTTReq;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
-import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
-import com.jd.bluedragon.distribution.jy.constants.FocusEnum;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
-import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.etms.waybill.domain.Waybill;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_DMS;
 import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
 
@@ -404,5 +394,12 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     @Override
     public List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto entityQueryDto) {
         return jyGroupSortCrossDetailDao.selectByCondition(entityQueryDto);
+    }
+
+    @Override
+    public boolean mixScanTaskComplete(String templateCode) {
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setTemplateCode(templateCode);
+        return jyGroupSortCrossDetailDao.mixScanTaskComplete(condition) > 0;
     }
 }

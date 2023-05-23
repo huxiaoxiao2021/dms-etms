@@ -25,7 +25,7 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
     public int updateByPrimaryKeySelective(JyGroupSortCrossDetailEntity record) {
-        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", record);
     }
     public int updateByPrimaryKey(JyGroupSortCrossDetailEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
@@ -99,5 +99,14 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
      */
     public List<JyGroupSortCrossDetailEntity> selectByCondition(JyGroupSortCrossDetailEntityQueryDto query) {
         return this.getSqlSession().selectList(NAMESPACE + ".selectByCondition", query);
+    }
+
+    /**
+     * 完成混扫任务
+     * @param condition
+     * @return
+     */
+    public int mixScanTaskComplete(JyGroupSortCrossDetailEntity condition) {
+        return this.getSqlSession().update(NAMESPACE + ".mixScanTaskComplete", condition);
     }
 }

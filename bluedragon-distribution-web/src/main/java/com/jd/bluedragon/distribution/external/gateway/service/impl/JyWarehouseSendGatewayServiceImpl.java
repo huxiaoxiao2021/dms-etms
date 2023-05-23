@@ -9,21 +9,26 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -35,6 +40,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.jim.cli.Cluster;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,11 +49,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
+import static com.jd.bluedragon.WarehouseSendKeyConstants.MIX_SCAN_TASK_KEY;
 import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
 import static com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendServiceImpl.checkCTTCode;
 
@@ -69,13 +80,16 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @Autowired
     private BoxService boxService;
 
+    @Autowired
+    JimDbLock jimDbLock;
+
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     private void checkUser(User user) {
         if(Objects.isNull(user) || StringUtils.isBlank(user.getUserErp())) {
-            throw new JyBizException("操作人ero为空");
+            throw new JyBizException("操作人erp为空");
         }
 
     }
@@ -342,10 +356,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
+        String key = String.format(MIX_SCAN_TASK_KEY, appendMixScanTaskFlowReq.getTemplateCode());
         try{
             checkUser(appendMixScanTaskFlowReq.getUser());
             checkCurrentOperate(appendMixScanTaskFlowReq.getCurrentOperate());
             checkGroupCode(appendMixScanTaskFlowReq.getGroupCode());
+
+            if (!jimDbLock.lock(key, appendMixScanTaskFlowReq.getTemplateCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "系统繁忙，请稍后再试！");
+            }
             // 混扫任务流向校验
             appendCheckMaxAndFlow(appendMixScanTaskFlowReq);
 
@@ -359,6 +378,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 新增流向异常 {}", JsonHelper.toJson(appendMixScanTaskFlowReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "新增流向异常！");
+        }finally {
+            jimDbLock.releaseLock(key, appendMixScanTaskFlowReq.getTemplateCode());
         }
     }
 
@@ -396,10 +417,16 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
+        String key = String.format(MIX_SCAN_TASK_KEY, deleteMixScanTaskReq.getTemplateCode());
         try{
             checkUser(deleteMixScanTaskReq.getUser());
             checkCurrentOperate(deleteMixScanTaskReq.getCurrentOperate());
             checkGroupCode(deleteMixScanTaskReq.getGroupCode());
+
+            if (jimDbLock.lock(key, deleteMixScanTaskReq.getTemplateCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "系统繁忙，请稍后再试！");
+            }
+            
             if (!jyGroupSortCrossDetailService.deleteMixScanTask(deleteMixScanTaskReq)) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"删除混扫任务失败");
             }
@@ -409,6 +436,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 删除混扫任务失败 {}", JsonHelper.toJson(deleteMixScanTaskReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "删除混扫任务异常！");
+        }finally {
+            jimDbLock.releaseLock(key, deleteMixScanTaskReq.getTemplateCode());
         }
         return response;   
     }
@@ -427,10 +456,16 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
+        String key = String.format(MIX_SCAN_TASK_KEY, removeMixScanTaskFlowReq.getTemplateCode());
         try{
             checkUser(removeMixScanTaskFlowReq.getUser());
             checkCurrentOperate(removeMixScanTaskFlowReq.getCurrentOperate());
             checkGroupCode(removeMixScanTaskFlowReq.getGroupCode());
+            
+            if (jimDbLock.lock(key, removeMixScanTaskFlowReq.getTemplateCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "系统繁忙，请稍后再试！");
+            }
+            
             if (!jyGroupSortCrossDetailService.removeMixScanTaskFlow(removeMixScanTaskFlowReq)) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"移除流向失败！");
             }
@@ -440,15 +475,45 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 移除流向失败 {}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "移除流向异常！");
+        }finally {
+            jimDbLock.releaseLock(key, removeMixScanTaskFlowReq.getTemplateCode());
         }
         return response;
     }
 
     @Override
-    public JdCResponse<MixScanTaskRes> mixScanTaskComplete(MixScanTaskReq mixScanTaskReq) {
-        return null;
-    }
+    public JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskReq) {
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        String key = String.format(MIX_SCAN_TASK_KEY, mixScanTaskReq.getTemplateCode());
+        try {
+            checkUser(mixScanTaskReq.getUser());
+            checkCurrentOperate(mixScanTaskReq.getCurrentOperate());
+            checkGroupCode(mixScanTaskReq.getGroupCode());
+            if (StringUtils.isEmpty(mixScanTaskReq.getTemplateCode())) {
+                throw new JyBizException("未获取到混扫任务编号！");
+            }
 
+            if (jimDbLock.lock(key, mixScanTaskReq.getTemplateCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "系统繁忙，请稍后再试！");
+            }
+
+            // 完成混扫任务
+            if (!jyGroupSortCrossDetailService.mixScanTaskComplete(mixScanTaskReq.getTemplateCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "完成混扫任务失败！");
+            }
+        } catch (JyBizException e) {
+            log.info("完成混扫任务失败：{}", JsonHelper.toJson(mixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("JyGroupSortCrossDetailServiceImpl mixScanTaskComplete 完成混扫任务异常 {}", JsonHelper.toJson(mixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "完成混扫任务异常！");
+        }finally {
+            jimDbLock.releaseLock(key, mixScanTaskReq.getTemplateCode());
+        }
+        return response;
+    }
+    
     @Override
     public JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
         JdCResponse<Void> response = new JdCResponse<>();
@@ -488,7 +553,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
-            log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 查询混扫任务异常 {}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
+            log.info("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 查询混扫任务异常 {}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询混扫任务异常！");
         }
         return response;
@@ -508,34 +573,33 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private JyGroupSortCrossDetailEntity assembleCondition(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         String barCode = mixScanTaskListQueryReq.getBarCode();
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
-
-        if (WaybillUtil.isPackageCode(barCode)) {
-            final Waybill waybill = waybillQueryManager
-                    .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
-            if (waybill == null) {
-                throw new JyBizException("未查找到运单数据");
+        
+        if (!StringUtils.isEmpty(barCode)) {
+            // 获取目的地站点或者滑道笼车号
+            if (WaybillUtil.isPackageCode(barCode) || BusinessHelper.isBoxcode(barCode)) {
+                SendScanReq sendScanReq = new SendScanReq();
+                sendScanReq.setOperateType(JySendFlowConfigEnum.GANTRY.getCode());
+                sendScanReq.setCurrentOperate(mixScanTaskListQueryReq.getCurrentOperate());
+                InvokeResult<List<Integer>> result = jyWarehouseSendVehicleService.fetchNextSiteId(sendScanReq);
+                
+                if (result.codeSuccess() && !CollectionUtils.isEmpty(result.getData())) {
+                    condition.setEndSiteId(result.getData().get(0).longValue());
+                }
+            } else if (checkCTTCode(barCode)) {
+                int index = barCode.indexOf("-");
+                condition.setCrossCode(barCode.substring(0, index));
+                condition.setTabletrolleyCode(barCode.substring(index + 1));
+            }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
+                // 目的地站点
+                condition.setEndSiteId(Long.valueOf(barCode));
+            }else {
+                throw new JyBizException("条码格式不匹配，请重新扫描！");
             }
-            if (waybill.getOldSiteId() == null) {
-                throw new JyBizException("运单对应的预分拣站点为空");
-            }
-            condition.setEndSiteId(waybill.getOldSiteId().longValue());
-        } else if (BusinessHelper.isBoxcode(barCode)) {
-            final Box box = boxService.findBoxByCode(barCode);
-            if (box == null) {
-                throw new JyBizException("未找到对应箱号，请检查");
-            }
-            condition.setEndSiteId(box.getReceiveSiteCode().longValue());
-        } else if (checkCTTCode(barCode)) {
-            int index = barCode.indexOf("-");
-            condition.setCrossCode(barCode.substring(0, index));
-            condition.setTabletrolleyCode(barCode.substring(index + 1));
-        }else if (SerialRuleUtil.isMatchNumeric(barCode)) {
-            // 目的地站点
-            condition.setEndSiteId(Long.valueOf(barCode));
         }
-
+        
         condition.setGroupCode(mixScanTaskListQueryReq.getGroupCode());
         condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
+        condition.setCompleteStatus(JyMixScanTaskCompleteEnum.SEND_SEAL_DMS.getCode());
         condition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
         if (!StringUtils.isEmpty(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
             condition.setSendVehicleDetailBizId(mixScanTaskListQueryReq.getSendVehicleDetailBizId());
@@ -584,12 +648,51 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    public JdCResponse<ToSealDestAgg> selectMixScanTaskSealDest(SelectSealDestRequest request) {
-        return null;
+    public JdCResponse<MixScanTaskToSealDestAgg> selectMixScanTaskSealDest(SelectMixScanTaskSealDestReq request) {
+        JdCResponse<MixScanTaskToSealDestAgg> response = new JdCResponse<>();
+        response.toSucceed();
+        try {
+            // 查询混扫任务下的所有流向信息
+            JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+            condition.setTemplateCode(request.getTemplateCode());
+            condition.setGroupCode(request.getGroupCode());
+            condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            List<JyGroupSortCrossDetailEntity> list = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+            
+            // 批量获取
+            
+        }catch (JyBizException e) {
+            log.error("混扫任务查询封车流向失败：{}",JsonHelper.toJson(request),e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,"混扫任务查询流向失败！");
+        }catch (Exception e) {
+            log.error("混扫任务查询封车流向异常：{}",JsonHelper.toJson(request),e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR,"混扫任务查询流向异常！");
+        }
+        return response;
     }
 
     @Override
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<TransportResp> checkTransCode(CheckTransportReq checkTransportReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> saveSealVehicle(SealVehicleReq sealVehicleReq) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
         return null;
     }
 }

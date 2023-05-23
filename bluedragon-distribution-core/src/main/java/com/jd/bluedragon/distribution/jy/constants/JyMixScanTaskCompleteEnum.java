@@ -2,25 +2,27 @@ package com.jd.bluedragon.distribution.jy.constants;
 
 /**
  * @author liwenji
- * @description 关注
- * @date 2023-05-18 11:26
+ * @description 
+ * @date 2023-05-23 16:02
  */
-public enum FocusEnum {
-    FOCUS(1,"关注"),
-    UN_FOCUS(0,"取消关注");
-    private int code;
+public enum JyMixScanTaskCompleteEnum {
+
+    SEND_SEAL_DMS(0,"未完成"),
+    SEND_SEAL_TYS(1,"完成");
+    
+    private Integer code;
     private String msg;
 
-    FocusEnum(int code, String msg) {
+    JyMixScanTaskCompleteEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(Integer code) {
         this.code = code;
     }
 

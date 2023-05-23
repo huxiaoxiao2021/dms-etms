@@ -263,14 +263,16 @@
     insert into jy_group_sort_cross_detail (group_code, template_code,
     template_name, cross_code, tabletrolley_code,
     start_site_id, start_site_name, end_site_id,
-    end_site_name, create_user_erp, create_user_name, create_time)
+    end_site_name, create_user_erp, create_user_name, 
+    create_time, focus, send_vehicle_detail_biz_id, func_type)
     values
     <foreach collection="list" item="item" index="index" separator=",">
       (#{item.groupCode,jdbcType=VARCHAR}, #{item.templateCode,jdbcType=VARCHAR},
       #{item.templateName,jdbcType=VARCHAR}, #{item.crossCode,jdbcType=VARCHAR}, #{item.tabletrolleyCode,jdbcType=VARCHAR},
       #{item.startSiteId,jdbcType=BIGINT}, #{item.startSiteName,jdbcType=VARCHAR}, #{item.endSiteId,jdbcType=BIGINT},
       #{item.endSiteName,jdbcType=VARCHAR}, #{item.createUserErp,jdbcType=VARCHAR},
-      #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP})
+      #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP}, 
+      #{item.focus,jdbcType=BIT}, #{item.sendVehicleDetailBizId,jdbcType=VARCHAR}, #{item.funcType,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
@@ -297,6 +299,9 @@
     <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
       and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
     </if>
+    <if test="completeStatus != null and completeStatus!= ''">
+      and complete_status = #{completeStatus}
+    </if>
     group by template_code
     order by cross_code ,tabletrolley_code
   </select>
@@ -322,13 +327,12 @@
     where yn = 1
       and template_code = #{templateCode} limit 1
   </select>
-  <update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
-    update jy_group_sort_cross_detail set yn = 0 , update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
-    update_user_name = #{updateUserName,jdbcType=VARCHAR} , update_time = #{updateTime,jdbcType=TIMESTAMP} where id in
+  <delete id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
+    delete from jy_group_sort_cross_detail  where id in
     <foreach collection="ids" item="item" open="(" close=")" separator=",">
       #{item}
     </foreach>
-  </update>
+  </delete>
   <select id="listSendFlowByTemplateCodeOrEndSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
@@ -405,4 +409,8 @@
       </if>
   </select>
 
+  <update id="mixScanTaskComplete" 
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail set complete = 1 where template_code = #{templateCode,jdbcType=VARCHAR}
+  </update>
 </mapper>

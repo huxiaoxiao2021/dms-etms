@@ -609,7 +609,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param request
      * @return
      */
-    private InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request) {
+    @Override
+    public InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request) {
 
         if (BusinessUtil.isBoxcode(request.getBarCode())) {
             return fetchNextSiteIdByBox(request);

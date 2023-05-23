@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
@@ -9,9 +10,14 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
@@ -121,10 +127,10 @@ public interface JyWarehouseSendGatewayService {
     JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq);
     /**
      * 混扫任务完成
-     * @param mixScanTaskReq
+     * @param mixScanTaskCompleteReq
      * @return
      */
-    JdCResponse<MixScanTaskRes> mixScanTaskComplete(MixScanTaskReq mixScanTaskReq);
+    JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
     /**
      * 混扫任务关注/取消关注
      * @param mixScanTaskFocusReq
@@ -158,7 +164,7 @@ public interface JyWarehouseSendGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<ToSealDestAgg> selectMixScanTaskSealDest(SelectSealDestRequest request);
+    JdCResponse<MixScanTaskToSealDestAgg> selectMixScanTaskSealDest(SelectMixScanTaskSealDestReq request);
     /**
      * 查询流向任务封车数据详情
      * todo getSealVehicleInfo
@@ -167,4 +173,28 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq);
 
+    /**
+     * 校验运力编码和当前流向是否一致
+     * @param checkTransportReq
+     * @return
+     *
+     */
+    JdCResponse<TransportResp>  checkTransCode(CheckTransportReq checkTransportReq);
+
+    /**
+     * 封车数据暂存
+     *
+     */
+    JdCResponse<Void> saveSealVehicle(SealVehicleReq sealVehicleReq);
+    
+    /**
+     * 校验运力编码和发货批次的目的地是否一致
+     */
+    InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request);
+
+    /**
+     * 提交封车
+     *
+     */
+    JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq);
 }

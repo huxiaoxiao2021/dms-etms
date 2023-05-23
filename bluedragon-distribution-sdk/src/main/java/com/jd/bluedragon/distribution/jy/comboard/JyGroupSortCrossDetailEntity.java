@@ -53,6 +53,12 @@ public class JyGroupSortCrossDetailEntity {
      * com.jd.bluedragon.distribution.jy.constants.JyPostEnum
      */
     private String funcType;
+
+    /**
+     * 完成状态
+     * com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum
+     */
+    private Integer completeStatus;
     
     private transient List<String> templateCodeList;
 
@@ -230,5 +236,13 @@ public class JyGroupSortCrossDetailEntity {
 
     public void setFuncType(String funcType) {
         this.funcType = funcType;
+    }
+
+    public Integer getCompleteStatus() {
+        return completeStatus;
+    }
+
+    public void setCompleteStatus(Integer completeStatus) {
+        this.completeStatus = completeStatus;
     }
 }
