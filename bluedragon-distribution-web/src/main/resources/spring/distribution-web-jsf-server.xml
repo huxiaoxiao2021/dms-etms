@@ -543,4 +543,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 对外提供给OFC的包装确认服务jsf -->
+    <jsf:provider id="jsfWaybillConsumableService"
+                  interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillConsumableService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
