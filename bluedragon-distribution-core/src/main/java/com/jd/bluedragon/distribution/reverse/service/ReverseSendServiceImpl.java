@@ -1219,6 +1219,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         // 内部报文参数
         BeanCopyUtil.copy(messageValue,vimMessageDto);
         vimMessageDto.setOrderId(Long.valueOf(messageValue.getOrderId()));
+        vimMessageDto.setXniType(messageValue.getXniType());
+        vimMessageDto.setSickWaybill(messageValue.isSickWaybill());
+        vimMessageDto.setVenderId(StringUtils.isNotBlank(messageValue.getVenderId())?messageValue.getVenderId():StringUtils.EMPTY);
         vimMessageDto.setDownStreamDtcProducts(new VmiDownStreamDtcProducts());
         for(com.jd.bluedragon.distribution.reverse.domain.Product  product :messageValue.getProList()){
             VmiDownStreamDtcProduct vmiProduct = new VmiDownStreamDtcProduct();
