@@ -2137,6 +2137,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             log.error("{}服务异常error, req={}, errMsg={}", methodDesc, JsonUtils.toJSONString(reqDto), ex.getMessage(), ex);
             res.error("不齐维度统计数据查询服务异常" + ex.getMessage());
             return res;
+        }finally {
+            if(log.isInfoEnabled()) {
+                log.info("{}req={};res={}", methodDesc, JsonHelper.toJson(reqDto), JsonHelper.toJson(res));
+            }
         }
     }
 
@@ -2164,9 +2168,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 return true;
             }else if(siteWhitelist.contains(String.format("%s%s%s", ",", req.getCurrentOperate().getSiteCode(), ","))){
                 if(log.isInfoEnabled()) {
-                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
+                    log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务试点场地，集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
                 }
                 return true;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置当前场地，不做集齐服务处理， param={}，白名单={}", JsonUtils.toJSONString(req), siteWhitelist);
             }
             return false;
         }catch (Exception e) {
