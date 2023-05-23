@@ -11,4 +11,6 @@ public interface ReassignWaybillService {
 	 * 现场预分拣回调处理
 	 */
 	JdResult<Boolean> backScheduleAfter(ReassignWaybillRequest reassignWaybillRequest);
+
+	Boolean add(ReassignWaybill packTagPrint);
 }

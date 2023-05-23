@@ -56,8 +56,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Qualifier("waybillSiteChangeProducer")
 	private DefaultJMQProducer waybillSiteChangeProducer;
 
-
-	private Boolean add(ReassignWaybill packTagPrint) {
+	@Override
+	public Boolean add(ReassignWaybill packTagPrint) {
 		long startTime=new Date().getTime();
 
 		Assert.notNull(packTagPrint, "packTagPrint must not be null");
