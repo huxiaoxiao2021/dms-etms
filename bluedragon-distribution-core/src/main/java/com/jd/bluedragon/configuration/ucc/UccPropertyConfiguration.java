@@ -1284,6 +1284,11 @@ public class UccPropertyConfiguration {
 
     private int onlineGetTaskSimpleCodeThreshold;
 
+    /**
+     * 上传超长超重开关
+     */
+    private boolean uploadOverWeightSwitch;
+    
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3149,4 +3154,12 @@ public class UccPropertyConfiguration {
     public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
         this.jobTypeLimitSwitch = jobTypeLimitSwitch;
     }
+
+	public boolean isUploadOverWeightSwitch() {
+		return uploadOverWeightSwitch;
+	}
+
+	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+	}
 }

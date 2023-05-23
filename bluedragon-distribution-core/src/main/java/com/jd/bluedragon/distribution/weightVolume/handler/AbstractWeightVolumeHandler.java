@@ -107,7 +107,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WeightVolumeEntity entity) {
-    	if(!Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
+    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()
+    			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);
     		return false;
@@ -135,10 +136,10 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
     	
     	if(result.isSucceed()) {
-    		Log.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
+    		logger.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
     		return true;
     	}else {
-    		Log.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
+    		logger.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
     		restLongPackage(entity);
     	}
     	return false;
