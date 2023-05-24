@@ -105,7 +105,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
             if (coldChainReverseManager.checkColdReverseProductType(oldWaybillCode)) {
                 LOGGER.info("exchangeNewWaybill|外单走冷链换单流程:request={}", JsonHelper.toJson(request));
                 ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(exchangeWaybillDto);
-                waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
+                waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest, errorMessage);
             } else {
                 LOGGER.info("exchangeNewWaybill|外单走原有流程:request={}", JsonHelper.toJson(request));
                 waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO, errorMessage);
