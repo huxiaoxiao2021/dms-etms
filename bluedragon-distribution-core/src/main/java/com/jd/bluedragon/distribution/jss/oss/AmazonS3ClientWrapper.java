@@ -12,7 +12,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 
 import com.jd.bluedragon.Constants;
-import com.jd.dms.wb.report.util.DateHelper;
+import com.jd.bluedragon.distribution.api.request.FileMetadata;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -310,7 +311,41 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         }
         return null;
     }
-
+    /**
+     * 判断文件是否存在
+     * @param folder 文件夹名称
+     * @param fileName 文件名称带扩展名
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getObjectMetadataWithCache",mState =  {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "AmazonS3ClientWrapper.getObjectMetadataWithCache@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    redisEnable = false, redisExpiredTime = 10 * 60 * 1000)
+    public FileMetadata getObjectMetadataWithCache( String folder, String fileName) {
+        String fullFileName = spliceFolderFileName(folder,fileName);
+        FileMetadata metadata = new FileMetadata();
+        metadata.setIsExists(Boolean.FALSE);
+        try {
+        	ObjectMetadata jssMetadata = amazonS3.getObjectMetadata(bucketName, fullFileName);
+        	if(jssMetadata != null) {
+        		metadata.setIsExists(Boolean.TRUE);
+        		if(jssMetadata.getLastModified() != null) {
+        			metadata.setLastModified(jssMetadata.getLastModified().getTime());
+        		}
+        	}
+        } catch (AmazonS3Exception e) {
+            log.error("云oss-getObjectMetadata-error![{}]", fullFileName,e);
+        }
+        return metadata;
+    }    
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.getObjectWithUncheck",mState =  {JProEnum.TP, JProEnum.FunctionError})
+    public S3Object getObjectWithUncheck(String folder, String keyName){
+    	String fullFileName = spliceFolderFileName(folder,keyName);
+        S3Object s3Object = amazonS3.getObject(bucketName,fullFileName);
+        if(s3Object != null){
+            return s3Object;
+        }
+        return null;
+    }
     @Override
     public void afterPropertiesSet() throws Exception {
         System.setProperty(SDKGlobalConfiguration.ENABLE_S3_SIGV4_SYSTEM_PROPERTY, "true");
