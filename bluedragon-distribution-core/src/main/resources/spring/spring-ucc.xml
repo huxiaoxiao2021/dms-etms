@@ -286,6 +286,8 @@
 		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowRefreshTimes:2}"/>
 		<property name="jyWorkAppAutoRefreshConfig" value="${jyWorkAppAutoRefreshConfig:''}"/>
 		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
+		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
+		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -575,6 +577,8 @@
 				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
 				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
 				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
+				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
+				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
 			</list>
 		</property>
 	</bean>

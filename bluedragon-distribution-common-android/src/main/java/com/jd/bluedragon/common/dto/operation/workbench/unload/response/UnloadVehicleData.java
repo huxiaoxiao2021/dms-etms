@@ -33,7 +33,7 @@ public class UnloadVehicleData<T> implements Serializable {
     /**
      * 特安类型下车辆总数
      */
-    private Long tolalOfTEAN;
+    private Long totalOfTEAN;
 
     public Integer getVehicleStatus() {
         return vehicleStatus;
@@ -59,11 +59,11 @@ public class UnloadVehicleData<T> implements Serializable {
         this.lineStatistics = lineStatistics;
     }
 
-    public Long getTolalOfTEAN() {
-        return tolalOfTEAN;
+    public Long getTotalOfTEAN() {
+        return totalOfTEAN;
     }
 
-    public void setTolalOfTEAN(Long tolalOfTEAN) {
-        this.tolalOfTEAN = tolalOfTEAN;
+    public void setTotalOfTEAN(Long totalOfTEAN) {
+        this.totalOfTEAN = totalOfTEAN;
     }
 }

@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiFailDetailDto;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
@@ -84,5 +86,13 @@ public interface DmsExternalService {
      * @return 处理结果
      */
     BaseEntity<Integer> delInterceptType99WaybillCancel(List<String> waybillCodeList);
+
+    /**
+     * 查询箱号下的包裹号
+     * 分页
+     * @param request
+     * @return
+     */
+    InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request);
 
 }

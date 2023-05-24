@@ -1753,7 +1753,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         boolean isTeAn =isTeAnWaybill(waybillCode);
         if(isTeAn){
-            result.customMessage(0, "特安件请注意分拣!");
+            result.customMessage(InvokeResult.REVOKE_TEAN_CODE, InvokeResult.REVOKE_TEAN_MESSAGE);
             result.setData(Boolean.TRUE);
         }
         return result;

@@ -86,6 +86,16 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
         return result;
     }
 
+
+    private boolean sendVehicleDetailTaskDeal(AutoCloseTaskMq autoCloseTaskMq){
+        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskMq.getBizId());
+        if(jyBizTaskSendVehicleDetail == null){
+            log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
+            return false;
+        }
+        return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4SendVehicleTask(autoCloseTaskMq, jyBizTaskSendVehicleDetail);
+    }
+
     private boolean unloadTaskAutoCloseDeal(AutoCloseTaskMq autoCloseTaskMq) {
         final JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist = jyBizTaskUnloadVehicleService.findByBizId(autoCloseTaskMq.getBizId());
         if (jyBizTaskUnloadVehicleExist == null) {
@@ -111,14 +121,6 @@ public class JyBizTaskAutoCloseServiceImpl implements JyBizTaskAutoCloseService 
     }
 
 
-    private boolean sendVehicleDetailTaskDeal(AutoCloseTaskMq autoCloseTaskMq){
-        JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail = jyBizTaskSendVehicleDetailService.findBySendVehicleBizId(autoCloseTaskMq.getBizId());
-        if(jyBizTaskSendVehicleDetail == null){
-            log.warn("JyBizTaskAutoCloseServiceImpl.consumeJyBizTaskAutoCloseMq task not exist param {}", JSON.toJSONString(autoCloseTaskMq));
-            return false;
-        }
-        return jyBizTaskAutoCloseHelperService.pushBizTaskAutoCloseTask4SendVehicleTask(autoCloseTaskMq, jyBizTaskSendVehicleDetail);
-    }
 
     /**
      * 自动关闭任务

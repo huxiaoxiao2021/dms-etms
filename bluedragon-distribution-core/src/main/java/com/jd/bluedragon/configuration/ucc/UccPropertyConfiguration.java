@@ -867,7 +867,15 @@ public class UccPropertyConfiguration {
     private Integer jyStrandScanNumLimit;
 
 
+    /**
+     * 分拣理货开关
+     */
     private boolean checkTeAnSwitch;
+
+    /**
+     * 特安场地列表
+     */
+    private String teAnSiteWhitelist;
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -1385,7 +1393,7 @@ public class UccPropertyConfiguration {
      * 上传超长超重开关
      */
     private boolean uploadOverWeightSwitch;
-    
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3485,4 +3493,36 @@ public class UccPropertyConfiguration {
 	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
 		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
 	}
+
+
+    public String getTeAnSiteWhitelist() {
+        return teAnSiteWhitelist;
+    }
+
+    public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
+        this.teAnSiteWhitelist = teAnSiteWhitelist;
+        this.teAnSiteWhitelistStrList = this.getTeAnSiteWhitelistStrList();
+    }
+
+    private List<String> teAnSiteWhitelistStrList = new ArrayList<>();
+
+    public List<String> getTeAnSiteWhitelistStrList() {
+        if(teAnSiteWhitelist == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchTeAnSiteWhitelist(int siteId) {
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, teAnSiteWhitelist)){
+            return true;
+        }
+        if(teAnSiteWhitelistStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
 }
