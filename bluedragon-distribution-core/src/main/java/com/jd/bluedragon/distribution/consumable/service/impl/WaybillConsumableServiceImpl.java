@@ -78,7 +78,9 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
             pdaRequest.setConsumableCode(confirmRes.getConsumableCode());
             pdaRequest.setConsumableTypeCode(confirmRes.getConsumableTypeCode());
             pdaRequest.setConfirmQuantity(confirmRes.getReceiveQuantity());
-            // todo pdaRequest.setConfirmVolume();
+            if (confirmRes.getVolume() != null) {
+                pdaRequest.setConfirmVolume(Double.valueOf(confirmRes.getVolume().toPlainString()));
+            }
             waybillConsumablePdaRequestList.add(pdaRequest);
         }
         return waybillConsumablePdaRequestList;
