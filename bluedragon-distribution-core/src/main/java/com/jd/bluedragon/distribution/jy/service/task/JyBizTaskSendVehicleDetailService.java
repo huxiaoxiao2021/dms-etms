@@ -120,4 +120,12 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity);
+
+    /**
+     * 根据BizIds批量获取任务
+     * @param siteCode
+     * @param bizIds
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByBizIds(int siteCode, List<String> bizIds);
 }

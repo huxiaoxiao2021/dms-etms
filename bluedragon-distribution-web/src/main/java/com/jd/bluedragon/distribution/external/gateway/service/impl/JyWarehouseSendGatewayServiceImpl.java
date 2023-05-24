@@ -23,7 +23,6 @@ import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
@@ -33,6 +32,7 @@ import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -71,13 +71,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private JyWarehouseSendVehicleServiceImpl jyWarehouseSendVehicleService;
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
-
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
-
-    @Autowired
-    private BoxService boxService;
-
+    
     @Autowired
     JimDbLock jimDbLock;
     @Autowired
@@ -676,14 +670,19 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
             List<JyGroupSortCrossDetailEntity> list = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
             
-            // 批量获取
-            
+            if (CollectionUtils.isEmpty(list)) {
+                response.toFail("未查询好混扫任务下的流向信息！");
+                return response;
+            }
+            // 获取流向详情
+            MixScanTaskToSealDestAgg destAgg = jyWarehouseSendVehicleService.selectMixScanTaskSealDest(request, list);
+            response.setData(destAgg);
         }catch (JyBizException e) {
             log.error("混扫任务查询封车流向失败：{}",JsonHelper.toJson(request),e);
-            return new JdCResponse<>(JdCResponse.CODE_FAIL,"混扫任务查询流向失败！");
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,"混扫任务查询封车流向失败！");
         }catch (Exception e) {
             log.error("混扫任务查询封车流向异常：{}",JsonHelper.toJson(request),e);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR,"混扫任务查询流向异常！");
+            return new JdCResponse<>(JdCResponse.CODE_ERROR,"混扫任务查询封车流向异常！");
         }
         return response;
     }

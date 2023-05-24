@@ -647,4 +647,14 @@
         group by send_vehicle_biz_id
         limit #{entity.pageSize}
     </select>
+    
+    <select id="findSendVehicleDetailByBizIds" resultMap="jyBizTaskSendVehicleDetailMap">
+        select <include refid="Base_Column_List"/> from jy_biz_task_send_vehicle_detail
+        where start_site_id = #{startSiteId}
+        and yn = 1
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

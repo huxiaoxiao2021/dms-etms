@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQu
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -833,5 +834,57 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      */
     private void warehouseSendScanResponseHandler(SendScanRes resData) {
 
+    }
+
+    /**
+     * 查询混扫任务下的封车流向数据
+     * @param request
+     * @param list
+     * @return
+     */
+    public MixScanTaskToSealDestAgg selectMixScanTaskSealDest(SelectMixScanTaskSealDestReq request, List<JyGroupSortCrossDetailEntity> list) {
+        MixScanTaskToSealDestAgg destAgg = new MixScanTaskToSealDestAgg();
+        List<String> bizIds = new ArrayList<>();
+        for (JyGroupSortCrossDetailEntity entity : list) {
+            bizIds.add(entity.getSendVehicleDetailBizId());
+        }
+        
+        // 根据BizIds批量获取任务
+        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService
+                .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(),bizIds);
+
+        if (CollectionUtils.isEmpty(vehicleDetailList)) {
+            throw new JyBizException("发货流向已作废！");
+        }
+        
+        destAgg.setDestTotal(vehicleDetailList.size());
+        destAgg.setSealedTotal(getSealedTotal(vehicleDetailList));
+        destAgg.setCarToSealList(getCartoSealList(request, vehicleDetailList));
+        return destAgg;
+    }
+
+    /**
+     * 获取流向信息详情
+     * @param request
+     * @param vehicleDetailList
+     * @return
+     */
+    private List<CarToSealList> getCartoSealList(SelectMixScanTaskSealDestReq request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
+        return null;
+    }
+
+    /**
+     * 获取已封车状态的信息
+     * @param vehicleDetailList
+     * @return
+     */
+    private Integer getSealedTotal(List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
+        int toatl = 0;
+        for (JyBizTaskSendVehicleDetailEntity entity : vehicleDetailList) {
+            if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())) {
+                toatl++;
+            }
+        }
+        return toatl;
     }
 }
