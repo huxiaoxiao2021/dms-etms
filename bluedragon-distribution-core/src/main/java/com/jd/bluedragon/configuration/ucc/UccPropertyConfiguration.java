@@ -1330,6 +1330,11 @@ public class UccPropertyConfiguration {
      */
     private boolean allianceBusinessSwitch;
 
+    /**
+     * 上传超长超重开关
+     */
+    private boolean uploadOverWeightSwitch;
+    
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3392,4 +3397,12 @@ public class UccPropertyConfiguration {
         }
         return false;
     }
+
+	public boolean isUploadOverWeightSwitch() {
+		return uploadOverWeightSwitch;
+	}
+
+	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+	}
 }

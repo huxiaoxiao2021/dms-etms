@@ -29,7 +29,10 @@ public class WaybillUtilTest {
         item.setBoxCode("85358175547N1S1H2");
         request.add(item);
         System.out.println(JsonUtil.getInstance().list2Json(request));
-
+        
+        System.out.println("JD0104950758784-1-2 :" + waybillUtil.isPackageCode("JD0104950758784-1-2"));
+        System.out.println("JD0104950758784-1-2- :" + waybillUtil.isPackageCode("JD0104950758784-1-2-"));
+        System.out.println("JD0104950758784-1- :" + waybillUtil.isPackageCode("JD0104950758784-1-"));
 
     }
 }
