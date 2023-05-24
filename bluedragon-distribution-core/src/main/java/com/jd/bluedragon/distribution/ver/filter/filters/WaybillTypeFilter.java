@@ -8,10 +8,12 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +50,17 @@ public class WaybillTypeFilter implements Filter {
      **/
     private static final Integer WAYBILL_TYPE_PART_REVERSE = 4;
 
+    /**
+     * 特安运单类型
+     **/
+    private static final Integer WAYBILL_TYPE_PART_TE_AN = 5;
+
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -64,7 +74,9 @@ public class WaybillTypeFilter implements Filter {
             } else if(request.getReceiveSite() != null && BusinessHelper.isWMSBySiteType(request.getReceiveSite().getType())
                     && BusinessUtil.isPartReverse(request.getWaybillCache().getWaybillSign())){
                 waybillType = WAYBILL_TYPE_PART_REVERSE;
-            }else {
+            }else if(request.getWaybillCache() != null  && CollectionUtils.isNotEmpty(request.getWaybillVasDtos())){
+                waybillType = WAYBILL_TYPE_PART_TE_AN;
+            } else {
                 waybillType = WAYBILL_TYPE_COMMON;
             }
 
@@ -82,7 +94,13 @@ public class WaybillTypeFilter implements Filter {
                 } else if (WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(boxWaybillType) && WAYBILL_TYPE_COMMON.equals(waybillType)) {
                     //箱内装的是移动仓内配单，当前运单为普通运单
                     throw new SortingCheckException(SortingResponse.CODE_29407, HintService.getHintWithFuncModule(HintCodeConstants.MOVING_WAREHOUSE_BOX_INTERCEPT, request.getFuncModule()));
-                }else if (request.getBusinessType() != null && request.getBusinessType() == Constants.BUSSINESS_TYPE_REVERSE){
+                } else if (WAYBILL_TYPE_COMMON.equals(boxWaybillType) && WAYBILL_TYPE_PART_TE_AN.equals(waybillType)) {
+                    //箱内装的是普通运单，当前运单为特安运单
+                    throw new SortingCheckException(SortingResponse.CODE_29464, HintService.getHintWithFuncModule(HintCodeConstants.TEAN_WAYBILL_INTERCEPT, request.getFuncModule()));
+                } else if (WAYBILL_TYPE_PART_TE_AN.equals(boxWaybillType) && WAYBILL_TYPE_COMMON.equals(waybillType)) {
+                    //箱内装的是特安运单，当前运单为普通运单
+                    throw new SortingCheckException(SortingResponse.CODE_29465, HintService.getHintWithFuncModule(HintCodeConstants.TEAN_BOX_INTERCEPT, request.getFuncModule()));
+                } else if (request.getBusinessType() != null && request.getBusinessType() == Constants.BUSSINESS_TYPE_REVERSE){
                     //只有逆向的时候考虑半退问题
                     if(WAYBILL_TYPE_COMMON.equals(boxWaybillType) && WAYBILL_TYPE_PART_REVERSE.equals(waybillType)) {
                     //箱内装的是普通运单，当前运单为半退

@@ -562,6 +562,17 @@ public class HintCodeConstants {
     // 验货成功。未找到包裹下游流向场地，无法进行建板，可以手动选择包裹目的地，是否确认?
     public static String JY_UNLOAD_VEHICLE_PACK_NO_ROUTER = "20091";
 
+
+    /**
+     * 此运单为特安单，需单独建箱，禁止与其他类型运单混装
+     */
+    public static String TEAN_WAYBILL_INTERCEPT = "20092";
+
+    /**
+     * 此箱号内为特安单，需单独建箱，其他类型运单禁止混装
+     */
+    public static String TEAN_BOX_INTERCEPT = "20093";
+
     /*##############################################拦截相关END#########################################################*/
 
 
