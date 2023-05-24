@@ -281,6 +281,7 @@
 		<property name="jyWorkAppAutoRefreshConfig" value="${jyWorkAppAutoRefreshConfig:''}"/>
 		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
+		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -551,6 +552,7 @@
 				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
 				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
 				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
+				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
 			</list>
 		</property>
 	</bean>
