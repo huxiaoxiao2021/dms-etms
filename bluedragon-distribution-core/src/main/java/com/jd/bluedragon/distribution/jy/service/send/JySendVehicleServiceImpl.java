@@ -102,6 +102,7 @@ import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
@@ -2654,12 +2655,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     private void TEANCheck(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
-        InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
-        log.info("发货扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
-        if(teanResult != null && teanResult.getData()){
-            response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+        try {
+            InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
+            log.info("发货扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
+            if (teanResult != null && teanResult.getData()) {
+                response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+            }
+            log.info("发货扫描TEANCheck -结果-response {}", JSON.toJSONString(response));
+        } catch (Exception e) {
+            log.error("TEANCheck param {}", JsonHelper.toJson(request), e);
         }
-        log.info("发货扫描TEANCheck -结果-response {}",JSON.toJSONString(response));
     }
 
     private void saveNoTaskRemark(SendScanRequest request) {
@@ -2837,15 +2842,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param sendVehicleInfo
      */
     private void setTeanPackageCount(SendVehicleInfoRequest request, SendVehicleInfo sendVehicleInfo){
-        SendAbnormalRequest query = new SendAbnormalRequest();
-        CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(request.getCurrentOperate().getSiteCode());
-        query.setSendVehicleBizId(request.getSendVehicleBizId());
-        query.setCurrentOperate(currentOperate);
-        InvokeResult<SendVehicleProductTypeAgg> result = getProductToScanInfo(query);
-        if(result != null && result.getData() != null&&  result.getData().getCount()>0 ){
-            sendVehicleInfo.setTeanPackageCount(result.getData().getCount());
-        }
+       try{
+           SendAbnormalRequest query = new SendAbnormalRequest();
+           CurrentOperate currentOperate = new CurrentOperate();
+           currentOperate.setSiteCode(request.getCurrentOperate().getSiteCode());
+           query.setSendVehicleBizId(request.getSendVehicleBizId());
+           query.setCurrentOperate(currentOperate);
+           InvokeResult<SendVehicleProductTypeAgg> result = getProductToScanInfo(query);
+           if(result != null && result.getData() != null&&  result.getData().getCount()>0 ){
+               sendVehicleInfo.setTeanPackageCount(result.getData().getCount());
+           }
+       }catch (Exception e){
+           log.error("setTeanPackageCount -param-{}",JsonHelper.toJson(request),e);
+       }
     }
 
     private void setSendVehicleDestInfo(SendVehicleInfoRequest request, SendVehicleInfo sendVehicleInfo) {
@@ -3590,6 +3599,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         InvokeResult<SendVehicleProductTypeAgg> invokeResult = new InvokeResult<>();
         invokeResult.setCode(RESULT_SUCCESS_CODE);
         invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+
+        Long toScanCountSumOfTeAn = 0L;
+        SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
+        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
+        productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
+        productTypeAgg.setCount(toScanCountSumOfTeAn);
+        //场地白名单
+        if(!uccConfig.matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
+            log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
+            invokeResult.setData(productTypeAgg);
+            return invokeResult;
+        }
         if (request.getCurrentOperate()== null
             ||  Objects.isNull(request.getCurrentOperate().getSiteCode())
             || StringUtils.isBlank(request.getSendVehicleBizId()) ) {
@@ -3599,11 +3620,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setSendVehicleBizId(request.getSendVehicleBizId());
         List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
-        Long toScanCountSumOfTeAn = 0L;
-        SendVehicleProductTypeAgg productTypeAgg = new SendVehicleProductTypeAgg();
-        productTypeAgg.setProductType(UnloadProductTypeEnum.TEAN.getCode());
-        productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
-        productTypeAgg.setCount(0L);
+
         if(CollectionUtils.isNotEmpty(receiveIds)){
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));

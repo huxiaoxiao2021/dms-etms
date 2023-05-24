@@ -21,5 +21,6 @@ public interface JyBizTaskAutoCloseHelperService {
     boolean pushBizTaskAutoCloseTask4UnloadingNotFinish(AutoCloseTaskMq autoCloseTaskMq, JyBizTaskUnloadVehicleEntity jyBizTaskUnloadVehicleExist);
 
     boolean pushBizTaskAutoCloseTask4StrandNotFinish(AutoCloseTaskMq autoCloseTaskMq, JyBizTaskStrandReportEntity taskEntity);
+
     boolean pushBizTaskAutoCloseTask4SendVehicleTask(AutoCloseTaskMq autoCloseTaskMq, JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetail);
 }

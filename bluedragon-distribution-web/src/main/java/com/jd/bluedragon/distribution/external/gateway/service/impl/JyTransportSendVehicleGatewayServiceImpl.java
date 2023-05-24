@@ -49,7 +49,4 @@ public class JyTransportSendVehicleGatewayServiceImpl implements JyTransportSend
         return ResultConverter.convertResultToJdcResponse(jyTransportSendVehicleService.getVehicleArriveDockData(qo));
     }
 
-    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
-    }
 }

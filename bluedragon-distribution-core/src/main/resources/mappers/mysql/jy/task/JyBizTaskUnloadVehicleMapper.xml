@@ -391,7 +391,7 @@
                 </foreach>
             </if>
             <if test="teanFlag != null">
-                and te_an_flag =#{teanFlag}
+                and te_an_flag = #{teanFlag}
             </if>
 
         </where>

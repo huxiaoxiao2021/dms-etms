@@ -779,6 +779,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
+
     private String getSendCodeByScanCode(String code, int createSiteCode) {
         /**
          * 包裹 运单 查sendD  箱号或者板号 查sendM

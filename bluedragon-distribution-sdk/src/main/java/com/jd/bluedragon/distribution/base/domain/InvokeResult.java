@@ -51,7 +51,7 @@ public class InvokeResult<T> implements Serializable {
     //普通拦截
     public static final Integer CODE_HINT = 30002;
     //特殊展示拦截
-    public static final Integer CODE_SPECIAL_INTERCEPT = 30003;
+    public static final Integer CODE_SPECIAL_INTERCEPT = 30063;
 
     public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
     public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
@@ -279,6 +279,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
     public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
+
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
