@@ -26,7 +26,7 @@ import java.util.UUID;
 public class ExpressDispatchServiceManagerImpl implements ExpressDispatchServiceManager {
     private static final Logger logger = LoggerFactory.getLogger(ExpressDispatchServiceManagerImpl.class);
 
-    @Value("${preseparate.config.systemCode:test}")
+    @Value("${preseparate.config.systemCode}")
     private String systemCode;
 
 
@@ -40,13 +40,11 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
         try{
             //todo   补充其他必填字段
             request.setSystemCode(systemCode);
-            //request.setOrderType(orderType);
             request.setOrderBusinessType(Constants.B2BSUPPORT_ORDER_BUSINESS_TYPE);
             request.setIndustryType(Constants.B2BSUPPORT_INDUSTRY_TYPE);
             request.setVendorId(Constants.B2BSUPPORT_VENDOR_ID);
             request.setRequireTransMode(Constants.B2BSUPPORT_REQUIRE_TRANS_MODE);
             request.setColdChain(Constants.B2BSUPPORT_COLD_CHAIN);
-
             if(logger.isInfoEnabled()){
                 logger.info("根据地址获取匹配站点信息入参-{}", JSON.toJSONString(request));
             }

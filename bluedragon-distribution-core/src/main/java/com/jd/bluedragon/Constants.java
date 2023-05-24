@@ -1929,8 +1929,9 @@ public class Constants {
     /**
      * 标准B网车队配置匹配接口常量
      */
-    //订单类别
-    public static final Integer B2BSUPPORT_ORDER_TYPE = 1;
+    //订单类别 1:自营 2:外单
+    public static final Integer B2BSUPPORT_ORDER_TYPE_1 = 1;
+    public static final Integer B2BSUPPORT_ORDER_TYPE_2 = 2;
     //订单业务类型
     public static final Integer B2BSUPPORT_ORDER_BUSINESS_TYPE = 2;
     //行业类型
