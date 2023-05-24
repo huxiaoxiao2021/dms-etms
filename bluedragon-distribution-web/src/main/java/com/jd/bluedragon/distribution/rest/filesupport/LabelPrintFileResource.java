@@ -14,7 +14,6 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.marshalling.ByteOutputStream;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -186,7 +185,7 @@ public class LabelPrintFileResource {
                 return response.build();
 
             }
-            response = Response.ok(new FileStreamingOutput(s3Object));
+            response = Response.ok(s3Object.getObjectContent());
             response.header("Content-Disposition", "attachment;filename=" + URLDecoder.decode(fileRequest.getFileName(), "UTF-8"));
             response.type(s3Object.getObjectMetadata().getContentType());
             return response.build();
