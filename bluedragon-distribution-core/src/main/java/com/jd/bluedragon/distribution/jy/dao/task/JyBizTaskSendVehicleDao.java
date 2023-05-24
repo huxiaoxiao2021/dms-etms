@@ -113,7 +113,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
             params.put("sortType", typeEnum.getCode());
         }
         if (statuses != null && statuses.size() > 0) {
-            params.put("statuses", statuses);
+            params.put("statuses", statuses.toArray());
         }
         params.put("offset", offset);
         params.put("limit", limit);
@@ -125,7 +125,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         params.put("entity", entity);
         params.put("sendVehicleBizList", sendVehicleBizList);
         if (statuses != null && statuses.size() > 0) {
-            params.put("statuses", statuses);
+            params.put("statuses", statuses.toArray());
         }
         return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", params);
     }

@@ -3217,8 +3217,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 boardList.add(tSendM.getBoardCode());
                 changeBoardStatus(tSendM,boardList);
                 log.info("按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
-                // 更新包裹装车记录表的扫描状态为取消扫描状态
-                updateScanActionByBoardCode(tSendM);
+                // 更新包裹装车记录表的扫描状态为取消扫描状态        转运系统自行处理，2023年05月24日下线
+                // updateScanActionByBoardCode(tSendM);
                 log.info("按板取消发货==========更新包裹装车记录表的扫描状态为取消扫描状态");
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
@@ -3295,8 +3295,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
-                // 更新包裹装车记录表的扫描状态为取消扫描状态
-                updateScanActionByBatchCode(tSendM);
+                // 更新包裹装车记录表的扫描状态为取消扫描状态    转运系统自行处理，2023年05月24日下线
+                // updateScanActionByBatchCode(tSendM);
                 //将板号的集合转换成String类型的列表
                 if(CollectionUtils.isNotEmpty(boardSet)){
                     List<String> boardList = new CollectionHelper<String>().toList(boardSet);
