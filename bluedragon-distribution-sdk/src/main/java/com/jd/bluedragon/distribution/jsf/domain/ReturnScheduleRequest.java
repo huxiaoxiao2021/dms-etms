@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.debon;
+package com.jd.bluedragon.distribution.jsf.domain;
 
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 import com.jd.bluedragon.distribution.open.entity.RequestProfile;

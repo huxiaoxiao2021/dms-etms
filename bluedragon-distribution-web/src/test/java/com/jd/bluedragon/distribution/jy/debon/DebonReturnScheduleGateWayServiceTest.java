@@ -2,10 +2,11 @@ package com.jd.bluedragon.distribution.jy.debon;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.distribution.debon.ReturnScheduleRequest;
+import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
+import com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService;
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 import com.jd.bluedragon.distribution.open.entity.RequestProfile;
-import com.jd.bluedragon.external.gateway.service.DebonReturnScheduleGateWayService;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class DebonReturnScheduleGateWayServiceTest {
 
     @Autowired
-    private DebonReturnScheduleGateWayService debonReturnScheduleGateWayService;
+    private WaybillReturnScheduleGateWayService debonReturnScheduleGateWayService;
 
 
 
@@ -47,7 +48,7 @@ public class DebonReturnScheduleGateWayServiceTest {
         //request.setWaybillCode("JDVB22493156674");
         request.setWaybillCode("JD0003420119555");
 
-        JdCResponse<Boolean> response = debonReturnScheduleGateWayService.returnScheduleSiteInfoByWaybill(request);
+        JdResponse<Boolean> response = debonReturnScheduleGateWayService.returnScheduleSiteInfoByWaybill(request);
         System.out.println(JSON.toJSONString(response));
     }
 }

@@ -7,11 +7,11 @@ import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -20,6 +20,9 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchRequest;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchResult;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +44,9 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  * @Description:
  */
 @Service("debonReturnScheduleService")
-public class DebonReturnScheduleServiceImpl implements DebonReturnScheduleService {
+public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleService {
 
-    private static final Logger log = LoggerFactory.getLogger(DebonReturnScheduleServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WaybillReturnScheduleServiceImpl.class);
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
@@ -55,11 +58,12 @@ public class DebonReturnScheduleServiceImpl implements DebonReturnScheduleServic
     private ReassignWaybillService reassignWaybill;
 
     @Override
-    public JdCResponse<Boolean> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request) {
+    @JProfiler(jKey = "DMSWEB.WaybillReturnScheduleServiceImpl.returnScheduleSiteInfoByWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResponse<Boolean> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request) {
         if (log.isInfoEnabled()) {
             log.info("DebangServiceImpl.getMatchSiteInfoByWaybill-入参-{}", JSON.toJSONString(request));
         }
-        JdCResponse<Boolean> response = new JdCResponse<>();
+        JdResponse<Boolean> response = new JdResponse<>();
         response.setData(Boolean.TRUE);
         if(!checkParam(response,request)){
             return response;
@@ -128,17 +132,17 @@ public class DebonReturnScheduleServiceImpl implements DebonReturnScheduleServic
      * @param request
      * @return
      */
-    private boolean checkParam(JdCResponse<Boolean> response, ReturnScheduleRequest request) {
+    private boolean checkParam(JdResponse<Boolean> response, ReturnScheduleRequest request) {
         if (request == null || request.getRequestProfile() == null || request.getOperatorInfo() == null) {
-            response.fail("入参不能为空!");
+            response.toFail("入参不能为空!");
             return false;
         }
         if (StringUtils.isBlank(request.getOperatorInfo().getOperateUserErp()) || request.getOperatorInfo().getOperateSiteId() == null) {
-            response.fail("操作信息不能为空!");
+            response.toFail("操作信息不能为空!");
             return false;
         }
         if (StringUtils.isBlank(request.getWaybillCode())) {
-            response.fail("运单信息不能为空!");
+            response.toFail("运单信息不能为空!");
             return false;
         }
         return true;
