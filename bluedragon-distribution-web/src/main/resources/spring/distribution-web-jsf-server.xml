@@ -543,11 +543,19 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!-- 对外提供给OFC的包装确认服务jsf -->
+    <!-- 对外提供给德邦的包装确认服务jsf -->
     <jsf:provider id="jsfWaybillConsumableService"
                   interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
                   alias="${dms.jsf.alias}"
                   ref="waybillConsumableService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 对外提供给德邦的拦截换单服务jsf -->
+    <jsf:provider id="jsfWaybillInterceptReverseService"
+                  interface="com.jd.bluedragon.distribution.print.service.WaybillInterceptReverseService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillInterceptReverseService"
                   server="dmsjsf">
     </jsf:provider>
 
