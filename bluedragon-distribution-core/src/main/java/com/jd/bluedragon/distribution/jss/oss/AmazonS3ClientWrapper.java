@@ -328,6 +328,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         	ObjectMetadata jssMetadata = amazonS3.getObjectMetadata(bucketName, fullFileName);
         	if(jssMetadata != null) {
         		metadata.setIsExists(Boolean.TRUE);
+        		metadata.setContentMd5(jssMetadata.getContentMD5());
         		if(jssMetadata.getLastModified() != null) {
         			metadata.setLastModified(jssMetadata.getLastModified().getTime());
         		}

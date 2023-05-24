@@ -9,6 +9,10 @@ public class FileMetadata implements Serializable{
 	 */
 	private Long lastModified;
 	/**
+	 * 最后修改时间
+	 */
+	private String contentMd5;
+	/**
 	 * 是否存在标识
 	 */
 	private Boolean isExists;
@@ -37,7 +41,9 @@ public class FileMetadata implements Serializable{
 		}
 		//同时存在时，比较文件修改时间，不一致则需要下载
 		if(remote.lastModified != null 
-				&& remote.lastModified.equals(loacal.lastModified)) {
+				&& remote.lastModified.equals(loacal.lastModified)
+				&& remote.contentMd5 != null 
+				&& remote.contentMd5.equals(loacal.contentMd5)) {
 			return false;
 		}
 		return true;
@@ -53,5 +59,11 @@ public class FileMetadata implements Serializable{
 	}
 	public void setIsExists(Boolean isExists) {
 		this.isExists = isExists;
+	}
+	public String getContentMd5() {
+		return contentMd5;
+	}
+	public void setContentMd5(String contentMd5) {
+		this.contentMd5 = contentMd5;
 	}
 }
