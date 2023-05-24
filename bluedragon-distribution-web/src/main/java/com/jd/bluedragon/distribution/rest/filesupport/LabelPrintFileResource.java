@@ -186,7 +186,7 @@ public class LabelPrintFileResource {
                 return response.build();
 
             }
-            response = Response.ok(s3Object.getObjectContent());
+            response = Response.ok(new FileStreamingOutput(s3Object));
             response.header("Content-Disposition", "attachment;filename=" + URLDecoder.decode(fileRequest.getFileName(), "UTF-8"));
             response.type(s3Object.getObjectMetadata().getContentType());
             return response.build();
@@ -227,7 +227,7 @@ public class LabelPrintFileResource {
             	response.header("file-meta-data", JsonHelper.toJson(remoteMeta));
             	return response.build();
             }
-            final S3Object s3Object = labelprintAmazonS3ClientWrapper.getObjectWithUncheck(fileRequest.getFolder(),fileRequest.getFileName());
+            S3Object s3Object = labelprintAmazonS3ClientWrapper.getObjectWithUncheck(fileRequest.getFolder(),fileRequest.getFileName());
             if(s3Object == null){
                 log.error("下载文件报错-文件不存在fileName[{}]",fileRequest.getFileName());
                 response = Response.status(Response.Status.NO_CONTENT);
@@ -240,29 +240,7 @@ public class LabelPrintFileResource {
                 response = Response.status(Response.Status.BAD_REQUEST);
                 return response.build();
             }
-            StreamingOutput output = new StreamingOutput() {
-                @Override
-                public void write(OutputStream oos) {
-                    int c = 0;
-                    byte[] buf = new byte[1024];
-                    try {
-						while ((c = s3Object.getObjectContent().read(buf, 0, buf.length)) > 0) {
-						    oos.write(buf, 0, c);
-						    oos.flush();
-						}
-					} catch (IOException e) {
-						log.error("s3Object.write-error[{}]", JsonHelper.toJson(fileRequest),e);
-					}finally {
-			        	if(s3Object != null) {
-			        		try {
-			        			s3Object.close();
-			        		} catch (Exception e) {
-			        			log.error("s3Object.close-error[{}]", JsonHelper.toJson(fileRequest),e);
-			        		}
-			        	}
-					}
-                }
-            };
+            StreamingOutput output = new FileStreamingOutput(s3Object);
             response = Response.ok(output);
             response.header("file-meta-data", JsonHelper.toJson(remoteMeta));
             response.header("Content-Disposition", "attachment;filename=" + URLDecoder.decode(fileRequest.getFileName(), "UTF-8"));
@@ -381,5 +359,38 @@ public class LabelPrintFileResource {
     }
     private String generateSecretKey(FileRequest fileRequest) {
     	return Md5Helper.getMd5(fileRequest.getSourceSysName()+fileModifySecretKey);
+    }
+    public static class FileStreamingOutput implements StreamingOutput{
+    	private S3Object s3Object;
+    	
+    	public FileStreamingOutput(S3Object s3Object){
+    		this.s3Object = s3Object;
+    	}
+        @Override
+        public void write(OutputStream oos) {
+        	if(s3Object == null) {
+        		return;
+        	}
+            int c = 0;
+            byte[] buf = new byte[1024];
+            try {
+				while ((c = s3Object.getObjectContent().read(buf, 0, buf.length)) > 0) {
+				    oos.write(buf, 0, c);
+				    oos.flush();
+				}
+			} catch (IOException e) {
+				log.error("s3Object.write-error",e);
+			}finally {
+	        	if(s3Object != null) {
+	        		try {
+	        			s3Object.close();
+	        			log.info("s3Object.close-suc");
+	        		} catch (Exception e) {
+	        			log.error("s3Object.close-error",e);
+	        		}
+	        	}
+			}
+        }
+    	
     }
 }
