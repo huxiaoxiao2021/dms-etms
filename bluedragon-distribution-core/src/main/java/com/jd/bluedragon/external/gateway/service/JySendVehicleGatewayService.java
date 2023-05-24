@@ -177,7 +177,6 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
-    JdCResponse<Boolean> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
 
 
 }
