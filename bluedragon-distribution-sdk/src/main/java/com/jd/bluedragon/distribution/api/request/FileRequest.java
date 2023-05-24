@@ -26,7 +26,14 @@ public class FileRequest implements Serializable {
 
 
     private String sourceSysName;
-
+    /**
+     * 本地文件meta信息
+     */
+    private FileMetadata localMeta;
+    /**
+     * 超时时间
+     */
+    private Long timeOut;
 
     public String getFileNamePrefix() {
         return fileNamePrefix;
@@ -67,4 +74,20 @@ public class FileRequest implements Serializable {
     public void setSourceSysName(String sourceSysName) {
         this.sourceSysName = sourceSysName;
     }
+
+	public FileMetadata getLocalMeta() {
+		return localMeta;
+	}
+
+	public void setLocalMeta(FileMetadata localMeta) {
+		this.localMeta = localMeta;
+	}
+
+	public Long getTimeOut() {
+		return timeOut;
+	}
+
+	public void setTimeOut(Long timeOut) {
+		this.timeOut = timeOut;
+	}
 }
