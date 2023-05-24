@@ -213,6 +213,8 @@ public class LabelPrintFileResource {
             return response.build();
         }
         long startTime = System.currentTimeMillis();
+        S3Object s3Object = null;
+        boolean needClose = false;
         CallerInfo info = Profiler.registerInfo("DMS.WEB.FileResource.downloadLabelFile", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             log.info("下载文件-fileRequest[{}]", JsonHelper.toJson(fileRequest));
@@ -227,7 +229,7 @@ public class LabelPrintFileResource {
             	response.header("file-meta-data", JsonHelper.toJson(remoteMeta));
             	return response.build();
             }
-            S3Object s3Object = labelprintAmazonS3ClientWrapper.getObjectWithUncheck(fileRequest.getFolder(),fileRequest.getFileName());
+            s3Object = labelprintAmazonS3ClientWrapper.getObjectWithUncheck(fileRequest.getFolder(),fileRequest.getFileName());
             if(s3Object == null){
                 log.error("下载文件报错-文件不存在fileName[{}]",fileRequest.getFileName());
                 response = Response.status(Response.Status.NO_CONTENT);
@@ -238,6 +240,7 @@ public class LabelPrintFileResource {
             if(fileRequest.getTimeOut() != null && (endTime - startTime) > fileRequest.getTimeOut()) {
                 log.error("本次下载文件超时[{}]",fileRequest.getFileName());
                 response = Response.status(Response.Status.BAD_REQUEST);
+                needClose = true;
                 return response.build();
             }
             StreamingOutput output = new FileStreamingOutput(s3Object);
@@ -252,6 +255,14 @@ public class LabelPrintFileResource {
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
             return response.build();
         } finally {
+        	if(needClose && s3Object != null) {
+        		try {
+        			s3Object.close();
+        			log.info("s3Object.close-suc");
+        		} catch (Exception e) {
+        			log.error("s3Object.close-error",e);
+        		}
+        	}
             Profiler.registerInfoEnd(info);
         }
     }
