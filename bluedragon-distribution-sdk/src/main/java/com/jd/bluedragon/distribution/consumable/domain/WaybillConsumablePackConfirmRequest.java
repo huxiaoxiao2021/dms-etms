@@ -20,6 +20,11 @@ public class WaybillConsumablePackConfirmRequest implements Serializable {
     private User user;
 
     /**
+     * 请求唯一ID
+     */
+    private String traceId;
+
+    /**
      * 确认体积
      */
     private Double confirmVolume;
@@ -38,6 +43,14 @@ public class WaybillConsumablePackConfirmRequest implements Serializable {
 
     public void setBusinessCode(String businessCode) {
         this.businessCode = businessCode;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
     }
 
     public Double getConfirmVolume() {
