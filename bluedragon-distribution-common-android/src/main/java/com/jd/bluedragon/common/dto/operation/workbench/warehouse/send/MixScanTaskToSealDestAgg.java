@@ -22,7 +22,7 @@ public class MixScanTaskToSealDestAgg {
     /**
      * 车辆发货流向明细
      */
-    private List<CarToSealList> carToSealList;
+    private List<CarToSealDetail> carToSealList;
 
     public Integer getSealedTotal() {
         return sealedTotal;
@@ -40,11 +40,11 @@ public class MixScanTaskToSealDestAgg {
         this.destTotal = destTotal;
     }
 
-    public List<CarToSealList> getCarToSealList() {
+    public List<CarToSealDetail> getCarToSealList() {
         return carToSealList;
     }
 
-    public void setCarToSealList(List<CarToSealList> carToSealList) {
+    public void setCarToSealList(List<CarToSealDetail> carToSealList) {
         this.carToSealList = carToSealList;
     }
 }

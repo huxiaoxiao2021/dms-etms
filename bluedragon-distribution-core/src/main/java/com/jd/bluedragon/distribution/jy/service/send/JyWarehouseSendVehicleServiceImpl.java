@@ -36,6 +36,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -859,7 +860,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         
         destAgg.setDestTotal(vehicleDetailList.size());
         destAgg.setSealedTotal(getSealedTotal(vehicleDetailList));
-        destAgg.setCarToSealList(getCartoSealList(request, vehicleDetailList));
+        destAgg.setCarToSealList(getCarToSealList(request, vehicleDetailList, bizIds));
         return destAgg;
     }
 
@@ -867,10 +868,59 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 获取流向信息详情
      * @param request
      * @param vehicleDetailList
+     * @param bizIds
      * @return
      */
-    private List<CarToSealList> getCartoSealList(SelectMixScanTaskSealDestReq request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList) {
-        return null;
+    private List<CarToSealDetail> getCarToSealList(SelectMixScanTaskSealDestReq request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList, List<String> bizIds) {
+        List<CarToSealDetail> carToSealList = new ArrayList<>();
+        
+        HashSet<String> sendVehicleBizIds = new HashSet<>();
+        for (JyBizTaskSendVehicleDetailEntity entity : vehicleDetailList) {
+            sendVehicleBizIds.add(entity.getSendVehicleBizId());
+        }
+        // 批量获取车牌号
+        List<JyBizTaskSendVehicleEntity> sendTaskList = taskSendVehicleService.findSendTaskByBizIds(new ArrayList<>(sendVehicleBizIds));
+        HashMap<String,String> sendTaskMap = getSendTaskMap(sendTaskList);
+        
+        // 批量获取统计数据
+        List<JySendAggsEntity> sendAggs = sendAggService.findBySendVehicleDetailBizs(bizIds);
+        HashMap<String, JySendAggsEntity> aggsMap = getAggsMag(sendAggs);
+        
+        for (JyBizTaskSendVehicleDetailEntity entity : vehicleDetailList) {
+            CarToSealDetail detail = new CarToSealDetail();
+            detail.setSendVehicleBizId(entity.getSendVehicleBizId());
+            detail.setVehicleNumber(sendTaskMap.get(entity.getSendVehicleBizId()));
+            detail.setSendDetailBizId(entity.getBizId());
+            detail.setEndSiteId(entity.getEndSiteId().intValue());
+            detail.setEndSiteName(entity.getEndSiteName());
+            detail.setPlanDepartTime(entity.getPlanDepartTime());
+            detail.setItemStatusDesc(JyBizTaskSendDetailStatusEnum.getNameByCode(entity.getVehicleStatus()));
+            detail.setItemStatus(entity.getVehicleStatus());
+
+            JySendAggsEntity aggs = aggsMap.get(entity.getBizId());
+            if (aggs != null) {
+                detail.setToScanPackCount(dealMinus(aggs.getShouldScanCount(), aggs.getActualScanCount()));
+                detail.setScannedPackCount(aggs.getActualScanCount().longValue());            }
+            
+            carToSealList.add(detail);
+        }
+        return carToSealList;
+    }
+
+    private HashMap<String, JySendAggsEntity> getAggsMag(List<JySendAggsEntity> sendAggs) {
+        HashMap<String, JySendAggsEntity> map = new HashMap<>();
+        for (JySendAggsEntity sendAgg : sendAggs) {
+            map.put(sendAgg.getBizId(),sendAgg);
+        }
+        return map;
+    }
+
+    private HashMap<String, String> getSendTaskMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
+        HashMap<String,String> map = new HashMap<>();
+        for (JyBizTaskSendVehicleEntity entity : sendTaskList) {
+            map.put(entity.getBizId(),entity.getVehicleNumber());
+        }
+        return map;
     }
 
     /**

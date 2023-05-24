@@ -219,7 +219,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
     @Autowired
-    private JySendAggsService sendAggService;
+    public JySendAggsService sendAggService;
 
     @Autowired
     private JySendSealCodeService sendSealCodeService;
@@ -2768,7 +2768,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         return carComeEnum;
     }
-    private Long dealMinus(Number a, Number b) {
+    public Long dealMinus(Number a, Number b) {
         return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
     }
 

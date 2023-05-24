@@ -152,4 +152,11 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
 	int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes);
+
+    /**
+     * 批量根据bizId查询
+     * @param ids
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> ids);
 }

@@ -676,4 +676,15 @@
         and yn = 1 limit 1
     </select>
 
+    <select id="findByBizIds" parameterType="java.util.List" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE biz_id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and yn = 1
+    </select>
 </mapper>
