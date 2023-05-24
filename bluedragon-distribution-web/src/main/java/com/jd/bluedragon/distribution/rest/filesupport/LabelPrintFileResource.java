@@ -185,7 +185,8 @@ public class LabelPrintFileResource {
                 return response.build();
 
             }
-            response = Response.ok(s3Object.getObjectContent());
+            StreamingOutput output = new FileStreamingOutput(s3Object);
+            response = Response.ok(output);
             response.header("Content-Disposition", "attachment;filename=" + URLDecoder.decode(fileRequest.getFileName(), "UTF-8"));
             response.type(s3Object.getObjectMetadata().getContentType());
             return response.build();
