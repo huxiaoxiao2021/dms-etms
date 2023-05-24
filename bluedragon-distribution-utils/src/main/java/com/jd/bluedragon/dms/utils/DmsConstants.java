@@ -369,6 +369,10 @@ public class DmsConstants {
      */
     public static final String WAYBILL_VAS_JXD  = "ed-a-0073";
     /**
+     * 增值服务编码-超长超重服务（CCCZF00001）
+     */
+    public static final String WAYBILL_VAS_OVER_LENGTHANDWEIGHT  = "CCCZF00001";    
+    /**
      * 增值服务编码-京喜送达服务-取值key1
      */
     public static final String WAYBILL_VAS_JXD_CARDINFOS  = "cardInfos";
@@ -396,7 +400,11 @@ public class DmsConstants {
      * 返调度-路区：0
      */
     public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";
-
+    /**
+     * 超长超重-标识-1
+     */
+    public static final Integer OVER_LENGTHANDWEIGHT_FLAG = 1;
+    
     public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
     public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
     public static final String WHITE_SPACE = "\\s*";
@@ -407,6 +415,15 @@ public class DmsConstants {
     public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH  = "ed-a-0075";
     public static final String WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_BATCH_DELIVERY  = "executeBatchDelivery";
 
+    /**
+     * 运单-称重-longPackage:0-默认值
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_DEFAULT = 0;
+    /**
+     * 运单-称重-longPackage:2-超长超重服务
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
+    
     /**
      * 暂存类型枚举值
      */

@@ -280,6 +280,10 @@ public class InvokeResult<T> implements Serializable {
     public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
     public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
 
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

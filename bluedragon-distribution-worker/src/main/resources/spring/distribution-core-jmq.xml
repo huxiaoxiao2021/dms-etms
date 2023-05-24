@@ -819,12 +819,6 @@
         <property name="timeout" value="1000" />
     </bean>
 
-    <!--发送作业任务自动关闭消息 -->
-    <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}" />
-        <property name="timeout" value="1000" />
-    </bean>
-
     <!-- 周转筐批量作废异步处理 -->
     <bean id="recycleBasketBatchAbolishProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.recycleBasket.batchAbolish}"/>

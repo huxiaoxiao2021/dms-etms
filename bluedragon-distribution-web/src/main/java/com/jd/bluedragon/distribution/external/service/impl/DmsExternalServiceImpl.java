@@ -5,18 +5,22 @@ import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiFailDetailDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalService;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
 import com.jd.bluedragon.distribution.wss.service.PopAbnormalWssService;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.util.StringUtils;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +56,8 @@ public class DmsExternalServiceImpl implements DmsExternalService {
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
 
+    @Resource
+    private SortingService sortingService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.updatePopPackNum",mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -144,4 +151,26 @@ public class DmsExternalServiceImpl implements DmsExternalService {
         }
         return result;
     }
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.getPagePackageNoByBoxCode",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request) {
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        result.success();
+        if (request == null || StringUtils.isBlank(request.getBoxCode())) {
+            result.parameterError("缺少必要查询参数");
+            return result;
+        }
+        if(request.getOffset() < 0 || request.getLimit() < 1){
+            result.parameterError("分页参数不合法");
+            return result;
+        }
+        if(request.getLimit() > 500){
+            result.parameterError("数据条数不能大于500");
+            return result;
+        }
+        result.setData(sortingService.getPagePackageNoByBoxCode(request));
+        return result;
+    }
+
+
 }

@@ -86,6 +86,7 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     public JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq) {
         return null;
     }
+
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }

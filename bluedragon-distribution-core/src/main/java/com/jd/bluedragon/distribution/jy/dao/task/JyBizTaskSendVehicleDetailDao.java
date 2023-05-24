@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +54,15 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
             params.put("statuses", statuses);
         }
         return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBiz", params);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBizByBatch(JyBizTaskSendVehicleDetailEntity entity, List<Integer> statuses) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (CollectionUtils.isNotEmpty(statuses)) {
+            params.put("statuses", statuses);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBizByBatch", params);
     }
 
     public int updateByBiz(JyBizTaskSendVehicleDetailEntity entity) {
