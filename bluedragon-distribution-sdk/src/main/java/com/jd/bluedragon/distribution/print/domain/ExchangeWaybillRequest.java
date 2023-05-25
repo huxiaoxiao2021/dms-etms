@@ -37,6 +37,14 @@ public class ExchangeWaybillRequest implements Serializable {
         this.waybillCode = waybillCode;
     }
 
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
     public User getUser() {
         return user;
     }
