@@ -1145,4 +1145,23 @@ public class BusinessHelper {
         }
         return false;
     }
+
+
+    /**
+     * 根据增值服务编码是否匹配
+     * @param waybillVas
+     * @param waybillVasDtos
+     * @return
+     */
+    public static boolean matchWaybillVasDto(String waybillVas, List<WaybillVasDto> waybillVasDtos){
+        if(StringUtils.isBlank(waybillVas) || CollectionUtils.isEmpty(waybillVasDtos)){
+            return false;
+        }
+        for(WaybillVasDto dto : waybillVasDtos){
+            if(waybillVas.equals(dto.getVasNo())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -8,9 +8,9 @@ package com.jd.bluedragon.distribution.weightVolume.enums;
  **/
 public enum OverLengthAndWeightTypeEnum {
 	//cm
-	ONE_SIDE("oneSide","3.1m<单边<=4m",310,400),
-	THREED_SIDE("threeSide","5.5m<三边和<=6.3m",550,630),
-	OVER_WEIGHT("overWeight","300kg<单件<=1000kg",300,1000)
+	ONE_SIDE("oneSide","3.1m<单边≤4m",310,400),
+	THREED_SIDE("threeSide","5.5m<三边和≤6.3m",550,630),
+	OVER_WEIGHT("overWeight","300kg<单件≤1000kg",300,1000)
     ;
 	
 	private OverLengthAndWeightTypeEnum(String code, String name, double minVal, double maxVal) {
