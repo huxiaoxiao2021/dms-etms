@@ -245,4 +245,11 @@ public interface WaybillService {
      */
     boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode);
 
+    /**
+     * 现场预分拣拦截校验
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
+
 }

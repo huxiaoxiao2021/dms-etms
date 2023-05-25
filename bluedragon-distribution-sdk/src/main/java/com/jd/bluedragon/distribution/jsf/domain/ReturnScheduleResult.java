@@ -17,7 +17,7 @@ public class ReturnScheduleResult implements Serializable {
     /**
      * 站点id
      */
-    private Integer siteCode;
+    private String siteCode;
 
     /**
      * 站点名称
@@ -32,11 +32,11 @@ public class ReturnScheduleResult implements Serializable {
         this.waybillCode = waybillCode;
     }
 
-    public Integer getSiteCode() {
+    public String getSiteCode() {
         return siteCode;
     }
 
-    public void setSiteCode(Integer siteCode) {
+    public void setSiteCode(String siteCode) {
         this.siteCode = siteCode;
     }
 

@@ -12,5 +12,5 @@ public interface ReassignWaybillService {
 	 */
 	JdResult<Boolean> backScheduleAfter(ReassignWaybillRequest reassignWaybillRequest);
 
-	Boolean add(ReassignWaybill packTagPrint);
+	Boolean addToDebon(ReassignWaybill packTagPrint);
 }

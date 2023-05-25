@@ -103,7 +103,7 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
         preSortOnSiteRequest.setSortingSite(request.getOperatorInfo().getOperateSiteId());
         preSortOnSiteRequest.setSiteOfSchedulingOnSite(matchResult.getVehicleTeamId());
         log.info("调用返调度之前校验 入参 -{}",JSON.toJSONString(preSortOnSiteRequest));
-        InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
+        InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSiteToDebon(preSortOnSiteRequest,waybill);
         log.info("调用返调度之前校验 出参 -{}",JSON.toJSONString(invokeResult));
         //如果校验失败直接返回
         if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
@@ -118,11 +118,11 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
 
         if(!CollectionUtils.isEmpty(reassignWaybills)) {
             for(ReassignWaybill reassignWaybillDto: reassignWaybills) {
-                reassignWaybill.add(reassignWaybillDto);
+                reassignWaybill.addToDebon(reassignWaybillDto);
             }
         }
         resultData.setWaybillCode(waybillCode);
-        resultData.setSiteCode(matchResult.getVehicleTeamId());
+        resultData.setSiteCode(matchResult.getVehicleTeamId().toString());
         resultData.setSiteName(matchResult.getVehicleTeamName());
         response.setData(resultData);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
@@ -136,7 +136,7 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
      * @return
      */
     private boolean checkParam(JdResponse<ReturnScheduleResult> response, ReturnScheduleRequest request) {
-        if (request == null || request.getRequestProfile() == null || request.getOperatorInfo() == null) {
+        if (request == null || request.getOperatorInfo() == null) {
             response.toFail("入参不能为空!");
             return false;
         }

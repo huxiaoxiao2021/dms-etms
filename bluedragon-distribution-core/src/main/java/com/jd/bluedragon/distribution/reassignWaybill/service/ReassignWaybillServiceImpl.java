@@ -56,8 +56,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Qualifier("waybillSiteChangeProducer")
 	private DefaultJMQProducer waybillSiteChangeProducer;
 
-	@Override
-	public Boolean add(ReassignWaybill packTagPrint) {
+
+	private Boolean add(ReassignWaybill packTagPrint) {
 		long startTime=new Date().getTime();
 
 		Assert.notNull(packTagPrint, "packTagPrint must not be null");
@@ -191,6 +191,48 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			}
 		}
 		return jdResult;
+	}
+
+	@Override
+	public Boolean addToDebon(ReassignWaybill packTagPrint) {
+
+		Assert.notNull(packTagPrint, "packTagPrint must not be null");
+		CenConfirm cenConfirm=new CenConfirm();
+		cenConfirm.setWaybillCode(packTagPrint.getWaybillCode());
+		cenConfirm.setCreateSiteCode(packTagPrint.getSiteCode());
+		cenConfirm.setPackageBarcode(packTagPrint.getPackageBarcode());
+		cenConfirm.setOperateType(Constants.OPERATE_TYPE_RCD);
+		cenConfirm.setType(Integer.valueOf(Constants.BUSSINESS_TYPE_RCD).shortValue());
+		cenConfirm.setOperateTime(packTagPrint.getOperateTime());
+		cenConfirm.setOperateUser(packTagPrint.getUserName());
+		cenConfirm.setOperateUserCode(packTagPrint.getUserCode());
+		cenConfirm.setReceiveSiteCode(packTagPrint.getChangeSiteCode());
+		cenConfirmService.syncWaybillStatusTask(cenConfirm);
+		//添加返调度运单信息到本地库
+		sendReassignWaybillMq(packTagPrint);
+		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
+			//每个运单只需要发一次就可以
+			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
+			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
+			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
+			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
+			siteChangeMqDto.setOperatorId(packTagPrint.getUserCode());
+			siteChangeMqDto.setOperatorName(packTagPrint.getUserName());
+			siteChangeMqDto.setOperatorSiteId(packTagPrint.getSiteCode());
+			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
+			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+			try {
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				if(log.isDebugEnabled()){
+					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
+				}
+			} catch (Exception e) {
+				log.error("发送预分拣站点变更mq消息失败(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+			}
+		}
+		return reassignWaybillDao.add(packTagPrint);
 	}
 
 	private List<ReassignWaybill> toReassignWaybillList(ReassignWaybillRequest reassignWaybillRequest) {
