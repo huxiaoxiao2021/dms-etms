@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskOfWaitReceiveDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
@@ -15,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -41,7 +44,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
+public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements JySanwuExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
@@ -237,6 +240,11 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
             // 测试环境无数据，uat环境新增 sendCode 字段
             return unloadDetail.getData().get(0).getSendCode();
         }
+        return null;
+    }
+
+    @Override
+    public List<ExpTaskOfWaitReceiveDto> getWaitReceiveSanwuExceptionByPage(ExpTaskPageReq req) {
         return null;
     }
 }
