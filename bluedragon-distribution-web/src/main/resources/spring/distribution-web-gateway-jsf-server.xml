@@ -643,7 +643,7 @@
     <!-- 德邦融合接口服务 -->
     <bean id="debonReturnScheduleGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WaybillReturnScheduleGateWayServiceImpl" />
     <jsf:provider id="debonReturnScheduleGateWayService"
-                  interface="com.jd.bluedragon.external.gateway.service.WaybillReturnScheduleGateWayService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="debonReturnScheduleGateWayServiceImpl"
                   server="dmsjsf">
