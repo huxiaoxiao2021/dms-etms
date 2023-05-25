@@ -196,7 +196,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Override
 	public Boolean addToDebon(ReassignWaybill packTagPrint) {
 
-		Assert.notNull(packTagPrint, "packTagPrint must not be null");
 		CenConfirm cenConfirm=new CenConfirm();
 		cenConfirm.setWaybillCode(packTagPrint.getWaybillCode());
 		cenConfirm.setCreateSiteCode(packTagPrint.getSiteCode());
@@ -209,7 +208,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		cenConfirm.setReceiveSiteCode(packTagPrint.getChangeSiteCode());
 		cenConfirmService.syncWaybillStatusTask(cenConfirm);
 		//添加返调度运单信息到本地库
-		sendReassignWaybillMq(packTagPrint);
+		//sendReassignWaybillMq(packTagPrint);
 		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
