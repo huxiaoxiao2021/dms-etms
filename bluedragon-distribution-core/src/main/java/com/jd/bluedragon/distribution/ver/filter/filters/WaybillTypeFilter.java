@@ -59,8 +59,6 @@ public class WaybillTypeFilter implements Filter {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
-    @Autowired
-    private WaybillService waybillService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -68,14 +66,14 @@ public class WaybillTypeFilter implements Filter {
         //拿到箱号，查缓存拿箱号的类型
         if (request.getBox() != null && StringUtils.isNotBlank(request.getBox().getCode())) {
             Integer waybillType = 0; //运单类型
-            if (request.getWaybillCache() != null && request.getWaybillCache().getWaybillSign() != null &&
+            if(request.getWaybillCache() != null  && BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE,request.getWaybillVasDtos())){
+                waybillType = WAYBILL_TYPE_PART_TE_AN;
+            }else if (request.getWaybillCache() != null && request.getWaybillCache().getWaybillSign() != null &&
                     BusinessUtil.isSignChar(request.getWaybillCache().getWaybillSign(), 14, '5')) {
                 waybillType = WAYBILL_TYPE_MOVING_WAREHOUSE_INNER;
             } else if(request.getReceiveSite() != null && BusinessHelper.isWMSBySiteType(request.getReceiveSite().getType())
                     && BusinessUtil.isPartReverse(request.getWaybillCache().getWaybillSign())){
                 waybillType = WAYBILL_TYPE_PART_REVERSE;
-            }else if(request.getWaybillCache() != null  && CollectionUtils.isNotEmpty(request.getWaybillVasDtos())){
-                waybillType = WAYBILL_TYPE_PART_TE_AN;
             } else {
                 waybillType = WAYBILL_TYPE_COMMON;
             }

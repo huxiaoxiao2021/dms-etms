@@ -571,7 +571,7 @@ public class HintCodeConstants {
     /**
      * 此箱号内为特安单，需单独建箱，其他类型运单禁止混装
      */
-    public static String TEAN_BOX_INTERCEPT = "20093";
+    public static String TEAN_BOX_INTERCEPT = "20094";
 
     /*##############################################拦截相关END#########################################################*/
 
