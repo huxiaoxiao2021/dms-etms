@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
+import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleResult;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -59,12 +60,12 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
 
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillReturnScheduleServiceImpl.returnScheduleSiteInfoByWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResponse<Boolean> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request) {
+    public JdResponse<ReturnScheduleResult> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request) {
         if (log.isInfoEnabled()) {
             log.info("DebangServiceImpl.getMatchSiteInfoByWaybill-入参-{}", JSON.toJSONString(request));
         }
-        JdResponse<Boolean> response = new JdResponse<>();
-        response.setData(Boolean.TRUE);
+        JdResponse<ReturnScheduleResult> response = new JdResponse<>();
+        ReturnScheduleResult resultData = new ReturnScheduleResult();
         if(!checkParam(response,request)){
             return response;
         }
@@ -81,7 +82,6 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
                 || CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())
                 || StringUtils.isBlank(dataByChoice.getData().getWaybill().getReceiverAddress())) {
             log.warn("查询运单失败!-{}", waybillCode);
-            response.setData(Boolean.FALSE);
             response.toFail("获取运单信息失败!");
             return response;
         }
@@ -92,10 +92,10 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
         B2bVehicleTeamMatchResult matchResult = expressDispatchServiceManager.getStandardB2bSupportMatch(matchRequest);
         if (matchResult == null || !matchResult.getB2bSupport()) {
             log.warn("匹配站点信息失败!-{}", waybillCode);
-            response.setData(Boolean.FALSE);
             response.toFail("匹配站点信息失败!");
             return response;
         }
+
         //检验返调度站点信息
         WaybillForPreSortOnSiteRequest preSortOnSiteRequest = new WaybillForPreSortOnSiteRequest();
         preSortOnSiteRequest.setWaybill(waybillCode);
@@ -107,7 +107,6 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
         log.info("调用返调度之前校验 出参 -{}",JSON.toJSONString(invokeResult));
         //如果校验失败直接返回
         if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
-            response.setData(Boolean.FALSE);
             response.toFail(invokeResult.getMessage());
             return response;
         }
@@ -122,6 +121,10 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
                 reassignWaybill.add(reassignWaybillDto);
             }
         }
+        resultData.setWaybillCode(waybillCode);
+        resultData.setSiteCode(matchResult.getVehicleTeamId());
+        resultData.setSiteName(matchResult.getVehicleTeamName());
+        response.setData(resultData);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
     }
@@ -132,7 +135,7 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
      * @param request
      * @return
      */
-    private boolean checkParam(JdResponse<Boolean> response, ReturnScheduleRequest request) {
+    private boolean checkParam(JdResponse<ReturnScheduleResult> response, ReturnScheduleRequest request) {
         if (request == null || request.getRequestProfile() == null || request.getOperatorInfo() == null) {
             response.toFail("入参不能为空!");
             return false;

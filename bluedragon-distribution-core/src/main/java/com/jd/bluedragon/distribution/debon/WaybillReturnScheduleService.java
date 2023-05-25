@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.debon;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
+import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleResult;
 import com.jd.ql.dms.common.domain.JdResponse;
 
 /**
@@ -16,5 +17,5 @@ public interface WaybillReturnScheduleService {
      * @param request
      * @return
      */
-    JdResponse<Boolean> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request);
+    JdResponse<ReturnScheduleResult> returnScheduleSiteInfoByWaybill(ReturnScheduleRequest request);
 }
