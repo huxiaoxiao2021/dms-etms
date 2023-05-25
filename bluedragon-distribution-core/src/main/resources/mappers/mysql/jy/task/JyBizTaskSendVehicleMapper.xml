@@ -609,7 +609,7 @@
                 #{item}
             </foreach>
         </if>
-        <if test="statuses != null and statuses.size() > 0">
+        <if test="statuses != null and statuses.length > 0">
             AND vehicle_status IN
             <foreach collection="statuses" separator="," open="(" close=")" item="item">
                 #{item}
