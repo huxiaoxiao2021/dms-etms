@@ -1716,8 +1716,6 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
-    @Cache(key = "WaybillCommonServiceImpl.isTeAnWaybill@args0", memoryEnable = true, memoryExpiredTime = 60 * 60 * 1000
-            , redisEnable = true, redisExpiredTime = 120 * 60 * 1000)
     public boolean isTeAnWaybill(String waybillCode) {
         log.info("isTeAnWaybill---运单号{}",waybillCode);
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
