@@ -623,7 +623,7 @@
 
     <!-- 德邦返调度消息处理 -->
     <jmq:consumer id="jmq.debonReturnScheduleConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.debon.return.schedule}" listener="DebonReturnScheduleConsumer"/>
+        <jmq:listener topic="${jmq.topic.debon.return.schedule}" listener="debonReturnScheduleConsumer"/>
     </jmq:consumer>
 
 </beans>
