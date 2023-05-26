@@ -907,14 +907,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return carToSealList;
     }
 
-    private HashMap<String, JySendAggsEntity> getAggsMag(List<JySendAggsEntity> sendAggs) {
-        HashMap<String, JySendAggsEntity> map = new HashMap<>();
-        for (JySendAggsEntity sendAgg : sendAggs) {
-            map.put(sendAgg.getBizId(),sendAgg);
-        }
-        return map;
-    }
-
     private HashMap<String, String> getSendTaskMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
         HashMap<String,String> map = new HashMap<>();
         for (JyBizTaskSendVehicleEntity entity : sendTaskList) {
@@ -936,5 +928,27 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             }
         }
         return toatl;
+    }
+
+    /**
+     * 查询混扫任务详情及统计数据
+     * @param mixScanTaskFlowReq
+     * @return
+     */
+    public MixScanTaskFlowDetailRes getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
+        MixScanTaskFlowDetailRes res = new MixScanTaskFlowDetailRes();
+        // 获取混扫任务信息
+        MixScanTaskQueryReq req = new MixScanTaskQueryReq();
+        req.setTemplateCode(mixScanTaskFlowReq.getTemplateCode());
+        req.setCurrentOperate(mixScanTaskFlowReq.getCurrentOperate());
+        req.setGroupCode(mixScanTaskFlowReq.getGroupCode());
+        InvokeResult<MixScanTaskDetailRes> invokeResult = getMixScanTaskDetailList(req);
+        if (invokeResult==null 
+                || invokeResult.getData()==null 
+                || CollectionUtils.isEmpty(invokeResult.getData().getMixScanTaskDetailDtoList())) {
+            throw new JyBizException("未获取到流向信息!");
+        }
+        setMixScanTaskSendProgressData(res, invokeResult.getData().getMixScanTaskDetailDtoList());
+        return res;
     }
 }

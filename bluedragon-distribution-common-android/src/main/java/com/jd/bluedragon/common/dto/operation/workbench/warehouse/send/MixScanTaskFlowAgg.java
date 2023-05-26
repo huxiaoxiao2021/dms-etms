@@ -9,30 +9,7 @@ import java.math.BigDecimal;
  * @date 2023-05-16 14:37
  */
 public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializable {
-    
-    /**
-     * 该流向拦截数量
-     */
-    private Integer interceptCount;
 
-    /**
-     * 该流向已扫包裹数量
-     */
-    private Integer packageHaveScanCount;
-    /**
-     * 该流向已扫箱子数量
-     */
-    private Integer boxHaveScanCount;
-    /**
-     * 该流向待扫数量
-     */
-    private Integer waitScanCount;
-    
-    /**
-     * 关注数量
-     */
-    private Integer focusCount;
-    
     /**
      * 重量装载率 100%
      */
@@ -57,38 +34,49 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
      * 装载重量 单位：千克
      */
     private BigDecimal loadWeight = BigDecimal.ZERO;
+
+    /**
+     * 装载率上限
+     */
+    private Integer loadRateUpperLimit;
+
+    /**
+     * 待扫包裹数
+     */
+    private Long toScanCount = 0L;
+
+    /**
+     * 已扫包裹数
+     */
+    private Long scannedPackCount = 0L;
+
+    /**
+     * 已扫箱数
+     */
+    private Long scannedBoxCount = 0L;
+
+    /**
+     * 拦截包裹数
+     */
+    private Long interceptedPackCount = 0L;
+
+    /**
+     * 强制发包裹数
+     */
+    private Long forceSendPackCount = 0L;
+
+    /**
+     * 封车的流向数量
+     */
+    private Integer sealedTotal = 0;
+
+    /**
+     * 流向总数
+     */
+    private Integer destTotal = 0;
     
-
-    public Integer getInterceptCount() {
-        return interceptCount;
-    }
-
-    public void setInterceptCount(Integer interceptCount) {
-        this.interceptCount = interceptCount;
-    }
-
-    public Integer getPackageHaveScanCount() {
-        return packageHaveScanCount;
-    }
-
-    public void setPackageHaveScanCount(Integer packageHaveScanCount) {
-        this.packageHaveScanCount = packageHaveScanCount;
-    }
-
-    public Integer getBoxHaveScanCount() {
-        return boxHaveScanCount;
-    }
-
-    public void setBoxHaveScanCount(Integer boxHaveScanCount) {
-        this.boxHaveScanCount = boxHaveScanCount;
-    }
-
-    public Integer getWaitScanCount() {
-        return waitScanCount;
-    }
-
-    public void setWaitScanCount(Integer waitScanCount) {
-        this.waitScanCount = waitScanCount;
+    public MixScanTaskFlowAgg(Integer loadRateUpperLimit) {
+        this.loadRateUpperLimit = loadRateUpperLimit;
     }
 
     public BigDecimal getLoadRate() {
@@ -131,12 +119,67 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
         this.loadWeight = loadWeight;
     }
 
-    public Integer getFocusCount() {
-        return focusCount;
+    public Integer getLoadRateUpperLimit() {
+        return loadRateUpperLimit;
     }
 
-    public void setFocusCount(Integer focusCount) {
-        this.focusCount = focusCount;
+    public void setLoadRateUpperLimit(Integer loadRateUpperLimit) {
+        this.loadRateUpperLimit = loadRateUpperLimit;
     }
 
+    public Long getToScanCount() {
+        return toScanCount;
+    }
+
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
+    }
+
+    public Long getScannedPackCount() {
+        return scannedPackCount;
+    }
+
+    public void setScannedPackCount(Long scannedPackCount) {
+        this.scannedPackCount = scannedPackCount;
+    }
+
+    public Long getScannedBoxCount() {
+        return scannedBoxCount;
+    }
+
+    public void setScannedBoxCount(Long scannedBoxCount) {
+        this.scannedBoxCount = scannedBoxCount;
+    }
+
+    public Long getInterceptedPackCount() {
+        return interceptedPackCount;
+    }
+
+    public void setInterceptedPackCount(Long interceptedPackCount) {
+        this.interceptedPackCount = interceptedPackCount;
+    }
+
+    public Long getForceSendPackCount() {
+        return forceSendPackCount;
+    }
+
+    public void setForceSendPackCount(Long forceSendPackCount) {
+        this.forceSendPackCount = forceSendPackCount;
+    }
+
+    public Integer getSealedTotal() {
+        return sealedTotal;
+    }
+
+    public void setSealedTotal(Integer sealedTotal) {
+        this.sealedTotal = sealedTotal;
+    }
+
+    public Integer getDestTotal() {
+        return destTotal;
+    }
+
+    public void setDestTotal(Integer destTotal) {
+        this.destTotal = destTotal;
+    }
 }

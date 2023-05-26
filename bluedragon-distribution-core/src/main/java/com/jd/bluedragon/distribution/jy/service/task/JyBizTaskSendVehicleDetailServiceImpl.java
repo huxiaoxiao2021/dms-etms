@@ -165,4 +165,9 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByBizIds(int siteCode, List<String> bizIds) {
         return jyBizTaskSendVehicleDetailDao.findSendVehicleDetailByBizIds(siteCode, bizIds);
     }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds) {
+        return jyBizTaskSendVehicleDetailDao.findDetailBySendVehicleBizIds(sendVehicleBizIds);
+    }
 }

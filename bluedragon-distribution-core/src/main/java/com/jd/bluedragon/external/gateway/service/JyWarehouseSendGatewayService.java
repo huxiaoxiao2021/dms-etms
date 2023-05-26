@@ -185,16 +185,15 @@ public interface JyWarehouseSendGatewayService {
      * 封车数据暂存
      *
      */
-    JdCResponse<Void> saveSealVehicle(SealVehicleReq sealVehicleReq);
+    JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq);
     
     /**
      * 校验运力编码和发货批次的目的地是否一致
      */
-    InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request);
+    JdCResponse<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request);
 
     /**
      * 提交封车
-     *
      */
     JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq);
 }

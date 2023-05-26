@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
+import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -288,7 +289,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    public InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq) {
+    public InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq) {
         log.info("jy传站封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
         String sealLockKey = String.format(Constants.JY_SEAL_LOCK_PREFIX, sealVehicleReq.getSendVehicleDetailBizId());
         if (!jimDbLock.lock(sealLockKey, sealVehicleReq.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
@@ -303,10 +304,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
-                for (String sendCode:sealVehicleReq.getBatchCodes()){
-                    if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
-                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
+            if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyPostEnum.SEND_SEAL_BOARD.getCode())) {
+                if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                    for (String sendCode:sealVehicleReq.getBatchCodes()){
+                        if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                            throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
+                        }
                     }
                 }
             }
@@ -338,8 +341,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 if (ObjectHelper.isNotNull(sealResp.getData())){
                     List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
                     saveSealSendCode(successSealCarList.get(0).getBatchCodes(),sealVehicleReq);
-                    jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
-                        sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                    if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyPostEnum.SEND_SEAL_BOARD.getCode())) {
+                        jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
+                                sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                    }
                 }
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }

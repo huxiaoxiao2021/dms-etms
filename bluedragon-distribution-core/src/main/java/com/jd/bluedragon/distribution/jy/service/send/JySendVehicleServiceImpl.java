@@ -7,7 +7,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -32,6 +31,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehi
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailRes;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
@@ -52,7 +54,6 @@ import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -129,9 +130,6 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.jdi.dto.CommonDto;
-import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
-import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
@@ -144,7 +142,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
-import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
@@ -162,7 +159,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -171,6 +167,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -2925,6 +2922,112 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
     }
 
+    /**
+     * 混扫任务发货统计及装载率
+     * @param res
+     * @param mixScanTaskDetailDtoList
+     */
+    public void setMixScanTaskSendProgressData(MixScanTaskFlowDetailRes res, List<MixScanTaskDetailDto> mixScanTaskDetailDtoList) {
+        List<String> taskDetailBizs = new ArrayList<>();
+        for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
+            taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
+        }
+        // 获取统计数据
+        List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
+        HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
+        List<String> taskBizIds = new ArrayList<>();
+        for (JySendAggsEntity jySendAggsEntity : sendAggsList) {
+            taskBizIds.add(jySendAggsEntity.getSendVehicleBizId());
+        }
+        
+        // 查询车型
+        List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
+        HashMap<String,Integer> basicVehicleTypeMap = getBasicVehicleTypeMap(taskSendList);
+
+        // 批量根据主任务id获取目的地站点
+        List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
+        HashMap<String, List<Long>> taskEndSiteMap = new HashMap<>();
+        HashSet<Long> endSiteSet = new HashSet<>();
+        for (JyBizTaskSendVehicleDetailEntity entity : detailEntityList) {
+            endSiteSet.add(entity.getEndSiteId());
+            List<Long> endSiteList = taskEndSiteMap.getOrDefault(entity.getSendVehicleBizId(), new ArrayList<>());
+            endSiteList.add(entity.getEndSiteId());
+        }
+        
+        // 根据始发目的地查询带扫数据
+        JySendProductAggsEntityQuery query = new JySendProductAggsEntityQuery();
+        query.setEndSiteIds(new ArrayList<>(endSiteSet));
+        query.setOperateSiteId(sendAggsList.get(0).getOperateSiteId());
+        List<JySendProductAggsEntity> toScanAggList = 
+                jySendProductAggsService.getToScanNumByEndSiteList(query);
+        HashMap<Long,Integer> toScanSumMap = getToScanMap(toScanAggList);
+        
+        // 组装数据
+        HashMap<Integer, BasicVehicleTypeDto> basicVehicleTypeDtoMap = new HashMap<>();
+        List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
+            MixScanTaskFlowAgg flowAgg = com.jd.bluedragon.utils.BeanUtils.copy(item,MixScanTaskFlowAgg.class);
+            JySendAggsEntity sendAgg = aggsMag.get(item.getSendVehicleDetailBizId());
+            Integer vehicleType = basicVehicleTypeMap.get(sendAgg.getSendVehicleBizId());
+            BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
+            
+            if (basicVehicleTypeDto == null) {
+                BasicVehicleTypeDto basicVehicle = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+                basicVehicleTypeDtoMap.put(vehicleType, basicVehicle);
+            }
+
+            if (basicVehicleTypeDto != null) {
+                if(basicVehicleTypeDto.getVolume() != null) {
+                    flowAgg.setVolume(BigDecimal.valueOf(basicVehicleTypeDto.getVolume()));
+                }
+                if(basicVehicleTypeDto.getWeight() != null) {
+                    flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
+                }
+            }
+            flowAgg.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()))));
+            flowAgg.setLoadVolume(sendAgg.getTotalScannedVolume());
+            flowAgg.setLoadWeight(sendAgg.getTotalScannedWeight());
+            flowAgg.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
+            flowAgg.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
+            flowAgg.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
+            flowAgg.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
+
+            // 带扫数据组装
+            long toScanCountSum = 0L;
+            List<Long> endSiteList = taskEndSiteMap.get(sendAgg.getSendVehicleBizId());
+            if (!CollectionUtils.isNotEmpty(endSiteList)) {
+                for (Long endSiteCode : endSiteList) {
+                    Integer toScanSum = toScanSumMap.getOrDefault(endSiteCode, 0);
+                    toScanCountSum += toScanSum.longValue();
+                }
+            }
+            flowAgg.setToScanCount(toScanCountSum);
+            return flowAgg;
+        }).collect(Collectors.toList());
+        res.setMixScanTaskFlowDtoList(flowAggs);
+    }
+
+    private HashMap<Long, Integer> getToScanMap(List<JySendProductAggsEntity> toScanAggList) {
+        HashMap<Long, Integer> map = new HashMap<>();
+        for (JySendProductAggsEntity entity : toScanAggList) {
+            map.put(entity.getReceiveSiteId(),entity.getShouldScanCount());
+        }
+        return map;
+    }
+
+    private HashMap<String, Integer> getBasicVehicleTypeMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+        HashMap<String, Integer> map = new HashMap<>();
+        taskSendList.forEach(item -> map.put(item.getBizId(),item.getVehicleType()));
+        return map;
+    }
+
+    public HashMap<String, JySendAggsEntity> getAggsMag(List<JySendAggsEntity> sendAggs) {
+        HashMap<String, JySendAggsEntity> map = new HashMap<>();
+        for (JySendAggsEntity sendAgg : sendAggs) {
+            map.put(sendAgg.getBizId(),sendAgg);
+        }
+        return map;
+    }
+    
     Integer getVehicleVolume(JyBizTaskSendVehicleEntity taskSend,VehicleVolumeDicResp vehicleVolumeDicResp){
         if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(taskSend.getLineType())){
             return vehicleVolumeDicResp.getVolumeTrunkC();
