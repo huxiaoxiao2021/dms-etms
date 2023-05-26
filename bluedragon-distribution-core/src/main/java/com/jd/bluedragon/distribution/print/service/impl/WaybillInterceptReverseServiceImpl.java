@@ -67,26 +67,13 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
         if (BusinessUtil.isSelf(waybillSign)) {
             // 执行自营逆向换单提交
             OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
-            InvokeResult<Boolean> ownExchangeResult = reversePrintService.exchangeOwnWaybill(ownReverseParam);
+            InvokeResult<String> ownExchangeResult = reversePrintService.exchangeOwnWaybillSync(ownReverseParam);
             if (!ownExchangeResult.codeSuccess()) {
                 LOGGER.warn("exchangeNewWaybill|自营换单提交操作返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownExchangeResult));
                 invokeResult.parameterError(ownExchangeResult.getMessage());
                 return invokeResult;
             }
-            // 根据原单号查询新运单信息
-            InvokeResult<com.jd.bluedragon.common.domain.Waybill> ownNewWaybillResult = waybillCommonService.getReverseWaybill(oldWaybillCode);
-            if (!ownNewWaybillResult.codeSuccess()) {
-                LOGGER.warn("exchangeNewWaybill|自营根据原单号查询新运单信息返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownNewWaybillResult));
-                invokeResult.error();
-                return invokeResult;
-            }
-            com.jd.bluedragon.common.domain.Waybill ownNewWaybill = ownNewWaybillResult.getData();
-            if (ownNewWaybill == null) {
-                LOGGER.warn("exchangeNewWaybill|自营根据原单号查询新运单信息返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownNewWaybillResult));
-                invokeResult.parameterError("自营根据原单号未查询新运单信息");
-                return invokeResult;
-            }
-            invokeResult.setData(ownNewWaybill.getWaybillCode());
+            invokeResult.setData(ownExchangeResult.getData());
         } else {
             // 如果是外单
             ExchangeWaybillDto exchangeWaybillDto = createExchangeWaybillDto(request);

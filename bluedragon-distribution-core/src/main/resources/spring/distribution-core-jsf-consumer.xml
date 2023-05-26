@@ -113,7 +113,9 @@
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" serialization="hessian" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
