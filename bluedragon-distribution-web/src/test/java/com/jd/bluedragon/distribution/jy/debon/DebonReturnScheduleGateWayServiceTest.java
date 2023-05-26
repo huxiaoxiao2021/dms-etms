@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.debon;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
+import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleResult;
 import com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService;
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 import com.jd.bluedragon.distribution.open.entity.RequestProfile;
@@ -41,6 +42,7 @@ public class DebonReturnScheduleGateWayServiceTest {
         OperatorInfo operatorInfo = new OperatorInfo();
         operatorInfo.setOperateTime(System.currentTimeMillis());
         operatorInfo.setOperateSiteId(910);
+        operatorInfo.setOperateSiteCode("010Y100");
         operatorInfo.setOperateSiteName("测试站点");
         operatorInfo.setOperateUserErp("bjxings");
         operatorInfo.setOperateUserId(1001);
@@ -48,7 +50,7 @@ public class DebonReturnScheduleGateWayServiceTest {
         //request.setWaybillCode("JDVB22493156674");
         request.setWaybillCode("JD0003420119555");
 
-        JdResponse<Boolean> response = debonReturnScheduleGateWayService.returnScheduleSiteInfoByWaybill(request);
+        JdResponse<ReturnScheduleResult> response = debonReturnScheduleGateWayService.returnScheduleSiteInfoByWaybill(request);
         System.out.println(JSON.toJSONString(response));
     }
 }

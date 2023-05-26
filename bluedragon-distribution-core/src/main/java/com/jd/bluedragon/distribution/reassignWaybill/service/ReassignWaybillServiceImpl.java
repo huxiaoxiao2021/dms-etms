@@ -206,6 +206,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		cenConfirm.setOperateUser(packTagPrint.getUserName());
 		cenConfirm.setOperateUserCode(packTagPrint.getUserCode());
 		cenConfirm.setReceiveSiteCode(packTagPrint.getChangeSiteCode());
+		log.info("addToDebon-cenConfirm-信息-{}",JsonHelper.toJson(cenConfirm));
 		cenConfirmService.syncWaybillStatusTask(cenConfirm);
 		//添加返调度运单信息到本地库
 		//sendReassignWaybillMq(packTagPrint);
@@ -223,6 +224,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
 			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
 			try {
+				log.info("addToDebon-siteChangeMqDto-信息-{}",JsonHelper.toJson(siteChangeMqDto));
 				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
 				if(log.isDebugEnabled()){
 					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
