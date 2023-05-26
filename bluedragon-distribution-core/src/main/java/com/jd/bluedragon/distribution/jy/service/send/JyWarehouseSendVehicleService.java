@@ -33,4 +33,11 @@ public interface JyWarehouseSendVehicleService {
      * @return
      */
     InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request);
+
+    /**
+     * 查询不齐运单
+     * @param request
+     * @return
+     */
+    InvokeResult<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request);
 }

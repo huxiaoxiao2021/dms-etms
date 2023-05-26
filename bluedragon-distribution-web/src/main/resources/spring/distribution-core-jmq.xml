@@ -802,4 +802,11 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!--拣运实操扫描集齐-->
+    <bean id="jyScanCollectProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.scan.collect}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
+
 </beans>

@@ -88,6 +88,15 @@ public class SendScanRequest implements Serializable {
      */
     private ValidateIgnore validateIgnore;
 
+    /**
+     * 是否关注集齐
+     */
+    private Boolean focusCollect;
+    /**
+     * 岗位类型
+     */
+    private String postType;
+
     public User getUser() {
         return user;
     }
@@ -222,5 +231,21 @@ public class SendScanRequest implements Serializable {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
+    }
+
+    public Boolean getFocusCollect() {
+        return focusCollect;
+    }
+
+    public void setFocusCollect(Boolean focusCollect) {
+        this.focusCollect = focusCollect;
+    }
+
+    public String getPostType() {
+        return postType;
+    }
+
+    public void setPostType(String postType) {
+        this.postType = postType;
     }
 }

@@ -66,12 +66,12 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdVerifyResponse<SendScanRes> sendScan(SendScanReq request);
-    /**
-     * 取消发货
-     * @param request 请求参数
-     * @return 取消详情
-     */
-    JdCResponse<SendCancelScanRes> cancelSendScan(CancelSendScanReq request);
+//    /**
+//     * 取消发货
+//     * @param request 请求参数
+//     * @return 取消详情
+//     */
+//    JdCResponse<SendCancelScanRes> cancelSendScan(CancelSendScanReq request);
 
     /**
      * 不齐运单查询-分页

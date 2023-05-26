@@ -16,11 +16,11 @@ public enum JyPostEnum {
     //
     ;
     private String code;
-    private String msg;
+    private String desc;
 
-    JyPostEnum(String code, String msg) {
+    JyPostEnum(String code, String desc) {
         this.code = code;
-        this.msg = msg;
+        this.desc = desc;
     }
 
     public String getCode() {
@@ -31,11 +31,30 @@ public enum JyPostEnum {
         this.code = code;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getDesc() {
+        return desc;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
+
+    public static String getDescByCode(String code) {
+        for (JyPostEnum en : JyPostEnum.values()) {
+            if (en.getCode().equals(code)) {
+                return en.getDesc();
+            }
+        }
+        return null;
+    }
+
+    public static JyPostEnum getJyPostEnumByCode(String code) {
+        for (JyPostEnum en : JyPostEnum.values()) {
+            if (en.getCode().equals(code)) {
+                return en;
+            }
+        }
+        return null;
+    }
+
 }

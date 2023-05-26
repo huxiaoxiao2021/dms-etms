@@ -662,6 +662,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
     }
 
+    @Override
+    public InvokeResult<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request) {
+        return null;
+    }
+
     /**
      * 获取箱号下一流向
      * @param request

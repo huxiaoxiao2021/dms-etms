@@ -83,7 +83,10 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -153,6 +156,7 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -325,6 +329,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
+    @Autowired
+    @Qualifier("jyScanCollectProducer")
+    private DefaultJMQProducer jyScanCollectProducer;
+
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1617,6 +1625,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (!sendResultToJdResp(result, sendResult)) {
                 return result;
             }
+
+            sendCollectDealMQ(request);
 
             // 包裹首次扫描逻辑
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
@@ -3884,5 +3894,46 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return operateProgress;
         }
         return null;
+    }
+
+    /**
+     * 发送发货集齐消息
+     * @param request
+     */
+    private void sendCollectDealMQ(SendScanRequest request) {
+        if(!Objects.isNull(request.getFocusCollect()) && request.getFocusCollect()) {
+            JyScanCollectDto jyScanCollectDto = new JyScanCollectDto();
+            jyScanCollectDto.setOperatorErp(request.getUser().getUserErp());
+            jyScanCollectDto.setOperatorName(request.getUser().getUserName());
+            jyScanCollectDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+            jyScanCollectDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
+            jyScanCollectDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
+            //
+            jyScanCollectDto.setMainTaskBizId(request.getSendVehicleBizId());
+            jyScanCollectDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+            jyScanCollectDto.setJyPostType(request.getPostType());
+            jyScanCollectDto.setBarCode(request.getBarCode());
+            jyScanCollectDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+
+            String businessId = String.format("%s:%s", request.getBarCode(), request.getSendVehicleBizId());
+            String msg = JsonHelper.toJson(jyScanCollectDto);
+            if(log.isInfoEnabled()) {
+                log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
+            }
+            jyScanCollectProducer.sendOnFailPersistent(businessId, msg);
+        }
+    }
+
+    private String getBarCodeType(String scanCode){
+        if (WaybillUtil.isWaybillCode(scanCode)) {
+            return JyScanCodeTypeEnum.WAYBILL.getCode();
+        } else if (BusinessUtil.isBoardCode(scanCode)) {
+            return JyScanCodeTypeEnum.BOARD.getCode();
+        } else if (WaybillUtil.isPackageCode(scanCode)) {
+            return JyScanCodeTypeEnum.PACKAGE.getCode();
+        } else if (BusinessHelper.isBoxcode(scanCode)) {
+            return JyScanCodeTypeEnum.BOX.getCode();
+        }
+        return Strings.EMPTY;
     }
 }
