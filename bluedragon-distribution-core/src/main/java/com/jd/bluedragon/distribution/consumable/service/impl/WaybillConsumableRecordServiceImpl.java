@@ -515,7 +515,6 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
         List<String> list = Arrays.asList(waybillCode);
         List<WaybillConsumableDetailInfo> waybillConsumableDetailInfoList = waybillConsumableRelationService.queryByWaybillCodes(list);
-        log.info("测试指定4:waybillConsumableDetailInfoList={}", JsonHelper.toJson(waybillConsumableDetailInfoList));
         if(CollectionUtils.isEmpty(waybillConsumableDetailInfoList)) {
             log.info(methodDesc + "--error--耗材记录查询成功，查询耗材打包人及揽收耗材详细信息为空,单号=【{}】", JsonHelper.toJson(list));
             res.toFail("查询耗材详细数据为空");
@@ -530,7 +529,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
             resDataTemp.setConsumableCode(wcdi.getConsumableCode());
             resDataTemp.setConsumableTypeCode(wcdi.getType());
-            resDataTemp.setVolume(wcdi.getVolume());
+            resDataTemp.setVolume(BigDecimal.valueOf(wcdi.getConfirmVolume()));
             resDataList.add(resDataTemp);
         }
         res.setData(resDataList);
