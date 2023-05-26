@@ -56,7 +56,6 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
                 return result;
             }
             List<WaybillConsumablePackConfirmRes> consumableList = consumableResponse.getData();
-            LOGGER.info("测试指定1:consumableList={}", JsonHelper.toJson(consumableList));
             if (CollectionUtils.isEmpty(consumableList)) {
                 LOGGER.warn("doWaybillConsumablePackConfirm|查询耗材信息为空:request={},response={}", JsonHelper.toJson(request), JsonHelper.toJson(consumableResponse));
                 result.parameterError("查询耗材信息为空");
@@ -64,7 +63,6 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
             }
             // 组装转换耗材请求参数
             List<WaybillConsumablePdaDto> waybillConsumablePdaRequestList = getWaybillConsumablePdaDtoList(consumableList, request.getConfirmVolume());
-            LOGGER.info("测试指定2:waybillConsumablePdaRequestList={}", JsonHelper.toJson(waybillConsumablePdaRequestList));
             confirmReq.setWaybillConsumableDtoList(waybillConsumablePdaRequestList);
             // 执行耗材确认
             JdCResponse<Boolean> response = waybillConsumablePDAService.doWaybillConsumablePackConfirm(confirmReq);
