@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.debon;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.debon.Dto.ReturnScheduleMq;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleResult;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
@@ -14,6 +17,7 @@ import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillSer
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -21,6 +25,7 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchRequest;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchResult;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -55,8 +61,13 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
 
     @Autowired
     private WaybillService waybillService;
+
     @Autowired
-    private ReassignWaybillService reassignWaybill;
+    @Qualifier("debonReturnScheduleProducer")
+    private DefaultJMQProducer debonReturnScheduleProducer;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillReturnScheduleServiceImpl.returnScheduleSiteInfoByWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -65,7 +76,8 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
             log.info("DebangServiceImpl.getMatchSiteInfoByWaybill-入参-{}", JSON.toJSONString(request));
         }
         JdResponse<ReturnScheduleResult> response = new JdResponse<>();
-        ReturnScheduleResult resultData = new ReturnScheduleResult();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+
         if(!checkParam(response,request)){
             return response;
         }
@@ -117,16 +129,40 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
         List<ReassignWaybill> reassignWaybills = coverToReassignWaybill(request, waybill,waybillState, matchResult, packges);
 
         if(!CollectionUtils.isEmpty(reassignWaybills)) {
-            for(ReassignWaybill reassignWaybillDto: reassignWaybills) {
-                reassignWaybill.addToDebon(reassignWaybillDto);
+            try {
+                for(ReassignWaybill reassignWaybill: reassignWaybills) {
+                    log.info("debonReturnScheduleProducer 发送德邦返调度信息-{}",JsonHelper.toJson(reassignWaybill));
+                    debonReturnScheduleProducer.send(reassignWaybill.getPackageBarcode(), JsonHelper.toJson(reassignWaybill));
+                }
+            }catch (Exception e){
+                log.error("returnScheduleSiteInfoByWaybill 发送德邦返调度信息失败",e);
             }
         }
-        resultData.setWaybillCode(waybillCode);
-        resultData.setSiteCode(matchResult.getVehicleTeamId().toString());
-        resultData.setSiteName(matchResult.getVehicleTeamName());
+        ReturnScheduleResult resultData = coverReturnScheduleSiteInfo(response, matchResult, waybillCode);
         response.setData(resultData);
-        response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+
         return response;
+    }
+
+    /**
+     * 获取站点信息
+     * @param response
+     * @param matchResult
+     * @param waybillCode
+     * @return
+     */
+    private ReturnScheduleResult coverReturnScheduleSiteInfo(JdResponse<ReturnScheduleResult> response, B2bVehicleTeamMatchResult matchResult,String waybillCode){
+        ReturnScheduleResult resultData = new ReturnScheduleResult();
+        //查詢基础资料对匹配的返调度站点的siteCode重新赋值返回
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(matchResult.getVehicleTeamId());
+        if(baseSite == null){
+            response.toFail("获取调度站点基础信息失败!");
+            return resultData;
+        }
+        resultData.setWaybillCode(waybillCode);
+        resultData.setSiteCode(baseSite.getDmsSiteCode());
+        resultData.setSiteName(matchResult.getVehicleTeamName());
+      return resultData;
     }
 
     /**
@@ -140,8 +176,8 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
             response.toFail("入参不能为空!");
             return false;
         }
-        if (StringUtils.isBlank(request.getOperatorInfo().getOperateUserErp()) || request.getOperatorInfo().getOperateSiteId() == null) {
-            response.toFail("操作信息不能为空!");
+        if (StringUtils.isBlank(request.getOperatorInfo().getOperateSiteCode())) {
+            response.toFail("操作场地信息不能为空!");
             return false;
         }
         if (StringUtils.isBlank(request.getWaybillCode())) {
@@ -180,23 +216,32 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
     public List<ReassignWaybill> coverToReassignWaybill(ReturnScheduleRequest request,Waybill waybill,WaybillManageDomain waybillState
             ,B2bVehicleTeamMatchResult matchResult,List<String> packges){
 
+        Integer siteCode= null;
+        String siteName ="";
+        if(StringUtils.isNotBlank(request.getOperatorInfo().getOperateSiteCode())){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(request.getOperatorInfo().getOperateSiteCode());
+            if(baseSite != null){
+                siteCode = baseSite.getSiteCode();
+                siteName = baseSite.getSiteName();
+            }
+        }
         List<ReassignWaybill> reassignWaybills = new ArrayList<>();
         for (String packge : packges) {
             ReassignWaybill reassignWaybill = new ReassignWaybill();
-            reassignWaybill.setInterfaceType(RESCHEDULE_PRINT.getType());
             reassignWaybill.setWaybillCode(request.getWaybillCode());
             reassignWaybill.setPackageBarcode(packge);
             reassignWaybill.setAddress(waybill.getReceiverAddress());
-            reassignWaybill.setSiteCode(request.getOperatorInfo().getOperateSiteId());
-            reassignWaybill.setSiteName(request.getOperatorInfo().getOperateSiteName());
+            reassignWaybill.setSiteCode(siteCode);
+            reassignWaybill.setSiteName(siteName);
             reassignWaybill.setReceiveSiteCode(waybillState.getSiteId());
             reassignWaybill.setReceiveSiteName(waybillState.getSiteName());
             reassignWaybill.setChangeSiteCode(matchResult.getVehicleTeamId());
             reassignWaybill.setChangeSiteName(matchResult.getVehicleTeamName());
-            reassignWaybill.setUserCode(request.getOperatorInfo().getOperateUserId());
-            reassignWaybill.setUserName(request.getOperatorInfo().getOperateUserName());
+            reassignWaybill.setUserCode(1);
+            reassignWaybill.setUserName("德邦运营人员");
             Long operateTime = request.getOperatorInfo().getOperateTime();
             reassignWaybill.setOperateTime(operateTime == null ?new Date() :DateHelper.toDate(operateTime));
+            reassignWaybill.setInterfaceType(RESCHEDULE_PRINT.getType());
             reassignWaybills.add(reassignWaybill);
         }
         return reassignWaybills;
