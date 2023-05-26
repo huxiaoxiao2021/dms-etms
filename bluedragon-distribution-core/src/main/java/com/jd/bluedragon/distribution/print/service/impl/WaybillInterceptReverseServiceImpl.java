@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.print.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ColdChainReverseManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
@@ -36,8 +35,6 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
-    private WaybillCommonService waybillCommonService;
-    @Autowired
     private WaybillReverseManager waybillReverseManager;
     @Autowired
     private ColdChainReverseManager coldChainReverseManager;
@@ -45,6 +42,9 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillInterceptReverseServiceImpl.exchangeNewWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> exchangeNewWaybill(ExchangeWaybillRequest request) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("exchangeNewWaybill|德邦拦截换单请求参数:request={}", JsonHelper.toJson(request));
+        }
         InvokeResult<String> invokeResult = new InvokeResult<>();
         // 原单号
         String oldWaybillCode = request.getWaybillCode();
