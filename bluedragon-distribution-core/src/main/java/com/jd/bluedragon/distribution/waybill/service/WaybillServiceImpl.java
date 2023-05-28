@@ -1750,10 +1750,6 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
 
-
-
-
-
         }catch (Exception ex){
             log.error("WaybillService.checkWaybillForPreSortOnSite has error. The error is " + ex.getMessage(),ex);
             result.error("系统异常，请联系分拣小秘！");
