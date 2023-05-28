@@ -560,10 +560,10 @@
     </jsf:provider>
 
     <!-- 德邦融合接口服务 -->
-    <jsf:provider id="debonReturnScheduleGateWayService"
+    <jsf:provider id="jsfDebonReturnScheduleGateWayService"
                   interface="com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService"
                   alias="${dms.jsf.alias}"
-                  ref="debonReturnScheduleGateWayServiceImpl"
+                  ref="waybillReturnScheduleGateWayService"
                   server="dmsjsf">
     </jsf:provider>
 

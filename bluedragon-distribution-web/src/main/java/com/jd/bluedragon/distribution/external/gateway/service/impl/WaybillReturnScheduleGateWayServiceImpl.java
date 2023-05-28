@@ -11,12 +11,14 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2023/5/22 16:15
  * @Description:
  */
+@Service("waybillReturnScheduleGateWayService")
 public class WaybillReturnScheduleGateWayServiceImpl implements WaybillReturnScheduleGateWayService {
 
     private static final Logger log = LoggerFactory.getLogger(WaybillReturnScheduleGateWayServiceImpl.class);
