@@ -138,7 +138,7 @@
 
     </select>
 
-    <select id="getToScanNumByEndSiteList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery" resultType="jySendProductAggsMap">
+    <select id="getToScanNumByEndSiteList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery" resultMap="jySendProductAggsMap">
         select
         <include refid="Base_Column_List"/>
         from jy_send_product_aggs

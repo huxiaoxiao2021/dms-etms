@@ -865,7 +865,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         
         destAgg.setDestTotal(vehicleDetailList.size());
         destAgg.setSealedTotal(getSealedTotal(vehicleDetailList));
-        destAgg.setCarToSealList(getCarToSealList(request, vehicleDetailList, bizIds));
+        destAgg.setCarToSealList(getCarToSealList(vehicleDetailList, bizIds));
         return destAgg;
     }
 
@@ -876,7 +876,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param bizIds
      * @return
      */
-    private List<CarToSealDetail> getCarToSealList(SelectMixScanTaskSealDestReq request, List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList, List<String> bizIds) {
+    private List<CarToSealDetail> getCarToSealList(List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList, List<String> bizIds) {
         List<CarToSealDetail> carToSealList = new ArrayList<>();
         
         HashSet<String> sendVehicleBizIds = new HashSet<>();
@@ -885,7 +885,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         // 批量获取车牌号
         List<JyBizTaskSendVehicleEntity> sendTaskList = taskSendVehicleService.findSendTaskByBizIds(new ArrayList<>(sendVehicleBizIds));
-        HashMap<String,String> sendTaskMap = getSendTaskMap(sendTaskList);
+        HashMap<String,String> vehicleNumberMap = getVehicleNumberMap(sendTaskList);
         
         // 批量获取统计数据
         List<JySendAggsEntity> sendAggs = sendAggService.findBySendVehicleDetailBizs(bizIds);
@@ -894,7 +894,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         for (JyBizTaskSendVehicleDetailEntity entity : vehicleDetailList) {
             CarToSealDetail detail = new CarToSealDetail();
             detail.setSendVehicleBizId(entity.getSendVehicleBizId());
-            detail.setVehicleNumber(sendTaskMap.get(entity.getSendVehicleBizId()));
+            detail.setVehicleNumber(vehicleNumberMap.get(entity.getSendVehicleBizId()));
             detail.setSendDetailBizId(entity.getBizId());
             detail.setEndSiteId(entity.getEndSiteId().intValue());
             detail.setEndSiteName(entity.getEndSiteName());
@@ -905,14 +905,14 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             JySendAggsEntity aggs = aggsMap.get(entity.getBizId());
             if (aggs != null) {
                 detail.setToScanPackCount(dealMinus(aggs.getShouldScanCount(), aggs.getActualScanCount()));
-                detail.setScannedPackCount(aggs.getActualScanCount().longValue());            }
-            
+                detail.setScannedPackCount(aggs.getActualScanCount().longValue());            
+            }
             carToSealList.add(detail);
         }
         return carToSealList;
     }
 
-    private HashMap<String, String> getSendTaskMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
+    private HashMap<String, String> getVehicleNumberMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
         HashMap<String,String> map = new HashMap<>();
         for (JyBizTaskSendVehicleEntity entity : sendTaskList) {
             map.put(entity.getBizId(),entity.getVehicleNumber());
@@ -953,7 +953,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 || CollectionUtils.isEmpty(invokeResult.getData().getMixScanTaskDetailDtoList())) {
             throw new JyBizException("未获取到流向信息!");
         }
-        setMixScanTaskSendProgressData(res, invokeResult.getData().getMixScanTaskDetailDtoList());
+        setMixScanTaskSendProgressData(res, invokeResult.getData().getMixScanTaskDetailDtoList(), mixScanTaskFlowReq);
         return res;
     }
 }

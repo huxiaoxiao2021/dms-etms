@@ -138,4 +138,26 @@ public class JyWarehouseSendGatewayServiceTest {
         JdCResponse<MixScanTaskQueryRes> mixScanTaskListPage = jyWarehouseSendGatewayService.getMixScanTaskListPage(req);
         System.out.println(JsonHelper.toJson(mixScanTaskListPage));
     }
+    
+    @Test
+    public void getMixScanTaskFlowDetailListTest() {
+        MixScanTaskFlowDetailReq req = new MixScanTaskFlowDetailReq();
+        req.setUser(USER);
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setGroupCode("G00000059567");
+        req.setTemplateCode("CTT23051900000004");
+        JdCResponse<MixScanTaskFlowDetailRes> l = jyWarehouseSendGatewayService.getMixScanTaskFlowDetailList(req);
+        System.out.println(JsonHelper.toJson(l));
+    }
+    
+    @Test
+    public void selectMixScanTaskSealDestTest() {
+        SelectMixScanTaskSealDestReq req = new SelectMixScanTaskSealDestReq();
+        req.setUser(USER);
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setGroupCode("G00000059567");
+        req.setTemplateCode("CTT23051900000004");
+        JdCResponse<MixScanTaskToSealDestAgg> re = jyWarehouseSendGatewayService.selectMixScanTaskSealDest(req);
+        System.out.println(JsonHelper.toJson(re));
+    }
 }
