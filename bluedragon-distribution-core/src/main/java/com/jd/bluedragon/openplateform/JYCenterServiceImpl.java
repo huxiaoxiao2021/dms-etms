@@ -339,6 +339,10 @@ public class JYCenterServiceImpl implements JYCenterService {
                 if (BusinessHelper.isSendCode(batchSendPageRequest.getBatchCode())) {
                     entity.setSendCode(batchSendPageRequest.getBatchCode());
                 }
+                // 增加任务开始扫描时间及结束时间
+                entity.setTaskScanBeginTime(batchSendPageRequest.getScanBeginTime());
+                entity.setTaskScanEndTime(batchSendPageRequest.getScanEndTime());
+
                 entity.setDataOperateType(batchSendPageRequest.getOperateType());
                 entity.setCreateSiteId(siteOrgDto1.getSiteCode());
                 entity.setCreateSiteCode(siteOrgDto1.getDmsSiteCode());
