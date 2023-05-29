@@ -196,4 +196,11 @@ public interface JyWarehouseSendGatewayService {
      * 提交封车
      */
     JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq);
+
+    /**
+     * 选择封车流向
+     * @param request
+     * @return
+     */
+    JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
 }

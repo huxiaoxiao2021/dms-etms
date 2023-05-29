@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
@@ -11,10 +10,12 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -782,5 +783,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @Override
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
+    }
+
+    @Override
+    public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
+        return retJdCResponse(jyWarehouseSendVehicleService.selectSealDest(request));
     }
 }
