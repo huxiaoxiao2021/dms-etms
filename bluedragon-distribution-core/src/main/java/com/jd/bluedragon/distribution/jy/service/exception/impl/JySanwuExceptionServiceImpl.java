@@ -7,7 +7,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskOfWaitReceiveDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
@@ -17,14 +16,12 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
-import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.jim.cli.Cluster;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
@@ -37,14 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements JySanwuExceptionService {
+public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
@@ -240,11 +235,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             // 测试环境无数据，uat环境新增 sendCode 字段
             return unloadDetail.getData().get(0).getSendCode();
         }
-        return null;
-    }
-
-    @Override
-    public List<ExpTaskOfWaitReceiveDto> getWaitReceiveSanwuExceptionByPage(ExpTaskPageReq req) {
         return null;
     }
 }
