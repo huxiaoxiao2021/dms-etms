@@ -65,20 +65,6 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
      */
     private Long forceSendPackCount = 0L;
 
-    /**
-     * 封车的流向数量
-     */
-    private Integer sealedTotal = 0;
-
-    /**
-     * 流向总数
-     */
-    private Integer destTotal = 0;
-    
-    public MixScanTaskFlowAgg(Integer loadRateUpperLimit) {
-        this.loadRateUpperLimit = loadRateUpperLimit;
-    }
-
     public BigDecimal getLoadRate() {
         return loadRate;
     }
@@ -167,19 +153,4 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
         this.forceSendPackCount = forceSendPackCount;
     }
 
-    public Integer getSealedTotal() {
-        return sealedTotal;
-    }
-
-    public void setSealedTotal(Integer sealedTotal) {
-        this.sealedTotal = sealedTotal;
-    }
-
-    public Integer getDestTotal() {
-        return destTotal;
-    }
-
-    public void setDestTotal(Integer destTotal) {
-        this.destTotal = destTotal;
-    }
 }
