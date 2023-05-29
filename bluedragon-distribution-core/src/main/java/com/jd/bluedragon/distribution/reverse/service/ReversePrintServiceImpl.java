@@ -885,14 +885,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return result;
         }
         //4.查询运单是否操作异常处理
-        AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
-        //异常操作运单，可以操作逆向换单
-        if(abnormalWayBill == null || !wayBillCode.equals(abnormalWayBill.getWaybillCode())){
-            result.setData(false);
-            result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
-        }else{
-            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
-        }
+        checkAbnormalOperation(wayBillCode, siteCode, waybillDto, result);
         // 5. 校验运单暂存拦截，如果存在则不允许逆向换单
         InvokeResult<Boolean> checkClaimDamagedCancelResult = this.checkClaimDamagedCancel(wayBillCode, siteCode);
         if(!checkClaimDamagedCancelResult.getData()){
@@ -916,6 +909,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
         }
         return result;
+    }
+
+    public void checkAbnormalOperation(String wayBillCode, Integer siteCode, BigWaybillDto waybillDto, InvokeResult<Boolean> result) {
+        AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
+        //异常操作运单，可以操作逆向换单
+        if(abnormalWayBill == null || !wayBillCode.equals(abnormalWayBill.getWaybillCode())){
+            result.setData(false);
+            result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
+        }else{
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
+        }
     }
 
     /**

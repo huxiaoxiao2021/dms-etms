@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintServiceDpkImpl;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,6 +23,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service("waybillInterceptReverseService")
@@ -30,8 +31,9 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WaybillInterceptReverseServiceImpl.class);
 
+    @Qualifier("reversePrintServiceDpk")
     @Autowired
-    private ReversePrintService reversePrintService;
+    private ReversePrintServiceDpkImpl reversePrintServiceDpk;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
@@ -50,63 +52,70 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
         String oldWaybillCode = request.getWaybillCode();
         // 操作场地
         int operateSiteId = request.getCurrentOperate().getSiteCode();
-        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(oldWaybillCode);
-        if (waybill == null) {
-            invokeResult.parameterError("根据原单号查询运单详情返回空");
-            return invokeResult;
-        }
-        // 换单前校验
-        InvokeResult<Boolean> beforeCheckResult = reversePrintService.checkWayBillForExchange(oldWaybillCode, operateSiteId);
-        if (!beforeCheckResult.getData()) {
-            LOGGER.warn("exchangeNewWaybill|换单前校验返回失败:request={},msg={}", JsonHelper.toJson(request), beforeCheckResult.getMessage());
-            invokeResult.parameterError(beforeCheckResult.getMessage());
-            return invokeResult;
-        }
-        String waybillSign = waybill.getWaybillSign();
-        // 如果是自营
-        if (BusinessUtil.isSelf(waybillSign)) {
-            // 执行自营逆向换单提交
-            OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
-            InvokeResult<String> ownExchangeResult = reversePrintService.exchangeOwnWaybillSync(ownReverseParam);
-            if (!ownExchangeResult.codeSuccess()) {
-                LOGGER.warn("exchangeNewWaybill|自营换单提交操作返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownExchangeResult));
-                invokeResult.parameterError(ownExchangeResult.getMessage());
+        try {
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(oldWaybillCode);
+            if (waybill == null) {
+                invokeResult.parameterError("根据原单号查询运单详情返回空");
                 return invokeResult;
             }
-            invokeResult.setData(ownExchangeResult.getData());
-        } else {
-            // 如果是外单
-            ExchangeWaybillDto exchangeWaybillDto = createExchangeWaybillDto(request);
-            // 组装外单原单查询参数
-            DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(exchangeWaybillDto);
-            StringBuilder errorMessage = new StringBuilder();
-            // 查询外单原单信息
-            DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO, errorMessage);
-            if (waybillReverseResponseDTO == null) {
-                LOGGER.warn("exchangeNewWaybill|外单查询原单号信息返回失败:request={},waybillReverseResponseDTO为空", JsonHelper.toJson(request));
-                invokeResult.parameterError(errorMessage.toString());
+            // 换单前校验
+            InvokeResult<Boolean> beforeCheckResult = reversePrintServiceDpk.checkWayBillForExchange(oldWaybillCode, operateSiteId);
+            if (!beforeCheckResult.getData()) {
+                LOGGER.warn("exchangeNewWaybill|换单前校验返回失败:request={},msg={}", JsonHelper.toJson(request), beforeCheckResult.getMessage());
+                invokeResult.parameterError(beforeCheckResult.getMessage());
                 return invokeResult;
             }
-            exchangeWaybillDto.setPackageCount(waybillReverseResponseDTO.getPackageCount());
-            DmsWaybillReverseResult waybillReverseResult;
-            if (coldChainReverseManager.checkColdReverseProductType(oldWaybillCode)) {
-                LOGGER.info("exchangeNewWaybill|外单走冷链换单流程:request={}", JsonHelper.toJson(request));
-                ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(exchangeWaybillDto);
-                waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest, errorMessage);
+            String waybillSign = waybill.getWaybillSign();
+            // 如果是自营
+            if (BusinessUtil.isSelf(waybillSign)) {
+                LOGGER.info("exchangeNewWaybill|自营换单:waybillCode={}", oldWaybillCode);
+                // 执行自营逆向换单提交
+                OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
+                InvokeResult<String> ownExchangeResult = reversePrintServiceDpk.exchangeOwnWaybillSync(ownReverseParam);
+                if (!ownExchangeResult.codeSuccess()) {
+                    LOGGER.warn("exchangeNewWaybill|自营换单提交操作返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownExchangeResult));
+                    invokeResult.parameterError(ownExchangeResult.getMessage());
+                    return invokeResult;
+                }
+                invokeResult.setData(ownExchangeResult.getData());
             } else {
-                LOGGER.info("exchangeNewWaybill|外单走原有流程:request={}", JsonHelper.toJson(request));
-                waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO, errorMessage);
-            }
-            if (waybillReverseResult == null) {
-                LOGGER.warn("exchangeNewWaybill|外单根据原单号查询新单号信息返回失败:request={},waybillReverseResult为空", JsonHelper.toJson(request));
-                invokeResult.parameterError(errorMessage.toString());
+                LOGGER.info("exchangeNewWaybill|外单换单:waybillCode={}", oldWaybillCode);
+                // 如果是外单
+                ExchangeWaybillDto exchangeWaybillDto = createExchangeWaybillDto(request);
+                // 组装外单原单查询参数
+                DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(exchangeWaybillDto);
+                StringBuilder errorMessage = new StringBuilder();
+                // 查询外单原单信息
+                DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO, errorMessage);
+                if (waybillReverseResponseDTO == null) {
+                    LOGGER.warn("exchangeNewWaybill|外单查询原单号信息返回失败:request={},waybillReverseResponseDTO为空", JsonHelper.toJson(request));
+                    invokeResult.parameterError(errorMessage.toString());
+                    return invokeResult;
+                }
+                exchangeWaybillDto.setPackageCount(waybillReverseResponseDTO.getPackageCount());
+                DmsWaybillReverseResult waybillReverseResult;
+                if (coldChainReverseManager.checkColdReverseProductType(oldWaybillCode)) {
+                    LOGGER.info("exchangeNewWaybill|外单走冷链换单流程:waybillCode={}", oldWaybillCode);
+                    ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(exchangeWaybillDto);
+                    waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest, errorMessage);
+                } else {
+                    LOGGER.info("exchangeNewWaybill|外单走原有流程:waybillCode={}", oldWaybillCode);
+                    waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO, errorMessage);
+                }
+                if (waybillReverseResult == null) {
+                    LOGGER.warn("exchangeNewWaybill|外单根据原单号查询新单号信息返回失败:request={},waybillReverseResult为空", JsonHelper.toJson(request));
+                    invokeResult.parameterError(errorMessage.toString());
+                    return invokeResult;
+                }
+                // 外单换单成功后处理
+                reversePrintServiceDpk.exchangeSuccessAfter(exchangeWaybillDto);
+                invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                invokeResult.setData(waybillReverseResult.getWaybillCode());
                 return invokeResult;
             }
-            // 外单换单成功后处理
-            reversePrintService.exchangeSuccessAfter(exchangeWaybillDto);
-            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            invokeResult.setData(waybillReverseResult.getWaybillCode());
-            return invokeResult;
+        } catch (Exception e) {
+            LOGGER.error("exchangeNewWaybill|德邦调用换单接口出现异常:request={}", JsonHelper.toJson(request), e);
+            invokeResult.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return invokeResult;
     }
