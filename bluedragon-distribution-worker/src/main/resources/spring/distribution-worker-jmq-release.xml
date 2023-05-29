@@ -613,14 +613,14 @@
         <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
     </jmq:consumer>
 
-    <!-- 作业工作台自动关闭任务 -->
-    <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
-    </jmq:consumer>
-
     <!-- 德邦返调度消息处理 -->
     <jmq:consumer id="jmq.debonReturnScheduleConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.debon.return.schedule}" listener="debonReturnScheduleConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运开放平台发货消息消费  -->
+    <jmq:consumer id="jmq.jyOpenPlatformSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.open.platform.send}" listener="jyOpenPlatformSendConsumer"/>
     </jmq:consumer>
 
 </beans>

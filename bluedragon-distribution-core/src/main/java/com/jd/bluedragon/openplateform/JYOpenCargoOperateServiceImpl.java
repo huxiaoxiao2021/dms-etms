@@ -1,6 +1,7 @@
 package com.jd.bluedragon.openplateform;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
@@ -27,9 +28,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.jmq.common.exception.JMQException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -60,6 +63,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
     @Autowired
     private SortingServiceFactory sortingServiceFactory;
+
+    @Autowired
+    @Qualifier("jyOpenPlatformSendProducer")
+    private DefaultJMQProducer jyOpenPlatformSendProducer;
 
     @Override
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
@@ -260,6 +267,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             if (log.isDebugEnabled()) {
                 log.debug("拣运开放发货--end--参数【{}】", JsonHelper.toJson(domain));
             }
+            this.sendOpenPlatformSendMq(entity);
         } else if (Objects.equals(entity.getDataOperateType(), "DELETE")) {
             log.info("执行取消发货开始：{}", JsonHelper.toJson(entity));
             SendM sendM = new SendM();
@@ -288,5 +296,14 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
         }
         return new InvokeResult<>();
+    }
+
+    private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
+        try {
+            log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            jyOpenPlatformSendProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
+        } catch (JMQException e) {
+            log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+        }
     }
 }
