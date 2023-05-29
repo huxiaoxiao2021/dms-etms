@@ -104,4 +104,10 @@ public class CollectionRecordPo {
      * 数据库时间
      */
     private Timestamp ts;
+
+    /**
+     * 单据类型：
+     * com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum
+     */
+    private String customType;
 }

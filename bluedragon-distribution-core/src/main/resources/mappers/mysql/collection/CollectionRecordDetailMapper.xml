@@ -40,6 +40,78 @@
 		</foreach>
 	</insert>
 
+	<insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" >
+		insert into collection_record_detail
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="collectionCode != null" >
+				collection_code,
+			</if>
+			<if test="scanCode != null" >
+				scan_code,
+			</if>
+			<if test="scanCodeType != null" >
+				scan_code_type,
+			</if>
+			<if test="aggCode != null" >
+				agg_code,
+			</if>
+			<if test="aggCodeType != null" >
+				agg_code_type,
+			</if>
+			<if test="collectedStatus != null" >
+				collected_status,
+			</if>
+			<if test="collectedMark != null" >
+				collected_mark,
+			</if>
+			<if test="createTime != null" >
+				create_time,
+			</if>
+			<if test="collectedTime != null" >
+				collected_time,
+			</if>
+			yn,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="collectionCode != null" >
+				#{collectionCode,jdbcType=VARCHAR},
+			</if>
+			<if test="scanCode != null" >
+				#{scanCode,jdbcType=VARCHAR},
+			</if>
+			<if test="scanCodeType != null" >
+				#{scanCodeType,jdbcType=VARCHAR},
+			</if>
+			<if test="aggCode != null" >
+				#{aggCode,jdbcType=VARCHAR},
+			</if>
+			<if test="aggCodeType != null" >
+				#{aggCodeType,jdbcType=VARCHAR},
+			</if>
+			<if test="collectedStatus != null" >
+				#{collectedStatus,jdbcType=TINYINT},
+			</if>
+			<if test="collectedMark != null" >
+				#{collectedMark,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null" >
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="collectedTime != null" >
+				#{collectedTime,jdbcType=TIMESTAMP},
+			</if>
+			1
+
+		</trim>
+	</insert>
+
+
 	<update id="updateCollectionRecordDetail" parameterType="CollectionRecordDetailPo">
 		UPDATE
 			collection_record_detail
@@ -276,6 +348,19 @@
 			and agg_code_type = #{aggCodeType, jdbcType=VARCHAR}
 		group BY collection_code, agg_code
 		limit #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+	</select>
+
+
+	<!-- 查collectionCode+任务+运单号下已扫包裹数量 -->
+	<select id="countScanCodeNumNumByCollectedMarkAndAggCode"
+			parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo"
+			resultType="java.lang.Integer">
+		select	count(*)
+		from collection_record_detail
+		where yn = 1
+		and collection_code = #{collectionCode, jdbcType=VARCHAR}
+		and collected_mark = #{collectedMark, jdbcType=VARCHAR}
+		and agg_code = #{aggCode, jdbcType=VARCHAR}
 	</select>
 
 
