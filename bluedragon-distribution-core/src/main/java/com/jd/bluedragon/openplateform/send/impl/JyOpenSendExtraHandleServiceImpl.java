@@ -76,7 +76,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             // 发出转运发货完成后的两个mq消息
             this.sendTysSendMq4Urban(jyCargoOperate);
         } catch (Exception e) {
-            log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend exception param {}", JSON.toJSONString(jyCargoOperate), e);
+            log.error("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend exception param {}", JSON.toJSONString(jyCargoOperate), e);
             return result.toFail("系统异常");
         }
         return result;
@@ -94,6 +94,9 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
      * 发出城配发货明细消息
      */
     private void sendTysSendMq4Urban(JYCargoOperateEntity jyCargoOperate) throws JMQException {
+        if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
+            return;
+        }
         final String sendCode = jyCargoOperate.getSendCode();
         final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
         final Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
