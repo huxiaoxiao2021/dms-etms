@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.domain.RepeatPrint;
@@ -29,6 +30,7 @@ public class ReverseChangeReprintHandler implements InterceptHandler<WaybillPrin
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeReprintHandler.class);
 
     @Autowired
+    @Qualifier("ReversePrintService")
     private ReversePrintService reversePrintService;
 
     @Autowired
