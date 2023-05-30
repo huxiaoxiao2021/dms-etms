@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import com.jd.ump.annotation.JProEnum;
@@ -29,6 +30,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Autowired
     private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
+
+    @Autowired
+    private JySanwuExceptionService jySanwuExceptionService;
 
     /**
      * 通用异常上报入口-扫描
@@ -189,6 +193,16 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     public JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req) {
         return jyScrappedExceptionService.getTaskDetailOfscrapped(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req) {
+        return jyExceptionService.checkExceptionPrincipal(req);
+    }
+
+    @Override
+    public JdCResponse<List<ExpTaskOfWaitReceiveDto>> getWaitReceiveSanwuExceptionByPage(ExpTaskStatisticsReq req) {
+        return jySanwuExceptionService.getWaitReceiveSanwuExceptionByPage(req);
     }
 
 }

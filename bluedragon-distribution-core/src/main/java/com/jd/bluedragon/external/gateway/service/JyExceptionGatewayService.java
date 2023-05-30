@@ -87,4 +87,17 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req);
+
+    /**
+     *校验当前登录erp是否是负责人
+     * @return
+     */
+    JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+    /**
+     * 获取超时未领取任务
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpTaskOfWaitReceiveDto>> getWaitReceiveSanwuExceptionByPage(ExpTaskStatisticsReq req);
 }

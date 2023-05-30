@@ -244,6 +244,7 @@
 		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
+		<property name="waitReceiveSanwuTaskTimeOfHours" value="${waitReceiveSanwuTaskTimeOfHours:24}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -478,6 +479,7 @@
 				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.waitReceiveSanwuTaskTimeOfHours</value>
 			</list>
 		</property>
 	</bean>
