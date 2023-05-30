@@ -127,6 +127,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
                 jyTysSendPackageDetailDto.setUser(user);
                 jyTysSendPackageDetailDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
                 jyTysSendPackageDetailDto.setCreateSiteCode(createSiteCode);
+                log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
                 sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
             }
         } else {
@@ -148,9 +149,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
 
         String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(sendCode);
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
+        log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
         if(existSendCodeVal == null){
             // 查询send_d是否已有同批次已发货数据
             final Integer sendExistCount = sendDatailDao.querySendDCountBySendCode(jyCargoOperate.getSendCode());
+            log.info("sendTysSendMq4Urban sendExistCount: {}", sendExistCount);
             if(sendExistCount <= 0){
                 final JyTysSendFinishDto jyTysSendFinishDto = new JyTysSendFinishDto();
                 jyTysSendFinishDto.setSendCode(jyTysSendFinishDto.getSendCode());
