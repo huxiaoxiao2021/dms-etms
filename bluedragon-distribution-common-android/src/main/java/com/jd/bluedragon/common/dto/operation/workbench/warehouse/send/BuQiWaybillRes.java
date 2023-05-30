@@ -16,6 +16,8 @@ public class BuQiWaybillRes implements Serializable {
      */
     private Integer buQiWaybillTotalSum;
 
+    private String sendVehicleBizId;
+
     public List<BuQiWaybillDto> getBuQiWaybillDtoList() {
         return buQiWaybillDtoList;
     }
@@ -30,5 +32,13 @@ public class BuQiWaybillRes implements Serializable {
 
     public void setBuQiWaybillTotalSum(Integer buQiWaybillTotalSum) {
         this.buQiWaybillTotalSum = buQiWaybillTotalSum;
+    }
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
     }
 }

@@ -286,7 +286,8 @@ public class JQCodeServiceImpl implements JQCodeService {
      * @param bizId
      * @return
      */
-    private String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId) {
+    @Override
+    public String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId) {
         if(Objects.isNull(jyPostEnum) || Objects.isNull(siteId) || StringUtils.isBlank(bizId)) {
             return null;
         }
@@ -294,7 +295,7 @@ public class JQCodeServiceImpl implements JQCodeService {
         sb.append(JQCodeServiceImpl.CONDITION_JY_BIZ_ID).append(bizId)
                 .append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())
                 .append(JQCodeServiceImpl.CONDITION_SITE_ID).append(siteId);
-        return sb.toString();
+        return sb.toString().toUpperCase();
     }
     /**
      * 集齐collectionCode按时间分区 （当前可不考虑）

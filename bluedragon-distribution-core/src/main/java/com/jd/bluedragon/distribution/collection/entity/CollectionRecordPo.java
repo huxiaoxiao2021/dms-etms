@@ -110,4 +110,9 @@ public class CollectionRecordPo {
      * com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum
      */
     private String customType;
+
+    /**
+     * 已扫数量（维度根据不同业务定义，当前维度是包裹维度）
+     */
+    private Integer realCollectNum;
 }

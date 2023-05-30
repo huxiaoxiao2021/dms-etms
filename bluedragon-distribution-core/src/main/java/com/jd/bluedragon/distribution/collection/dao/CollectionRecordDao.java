@@ -119,4 +119,9 @@ public class CollectionRecordDao {
     public Integer updateByPrimaryKeySelective(CollectionRecordPo recordPo) {
         return this.sqlSession.update(NAMESPACE.concat(".updateByPrimaryKeySelective"), recordPo);
     }
+
+    public List<CollectionRecordPo> findCollectRecordByCondition(CollectionRecordCondition condition) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".findCollectRecordByCondition"), condition);
+    }
+
 }

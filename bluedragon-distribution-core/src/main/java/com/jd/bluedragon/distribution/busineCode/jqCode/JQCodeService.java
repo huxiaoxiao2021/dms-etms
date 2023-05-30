@@ -44,4 +44,13 @@ public interface JQCodeService {
      * @return
      */
     String getOrGenJyScanTaskCollectionCode(JyPostEnum jyPostEnum, Integer siteId, String bizId, String userErp);
+
+    /**
+     * 获取condition
+     * @param jyPostEnum
+     * @param siteId
+     * @param bizId
+     * @return
+     */
+    String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId);
 }

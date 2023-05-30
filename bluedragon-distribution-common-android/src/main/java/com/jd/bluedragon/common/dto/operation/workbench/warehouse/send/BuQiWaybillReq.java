@@ -26,6 +26,8 @@ public class BuQiWaybillReq extends BaseReq implements Serializable {
 
     private Integer pageSize;
 
+    private String sendVehicleBizId;
+
     public String getMixScanTaskCode() {
         return mixScanTaskCode;
     }
@@ -64,5 +66,13 @@ public class BuQiWaybillReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
     }
 }

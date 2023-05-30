@@ -100,27 +100,23 @@ public interface JyWarehouseSendGatewayService {
     JdCResponse<String> getMixScanTaskDefaultName(MixScanTaskDefaultNameQueryReq mixScanTaskDefaultNameQueryReq);
     /**
      * 新增混扫任务
-     * todo createGroupCTTData
      * @return  新增的混扫任务信息返回
      */
     JdCResponse<CreateMixScanTaskRes> createMixScanTask(CreateMixScanTaskReq createMixScanTaskReq);
     /**
      * 混扫任务追加流向信息
-     * todo addCTT2Group
      * @param appendMixScanTaskFlowReq
      * @return
      */
     JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq);
     /**
      * 删除混扫任务
-     * todo deleteCTTGroup
      * @param deleteMixScanTaskReq
      * @return
      */
     JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq);
     /**
      * 删除混扫任务流向
-     * todo removeCTTFromGroup
      * @param removeMixScanTaskFlowReq
      * @return
      */
@@ -140,8 +136,6 @@ public interface JyWarehouseSendGatewayService {
     /**
      * 混扫任务列表查询-分页
      * 适用场景：（1）发货中任务点击查询跳转；（2）混扫任务主页展示；（3）混扫任务主页按条件查询
-     * todo listCTTGroupData
-     * todo queryCTTGroupByBarCode
      */
     JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskListQueryReq mixScanTaskListQueryReq);
     /**
@@ -160,14 +154,12 @@ public interface JyWarehouseSendGatewayService {
 
     /**
      * 选择封车流向
-     * todo selectSealDest
      * @param request
      * @return
      */
     JdCResponse<MixScanTaskToSealDestAgg> selectMixScanTaskSealDest(SelectMixScanTaskSealDestReq request);
     /**
      * 查询流向任务封车数据详情
-     * todo getSealVehicleInfo
      * @param sealVehicleInfoReq
      * @return
      */

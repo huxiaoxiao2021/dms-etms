@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.collection.dao;
 
 import com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter;
+import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailCondition;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
@@ -167,5 +168,9 @@ public class CollectionRecordDetailDao {
 
     public Integer countScanCodeNumNumByCollectedMarkAndAggCode(CollectionRecordDetailPo detailPo) {
         return this.sqlSession.selectOne(NAMESPACE.concat(".countScanCodeNumNumByCollectedMarkAndAggCode"), detailPo);
+    }
+
+    public List<CollectionRecordDetailPo> findCollectRecordDetailByCondition(CollectionRecordDetailCondition condition) {
+        return this.sqlSession.selectList(NAMESPACE.concat(".findCollectRecordDetailByCondition"), condition);
     }
 }

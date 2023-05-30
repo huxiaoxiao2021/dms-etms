@@ -40,4 +40,11 @@ public interface JyWarehouseSendVehicleService {
      * @return
      */
     InvokeResult<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request);
+
+    /**
+     * 查询不齐明细
+     * @param request
+     * @return
+     */
+    InvokeResult<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request);
 }

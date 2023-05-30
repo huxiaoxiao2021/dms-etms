@@ -23,15 +23,24 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
+import com.jd.bluedragon.distribution.collection.entity.CollectionRecordCondition;
+import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailCondition;
+import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
+import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
+import com.jd.bluedragon.distribution.collection.service.JyScanCollectService;
+import com.jd.bluedragon.distribution.collection.service.JyScanCollectServiceImpl;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -109,6 +118,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private BoxService boxService;
     @Autowired
     private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    private JQCodeService jqCodeService;
+    @Autowired
+    private KvIndexDao kvIndexDao;
+    @Autowired
+    private JyScanCollectService jyScanCollectService;
+
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -664,7 +680,112 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     @Override
     public InvokeResult<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request) {
-        return null;
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.findByQiWaybillPage:接货仓查询不齐运单(B网)信息：";
+
+        InvokeResult<BuQiWaybillRes> res = new InvokeResult<>();
+        res.success();
+
+        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+        if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
+            log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
+            res.parameterError("未查到该流向任务信息");
+            return res;
+        }
+
+        String collectionCode = this.getCollectionCode(request.getCurrentOperate().getSiteCode(), entity.getSendVehicleBizId());
+        if(StringUtils.isBlank(collectionCode)) {
+            log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
+            res.setMessage("未查到该任务扫描信息");
+            return res;
+        }
+
+        CollectionRecordCondition jqQueryParam = new CollectionRecordCondition();
+        jqQueryParam.setCollectionCode(collectionCode);
+        jqQueryParam.setCustomType(WaybillCustomTypeEnum.TO_B.getCode());//B网
+        jqQueryParam.setIsCollected(JyScanCollectServiceImpl.BU_QI);//未集齐
+        jqQueryParam.setPageSize(request.getPageSize());
+        int offset = (request.getPageNo() - 1) * request.getPageSize();
+        jqQueryParam.setOffset(offset);
+
+        if(log.isInfoEnabled()) {
+            log.info("{}集齐查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
+        }
+        List<CollectionRecordPo> collectionRecordPoList = jyScanCollectService.findCollectRecordByCondition(jqQueryParam);
+        if(CollectionUtils.isEmpty(collectionRecordPoList)) {
+            res.setMessage("未查到任务下不齐数据");
+            return res;
+        }
+
+        BuQiWaybillRes resData = new BuQiWaybillRes();
+        resData.setSendVehicleBizId(entity.getSendVehicleBizId());
+        resData.setBuQiWaybillTotalSum(collectionRecordPoList.size());
+        List<BuQiWaybillDto> buQiWaybillDtoList = new ArrayList<>();
+        collectionRecordPoList.forEach(collectionRecordPo -> {
+            BuQiWaybillDto buQiWaybillDto = new BuQiWaybillDto();
+            buQiWaybillDto.setWaybillCode(collectionRecordPo.getAggCode());
+            buQiWaybillDto.setTotalNum(collectionRecordPo.getInitNumber());
+            buQiWaybillDto.setScanNum(collectionRecordPo.getRealCollectNum());
+            buQiWaybillDtoList.add(buQiWaybillDto);
+        });
+        res.setData(resData);
+        return res;
+    }
+
+    private String getCollectionCode(Integer siteCode, String sendVehicleBizId) {
+        String jqCondition = jqCodeService.getJyScanCollectionCondition(JyPostEnum.SEND_SEAL_WAREHOUSE,
+                siteCode, sendVehicleBizId);
+        return kvIndexDao.queryRecentOneByKeyword(jqCondition);
+    }
+
+    @Override
+    public InvokeResult<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request) {
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.findByQiPackagePage:接货仓查询不齐运单(B网)明细信息：";
+
+        InvokeResult<BuQiPackageRes> res = new InvokeResult<>();
+        res.success();
+        String sendVehicleBizId = request.getSendVehicleBizId();
+        if(StringUtils.isBlank(sendVehicleBizId)) {
+            JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+            if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
+                log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
+                res.parameterError("未查到该流向任务信息");
+                return res;
+            }
+            sendVehicleBizId = entity.getSendVehicleBizId();
+        }
+
+        String collectionCode = this.getCollectionCode(request.getCurrentOperate().getSiteCode(), sendVehicleBizId);
+        if(StringUtils.isBlank(collectionCode)) {
+            log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
+            res.setMessage("未查到该任务扫描信息");
+            return res;
+        }
+
+        CollectionRecordDetailCondition jqDetailQueryParam = new CollectionRecordDetailCondition();
+        jqDetailQueryParam.setCollectionCode(collectionCode);
+        jqDetailQueryParam.setAggCode(request.getWaybillCode());
+        jqDetailQueryParam.setCollectedMark(sendVehicleBizId);
+        jqDetailQueryParam.setPageSize(request.getPageSize());
+        int offset = (request.getPageNo() - 1) * request.getPageSize();
+        jqDetailQueryParam.setOffset(offset);
+
+        if(log.isInfoEnabled()) {
+            log.info("{}集齐查询参数={}", methodDesc, JsonHelper.toJson(jqDetailQueryParam));
+        }
+        List<CollectionRecordDetailPo> collectionRecordPoList = jyScanCollectService.findCollectRecordDetailByCondition(jqDetailQueryParam);
+        if(CollectionUtils.isEmpty(collectionRecordPoList)) {
+            res.setMessage("未查到运单数据");
+            return res;
+        }
+
+        BuQiPackageRes resData = new BuQiPackageRes();
+        resData.setWaybillCode(request.getWaybillCode());
+        List<String> packageList = new ArrayList<>();
+        collectionRecordPoList.forEach(collectionRecordPo -> {
+            packageList.add(collectionRecordPo.getScanCode());
+        });
+        res.setData(resData);
+        return res;
     }
 
     /**
@@ -871,7 +992,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     /**
      * 获取流向信息详情
-     * @param request
      * @param vehicleDetailList
      * @param bizIds
      * @return

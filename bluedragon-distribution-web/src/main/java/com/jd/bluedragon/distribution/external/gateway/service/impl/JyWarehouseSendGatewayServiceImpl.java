@@ -98,8 +98,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     private void checkPage(Integer pageNo, Integer pageSize) {
-        if(Objects.isNull(pageNo) || Objects.isNull(pageSize) || pageNo < 1) {
-            throw new JyBizException("操作时间为空");
+        if(Objects.isNull(pageNo) || Objects.isNull(pageSize) || pageNo < 1 || pageSize < 1) {
+            throw new JyBizException("页码参数错误");
         }
         if(pageSize > 50) {//当前岗位分页信息pageSize不建议设置太大
             throw new JyBizException("每页查询数量超过最大值50");
@@ -327,7 +327,47 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     @Override
     public JdCResponse<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request) {
-        return null;
+        String methodDesc = "JyWarehouseSendGatewayServiceImpl.findByQiPackagePage:查询不齐运单明细：";
+        JdCResponse<BuQiPackageRes> res = new JdCResponse<>();
+        res.toSucceed();
+        try{
+            if(Objects.isNull(request)) {
+                res.toFail("请求信息为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}开始，request={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkUser(request.getUser());
+            checkCurrentOperate(request.getCurrentOperate());
+            checkPage(request.getPageNo(), request.getPageSize());
+            if(StringUtils.isBlank(request.getGroupCode())) {
+                res.toFail("岗位组为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getMixScanTaskCode())) {
+                res.toFail("混扫任务编码为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getSendVehicleDetailBizId())) {
+                res.toFail("派车任务明细编码为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getSendVehicleBizId())) {
+                res.toFail("派车任务编码为空");
+                return res;
+            }
+
+            return retJdCResponse(jyWarehouseSendVehicleService.findByQiPackagePage(request));
+        }catch (JyBizException jyex) {
+            log.error("{}服务失败，errMsg={},请求={}", methodDesc, jyex.getMessage(), JsonHelper.toJson(request));
+            res.setMessage("查询混扫任务不齐运单数量服务失败");
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，errMsg={},请求={}", methodDesc, e.getMessage(), JsonHelper.toJson(request), e);
+            res.setMessage("查询混扫任务不齐运单数量服务异常");
+            return res;
+        }
     }
 
     @Override
