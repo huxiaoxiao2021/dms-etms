@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.consumer.jy.collectNew;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
-import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
@@ -40,7 +40,7 @@ public class JyScanCollectConsumer extends MessageBaseConsumer {
             log.warn("JyScanCollectConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        JyScanCollectDto mqBody = JsonHelper.fromJson(message.getText(), JyScanCollectDto.class);
+        JyScanCollectMqDto mqBody = JsonHelper.fromJson(message.getText(), JyScanCollectMqDto.class);
         if(mqBody == null){
             log.error("JyScanCollectConsumer consume -->JSON转换后为空，内容为【{}】", message.getText());
             return;
@@ -54,7 +54,7 @@ public class JyScanCollectConsumer extends MessageBaseConsumer {
         }
 
 
-        boolean consumeRes = true;
+        boolean consumeRes;
         try {
             if(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode().equals(mqBody.getJyPostType())) {
                 consumeRes = jyWareHouseSendScanCollect(mqBody);
@@ -84,7 +84,7 @@ public class JyScanCollectConsumer extends MessageBaseConsumer {
      * @param collectDto
      * @return
      */
-    private boolean jyWareHouseSendScanCollect(JyScanCollectDto collectDto){
+    private boolean jyWareHouseSendScanCollect(JyScanCollectMqDto collectDto){
         JyScanCollectStrategy jyScanCollectStrategy = JyScanCollectStrategyFactory.getJyScanCollectService(collectDto.getJyPostType());
         return jyScanCollectStrategy.scanCollectDeal(collectDto);
     }

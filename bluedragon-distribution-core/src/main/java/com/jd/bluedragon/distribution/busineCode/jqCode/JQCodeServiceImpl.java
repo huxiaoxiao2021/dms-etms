@@ -144,6 +144,10 @@ public class JQCodeServiceImpl implements JQCodeService {
         if(StringUtils.isBlank(createUser)) {
             createUser = "none";
         }
+        if(StringUtils.isBlank(collectionCondition)) {
+            log.warn("拣运扫描获取collectionCondition为空,attributeParam={}", JsonHelper.toJson(attributeParam));
+            throw new JyBizException("拣运扫描获取collectionCondition为空");
+        }
         if(StringUtils.isBlank(attributeParam.get(JQCodeServiceImpl.JQ_CONDITION))) {
             attributeParam.put(JQCodeServiceImpl.JQ_CONDITION, collectionCondition);
         }
@@ -269,6 +273,9 @@ public class JQCodeServiceImpl implements JQCodeService {
      * @return
      */
     private String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId) {
+        if(Objects.isNull(jyPostEnum) || Objects.isNull(siteId) || StringUtils.isBlank(bizId)) {
+            return null;
+        }
         StringBuffer sb = new StringBuffer();
         sb.append(JQCodeServiceImpl.CONDITION_JY_BIZ_ID).append(bizId)
                 .append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())

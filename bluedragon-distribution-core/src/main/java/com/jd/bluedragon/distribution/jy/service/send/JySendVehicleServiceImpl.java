@@ -9,10 +9,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SealedVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
@@ -29,21 +27,22 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDest
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailReq;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailRes;
-import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
@@ -52,9 +51,9 @@ import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -84,9 +83,10 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
-import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -2947,7 +2947,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
         HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
 
-        List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails = 
+        List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
                 taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
         List<String> taskBizIds = new ArrayList<>();
         sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
@@ -3007,7 +3007,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (sendAgg != null && basicVehicleTypeDto != null) {
                     flowAgg.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()))));
                 }
-                
+
                 // 带扫数据组装
                 long toScanCountSum = 0L;
                 List<Long> endSiteList = taskEndSiteMap.get(detail.getSendVehicleBizId());
@@ -3019,7 +3019,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
                 flowAgg.setToScanCount(toScanCountSum);
             }
-            
+
             if (sendAgg != null) {
                 flowAgg.setLoadVolume(sendAgg.getTotalScannedVolume());
                 flowAgg.setLoadWeight(sendAgg.getTotalScannedWeight());
@@ -3925,21 +3925,25 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private void sendCollectDealMQ(SendScanRequest request) {
         if(!Objects.isNull(request.getFocusCollect()) && request.getFocusCollect()) {
-            JyScanCollectDto jyScanCollectDto = new JyScanCollectDto();
-            jyScanCollectDto.setOperatorErp(request.getUser().getUserErp());
-            jyScanCollectDto.setOperatorName(request.getUser().getUserName());
-            jyScanCollectDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
-            jyScanCollectDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
-            jyScanCollectDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
+            JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
+            mqDto.setOperatorErp(request.getUser().getUserErp());
+            mqDto.setOperatorName(request.getUser().getUserName());
+            mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+            mqDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
+            mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
             //
-            jyScanCollectDto.setMainTaskBizId(request.getSendVehicleBizId());
-            jyScanCollectDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
-            jyScanCollectDto.setJyPostType(request.getPostType());
-            jyScanCollectDto.setBarCode(request.getBarCode());
-            jyScanCollectDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
-
-            String businessId = String.format("%s:%s", request.getBarCode(), request.getSendVehicleBizId());
-            String msg = JsonHelper.toJson(jyScanCollectDto);
+            mqDto.setMainTaskBizId(request.getSendVehicleBizId());
+            mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+            mqDto.setJyPostType(request.getPostType());
+            mqDto.setBarCode(request.getBarCode());
+            mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+            mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
+            //运单号+操作任务+岗位类型+触发节点
+            String businessId = String.format("%s:%s:%s:%s", request.getBarCode(),
+                    mqDto.getJyPostType(),
+                    mqDto.getMainTaskBizId(),
+                    mqDto.getBizSource());
+            String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
             }

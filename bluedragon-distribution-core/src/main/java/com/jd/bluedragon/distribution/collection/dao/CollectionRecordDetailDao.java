@@ -36,6 +36,11 @@ public class CollectionRecordDetailDao {
         return this.sqlSession.insert(NAMESPACE.concat(".batchInsertCollectionRecordDetail"), collectionRecordDetailPos);
     }
 
+    public int insertSelective(CollectionRecordDetailPo detailPo){
+        detailPo.setId(sequenceGenAdaptor.newId(TABLE_NAME_COLLECTION_RECORD_DETAIL));
+        return this.sqlSession.insert(NAMESPACE.concat(".insertSelective"), detailPo);
+    }
+
     public List<CollectionRecordDetailPo> findCollectionRecordDetail(CollectionRecordDetailPo collectionRecordDetailPo) {
         return this.sqlSession.selectList(NAMESPACE.concat(".findCollectionRecordDetail"), collectionRecordDetailPo);
     }
@@ -158,5 +163,9 @@ public class CollectionRecordDetailDao {
         param.put("limit", limit);
         param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
+    }
+
+    public Integer countScanCodeNumNumByCollectedMarkAndAggCode(CollectionRecordDetailPo detailPo) {
+        return this.sqlSession.selectOne(NAMESPACE.concat(".countScanCodeNumNumByCollectedMarkAndAggCode"), detailPo);
     }
 }

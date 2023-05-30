@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
-import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
     }
 
     @Override
-    public boolean scanCollectDeal(JyScanCollectDto collectDto) {
+    public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyWarehouseScanCollectService.scanCollectDeal:接货仓发货岗扫描处理集齐数据：";
         if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getBarCodeType())) {
             return super.scanWaybillCollectDeal(collectDto);
