@@ -450,6 +450,18 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("系统繁忙，请稍后再试！");
                 return response;
             }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(appendMixScanTaskFlowReq.getGroupCode());
+            queryDto.setTemplateCode(appendMixScanTaskFlowReq.getTemplateCode());
+            queryDto.setStartSiteId((long)appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿操作");
+                return response;
+            }
+            
             // 混扫任务流向校验
             appendCheckMaxAndFlow(appendMixScanTaskFlowReq);
 
@@ -511,6 +523,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("系统繁忙，请稍后再试！");
                 return response;
             }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(deleteMixScanTaskReq.getGroupCode());
+            queryDto.setTemplateCode(deleteMixScanTaskReq.getTemplateCode());
+            queryDto.setStartSiteId((long)deleteMixScanTaskReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
+            }
             
             if (!jyGroupSortCrossDetailService.deleteMixScanTask(deleteMixScanTaskReq)) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"删除混扫任务失败");
@@ -548,6 +571,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
             if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(removeMixScanTaskFlowReq.getGroupCode(), removeMixScanTaskFlowReq.getTemplateCode())) {
                 response.toFail("系统繁忙，请稍后再试！");
+                return response;
+            }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(removeMixScanTaskFlowReq.getGroupCode());
+            queryDto.setTemplateCode(removeMixScanTaskFlowReq.getTemplateCode());
+            queryDto.setStartSiteId((long)removeMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
                 return response;
             }
             
@@ -626,6 +660,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkGroupCode(mixScanTaskFocusReq.getGroupCode());
             if (mixScanTaskFocusReq.getFocus() == null || mixScanTaskFocusReq.getFocus() < 0) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"缺少关注参数!");
+            }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(mixScanTaskFocusReq.getGroupCode());
+            queryDto.setTemplateCode(mixScanTaskFocusReq.getTemplateCode());
+            queryDto.setStartSiteId((long)mixScanTaskFocusReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
             }
             
             if (!jyGroupSortCrossDetailService.mixScanTaskFocus(mixScanTaskFocusReq)){
