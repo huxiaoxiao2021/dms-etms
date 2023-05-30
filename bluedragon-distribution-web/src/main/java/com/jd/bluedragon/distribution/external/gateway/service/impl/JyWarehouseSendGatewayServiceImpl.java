@@ -587,6 +587,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (mixScanTaskFocusReq.getFocus() == null || mixScanTaskFocusReq.getFocus() < 0) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"缺少关注参数!");
             }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(mixScanTaskFocusReq.getGroupCode());
+            queryDto.setTemplateCode(mixScanTaskFocusReq.getTemplateCode());
+            queryDto.setStartSiteId((long)mixScanTaskFocusReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
+            }
             
             if (!jyGroupSortCrossDetailService.mixScanTaskFocus(mixScanTaskFocusReq)){
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,mixScanTaskFocusReq.getFocus() == 1 ? "关注失败！" : "取消关注失败！");
