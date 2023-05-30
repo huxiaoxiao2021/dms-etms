@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.jy.constants;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 岗位类型
  * zhengchengfa
@@ -56,5 +59,61 @@ public enum JyPostEnum {
         }
         return null;
     }
+
+    /**
+     * 发货岗集合
+     * @return
+     */
+    public static List<JyPostEnum> getSendPost() {
+        List<JyPostEnum> sendPost = new ArrayList<>();
+        sendPost.add(JyPostEnum.SEND_SEAL_DMS);
+        sendPost.add(JyPostEnum.SEND_SEAL_TYS);
+        sendPost.add(JyPostEnum.SEND_SEAL_BOARD);
+        sendPost.add(JyPostEnum.SEND_SEAL_WAREHOUSE);
+        return sendPost;
+    }
+
+    /**
+     * 卸车岗集合
+     * @return
+     */
+    public static List<JyPostEnum> getUnloadPost() {
+        List<JyPostEnum> sendPost = new ArrayList<>();
+        sendPost.add(JyPostEnum.RECEIVE_DMS);
+        sendPost.add(JyPostEnum.RECEIVE_TYS);
+        return sendPost;
+    }
+
+    /**
+     * 是否发货岗
+     * @param code
+     * @return
+     */
+    public static boolean isSendPost(String code) {
+        List<JyPostEnum> sendList = JyPostEnum.getSendPost();
+        for (JyPostEnum post : sendList) {
+            if(post.getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否卸车岗
+     * @param code
+     * @return
+     */
+    public static boolean isUnloadPost(String code) {
+        List<JyPostEnum> unloadList = JyPostEnum.getUnloadPost();
+        for (JyPostEnum post : unloadList) {
+            if(post.getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
 }

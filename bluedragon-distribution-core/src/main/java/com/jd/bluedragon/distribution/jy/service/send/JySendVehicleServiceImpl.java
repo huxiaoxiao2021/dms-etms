@@ -96,6 +96,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.*;
+import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
@@ -332,7 +333,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Autowired
     @Qualifier("jyScanCollectProducer")
     private DefaultJMQProducer jyScanCollectProducer;
-
+    @Autowired
+    private JyScanCollectStrategy jyScanCollectStrategy;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -3937,12 +3939,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             mqDto.setJyPostType(request.getPostType());
             mqDto.setBarCode(request.getBarCode());
             mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+            mqDto.setCodeType(mqDto.getBarCodeType());
             mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
             //运单号+操作任务+岗位类型+触发节点
-            String businessId = String.format("%s:%s:%s:%s", request.getBarCode(),
-                    mqDto.getJyPostType(),
-                    mqDto.getMainTaskBizId(),
-                    mqDto.getBizSource());
+            String businessId = jyScanCollectStrategy.getBusinessId(mqDto);
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);

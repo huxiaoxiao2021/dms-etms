@@ -48,17 +48,27 @@ import java.util.concurrent.TimeUnit;
 public class JQCodeServiceImpl implements JQCodeService {
 
     public static final String JQ_CONDITION = "JQ_condition";
+    public static final String ATTRIBUTE_POST_TYPE_SEND = "send";//发货岗
+    public static final String ATTRIBUTE_POST_TYPE_UNLOAD = "unload";//卸车岗
 
+
+    /**
+     * 组装collectionCode对应condition的字段
+     */
     public static final String CONDITION_SITE_ID = "SITE";//场地编码
     public static final String CONDITION_JY_BIZ_ID = "TASK:";//任务主键
-    public static final String CONDITION_JY_POST = "POST";//岗位类型
-    public static final String CONDITION_DATE_PARTITION = "DATE";//岗位类型
-
+    public static final String CONDITION_JY_POST = "POST";//岗位枚举
+    public static final String CONDITION_DATE_PARTITION = "DATE";//时间分区
+    /**
+     * 组装collectionCode附属属性attribute的字段
+     */
     public static final String ATTRIBUTE_SITE_ID = "site_code";//场地编码
     public static final String ATTRIBUTE_JY_BIZ_ID = "biz_id";//任务主键
-    public static final String ATTRIBUTE_JY_POST = "jy_post";//岗位类型
-    public static final String ATTRIBUTE_CONDITION = "condition";//岗位类型
+    public static final String ATTRIBUTE_JY_POST = "jy_post";//岗位枚举
+    public static final String ATTRIBUTE_CONDITION = "condition";//
     public static final String ATTRIBUTE_DATE_PARTITION = "date_partition";//创建时间
+    public static final String ATTRIBUTE_POST_TYPE = "post_type";//岗位类型
+
 
 
     @Autowired
@@ -260,6 +270,10 @@ public class JQCodeServiceImpl implements JQCodeService {
         attributeMap.put(ATTRIBUTE_JY_POST, jyPostEnum.getCode());
         attributeMap.put(ATTRIBUTE_DATE_PARTITION, datePartition);
         attributeMap.put(ATTRIBUTE_CONDITION, condition);
+        if(JyPostEnum.isSendPost(jyPostEnum.getCode())) {
+            //记录下是不是发货岗， 取消发货时要找发货collectionCode
+            attributeMap.put(ATTRIBUTE_POST_TYPE, JQCodeServiceImpl.ATTRIBUTE_POST_TYPE_SEND);
+        }
         return attributeMap;
     }
 

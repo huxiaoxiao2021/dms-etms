@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collection.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDao;
 import com.jd.bluedragon.distribution.collection.dao.CollectionRecordDetailDao;
@@ -13,6 +14,10 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +49,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
 
 
     @Override
+    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.insertCollectionRecordDetailInBizId",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void insertCollectionRecordDetailInBizId(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyScanCollectServiceImpl.insertCollectionRecordDetailInBizId建议扫描处理集齐明细添加：";
         //
@@ -82,6 +88,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @param collectDto
      */
     @Override
+    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.upInsertCollectionRecordInBizId",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void upInsertCollectionRecordInBizId(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyScanCollectServiceImpl.upInsertCollectionRecordInBizId拣运扫描修改集齐运单表：";
         //
@@ -144,6 +151,8 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @return 1 集齐  0 未集齐
      */
     int isCollected(JyScanCollectMqDto collectDto){
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.jy.JyScanCollectServiceImpl.isCollected", false, true);
+
         Integer goodNumber = collectDto.getGoodNumber();
         if(Objects.isNull(goodNumber) || goodNumber <= 0) {
             log.warn("JyScanCollectServiceImpl.isCollected获取运单goodNumber为空，默认不齐，param={}", JsonHelper.toJson(collectDto));
@@ -155,13 +164,16 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
         detailPo.setCollectedMark(collectDto.getMainTaskBizId());//任务
         detailPo.setAggCode(collectDto.getWaybillCode());//运单
         Integer scanNum = collectionRecordDetailDao.countScanCodeNumNumByCollectedMarkAndAggCode(detailPo);
+        int res = 0;
         if(scanNum >= goodNumber) {
             if(log.isInfoEnabled()) {
                 log.info("JyScanCollectServiceImpl.isCollected运单齐了：param={}", JsonHelper.toJson(collectDto));
             }
-            return 1;
+            res = 1;
         }
-        return 0;
+        Profiler.registerInfoEnd(info);
+        return res;
+
 
     }
 

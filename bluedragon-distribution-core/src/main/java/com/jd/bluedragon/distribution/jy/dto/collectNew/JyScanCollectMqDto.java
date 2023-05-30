@@ -21,14 +21,25 @@ public class JyScanCollectMqDto implements Serializable {
     private Long operateTime;
 
     /**
-     * 扫描号
+     * 实操扫描单据的原始值
+     * 后面展开包裹维度时使用下面的packageCode waybillCode
      */
     private String barCode;
     /**
-     * 扫描号类型
+     * barCode 类型
      * com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum
      */
     private String barCodeType;
+    /**
+     * 单据类型
+     * 和 barCodeType 字段区别：
+     *     扫描发消息，两个字段值一致
+     *     扫描运单消费会拆分成包裹维度，barCodeType 还是waybill codeType是package
+     *   barCodeType 只表示原始barCode类型，不会变化
+     *   codeType 会跟随消息拆分维度进行改变
+     * com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum
+     */
+    private String codeType;
     /**
      * 扫描任务BizId
      */

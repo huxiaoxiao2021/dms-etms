@@ -600,5 +600,9 @@
     <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
     </jmq:consumer>
+    <!-- 拣运扫描集齐-新 -->
+    <jmq:consumer id="jmq.jyScanCollectConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.scan.collect}" listener="jyScanCollectConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -28,11 +28,12 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
     @Override
     public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyWarehouseScanCollectService.scanCollectDeal:接货仓发货岗扫描处理集齐数据：";
-        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getBarCodeType())) {
+        log.info("{}param={}", methodDesc, JsonHelper.toJson(collectDto));
+        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return super.scanWaybillCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getBarCodeType())) {
+        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
             return super.scanPackageCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.BOX.getCode().equals(collectDto.getBarCodeType())) {
+        } else if (JyScanCodeTypeEnum.BOX.getCode().equals(collectDto.getCodeType())) {
             return super.scanBoxCollectDeal(collectDto);
         } else {
             log.warn("{}目前仅支持处理按包裹、运单、箱号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));
