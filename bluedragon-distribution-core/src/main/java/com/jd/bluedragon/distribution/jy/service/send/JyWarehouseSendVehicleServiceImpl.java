@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.erp.util.BeanUtils;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
@@ -122,6 +123,24 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         return invokeResult;
     }
+
+    @Override
+    public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
+        if (request.getVehicleStatus() == null) {
+            result.parameterError("请选择车辆状态！");
+            return false;
+        }
+        if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
+            result.parameterError("缺少分页参数！");
+            return false;
+        }
+        if (request.getCurrentOperate() == null || !NumberHelper.gt0(request.getCurrentOperate().getSiteCode())) {
+            result.parameterError("缺少当前场地信息！");
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 混扫任务内配置最大流向数量
