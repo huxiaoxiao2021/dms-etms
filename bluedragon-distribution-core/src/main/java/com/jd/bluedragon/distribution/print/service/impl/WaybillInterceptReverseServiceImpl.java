@@ -82,6 +82,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 LOGGER.info("exchangeNewWaybill|外单换单:waybillCode={}", oldWaybillCode);
                 // 如果是外单
                 ExchangeWaybillDto exchangeWaybillDto = createExchangeWaybillDto(request);
+                exchangeWaybillDto.setPackageCount(waybill.getGoodNumber());
                 // 组装外单原单查询参数
                 DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(exchangeWaybillDto);
                 StringBuilder errorMessage = new StringBuilder();
@@ -92,7 +93,6 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                     invokeResult.parameterError(errorMessage.toString());
                     return invokeResult;
                 }
-                exchangeWaybillDto.setPackageCount(waybillReverseResponseDTO.getPackageCount());
                 DmsWaybillReverseResult waybillReverseResult;
                 if (coldChainReverseManager.checkColdReverseProductType(oldWaybillCode)) {
                     LOGGER.info("exchangeNewWaybill|外单走冷链换单流程:waybillCode={}", oldWaybillCode);
