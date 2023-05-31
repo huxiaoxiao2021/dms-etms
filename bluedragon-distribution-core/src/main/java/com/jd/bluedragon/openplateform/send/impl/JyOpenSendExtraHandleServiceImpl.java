@@ -76,7 +76,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             // 发出转运发货完成后的两个mq消息
             this.sendTysSendMq4Urban(jyCargoOperate);
         } catch (Exception e) {
-            log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend exception param {}", JSON.toJSONString(jyCargoOperate), e);
+            log.error("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend exception param {}", JSON.toJSONString(jyCargoOperate), e);
             return result.toFail("系统异常");
         }
         return result;
@@ -94,9 +94,9 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
      * 发出城配发货明细消息
      */
     private void sendTysSendMq4Urban(JYCargoOperateEntity jyCargoOperate) throws JMQException {
-        final String sendCode = jyCargoOperate.getSendCode();
-        final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
-        final Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
+            return;
+        }
         final OperatorInfo operatorInfo = jyCargoOperate.getOperatorInfo();
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(jyCargoOperate.getCreateSiteId());
@@ -113,48 +113,74 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         if(BarCodeType.BOX_CODE.equals(barCodeType)){
             final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(jyCargoOperate.getBarcode());
             for (SendDetail sendDetail : boxDetailList) {
-                final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = new JyTysSendPackageDetailDto();
-                jyTysSendPackageDetailDto.setSendCode(sendCode);
-                jyTysSendPackageDetailDto.setReceiveSiteCode(receiveSiteCode);
-                jyTysSendPackageDetailDto.setCurrentOperate(currentOperate);
-                jyTysSendPackageDetailDto.setPackageCode(sendDetail.getPackageBarcode());
-                jyTysSendPackageDetailDto.setUpdateTime(currentOperate.getOperateTime());
-                jyTysSendPackageDetailDto.setUserCode(user.getUserCode());
-                jyTysSendPackageDetailDto.setUserName(operatorInfo.getOperateUserName());
-                jyTysSendPackageDetailDto.setUser(user);
-                jyTysSendPackageDetailDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
-                jyTysSendPackageDetailDto.setCreateSiteCode(createSiteCode);
+                final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, sendDetail.getPackageBarcode(), currentOperate, user);
+                log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
                 sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
             }
         } else {
-            final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = new JyTysSendPackageDetailDto();
-            jyTysSendPackageDetailDto.setSendCode(sendCode);
-            jyTysSendPackageDetailDto.setReceiveSiteCode(receiveSiteCode);
-            jyTysSendPackageDetailDto.setCurrentOperate(currentOperate);
-            jyTysSendPackageDetailDto.setPackageCode(jyCargoOperate.getBarcode());
-            jyTysSendPackageDetailDto.setUpdateTime(currentOperate.getOperateTime());
-            jyTysSendPackageDetailDto.setUserCode(user.getUserCode());
-            jyTysSendPackageDetailDto.setUserName(operatorInfo.getOperateUserName());
-            jyTysSendPackageDetailDto.setUser(user);
-            jyTysSendPackageDetailDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
-            jyTysSendPackageDetailDto.setCreateSiteCode(createSiteCode);
+            final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, jyCargoOperate.getBarcode(), currentOperate, user);
             sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
+            log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
         }
         transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
 
-        String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(sendCode);
+        String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
+        log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
         if(existSendCodeVal == null){
-            // 查询send_d是否已有同批次已发货数据
-            final Integer sendExistCount = sendDatailDao.querySendDCountBySendCode(jyCargoOperate.getSendCode());
-            if(sendExistCount <= 0){
-                final JyTysSendFinishDto jyTysSendFinishDto = new JyTysSendFinishDto();
-                loadPackageSendCompleteProducer.send(jyTysSendFinishDto.getSendCode(), JsonHelper.toJson(jyTysSendFinishDto));
-                // 设置缓存
-                redisClientOfJy.setEx(jyOpenPlatformSendTaskCompleteLockKey, Constants.YN_YES.toString(),
-                        JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED, JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT);
+            if((System.currentTimeMillis() - operatorInfo.getOperateTime()) < 5 * 60 * 1000){
+                this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
+            } else {
+                // 查询send_d是否已有同批次已发货数据
+                final Integer sendExistCount = sendDatailDao.querySendDCountBySendCode(jyCargoOperate.getSendCode());
+                log.info("sendTysSendMq4Urban sendExistCount: {}", sendExistCount);
+                if (sendExistCount <= 0) {
+                    this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
+                }
             }
         }
+    }
+
+    private JyTysSendPackageDetailDto genJyTysSendPackageDetailDto(JYCargoOperateEntity jyCargoOperate, String packageCode, CurrentOperate currentOperate, User user) {
+        final String sendCode = jyCargoOperate.getSendCode();
+        final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
+        final Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+
+        final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = new JyTysSendPackageDetailDto();
+        jyTysSendPackageDetailDto.setSendCode(jyCargoOperate.getSendCode());
+        jyTysSendPackageDetailDto.setReceiveSiteCode(receiveSiteCode);
+        jyTysSendPackageDetailDto.setCurrentOperate(currentOperate);
+        jyTysSendPackageDetailDto.setPackageCode(packageCode);
+        jyTysSendPackageDetailDto.setUpdateTime(currentOperate.getOperateTime());
+        jyTysSendPackageDetailDto.setUserCode(user.getUserCode());
+        jyTysSendPackageDetailDto.setUserName(user.getUserName());
+        jyTysSendPackageDetailDto.setUser(user);
+        jyTysSendPackageDetailDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
+        jyTysSendPackageDetailDto.setCreateSiteCode(createSiteCode);
+        return jyTysSendPackageDetailDto;
+    }
+
+    private void sendTaskCompleteMq(JYCargoOperateEntity jyCargoOperate, CurrentOperate currentOperate, User user, String jyOpenPlatformSendTaskCompleteLockKey) throws JMQException {
+        JyTysSendFinishDto jyTysSendFinishDto = this.genJyTysSendFinishDto(jyCargoOperate, currentOperate, user);
+        log.info("sendTysSendMq4Urban loadPackageSendCompleteProducer topic: {} send {}", loadPackageSendCompleteProducer.getTopic(), JSON.toJSONString(jyTysSendFinishDto));
+        loadPackageSendCompleteProducer.send(jyTysSendFinishDto.getSendCode(), JsonHelper.toJson(jyTysSendFinishDto));
+        // 设置缓存
+        redisClientOfJy.setEx(jyOpenPlatformSendTaskCompleteLockKey, Constants.YN_YES.toString(),
+                JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED, JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT);
+    }
+
+    private JyTysSendFinishDto genJyTysSendFinishDto(JYCargoOperateEntity jyCargoOperate, CurrentOperate currentOperate, User user){
+        final String sendCode = jyCargoOperate.getSendCode();
+        final Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+
+        final JyTysSendFinishDto jyTysSendFinishDto = new JyTysSendFinishDto();
+        jyTysSendFinishDto.setSendCode(jyTysSendFinishDto.getSendCode());
+        jyTysSendFinishDto.setCurrentOperate(currentOperate);
+        jyTysSendFinishDto.setUser(user);
+        jyTysSendFinishDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
+        jyTysSendFinishDto.setPackageSendCompleteTime(jyCargoOperate.getTaskScanEndTime());
+        jyTysSendFinishDto.setReceiveSiteCode(receiveSiteCode);
+        return jyTysSendFinishDto;
     }
 
     private Message genMessage4JyTysSendPackageDetailDto(JyTysSendPackageDetailDto jyTysSendPackageDetailDto) {

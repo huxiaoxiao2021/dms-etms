@@ -1,7 +1,7 @@
 package com.jd.bluedragon.openplateform.send.dto;
 
-import com.jd.bluedragon.distribution.board.domain.User;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
+import com.jd.bluedragon.distribution.jy.dto.User;
 
 import java.io.Serializable;
 import java.util.Date;
