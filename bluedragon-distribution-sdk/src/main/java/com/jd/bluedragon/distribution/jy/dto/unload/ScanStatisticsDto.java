@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-
+import com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig;
 import java.io.Serializable;
 
 /**
@@ -60,8 +60,10 @@ public class ScanStatisticsDto implements Serializable {
      */
     private Integer waybillCount;
 
-
-
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
     public Integer getProcessPercent() {
         return processPercent;
@@ -149,5 +151,13 @@ public class ScanStatisticsDto implements Serializable {
 
     public void setWaybillCount(Integer waybillCount) {
         this.waybillCount = waybillCount;
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

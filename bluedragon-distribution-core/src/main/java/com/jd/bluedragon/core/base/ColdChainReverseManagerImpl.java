@@ -113,7 +113,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
         }
         //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
-        requestDto.setSystemSource(LDOPManagerImpl.RETURN_TYPE_4);
+        requestDto.setSystemSource(LDOPManagerImpl.SYSTEM_SOURCE_4);
         return requestDto;
     }
 

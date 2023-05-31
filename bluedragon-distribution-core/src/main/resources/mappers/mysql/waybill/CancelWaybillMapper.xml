@@ -195,4 +195,11 @@
 		</set>
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR} and intercept_type = 99
 	</update>
+	
+	<select id="countByWaybillAndBusinessType" parameterType="java.util.Map" resultType="Long">
+		select count(1) from waybill_cancel 
+		where waybill_code = #{waybillCode, jdbcType=VARCHAR} 
+		and business_type = #{businessType,jdbcType=VARCHAR}
+		and yn = 0
+	</select>
 </mapper>

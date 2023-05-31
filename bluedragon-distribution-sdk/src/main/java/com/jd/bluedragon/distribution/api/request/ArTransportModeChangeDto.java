@@ -133,6 +133,16 @@ public class ArTransportModeChangeDto {
      */
     private String consignmentName;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -331,5 +341,21 @@ public class ArTransportModeChangeDto {
 
     public void setConsignmentName(String consignmentName) {
         this.consignmentName = consignmentName;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
     }
 }

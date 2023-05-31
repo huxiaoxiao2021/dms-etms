@@ -40,8 +40,9 @@
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
-		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
+		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
+		<fusionds-lib.version>1.4.1</fusionds-lib.version>
 		<abnormal-portal-api.version>1.3.0-java8-SNAPSHOT</abnormal-portal-api.version>
 	</properties>
 
@@ -76,7 +77,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.39-SNAPSHOT</version>
+			<version>1.1.40-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -96,6 +97,13 @@
 				</exclusion>
 			</exclusions>
         </dependency>
+
+		<!-- oss上传-->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.490</version>
+		</dependency>
 
 		<!--终端 返单审核校验  yukuidong -->
 		<dependency>
@@ -239,9 +247,13 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
-
+<!--		积分-->
+		<dependency>
+			<groupId>com.jdl.jy.flat</groupId>
+			<artifactId>flat-service-sdk</artifactId>
+		</dependency>
 
 		<!--运单拦截信息接口 2021.3.26-->
 		<dependency>
@@ -542,17 +554,17 @@
 			<version>1.4.18</version>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>2.0.11-online-SNAPSHOT</version>
+			<version>2.0.15-online-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
@@ -593,7 +605,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.7.4-HOTFIX-T5</version>
+			<version>1.7.4-HOTFIX-T8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -1590,7 +1602,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
+			<version>1.2.9-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
@@ -1888,6 +1900,12 @@
 		<dependency>
 			<groupId>com.jd.ssa</groupId>
 			<artifactId>oidc-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ea</groupId>
@@ -1944,7 +1962,7 @@
 			<artifactId>jackson-databind</artifactId>
 			<groupId>com.fasterxml.jackson.core</groupId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
@@ -2126,7 +2144,12 @@
 			<artifactId>jdwdata</artifactId>
 			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.merchant</groupId>
+            <artifactId>platform-sdk</artifactId>
+            <!-- 测试环境1.0.0-TEST-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
@@ -2363,7 +2386,7 @@
 		<dependency>
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<!--查询冷链耗材-->
 		<dependency>
@@ -2637,6 +2660,11 @@
 			<artifactId>block-presort-rpc-aoi-api</artifactId>
 			<version>${block-presort-rpc-aoi-api.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.jd.fds</groupId>
+            <artifactId>fusionds-lib</artifactId>
+            <version>${fusionds-lib.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.wl.cs.abnormal.portal</groupId>
@@ -2698,7 +2726,15 @@
                     -->
 				</configuration>
 			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
 	<version>1.0.0</version>

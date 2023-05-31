@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 
 import java.io.Serializable;
@@ -35,6 +36,11 @@ public class UnloadVehicleTaskResponse implements Serializable {
      */
     private UnloadVehicleData<UnloadCompleteVehicle> unloadCompletedData;
 
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
+
     public List<VehicleStatusStatis> getStatusAgg() {
         return statusAgg;
     }
@@ -65,5 +71,13 @@ public class UnloadVehicleTaskResponse implements Serializable {
 
     public void setUnloadCompletedData(UnloadVehicleData<UnloadCompleteVehicle> unloadCompletedData) {
         this.unloadCompletedData = unloadCompletedData;
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

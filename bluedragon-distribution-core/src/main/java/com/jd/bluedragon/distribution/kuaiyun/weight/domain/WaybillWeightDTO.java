@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
+import java.util.List;
+
 /**
  * 运单称重 用于发送mq消息给运单
  */
@@ -30,7 +32,19 @@ public class WaybillWeightDTO
     private String operatorSiteName;
 
     /*操作时间*/
-    private long operateTimeMillis;
+    private long operateTimeMillis; 
+    /**
+     * 长包裹 0:普通包裹 1:长包裹
+     * */
+    private Integer longPackage;
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;    
 
     @Override
     public String toString()
@@ -156,4 +170,28 @@ public class WaybillWeightDTO
     {
 
     }
+
+	public Integer getLongPackage() {
+		return longPackage;
+	}
+
+	public void setLongPackage(Integer longPackage) {
+		this.longPackage = longPackage;
+	}
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
 }

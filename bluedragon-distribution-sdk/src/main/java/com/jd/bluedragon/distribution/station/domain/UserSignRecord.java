@@ -202,7 +202,10 @@ public class UserSignRecord implements Serializable {
 	 * 签到模式
 	 */
 	private Integer modeType;
-
+	/**
+	 * 签到模式
+	 */
+	private Integer bizSource;
 	/**
 	 *
 	 * @param id
@@ -761,5 +764,13 @@ public class UserSignRecord implements Serializable {
 
 	public void setModeType(Integer modeType) {
 		this.modeType = modeType;
+	}
+
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
 	}
 }

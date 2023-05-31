@@ -1,7 +1,10 @@
 package com.jd.bluedragon;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -33,6 +36,10 @@ public class Constants {
     public static final String SYS_NAME = "sys.dms";
 
     public static final String SEPARATOR_COMMA = ",";
+    /**
+     * 中文-'，'
+     */
+    public static final String SEPARATOR_COMMA_CN = "，";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
@@ -796,6 +803,8 @@ public class Constants {
      */
     public static final Double DOUBLE_ZERO = 0.0;
 
+    public static final Double DOUBLE_ONE = 1.0;
+
     /**
      * Long值-0
      */
@@ -851,6 +860,20 @@ public class Constants {
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE = "android_menu_usage_by_site_code_";
 
+    /**
+     * 全局功能管控配置，按系统
+     */
+    public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
+
+    /**
+     * 功能可用性配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 安卓菜单可用性配置，按场地id配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -989,6 +1012,11 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+
+    /**
+     * 组板即发货 延迟1s
+     */
+    public static final int COMBOARD_SEND_DELAY_TIME = 1000;
 
     /**
      * 始发道口号类型-1-普通
@@ -1825,6 +1853,11 @@ public class Constants {
      * 租板岗-流向锁前缀
      */
     public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_GROUP_LOCK_PREFIX  = "jy_comboard_sendflow_group_lock_%s_%s_%s";
     /**
      * 租板岗-板锁前缀
      */
@@ -1840,4 +1873,58 @@ public class Constants {
      * 租板岗-板锁前缀
      */
     public static final String JY_SEAL_LOCK_PREFIX  = "jy_comboard_seal_lock_%s";
+
+    /**
+     * 操作进度锁
+     */
+    public static final String JY_OPERATE_PROGRESS_PREFIX  = "jy_operate_progress_%s";
+
+    public static final String JY_OPERATE_PROGRESS_POSITION_PREFIX  = "jy_operate_progress_position_%s";
+
+    public static final String JY_TMS_SIMPLE_TASK_CODE_PREFIX  = "jy_tms_simple_task_code_%s";
+    /**
+     * 产品类型-医药专送
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY = "md-m-0005";
+    /**
+     * 数字
+     */
+    public static final class Numbers {
+        public static final Integer INTEGER_ZERO = 0;
+    }
+
+
+    /**
+     * 集齐加锁前缀
+     */
+    public static final String JQ_AGG_LOCK_PREFIX = "JQ_LOCK_AGG_{0}_{1}_{2}";
+    /**
+     * 集齐运单锁（内部给部分包裹list加bit锁）
+     */
+    public static final String JQ_DETAIL_AGG_LOCK_PREFIX = "JQ_LOCK_DETAIL_AGG_{0}_{1}";
+    /**
+     * 集齐部分包裹bit锁
+     */
+    public static final String JQ_DETAIL_AGG_BIT_LOCK_PREFIX = "JQ_DETAIL_AGG_BIT_LOCK_PREFIX_{0}_{1}";
+    public static final int JQ_DETAIL_AGG_BIT_LOCK_TIMEOUT = 120;
+
+    /**
+     * DB 执行in 限制最大数量
+     */
+    public static final Integer DB_IN_MAX_SIZE  = 100;
+
+    public static Map<String, String> topic2DataSource =new HashMap<>();
+    static {
+        topic2DataSource.put("jy_aggs","aggsMain");
+        topic2DataSource.put("jy_aggs_slave","aggsSlave");
+    }
+
+    /**
+     * 拣运滞留任务biz前缀
+     */
+    public static final String JY_BIZ_TASK_STRAND_PREFIX  = "STRAND%s";
+    /**
+     * 特安 增值服务编码
+     * */
+    public static final String TE_AN_SERVICE = "ed-a-0047";
 }

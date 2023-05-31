@@ -43,10 +43,11 @@ public class DmsJddlUtils {
     }
 
     public static void main(String[] args) {
-        Integer a =1087;
+        String collectionCode = "JQ23033122360300032";
 
-        System.out.println(DmsJddlUtils.getDbInstanceIndex(a.longValue()));
-        System.out.println(DmsJddlUtils.getDbPartitionIndex(a.longValue()));
+        System.out.println(DmsJddlUtils.getDbInstanceIndex(collectionCode.hashCode()));
+        System.out.println(DmsJddlUtils.getDbPartitionIndex(collectionCode.hashCode()));
+
 
     }
 }

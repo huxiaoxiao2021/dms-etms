@@ -1,13 +1,17 @@
 package com.jd.bluedragon.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.addresstranslation.api.base.ExternalAddressRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jsf.address.DmsExternalJDAddressResponse;
+import com.jd.bluedragon.core.jsf.address.ExternalAddressToJDAddressServiceManager;
 import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
 import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingQuery;
 import com.jd.bluedragon.core.jsf.presort.AoiServiceManager;
@@ -35,6 +39,8 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.cache.util.WaybillConstants;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -63,6 +69,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
@@ -129,10 +137,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-    
+
     @Autowired
     @Qualifier("aoiServiceManager")
     private AoiServiceManager aoiServiceManager;
+
+    @Autowired
+    private ExternalAddressToJDAddressServiceManager externalAddressToJDAddressServiceManager;
 
     private static final String STORAGEWAYBILL_REDIS_KEY_PREFIX = "STORAGEWAY_KEY_";
 
@@ -1016,6 +1027,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setTransportModeFlag(TextConstants.PRODUCT_NAME_TKS_FLAG);
             }
         }
+        /*** 产品类型为md-m-0005时:医药专送 */
+        if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
+        }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
             if(StringHelper.isNotEmpty(transportMode)){
@@ -1653,10 +1668,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     consignerCityId = waybillPickup.getConsignerCityId();
                     log.debug("运单号：{}在运单中获取的寄件城市为：{}" ,waybillCode, consignerCityId);
                 } else if (etmsWaybill != null && StringUtils.isNotBlank(etmsWaybill.getConsignerAddress())) {
-                    //调预分拣接口
-                    AnalysisAddressResult addressResult = preseparateWaybillManager.analysisAddress(etmsWaybill.getConsignerAddress());
+                    //调gis接口
+                    ExternalAddressRequest request = new ExternalAddressRequest();
+                    request.setFullAddress(etmsWaybill.getConsignerAddress());
+                    DmsExternalJDAddressResponse addressResult = externalAddressToJDAddressServiceManager.getJDDistrict(request);
                     if (addressResult != null) {
-                        consignerCityId = addressResult.getCityId();
+                        consignerCityId = addressResult.getCityCode();
                     }
                     log.debug("运单号：{} 根据寄件人地址获取到的寄件城市为:{} " ,waybillCode, consignerCityId);
                 }
@@ -2051,6 +2068,28 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return baseEntity.getData();
     }
 
+    @Override
+    public boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode) {
+        log.info("isMatchGetCrossOfAir 入参-{}-{}-{}-{}-{}",waybillSign,sendPay,prepareSiteCode,dmsSiteCode,waybillCode);
+        if (BusinessUtil.checkCanAirToRoad(waybillSign, sendPay) || BusinessUtil.isAirFill(waybillSign)) {
+            log.info("航空/航填面单---");
+//            预分拣派送站点
+//            Integer prepareSiteCode = printWaybill.getPrepareSiteCode();
+            //根据网点信息查询绑定的分拣中心
+            BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(prepareSiteCode);
+            Integer dmsId = null;
+            if (baseSiteInfo != null) {
+                dmsId = baseSiteInfo.getDmsId();
+            }
+            //校验绑定的分拣中心和当前操作场地是否相同
+            log.info("绑定的分拣中心-{}-当前操作的分拣中心编码-{}", dmsId, dmsSiteCode);
+            if (Objects.equals(dmsId, dmsSiteCode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 处理“尊” 标识位逻辑
      * @param
@@ -2058,6 +2097,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     private void appendRespectTypeText(BasePrintWaybill target,String waybillSign,WaybillExt waybillExt){
+        // 产品类型为md-m-0005时:医药专送,展示药
+        if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())) {
+            target.setRespectTypeText(TextConstants.COMMON_TEXT_MEDICINE);
+        }
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybillSign,35,'1')){
             //提出-尊标识
@@ -2067,6 +2110,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+        }
+        //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
         }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);

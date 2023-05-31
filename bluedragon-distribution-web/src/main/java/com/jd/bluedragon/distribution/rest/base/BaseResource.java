@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.rest.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -1763,7 +1765,21 @@ public class BaseResource {
         }
         return result;
     }
-
+    @POST
+    @Path("/bases/getFuncUsageConfig")
+    @JProfiler(jKey = "DMS.WEB.BaseResource.getFuncUsageConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<FuncUsageProcessDto> getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        InvokeResult<FuncUsageProcessDto> result = new InvokeResult<>();
+        result.success();
+        try {
+            final FuncUsageProcessDto funcUsageProcessDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+            result.setData(funcUsageProcessDto);
+        } catch (Exception e) {
+            log.error("BaseResource.getFuncUsageConfig exception ", e);
+            result.error("接口处理异常");
+        }
+        return result;
+    }
 }
 
 

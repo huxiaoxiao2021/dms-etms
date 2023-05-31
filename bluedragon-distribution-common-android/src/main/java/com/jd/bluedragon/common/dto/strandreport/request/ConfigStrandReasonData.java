@@ -30,6 +30,12 @@ public class ConfigStrandReasonData implements Serializable {
 	 */
 	private String remark;
 
+	/**
+	 * 滞留原因来源
+	 * 1：默认分拣；2：运输
+	 */
+	private Integer sourceFrom;
+
 	public Integer getReasonCode() {
 		return reasonCode;
 	}
@@ -68,5 +74,13 @@ public class ConfigStrandReasonData implements Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public Integer getSourceFrom() {
+		return sourceFrom;
+	}
+
+	public void setSourceFrom(Integer sourceFrom) {
+		this.sourceFrom = sourceFrom;
 	}
 }

@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -80,6 +81,8 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_MESSAGE;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -114,10 +117,10 @@ public class DeliveryResource {
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private SendMDao sendMDao;
-    
+
     @Autowired
     private SendDatailDao sendDatailDao;
 
@@ -371,6 +374,10 @@ public class DeliveryResource {
         if(deliveryService.checkSendCodeIsSealed(sendCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
         }
+        //拦截传站批次
+        if (needInterceptOfCz(sendCode)){
+            return new InvokeResult(NOT_SUPPORT_CZ_LINE_TASK_CODE,NOT_SUPPORT_CZ_LINE_TASK_MESSAGE);
+        }
         //干支批次拦截禁止使用
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
@@ -379,6 +386,26 @@ public class DeliveryResource {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,interceptResult.getMessage());
         }
         return result;
+    }
+
+    private boolean needInterceptOfCz(String sendCode) {
+        try {
+            if (uccPropertyConfiguration.getBatchSendForbiddenSwitch() && BusinessUtil.isSendCode(sendCode)){
+                Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
+                Integer createSite = sites[0];
+                Integer receiveSite = sites[1];
+                BaseStaffSiteOrgDto createSiteInfo=siteService.getSite(createSite);
+                CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(createSiteInfo.getSiteCode());
+                currentOperate.setOrgId(createSiteInfo.getOrgId());
+                if (sendVehicleTransactionManager.needInterceptOfCz(receiveSite,currentOperate)){
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.error("判断传站批次异常",e);
+        }
+        return false;
     }
 
     /**
@@ -1395,7 +1422,7 @@ public class DeliveryResource {
         }
 
     }
-    
+
     /**
      * 手动获取设备对应的批次号
      *
@@ -1408,7 +1435,7 @@ public class DeliveryResource {
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
         this.log.debug("手动获取设备对应的批次号");
         ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig(),"");
-        
+
         if (scannerFrameBatchSend != null) {
         	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         	response.setSendCode(scannerFrameBatchSend.getSendCode());

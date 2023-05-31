@@ -56,6 +56,7 @@ public class SpotCheckDetailMQ {
     private Integer excessType;
     private Integer isIssueDownstream;
     private Integer spotCheckStatus;
+    private String machineCode;
     private Long updateTime;
     private Long ts;
     private Integer yn;
@@ -450,5 +451,13 @@ public class SpotCheckDetailMQ {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

@@ -149,8 +149,6 @@ public interface SpotCheckDealService {
      */
     String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode);
 
-    void brushSpotCheck(List<WeightVolumeSpotCheckDto> list, String userErp);
-
     /**
      * 根据设备校准数据处理抽检数据（判定是否将抽检数据下发）
      *
@@ -165,4 +163,11 @@ public interface SpotCheckDealService {
      * @return
      */
     boolean spotCheckIssueIsRelyOnMachineStatus(Integer siteCode);
+
+    /**
+     * 执行下发（重新下发）
+     *
+     * @param excelName
+     */
+    void executeIssueOfCompensate(String excelName);
 }

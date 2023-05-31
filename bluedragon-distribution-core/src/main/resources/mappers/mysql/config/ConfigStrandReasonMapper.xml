@@ -10,6 +10,7 @@
 		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="business_tag" property="businessTag" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="source_from" property="sourceFrom" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -21,7 +22,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,reason_code,reason_name,sync_flag,order_num,remark,business_tag,
+		id,reason_code,reason_name,sync_flag,order_num,remark,business_tag,source_from,
 		create_user,create_user_name,update_user,update_user_name,create_time,
 		update_time,yn,ts
 	</sql>
@@ -50,6 +51,9 @@
 				</if>
 				<if test="businessTag != null" >
 					business_tag,
+				</if>
+				<if test="sourceFrom != null" >
+					source_from,
 				</if>
 				<if test="createUser != null" >
 					create_user,
@@ -101,6 +105,9 @@
 				<if test="businessTag != null" >
 					#{businessTag,jdbcType=INTEGER},
 				</if>
+				<if test="sourceFrom != null" >
+					#{sourceFrom,jdbcType=INTEGER},
+				</if>
 				<if test="createUser != null" >
 					#{createUser,jdbcType=VARCHAR},
 				</if>
@@ -149,6 +156,9 @@
 				</if>
 				<if test="businessTag != null" >
 					business_tag = #{businessTag,jdbcType=INTEGER},
+				</if>
+				<if test="sourceFrom != null" >
+					source_from = #{sourceFrom,jdbcType=INTEGER},
 				</if>
 				<if test="createUser != null" >
 					create_user = #{createUser,jdbcType=VARCHAR},

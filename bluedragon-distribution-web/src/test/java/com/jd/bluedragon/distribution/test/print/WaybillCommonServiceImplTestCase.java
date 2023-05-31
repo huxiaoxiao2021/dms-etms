@@ -367,12 +367,9 @@ public class WaybillCommonServiceImplTestCase {
 		waybill.setCustomerCode("010K1750468- for SF outbound");
 		waybill.setWaybillCode("22");
 
-		when(siteService.getSiteNameByCode(50)).thenReturn("20");
-
 		BaseStaffSiteOrgDto siteInfo = new BaseStaffSiteOrgDto();
 		siteInfo.setCityId(66);
 		siteInfo.setCityName("哈尔滨");
-		when(baseService.queryDmsBaseSiteByCode("22")).thenReturn(siteInfo);
 		 List<String> objects = Lists.newArrayList();
 		objects.add("010K1750468- for SF outbound");
 		when(sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF)).thenReturn(objects);

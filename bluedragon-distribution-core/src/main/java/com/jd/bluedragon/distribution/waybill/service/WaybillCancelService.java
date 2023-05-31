@@ -50,5 +50,11 @@ public interface WaybillCancelService {
      * @return 校验结果 true-有拦截 false-无
      */
     boolean checkWaybillCancelInterceptType99(String waybillCode);
-
+    
+    /**
+     * 校验运单是否为撤销拦截运单
+     * @param waybillCode
+     * @return
+     */
+    boolean checkWaybillRevokeIntercept(String waybillCode);
 }

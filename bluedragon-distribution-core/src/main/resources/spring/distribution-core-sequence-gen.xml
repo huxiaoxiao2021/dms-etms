@@ -117,4 +117,47 @@
         <property name="uniqueViolationProcessMode" value="GET_NEXT" />
     </bean>
 
+    <!-- 带有表达式的序号生成器: 集合ID生成规则：JQ+yyMMddHHmmss+数字sequence(5位) "" -->
+    <bean id="smartJQCodeSNGen" class="com.jd.coo.sa.sn.SmartSNGen">
+        <constructor-arg index="0" name="expressionArg"
+                         value="'JQ' + sequence"/>
+        <constructor-arg index="1" name="uniqueStrategyArg" ref="jimDBUniqueStrategy"/>
+        <property name="interpreter" >
+            <bean class="com.jd.coo.sa.sn.expression.jexl.JexlInterpreter">
+                <constructor-arg index="0" name="sequenceGen" >
+                    <bean class="com.jd.coo.sa.sequence.DateTimeBasedSequenceGen">
+                        <constructor-arg index="0">
+                            <bean class="com.jd.coo.sa.sequence.QueuedSequenceGen">
+                                <constructor-arg index="0" name="inner" >
+                                    <bean class="com.jd.coo.sa.sequence.ha.BitwiseLoadBalanceSequenceGen">
+                                        <constructor-arg index="0" name="partitionSequenceList">
+                                            <list>
+                                                <bean class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+                                                    <constructor-arg index="0" name="cluster" ref="redisClient" />
+                                                    <constructor-arg index="1" name="keyFormat" value="jq-code-gen-1-%s" />
+                                                </bean>
+
+                                                <bean class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+                                                    <constructor-arg index="0" name="cluster" ref="redisClient" />
+                                                    <constructor-arg index="1" name="keyFormat" value="jq-code-gen-2-%s" />
+                                                </bean>
+                                            </list>
+                                        </constructor-arg>
+                                        <property name="timeoutThresholdInMilliseconds" value="2000" />
+                                        <property name="timeoutEventCountThreshold" value="3" />
+                                    </bean>
+                                </constructor-arg>
+                                <property name="memoryBitLength" value="4"/>
+                            </bean>
+                        </constructor-arg>
+                        <constructor-arg index="1" value="yyMMddHHmmss"/>
+                        <constructor-arg index="2" value="5"/>
+                        <property name="ignoreDateTimePart" value="false"/>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="uniqueViolationProcessMode" value="GET_NEXT" />
+    </bean>
+
 </beans>

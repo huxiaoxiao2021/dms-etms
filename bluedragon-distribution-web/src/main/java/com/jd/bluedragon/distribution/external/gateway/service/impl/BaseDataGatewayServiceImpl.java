@@ -7,25 +7,30 @@ import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.GlobalFuncUsageControlDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -99,7 +104,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
             response.toError("[网关接口]查询基础字典信息时发生异常");
         }
         if(log.isDebugEnabled()) {
-        	log.debug("异常上报-获取异常原因getBaseDictByTypeGroups:请求typeGroups="+JsonHelper.toJson(typeGroups)+"，返回结果："+JsonHelper.toJson(response));
+            log.debug("异常上报-获取异常原因getBaseDictByTypeGroups:请求typeGroups="+JsonHelper.toJson(typeGroups)+"，返回结果："+JsonHelper.toJson(response));
         }
         return response;
     }
@@ -143,6 +148,50 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     }
 
     /**
+     * 获取全局功能管控配置
+     *
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 功能可用性结果
+     * @author fanggang7
+     * @time 2023-03-22 19:59:20 周三
+     */
+    @Override
+    public JdCResponse<GlobalFuncUsageControlDto> getGlobalFuncUsageControlConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        JdCResponse<GlobalFuncUsageControlDto> response = new JdCResponse<>();
+        response.toSucceed();
+        try {
+            final GlobalFuncUsageControlDto globalFuncUsageControlConfig = baseService.getGlobalFuncUsageControlConfig(funcUsageConfigRequestDto);
+            response.setData(globalFuncUsageControlConfig);
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getGlobalFuncUsageControlConfig exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
+    }
+
+    /**
+     * 根据功能编码获取功能可用性配置结果
+     *
+     * @param funcUsageConfigRequestDto 请求参数
+     * @return 功能可用性结果
+     * @author fanggang7
+     * @time 2023-03-22 19:59:20 周三
+     */
+    @Override
+    public JdCResponse<FuncUsageProcessDto> getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        JdCResponse<FuncUsageProcessDto> response = new JdCResponse<>();
+        response.toSucceed();
+        try {
+            final FuncUsageProcessDto funcUsageConfigDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+            response.setData(funcUsageConfigDto);
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getFuncUsageConfig exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
+    }
+
+    /**
      * 场地列表
      *
      * @param request 请求参数
@@ -170,7 +219,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
                 pageData.setTotal(queryPageData.getTotal());
             }
         } catch (Exception e) {
-            log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);
+            log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
             response.toError("接口处理异常");
         }
         return response;
@@ -196,5 +245,17 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
                 ? Lists.<HintVoiceConfig>newArrayList() : BeanUtils.copy(hintVoiceResp.getHintVoiceList(), HintVoiceConfig.class));
         jdCResponse.setData(resp);
         return jdCResponse;
+    }
+
+    /**
+     * 获取安卓初始化数据
+     * @param deviceInfo 设备信息
+     * @return 初始化数据
+     * @author fanggang7
+     * @time 2023-05-04 18:41:33 周四
+     */
+    @Override
+    public JdCResponse<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo) {
+        return ResultConverter.convertResultToJdcResponse(baseService.getAndroidInitData(deviceInfo));
     }
 }

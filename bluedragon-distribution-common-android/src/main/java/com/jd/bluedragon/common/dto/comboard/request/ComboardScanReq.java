@@ -70,6 +70,19 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private String materialCode;
 
+    /**
+     * 强发标识
+     */
+    private boolean forceSendFlag;
+
+    public boolean getForceSendFlag() {
+        return forceSendFlag;
+    }
+
+    public void setForceSendFlag(boolean forceSendFlag) {
+        this.forceSendFlag = forceSendFlag;
+    }
+
     public String getMaterialCode() {
         return materialCode;
     }

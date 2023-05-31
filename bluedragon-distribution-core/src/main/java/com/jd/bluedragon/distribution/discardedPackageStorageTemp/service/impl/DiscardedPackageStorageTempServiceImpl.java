@@ -42,6 +42,8 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
@@ -100,6 +102,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @author fanggang7
      * @time 2021-03-31 11:32:59 周三
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.selectCount", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public Response<Long> selectCount(DiscardedPackageStorageTempQo query) {
         log.info("DiscardedPackageStorageTempServiceImpl.selectCount param {}", JsonHelper.toJson(query));
@@ -129,6 +132,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-03-31 11:32:59 周三
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.selectList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<DiscardedPackageStorageTempVo>> selectList(DiscardedPackageStorageTempQo query) {
         log.info("DiscardedPackageStorageTempServiceImpl.selectList param {}", JsonHelper.toJson(query));
         Response<List<DiscardedPackageStorageTempVo>> result = new Response<>();
@@ -207,6 +211,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-03-31 11:32:59 周三
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.selectPageList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<PageDto<DiscardedPackageStorageTempVo>> selectPageList(DiscardedPackageStorageTempQo query) {
         log.info("DiscardedPackageStorageTempServiceImpl.selectPageList param {}", JsonHelper.toJson(query));
         Response<PageDto<DiscardedPackageStorageTempVo>> result = new Response<>();
@@ -308,6 +313,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-12-02 16:37:54 周四
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.queryUnSubmitDiscardedList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<List<DiscardedWaybillScanResultItemDto>> queryUnSubmitDiscardedList(QueryUnSubmitDiscardedListPo paramObj) {
         if(log.isInfoEnabled()){
             log.info("DiscardedPackageStorageTempServiceImpl.queryUnSubmitDiscardedList param: {}", JsonHelper.toJson(paramObj));
@@ -397,6 +403,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-12-02 16:37:43 周四
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.scanDiscardedPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<List<DiscardedWaybillScanResultItemDto>> scanDiscardedPackage(ScanDiscardedPackagePo paramObj) {
         if(log.isInfoEnabled()){
             log.info("DiscardedPackageStorageTempServiceImpl.scanDiscardedPackage param: {}", JsonHelper.toJson(paramObj));
@@ -607,6 +614,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-12-02 16:37:54 周四
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.submitDiscardedPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> submitDiscardedPackage(SubmitDiscardedPackagePo paramObj) {
         if(log.isInfoEnabled()){
             log.info("DiscardedPackageStorageTempServiceImpl.submitDiscardedPackage param: {}", JsonHelper.toJson(paramObj));
@@ -693,6 +701,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @time 2021-12-02 16:55:24 周四
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DiscardedPackageStorageTempServiceImpl.queryUnScanDiscardedPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<List<DiscardedPackageNotScanItemDto>> queryUnScanDiscardedPackage(QueryUnScanDiscardedPackagePo paramObj) {
         if(log.isInfoEnabled()){
             log.info("DiscardedPackageStorageTempServiceImpl.queryUnScanDiscardedPackage param: {}", JsonHelper.toJson(paramObj));
