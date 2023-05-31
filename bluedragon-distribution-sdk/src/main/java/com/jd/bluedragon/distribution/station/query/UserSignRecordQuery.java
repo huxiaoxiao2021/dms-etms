@@ -142,6 +142,15 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private Date nowDateEnd;
 	
 	private String refGridKey;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 	
 	public Integer getOrgCode() {
 		return orgCode;
@@ -310,5 +319,21 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setRefGridKey(String refGridKey) {
 		this.refGridKey = refGridKey;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
 	}
 }

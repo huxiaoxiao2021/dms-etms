@@ -53,6 +53,11 @@ public class FuncSwitchConfigCondition extends BasePagerCondition {
      * */
     private Integer yn;
 
+    /**
+     * 省区编码
+     * */
+    private String provinceAgencyCode;
+
     public Integer getMenuCode() {
         return menuCode;
     }
@@ -131,5 +136,13 @@ public class FuncSwitchConfigCondition extends BasePagerCondition {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
     }
 }

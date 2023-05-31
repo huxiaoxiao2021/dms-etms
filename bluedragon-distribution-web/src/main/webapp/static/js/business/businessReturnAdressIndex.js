@@ -1,7 +1,4 @@
 $(function() {
-	var saveUrl = '/collect/collectGoodsDetail/save';
-	var deleteUrl = '/collect/collectGoodsDetail/deleteByIds';
-  var detailUrl = '/collect/collectGoodsDetail/detail/';
   var queryUrl = '/business/businessReturnAdress/queryBusinessReturnAdressList';
   var exportUrl = '/business/businessReturnAdress/exportBusinessReturnAdressList';
 	var tableInit = function() {

@@ -6,6 +6,10 @@
 		<result column="ABNORMAL_ID" property="abnormalId" />
 		<result column="ORG_CODE" property="orgCode" />
 		<result column="ORG_NAME" property="orgName" />
+		<result property="provinceAgencyCode" column="province_agency_code" />
+		<result property="provinceAgencyName" column="province_agency_name" />
+		<result property="areaHubCode" column="area_hub_code" />
+		<result property="areaHubName" column="area_hub_name" />
 		<result column="CREATE_SITE_CODE" property="createSiteCode" />
 		<result column="CREATE_SITE_NAME" property="createSiteName" />
 		<result column="MAIN_TYPE" property="mainType" />
@@ -29,7 +33,9 @@
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		ABNORMAL_ID, ORG_CODE, ORG_NAME, CREATE_SITE_CODE, CREATE_SITE_NAME,
+		ABNORMAL_ID, ORG_CODE, ORG_NAME, 
+		province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+		CREATE_SITE_CODE, CREATE_SITE_NAME,
 		MAIN_TYPE, MAIN_TYPE_NAME, SUB_TYPE, SUB_TYPE_NAME, WAYBILL_CODE,
 		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
 		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
@@ -37,6 +43,7 @@
 
 	<sql id="Base_Insert_Column_List">
 		ORG_CODE, ORG_NAME, CREATE_SITE_CODE, CREATE_SITE_NAME,
+		province_agency_code,province_agency_name,area_hub_code,area_hub_name,
 		MAIN_TYPE, MAIN_TYPE_NAME, SUB_TYPE, SUB_TYPE_NAME, WAYBILL_CODE,
 		POP_SUP_NO, POP_SUP_NAME, ABNORMAL_STATUE, ATTR1, ATTR2, ATTR3, ATTR4,
 		OPERATOR_NAME, CREATE_TIME, UPDATE_TIME, YN, waybill_type, order_code
@@ -68,6 +75,12 @@
 					</if>
 		 			<if test="orgCode != null and orgCode != 0">
 						and ORG_CODE = #{orgCode, jdbcType=INTEGER}
+					</if>
+					<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+						and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+					</if>
+					<if test="areaHubCode != null and areaHubCode != ''" >
+						and area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
 					</if>
 		 			<if test="createSiteCode != null and createSiteCode != 0">
 						and CREATE_SITE_CODE = #{createSiteCode, jdbcType=INTEGER}
@@ -180,6 +193,7 @@
 		values (
 		#{orgCode, jdbcType=INTEGER}, #{orgName, jdbcType=VARCHAR},
 		#{createSiteCode, jdbcType=INTEGER}, #{createSiteName, jdbcType=VARCHAR},
+		#{provinceAgencyCode,jdbcType=VARCHAR},#{provinceAgencyName,jdbcType=VARCHAR},#{areaHubCode,jdbcType=VARCHAR},#{areaHubName,jdbcType=VARCHAR},
 		#{mainType, jdbcType=INTEGER}, #{mainTypeName, jdbcType=VARCHAR},
 		#{subType, jdbcType=INTEGER}, #{subTypeName, jdbcType=VARCHAR},
 		#{waybillCode, jdbcType=VARCHAR}, #{popSupNo, jdbcType=VARCHAR}, #{popSupName, jdbcType=VARCHAR},

@@ -201,12 +201,6 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
         if (StringUtils.isBlank(currentOperate.getDmsCode())) {
             return "dmsCode不能为空";
         }
-        if (currentOperate.getOrgId() == null) {
-            return "orgId不合法";
-        }
-        if (StringUtils.isBlank(currentOperate.getOrgName())) {
-            return "orgName不能为空";
-        }
         return null;
     }
 

@@ -110,6 +110,12 @@ $(function () {
         }, {
             field: 'areaName',
             title: '区域名称'
+        },{
+            field: 'provinceAgencyName',
+            title: '省区名称'
+        },{
+            field: 'areaHubName',
+            title: '枢纽名称'
         }, {
             field: 'isReceipt',
             title: '是否回复',

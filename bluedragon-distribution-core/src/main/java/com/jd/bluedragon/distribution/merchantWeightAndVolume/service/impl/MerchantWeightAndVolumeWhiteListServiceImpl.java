@@ -142,22 +142,18 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                             errorMessage = "第"+ rowIndex +"行商家信息配置不正确!";
                             return errorMessage;
                         }
-                        //站点判断
-                        if(!site.getSiteName().equals(detail.getOperateSiteName())){
-                            errorMessage = "第"+ rowIndex +"行场站不正确!";
-                            return errorMessage;
-                        }
-                        if(!site.getOrgId().equals(detail.getOperateOrgCode())
-                                || !site.getOrgName().equals(detail.getOperateOrgName())){
-                            errorMessage = "第"+ rowIndex +"行区域不正确!";
-                            return errorMessage;
-                        }
                         //商家与站点对应关系是否存在
                         if(isExist(detail)){
                             errorMessage = "第"+ rowIndex +"行商家编码对应站点已存在，请勿重复配置!";
                             return errorMessage;
                         }
                     }
+                    detail.setOperateOrgCode(site.getOrgId());
+                    detail.setOperateOrgName(site.getOrgName());
+                    detail.setOperateProvinceAgencyCode(site.getProvinceAgencyCode());
+                    detail.setOperateProvinceAgencyName(site.getProvinceAgencyName());
+                    detail.setOperateAreaHubCode(site.getAreaCode());
+                    detail.setOperateAreaHubName(site.getAreaName());
                     detail.setCreateErp(importErpCode);
                     detail.setCreateUserName(createUserName);
                     rowIndex ++;
@@ -225,6 +221,10 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
             body.setMerchantName(detail.getMerchantName());
             body.setOperateOrgCode(detail.getOperateOrgCode());
             body.setOperateOrgName(detail.getOperateOrgName());
+            body.setOperateProvinceAgencyCode(detail.getOperateProvinceAgencyCode());
+            body.setOperateProvinceAgencyName(detail.getOperateProvinceAgencyName());
+            body.setOperateAreaHubCode(detail.getOperateAreaHubCode());
+            body.setOperateAreaHubName(detail.getOperateAreaHubName());
             body.setOperateSiteCode(detail.getOperateSiteCode());
             body.setOperateSiteName(detail.getOperateSiteName());
             body.setCreateErp(detail.getCreateErp());
@@ -242,6 +242,10 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         headerMap.put("merchantName","商家名称");
         headerMap.put("operateOrgCode","操作区域ID");
         headerMap.put("operateOrgName","操作区域名称");
+        headerMap.put("operateProvinceAgencyCode","操作省区编码");
+        headerMap.put("operateProvinceAgencyName","操作省区名称");
+        headerMap.put("operateAreaHubCode","操作枢纽编码");
+        headerMap.put("operateAreaHubName","操作枢纽名称");
         headerMap.put("operateSiteCode","操作场站ID");
         headerMap.put("operateSiteName","操作场站");
         headerMap.put("createErp","创建人ERP");

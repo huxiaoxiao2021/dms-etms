@@ -48,6 +48,15 @@ public class MerchantWeightAndVolumeCondition extends BasePagerCondition {
      * */
     private Integer loginErp;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
     public Integer getMerchantId() {
         return merchantId;
     }
@@ -79,7 +88,7 @@ public class MerchantWeightAndVolumeCondition extends BasePagerCondition {
     public void setOrgCode(Integer orgCode) {
         this.orgCode = orgCode;
     }
-
+    
     public Integer getSiteCode() {
         return siteCode;
     }
@@ -118,5 +127,21 @@ public class MerchantWeightAndVolumeCondition extends BasePagerCondition {
 
     public void setLoginErp(Integer loginErp) {
         this.loginErp = loginErp;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

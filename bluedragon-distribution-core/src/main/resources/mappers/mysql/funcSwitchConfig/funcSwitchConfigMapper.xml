@@ -10,6 +10,10 @@
 		<result column="dimension_name" property="dimensionName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_erp" property="operateErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -21,8 +25,9 @@
 	</resultMap>
 
     <sql id="Base_Column_List" >
-		id,menu_code,menu_name,dimension_code,dimension_name,org_id,org_name,site_code,
-		site_name,operate_erp,create_erp,create_user,create_time,update_time,yn,ts
+		id,menu_code,menu_name,dimension_code,dimension_name,org_id,org_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+		site_code,site_name,operate_erp,create_erp,create_user,create_time,update_time,yn,ts
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -36,17 +41,8 @@
         <if test="dimensionCode != null">
             and dimension_code = #{dimensionCode,jdbcType=BIGINT}
         </if>
-        <if test="orgId != null">
-            and org_id = #{orgId,jdbcType=BIGINT}
-        </if>
-        <if test="orgName != null">
-            and org_name = #{orgName,jdbcType=VARCHAR}
-        </if>
         <if test="siteCode != null">
             and site_code = #{siteCode,jdbcType=BIGINT}
-        </if>
-        <if test="siteName != null">
-            and site_name = #{siteName,jdbcType=VARCHAR}
         </if>
         <if test="operateErp != null and operateErp != ''">
             and operate_erp = #{operateErp,jdbcType=VARCHAR}
@@ -94,6 +90,18 @@
             </if>
             <if test="orgName != null">
                 org_name,
+            </if>
+            <if test="provinceAgencyCode != null" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null" >
+                area_hub_name,
             </if>
             <if test="siteCode != null">
                 site_code,
@@ -146,6 +154,18 @@
             <if test="orgName != null">
                 #{orgName,jdbcType=VARCHAR},
             </if>
+            <if test="provinceAgencyCode != null" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null" >
+                #{areaHubName,jdbcType=VARCHAR},
+            </if>
             <if test="siteCode != null">
                 #{siteCode,jdbcType=BIGINT},
             </if>
@@ -178,8 +198,9 @@
     <insert id="batchAdd" parameterType="List">
         insert into func_switch_config
         (
-        menu_code,menu_name,dimension_code,dimension_name,org_id,org_name,site_code,
-        site_name,operate_erp,create_erp,create_user,create_time,update_time,yn,ts
+        menu_code,menu_name,dimension_code,dimension_name,org_id,org_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        site_code,site_name,operate_erp,create_erp,create_user,create_time,update_time,yn,ts
         )
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -190,6 +211,7 @@
             #{item.dimensionName,jdbcType=VARCHAR},
             #{item.orgId,jdbcType=INTEGER},
             #{item.orgName,jdbcType=VARCHAR},
+            #{item.provinceAgencyCode,jdbcType=VARCHAR},#{item.provinceAgencyName,jdbcType=VARCHAR},#{item.areaHubCode,jdbcType=VARCHAR},#{item.areaHubName,jdbcType=VARCHAR},
             #{item.siteCode,jdbcType=INTEGER},
             #{item.siteName,jdbcType=VARCHAR},
             #{item.operateErp,jdbcType=VARCHAR},

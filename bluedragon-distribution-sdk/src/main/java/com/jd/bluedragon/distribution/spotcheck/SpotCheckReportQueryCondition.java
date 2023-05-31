@@ -87,6 +87,15 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
      */
     private Byte isIssueDownstream;
 
+    /**
+     * 省区编码
+     */
+    private String reviewProvinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String reviewAreaHubCode;
+
     public Long getReviewOrgCode() {
         return reviewOrgCode;
     }
@@ -205,5 +214,21 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
 
     public void setIsIssueDownstream(Byte isIssueDownstream) {
         this.isIssueDownstream = isIssueDownstream;
+    }
+
+    public String getReviewProvinceAgencyCode() {
+        return reviewProvinceAgencyCode;
+    }
+
+    public void setReviewProvinceAgencyCode(String reviewProvinceAgencyCode) {
+        this.reviewProvinceAgencyCode = reviewProvinceAgencyCode;
+    }
+
+    public String getReviewAreaHubCode() {
+        return reviewAreaHubCode;
+    }
+
+    public void setReviewAreaHubCode(String reviewAreaHubCode) {
+        this.reviewAreaHubCode = reviewAreaHubCode;
     }
 }

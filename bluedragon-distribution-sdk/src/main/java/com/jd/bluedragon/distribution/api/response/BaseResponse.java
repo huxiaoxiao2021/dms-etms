@@ -136,7 +136,7 @@ public class BaseResponse extends JdResponse {
 
 	/** 站点业务类型 */
 	private Integer siteBusinessType;
-
+	
 	public Integer getSiteBusinessType() {
 		return siteBusinessType;
 	}
@@ -174,6 +174,24 @@ public class BaseResponse extends JdResponse {
 
 	/** 运输类型 1：干线；2：支线； */
 	private int routeType;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+
+	/**
+	 * 省区名称
+	 */
+	private String provinceAgencyName;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
+	/**
+	 * 枢纽名称
+	 */
+	private String areaHubName;
 
 	public String getPinyinCode() {
 		return pinyinCode;
@@ -524,5 +542,37 @@ public class BaseResponse extends JdResponse {
 
 	public void setSubType(Integer subType) {
 		this.subType = subType;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
+	}
+
+	public void setProvinceAgencyName(String provinceAgencyName) {
+		this.provinceAgencyName = provinceAgencyName;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
+
+	public String getAreaHubName() {
+		return areaHubName;
+	}
+
+	public void setAreaHubName(String areaHubName) {
+		this.areaHubName = areaHubName;
 	}
 }

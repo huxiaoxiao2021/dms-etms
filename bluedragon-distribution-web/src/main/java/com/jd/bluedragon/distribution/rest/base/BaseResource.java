@@ -11,15 +11,9 @@ import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.CarrierQueryRequest;
-import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
-import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.request.PdaSystemMenuRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
+import com.jd.bluedragon.distribution.base.domain.*;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.LoginService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -53,6 +47,11 @@ import com.jd.tms.basic.dto.CarrierDto;
 import com.jd.tms.basic.dto.SimpleCarrierDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.dto.site.AreaVO;
+import com.jdl.basic.api.dto.site.BasicSiteVO;
+import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
+import com.jdl.basic.api.dto.site.SiteQueryCondition;
+import com.jdl.basic.common.utils.Pager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
@@ -125,6 +124,9 @@ public class BaseResource {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+	@Autowired
+	private JyBasicSiteQueryManager jyBasicSiteQueryManager;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -292,6 +294,10 @@ public class BaseResource {
 		response.setSubType(dto.getSubType());
         response.setOrgId(dto.getOrgId());
 		response.setSiteBusinessType(dto.getSiteBusinessType());
+		response.setProvinceAgencyCode(dto.getProvinceAgencyCode());
+		response.setProvinceAgencyName(dto.getProvinceAgencyName());
+		response.setAreaHubCode(dto.getAreaCode());
+		response.setAreaHubName(dto.getAreaName());
 
 		return response;
 	}
@@ -388,6 +394,17 @@ public class BaseResource {
 	}
 
 	@GET
+	@Path("/bases/driversByProvince/{provinceAgencyCode}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getDriversOfProvince", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public List<BaseResponse> getDriversOfProvince(@PathParam("provinceAgencyCode") String provinceAgencyCode) {
+		// 获取省区下的司机信息列表
+		List<BaseResponse> driverList = new ArrayList<BaseResponse>();
+		// todo 根据省区编码获取省下所有司机的接口
+
+		return driverList;
+	}
+
+	@GET
 	@Path("/bases/allorgs/")
 	@JProfiler(jKey = "DMS.WEB.BaseResource.getAllOrgs", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getAllOrgs() {
@@ -440,6 +457,81 @@ public class BaseResource {
 		return ll;
 	}
 
+
+	/**
+	 * 查询所有省区
+	 *
+	 * @return
+	 */
+	@GET
+	@Path("/bases/allProvinceAgency")
+	public List<BaseResponse> queryAllProvince() {
+		List<BaseResponse> list = Lists.newArrayList();
+		List<ProvinceAgencyVO> provinceList = jyBasicSiteQueryManager.queryAllProvinceAgencyInfo();
+		if(CollectionUtils.isNotEmpty(provinceList)){
+			for (ProvinceAgencyVO item : provinceList) {
+				BaseResponse baseResponse = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				baseResponse.setProvinceAgencyCode(item.getProvinceAgencyCode());
+				baseResponse.setProvinceAgencyName(item.getProvinceAgencyName());
+				list.add(baseResponse);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 查询省区下所有枢纽
+	 *
+	 * @return
+	 */
+	@GET
+	@Path("/bases/allArea/{provinceAgencyCode}")
+	public List<BaseResponse> queryAllArea(@PathParam("provinceAgencyCode") String provinceAgencyCode) {
+		List<BaseResponse> list = Lists.newArrayList();
+		List<AreaVO> areaList = jyBasicSiteQueryManager.queryAllAreaInfo(provinceAgencyCode);
+		if(CollectionUtils.isNotEmpty(areaList)){
+			for (AreaVO item : areaList) {
+				BaseResponse baseResponse = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				baseResponse.setAreaHubCode(item.getAreaCode());
+				baseResponse.setAreaHubName(item.getAreaName());
+				list.add(baseResponse);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 条件分页查询站点数据
+	 *
+	 * @return
+	 */
+	@GET
+	@Path("/bases/selectPageSiteList")
+	public List<BaseResponse> selectPageSiteList(SiteQueryRequest request) {
+		List<BaseResponse> list = Lists.newArrayList();
+		Pager<SiteQueryCondition> siteQueryPager = new Pager<>();
+		siteQueryPager.setPageNo();
+		siteQueryPager.setPageSize();
+		siteQueryPager.setSearchVo();
+		
+		Pager<BasicSiteVO> pagerResult = jyBasicSiteQueryManager.querySitePageByConditionFromBasicSite(siteQueryPager);
+		if(pagerResult != null && CollectionUtils.isNotEmpty(pagerResult.getData())){
+			for (BasicSiteVO item : pagerResult.getData()) {
+				BaseResponse baseResponse = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+				baseResponse.setProvinceAgencyCode(item.getProvinceAgencyCode());
+				baseResponse.setProvinceAgencyName(item.getProvinceAgencyName());
+				baseResponse.setAreaHubCode(item.getAreaCode());
+				baseResponse.setAreaHubName(item.getAreaName());
+				baseResponse.setSiteCode(item.getSiteCode());
+				baseResponse.setSiteName(item.getSiteName());
+				baseResponse.setSiteType(item.getSiteType());
+				baseResponse.setSubType(item.getSubType());
+				list.add(baseResponse);
+			}
+		}
+		return list;
+	}
+	
 	@GET
 	@Path("/bases/sites/{orgId}")
 	@GZIP

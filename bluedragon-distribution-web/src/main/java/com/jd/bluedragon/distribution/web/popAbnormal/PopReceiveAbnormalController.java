@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.popAbnormal;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
@@ -28,6 +30,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +58,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/popReceiveAbnormal")
-public class PopReceiveAbnormalController {
+public class PopReceiveAbnormalController extends DmsBaseController {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
@@ -623,6 +626,7 @@ public class PopReceiveAbnormalController {
 		// 验证登陆信息
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
+		List<ProvinceAgencyVO> provinceList = Lists.newArrayList();
 		
 		model.addAttribute("erpUser", erpUser);
 
@@ -659,6 +663,7 @@ public class PopReceiveAbnormalController {
 			} else {
 				this.log.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
 				orgList = baseService.getAllOrg();
+				provinceList = super.selectAllProvince();
 			}
 
 			model.addAttribute("orgList", orgList);

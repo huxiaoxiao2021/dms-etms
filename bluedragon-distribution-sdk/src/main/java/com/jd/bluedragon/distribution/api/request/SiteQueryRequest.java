@@ -34,6 +34,14 @@ public class SiteQueryRequest implements Serializable {
      */
     private Integer orgId;
     /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaCode;
+    /**
      * 站点类型
      */
     private List<Integer> siteTypeList;
@@ -96,6 +104,22 @@ public class SiteQueryRequest implements Serializable {
 
     public void setOrgId(Integer orgId) {
         this.orgId = orgId;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaCode() {
+        return areaCode;
+    }
+
+    public void setAreaCode(String areaCode) {
+        this.areaCode = areaCode;
     }
 
     public List<Integer> getSiteTypeList() {

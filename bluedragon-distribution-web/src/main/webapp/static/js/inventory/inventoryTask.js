@@ -79,6 +79,24 @@ $(function () {
             title: '区域编号',
             align: 'center',
             visible: false
+        },{
+            field: 'provinceAgencyName',
+            title: '省区名称',
+            align: 'center'
+        }, {
+            field: 'provinceAgencyCode',
+            title: '省区编码',
+            align: 'center',
+            visible: false
+        },{
+            field: 'areaHubName',
+            title: '枢纽名称',
+            align: 'center'
+        }, {
+            field: 'areaHubCode',
+            title: '枢纽编码',
+            align: 'center',
+            visible: false
         }, {
             field: 'createSiteName',
             title: '操作场地',

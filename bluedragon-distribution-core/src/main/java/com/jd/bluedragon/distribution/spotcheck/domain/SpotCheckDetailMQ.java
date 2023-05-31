@@ -20,6 +20,8 @@ public class SpotCheckDetailMQ {
     private Integer reviewSource;
     private Integer reviewOrgCode;
     private String reviewOrgName;
+    private String reviewProvinceAgencyCode;
+    private String reviewProvinceAgencyName;
     private Integer reviewSiteCode;
     private String reviewSiteName;
     private String reviewUserErp;
@@ -32,6 +34,8 @@ public class SpotCheckDetailMQ {
     private Integer contrastSource;
     private Integer contrastOrgCode;
     private String contrastOrgName;
+    private String contrastProvinceAgencyCode;
+    private String contrastProvinceAgencyName;
     private String contrastWarZoneCode;
     private String contrastWarZoneName;
     private String contrastAreaCode;
@@ -141,6 +145,22 @@ public class SpotCheckDetailMQ {
         this.reviewOrgName = reviewOrgName;
     }
 
+    public String getReviewProvinceAgencyCode() {
+        return reviewProvinceAgencyCode;
+    }
+
+    public void setReviewProvinceAgencyCode(String reviewProvinceAgencyCode) {
+        this.reviewProvinceAgencyCode = reviewProvinceAgencyCode;
+    }
+
+    public String getReviewProvinceAgencyName() {
+        return reviewProvinceAgencyName;
+    }
+
+    public void setReviewProvinceAgencyName(String reviewProvinceAgencyName) {
+        this.reviewProvinceAgencyName = reviewProvinceAgencyName;
+    }
+
     public Integer getReviewSiteCode() {
         return reviewSiteCode;
     }
@@ -235,6 +255,22 @@ public class SpotCheckDetailMQ {
 
     public void setContrastOrgName(String contrastOrgName) {
         this.contrastOrgName = contrastOrgName;
+    }
+
+    public String getContrastProvinceAgencyCode() {
+        return contrastProvinceAgencyCode;
+    }
+
+    public void setContrastProvinceAgencyCode(String contrastProvinceAgencyCode) {
+        this.contrastProvinceAgencyCode = contrastProvinceAgencyCode;
+    }
+
+    public String getContrastProvinceAgencyName() {
+        return contrastProvinceAgencyName;
+    }
+
+    public void setContrastProvinceAgencyName(String contrastProvinceAgencyName) {
+        this.contrastProvinceAgencyName = contrastProvinceAgencyName;
     }
 
     public String getContrastWarZoneCode() {

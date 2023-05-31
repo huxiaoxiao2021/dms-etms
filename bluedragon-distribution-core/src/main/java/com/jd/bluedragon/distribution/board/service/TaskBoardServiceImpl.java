@@ -71,6 +71,10 @@ public class TaskBoardServiceImpl implements TaskBoardService {
             taskBoardPo.setCurrentDmsCode(site.getDmsSiteCode());
             taskBoardPo.setOrgCode(site.getOrgId());
             taskBoardPo.setOrgName(site.getOrgName());
+            taskBoardPo.setProvinceAgencyCode(site.getProvinceAgencyCode());
+            taskBoardPo.setProvinceAgencyName(site.getProvinceAgencyName());
+            taskBoardPo.setAreaHubCode(site.getAreaCode());
+            taskBoardPo.setAreaHubName(site.getAreaName());
         }
     }
 

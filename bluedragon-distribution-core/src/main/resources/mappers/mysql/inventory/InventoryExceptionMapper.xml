@@ -5,6 +5,10 @@
         <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
         <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -36,7 +40,8 @@
     <sql id="Base_Column_List">
         id,waybill_code,package_code,inventory_task_id,latest_pack_status,exp_type,exp_status,exp_desc,inventory_site_code,inventory_site_name,
         direction_code,direction_name,inventory_user_code,inventory_site_name,inventory_user_erp,inventory_time,exp_user_code,exp_user_name,exp_user_code,
-        exp_user_erp,exp_operate_time,create_time,update_time,is_delete,org_id,org_name,task_create_user,task_create_time,inventory_scope
+        exp_user_erp,exp_operate_time,create_time,update_time,is_delete,org_id,org_name,task_create_user,task_create_time,inventory_scope,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name
     </sql>
 
 
@@ -45,6 +50,12 @@
             is_delete = 0
             <if test="orgId != null">
                 and org_id = #{orgId,jdbcType=INTEGER}
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                and area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
             </if>
             <if test="createSiteCode != null">
                 and inventory_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -91,6 +102,18 @@
             </if>
             <if test="orgName != null">
                org_name,
+            </if>
+            <if test="provinceAgencyCode != null" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null" >
+                area_hub_name,
             </if>
             <if test="waybillCode != null">
                 waybill_code,
@@ -171,6 +194,18 @@
             </if>
             <if test="orgName != null">
                 #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyCode != null" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null" >
+                #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="waybillCode != null">
                 #{waybillCode,jdbcType=VARCHAR},

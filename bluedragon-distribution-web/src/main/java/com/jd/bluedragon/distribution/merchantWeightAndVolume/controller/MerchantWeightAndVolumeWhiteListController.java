@@ -69,15 +69,8 @@ public class MerchantWeightAndVolumeWhiteListController extends DmsBaseControlle
     @Authorization(Constants.DMS_WEB_TOOL_BUSIWEIGHTANDVOLUMEWHITELIST_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        Integer createSiteCode = new Integer(-1);
-        Integer orgId = new Integer(-1);
-        LoginUser loginUser = getLoginUser();
-        if(loginUser != null && loginUser.getSiteType() == 64){
-            createSiteCode = loginUser.getSiteCode();
-            orgId = loginUser.getOrgId();
-        }
-        model.addAttribute("orgId",orgId);
-        model.addAttribute("createSiteCode",createSiteCode);
+        // 设置基础信息
+        setBaseModelInfo(model);
         return "merchantWeightAndVolume/merchantWeightAndVolumeWhiteList";
     }
 

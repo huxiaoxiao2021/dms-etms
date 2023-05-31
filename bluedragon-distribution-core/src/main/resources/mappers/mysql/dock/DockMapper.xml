@@ -9,6 +9,10 @@
         <result column="site_name" jdbcType="VARCHAR" property="siteName" />
         <result column="org_id" jdbcType="INTEGER" property="orgId" />
         <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+        <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="dock_type" jdbcType="INTEGER" property="dockType" />
         <result column="dock_attribute" jdbcType="INTEGER" property="dockAttribute" />
         <result column="allowed_vehicle_type" jdbcType="VARCHAR" property="allowedVehicleType" />
@@ -25,7 +29,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, dock_code, site_code, site_name, org_id, org_name, dock_type, dock_attribute, allowed_vehicle_type,
+        id, dock_code, site_code, site_name, org_id, org_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        dock_type, dock_attribute, allowed_vehicle_type,
         is_immediately, is_has_dock_leveller, is_has_scales, height,
         create_user_name, create_time, update_user_name, update_time, is_delete, ts
     </sql>
@@ -38,6 +44,7 @@
             site_name,
             org_id,
             org_name,
+            province_agency_code,province_agency_name,area_hub_code,area_hub_name,
             dock_type,
             dock_attribute,
             allowed_vehicle_type,
@@ -58,6 +65,7 @@
             #{siteName,jdbcType=VARCHAR},
             #{orgId,jdbcType=INTEGER},
             #{orgName,jdbcType=VARCHAR},
+            #{provinceAgencyCode,jdbcType=VARCHAR},#{provinceAgencyName,jdbcType=VARCHAR},#{areaHubCode,jdbcType=VARCHAR},#{areaHubName,jdbcType=VARCHAR},
             #{dockType,jdbcType=INTEGER},
             #{dockAttribute,jdbcType=INTEGER},
             #{allowedVehicleType,jdbcType=VARCHAR},
@@ -144,6 +152,12 @@
             <if test="orgId != null">
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
             <if test="siteCode != null">
                 site_code = #{siteCode, jdbcType=INTEGER} and
             </if>
@@ -159,6 +173,12 @@
         where
             <if test="orgId != null">
                 org_id = #{orgId, jdbcType=INTEGER} and
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
             </if>
             <if test="siteCodeList != null">
                 site_code in
@@ -180,6 +200,12 @@
         where
             <if test="orgId != null">
                 org_id = #{orgId, jdbcType=INTEGER} and
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
             </if>
             <if test="siteCodeList != null">
                 site_code in

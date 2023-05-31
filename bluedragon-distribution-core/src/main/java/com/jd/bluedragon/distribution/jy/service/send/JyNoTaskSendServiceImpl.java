@@ -308,6 +308,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         startData.setSiteCode(request.getCurrentOperate().getSiteCode());
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
         startData.setOrgCode(baseSite != null ? baseSite.getOrgId() : -1);
+        startData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+        startData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
 
         startData.setCreateUser(request.getUser().getUserErp());
         startData.setCreateUserName(request.getUser().getUserName());

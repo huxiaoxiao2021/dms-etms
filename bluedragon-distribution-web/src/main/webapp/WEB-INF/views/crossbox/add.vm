@@ -54,6 +54,8 @@
         <input type="hidden" id="query_transferOrgName" name="transferOrgName" value="$!{queryInfo.transferOrgName}">
         <input type="hidden" id="query_transferName" name="transferName" value="$!{queryInfo.transferName}">
         <input type="hidden" id="query_yn" name="yn" value="$!{queryInfo.yn}">
+
+        <input type="hidden" id="query_yn" name="yn" value="$!{queryInfo.yn}">
     </div>
     
 	<!--[if !ie]>breadcrumb<![endif]-->

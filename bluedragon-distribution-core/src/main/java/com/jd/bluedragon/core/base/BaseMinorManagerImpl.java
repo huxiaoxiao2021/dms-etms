@@ -1,28 +1,19 @@
 package com.jd.bluedragon.core.base;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.alibaba.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
 import com.jd.ldop.basic.dto.*;
-import com.jd.ql.basic.domain.AirTransport;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.BaseSiteGoods;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.ResultData;
-import com.jd.ql.basic.ws.BaseCrossPackageTagWS;
-import com.jd.ql.basic.ws.BasicAirConfigWS;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
-import com.jd.ql.basic.ws.BasicSortCrossDetailWS;
+import com.jd.ql.basic.ws.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -44,6 +35,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private Logger log = LoggerFactory.getLogger(BaseMinorManagerImpl.class);
 	
 	public static final String SEPARATOR_HYPHEN = "-";
+	
+	// 基础资料查询所有省区类型
+	public static final Integer BASIC_QUERY_PROVINCE_TYPE = 11;
 
 	@Autowired
 	@Qualifier("basicTraderAPI")
@@ -77,6 +71,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private BasicSortCrossDetailWS basicSortCrossDetailWS;
+
+	@Autowired
+	private BasicOrganStructWS basicOrganStructWS;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)

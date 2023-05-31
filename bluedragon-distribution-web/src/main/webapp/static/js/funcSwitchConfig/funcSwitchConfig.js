@@ -101,6 +101,22 @@ $(function () {
             field: 'orgName',
             title: '区域名称',
             align: 'center'
+        },{
+            field: 'provinceAgencyCode',
+            title: '省区编码',
+            align: 'center'
+        },{
+            field: 'provinceAgencyName',
+            title: '省区名称',
+            align: 'center'
+        },{
+            field: 'areaHubCode',
+            title: '枢纽编码',
+            align: 'center'
+        },{
+            field: 'areaHubName',
+            title: '枢纽名称',
+            align: 'center'
         }, {
             field: 'siteCode',
             title: '站点ID',

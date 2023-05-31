@@ -48,6 +48,23 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
      * */
     private String createUserName;
 
+    /**
+     * 操作省区编码
+     * */
+    private String operateProvinceAgencyCode;
+    /**
+     * 操作省区名称
+     * */
+    private String operateProvinceAgencyName;
+    /**
+     * 操作枢纽编码
+     */
+    private String operateAreaHubCode;
+    /**
+     * 操作枢纽名称
+     */
+    private String operateAreaHubName;
+
     public Integer getMerchantId() {
         return merchantId;
     }
@@ -118,5 +135,37 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
+    }
+
+    public String getOperateProvinceAgencyCode() {
+        return operateProvinceAgencyCode;
+    }
+
+    public void setOperateProvinceAgencyCode(String operateProvinceAgencyCode) {
+        this.operateProvinceAgencyCode = operateProvinceAgencyCode;
+    }
+
+    public String getOperateProvinceAgencyName() {
+        return operateProvinceAgencyName;
+    }
+
+    public void setOperateProvinceAgencyName(String operateProvinceAgencyName) {
+        this.operateProvinceAgencyName = operateProvinceAgencyName;
+    }
+
+    public String getOperateAreaHubCode() {
+        return operateAreaHubCode;
+    }
+
+    public void setOperateAreaHubCode(String operateAreaHubCode) {
+        this.operateAreaHubCode = operateAreaHubCode;
+    }
+
+    public String getOperateAreaHubName() {
+        return operateAreaHubName;
+    }
+
+    public void setOperateAreaHubName(String operateAreaHubName) {
+        this.operateAreaHubName = operateAreaHubName;
     }
 }

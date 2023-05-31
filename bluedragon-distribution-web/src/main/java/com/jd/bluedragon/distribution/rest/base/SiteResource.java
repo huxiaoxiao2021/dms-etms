@@ -5,6 +5,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BasicSiteDto;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
@@ -19,12 +20,12 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
-import com.jd.ql.dms.report.domain.StreamlinedSiteQueryCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.dto.site.BasicSiteVO;
+import com.jdl.basic.api.dto.site.SiteQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
@@ -61,6 +62,9 @@ public class SiteResource {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+	@Autowired
+	private JyBasicSiteQueryManager jyBasicSiteQueryManager;
 
 	@GET
 	@GZIP
@@ -277,21 +281,65 @@ public class SiteResource {
 		if(request.getFetchNum() > siteQueryLimit){
 			request.setFetchNum(siteQueryLimit);
 		}
-		List<StreamlinedBasicSite> streamlinedBasicSites
-				= baseMajorManager.querySiteByConditionFromStreamlinedSite(convertToQueryCondition(request), request.getFetchNum());
-		result.setData(convertToBasicSite(streamlinedBasicSites));
+		// 查询拣运基础站点获取数据
+		com.jdl.basic.common.utils.Pager<SiteQueryCondition> siteQueryPager = new com.jdl.basic.common.utils.Pager<>();
+		siteQueryPager.setPageNo(Constants.NUMBER_ONE);
+		siteQueryPager.setPageSize(request.getFetchNum());
+		siteQueryPager.setSearchVo(convertToPageQueryCondition(request));
+		com.jdl.basic.common.utils.Pager<BasicSiteVO> pagerBaseEntity = jyBasicSiteQueryManager.querySitePageByConditionFromBasicSite(siteQueryPager);
+		if(pagerBaseEntity != null && CollectionUtils.isNotEmpty(pagerBaseEntity.getData())){
+			result.setData(convertToBasicSite(pagerBaseEntity.getData()));
+		}
 		return result;
+	}
+
+	private SiteQueryCondition convertToPageQueryCondition(SiteQueryRequest request) {
+		SiteQueryCondition basicSiteQuery = new SiteQueryCondition();
+		if(request.getSiteId() != null && request.getSiteId() > Constants.NUMBER_ZERO){
+			basicSiteQuery.setSiteCode(request.getSiteId());
+		}
+		if(StringUtils.isNotEmpty(request.getSiteName())){
+			basicSiteQuery.setSiteName(request.getSiteName());
+		}
+		if(StringUtils.isNotEmpty(request.getDmsCode())){
+			basicSiteQuery.setDmsCode(request.getDmsCode());
+		}
+		if(StringUtils.isNotEmpty(request.getSiteNamePym())){
+			basicSiteQuery.setSiteNamePym(request.getSiteNamePym());
+		}
+		if(CollectionUtils.isNotEmpty(request.getSiteTypeList())){
+			basicSiteQuery.setSiteTypes(request.getSiteTypeList());
+		}
+		if(CollectionUtils.isNotEmpty(request.getSubTypeList())){
+			basicSiteQuery.setSubTypes(request.getSubTypeList());
+		}
+		if(request.getOrgId() != null && request.getOrgId() > Constants.NUMBER_ZERO){
+			basicSiteQuery.setOrgIds(Collections.singletonList(request.getOrgId()));
+		}
+		if(StringUtils.isNotEmpty(request.getProvinceAgencyCode())){
+			basicSiteQuery.setProvinceAgencyCode(request.getProvinceAgencyCode());
+		}
+		if(request.getProvinceId() != null && request.getProvinceId() > Constants.NUMBER_ZERO){
+			basicSiteQuery.setProvinceIds(Collections.singletonList(request.getProvinceId()));
+		}
+		if(request.getCityId() != null && request.getCityId() > Constants.NUMBER_ZERO){
+			basicSiteQuery.setCityIds(Collections.singletonList(request.getCityId()));
+		}
+		if(request.getCountryId() != null && request.getCountryId() > Constants.NUMBER_ZERO){
+			basicSiteQuery.setCountryIds(Collections.singletonList(request.getCountryId()));
+		}
+		return basicSiteQuery;
 	}
 
 	/**
 	 * 转换为客户端站点对象
-	 * @param streamlinedBasicSiteList
+	 * @param basicSiteList
 	 * @return
 	 */
-	private List<BasicSiteDto> convertToBasicSite(List<StreamlinedBasicSite> streamlinedBasicSiteList) {
+	private List<BasicSiteDto> convertToBasicSite(List<BasicSiteVO> basicSiteList) {
 		List<BasicSiteDto> list = new ArrayList<>();
-		if(CollectionUtils.isNotEmpty(streamlinedBasicSiteList)){
-			for (StreamlinedBasicSite site : streamlinedBasicSiteList){
+		if(CollectionUtils.isNotEmpty(basicSiteList)){
+			for (BasicSiteVO site : basicSiteList){
 				BasicSiteDto basicSiteDto = new BasicSiteDto();
 				BeanUtils.copyProperties(site,basicSiteDto);
 				basicSiteDto.setId(site.getSiteCode());
@@ -307,46 +355,6 @@ public class SiteResource {
 			}
 		}
 		return list;
-	}
-
-	/**
-	 * 查询条件转换
-	 * @param request
-	 * @return
-	 */
-	private StreamlinedSiteQueryCondition convertToQueryCondition(SiteQueryRequest request) {
-		StreamlinedSiteQueryCondition queryCondition = new StreamlinedSiteQueryCondition();
-		if(request.getSiteId() != null && request.getSiteId() > Constants.NUMBER_ZERO){
-			queryCondition.setSiteCodes(Collections.singletonList(request.getSiteId()));
-		}
-		if(StringUtils.isNotEmpty(request.getSiteName())){
-			queryCondition.setSiteName(request.getSiteName());
-		}
-		if(StringUtils.isNotEmpty(request.getDmsCode())){
-			queryCondition.setDmsCode(request.getDmsCode());
-		}
-		if(StringUtils.isNotEmpty(request.getSiteNamePym())){
-			queryCondition.setSiteNamePym(request.getSiteNamePym());
-		}
-		if(CollectionUtils.isNotEmpty(request.getSiteTypeList())){
-			queryCondition.setSiteTypes(request.getSiteTypeList());
-		}
-		if(CollectionUtils.isNotEmpty(request.getSubTypeList())){
-			queryCondition.setSubTypes(request.getSubTypeList());
-		}
-		if(request.getOrgId() != null && request.getOrgId() > Constants.NUMBER_ZERO){
-			queryCondition.setOrgIds(Collections.singletonList(request.getOrgId()));
-		}
-		if(request.getProvinceId() != null && request.getProvinceId() > Constants.NUMBER_ZERO){
-			queryCondition.setProvinceIds(Collections.singletonList(request.getProvinceId()));
-		}
-		if(request.getCityId() != null && request.getCityId() > Constants.NUMBER_ZERO){
-			queryCondition.setCityIds(Collections.singletonList(request.getCityId()));
-		}
-		if(request.getCountryId() != null && request.getCountryId() > Constants.NUMBER_ZERO){
-			queryCondition.setCountryIds(Collections.singletonList(request.getCountryId()));
-		}
-		return queryCondition;
 	}
 
 }

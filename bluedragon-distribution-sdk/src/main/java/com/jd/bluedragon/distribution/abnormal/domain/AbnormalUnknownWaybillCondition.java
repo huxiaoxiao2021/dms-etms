@@ -98,6 +98,15 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
     private Date endTime;
 
     /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
+    /**
      * The set method for waybillCode.
      *
      * @param waybillCode
@@ -371,5 +380,21 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 
     public void setWaybillCodes(List<String> waybillCodes) {
         this.waybillCodes = waybillCodes;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

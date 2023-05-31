@@ -555,8 +555,9 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
         printInfo.setRecycleBasketCodes(codes);
         printInfo.setOrgName(baseStaffSiteOrgDto.getOrgName());
+        printInfo.setProvinceAgencyName(baseStaffSiteOrgDto.getProvinceAgencyName());
         printInfo.setCreateSiteName(baseStaffSiteOrgDto.getSiteName());
-        printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getOrgName() + "-" + baseStaffSiteOrgDto.getSiteName());
+        printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getProvinceAgencyName() + "-" + baseStaffSiteOrgDto.getSiteName());
         response.setData(printInfo);
         return response;
     }
@@ -575,6 +576,10 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setTransStatus(TransStatusEnum.AT_THE_SITE.getCode());
             recycleMaterial.setOrgId(baseStaffSiteOrgDto.getOrgId());
             recycleMaterial.setOrgName(baseStaffSiteOrgDto.getOrgName());
+            recycleMaterial.setCurrentProvinceAgencyCode(baseStaffSiteOrgDto.getProvinceAgencyCode());
+            recycleMaterial.setCurrentProvinceAgencyName(baseStaffSiteOrgDto.getProvinceAgencyName());
+            recycleMaterial.setCurrentAreaHubCode(baseStaffSiteOrgDto.getAreaCode());
+            recycleMaterial.setCurrentAreaHubName(baseStaffSiteOrgDto.getAreaName());
             recycleMaterial.setCurrentSiteCode(baseStaffSiteOrgDto.getSiteCode());
             recycleMaterial.setCurrentSiteName(baseStaffSiteOrgDto.getSiteName());
             recycleMaterial.setOperationTime(new Date());

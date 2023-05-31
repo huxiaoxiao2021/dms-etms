@@ -334,6 +334,8 @@ function cancel(abnormalId) {
             <tr>
 			  <th>序号</th>
               <th>区域</th>
+              <th>省区名称</th>
+              <th>枢纽名称</th>
               <th>分拣中心</th>
               <th>异常类型</th>
               <th>运单号</th>
@@ -360,6 +362,8 @@ function cancel(abnormalId) {
 				<tr class="a2" style="">
                   <td>$velocityCount</td>
                   <td>$!popAbnormal.orgName</td>
+                  <td>$!popAbnormal.provinceAgencyName</td>
+                  <td>$!popAbnormal.areaHubName</td>
                   <td>$!popAbnormal.createSiteName</td>
                   <td>
 					$!popAbnormal.mainTypeName

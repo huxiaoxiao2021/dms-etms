@@ -639,6 +639,10 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             model.setOrgCode(operateSiteData.getOrgId());
             model.setOrgName(operateSiteData.getOrgName());
             model.setSiteName(operateSiteData.getSiteName());
+            model.setProvinceAgencyCode(operateSiteData.getProvinceAgencyCode());
+            model.setProvinceAgencyName(operateSiteData.getProvinceAgencyName());
+            model.setAreaHubCode(operateSiteData.getAreaCode());
+            model.setAreaHubName(operateSiteData.getAreaName());
         }
 
         // 根据包裹号查询上游箱号，补全数据
