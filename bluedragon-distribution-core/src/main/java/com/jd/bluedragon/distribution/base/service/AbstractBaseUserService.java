@@ -269,6 +269,9 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setNeedUpdate(needUpdate);
             response.setForceUpdate(forceUpdate);
             response.setDmsClientConfigInfo(dmsClientConfigInfo);
+            // 省区
+            response.setProvinceAgencyCode(loginResult.getProvinceAgencyCode());
+            response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
             // 返回结果
             return response;
         }

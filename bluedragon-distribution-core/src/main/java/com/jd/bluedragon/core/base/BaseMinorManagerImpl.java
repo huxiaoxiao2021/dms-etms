@@ -1,32 +1,29 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.base.domain.BaseProvinceAgencyVO;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.alibaba.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
 import com.jd.ldop.basic.dto.*;
-import com.jd.ql.basic.domain.AirTransport;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.BaseSiteGoods;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.ResultData;
-import com.jd.ql.basic.ws.BaseCrossPackageTagWS;
-import com.jd.ql.basic.ws.BasicAirConfigWS;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
-import com.jd.ql.basic.ws.BasicSortCrossDetailWS;
+import com.jd.ql.basic.ws.*;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +41,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private Logger log = LoggerFactory.getLogger(BaseMinorManagerImpl.class);
 	
 	public static final String SEPARATOR_HYPHEN = "-";
+	
+	// 基础资料查询所有省区类型
+	public static final Integer BASIC_QUERY_PROVINCE_TYPE = 11;
 
 	@Autowired
 	@Qualifier("basicTraderAPI")
@@ -77,6 +77,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private BasicSortCrossDetailWS basicSortCrossDetailWS;
+
+	@Autowired
+	private BasicOrganStructWS basicOrganStructWS;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
@@ -499,4 +502,43 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return result;
 	}
 
+	@CacheMethod(key="BaseMinorManager.queryAllProvinceAgency", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+	@JProfiler(jKey = "com.jd.bluedragon.core.base.BaseMinorManager.queryAllProvinceAgency",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public List<BaseProvinceAgencyVO> queryAllProvinceAgency() {
+		List<BaseProvinceAgencyVO> list = Lists.newArrayList();
+		List<BaseOrganStruct> allProvince = this.getBaseOrganStructsByOrganType(BASIC_QUERY_PROVINCE_TYPE);
+		if(CollectionUtils.isNotEmpty(allProvince)){
+			for (BaseOrganStruct item : allProvince) {
+				BaseProvinceAgencyVO baseProvinceAgencyVO = new BaseProvinceAgencyVO();
+				baseProvinceAgencyVO.setProvinceAgencyCode(item.getOrganCode());
+				baseProvinceAgencyVO.setProvinceAgencyName(item.getOrganName());
+				list.add(baseProvinceAgencyVO);
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * 根据organType获取所有该类型的机构数据
+	 *
+	 * @param organType 【20230501前旧版】：机构类型 1：机构 2：省公司(战区) 3：片区 4：分区，入参为null时，返回所有组织机构信息
+	 * @param organType 【20230501后新版】机构类型 11：省区   
+	 * @return
+	 */
+	private List<BaseOrganStruct> getBaseOrganStructsByOrganType(Integer organType) {
+		CallerInfo callerInfo = ProfilerHelper.registerInfo("com.jd.bluedragon.core.base.BaseMinorManager.getBaseOrganStructsByOrganType");
+		try{
+			if(organType == null){
+				return null;
+			}
+			return basicOrganStructWS.getBaseOrganStructsByOrganType(organType);
+		}catch(Exception e){
+			log.error("获取机构数据异常!", e);
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return null;
+	}
 }

@@ -22,6 +22,8 @@ public class BasePdaUserDto implements Serializable {
     private String dmsCode;    //7位站点编码
     private Integer siteType;   //站点类型
     private Integer subType;    //站点子类型
+    private String provinceAgencyCode;//省区编码
+    private String provinceAgencyName;//省区名称
     public String getDmsCode() {
         return dmsCode;
     }
@@ -124,5 +126,21 @@ public class BasePdaUserDto implements Serializable {
 
     public void setSubType(Integer subType) {
         this.subType = subType;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
     }
 }

@@ -137,6 +137,16 @@ public class BaseResponse extends JdResponse {
 	/** 站点业务类型 */
 	private Integer siteBusinessType;
 
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+
+	/**
+	 * 省区名称
+	 */
+	private String provinceAgencyName;
+
 	public Integer getSiteBusinessType() {
 		return siteBusinessType;
 	}
@@ -524,5 +534,21 @@ public class BaseResponse extends JdResponse {
 
 	public void setSubType(Integer subType) {
 		this.subType = subType;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
+	}
+
+	public void setProvinceAgencyName(String provinceAgencyName) {
+		this.provinceAgencyName = provinceAgencyName;
 	}
 }

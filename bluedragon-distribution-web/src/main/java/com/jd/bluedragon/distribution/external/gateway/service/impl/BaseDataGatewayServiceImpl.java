@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
+import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -25,11 +26,11 @@ import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.converter.ResultConverter;
-import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.dto.site.BasicSiteVO;
+import com.jdl.basic.api.dto.site.SiteQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,9 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
 
     @Autowired
     private IHintApiUnwrapManager hintApiUnwrapManager;
+
+    @Autowired
+    private JyBasicSiteQueryManager jyBasicSiteQueryManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BaseDataGatewayServiceImpl.getBaseDictionaryTree",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -206,17 +210,20 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
         try {
-            request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
-            final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
-            if(!pagerResult.isSuccess()){
+            // 查询拣运基础资料站点
+            com.jdl.basic.common.utils.Pager<SiteQueryCondition> siteQueryPager = new com.jdl.basic.common.utils.Pager<>();
+            siteQueryPager.setPageNo(request.getPageNo());
+            siteQueryPager.setPageSize(request.getPageSize());
+            siteQueryPager.setSearchVo(JsonHelper.fromJson(JsonHelper.toJson(request.getSearchVo()), SiteQueryCondition.class));
+            com.jdl.basic.common.utils.Pager<BasicSiteVO> pagerResult = jyBasicSiteQueryManager.querySitePageByConditionFromBasicSite(siteQueryPager);
+            if(pagerResult == null){
                 log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
                 response.toFail("查询站点信息异常");
                 return response;
             }
-            if (pagerResult.getData() != null) {
-                final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
-                pageData.setData(queryPageData.getData());
-                pageData.setTotal(queryPageData.getTotal());
+            if (CollectionUtils.isNotEmpty(pagerResult.getData())) {
+                pageData.setData(JsonHelper.jsonToList(JsonHelper.toJson(pagerResult.getData()), StreamlinedBasicSite.class));
+                pageData.setTotal(pagerResult.getTotal());
             }
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);

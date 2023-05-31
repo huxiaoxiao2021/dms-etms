@@ -45,6 +45,14 @@ public class SpotCheckContrastDetail implements Serializable {
      */
     private String contrastOrgName;
     /**
+     * 核对省区编码
+     */
+    private String contrastProvinceAgencyCode;
+    /**
+     * 核对省区名称
+     */
+    private String contrastProvinceAgencyName;
+    /**
      * 核对操作战区编码
      */
     private String contrastWarZoneCode;
@@ -170,6 +178,22 @@ public class SpotCheckContrastDetail implements Serializable {
 
     public void setContrastOrgName(String contrastOrgName) {
         this.contrastOrgName = contrastOrgName;
+    }
+
+    public String getContrastProvinceAgencyCode() {
+        return contrastProvinceAgencyCode;
+    }
+
+    public void setContrastProvinceAgencyCode(String contrastProvinceAgencyCode) {
+        this.contrastProvinceAgencyCode = contrastProvinceAgencyCode;
+    }
+
+    public String getContrastProvinceAgencyName() {
+        return contrastProvinceAgencyName;
+    }
+
+    public void setContrastProvinceAgencyName(String contrastProvinceAgencyName) {
+        this.contrastProvinceAgencyName = contrastProvinceAgencyName;
     }
 
     public String getContrastWarZoneCode() {
