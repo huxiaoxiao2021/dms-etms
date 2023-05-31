@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -313,6 +312,27 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             response.setCode(JdCResponse.CODE_ERROR);
         }
         return response;
+    }
+
+    @Override
+    public JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getExpSignInUserByPage 获取异常岗签到用户入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<List<ExpSignUserResp>> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null || StringUtils.isBlank(position.getRefGridKey())) {
+            response.toFail("网格码有误!");
+            return response;
+        }
+        String refGridKey = position.getRefGridKey();
+        //获取当前零点时间
+        Date zeroTimes = DateHelper.getCurrentDayWithOutTimes();
+
+
+        return null;
+
     }
 
     private ExpTaskOfWaitReceiveDto getExpTaskOfWaitReceiveDto(StatisticsByGridDto statisticOfGrid){

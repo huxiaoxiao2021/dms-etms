@@ -100,4 +100,18 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<List<ExpTaskOfWaitReceiveDto>> getWaitReceiveSanwuExceptionByPage(ExpTaskStatisticsReq req);
+
+    /**
+     * 获取异常岗签到用户
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req);
+
+    /**
+     * 指派任务给指定人
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> AssignTaskExp(List<ExpTaskAssignRequest> req);
 }

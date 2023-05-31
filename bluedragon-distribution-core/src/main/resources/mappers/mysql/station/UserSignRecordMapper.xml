@@ -89,7 +89,7 @@
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-	</resultMap>		
+	</resultMap>
 	
 		
 	<resultMap id="UserSignRecordData" type="com.jd.bluedragon.common.dto.station.UserSignRecordData" >
@@ -129,6 +129,14 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="baseUserSignMap" type="com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo">
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 	</resultMap>
 		
 	<sql id="Base_Column_List" >
@@ -972,4 +980,18 @@
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
 			and sign_out_time is null
 	</select>
+
+	<select id="querySignInUserByCondition" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
+		select site_code,user_code,user_code_encrypt,user_name,user_name_encrypt
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key =#{refGridKey}
+		AND <![CDATA[ sign_in_time <= #{signInTime,jdbcType=TIMESTAMP}  ]]>
+		<if test="userErp != null and userErp != ''" >
+			AND user_name_encrypt = #{userErp, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle}
+		</if>
+		group by user_code
+
+	</select>
+	
 </mapper>
