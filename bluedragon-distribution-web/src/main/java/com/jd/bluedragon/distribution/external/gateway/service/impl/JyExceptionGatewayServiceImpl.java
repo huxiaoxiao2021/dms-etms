@@ -207,12 +207,12 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Override
     public JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req) {
-        return null;
+        return jySanwuExceptionService.getExpSignInUserByPage(req);
     }
 
     @Override
-    public JdCResponse<Boolean> AssignTaskExp(List<ExpTaskAssignRequest> req) {
-        return null;
+    public JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req) {
+        return jySanwuExceptionService.assignExpTask(req);
     }
 
 }

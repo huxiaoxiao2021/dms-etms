@@ -8,24 +8,26 @@ import java.util.List;
  * @Date: 2023/5/31 16:32
  * @Description:异常任务指派
  */
-public class ExpTaskAssignRequest implements Serializable {
+public class ExpTaskAssignRequest extends ExpBaseReq implements Serializable {
 
     /**
      * 异常任务主键
      */
-    private String bizId;
+    private List<String> bizIds;
 
     /**
-     * 指派人erp
+     * 指派人处理人erp
      */
     private String assignHandlerErp;
 
-    public String getBizId() {
-        return bizId;
+
+
+    public List<String> getBizIds() {
+        return bizIds;
     }
 
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
+    public void setBizIds(List<String> bizIds) {
+        this.bizIds = bizIds;
     }
 
     public String getAssignHandlerErp() {
@@ -35,4 +37,5 @@ public class ExpTaskAssignRequest implements Serializable {
     public void setAssignHandlerErp(String assignHandlerErp) {
         this.assignHandlerErp = assignHandlerErp;
     }
+
 }

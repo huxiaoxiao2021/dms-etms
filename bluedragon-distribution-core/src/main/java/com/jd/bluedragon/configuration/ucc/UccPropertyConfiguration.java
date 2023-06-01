@@ -1478,6 +1478,11 @@ public class UccPropertyConfiguration {
      */
     private int waitReceiveSanwuTaskTimeOfHours;
 
+    /**
+     * 三无任务指派数量限制
+     */
+    private int assignExpTaskQuantityLimit;
+
     public boolean getSupportMutilScan() {
         return supportMutilScan;
     }
@@ -3444,5 +3449,13 @@ public class UccPropertyConfiguration {
 
     public void setWaitReceiveSanwuTaskTimeOfHours(int waitReceiveSanwuTaskTimeOfHours) {
         this.waitReceiveSanwuTaskTimeOfHours = waitReceiveSanwuTaskTimeOfHours;
+    }
+
+    public int getAssignExpTaskQuantityLimit() {
+        return assignExpTaskQuantityLimit;
+    }
+
+    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+        assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
 }

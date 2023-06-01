@@ -1060,6 +1060,9 @@
 			AND user_name_encrypt = #{userErp, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle}
 		</if>
 		group by user_code
+		<if test="pageNumber > 0">
+			limit #{offset}, #{limit}
+		</if>
 
 	</select>
 

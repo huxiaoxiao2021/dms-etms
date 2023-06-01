@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpSignUserReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskAssignRequest;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskOfWaitReceiveDto;
+import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskMQ;
 
 import java.util.List;
 
@@ -28,5 +30,18 @@ public interface JySanwuExceptionService {
      * @return
      */
     JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req);
+
+    /**
+     * 指派任务
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req);
+
+    /**
+     * 处理指派异常任务数据
+     * @param mq
+     */
+    void dealAssignTaskData(JyAssignExpTaskMQ mq);
 
 }

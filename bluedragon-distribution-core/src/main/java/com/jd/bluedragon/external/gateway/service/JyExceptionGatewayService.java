@@ -113,5 +113,5 @@ public interface JyExceptionGatewayService {
      * @param req
      * @return
      */
-    JdCResponse<Boolean> AssignTaskExp(List<ExpTaskAssignRequest> req);
+    JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req);
 }

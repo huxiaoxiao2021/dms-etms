@@ -838,4 +838,10 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  异常-任务指派MQ  -->
+    <bean id="assignTaskExpProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.assign.exception.task}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
 </beans>

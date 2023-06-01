@@ -1578,6 +1578,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setTags(getTags(entity.getTags()));
         dto.setStatus(entity.getStatus());
         dto.setProcessingStatus(entity.getProcessingStatus());
+        dto.setTaskAssign(entity.getTaskAssign());
         if(Objects.nonNull(entity.getType())
                 && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
             ExpTaskByIdReq req = new ExpTaskByIdReq();

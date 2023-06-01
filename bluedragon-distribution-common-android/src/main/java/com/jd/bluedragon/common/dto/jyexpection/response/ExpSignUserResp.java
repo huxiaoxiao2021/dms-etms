@@ -19,10 +19,6 @@ public class ExpSignUserResp implements Serializable {
      */
     private String expUserCode;
 
-    /**
-     * 站点编码
-     */
-    private Integer siteCode;
 
     public String getExpUserErp() {
         return expUserErp;
@@ -40,11 +36,4 @@ public class ExpSignUserResp implements Serializable {
         this.expUserCode = expUserCode;
     }
 
-    public Integer getSiteCode() {
-        return siteCode;
-    }
-
-    public void setSiteCode(Integer siteCode) {
-        this.siteCode = siteCode;
-    }
 }
