@@ -106,14 +106,16 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
         operatorInfo.setSiteName(dto.getStartSiteName());
         operatorInfo.setUserCode(dto.getUserCode());
         operatorInfo.setOperateTime(dto.getOperateTime());
+        operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
+        operatorInfo.setOperatorId(dto.getOperatorId());
         return operatorInfo;
     }
 
     private Integer getBarCodeType(String barCode) {
-        if (WaybillUtil.isWaybillCode(barCode)) {
-            return ComboardBarCodeTypeEnum.WAYBILL.getCode();
-        } else if (WaybillUtil.isPackageCode(barCode)) {
+        if (WaybillUtil.isPackageCode(barCode)) {
             return ComboardBarCodeTypeEnum.PACKAGE.getCode();
+        } else if (WaybillUtil.isWaybillCode(barCode)) {
+            return ComboardBarCodeTypeEnum.WAYBILL.getCode();
         } else {
             return ComboardBarCodeTypeEnum.BOX.getCode();
         }

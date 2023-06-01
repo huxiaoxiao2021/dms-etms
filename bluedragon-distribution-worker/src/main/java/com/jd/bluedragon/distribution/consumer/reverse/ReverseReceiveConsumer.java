@@ -290,6 +290,8 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					taskService.add(this.toTaskStatus(tWaybillStatus));
 				}else{
 					if (reverseReceive.getCanReceive() == 0){
+						//记录驳回原因
+						tWaybillStatus.setRemark(reverseReceive.getRejectMessage());
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 						taskService.add(this.toTask(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 1) {

@@ -37,6 +37,10 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
     public static final Integer CODE_PRESEAL_EXIST_ERROR = 30004;
     public static final String TIPS_PRESEAL_EXIST_ERROR = "该目的地已提交预封车数据，是否取消上次预封车？";
 
+	public static final Integer ALL_SENDCODES_ARE_EMPTY_CODE = 30005;
+	public static final String ALL_SENDCODES_ARE_EMPTY_MESSAGE = "封车批次全部为空批次，不允许操作封车！";
+
+
 	public static final String MESSAGE_TRANSPORT_START_END_RANGE_ERROR = "批次号始发地和目的地非当前分拣中心，无法进行封车";
 
 	public NewSealVehicleResponse(){

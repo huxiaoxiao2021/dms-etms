@@ -59,6 +59,7 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +156,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private DeliveryWSManager deliveryWSManager;
-    
+
     /**
      * 通用异常上报入口-扫描
      *
@@ -681,7 +682,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      *
      */
     @Override
-    public JdCResponse<ExpTaskDto> queryByBarcode(Integer type, String barcode) {
+    public JdCResponse<ExpTaskDto> queryByBarcode(Integer type, String barcode, String erp) {
 
         String bizId = getBizId(type, barcode);
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -689,6 +690,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("该条码无相关任务!" + barcode);
         }
         ExpTaskDto taskDto = getTaskDto(taskEntity);
+        if(ObjectUtils.notEqual(taskEntity.getHandlerErp(), erp)){
+            return JdCResponse.fail("您未领取该条码任务!" + barcode);
+        }
         return JdCResponse.ok(taskDto);
     }
 
@@ -1087,7 +1091,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(logger.isInfoEnabled()){
             logger.info("生效报废单:{}触发拦截成功消息!", exTaskEntity.getBarCode());
         }
-        bdBlockerCompleteMQ.sendOnFailPersistent(exTaskEntity.getBizId(), 
+        bdBlockerCompleteMQ.sendOnFailPersistent(exTaskEntity.getBizId(),
                 BusinessUtil.bdBlockerCompleteMQ(exTaskEntity.getBarCode(), DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date())));
     }
 

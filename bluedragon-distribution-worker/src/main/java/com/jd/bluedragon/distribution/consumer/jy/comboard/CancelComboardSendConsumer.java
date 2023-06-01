@@ -121,6 +121,8 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         taskDto.setUserName(request.getUserName());
         taskDto.setSiteName(request.getSiteName());
         taskDto.setUserCode(request.getUserCode());
+        taskDto.setOperatorTypeCode(request.getOperatorTypeCode());
+        taskDto.setOperatorId(request.getOperatorId()); 
         for (int i = 0; i < pageTotal; i++) {
             taskDto.setPageNo(i + 1);
             taskDto.setPageSize(onePageSize);
@@ -140,6 +142,8 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         operatorInfo.setSiteName(request.getSiteName());
         operatorInfo.setUserCode(request.getUserCode());
         operatorInfo.setOperateTime(new Date());
+    	operatorInfo.setOperatorTypeCode(request.getOperatorTypeCode());
+    	operatorInfo.setOperatorId(request.getOperatorId());
         return operatorInfo;
     }
     private SendM toSendM(CancelComboardSendTaskDto request) {
@@ -152,6 +156,8 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         sendM.setOperateTime(now);
         sendM.setUpdateTime(now);
         sendM.setYn(Constants.YN_NO);
+        sendM.setOperatorTypeCode(request.getOperatorTypeCode());
+        sendM.setOperatorId(request.getOperatorId());
         return sendM;
     }
 }

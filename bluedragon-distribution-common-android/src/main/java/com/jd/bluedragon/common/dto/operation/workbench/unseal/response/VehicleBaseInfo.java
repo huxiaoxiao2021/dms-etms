@@ -1,6 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unseal.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @ClassName VehicleBaseInfo
@@ -16,6 +19,11 @@ public class VehicleBaseInfo implements Serializable {
      * 封车编码
      */
     private String sealCarCode;
+
+    /**
+     * 业务编码
+     */
+    private String bizId;
 
     /**
      * 车牌号
@@ -55,7 +63,22 @@ public class VehicleBaseInfo implements Serializable {
     /**
      * 抽检类型
      */
-    private Integer spotCheckType;    
+    private Integer spotCheckType;
+
+    /**
+     * 单号标签集合
+     */
+    private List<LabelOption> tags;
+
+    /**
+     * 排序
+     */
+    private Integer orderIndex;
+
+    /**
+     * 0-非特安；1-特安
+     */
+    private Integer teanFlag;
 
     public String getSealCarCode() {
         return sealCarCode;
@@ -63,6 +86,14 @@ public class VehicleBaseInfo implements Serializable {
 
     public void setSealCarCode(String sealCarCode) {
         this.sealCarCode = sealCarCode;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public String getVehicleNumber() {
@@ -128,4 +159,28 @@ public class VehicleBaseInfo implements Serializable {
 	public void setSpotCheckType(Integer spotCheckType) {
 		this.spotCheckType = spotCheckType;
 	}
+
+    public List<LabelOption> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<LabelOption> tags) {
+        this.tags = tags;
+    }
+
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    public Integer getTeanFlag() {
+        return teanFlag;
+    }
+
+    public void setTeanFlag(Integer teanFlag) {
+        this.teanFlag = teanFlag;
+    }
 }

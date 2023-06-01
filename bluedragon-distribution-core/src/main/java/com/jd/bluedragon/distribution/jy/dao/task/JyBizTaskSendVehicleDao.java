@@ -99,7 +99,9 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
                                                                 List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        params.put("sendVehicleBizList", sendVehicleBizList);
+        if(sendVehicleBizList != null && sendVehicleBizList.size() > 0){
+            params.put("sendVehicleBizList", sendVehicleBizList.toArray());
+        }
         if (entity.getLineType() != null) {
             List<Integer> lineType = new ArrayList<>();
             if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(entity.getLineType())
@@ -107,13 +109,13 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
                 lineType.add(JyLineTypeEnum.OTHER.getCode());
             }
             lineType.add(entity.getLineType());
-            params.put("lineTypeList", lineType);
+            params.put("lineTypeList", lineType.toArray());
         }
         if (typeEnum != null) {
             params.put("sortType", typeEnum.getCode());
         }
         if (statuses != null && statuses.size() > 0) {
-            params.put("statuses", statuses);
+            params.put("statuses", statuses.toArray());
         }
         params.put("offset", offset);
         params.put("limit", limit);
@@ -123,9 +125,11 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        params.put("sendVehicleBizList", sendVehicleBizList);
+        if(sendVehicleBizList != null && sendVehicleBizList.size() > 0){
+            params.put("sendVehicleBizList", sendVehicleBizList.toArray());
+        }
         if (statuses != null && statuses.size() > 0) {
-            params.put("statuses", statuses);
+            params.put("statuses", statuses.toArray());
         }
         return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", params);
     }
@@ -189,5 +193,9 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
         return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> findByTransWork(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByTransWork", entity);
     }
 }

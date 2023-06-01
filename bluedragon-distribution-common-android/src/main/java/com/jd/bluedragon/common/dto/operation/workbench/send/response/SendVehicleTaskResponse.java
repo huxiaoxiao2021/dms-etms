@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 
 import java.io.Serializable;
@@ -44,6 +45,11 @@ public class SendVehicleTaskResponse implements Serializable {
      * 根据包裹号查到发货流向的任务bizId列表
      */
     private List<String> sendVehicleBizList;
+
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
     public List<VehicleStatusStatis> getStatusAgg() {
         return statusAgg;
@@ -91,5 +97,13 @@ public class SendVehicleTaskResponse implements Serializable {
 
     public void setSendVehicleBizList(List<String> sendVehicleBizList) {
         this.sendVehicleBizList = sendVehicleBizList;
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

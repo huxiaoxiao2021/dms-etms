@@ -39,6 +39,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -292,6 +293,9 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         //特保单校验
         luxurySecurityCheck(request,response);
 
+        //特安单校验
+        TEANCheck(request,response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -404,5 +408,19 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
         }
         log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
+    }
+
+    private void TEANCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        try{
+            InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
+            log.info("卸车扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
+            if(teanResult != null && teanResult.getData()){
+                response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+            }
+            log.info("卸车扫描TEANCheck -结果-response {}",JSON.toJSONString(response));
+        }catch (Exception e){
+           log.error("TEANCheck 异常-param-{}", JsonHelper.toJson(request),e);
+        }
+
     }
 }

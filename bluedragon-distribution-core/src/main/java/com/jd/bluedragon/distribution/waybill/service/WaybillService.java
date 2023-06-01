@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
@@ -244,5 +245,20 @@ public interface WaybillService {
      * @return
      */
     boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode);
+
+    /**
+     * 是否特安运单
+     * @param waybillCode
+     * @return
+     */
+    boolean isTeAnWaybill(String waybillCode);
+
+    /**
+     * 特安单检验
+     * @param response
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> checkTEANWaybillCondition(String waybillCode);
 
 }

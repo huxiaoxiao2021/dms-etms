@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.UpdateBoardStatusDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
@@ -49,8 +50,11 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
     condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
+    if (!ucc.getCreateBoardBySendFlowSwitch()) {
+      condition.setGroupCode(sendFlowDto.getGroupCode());
+    }
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
-    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
+    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() >= 1) {
       BoardDto dto = new BoardDto();
       dto.setBoardCode(bizTaskList.get(0).getBoardCode());
       dto.setCount(bizTaskList.get(0).getHaveScanCount());
@@ -65,13 +69,16 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode,
-      List<Integer> endSiteCodeList) {
+      List<Integer> endSiteCodeList,String groupCode) {
     JyBizTaskComboardReq req = new JyBizTaskComboardReq();
     req.setStartSiteId(startSiteCode);
     req.setEndSiteCodeList(endSiteCodeList);
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     req.setComboardSourceList(comboardSourceList);
+    if (!ucc.getCreateBoardBySendFlowSwitch()) {
+      req.setGroupCode(groupCode);
+    }
     return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
   }
 
@@ -114,6 +121,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     }
     condition.setStatusList(sendFlowDto.getStatusList());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
+    if (!ucc.getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
+      condition.setGroupCode(sendFlowDto.getGroupCode());
+    }
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
   }
 
@@ -153,7 +163,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-  @CacheMethod(key="JyBizTaskComboardServiceImpl.queryBizTaskByBoardCode-{0}-{1}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+  @CacheMethod(key="JyBizTaskComboardServiceImpl.queryBizTaskByBoardCodeNew-{0}-{1}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
   public JyBizTaskComboardEntity queryBizTaskByBoardCode(int siteCode, String boardCode) {
     JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
     condition.setStartSiteId(Long.valueOf(siteCode));
@@ -211,5 +221,10 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     boardStatusDto.setBoardStatus(comboardStatusEnum.getCode());
     boardStatusDto.setSealTime(new Date());
     return jyBizTaskComboardDao.updateBoardStatus(boardStatusDto) > 0;
+  }
+
+  @Override
+  public List<SendFlowDto> countBoardGroupBySendFlow(CountBoardDto countBoardDto) {
+    return jyBizTaskComboardDao.countBoardGroupBySendFlow(countBoardDto);
   }
 }

@@ -51,7 +51,7 @@ public class InvokeResult<T> implements Serializable {
     //普通拦截
     public static final Integer CODE_HINT = 30002;
     //特殊展示拦截
-    public static final Integer CODE_SPECIAL_INTERCEPT = 30003;
+    public static final Integer CODE_SPECIAL_INTERCEPT = 30063;
 
     public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
     public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
@@ -117,6 +117,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
     public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
+
+    public static final int NOT_SUPPORT_CZ_LINE_TASK_CODE= 327;
+    public static final String NOT_SUPPORT_CZ_LINE_TASK_MESSAGE ="旧版传站发货功能已经下线，请使用新版传站组板发货功能！";
 
     public static final int NO_RE_DETELE_TASK_CODE= 329;
     public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
@@ -229,7 +232,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
 
     public static final int CHECK_BARCODE_CODE = 3056;
-    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
+    public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号|目的地ID";
 
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
@@ -248,11 +251,34 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE = 3061;
     public static final String NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE= "与上单流向不一致，请注意更换托盘！";
 
+    public static final int COMBOARD_SCAN_FORCE_SEND_WARNING = 3062;
+
+    public static final int BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_CODE = 3063;
+    public static final String BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_MESSAGE = "已达上限，不允许补扫！";
+
+    public static final int NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_CODE = 3064;
+    public static final String NOT_SUPPORT_BULK_SCAN_FOR_REPLENISH_SCAN_MESSAGE = "补扫不允许按单扫描！";
+    public static final String NOT_SUPPORT_REPLENISH_SCAN_FOR_BULK_MESSAGE = "大宗板号-一板一单，不允许继续扫描！";
+
+
+    public static final int NO_FOUND_SEND_TASK_DATA_CODE= 3065;
+    public static final String NO_FOUND_SEND_TASK_DATA_MESSAGE ="未找到对应的派车任务！";
+
+    public static final int ONLINE_GET_TASK_SIMPLE_FAIL_CODE= 3066;
+    public static final String ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE ="获取任务简码失败！";
+
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
 
     public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
     public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
+
+    public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
+    public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
+
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

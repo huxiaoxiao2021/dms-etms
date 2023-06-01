@@ -52,7 +52,7 @@ public interface JyExceptionService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(Integer type,String barcode);
+    JdCResponse<ExpTaskDto> queryByBarcode(Integer type,String barcode,String erp);
 
     /**
      * 任务明细
@@ -60,7 +60,7 @@ public interface JyExceptionService {
     JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req);
 
     /**
-     * 处理任务接口-三无
+     * 处理任务接口
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
 
@@ -88,7 +88,7 @@ public interface JyExceptionService {
 
     /**
      * 根据处理时间查询报废处理人ERP
-     * 
+     *
      * @param queryStartTime 查询开始时间
      * @param queryEndTime 查询结束时间
      * @return
@@ -97,7 +97,7 @@ public interface JyExceptionService {
 
     /**
      * 根据处理时间查询报废人的报废任务详情
-     * 
+     *
      * @param handlerErp 报废人ERP
      * @param queryStartTime 查询开始时间
      * @param queryEndTime 查询结束时间
@@ -107,14 +107,14 @@ public interface JyExceptionService {
 
     /**
      * 处理客服回传消息
-     * 
+     *
      * @param jyExCustomerNotifyMQ
      */
     void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ);
 
     /**
      * 更新异常任务结果
-     * 
+     *
      * @param barCode 单号
      * @param operateErp 操作人
      * @param dateTime 时间

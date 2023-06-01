@@ -50,6 +50,15 @@ public class CancelComboardSendTaskDto {
     private List<String> barCodeList;
 
     private BizSourceEnum bizSource;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;  
 
     public BizSourceEnum getBizSource() {
         return bizSource;
@@ -122,4 +131,20 @@ public class CancelComboardSendTaskDto {
     public void setBarCodeList(List<String> barCodeList) {
         this.barCodeList = barCodeList;
     }
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
+	}
 }

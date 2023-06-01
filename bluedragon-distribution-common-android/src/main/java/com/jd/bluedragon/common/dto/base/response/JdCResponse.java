@@ -98,6 +98,13 @@ public class JdCResponse<E> implements Serializable {
 		return CODE_ERROR.equals(this.code);
 	}
 	/**
+	 * 是否需要确认
+	 * @return
+	 */
+	public boolean needConfirm() {
+		return CODE_CONFIRM.equals(this.code);
+	}	
+	/**
 	 * 状态转换
 	 */
 	public void toSucceed() {

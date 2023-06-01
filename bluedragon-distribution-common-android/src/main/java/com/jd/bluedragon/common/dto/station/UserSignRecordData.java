@@ -198,7 +198,10 @@ public class UserSignRecordData implements Serializable {
 	private String workTimes;
 	
 	private GroupMemberData groupData;
-	
+	/**
+	 * 岗位码
+	 */
+	private String positionCode;
 	
 	public Long getId() {
 		return id;
@@ -438,5 +441,11 @@ public class UserSignRecordData implements Serializable {
 	}
 	public void setGroupData(GroupMemberData groupData) {
 		this.groupData = groupData;
+	}
+	public String getPositionCode() {
+		return positionCode;
+	}
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
 	}
 }

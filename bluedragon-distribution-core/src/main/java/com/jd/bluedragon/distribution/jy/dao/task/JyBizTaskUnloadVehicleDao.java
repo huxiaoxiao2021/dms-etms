@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.unseal.JyUnSealVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,6 +33,8 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 
     final static String NAMESPACE = JyBizTaskUnloadVehicleDao.class.getName();
 
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
     /**
      * 新增
      *
@@ -59,6 +65,22 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizIdIgnoreYn", params);
     }
 
+    /**
+     * 根据bizId获取实际解封车顺序
+     * @return
+     */
+    public JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity){
+        Map<String,Object> params = new HashMap<>();
+        params.put("endSiteId",entity.getEndSiteId());
+        params.put("bizId",entity.getBizId());
+        params.put("vehicleStatus",entity.getVehicleStatus());
+        Long lastHour = uccConfig.getJyUnSealTaskLastHourTime();
+        if(lastHour != null && lastHour > Constants.LONG_ZERO) {
+            params.put("sortTimeBegin",entity.getSortTime());
+            params.put("sortTimeEnd", DateHelper.newTimeRangeHoursAgo(entity.getSortTime(), - lastHour.intValue()));
+        }
+        return this.getSqlSession().selectOne(NAMESPACE + ".findRealRankingByBizId", params);
+    }
     /**
      * 根据派车明细编码获取数据
      * @param transWorkItemCode
@@ -132,6 +154,22 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 
     }
 
+    /**
+     * 获取不同状态下的特安车辆任务数
+     * @param entity
+     * @param statuses
+     * @param sealCarCodes
+     * @return
+     */
+    public Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity",entity);
+        params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
+        return this.getSqlSession().selectOne(NAMESPACE + ".findStatusCountByCondition4StatusAndLineOfTEAN", params);
+    }
     /**
      * 分页获取数据
      * @param condition

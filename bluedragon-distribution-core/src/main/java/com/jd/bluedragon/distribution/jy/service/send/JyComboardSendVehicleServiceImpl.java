@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskItemDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
@@ -31,13 +34,16 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyComboardLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import java.math.BigDecimal;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
@@ -60,6 +66,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +95,11 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   private BasicQueryWSManager basicQueryWSManager;
   @Autowired
   UccPropertyConfiguration ucc;
+  @Autowired
+  JySealVehicleService jySealVehicleService;
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyComboardSendVehicleServiceImpl.sendDestDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
     InvokeResult<List<SendDestDetail>> invokeResult = new InvokeResult<>();
 
@@ -181,6 +191,29 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     return queryStatus;
   }
 
+  @Override
+  public void assembleSendTaskStatus(SendTaskInfo sendTaskInfo,
+      JyBizTaskSendVehicleEntity sendVehicleEntity) {
+    if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(sendVehicleEntity.getVehicleStatus())){
+      sendTaskInfo.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
+    }
+    else {
+      sendTaskInfo.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+    }
+    sendTaskInfo.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendTaskInfo.getVehicleStatus()));
+  }
+
+  @Override
+  public void assembleSendTaskDetailStatus(JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity,
+      SendTaskItemDetail sendTaskItemDetail) {
+    if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(sendVehicleDetailEntity.getVehicleStatus())){
+      sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
+    }
+    else {
+      sendTaskItemDetail.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+    }
+    sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendTaskItemDetail.getVehicleStatus()));
+  }
 
   @Override
   public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(
@@ -304,10 +337,22 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
       result.hintMessage("未检索到相应的派车任务！");
       return null;
     }//完整车牌号检索
-    else if (BusinessUtil.isCarCode(queryTaskSendDto.getKeyword())){
-      List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
-      if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
-        return sendVehicleBizList;
+    else if (!NumberHelper.isNumber(queryTaskSendDto.getKeyword())
+        && (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)
+        || queryTaskSendDto.getKeyword().matches(DmsConstants.CODE_PREFIX))){
+      String chineseCarNum = "";
+      if (queryTaskSendDto.getKeyword().matches(DmsConstants.CHINESE_PREFIX)){
+        chineseCarNum =queryTaskSendDto.getKeyword();
+      }
+      else if (queryTaskSendDto.getKeyword().matches(DmsConstants.CODE_PREFIX)){
+        chineseCarNum =jySealVehicleService.transformLicensePrefixToChinese(queryTaskSendDto.getKeyword());
+      }
+      if (ObjectHelper.isNotNull(chineseCarNum)){
+        queryTaskSendDto.setKeyword(chineseCarNum);
+        List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+        if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size() > 0) {
+          return sendVehicleBizList;
+        }
       }
       result.hintMessage("未检索到相应的派车任务！");
       return null;
@@ -706,5 +751,26 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     pager.setPageNo(request.getPageNumber());
     pager.setPageSize(request.getPageSize());
     return pager;
+  }
+
+  @Override
+  public List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
+    List<LabelOption> tagList = new ArrayList<>();
+
+    // 司机是否领取任务
+    if (transWorkBillDto != null) {
+      // work_status = 20(已开始), status > 15(待接受)
+      if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+        SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+        tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+      }
+    }
+
+    // 车长
+    String carLengthDesc = setCarLength(entity);
+    SendVehicleLabelOptionEnum carLengthTag = SendVehicleLabelOptionEnum.CAR_LENGTH;
+    tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
+
+    return tagList;
   }
 }
