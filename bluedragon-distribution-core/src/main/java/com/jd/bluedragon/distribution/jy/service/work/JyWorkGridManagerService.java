@@ -1,0 +1,49 @@
+package com.jd.bluedragon.distribution.jy.service.work;
+
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerPageData;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
+
+/**
+ * 任务管理--Service接口
+ * 
+ * @author wuyoude
+ * @date 2023年05月30日 14:30:43
+ *
+ */
+public interface JyWorkGridManagerService {
+
+	/**
+	 * 按条件分页查询
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<JyWorkGridManagerPageData> queryDataList(JyWorkGridManagerQueryRequest query);
+	/**
+	 * 根据bizId查询单条数据
+	 * @param bizId
+	 * @return
+	 */
+	JdCResponse<JyWorkGridManagerData> queryDataByBizId(String bizId);
+	/**
+	 * 保存数据-保存已编辑的数据，任务状态改成处理中
+	 * @param data
+	 * @return
+	 */
+	JdCResponse<Boolean> saveData(JyWorkGridManagerTaskEditRequest request);
+	/**
+	 * 提交数据-保存已编辑的数据，任务状态改成处理完成
+	 * @param data
+	 * @return
+	 */
+	JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request);
+	/**
+	 * 扫描任务岗位码，验证是否和任务对应的岗位码一致
+	 * @param request
+	 * @return
+	 */
+	JdCResponse<Boolean> scanTaskPosition(ScanTaskPositionRequest request);
+}
