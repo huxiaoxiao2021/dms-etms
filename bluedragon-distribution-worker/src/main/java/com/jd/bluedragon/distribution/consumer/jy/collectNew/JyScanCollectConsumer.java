@@ -57,7 +57,7 @@ public class JyScanCollectConsumer extends MessageBaseConsumer {
         boolean consumeRes;
         try {
             if(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode().equals(mqBody.getJyPostType())) {
-                consumeRes = jyWareHouseSendScanCollect(mqBody);
+                consumeRes = scanCollectDeal(mqBody);
 
             }else {
                 log.warn("新拣运集齐服务暂不支持接货仓发货岗之外的岗位集齐处理，当前岗位=【{}】，msg={}", JyPostEnum.getDescByCode(mqBody.getJyPostType()), message.getText());
@@ -84,7 +84,7 @@ public class JyScanCollectConsumer extends MessageBaseConsumer {
      * @param collectDto
      * @return
      */
-    private boolean jyWareHouseSendScanCollect(JyScanCollectMqDto collectDto){
+    private boolean scanCollectDeal(JyScanCollectMqDto collectDto){
         JyScanCollectStrategy jyScanCollectStrategy = JyScanCollectStrategyFactory.getJyScanCollectService(collectDto.getJyPostType());
         return jyScanCollectStrategy.scanCollectDeal(collectDto);
     }

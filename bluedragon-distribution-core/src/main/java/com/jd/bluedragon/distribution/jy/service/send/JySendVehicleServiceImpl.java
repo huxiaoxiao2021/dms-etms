@@ -83,7 +83,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
-import com.jd.bluedragon.distribution.jy.constants.JyCollectionMqBizSourceEnum;
+import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
@@ -1628,7 +1628,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            sendCollectDealMQ(request);
+            sendCollectDealMQ(request, sendCode);
 
             // 包裹首次扫描逻辑
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
@@ -3925,7 +3925,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * 发送发货集齐消息
      * @param request
      */
-    private void sendCollectDealMQ(SendScanRequest request) {
+    private void sendCollectDealMQ(SendScanRequest request, String sendCode) {
         if(!Objects.isNull(request.getFocusCollect()) && request.getFocusCollect()) {
             JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
             mqDto.setOperatorErp(request.getUser().getUserErp());
@@ -3936,6 +3936,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             //
             mqDto.setMainTaskBizId(request.getSendVehicleBizId());
             mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+            mqDto.setSendCode(sendCode);
             mqDto.setJyPostType(request.getPostType());
             mqDto.setBarCode(request.getBarCode());
             mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));

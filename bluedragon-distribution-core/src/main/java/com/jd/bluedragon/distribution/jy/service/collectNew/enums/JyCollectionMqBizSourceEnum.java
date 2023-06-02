@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.constants;
+package com.jd.bluedragon.distribution.jy.service.collectNew.enums;
 
 public enum JyCollectionMqBizSourceEnum {
 

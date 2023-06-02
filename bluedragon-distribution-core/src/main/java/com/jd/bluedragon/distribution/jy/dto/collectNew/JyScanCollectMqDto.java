@@ -49,6 +49,10 @@ public class JyScanCollectMqDto implements Serializable {
      */
     private String detailTaskBizId;
     /**
+     * 批次号
+     */
+    private String sendCode;
+    /**
      * 岗位类型
      * com.jd.bluedragon.distribution.jy.constants.JyPostEnum
      */
@@ -56,7 +60,7 @@ public class JyScanCollectMqDto implements Serializable {
 
     /**
      * 消息传递可能的来源
-     * com.jd.bluedragon.distribution.jy.constants.JyCollectionMqBizSourceEnum
+     * com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum
      */
     private String bizSource;
 

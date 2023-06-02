@@ -17,17 +17,7 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
 		<result column="ts" property="ts" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
-
-		<result column="custom_type" property="customType" jdbcType="VARCHAR" />
-		<result column="real_collect_num" property="realCollectNum" jdbcType="VARCHAR" />
-
 	</resultMap>
-
-	<sql id="Base_Column_List" >
-		id, collection_code, agg_code, agg_code_type, init_number, is_init, is_collected,
-		is_extra_collected, is_more_collected_mark, agg_mark, create_time, update_time, yn,
-		ts, custom_type, real_collect_num
-	</sql>
 
 
 	<insert id="insertCollectionRecord" parameterType="CollectionRecordPo">
@@ -49,101 +39,6 @@
 			#{aggMark, jdbcType=VARCHAR},
 			NOW(),1
 		)
-	</insert>
-
-
-	<insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" >
-		insert into collection_record
-		<trim prefix="(" suffix=")" suffixOverrides="," >
-			<if test="id != null" >
-				id,
-			</if>
-			<if test="collectionCode != null" >
-				collection_code,
-			</if>
-			<if test="aggCode != null" >
-				agg_code,
-			</if>
-			<if test="aggCodeType != null" >
-				agg_code_type,
-			</if>
-			<if test="initNumber != null" >
-				init_number,
-			</if>
-			<if test="isInit != null" >
-				is_init,
-			</if>
-			<if test="isCollected != null" >
-				is_collected,
-			</if>
-			<if test="isExtraCollected != null" >
-				is_extra_collected,
-			</if>
-			<if test="isMoreCollectedMark != null" >
-				is_more_collected_mark,
-			</if>
-			<if test="aggMark != null" >
-				agg_mark,
-			</if>
-			<if test="createTime != null" >
-				create_time,
-			</if>
-			<if test="updateTime != null" >
-				update_time,
-			</if>
-			<if test="customType != null" >
-				custom_type,
-			</if>
-			<if test="realCollectNum != null" >
-				real_collect_num,
-			</if>
-			yn
-		</trim>
-		<trim prefix="values (" suffix=")" suffixOverrides="," >
-			<if test="id != null" >
-				#{id,jdbcType=BIGINT},
-			</if>
-			<if test="collectionCode != null" >
-				#{collectionCode,jdbcType=VARCHAR},
-			</if>
-			<if test="aggCode != null" >
-				#{aggCode,jdbcType=VARCHAR},
-			</if>
-			<if test="aggCodeType != null" >
-				#{aggCodeType,jdbcType=VARCHAR},
-			</if>
-			<if test="initNumber != null" >
-				#{initNumber,jdbcType=INTEGER},
-			</if>
-			<if test="isInit != null" >
-				#{isInit,jdbcType=TINYINT},
-			</if>
-			<if test="isCollected != null" >
-				#{isCollected,jdbcType=TINYINT},
-			</if>
-			<if test="isExtraCollected != null" >
-				#{isExtraCollected,jdbcType=TINYINT},
-			</if>
-			<if test="isMoreCollectedMark != null" >
-				#{isMoreCollectedMark,jdbcType=TINYINT},
-			</if>
-			<if test="aggMark != null" >
-				#{aggMark,jdbcType=VARCHAR},
-			</if>
-			<if test="createTime != null" >
-				#{createTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="updateTime != null" >
-				#{updateTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="customType != null" >
-				#{customType,jdbcType=VARCHAR},
-			</if>
-			<if test="realCollectNum != null" >
-				#{realCollectNum,jdbcType=INTEGER},
-			</if>
-			1
-		</trim>
 	</insert>
 
 	<insert id="batchInsertCollectionRecord" parameterType="java.util.List">
@@ -293,71 +188,5 @@
 		limit 100
 	</select>
 
-	<!-- 查询拣运任务扫描记录 -->
-	<select id="findJyCollectRecordByAggCode" parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" resultMap="collectionRecordMap">
-		select
-		<include refid="Base_Column_List" />
-		from collection_record
-		where yn = 1
-		and collection_code = #{collectionCode, jdbcType=VARCHAR}
-		and agg_code = #{aggCode, jdbcType=VARCHAR}
 
-	</select>
-
-
-	<update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" >
-		update collection_record
-		<set >
-			<if test="initNumber != null" >
-				init_number = #{initNumber,jdbcType=INTEGER},
-			</if>
-			<if test="isInit != null" >
-				is_init = #{isInit,jdbcType=TINYINT},
-			</if>
-			<if test="isCollected != null" >
-				is_collected = #{isCollected,jdbcType=TINYINT},
-			</if>
-			<if test="isExtraCollected != null" >
-				is_extra_collected = #{isExtraCollected,jdbcType=TINYINT},
-			</if>
-			<if test="isMoreCollectedMark != null" >
-				is_more_collected_mark = #{isMoreCollectedMark,jdbcType=TINYINT},
-			</if>
-			<if test="aggMark != null" >
-				agg_mark = #{aggMark,jdbcType=VARCHAR},
-			</if>
-			<if test="updateTime != null" >
-				update_time = #{updateTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="yn != null" >
-				yn = #{yn,jdbcType=TINYINT},
-			</if>
-			<if test="customType != null" >
-				custom_type = #{customType,jdbcType=VARCHAR},
-			</if>
-			<if test="realCollectNum != null" >
-				real_collect_num = #{realCollectNum,jdbcType=INTEGER},
-			</if>
-		</set>
-		where id = #{id,jdbcType=BIGINT}
-	</update>
-
-
-	<!-- 查询拣运任务扫描记录 -->
-	<select id="findCollectRecordByCondition" parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordCondition" resultMap="collectionRecordMap">
-		select
-		<include refid="Base_Column_List" />
-		from collection_record
-		where yn = 1
-		and collection_code = #{collectionCode, jdbcType=VARCHAR}
-		<if test="isCollected != null">
-			and is_collected = #{isCollected, jdbcType=INTEGER}
-		</if>
-		<if test="customType != null" >
-			and custom_type = #{customType,jdbcType=VARCHAR}
-		</if>
-
-		limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
-
-	</select>
 </mapper>

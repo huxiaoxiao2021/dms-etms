@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,6 +30,10 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
     public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyWarehouseScanCollectService.scanCollectDeal:接货仓发货岗扫描处理集齐数据：";
         log.info("{}param={}", methodDesc, JsonHelper.toJson(collectDto));
+        if(!filterInvalid(collectDto)) {
+            return true;
+        }
+
         if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return super.scanWaybillCollectDeal(collectDto);
         } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
@@ -39,5 +44,23 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
             log.warn("{}目前仅支持处理按包裹、运单、箱号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
+    }
+
+    /**
+     * 过滤无效数据
+     * @param collectDto
+     * @return true: 有效数据  false: 无效数据
+     */
+    public boolean filterInvalid(JyScanCollectMqDto collectDto) {
+        if(!super.filterInvalid(collectDto)) {
+            log.warn("JyWarehouseScanCollectHandler.filterInvalid:接货仓发货集齐消息消费必要参数缺失1，不做处理，msg={}", JsonHelper.toJson(collectDto));
+            return false;
+        }
+        if(StringUtils.isBlank(collectDto.getSendCode())    //接货仓发货岗是批次维度，必传批次号
+        ) {
+            log.warn("JyWarehouseScanCollectHandler.filterInvalid:接货仓发货集齐消息消费必要参数缺失2，不做处理，msg={}", JsonHelper.toJson(collectDto));
+            return false;
+        }
+        return true;
     }
 }

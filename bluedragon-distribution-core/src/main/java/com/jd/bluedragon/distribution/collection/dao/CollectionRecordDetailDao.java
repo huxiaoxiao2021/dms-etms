@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.collection.dao;
 
 import com.jd.bluedragon.distribution.collection.entity.CollectionCollectedMarkCounter;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailCondition;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
 import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
 import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
@@ -35,11 +34,6 @@ public class CollectionRecordDetailDao {
             collectionRecordDetailPo.setId(sequenceGenAdaptor.newId(TABLE_NAME_COLLECTION_RECORD_DETAIL));
         }
         return this.sqlSession.insert(NAMESPACE.concat(".batchInsertCollectionRecordDetail"), collectionRecordDetailPos);
-    }
-
-    public int insertSelective(CollectionRecordDetailPo detailPo){
-        detailPo.setId(sequenceGenAdaptor.newId(TABLE_NAME_COLLECTION_RECORD_DETAIL));
-        return this.sqlSession.insert(NAMESPACE.concat(".insertSelective"), detailPo);
     }
 
     public List<CollectionRecordDetailPo> findCollectionRecordDetail(CollectionRecordDetailPo collectionRecordDetailPo) {
@@ -164,13 +158,5 @@ public class CollectionRecordDetailDao {
         param.put("limit", limit);
         param.put("offset", offset);
         return this.sqlSession.selectList(NAMESPACE.concat(".findAggCodeByCollectedMark"), param);
-    }
-
-    public Integer countScanCodeNumNumByCollectedMarkAndAggCode(CollectionRecordDetailPo detailPo) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".countScanCodeNumNumByCollectedMarkAndAggCode"), detailPo);
-    }
-
-    public List<CollectionRecordDetailPo> findCollectRecordDetailByCondition(CollectionRecordDetailCondition condition) {
-        return this.sqlSession.selectList(NAMESPACE.concat(".findCollectRecordDetailByCondition"), condition);
     }
 }

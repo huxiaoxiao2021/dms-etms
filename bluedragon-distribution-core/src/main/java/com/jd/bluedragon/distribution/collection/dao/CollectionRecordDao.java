@@ -37,11 +37,6 @@ public class CollectionRecordDao {
         return this.sqlSession.insert(NAMESPACE.concat(".insertCollectionRecord"), collectionRecordPo);
     }
 
-    public int insertSelective(CollectionRecordPo recordPo){
-        recordPo.setId(sequenceGenAdaptor.newId(TABLE_NAME_COLLECTION_RECORD));
-        return this.sqlSession.insert(NAMESPACE.concat(".insertSelective"), recordPo);
-    }
-
     public Integer batchInsertCollectionRecord(List<CollectionRecordPo> collectionRecordPos) {
         for (CollectionRecordPo collectionRecordPo : collectionRecordPos) {
             collectionRecordPo.setId(sequenceGenAdaptor.newId(TABLE_NAME_COLLECTION_RECORD));
@@ -111,17 +106,4 @@ public class CollectionRecordDao {
         param.put("isMoreCollectedMark", isMoreCollectedMark);
         return this.sqlSession.selectOne(NAMESPACE.concat(".findByAggCode"), param);
     }
-
-    public CollectionRecordPo findJyCollectRecordByAggCode(CollectionRecordPo collectionRecordPo) {
-        return this.sqlSession.selectOne(NAMESPACE.concat(".findJyCollectRecordByAggCode"), collectionRecordPo);
-    }
-
-    public Integer updateByPrimaryKeySelective(CollectionRecordPo recordPo) {
-        return this.sqlSession.update(NAMESPACE.concat(".updateByPrimaryKeySelective"), recordPo);
-    }
-
-    public List<CollectionRecordPo> findCollectRecordByCondition(CollectionRecordCondition condition) {
-        return this.sqlSession.selectList(NAMESPACE.concat(".findCollectRecordByCondition"), condition);
-    }
-
 }

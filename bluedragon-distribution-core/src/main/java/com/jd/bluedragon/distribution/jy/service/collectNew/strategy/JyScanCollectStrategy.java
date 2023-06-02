@@ -6,8 +6,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.collection.service.JyScanCollectCacheService;
-import com.jd.bluedragon.distribution.collection.service.JyScanCollectService;
-import com.jd.bluedragon.distribution.jy.constants.JyCollectionMqBizSourceEnum;
+import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
+import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
@@ -67,6 +67,9 @@ public class JyScanCollectStrategy {
     @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectStrategy.scanCollectDeal",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyScanCollectService.scanCollectDeal:拣运扫描处理集齐数据：";
+        if(!this.filterInvalid(collectDto)) {
+            return true;
+        }
         if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return this.scanWaybillCollectDeal(collectDto);
         } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
@@ -79,6 +82,26 @@ public class JyScanCollectStrategy {
             log.warn("{}目前仅支持处理按包裹、运单、箱号、板号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
+    }
+
+    /**
+     * 过滤无效数据
+     * @param collectDto
+     * @return true: 有效数据  false: 无效数据
+     */
+    public boolean filterInvalid(JyScanCollectMqDto collectDto) {
+        if(Objects.isNull(collectDto)
+                || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getBizSource())    //逻辑分支必选
+                || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getCodeType())    //逻辑分支必选
+                || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getJyPostType())  //collectionCode必选
+                || Objects.isNull(collectDto.getOperateTime())      //业务必选
+                || Objects.isNull(collectDto.getOperateSiteId())    //分库拆分键
+                || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getBarCode())     //业务必选
+        ) {
+            log.warn("JyScanCollectStrategy.filterInvalid:集齐消息消费必要参数缺失，不做处理，msg={}", JsonHelper.toJson(collectDto));
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -97,7 +120,7 @@ public class JyScanCollectStrategy {
             throw new JyBizException("拣运扫描包裹维度包裹号为空");
         }
         if (jyScanCollectCacheService.existCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode)) {
-            log.warn("{}防重cache拦截，当前包裹已处理或，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
+            log.warn("{}防重cache拦截，当前包裹已处理过，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -246,16 +269,12 @@ public class JyScanCollectStrategy {
     @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectStrategy.getCollectionCode",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public String getCollectionCode(JyScanCollectMqDto collectDto) {
         if(StringUtils.isBlank(collectDto.getJyPostType())
-                || Objects.isNull(collectDto.getOperateSiteId())
-                || StringUtils.isBlank(collectDto.getMainTaskBizId())) {
+                || StringUtils.isBlank(collectDto.getSendCode())) {
             log.error("JyScanCollectStrategy.getCollectionCode,获取collectionCode参数缺失,param={}", JsonHelper.toJson(collectDto));
             throw new JyBizException("获取collectionCode参数缺失");
         }
-        String collectionCode = jqCodeService.getOrGenJyScanTaskCollectionCode(
-                JyPostEnum.getJyPostEnumByCode(collectDto.getJyPostType()),
-                collectDto.getOperateSiteId(),
-                collectDto.getMainTaskBizId(),
-                null);
+        String collectionCode = jqCodeService.getOrGenJyScanTaskSendCodeCollectionCode(
+                JyPostEnum.getJyPostEnumByCode(collectDto.getJyPostType()), collectDto.getSendCode(), null);
         if(StringUtils.isBlank(collectionCode)) {
             log.error("JyScanCollectStrategy.getCollectionCode获取为空，param={}", JsonHelper.toJson(collectDto));
             throw new JyBizException("获取collectionCode为空");

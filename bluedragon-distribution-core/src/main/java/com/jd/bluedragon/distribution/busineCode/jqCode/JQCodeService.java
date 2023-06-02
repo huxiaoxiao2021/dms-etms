@@ -36,21 +36,17 @@ public interface JQCodeService {
 
 
     /**
-     * 拣运app岗位处理集齐获取 collectionCode  （任务维度）
+     * 拣运app岗位处理集齐获取 collectionCode  （批次维度）
      * @param jyPostEnum  岗位类型（必填）
-     * @param siteId  操作场地（必填）
-     * @param bizId  任务主键（必填）
      * @param userErp  操作人（选填）
      * @return
      */
-    String getOrGenJyScanTaskCollectionCode(JyPostEnum jyPostEnum, Integer siteId, String bizId, String userErp);
+    String getOrGenJyScanTaskSendCodeCollectionCode(JyPostEnum jyPostEnum, String sendCode, String userErp);
 
     /**
      * 获取condition
      * @param jyPostEnum
-     * @param siteId
-     * @param bizId
      * @return
      */
-    String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId);
+    String getJyScanSendCodeCollectionCondition(JyPostEnum jyPostEnum, String sendCode);
 }

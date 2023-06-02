@@ -55,19 +55,22 @@ public class JQCodeServiceImpl implements JQCodeService {
     /**
      * 组装collectionCode对应condition的字段
      */
-    public static final String CONDITION_SITE_ID = "SITE";//场地编码
-    public static final String CONDITION_JY_BIZ_ID = "TASK:";//任务主键
-    public static final String CONDITION_JY_POST = "POST";//岗位枚举
+//    public static final String CONDITION_SITE_ID = "SITE";//场地编码
+//    public static final String CONDITION_JY_BIZ_ID = "TASK:";//任务主键
+    public static final String CONDITION_JY_BATCH = "BATCH:";//批次号
+    public static final String CONDITION_JY_POST = "POST:";//岗位枚举
     public static final String CONDITION_DATE_PARTITION = "DATE";//时间分区
     /**
      * 组装collectionCode附属属性attribute的字段
      */
-    public static final String ATTRIBUTE_SITE_ID = "site_code";//场地编码
-    public static final String ATTRIBUTE_JY_BIZ_ID = "biz_id";//任务主键
+//    public static final String ATTRIBUTE_SITE_ID = "site_code";//场地编码
+//    public static final String ATTRIBUTE_JY_BIZ_ID = "biz_id";//任务主键
+    public static final String ATTRIBUTE_BATCH_CODE = "batch_code";//批次号
     public static final String ATTRIBUTE_JY_POST = "jy_post";//岗位枚举
     public static final String ATTRIBUTE_CONDITION = "condition";//
     public static final String ATTRIBUTE_DATE_PARTITION = "date_partition";//创建时间
     public static final String ATTRIBUTE_POST_TYPE = "post_type";//岗位类型
+    public static final String  ATTRIBUTE_COLLECTION_CODE = "collection_code";//关联的collectionCode
 
 
 
@@ -222,18 +225,16 @@ public class JQCodeServiceImpl implements JQCodeService {
     /**
      * 任务维度 collectionCode 获取
      * @param jyPostEnum  岗位类型（必填）
-     * @param siteId  操作场地（必填）
-     * @param bizId  任务主键（必填）
+     * @param sendCode  批次号
      * @param userErp  操作人（选填）
      * @return
      */
     @Override
-    public String getOrGenJyScanTaskCollectionCode(JyPostEnum jyPostEnum, Integer siteId, String bizId,  String userErp) {
+    public String getOrGenJyScanTaskSendCodeCollectionCode(JyPostEnum jyPostEnum, String sendCode,  String userErp) {
         String methodDesc =  "JQCodeServiceImpl.getOrGenerateCollectionCodeByBusinessType:获取collectionCode:";
         String datePartition = DateUtil.format(new Date(), DateUtil.FORMAT_DATE);
         //
-        // String condition = getJyScanCollectionConditionWithDataPartition(jyPostEnum, siteId, bizId, datePartition);
-        String condition = getJyScanCollectionCondition(jyPostEnum, siteId, bizId);
+        String condition = getJyScanSendCodeCollectionCondition(jyPostEnum, sendCode);
         //
         String cacheKey = String.format("JQCondition:%s", condition);
         String collectionCode = jimdbCacheService.get(cacheKey);
@@ -253,7 +254,7 @@ public class JQCodeServiceImpl implements JQCodeService {
             log.info("{}没有查到collectionCode,进行生成，collection={}", methodDesc, condition);
         }
 
-        Map<String,String> attributeParam = getJyScanCollectionAttributeMap(jyPostEnum, siteId, bizId, datePartition, condition);
+        Map<String,String> attributeParam = getJyScanCollectionAttributeMap(jyPostEnum, sendCode, datePartition, condition);
         BusinessCodeFromSourceEnum fromSource = BusinessCodeFromSourceEnum.DMS_WORKER_SYS;
         //当前没有符合的condition进行生成
         collectionCode = createCollectionCode(condition, attributeParam, fromSource, userErp);
@@ -263,10 +264,9 @@ public class JQCodeServiceImpl implements JQCodeService {
         return collectionCode;
     }
 
-    private Map<String, String> getJyScanCollectionAttributeMap(JyPostEnum jyPostEnum, Integer siteId, String bizId, String datePartition, String condition) {
+    private Map<String, String> getJyScanCollectionAttributeMap(JyPostEnum jyPostEnum, String sendCode, String datePartition, String condition) {
         Map<String, String> attributeMap = new HashMap<>();
-        attributeMap.put(ATTRIBUTE_SITE_ID, siteId.toString());
-        attributeMap.put(ATTRIBUTE_JY_BIZ_ID, bizId);
+        attributeMap.put(ATTRIBUTE_BATCH_CODE, sendCode);
         attributeMap.put(ATTRIBUTE_JY_POST, jyPostEnum.getCode());
         attributeMap.put(ATTRIBUTE_DATE_PARTITION, datePartition);
         attributeMap.put(ATTRIBUTE_CONDITION, condition);
@@ -278,23 +278,21 @@ public class JQCodeServiceImpl implements JQCodeService {
     }
 
     /**
-     * 获取集齐condition
+     * 获取集齐condition （批次维度）
      * 进来保证长度不要过长，底层对场地有限制，超过长度后会截取处理
-     * 辨识度高的字段放前面： bizId + 岗位 + 场地
+     * 辨识度高的字段放前面：  岗位 + 批次
      * @param jyPostEnum
-     * @param siteId
-     * @param bizId
+     * @param sendCode
      * @return
      */
     @Override
-    public String getJyScanCollectionCondition(JyPostEnum jyPostEnum, Integer siteId, String bizId) {
-        if(Objects.isNull(jyPostEnum) || Objects.isNull(siteId) || StringUtils.isBlank(bizId)) {
+    public String getJyScanSendCodeCollectionCondition(JyPostEnum jyPostEnum, String sendCode) {
+        if(Objects.isNull(jyPostEnum) || StringUtils.isBlank(sendCode)) {
             return null;
         }
         StringBuffer sb = new StringBuffer();
-        sb.append(JQCodeServiceImpl.CONDITION_JY_BIZ_ID).append(bizId)
-                .append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())
-                .append(JQCodeServiceImpl.CONDITION_SITE_ID).append(siteId);
+        sb.append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())
+                .append(JQCodeServiceImpl.CONDITION_JY_BATCH).append(sendCode);
         return sb.toString().toUpperCase();
     }
     /**

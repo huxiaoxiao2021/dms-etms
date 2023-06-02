@@ -29,18 +29,20 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordCondition;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailCondition;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo;
-import com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo;
-import com.jd.bluedragon.distribution.collection.service.JyScanCollectService;
-import com.jd.bluedragon.distribution.collection.service.JyScanCollectServiceImpl;
+import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeServiceImpl;
+import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
+import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -76,6 +78,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("jyWarehouseSendVehicleServiceImpl")
 public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl implements JyWarehouseSendVehicleService{
@@ -125,7 +128,10 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private KvIndexDao kvIndexDao;
     @Autowired
     private JyScanCollectService jyScanCollectService;
-
+    @Autowired
+    private JySendCodeDao jySendCodeDao;
+    @Autowired
+    private BusinessCodeDao businessCodeDao;
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -711,25 +717,35 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             return res;
         }
 
-        String collectionCode = this.getCollectionCode(request.getCurrentOperate().getSiteCode(), entity.getSendVehicleBizId());
-        if(StringUtils.isBlank(collectionCode)) {
+        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(entity.getSendVehicleBizId());
+        if(CollectionUtils.isEmpty(sendCodes)) {
+            res.parameterError("未查到该任务发货批次数据");
+            return res;
+        }
+        Integer siteId = request.getCurrentOperate().getSiteCode();
+        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteId, sendCodes);
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
             log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
             res.setMessage("未查到该任务扫描信息");
             return res;
         }
+        if(log.isInfoEnabled()) {
+            log.info("{}获取场地{}任务{}下所有批次{}对应的collectionCode={}",
+                    methodDesc, siteId, entity.getSendVehicleBizId(), JsonHelper.toJson(sendCodes), JsonHelper.toJson(collectionCodeList));
+        }
 
-        CollectionRecordCondition jqQueryParam = new CollectionRecordCondition();
-        jqQueryParam.setCollectionCode(collectionCode);
+        JyCollectRecordCondition jqQueryParam = new JyCollectRecordCondition();
+        jqQueryParam.setCollectionCodeList(collectionCodeList);
+        jqQueryParam.setSiteId(siteId.longValue());
         jqQueryParam.setCustomType(WaybillCustomTypeEnum.TO_B.getCode());//B网
-        jqQueryParam.setIsCollected(JyScanCollectServiceImpl.BU_QI);//未集齐
         jqQueryParam.setPageSize(request.getPageSize());
         int offset = (request.getPageNo() - 1) * request.getPageSize();
         jqQueryParam.setOffset(offset);
 
         if(log.isInfoEnabled()) {
-            log.info("{}集齐查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
+            log.info("{}不齐运单查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
         }
-        List<CollectionRecordPo> collectionRecordPoList = jyScanCollectService.findCollectRecordByCondition(jqQueryParam);
+        List<JyCollectRecordPo> collectionRecordPoList = jyScanCollectService.findBuQiWaybillByCollectionCodes(jqQueryParam);
         if(CollectionUtils.isEmpty(collectionRecordPoList)) {
             res.setMessage("未查到任务下不齐数据");
             return res;
@@ -742,7 +758,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         collectionRecordPoList.forEach(collectionRecordPo -> {
             BuQiWaybillDto buQiWaybillDto = new BuQiWaybillDto();
             buQiWaybillDto.setWaybillCode(collectionRecordPo.getAggCode());
-            buQiWaybillDto.setTotalNum(collectionRecordPo.getInitNumber());
+            buQiWaybillDto.setTotalNum(collectionRecordPo.getShouldCollectNum());
             buQiWaybillDto.setScanNum(collectionRecordPo.getRealCollectNum());
             buQiWaybillDtoList.add(buQiWaybillDto);
         });
@@ -750,10 +766,33 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return res;
     }
 
-    private String getCollectionCode(Integer siteCode, String sendVehicleBizId) {
-        String jqCondition = jqCodeService.getJyScanCollectionCondition(JyPostEnum.SEND_SEAL_WAREHOUSE,
-                siteCode, sendVehicleBizId);
-        return kvIndexDao.queryRecentOneByKeyword(jqCondition);
+
+    /**
+     * 获取任务下可能的所有collectionCode
+     * @param siteCode
+     * @param sendCodes
+     * @return
+     */
+    private List<String> getTaskAllCollectionCode(Integer siteCode, List<String> sendCodes) {
+        //当前场地直接
+        Set<String> collectionCodeNewList = new HashSet<>();
+        //跨流向任务迁移时会生成新批次作为当前批次，原批次删除，集齐扫描关系不变还在原批次上，需要找到当前批次被跨流向迁移之前的批次
+        Set<String> collectionCodeOldList = new HashSet<>();
+
+        for(String sendCode : sendCodes) {
+            String jqCondition = jqCodeService.getJyScanSendCodeCollectionCondition(JyPostEnum.SEND_SEAL_WAREHOUSE, sendCode);
+            String collectionCode = kvIndexDao.queryRecentOneByKeyword(jqCondition);
+            if(StringUtils.isBlank(collectionCode)) {
+                log.warn("接货仓发货岗根据批次号condition查collectionCode为空，场地={}，jqCondition={}", siteCode, jqCondition);
+                continue;
+            }
+            List<String> relationCollectionCodeList = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectionCode, JQCodeServiceImpl.ATTRIBUTE_COLLECTION_CODE);
+            if(CollectionUtils.isNotEmpty(relationCollectionCodeList)) {
+                collectionCodeOldList.addAll(relationCollectionCodeList);
+            }
+        }
+        collectionCodeNewList.addAll(collectionCodeOldList);
+        return collectionCodeNewList.stream().collect(Collectors.toList());
     }
 
     @Override
@@ -772,26 +811,35 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             }
             sendVehicleBizId = entity.getSendVehicleBizId();
         }
-
-        String collectionCode = this.getCollectionCode(request.getCurrentOperate().getSiteCode(), sendVehicleBizId);
-        if(StringUtils.isBlank(collectionCode)) {
+        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(sendVehicleBizId);
+        if(CollectionUtils.isEmpty(sendCodes)) {
+            res.parameterError("未查到该任务发货批次数据");
+            return res;
+        }
+        Integer siteId = request.getCurrentOperate().getSiteCode();
+        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteId, sendCodes);
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
             log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
             res.setMessage("未查到该任务扫描信息");
             return res;
         }
+        if(log.isInfoEnabled()) {
+            log.info("{}获取场地{}任务{}下所有批次{}对应的collectionCode={}",
+                    methodDesc, siteId, sendVehicleBizId, JsonHelper.toJson(sendCodes), JsonHelper.toJson(collectionCodeList));
+        }
 
-        CollectionRecordDetailCondition jqDetailQueryParam = new CollectionRecordDetailCondition();
-        jqDetailQueryParam.setCollectionCode(collectionCode);
+        JyCollectRecordDetailCondition jqDetailQueryParam = new JyCollectRecordDetailCondition();
+        jqDetailQueryParam.setSiteId(siteId.longValue());
+        jqDetailQueryParam.setCollectionCodeList(collectionCodeList);
         jqDetailQueryParam.setAggCode(request.getWaybillCode());
-        jqDetailQueryParam.setCollectedMark(sendVehicleBizId);
         jqDetailQueryParam.setPageSize(request.getPageSize());
         int offset = (request.getPageNo() - 1) * request.getPageSize();
         jqDetailQueryParam.setOffset(offset);
 
         if(log.isInfoEnabled()) {
-            log.info("{}集齐查询参数={}", methodDesc, JsonHelper.toJson(jqDetailQueryParam));
+            log.info("{}不齐包裹查询参数={}", methodDesc, JsonHelper.toJson(jqDetailQueryParam));
         }
-        List<CollectionRecordDetailPo> collectionRecordPoList = jyScanCollectService.findCollectRecordDetailByCondition(jqDetailQueryParam);
+        List<JyCollectRecordDetailPo> collectionRecordPoList = jyScanCollectService.findByCollectionCodesAndAggCode(jqDetailQueryParam);
         if(CollectionUtils.isEmpty(collectionRecordPoList)) {
             res.setMessage("未查到运单数据");
             return res;
