@@ -75,11 +75,10 @@ public class ExpTaskDto implements Serializable {
      */
     private Integer processingStatus;
 
-    /**
-     * 任务是否是指派：1-是，0-不是
-     */
-    private Integer taskAssign;
 
+    /**
+     * 特殊标识
+     */
     private String specialFlag;
 
     public String getBizId() {
@@ -238,13 +237,6 @@ public class ExpTaskDto implements Serializable {
         this.processingStatus = processingStatus;
     }
 
-    public Integer getTaskAssign() {
-        return taskAssign;
-    }
-
-    public void setTaskAssign(Integer taskAssign) {
-        this.taskAssign = taskAssign;
-    }
 
     public String getSpecialFlag() {
         return specialFlag;

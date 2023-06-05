@@ -1468,6 +1468,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (tagEnum == null) {
                 continue;
             }
+            //组长指派的三无任务标签特殊处理
+            if(Objects.equals(JyBizTaskExceptionTagEnum.ASSIGN.getCode(),tagEnum.getCode())){
+                TagDto dto = new TagDto();
+                dto.setName(tagEnum.getName());
+                dto.setCode(tagEnum.ordinal());
+                dto.setStyle("error");
+                list.add(dto);
+                continue;
+            }
             TagDto dto = new TagDto();
             dto.setName(tagEnum.getName());
             dto.setCode(tagEnum.ordinal());
@@ -1579,7 +1588,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setTags(getTags(entity.getTags()));
         dto.setStatus(entity.getStatus());
         dto.setProcessingStatus(entity.getProcessingStatus());
-        dto.setTaskAssign(entity.getTaskAssign());
         if(Objects.nonNull(entity.getType())
                 && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
             ExpTaskByIdReq req = new ExpTaskByIdReq();

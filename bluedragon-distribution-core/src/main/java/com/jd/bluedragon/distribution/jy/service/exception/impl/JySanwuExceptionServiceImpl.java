@@ -34,6 +34,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -522,6 +523,8 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         update.setUpdateUserErp(mq.getPrincipalErp());
         update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
+        update.setTags(StringHelper.append(bizEntity.getTags(),JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
+
 
         jyBizTaskExceptionDao.updateByBizId(update);
         recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
