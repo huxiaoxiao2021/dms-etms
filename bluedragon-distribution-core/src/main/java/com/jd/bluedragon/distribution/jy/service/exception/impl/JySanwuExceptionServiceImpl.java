@@ -434,8 +434,8 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             }
             baseUserSignRecordVos.stream().forEach(item ->{
                 ExpSignUserResp resp = new ExpSignUserResp();
-                resp.setExpUserCode(item.getUserCode());
-                resp.setExpUserErp(item.getUserName());
+                resp.setExpUserName(item.getUserName());
+                resp.setExpUserErp(item.getUserCode());
                 expSignUserResps.add(resp);
             });
             response.setData(expSignUserResps);
@@ -450,6 +450,9 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.assignExpTask", mState = {JProEnum.TP})
     public JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req) {
+        if(logger.isInfoEnabled()){
+            logger.info("指派异常任务入参-{}",JSON.toJSONString(req));
+        }
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(Boolean.TRUE);

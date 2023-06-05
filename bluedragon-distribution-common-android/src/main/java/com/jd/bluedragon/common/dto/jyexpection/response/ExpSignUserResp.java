@@ -19,6 +19,11 @@ public class ExpSignUserResp implements Serializable {
      */
     private String expUserCode;
 
+    /**
+     * 异常签到用户名称
+     */
+    private String expUserName;
+
 
     public String getExpUserErp() {
         return expUserErp;
@@ -36,4 +41,11 @@ public class ExpSignUserResp implements Serializable {
         this.expUserCode = expUserCode;
     }
 
+    public String getExpUserName() {
+        return expUserName;
+    }
+
+    public void setExpUserName(String expUserName) {
+        this.expUserName = expUserName;
+    }
 }
