@@ -473,7 +473,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             //一次分配任务数量限制
             int assignExpTaskQuantityLimit = uccPropertyConfiguration.getAssignExpTaskQuantityLimit();
             if(assignExpTaskQuantityLimit < req.getBizIds().size()){
-                response.toFail("一次指派任务条数不能超过限制{"+assignExpTaskQuantityLimit+"}!");
+                response.toFail("一次指派任务条数不能超过限制条数:"+assignExpTaskQuantityLimit+"!");
                 response.setData(Boolean.FALSE);
                 return response;
             }

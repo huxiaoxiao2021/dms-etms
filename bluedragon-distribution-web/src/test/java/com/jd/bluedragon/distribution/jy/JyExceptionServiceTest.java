@@ -227,7 +227,7 @@ public class JyExceptionServiceTest {
         req.setSiteId(910);
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
-        req.setAssignHandlerErp("张三");
+        req.setAssignHandlerErp("wuyoude");
         req.setBizIds(Arrays.asList("SANWU_SW123456789876544321345678","SANWU_SWTYXC111111"));
 
         JdCResponse<Boolean> response = jySanwuExceptionService.assignExpTask(req);

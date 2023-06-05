@@ -3456,6 +3456,6 @@ public class UccPropertyConfiguration {
     }
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
-        assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
 }
