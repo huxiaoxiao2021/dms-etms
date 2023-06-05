@@ -572,6 +572,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         receiveDto.setSiteCode(statisticOfGrid.getSiteCode());
         receiveDto.setFloor(statisticOfGrid.getFloor());
         receiveDto.setAreaName(statisticOfGrid.getAreaName());
+        receiveDto.setAreaCode(statisticOfGrid.getAreaCode());
         receiveDto.setGridCode(statisticOfGrid.getGridCode());
         receiveDto.setGridNo(statisticOfGrid.getGridNo());
         receiveDto.setCount(statisticOfGrid.getTimeoutNum());
