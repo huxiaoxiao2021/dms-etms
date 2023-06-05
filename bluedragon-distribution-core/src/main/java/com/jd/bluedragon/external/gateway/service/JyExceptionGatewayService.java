@@ -94,12 +94,22 @@ public interface JyExceptionGatewayService {
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
 
+
     /**
-     * 获取超时未领取任务
+     * 获取超时未领取任务统计接口
      * @param req
      * @return
      */
-    JdCResponse<List<ExpTaskOfWaitReceiveDto>> getWaitReceiveSanwuExceptionByPage(ExpTaskStatisticsReq req);
+    JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> getExpTaskStatisticsOfWaitReceiveByPage(ExpTaskStatisticsReq req);
+
+    /**
+     * 获取超时未领取任务列表
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpTaskDto>> getWaitReceiveSanwuExpTaskByPage(ExpTaskStatisticsDetailReq req);
+
+
 
     /**
      * 获取异常岗签到用户

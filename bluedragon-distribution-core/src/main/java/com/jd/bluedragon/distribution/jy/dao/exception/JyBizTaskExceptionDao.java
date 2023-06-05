@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
 
@@ -109,7 +110,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
     /**
      * 按网格统计超时未领取统计数据
      */
-    public List<StatisticsByGridDto> getStatisticsExceptionTaskList(ExpTaskStatisticsReq req){
+    public List<StatisticsTimeOutExpTaskDto> getStatisticsExceptionTaskList(ExpTaskStatisticsReq req){
         return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskList", req);
     }
 

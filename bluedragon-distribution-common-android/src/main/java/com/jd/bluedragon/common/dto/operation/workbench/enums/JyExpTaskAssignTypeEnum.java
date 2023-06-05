@@ -7,8 +7,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  */
 public enum JyExpTaskAssignTypeEnum {
 
-     RECEIVE(0,"取件"),
-     ASSIGN(1,"指派"),
+     RECEIVE(1,"自行取件"),
+     ASSIGN(2,"组长指派"),
 
     ;
 

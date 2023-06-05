@@ -201,9 +201,16 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     @Override
-    public JdCResponse<List<ExpTaskOfWaitReceiveDto>> getWaitReceiveSanwuExceptionByPage(ExpTaskStatisticsReq req) {
-        return jySanwuExceptionService.getWaitReceiveSanwuExceptionByPage(req);
+    public JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> getExpTaskStatisticsOfWaitReceiveByPage(ExpTaskStatisticsReq req) {
+        return jySanwuExceptionService.getExpTaskStatisticsOfWaitReceiveByPage(req);
     }
+
+    @Override
+    public JdCResponse<List<ExpTaskDto>> getWaitReceiveSanwuExpTaskByPage(ExpTaskStatisticsDetailReq req) {
+        return jySanwuExceptionService.getWaitReceiveSanwuExpTaskByPage(req);
+    }
+
+
 
     @Override
     public JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req) {

@@ -45,6 +45,12 @@ public class ExpTaskStatisticsDetailReq extends ExpBaseReq {
      */
     private Date timeOutTime;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
+    private Integer offSet;
+
 
     public Integer getType() {
         return type;
@@ -109,4 +115,36 @@ public class ExpTaskStatisticsDetailReq extends ExpBaseReq {
     public void setAreaCode(String areaCode) {
         this.areaCode = areaCode;
     }
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getOffSet() {
+        if (pageNumber == null || pageSize == null) {
+            return 0;
+        }
+        return (pageNumber - 1) * pageSize;
+    }
+
+    public void setOffSet(Integer offSet) {
+        if (pageNumber == null || pageSize == null) {
+            this.offSet = 0;
+        }else {
+            this.offSet = (pageNumber - 1) * pageSize;
+        }
+    }
+
 }

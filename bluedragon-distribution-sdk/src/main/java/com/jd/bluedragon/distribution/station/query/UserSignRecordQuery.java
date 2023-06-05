@@ -318,11 +318,11 @@ public class UserSignRecordQuery extends BasePagerCondition {
 		this.refGridKey = refGridKey;
 	}
 
-	public String getUserName() {
+	public String getUserErp() {
 		return userErp;
 	}
 
-	public void setUserName(String userErp) {
+	public void setUserErp(String userErp) {
 		this.userErp = userErp;
 	}
 }

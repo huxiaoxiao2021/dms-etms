@@ -53,6 +53,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
@@ -670,6 +671,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setUpdateUserName(baseStaffByErp.getStaffName());
         update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
+        update.setTaskAssign(JyExpTaskAssignTypeEnum.RECEIVE.getCode());
 
         jyBizTaskExceptionDao.updateByBizId(update);
         recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
@@ -1257,14 +1259,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return response.fail("登录人ERP有误!" + req.getUserErp());
         }
 
-        String refStationKey = position.getRefStationKey();
-        if(StringUtils.isBlank(refStationKey)){
+        String refGridKey = position.getRefGridKey();
+        if(StringUtils.isBlank(refGridKey)){
             return response.fail("网格关联业务主键为空!");
         }
-
-        WorkStationGrid workStationGrid = new WorkStationGrid();
-        workStationGrid.setBusinessKey(refStationKey);
-        Result<WorkStationGrid> result = workStationGridManager.queryByBusinessKey(workStationGrid);
+        WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+        workStationGridQuery.setBusinessKey(refGridKey);
+        Result<WorkStationGrid> result = workStationGridManager.queryByGridKey(workStationGridQuery);
         if(result == null || result.getData() == null || StringUtils.isBlank(result.getData().getOwnerUserErp())){
             return response.fail("获取网格场地信息失败!");
         }

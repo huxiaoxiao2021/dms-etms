@@ -8,13 +8,24 @@ import java.util.List;
  * @Date: 2023/5/25 21:40
  * @Description: 待领取异常任务
  */
-public class ExpTaskOfWaitReceiveDto implements Serializable {
+public class ExpTaskStatisticsOfWaitReceiveDto implements Serializable {
 
-    //网格编号
+    /**
+     * 场地id
+     */
+    private Long siteCode;
+
+    // 楼层
+    private Integer floor;
+
+    // 网格号
+    private String gridNo;
+
+    // 网格编码
     private String gridCode;
 
-    //网格号
-    private String gridNo;
+    // 作业区编号
+    private String areaCode;
 
     //工作区名称
     private String areaName;
@@ -22,8 +33,14 @@ public class ExpTaskOfWaitReceiveDto implements Serializable {
     //待取任务数
     private Integer count;
 
-    //
-    private List<ExpTaskDto> taskDtos;
+
+    public Long getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Long siteCode) {
+        this.siteCode = siteCode;
+    }
 
     public String getGridCode() {
         return gridCode;
@@ -57,11 +74,19 @@ public class ExpTaskOfWaitReceiveDto implements Serializable {
         this.count = count;
     }
 
-    public List<ExpTaskDto> getTaskDtos() {
-        return taskDtos;
+    public Integer getFloor() {
+        return floor;
     }
 
-    public void setTaskDtos(List<ExpTaskDto> taskDtos) {
-        this.taskDtos = taskDtos;
+    public void setFloor(Integer floor) {
+        this.floor = floor;
+    }
+
+    public String getAreaCode() {
+        return areaCode;
+    }
+
+    public void setAreaCode(String areaCode) {
+        this.areaCode = areaCode;
     }
 }

@@ -80,6 +80,8 @@ public class ExpTaskDto implements Serializable {
      */
     private Integer taskAssign;
 
+    private String specialFlag;
+
     public String getBizId() {
         return bizId;
     }
@@ -242,5 +244,13 @@ public class ExpTaskDto implements Serializable {
 
     public void setTaskAssign(Integer taskAssign) {
         this.taskAssign = taskAssign;
+    }
+
+    public String getSpecialFlag() {
+        return specialFlag;
+    }
+
+    public void setSpecialFlag(String specialFlag) {
+        this.specialFlag = specialFlag;
     }
 }

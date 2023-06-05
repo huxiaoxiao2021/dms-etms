@@ -441,7 +441,7 @@
 
 
     <select id="getStatisticsExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq"
-            resultType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq">
+            resultType="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto">
         SELECT
         site_code AS siteCode,
         site_name AS siteName,
@@ -483,6 +483,8 @@
         AND area_code = #{areaCode}
         AND distribution_target = #{gridRid}
         AND distribution_time <![CDATA[ >= ]]> #{timeOutTime}
-
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
     </select>
 </mapper>

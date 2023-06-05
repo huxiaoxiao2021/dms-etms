@@ -1055,11 +1055,11 @@
 		from  user_sign_record
 		where yn =1
 		AND ref_grid_key =#{refGridKey}
-		AND <![CDATA[ sign_in_time <= #{signInTime,jdbcType=TIMESTAMP}  ]]>
-		<if test="userErp != null and userErp != ''" >
-			AND user_name_encrypt = #{userErp, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle}
-		</if>
-		group by user_code
+		AND <![CDATA[ sign_in_time >= #{signInTime,jdbcType=TIMESTAMP}  ]]>
+<!--		<if test="userErp != null and userErp != ''" >-->
+<!--			AND user_code_encrypt = #{userErp, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle}-->
+<!--		</if>-->
+		group by user_code_index
 		<if test="pageNumber > 0">
 			limit #{offset}, #{limit}
 		</if>
