@@ -237,7 +237,7 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
             reassignWaybill.setReceiveSiteName(waybillState.getSiteName());
             reassignWaybill.setChangeSiteCode(matchResult.getVehicleTeamId());
             reassignWaybill.setChangeSiteName(matchResult.getVehicleTeamName());
-            reassignWaybill.setUserCode(request.getOperatorInfo().getOperateUserId());
+            reassignWaybill.setUserCode(Constants.USER_CODE_DEBON);
             reassignWaybill.setUserName(request.getOperatorInfo().getOperateUserName());
             Long operateTime = request.getOperatorInfo().getOperateTime();
             reassignWaybill.setOperateTime(operateTime == null ?new Date() :DateHelper.toDate(operateTime));

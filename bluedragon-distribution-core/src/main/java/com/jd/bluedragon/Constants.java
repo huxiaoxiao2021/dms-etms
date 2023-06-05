@@ -1943,4 +1943,7 @@ public class Constants {
     //是否冷链
     public static final Integer B2BSUPPORT_COLD_CHAIN = 0;
 
+    //德邦默认用户id
+    public static final Integer USER_CODE_DEBON = 0;
+
 }
