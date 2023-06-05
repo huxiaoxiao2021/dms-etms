@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.collectNew.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao;
@@ -9,9 +10,9 @@ import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
 import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
-import com.jd.bluedragon.distribution.collection.service.JyScanCollectCacheService;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +44,9 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     public static final Integer JI_QI = 1;
     public static final Integer BU_QI = 0;
 
+    public static final Integer BUQI_WAYBILL_NUM_MAX = 50000;
+    public static final Integer BUQI_WAYBILL_NUM_MIN = 1000;
+
 
     @Autowired
     private JyCollectRecordDao jyCollectRecordDao;
@@ -53,7 +58,8 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     private Cluster redisClient;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.insertCollectionRecordDetailInBizId",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -121,7 +127,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
                 recordPo.setAggCodeType(CollectionScanCodeTypeEnum.waybill_code.name());
                 recordPo.setCreateTime(new Date());
                 recordPo.setUpdateTime(recordPo.getCreateTime());
-                recordPo.setCustomType(toBNetFlag(wbs));
+                recordPo.setCustomType(toBNetFlag(collectDto.getWaybillCode(), wbs));
                 recordPo.setRealCollectNum(1);
                 recordPo.setIsCollected(goodNumber > 1 ? JyScanCollectServiceImpl.BU_QI : JyScanCollectServiceImpl.JI_QI);
                 jyCollectRecordDao.insertSelective(recordPo);
@@ -131,7 +137,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
                 updateRecordPo.setCollectionCode(jyCollectRecord.getCollectionCode());
                 updateRecordPo.setAggCode(jyCollectRecord.getAggCode());
                 updateRecordPo.setUpdateTime(new Date());
-                updateRecordPo.setCustomType(toBNetFlag(collectDto.getWaybillCode()));
+                updateRecordPo.setCustomType(toBNetFlag(collectDto.getWaybillCode(), wbs));
                 updateRecordPo.setShouldCollectNum(goodNumber);
                 int collectNum = this.countScanCodeNumNumByCollectedMarkAndAggCode(collectDto);
                 updateRecordPo.setRealCollectNum(collectNum);
@@ -152,9 +158,12 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @param waybillSign
      * @return
      */
-    String toBNetFlag(String waybillSign) {
+    String toBNetFlag(String waybillCode, String waybillSign) {
         if(StringUtils.isNotBlank(waybillSign) && BusinessUtil.isB2b(waybillSign)) {
             return WaybillCustomTypeEnum.TO_B.getCode();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("{}非B网运单，wbs={}", waybillCode, waybillSign);
         }
         return WaybillCustomTypeEnum.DEFAULT.getCode();
     }
@@ -183,6 +192,62 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     @Override
     public List<JyCollectRecordDetailPo> findByCollectionCodesAndAggCode(JyCollectRecordDetailCondition jqDetailQueryParam) {
         return jyCollectRecordDetailDao.findByCollectionCodesAndAggCode(jqDetailQueryParam);
+    }
+
+    @Override
+    public List<JyCollectRecordPo> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody) {
+        String methodDesc = "JyScanCollectServiceImpl.getAllBuQiWaybillCodes:获取所有不齐运单号：";
+        if(Objects.isNull(mqBody) || CollectionUtils.isEmpty(mqBody.getCollectionCodes())) {
+            return null;
+        }
+
+        JyCollectRecordCondition jqQueryParam = new JyCollectRecordCondition();
+        jqQueryParam.setCollectionCodeList(mqBody.getCollectionCodes());
+        jqQueryParam.setSiteId(mqBody.getOperateSiteId().longValue());
+        jqQueryParam.setCustomType(WaybillCustomTypeEnum.TO_B.getCode());//B网
+
+        int pageSize = 1000;
+        //理论上不可能存在的最大值
+        int pageNum = JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MAX / pageSize;
+
+        jqQueryParam.setPageSize(pageSize);
+        List<JyCollectRecordPo> res = new ArrayList<>();
+        for(int pageNo = 1; pageNo <= pageNum; pageNo ++) {
+            int offset = (pageNo - 1) * pageSize;
+            jqQueryParam.setOffset(offset);
+            if(log.isInfoEnabled()) {
+                log.info("{}查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
+            }
+            List<JyCollectRecordPo> collectionRecordPoList = this.findBuQiWaybillByCollectionCodes(jqQueryParam);
+            if(CollectionUtils.isEmpty(collectionRecordPoList)) {
+                break;
+            }
+            if(collectionRecordPoList.size() < pageSize) {
+                res.addAll(collectionRecordPoList);
+                break;
+            }
+            res.addAll(collectionRecordPoList);
+            int buQiWaybillCodeMaxSum = getBuQiWaybillCodeMaxSum();
+            if(res.size() > buQiWaybillCodeMaxSum) {
+                throw new JyBizException("异常：不齐运单数量超过预期最大值" + buQiWaybillCodeMaxSum);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 获取ucc配置不齐运单数量最大值
+     * @return
+     */
+    private int getBuQiWaybillCodeMaxSum(){
+        Integer buQiWaybillMaxSize = uccPropertyConfiguration.getJyBuQiWaybillCodeMaxSum();
+        if(buQiWaybillMaxSize < JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN) {
+            return JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN;
+        }
+        if(buQiWaybillMaxSize > JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MAX) {
+            return JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MAX;
+        }
+        return buQiWaybillMaxSize;
     }
 
 }

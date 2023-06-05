@@ -5,8 +5,9 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
-import com.jd.bluedragon.distribution.collection.service.JyScanCollectCacheService;
+import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectCacheService;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
@@ -67,7 +68,7 @@ public class JyScanCollectStrategy {
     @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectStrategy.scanCollectDeal",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyScanCollectService.scanCollectDeal:拣运扫描处理集齐数据：";
-        if(!this.filterInvalid(collectDto)) {
+        if(!this.scanFilterInvalid(collectDto)) {
             return true;
         }
         if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
@@ -89,7 +90,7 @@ public class JyScanCollectStrategy {
      * @param collectDto
      * @return true: 有效数据  false: 无效数据
      */
-    public boolean filterInvalid(JyScanCollectMqDto collectDto) {
+    public boolean scanFilterInvalid(JyScanCollectMqDto collectDto) {
         if(Objects.isNull(collectDto)
                 || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getBizSource())    //逻辑分支必选
                 || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getCodeType())    //逻辑分支必选
@@ -98,7 +99,7 @@ public class JyScanCollectStrategy {
                 || Objects.isNull(collectDto.getOperateSiteId())    //分库拆分键
                 || org.apache.commons.lang3.StringUtils.isBlank(collectDto.getBarCode())     //业务必选
         ) {
-            log.warn("JyScanCollectStrategy.filterInvalid:集齐消息消费必要参数缺失，不做处理，msg={}", JsonHelper.toJson(collectDto));
+            log.warn("JyScanCollectStrategy.scanFilterInvalid:集齐消息消费必要参数缺失，不做处理，msg={}", JsonHelper.toJson(collectDto));
             return false;
         }
         return true;
@@ -171,7 +172,7 @@ public class JyScanCollectStrategy {
             mqDto.setCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
 
             //运单号+操作任务+岗位类型+触发节点
-            String businessId = this.getBusinessId(collectDto);
+            String businessId = this.getScanBusinessId(collectDto);
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("{}运单{}包裹数为{}，拆分包裹businessId={}, msg={}",
@@ -230,7 +231,7 @@ public class JyScanCollectStrategy {
             mqDto.setCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
 
             //运单号+操作任务+岗位类型+触发节点
-            String businessId = this.getBusinessId(collectDto);
+            String businessId = this.getScanBusinessId(collectDto);
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("{}箱号{}包裹数为{}，拆分包裹businessId={}, msg={}",
@@ -244,11 +245,17 @@ public class JyScanCollectStrategy {
     }
 
 
-    public String getBusinessId(JyScanCollectMqDto mqDto) {
-         return String.format("%s:%s:%s:%s", mqDto.getPackageCode(),
+    public String getScanBusinessId(JyScanCollectMqDto mqDto) {
+        //PDA扫描时可能按单按箱，消费时最终会转成包裹维度，转换之后存储packageCode
+        String code =  StringUtils.isBlank(mqDto.getPackageCode()) ? mqDto.getBarCode() : mqDto.getPackageCode();
+         return String.format("%s:%s:%s:%s", code,
                 mqDto.getJyPostType(),
-                mqDto.getMainTaskBizId(),
+                mqDto.getSendCode(),
                 mqDto.getBizSource());
+    }
+
+    public String getCancelScanBusinessId(JyCancelScanCollectMqDto mqDto) {
+        return String.format("%s:%s:%s", mqDto.getBarCode(), mqDto.getJyPostType(), mqDto.getOperateSiteId());
     }
 
     /**
@@ -300,4 +307,62 @@ public class JyScanCollectStrategy {
         return result;
     }
 
+    /**
+     * 取消扫描处理集齐逻辑
+     * @param cancelScanCollectMqDto
+     * @return
+     */
+    public boolean cancelScanCollectDeal(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        String methodDesc = "JyScanCollectStrategy.cancelScanCollectDea:取消扫描处理集齐数据：";
+        if(!this.cancelScanFilterInvalid(cancelScanCollectMqDto)) {
+            return true;
+        }
+        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
+            return this.cancelScanWaybillCollectDeal(cancelScanCollectMqDto);
+        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
+            return this.cancelScanPackageCollectDeal(cancelScanCollectMqDto);
+        } else {
+            log.warn("{}目前仅支持按包裹、运单取消发货处理集齐数据，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(cancelScanCollectMqDto));
+            return true;
+        }
+    }
+
+    /**
+     * 过滤无效数据
+     * @param cancelScanCollectMqDto
+     * @return true: 有效数据  false: 无效数据
+     */
+    public boolean cancelScanFilterInvalid(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        if(Objects.isNull(cancelScanCollectMqDto)
+                || StringUtils.isBlank(cancelScanCollectMqDto.getJyPostType())  //collectionCode必选
+                || Objects.isNull(cancelScanCollectMqDto.getOperateTime())      //业务必选
+                || Objects.isNull(cancelScanCollectMqDto.getOperateSiteId())    //分库拆分键
+                || StringUtils.isBlank(cancelScanCollectMqDto.getBarCode())      //业务必选
+                || StringUtils.isBlank(cancelScanCollectMqDto.getJyPostType())   //业务必选
+        ) {
+            log.warn("JyScanCollectStrategy.cancelScanFilterInvalid:集齐消息消费必要参数缺失，不做处理，msg={}", JsonHelper.toJson(cancelScanCollectMqDto));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 按包裹处理取消扫描
+     * @param cancelScanCollectMqDto
+     * @return
+     */
+    private boolean cancelScanPackageCollectDeal(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        // todo zcf
+        return false;
+    }
+
+    /**
+     * 按包裹处理取消扫描
+     * @param cancelScanCollectMqDto
+     * @return
+     */
+    private boolean cancelScanWaybillCollectDeal(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        // todo zcf
+        return false;
+    }
 }

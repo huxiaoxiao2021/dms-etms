@@ -386,7 +386,46 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.buQiCancelSendScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> buQiCancelSendScan(BuQiCancelSendScanReq request) {
-        return null;
+        String methodDesc = "JyWarehouseSendGatewayServiceImpl.buQiCancelSendScan:不齐取消扫描：";
+        JdCResponse<Void> res = new JdCResponse<>();
+        res.toSucceed();
+        try{
+            if(Objects.isNull(request)) {
+                res.toFail("请求信息为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}开始，request={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkUser(request.getUser());
+            checkCurrentOperate(request.getCurrentOperate());
+            if(StringUtils.isBlank(request.getGroupCode())) {
+                res.toFail("岗位组为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getMixScanTaskCode())) {
+                res.toFail("混扫任务编码为空");
+                return res;
+            }
+            if(StringUtils.isBlank(request.getSendVehicleBizId())) {
+                res.toFail("派车任务编码为空");
+                return res;
+            }
+            if(CollectionUtils.isEmpty(request.getPackList()) || Objects.isNull(request.getCheckAllFlag())) {
+                res.toFail("不齐取消数据为空");
+                return res;
+            }
+
+            return retJdCResponse(jyWarehouseSendVehicleService.buQiCancelSendScan(request));
+        }catch (JyBizException jyex) {
+            log.error("{}服务失败，errMsg={},请求={}", methodDesc, jyex.getMessage(), JsonHelper.toJson(request));
+            res.setMessage("不齐取消扫描服务失败");
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，errMsg={},请求={}", methodDesc, e.getMessage(), JsonHelper.toJson(request), e);
+            res.setMessage("不齐取消扫描服务异常");
+            return res;
+        }
     }
 
     @Override

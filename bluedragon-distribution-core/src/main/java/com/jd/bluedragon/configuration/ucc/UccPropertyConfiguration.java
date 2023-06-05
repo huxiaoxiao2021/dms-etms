@@ -1293,6 +1293,12 @@ public class UccPropertyConfiguration {
      * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
      */
     private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+    private Integer JyBuQiWaybillCodeMaxSum;
+
+
 
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
@@ -3174,5 +3180,13 @@ public class UccPropertyConfiguration {
 
     public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
         JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public Integer getJyBuQiWaybillCodeMaxSum() {
+        return JyBuQiWaybillCodeMaxSum;
+    }
+
+    public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+        JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
     }
 }

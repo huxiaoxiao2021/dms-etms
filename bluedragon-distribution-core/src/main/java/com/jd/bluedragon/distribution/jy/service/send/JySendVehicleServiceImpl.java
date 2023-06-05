@@ -3943,7 +3943,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             mqDto.setCodeType(mqDto.getBarCodeType());
             mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
             //运单号+操作任务+岗位类型+触发节点
-            String businessId = jyScanCollectStrategy.getBusinessId(mqDto);
+            String businessId = jyScanCollectStrategy.getScanBusinessId(mqDto);
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
@@ -3952,7 +3952,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
     }
 
-    private String getBarCodeType(String scanCode){
+    public String getBarCodeType(String scanCode){
         if (WaybillUtil.isWaybillCode(scanCode)) {
             return JyScanCodeTypeEnum.WAYBILL.getCode();
         } else if (BusinessUtil.isBoardCode(scanCode)) {

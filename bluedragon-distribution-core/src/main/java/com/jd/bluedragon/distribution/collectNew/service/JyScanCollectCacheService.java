@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.collection.service;
+package com.jd.bluedragon.distribution.collectNew.service;
 
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -21,16 +21,16 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JyScanCollectCacheService {
 
-    private static final String DEFAULT_VALUE = Strings.EMPTY;
+    public static final String DEFAULT_VALUE = Strings.EMPTY;
 
-    private static final String LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD = "lock:upInsert:collectionRecord:%s:%s";
-    private static final int LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD_TIMEOUT_SECONDS = 120;
+    public static final String LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD = "lock:upInsert:collectionRecord:%s:%s";
+    public static final int LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD_TIMEOUT_SECONDS = 120;
 
-    private static final String LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL = "lock:insert:collectionRecordDetail:%s:%s";
-    private static final int LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL_TIMEOUT_SECONDS = 120;
+    public static final String LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL = "lock:insert:collectionRecordDetail:%s:%s";
+    public static final int LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL_TIMEOUT_SECONDS = 120;
 
-    private static final String CACHE_JY_SCAN_PACKAGE_COLLECT = "cache:jyScan:packageCollect:%s:%s";
-    private static final int CACHE_JY_SCAN_PACKAGE_COLLECT_TIMEOUT_MINUTES = 30;
+    public static final String CACHE_JY_SCAN_PACKAGE_COLLECT = "cache:jyScan:packageCollect:%s:%s";
+    public static final int CACHE_JY_SCAN_PACKAGE_COLLECT_TIMEOUT_MINUTES = 30;
 
     @Autowired
     private JimDbLock jimDbLock;

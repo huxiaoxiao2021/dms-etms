@@ -47,4 +47,11 @@ public interface JyWarehouseSendVehicleService {
      * @return
      */
     InvokeResult<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request);
+
+    /**
+     * 不齐取消扫描
+     * @param request
+     * @return
+     */
+    Object buQiCancelSendScan(BuQiCancelSendScanReq request);
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -30,7 +31,7 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
     public boolean scanCollectDeal(JyScanCollectMqDto collectDto) {
         String methodDesc = "JyWarehouseScanCollectService.scanCollectDeal:接货仓发货岗扫描处理集齐数据：";
         log.info("{}param={}", methodDesc, JsonHelper.toJson(collectDto));
-        if(!filterInvalid(collectDto)) {
+        if(!this.filterInvalid(collectDto)) {
             return true;
         }
 
@@ -52,7 +53,7 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
      * @return true: 有效数据  false: 无效数据
      */
     public boolean filterInvalid(JyScanCollectMqDto collectDto) {
-        if(!super.filterInvalid(collectDto)) {
+        if(!super.scanFilterInvalid(collectDto)) {
             log.warn("JyWarehouseScanCollectHandler.filterInvalid:接货仓发货集齐消息消费必要参数缺失1，不做处理，msg={}", JsonHelper.toJson(collectDto));
             return false;
         }
@@ -62,5 +63,10 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean cancelScanCollectDeal(JyCancelScanCollectMqDto jyCancelScanCollectMqDto){
+        return super.cancelScanCollectDeal(jyCancelScanCollectMqDto);
     }
 }

@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 
 import java.util.List;
 
@@ -27,4 +28,11 @@ public interface JyScanCollectService {
     List<JyCollectRecordPo> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition);
 
     List<JyCollectRecordDetailPo> findByCollectionCodesAndAggCode(JyCollectRecordDetailCondition jqDetailQueryParam);
+
+    /**
+     * 查询所有不齐运单号
+     * @param mqBody
+     * @return
+     */
+    List<JyCollectRecordPo> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody);
 }

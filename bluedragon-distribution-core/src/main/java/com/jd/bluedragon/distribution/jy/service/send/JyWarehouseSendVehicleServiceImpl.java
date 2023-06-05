@@ -21,6 +21,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
@@ -41,13 +42,16 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -55,11 +59,14 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEnt
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.erp.util.BeanUtils;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.annotation.JProEnum;
@@ -74,6 +81,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -97,6 +105,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 混扫任务默认流向数量
      */
     public static final Integer MIX_SCAN_TASK_DEFAULT_FLOW_NUM = 10;
+
+    public static final String OPERATE_SOURCE_PDA = "pdaScan";
+    public static final String OPERATE_SOURCE_MQ = "allSelectSplit";
 
 
     @Autowired
@@ -132,6 +143,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private JySendCodeDao jySendCodeDao;
     @Autowired
     private BusinessCodeDao businessCodeDao;
+    @Autowired
+    private DeliveryService deliveryService;
+    @Autowired
+    private JyScanCollectStrategy jyScanCollectStrategy;
+    @Autowired
+    @Qualifier("jyCancelScanProducer")
+    private DefaultJMQProducer jyCancelScanProducer;
+    @Autowired
+    private JyWarehouseSendVehicleCacheService jyWarehouseSendVehicleCacheService;
+
+
 
     @Override
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
@@ -710,19 +732,23 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         InvokeResult<BuQiWaybillRes> res = new InvokeResult<>();
         res.success();
 
-        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
-        if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
-            log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
-            res.parameterError("未查到该流向任务信息");
-            return res;
+        String sendVehicleBizId = request.getSendVehicleBizId();
+        if(StringUtils.isBlank(sendVehicleBizId)) {
+            JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+            if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
+                log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
+                res.parameterError("未查到该流向任务信息");
+                return res;
+            }
+            sendVehicleBizId = entity.getSendVehicleBizId();
         }
 
-        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(entity.getSendVehicleBizId());
+        Integer siteId = request.getCurrentOperate().getSiteCode();
+        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(sendVehicleBizId);
         if(CollectionUtils.isEmpty(sendCodes)) {
             res.parameterError("未查到该任务发货批次数据");
             return res;
         }
-        Integer siteId = request.getCurrentOperate().getSiteCode();
         List<String> collectionCodeList = this.getTaskAllCollectionCode(siteId, sendCodes);
         if(CollectionUtils.isEmpty(collectionCodeList)) {
             log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
@@ -731,7 +757,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         if(log.isInfoEnabled()) {
             log.info("{}获取场地{}任务{}下所有批次{}对应的collectionCode={}",
-                    methodDesc, siteId, entity.getSendVehicleBizId(), JsonHelper.toJson(sendCodes), JsonHelper.toJson(collectionCodeList));
+                    methodDesc, siteId, sendVehicleBizId, JsonHelper.toJson(sendCodes), JsonHelper.toJson(collectionCodeList));
         }
 
         JyCollectRecordCondition jqQueryParam = new JyCollectRecordCondition();
@@ -752,7 +778,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         BuQiWaybillRes resData = new BuQiWaybillRes();
-        resData.setSendVehicleBizId(entity.getSendVehicleBizId());
+        resData.setSendVehicleBizId(sendVehicleBizId);
         resData.setBuQiWaybillTotalSum(collectionRecordPoList.size());
         List<BuQiWaybillDto> buQiWaybillDtoList = new ArrayList<>();
         collectionRecordPoList.forEach(collectionRecordPo -> {
@@ -854,6 +880,142 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         res.setData(resData);
         return res;
     }
+
+    /**
+     * 处理不齐实操
+     * （底层单个取消发货tp99在200ms上下，发货岗没有最大发货数量校验，避免全选或者选择包裹过多，拆分异步处理）
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<Void> buQiCancelSendScan(BuQiCancelSendScanReq request) {
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.buQiCancelSendScan:不齐取消处理：";
+        if(log.isInfoEnabled()) {
+            log.info("{},start:参数={}", JsonHelper.toJson(request));
+        }
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        //混扫任务状态校验
+        JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+        queryDto.setGroupCode(request.getGroupCode());
+        queryDto.setTemplateCode(request.getMixScanTaskCode());
+        queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+        if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+            res.parameterError("当前混扫任务已完成");
+            return res;
+        }
+        //发车任务状态校验
+        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleBizId());
+        if(Objects.isNull(entity)) {
+            res.parameterError("未找到当前派车任务");
+            return res;
+        }
+        if(JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())) {
+            res.parameterError(String.format("已封车禁止取消发货", JyBizTaskSendDetailStatusEnum.getNameByCode(entity.getVehicleStatus())));
+            return res;
+        }
+        //不齐数据过滤
+        List<SendM> sendMList = new ArrayList();
+        if (!Objects.isNull(request.getCheckAllFlag()) && request.getCheckAllFlag()) {
+            //同一个BizId全选防刷保护
+            if(!jyWarehouseSendVehicleCacheService.lockCacheCancelScanAllSelectProtect(request.getSendVehicleBizId(), request.getUser().getUserErp())) {
+                res.parameterError(String.format("该任务全选正在操作中，%s秒后再操作", JyWarehouseSendVehicleCacheService.LOCK_CANCEL_SCAN_ALL_SELECT_PROTECT_TIMEOUT_SECONDS));
+                return res;
+            }
+            InvokeResult<List<String>> invokeResult = this.getTaskAllCollectionCode(request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId());
+            if(!invokeResult.codeSuccess()) {
+                res.parameterError(invokeResult.getMessage());
+                return  res;
+            }
+
+            sendCancelScanMq(true, request, invokeResult.getData());
+        } else if (ObjectHelper.isNotNull(request.getPackList())) {
+            sendCancelScanMq(true, request, null);
+        }
+        //
+        if(CollectionUtils.isEmpty(sendMList)) {
+            res.parameterError("未查到符合条件数据");
+            return res;
+        }
+        return res;
+
+    }
+
+    /**
+     * 获取任务下所有collectionCode
+     * @param bizId
+     * @param siteCode
+     * @return
+     */
+    private InvokeResult<List<String>> getTaskAllCollectionCode(Integer siteCode, String bizId) {
+        InvokeResult<List<String>> res = new InvokeResult<>();
+        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(bizId);
+        if(CollectionUtils.isEmpty(sendCodes)) {
+            if(log.isWarnEnabled()) {
+                log.info("未查到任务发货批次数据，siteId={},bizId={}", siteCode, bizId);
+            }
+            res.parameterError("未查到任务发货批次数据");
+            return res;
+        }
+        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteCode, sendCodes);
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
+            if(log.isWarnEnabled()) {
+                log.info("未查到该任务扫描信息：siteId={},bizId={}", siteCode, bizId);
+            }
+            res.setMessage("未查到该任务扫描信息");
+            return res;
+        }
+        res.setData(collectionCodeList);
+        return res;
+    }
+
+
+    /**
+     * 接货仓发货岗取消扫描包裹或运单
+     * @param selectAll  是否全选
+     * @param request
+     */
+    private void sendCancelScanMq(boolean selectAll, BuQiCancelSendScanReq request, List<String> collectionCodes) {
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl:sendCancelScanMq:接货仓发货岗取消发货MQ发送：";
+        JySendCancelScanDto mqDto = new JySendCancelScanDto();
+        mqDto.setOperatorName(request.getUser().getUserName());
+        mqDto.setOperatorErp(request.getUser().getUserErp());
+        mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        mqDto.setOperatorName(request.getCurrentOperate().getSiteName());
+        mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
+        mqDto.setJyPostType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        mqDto.setBizSource(JyWarehouseSendVehicleServiceImpl.OPERATE_SOURCE_PDA);
+        //
+        mqDto.setMainTaskBizId(request.getSendVehicleBizId());
+
+        if(selectAll) {
+            mqDto.setBuQiAllSelectFlag(true);
+            mqDto.setCollectionCodes(collectionCodes);
+            String businessId = String.format("selectAll:%s:%s", mqDto.getMainTaskBizId(), mqDto.getJyPostType());
+            String msg = JsonHelper.toJson(mqDto);
+            if(log.isInfoEnabled()) {
+                log.info("{}全选：businessId={},msx={}", methodDesc, businessId, msg);
+            }
+            jyCancelScanProducer.sendOnFailPersistent(businessId, msg);
+        }else {
+            mqDto.setBuQiAllSelectFlag(false);
+            List<Message> messageList = new ArrayList<>();
+            for(String packageCode : request.getPackList()) {
+                mqDto.setBarCode(packageCode);
+                mqDto.setBarCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());
+                String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+                String msg = JsonHelper.toJson(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("{}按包裹取消：businessId={},msx={}", methodDesc, businessId, msg);
+                }
+                messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
+            }
+            jyCancelScanProducer.batchSendOnFailPersistent(messageList);
+        }
+    }
+
 
     /**
      * 获取箱号下一流向

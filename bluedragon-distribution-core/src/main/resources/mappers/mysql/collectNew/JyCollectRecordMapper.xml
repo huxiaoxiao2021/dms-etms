@@ -160,7 +160,7 @@
   </select>
 
 
-  <!-- 查询拣运任务扫描记录 -->
+  <!-- 查询不齐运单  should_collect_num > 1(一单多件) & B网 -->
   <select id="findPageBuQiByCollectionCodes" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition" resultMap="collectStatistics">
     select
      agg_code, should_collect_num should_collect_total_num, sum(real_collect_num) real_collect_total_num
@@ -171,6 +171,10 @@
       <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
         #{item}
       </foreach>
+    and should_collect_num > 1
+    <if test="customType != null" >
+      and custom_type = #{customType,jdbcType=VARCHAR}
+    </if>
     group by agg_code
     having real_collect_total_num >= should_collect_total_num
     limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}

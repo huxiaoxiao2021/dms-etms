@@ -414,14 +414,19 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
      */
     @Override
     public boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        boolean res = false;
         //混扫任务状态校验
         if(!jyGroupSortCrossDetailCacheService.existMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode())){
-            return true;
+            res = true;
+        } else {
+            if(this.countByCondition(queryDto) > 0) {
+                res = true;
+                jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode());
+            }
         }
-        if(this.countByCondition(queryDto) > 0) {
-            jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode());
-            return true;
+        if(log.isInfoEnabled()) {
+            log.info("校验混扫任务是否完成，param={},res={}(true为完成)", JsonHelper.toJson(queryDto), res);
         }
-        return false;
+        return res;
     }
 }
