@@ -107,6 +107,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.vehicleStatusOptions",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList =getVehicleStatusEnums();
         if(CollectionUtils.isEmpty(optionList)) {
@@ -129,6 +131,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.scanTypeOptions",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
@@ -145,10 +149,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.fetchSendVehicleTaskPage",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.fetchSendVehicleTaskPage",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTaskPage(SendVehicleTaskRequest request) {
-        final String methodDesc = "JySendVehicleGatewayService.fetchSendVehicleTaskPage:接货仓发货岗按状态查询派车任务列表：";
+        final String methodDesc = "JyWarehouseSendGatewayServiceImpl.fetchSendVehicleTaskPage:接货仓发货岗按状态查询派车任务列表：";
         try{
             //参数校验
             if(Objects.isNull(request)){
@@ -195,8 +199,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.fetchToSendAndSendingTaskPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request) {
-        final String methodDesc = "JySendVehicleGatewayService.fetchToSendAndSendingTaskPage:接货仓发货岗查询待发货和发货中派车任务信息：";
+        final String methodDesc = "JyWarehouseSendGatewayServiceImpl.fetchToSendAndSendingTaskPage:接货仓发货岗查询待发货和发货中派车任务信息：";
         try{
             //参数校验
             if(Objects.isNull(request)){
@@ -240,8 +246,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sendScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanRes> sendScan(SendScanReq request) {
-        final String methodDesc = "JySendVehicleGatewayService.sendScan:接货仓发货岗扫描：";
+        final String methodDesc = "JyWarehouseSendGatewayServiceImpl.sendScan:接货仓发货岗扫描：";
         try{
             //参数校验
             if(Objects.isNull(request)){
@@ -285,6 +293,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 //    }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.findByQiWaybillPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<BuQiWaybillRes> findByQiWaybillPage(BuQiWaybillReq request) {
         String methodDesc = "JyWarehouseSendGatewayServiceImpl.findByQiWaybillPage:查询不齐运单数量：";
         JdCResponse<BuQiWaybillRes> res = new JdCResponse<>();
@@ -326,6 +336,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.findByQiPackagePage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<BuQiPackageRes> findByQiPackagePage(BuQiWaybillReq request) {
         String methodDesc = "JyWarehouseSendGatewayServiceImpl.findByQiPackagePage:查询不齐运单明细：";
         JdCResponse<BuQiPackageRes> res = new JdCResponse<>();
@@ -371,11 +383,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.buQiCancelSendScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> buQiCancelSendScan(BuQiCancelSendScanReq request) {
         return null;
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getMixScanTaskDefaultName",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<String> getMixScanTaskDefaultName(MixScanTaskDefaultNameQueryReq request) {
         JdCResponse<String> res = new JdCResponse<>();
         res.toSucceed();
@@ -392,6 +408,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.createMixScanTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<CreateMixScanTaskRes> createMixScanTask(CreateMixScanTaskReq createMixScanTaskReq) {
         JdCResponse<CreateMixScanTaskRes> response = new JdCResponse<>();
         response.toSucceed();
@@ -438,6 +456,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.appendMixScanTaskFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> appendMixScanTaskFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
@@ -509,7 +529,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.deleteMixScanTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.deleteMixScanTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
         JdCResponse<Void> response = new JdCResponse<>();
@@ -561,6 +581,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.removeMixScanTaskFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
@@ -601,6 +623,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskComplete",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
@@ -651,6 +675,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
     
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskFocus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
         JdCResponse<Void> response = new JdCResponse<>();
         response.toSucceed();
@@ -687,6 +713,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getMixScanTaskListPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<MixScanTaskQueryRes> getMixScanTaskListPage(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         JdCResponse<MixScanTaskQueryRes> response = new JdCResponse<>();
         response.toSucceed();
@@ -756,6 +784,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getMixScanTaskFlowDetailList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
         JdCResponse<MixScanTaskFlowDetailRes> response = new JdCResponse<>();
         response.toSucceed();
@@ -782,12 +812,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.getMixScanTaskDetailList",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getMixScanTaskDetailList",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<MixScanTaskDetailRes> getMixScanTaskDetailList(MixScanTaskQueryReq request) {
         JdCResponse<MixScanTaskDetailRes> res = new JdCResponse<>();
         res.toSucceed();
-        final String methodDesc = "JySendVehicleGatewayService.getMixScanTaskFlowList:查询混扫任务下流向信息：";
+        final String methodDesc = "JyWarehouseSendGatewayServiceImpl.getMixScanTaskFlowList:查询混扫任务下流向信息：";
         try{
             //参数校验
             if(Objects.isNull(request)){
@@ -817,6 +847,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.selectMixScanTaskSealDest",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<MixScanTaskToSealDestAgg> selectMixScanTaskSealDest(SelectMixScanTaskSealDestReq request) {
         JdCResponse<MixScanTaskToSealDestAgg> response = new JdCResponse<>();
         response.toSucceed();
@@ -846,31 +878,43 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getSealVehicleInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
         return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.checkTransCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<TransportResp> checkTransCode(CheckTransportReq checkTransportReq) {
         return retJdCResponse(jySealVehicleService.checkTransCode(checkTransportReq));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.saveSealVehicle",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.validateTranCodeAndSendCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq request) {
         return retJdCResponse(jySealVehicleService.validateTranCodeAndSendCode(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sealVehicle",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.selectSealDest",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
         return retJdCResponse(jyWarehouseSendVehicleService.selectSealDest(request));
     }
