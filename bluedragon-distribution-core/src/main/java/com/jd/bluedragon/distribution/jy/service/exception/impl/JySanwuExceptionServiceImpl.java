@@ -495,6 +495,10 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.dealAssignTaskData", mState = {JProEnum.TP})
     public void dealAssignTaskData(JyAssignExpTaskMQ mq) {
+
+        if(logger.isInfoEnabled()){
+            logger.info("指派异常任务处理信息-{}",JSON.toJSONString(mq));
+        }
         JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(mq.getBizId());
         if (bizEntity == null) {
             logger.warn("当前异常任务不存在-{}",mq.getBizId());

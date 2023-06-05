@@ -35,7 +35,7 @@
         <result property="timeOut" column="time_out"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
-        <result property="taskAssign" column="task_assign"/>
+        <result property="taskAssign" column="task_assign_type"/>
     </resultMap>
     <resultMap type="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto" id="StatisticStatusResp">
         <result property="status" column="status"/>
@@ -73,7 +73,7 @@
         time_out,
         ts,
         yn,
-        task_assign
+        task_assign_type
     </sql>
 
     <select id="findByBizId" resultMap="jyBizTaskExceptionMap">
@@ -322,7 +322,7 @@
                 yn = #{yn},
             </if>
             <if test="taskAssign != null">
-                task_assign = #{taskAssign},
+                task_assign_type = #{taskAssign},
             </if>
 
         </set>
