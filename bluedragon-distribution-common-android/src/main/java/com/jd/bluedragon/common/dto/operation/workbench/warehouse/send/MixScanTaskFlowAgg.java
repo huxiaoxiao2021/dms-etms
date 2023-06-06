@@ -65,6 +65,11 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
      */
     private Long forceSendPackCount = 0L;
 
+    /**
+     * 关注数量
+     */
+    private Integer focusCount;
+    
     public BigDecimal getLoadRate() {
         return loadRate;
     }
@@ -153,4 +158,11 @@ public class MixScanTaskFlowAgg extends MixScanTaskDetailDto implements Serializ
         this.forceSendPackCount = forceSendPackCount;
     }
 
+    public Integer getFocusCount() {
+        return focusCount;
+    }
+
+    public void setFocusCount(Integer focusCount) {
+        this.focusCount = focusCount;
+    }
 }

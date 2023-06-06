@@ -30,6 +30,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehi
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailReq;
@@ -2943,8 +2944,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     public void setMixScanTaskSendProgressData(MixScanTaskFlowDetailRes res, List<MixScanTaskDetailDto> mixScanTaskDetailDtoList, MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
         List<String> taskDetailBizs = new ArrayList<>();
+        int focusCount = 0;
         for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
             taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
+            if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
+                focusCount++;
+            }
         }
         // 获取统计数据
         List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
@@ -2958,7 +2963,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         
         // 查询车型
         List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
-        HashMap<String,Integer> basicVehicleTypeMap = getBasicVehicleTypeMap(taskSendList);
+        HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getBasicVehicleTypeMap(taskSendList);
 
         // 批量根据主任务id获取目的地站点
         List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
@@ -2984,13 +2989,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         
         // 组装数据
         HashMap<Integer, BasicVehicleTypeDto> basicVehicleTypeDtoMap = new HashMap<>();
+        int count = focusCount;
         List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
             MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
             BeanUtils.copyProperties(item, flowAgg);
             JySendAggsEntity sendAgg = aggsMag.get(item.getSendVehicleDetailBizId());
             JyBizTaskSendVehicleDetailEntity detail = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
             if (detail != null) {
-                Integer vehicleType = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
+                JyBizTaskSendVehicleEntity bizTaskSendVehicle = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
+                Integer vehicleType = bizTaskSendVehicle.getVehicleType();
+                flowAgg.setVehicleNumber(bizTaskSendVehicle.getVehicleNumber());
                 BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
 
                 if (basicVehicleTypeDto == null) {
@@ -3031,6 +3039,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 flowAgg.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
                 flowAgg.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
             }
+            flowAgg.setFocusCount(count);
             return flowAgg;
         }).collect(Collectors.toList());
         res.setMixScanTaskFlowDtoList(flowAggs);
@@ -3050,9 +3059,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return map;
     }
 
-    private HashMap<String, Integer> getBasicVehicleTypeMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
-        HashMap<String, Integer> map = new HashMap<>();
-        taskSendList.forEach(item -> map.put(item.getBizId(),item.getVehicleType()));
+    private HashMap<String, JyBizTaskSendVehicleEntity> getBasicVehicleTypeMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+        HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
+        taskSendList.forEach(item -> map.put(item.getBizId(),item));
         return map;
     }
 

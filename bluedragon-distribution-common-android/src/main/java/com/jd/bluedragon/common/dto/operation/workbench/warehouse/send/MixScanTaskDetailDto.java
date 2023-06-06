@@ -37,6 +37,8 @@ public class MixScanTaskDetailDto implements Serializable {
      * 是否关注
      */
     private Integer focus;
+    
+    private String vehicleNumber;
 
     public String getTemplateCode() {
         return templateCode;
@@ -116,5 +118,13 @@ public class MixScanTaskDetailDto implements Serializable {
 
     public void setFocus(Integer focus) {
         this.focus = focus;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 }

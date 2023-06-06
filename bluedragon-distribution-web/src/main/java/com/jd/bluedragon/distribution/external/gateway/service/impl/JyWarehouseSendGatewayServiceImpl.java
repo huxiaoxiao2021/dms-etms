@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -717,8 +718,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskFocus",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
-        JdCResponse<Void> response = new JdCResponse<>();
+    public JdCResponse<Integer> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
+        JdCResponse<Integer> response = new JdCResponse<>();
         response.toSucceed();
         try{
             checkUser(mixScanTaskFocusReq.getUser());
@@ -740,7 +741,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
             
             if (!jyGroupSortCrossDetailService.mixScanTaskFocus(mixScanTaskFocusReq)){
-                return new JdCResponse<>(JdCResponse.CODE_FAIL,mixScanTaskFocusReq.getFocus() == 1 ? "关注失败！" : "取消关注失败！");
+                return new JdCResponse<>(JdCResponse.CODE_FAIL,mixScanTaskFocusReq.getFocus() == FocusEnum.FOCUS.getCode() ? "关注失败！" : "取消关注失败！");
             }
         } catch (JyBizException e) {
             log.info("更新关注状态失败：{}", JsonHelper.toJson(mixScanTaskFocusReq), e);
@@ -749,6 +750,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 更新关注状态异常 {}", JsonHelper.toJson(mixScanTaskFocusReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "更新关注状态异常！");
         }
+        response.setData(mixScanTaskFocusReq.getFocus());
         return response;
     }
 

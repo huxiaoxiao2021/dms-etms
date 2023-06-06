@@ -131,7 +131,7 @@ public interface JyWarehouseSendGatewayService {
      * @param mixScanTaskFocusReq
      * @return
      */
-    JdCResponse<Void> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq);
+    JdCResponse<Integer> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq);
     /**
      * 混扫任务列表查询-分页
      * 适用场景：（1）发货中任务点击查询跳转；（2）混扫任务主页展示；（3）混扫任务主页按条件查询

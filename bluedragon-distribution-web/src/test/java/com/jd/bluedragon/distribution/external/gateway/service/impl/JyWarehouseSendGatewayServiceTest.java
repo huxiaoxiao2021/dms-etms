@@ -123,7 +123,7 @@ public class JyWarehouseSendGatewayServiceTest {
         req.setEndSiteId(33);
         req.setSendVehicleDetailBizId("SST22070100000344");
         req.setFocus(0);
-        JdCResponse<Void> response = jyWarehouseSendGatewayService.mixScanTaskFocus(req);
+        JdCResponse<Integer> response = jyWarehouseSendGatewayService.mixScanTaskFocus(req);
         System.out.println(JsonHelper.toJson(response));
     }
     
