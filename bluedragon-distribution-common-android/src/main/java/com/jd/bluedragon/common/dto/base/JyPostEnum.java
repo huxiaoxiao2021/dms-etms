@@ -114,12 +114,21 @@ public enum JyPostEnum {
         return false;
     }
 
+    /**
+     * 所有关注新集齐模型的岗位
+     * @return
+     */
     public static List<JyPostEnum> getFocusCollectPosts() {
         List<JyPostEnum> focusCollectPosts = new ArrayList<JyPostEnum>();
         focusCollectPosts.add(JyPostEnum.SEND_SEAL_WAREHOUSE);
         return focusCollectPosts;
     }
 
+    /**
+     * 查询该岗位是否关注新集齐模型数据
+     * @param code
+     * @return
+     */
     public static boolean isFocusCollect(String code) {
         List<JyPostEnum> focusPosts = JyPostEnum.getFocusCollectPosts();
         if(focusPosts == null || focusPosts.size() <= 0) {

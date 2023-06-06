@@ -812,10 +812,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 log.warn("接货仓发货岗根据批次号condition查collectionCode为空，场地={}，jqCondition={}", siteCode, jqCondition);
                 continue;
             }
-            List<String> relationCollectionCodeList = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectionCode, JQCodeServiceImpl.ATTRIBUTE_COLLECTION_CODE);
-            if(CollectionUtils.isNotEmpty(relationCollectionCodeList)) {
-                collectionCodeOldList.addAll(relationCollectionCodeList);
-            }
+            //todo 下面几行代码未来会使用，本期暂时不执行：：当处理错流向任务迁移时，会删除原批次，转移生成新批次，需要在新批次上维护原批次信息。保证新批次查询时能关联到已经删除的批次下的操作数据
+//            List<String> relationCollectionCodeList = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectionCode, JQCodeServiceImpl.ATTRIBUTE_COLLECTION_CODE);
+//            if(CollectionUtils.isNotEmpty(relationCollectionCodeList)) {
+//                collectionCodeOldList.addAll(relationCollectionCodeList);
+//            }
         }
         collectionCodeNewList.addAll(collectionCodeOldList);
         return collectionCodeNewList.stream().collect(Collectors.toList());

@@ -61,7 +61,8 @@ public class JyScanCollectStrategy {
     @Autowired
     private JQCodeService jqCodeService;
     @Autowired
-    WaybillQueryManager waybillQueryManager;
+    private WaybillQueryManager waybillQueryManager;
+    @Autowired
     @Qualifier("jyScanCollectProducer")
     private DefaultJMQProducer jyScanCollectProducer;
     @Autowired

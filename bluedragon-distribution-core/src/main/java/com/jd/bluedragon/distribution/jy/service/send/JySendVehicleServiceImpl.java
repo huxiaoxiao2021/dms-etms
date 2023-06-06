@@ -3939,6 +3939,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if(!JyPostEnum.isFocusCollect(request.getPostType())) {
             log.info("JySendVehicleServiceImpl.岗位类型={}【{}】不关注集齐处理，参数={}", request.getPostType(),
                     JyPostEnum.getDescByCode(request.getPostType()), JsonHelper.toJson(request));
+            return;
         }
         JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
         mqDto.setOperatorErp(request.getUser().getUserErp());
@@ -3949,6 +3950,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         //
         mqDto.setMainTaskBizId(request.getSendVehicleBizId());
         mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+        //
         mqDto.setSendCode(sendCode);
         mqDto.setJyPostType(request.getPostType());
         mqDto.setBarCode(request.getBarCode());
