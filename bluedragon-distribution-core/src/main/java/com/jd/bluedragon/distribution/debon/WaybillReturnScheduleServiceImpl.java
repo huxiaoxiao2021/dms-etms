@@ -200,6 +200,8 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
         }
         matchRequest.setProvinceId(waybill.getProvinceId());
         matchRequest.setCityId(waybill.getCityId());
+        matchRequest.setCountyId(waybill.getCountryId());
+        matchRequest.setTownId(waybill.getTownId());
         matchRequest.setAddress(waybill.getReceiverAddress());
         matchRequest.setWeight(new BigDecimal(waybill.getGoodWeight()));
         matchRequest.setVolume(new BigDecimal(waybill.getGoodVolume()));
