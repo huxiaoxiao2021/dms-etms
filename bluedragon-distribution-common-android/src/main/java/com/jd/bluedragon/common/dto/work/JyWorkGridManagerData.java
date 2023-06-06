@@ -14,6 +14,11 @@ public class JyWorkGridManagerData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 业务主键
+	 */
+	private String bizId;
+	
+	/**
 	 * 任务编码
 	 */
 	private String taskCode;
@@ -153,6 +158,12 @@ public class JyWorkGridManagerData implements Serializable {
 	}
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
 	}
 	
 }
