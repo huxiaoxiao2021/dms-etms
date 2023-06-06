@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
-import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 
 import java.util.List;
+import java.util.Objects;
 
 public class JyCollectRecordDao extends BaseDao<JyCollectRecordPo> {
 
@@ -51,5 +52,17 @@ public class JyCollectRecordDao extends BaseDao<JyCollectRecordPo> {
      */
     public List<JyCollectRecordPo> findBuQiByCollectionCodes(JyCollectRecordCondition condition) {
         return super.getSqlSession().selectList(NAMESPACE.concat(".findPageBuQiByCollectionCodes"), condition);
+    }
+
+    public List<JyCollectRecordPo> findPageByCondition(JyCollectRecordCondition condition) {
+        if(Objects.isNull(condition.getOffset()) || condition.getOffset() < 0) {
+            condition.setOffset(0);
+        }
+        if(Objects.isNull(condition.getPageSize()) || condition.getOffset() <= 0) {
+            condition.setOffset(1000);
+        }
+
+        return super.getSqlSession().selectList(NAMESPACE.concat(".findPageByCondition"), condition);
+
     }
 }

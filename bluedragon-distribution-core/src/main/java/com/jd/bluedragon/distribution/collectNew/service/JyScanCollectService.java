@@ -19,11 +19,14 @@ public interface JyScanCollectService {
     /**
      * 按任务维度插入一条集齐运单明细数据
      */
-    void insertCollectionRecordDetailInBizId(JyScanCollectMqDto collectDto);
+    void insertCollectionRecordDetail(JyScanCollectMqDto collectDto);
+
     /**
      * 按任务维度插入或修改一条集齐运单数据
+     * @param collectRecordPo
+     * @param insertFlag true 存在修改，不存在插入， false 存在修改，不存在不处理
      */
-    void upInsertCollectionRecordInBizId(JyScanCollectMqDto collectDto);
+    void upInsertCollectionRecord(JyCollectRecordPo collectRecordPo, boolean insertFlag);
 
     List<JyCollectRecordPo> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition);
 
@@ -35,4 +38,10 @@ public interface JyScanCollectService {
      * @return
      */
     List<JyCollectRecordPo> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody);
+
+    List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCollectRecordDetailCondition dPo);
+
+    void deleteCollectionRecordDetail(JyCollectRecordDetailCondition dPo);
+
+    List<JyCollectRecordPo> findPageCollectByCondition(JyCollectRecordCondition dPo);
 }

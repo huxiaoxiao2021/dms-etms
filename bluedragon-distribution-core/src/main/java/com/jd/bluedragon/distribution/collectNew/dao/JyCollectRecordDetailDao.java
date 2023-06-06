@@ -41,7 +41,7 @@ public class JyCollectRecordDetailDao extends BaseDao<JyCollectRecordDetailPo> {
      * @param condition
      * @return
      */
-    public Integer deleteByCondition(JyCollectRecordDetailPo condition) {
+    public Integer deleteByCondition(JyCollectRecordDetailCondition condition) {
         return super.getSqlSession().update(NAMESPACE.concat(".deleteByCondition"), condition);
     }
 
@@ -80,4 +80,15 @@ public class JyCollectRecordDetailDao extends BaseDao<JyCollectRecordDetailPo> {
         }
         return super.getSqlSession().selectList(NAMESPACE.concat(".findPageByCondition"), condition);
     }
+
+    public List<JyCollectRecordDetailPo> findPageByCondition(JyCollectRecordDetailCondition condition) {
+        if(Objects.isNull(condition.getOffset()) || condition.getOffset() < 0) {
+            condition.setOffset(0);
+        }
+        if(Objects.isNull(condition.getPageSize()) || condition.getOffset() <= 0) {
+            condition.setOffset(1000);
+        }
+        return super.getSqlSession().selectList(NAMESPACE.concat(".findPageByCondition"), condition);
+    }
+
 }

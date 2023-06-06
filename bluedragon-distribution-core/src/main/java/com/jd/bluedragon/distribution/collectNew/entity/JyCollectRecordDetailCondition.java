@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.collectNew.entity;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,4 +19,8 @@ public class JyCollectRecordDetailCondition extends JyCollectRecordDetailPo {
     private Integer offset;
 
     private List<String> collectionCodeList;
+
+    private Date startOperateTime;
+
+    private Date endOperateTime;
 }

@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
@@ -62,13 +63,14 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
-    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.insertCollectionRecordDetailInBizId",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public void insertCollectionRecordDetailInBizId(JyScanCollectMqDto collectDto) {
-        String methodDesc = "JyScanCollectServiceImpl.insertCollectionRecordDetailInBizId建议扫描处理集齐明细添加：";
+    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.insertCollectionRecordDetail",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public void insertCollectionRecordDetail(JyScanCollectMqDto collectDto) {
+        String methodDesc = "JyScanCollectServiceImpl.insertCollectionRecordDetail建议扫描处理集齐明细添加：";
         //
         if (!jyScanCollectCacheService.lockInsertCollectRecordDetail(collectDto.getCollectionCode(), collectDto.getPackageCode())) {
-            log.error("{}修改集齐运单表获取锁失败，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
-            throw new JyBizException("插入集齐运单明细表获取锁失败" + collectDto.getCollectionCode() + collectDto.getPackageCode());
+            log.error("{}修改集齐运单明细表获取锁失败，说明重复执行，不做处理，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
+//            throw new JyBizException("插入集齐运单明细表获取锁失败" + collectDto.getCollectionCode() + collectDto.getPackageCode());
+            return;//加锁失败说明已经在执行，防并发，无需异常重试
         }
         try{
             JyCollectRecordDetailCondition dPo = new JyCollectRecordDetailCondition();
@@ -98,58 +100,63 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
         }
     }
 
+
+
     /**
      * 修改时仅修改运单toC/toC类型及运单是否集齐字段
-     * @param collectDto
+     * @param collectRecordPo
      */
     @Override
-    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.upInsertCollectionRecordInBizId",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public void upInsertCollectionRecordInBizId(JyScanCollectMqDto collectDto) {
-        String methodDesc = "JyScanCollectServiceImpl.upInsertCollectionRecordInBizId拣运扫描修改集齐运单表：";
+    @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.upInsertCollectionRecord",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public void upInsertCollectionRecord(JyCollectRecordPo collectRecordPo, boolean insertFlag) {
+        String methodDesc = String.format("JyScanCollectServiceImpl.upInsertCollectionRecord拣运扫描修改集齐运单表%s：", insertFlag ? "(支持insert)" : "(不支持insert)");
         //
-        if (!jyScanCollectCacheService.lockUpInsertCollectRecord(collectDto.getCollectionCode(), collectDto.getWaybillCode())) {
-            log.error("{}修改集齐运单表获取锁失败，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
-            throw new JyBizException("修改集齐运单表获取锁失败" + collectDto.getCollectionCode() + collectDto.getWaybillCode());
+        if (!jyScanCollectCacheService.lockUpInsertCollectRecord(collectRecordPo.getCollectionCode(), collectRecordPo.getAggCode())) {
+            log.error("{}修改集齐运单表获取锁失败，collectDto={}", methodDesc, JsonHelper.toJson(collectRecordPo));
+            throw new JyBizException("修改集齐运单表获取锁失败" + collectRecordPo.getCollectionCode() + collectRecordPo.getAggCode());
         }
         try{
             JyCollectRecordPo recordPo = new JyCollectRecordPo();
-            recordPo.setCollectionCode(collectDto.getCollectionCode());
-            recordPo.setAggCode(collectDto.getWaybillCode());
-            recordPo.setSiteId(collectDto.getOperateSiteId().longValue());
+            recordPo.setCollectionCode(collectRecordPo.getCollectionCode());
+            recordPo.setAggCode(collectRecordPo.getAggCode());
+            recordPo.setSiteId(collectRecordPo.getSiteId());
             JyCollectRecordPo jyCollectRecord = jyCollectRecordDao.findJyCollectRecordByAggCode(recordPo);
 
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(collectDto.getWaybillCode());
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(collectRecordPo.getAggCode());
             String wbs = Objects.isNull(waybill) ? "" : waybill.getWaybillSign();
             Integer goodNumber = (Objects.isNull(waybill) || Objects.isNull(waybill.getGoodNumber())) ? 0 : waybill.getGoodNumber();
             recordPo.setShouldCollectNum(goodNumber);
 
             if(Objects.isNull(jyCollectRecord)) {
+                if(!insertFlag) {
+                    return;
+                }
                 recordPo.setAggCodeType(CollectionScanCodeTypeEnum.waybill_code.name());
                 recordPo.setCreateTime(new Date());
                 recordPo.setUpdateTime(recordPo.getCreateTime());
-                recordPo.setCustomType(toBNetFlag(collectDto.getWaybillCode(), wbs));
+                recordPo.setCustomType(toBNetFlag(collectRecordPo.getAggCode(), wbs));
                 recordPo.setRealCollectNum(1);
                 recordPo.setIsCollected(goodNumber > 1 ? JyScanCollectServiceImpl.BU_QI : JyScanCollectServiceImpl.JI_QI);
                 jyCollectRecordDao.insertSelective(recordPo);
             } else {
                 JyCollectRecordPo updateRecordPo = new JyCollectRecordPo();
-                updateRecordPo.setSiteId(collectDto.getOperateSiteId().longValue());
+                updateRecordPo.setSiteId(collectRecordPo.getSiteId());
                 updateRecordPo.setCollectionCode(jyCollectRecord.getCollectionCode());
                 updateRecordPo.setAggCode(jyCollectRecord.getAggCode());
                 updateRecordPo.setUpdateTime(new Date());
-                updateRecordPo.setCustomType(toBNetFlag(collectDto.getWaybillCode(), wbs));
+                updateRecordPo.setCustomType(toBNetFlag(collectRecordPo.getAggCode(), wbs));
                 updateRecordPo.setShouldCollectNum(goodNumber);
-                int collectNum = this.countScanCodeNumNumByCollectedMarkAndAggCode(collectDto);
+                int collectNum = this.countScanCodeNumNumByCollectedMarkAndAggCode(collectRecordPo);
                 updateRecordPo.setRealCollectNum(collectNum);
                 updateRecordPo.setIsCollected( (goodNumber > 0 && collectNum >= goodNumber) ? JyScanCollectServiceImpl.JI_QI : JyScanCollectServiceImpl.BU_QI);
 
                 jyCollectRecordDao.updateByCondition(updateRecordPo);
             }
         }catch (Exception ex) {
-            log.error("{}服务异常，参数={}， errMsg={}", methodDesc, JsonHelper.toJson(collectDto), ex.getMessage(), ex);
-            throw new JyBizException("拣运扫描修改集齐运单表服务异常" + collectDto.getWaybillCode());
+            log.error("{}服务异常，参数={}， errMsg={}", methodDesc, JsonHelper.toJson(collectRecordPo), ex.getMessage(), ex);
+            throw new JyBizException("拣运扫描修改集齐运单表服务异常" + collectRecordPo.getAggCode());
         }finally {
-            jyScanCollectCacheService.delLockUpInsertCollectRecord(collectDto.getCollectionCode(), collectDto.getWaybillCode());
+            jyScanCollectCacheService.delLockUpInsertCollectRecord(collectRecordPo.getCollectionCode(), collectRecordPo.getAggCode());
         }
     }
 
@@ -174,12 +181,12 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @param collectDto
      * @return 1 集齐  0 未集齐
      */
-    private int countScanCodeNumNumByCollectedMarkAndAggCode(JyScanCollectMqDto collectDto){
+    private int countScanCodeNumNumByCollectedMarkAndAggCode(JyCollectRecordPo collectDto){
 
         JyCollectRecordDetailPo detailPo = new JyCollectRecordDetailPo();
         detailPo.setCollectionCode(collectDto.getCollectionCode());//岗位
-        detailPo.setSiteId(collectDto.getOperateSiteId().longValue());
-        detailPo.setAggCode(collectDto.getWaybillCode());//运单
+        detailPo.setSiteId(collectDto.getSiteId());
+        detailPo.setAggCode(collectDto.getAggCode());//运单
         return jyCollectRecordDetailDao.countScanCodeNumNumByCollectedMarkAndAggCode(detailPo);
     }
 
@@ -227,7 +234,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
                 break;
             }
             res.addAll(collectionRecordPoList);
-            int buQiWaybillCodeMaxSum = getBuQiWaybillCodeMaxSum();
+            int buQiWaybillCodeMaxSum = this.getBuQiWaybillCodeMaxSum();
             if(res.size() > buQiWaybillCodeMaxSum) {
                 throw new JyBizException("异常：不齐运单数量超过预期最大值" + buQiWaybillCodeMaxSum);
             }
@@ -250,4 +257,19 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
         return buQiWaybillMaxSize;
     }
 
+
+    @Override
+    public List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCollectRecordDetailCondition condition) {
+        return jyCollectRecordDetailDao.findPageByCondition(condition);
+    }
+
+    @Override
+    public void deleteCollectionRecordDetail(JyCollectRecordDetailCondition condition) {
+        jyCollectRecordDetailDao.deleteByCondition(condition);
+    }
+
+    @Override
+    public List<JyCollectRecordPo> findPageCollectByCondition(JyCollectRecordCondition condition) {
+        return jyCollectRecordDao.findPageByCondition(condition);
+    }
 }

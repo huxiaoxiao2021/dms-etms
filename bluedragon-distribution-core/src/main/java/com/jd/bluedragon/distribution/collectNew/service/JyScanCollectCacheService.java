@@ -29,8 +29,13 @@ public class JyScanCollectCacheService {
     public static final String LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL = "lock:insert:collectionRecordDetail:%s:%s";
     public static final int LOCK_INSERT_JY_SCAN_COLLECTION_RECORD_DETAIL_TIMEOUT_SECONDS = 120;
 
-    public static final String CACHE_JY_SCAN_PACKAGE_COLLECT = "cache:jyScan:packageCollect:%s:%s";
+    public static final String CACHE_JY_SCAN_PACKAGE_COLLECT = "cache:jyScan:packageCollect:%s:%s:%s";
     public static final int CACHE_JY_SCAN_PACKAGE_COLLECT_TIMEOUT_MINUTES = 30;
+
+    public static final String CACHE_JY_CANCEL_SCAN_PACKAGE_COLLECT = "cache:jyCancelScanPackage:collect:%s:%s:%s";
+    public static final String CACHE_JY_CANCEL_SCAN_WAYBILL_COLLECT = "cache:jyCancelScanWaybill:Collect:%s:%s:%s";
+    public static final int CACHE_JY_CANCEL_SCAN_COLLECT_TIMEOUT_MINUTES = 30;
+
 
     @Autowired
     private JimDbLock jimDbLock;
@@ -127,13 +132,13 @@ public class JyScanCollectCacheService {
      * @param collectionCode
      * @param packageCode
      */
-    public void saveCacheScanPackageCollectDeal(String collectionCode, String packageCode) {
+    public void saveCacheScanPackageCollectDeal(String collectionCode, String packageCode, Long operateTime) {
         if(StringUtils.isBlank(collectionCode) || StringUtils.isBlank(packageCode)) {
             log.error("saveCacheScanPackageCollectDeal保存防重缓存参数缺失:collectionCode={}, 包裹号={}", collectionCode, packageCode);
             throw new JyBizException("saveCacheScanPackageCollectDeal保存防重缓存参数缺失");
         }
         try {
-            String cacheKey = this.getCacheKeyScanPackageCollectDeal(collectionCode, packageCode);
+            String cacheKey = this.getCacheKeyScanPackageCollectDeal(collectionCode, packageCode, operateTime);
             redisClientOfJy.setEx(cacheKey, "1",
                     JyScanCollectCacheService.CACHE_JY_SCAN_PACKAGE_COLLECT_TIMEOUT_MINUTES,
                     TimeUnit.MINUTES);
@@ -148,13 +153,13 @@ public class JyScanCollectCacheService {
      * @param packageCode
      * @return
      */
-    public boolean existCacheScanPackageCollectDeal(String collectionCode, String packageCode) {
+    public boolean existCacheScanPackageCollectDeal(String collectionCode, String packageCode, Long operateTime) {
         if(StringUtils.isBlank(collectionCode) || StringUtils.isBlank(packageCode)) {
             log.error("existCacheScanPackageCollectDeal校验防重缓存参数缺失:collectionCode={}, 包裹号={}", collectionCode, packageCode);
             throw new JyBizException("existCacheScanPackageCollectDeal校验防重缓存参数缺失");
         }
         try {
-            String cacheKey = getCacheKeyScanPackageCollectDeal(collectionCode, packageCode);
+            String cacheKey = getCacheKeyScanPackageCollectDeal(collectionCode, packageCode, operateTime);
             if (StringUtils.isBlank(redisClientOfJy.get(cacheKey))) {
                 return false;
             }
@@ -171,8 +176,36 @@ public class JyScanCollectCacheService {
      * @param packageCode
      * @return
      */
-    public String getCacheKeyScanPackageCollectDeal(String collectionCode, String packageCode) {
-        return String.format(CACHE_JY_SCAN_PACKAGE_COLLECT, collectionCode, packageCode);
+    public String getCacheKeyScanPackageCollectDeal(String collectionCode, String packageCode, Long operateTime) {
+        return String.format(CACHE_JY_SCAN_PACKAGE_COLLECT, collectionCode, packageCode, operateTime);
     }
 
+
+    /**
+     * 取消扫描包裹处理集齐防重复
+     * @param operateSiteId
+     * @param barCode
+     * @param operateTime
+     * @return
+     */
+    public void saveCacheCancelScanPackageInSiteAndScanCode(Integer operateSiteId, String barCode, Long operateTime) {
+        try{
+            String cacheKey = getCacheKeyCancelScanPackageInSiteAndScanCode(operateSiteId, barCode, operateTime);
+            redisClientOfJy.setEx(cacheKey, "1",
+                    JyScanCollectCacheService.CACHE_JY_CANCEL_SCAN_COLLECT_TIMEOUT_MINUTES,
+                    TimeUnit.MINUTES);
+        }catch (Exception e) {
+            log.error("saveCacheCancelScanPackageInSiteAndScanCode，缓存添加失败，operateSiteId={}，barCode={}，operateTime={}", operateSiteId, barCode, operateTime, e);
+        }
+    }
+    public boolean existCacheCancelScanPackageInSiteAndScanCode(Integer operateSiteId, String barCode, Long operateTime) {
+        String cacheKey = getCacheKeyCancelScanPackageInSiteAndScanCode(operateSiteId, barCode, operateTime);
+        if (StringUtils.isBlank(redisClientOfJy.get(cacheKey))) {
+            return false;
+        }
+        return true;
+    }
+    public String getCacheKeyCancelScanPackageInSiteAndScanCode(Integer operateSiteId, String barCode, Long operateTime) {
+        return String.format(CACHE_JY_CANCEL_SCAN_PACKAGE_COLLECT, barCode, operateSiteId, operateTime);
+    }
 }

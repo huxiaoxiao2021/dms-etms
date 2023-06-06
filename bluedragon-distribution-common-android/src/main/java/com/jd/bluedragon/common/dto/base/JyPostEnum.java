@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.constants;
+package com.jd.bluedragon.common.dto.base;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public enum JyPostEnum {
                 return en.getDesc();
             }
         }
-        return null;
+        return "未知";
     }
 
     public static JyPostEnum getJyPostEnumByCode(String code) {
@@ -65,7 +65,7 @@ public enum JyPostEnum {
      * @return
      */
     public static List<JyPostEnum> getSendPost() {
-        List<JyPostEnum> sendPost = new ArrayList<>();
+        List<JyPostEnum> sendPost = new ArrayList<JyPostEnum>();
         sendPost.add(JyPostEnum.SEND_SEAL_DMS);
         sendPost.add(JyPostEnum.SEND_SEAL_TYS);
         sendPost.add(JyPostEnum.SEND_SEAL_BOARD);
@@ -78,7 +78,7 @@ public enum JyPostEnum {
      * @return
      */
     public static List<JyPostEnum> getUnloadPost() {
-        List<JyPostEnum> sendPost = new ArrayList<>();
+        List<JyPostEnum> sendPost = new ArrayList<JyPostEnum>();
         sendPost.add(JyPostEnum.RECEIVE_DMS);
         sendPost.add(JyPostEnum.RECEIVE_TYS);
         return sendPost;
@@ -114,6 +114,24 @@ public enum JyPostEnum {
         return false;
     }
 
+    public static List<JyPostEnum> getFocusCollectPosts() {
+        List<JyPostEnum> focusCollectPosts = new ArrayList<JyPostEnum>();
+        focusCollectPosts.add(JyPostEnum.SEND_SEAL_WAREHOUSE);
+        return focusCollectPosts;
+    }
+
+    public static boolean isFocusCollect(String code) {
+        List<JyPostEnum> focusPosts = JyPostEnum.getFocusCollectPosts();
+        if(focusPosts == null || focusPosts.size() <= 0) {
+            return false;
+        }
+        for (JyPostEnum jyPostEnum : focusPosts) {
+            if(jyPostEnum.getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

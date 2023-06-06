@@ -4,15 +4,22 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
+import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeServiceImpl;
+import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectCacheService;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
-import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
-import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
-import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -34,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +53,8 @@ import java.util.Objects;
 @Service
 public class JyScanCollectStrategy {
     private Logger log = LoggerFactory.getLogger(JyWarehouseScanCollectHandler.class);
+
+    public static final Integer CODE_FAIL_REPEAT = 20001;
 
     @Autowired
     private JyScanCollectService jyScanCollectService;
@@ -59,6 +69,8 @@ public class JyScanCollectStrategy {
     @Autowired
     private DynamicSortingQueryDao dynamicSortingQueryDao;
 
+    @Autowired
+    private BusinessCodeDao businessCodeDao;
 
     /**
      * 集齐扫描处理
@@ -120,7 +132,7 @@ public class JyScanCollectStrategy {
             log.error("{}拣运扫描包裹维度包裹号为空,mqDto={}", methodDesc, JsonHelper.toJson(collectDto));
             throw new JyBizException("拣运扫描包裹维度包裹号为空");
         }
-        if (jyScanCollectCacheService.existCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode)) {
+        if (jyScanCollectCacheService.existCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode, collectDto.getOperateTime())) {
             log.warn("{}防重cache拦截，当前包裹已处理过，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
@@ -133,11 +145,15 @@ public class JyScanCollectStrategy {
         collectDto.setPackageCode(packageCode);
         collectDto.setWaybillCode(waybillCode);
         //修改集齐运单明细表
-        jyScanCollectService.insertCollectionRecordDetailInBizId(collectDto);
+        jyScanCollectService.insertCollectionRecordDetail(collectDto);
         //修改集齐运单表
-        jyScanCollectService.upInsertCollectionRecordInBizId(collectDto);
+        JyCollectRecordPo collectRecordPo = new JyCollectRecordPo();
+        collectRecordPo.setCollectionCode(collectDto.getCollectionCode());
+        collectRecordPo.setAggCode(collectDto.getWaybillCode());
+        collectRecordPo.setSiteId(collectDto.getOperateSiteId().longValue());
+        jyScanCollectService.upInsertCollectionRecord(collectRecordPo, true);
 
-        jyScanCollectCacheService.saveCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode);
+        jyScanCollectCacheService.saveCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode, collectDto.getOperateTime());
         return true;
     }
 
@@ -352,8 +368,132 @@ public class JyScanCollectStrategy {
      * @return
      */
     private boolean cancelScanPackageCollectDeal(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
-        // todo zcf
-        return false;
+        String methodDesc = "JyScanCollectStrategy.cancelScanPackageCollectDeal包裹取消发货扫描处理集齐数据：";
+
+        InvokeResult<List<String>> invokeResult = this.delCollectDetailAndReturnDelCollectionCodes(cancelScanCollectMqDto);
+        List<String> collectionCodeList = new ArrayList<>();
+        if(invokeResult.codeSuccess()) {
+            //删除成功获取删除的collectionCode
+            collectionCodeList = invokeResult.getData();
+        }else if(JyScanCollectStrategy.CODE_FAIL_REPEAT.equals(invokeResult.getCode())) {
+            //上面逻辑重复拦截时，下面逻辑正常执行，可能重试,
+            //正常逻辑是删除明细，对删除的collectionCode
+            collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+
+        }
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
+            return true;
+        }
+        //修改运单统计数据
+        collectionCodeList.forEach( collectionCode -> {
+            JyCollectRecordPo collectRecordPo = new JyCollectRecordPo();
+            collectRecordPo.setCollectionCode(collectionCode);
+            collectRecordPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
+            collectRecordPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+            jyScanCollectService.upInsertCollectionRecord(collectRecordPo, false);
+        });
+
+        return true;
+    }
+
+
+    /**
+     * 取消扫描删除逻辑
+     * 注： 扫描是先确定collectionCode,对指定collectionCode添加
+     *     删除时，不指定collectionCode, 按场地查询，但是要对查询结果中的collectionCode校验是否当前岗位，避免同场地不同岗位数据影响，如发货岗取消了卸车岗数据
+     * @param cancelScanCollectMqDto
+     * @return
+     */
+    private InvokeResult<List<String>> delCollectDetailAndReturnDelCollectionCodes(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        String methodDesc = "JyScanCollectStrategy.delCollectDetailAndReturnDelCollectionCodes删除集齐明细返回删除数据的collectionCode：";
+        InvokeResult<List<String>> res = new InvokeResult<>();
+        res.success();
+        //防重复（区分真的查不到和重复操作同一批数据删除之后再查查不到， 删除后面统计修改获取不到锁会重试，需要保证删除后可以再次出发后面逻辑）
+        if(jyScanCollectCacheService.existCacheCancelScanPackageInSiteAndScanCode(cancelScanCollectMqDto.getOperateSiteId(), cancelScanCollectMqDto.getBarCode(), cancelScanCollectMqDto.getOperateTime())) {
+            if(log.isInfoEnabled()) {
+                log.info("{}重复了，参数={}", methodDesc, JsonHelper.toJson(cancelScanCollectMqDto));
+            }
+            res.setCode(JyScanCollectStrategy.CODE_FAIL_REPEAT);
+            return res;
+        }
+        //查询场地所有符合条件的collectionCode扫描信息
+        List<JyCollectRecordDetailPo> dPoRes = this.findPageCollectDetailByCondition(cancelScanCollectMqDto);
+        List<String> collectionCodeList = new ArrayList<>();
+//        collectionCodeList = dPoRes.stream().map(JyCollectRecordDetailPo::getCollectionCode).collect(Collectors.toList());
+        //仅过滤当前岗位数据
+        if(CollectionUtils.isNotEmpty(dPoRes)) {
+            dPoRes.forEach(collectDetailPo -> {
+                List<String> ccListTemp = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectDetailPo.getCollectionCode(), JQCodeServiceImpl.ATTRIBUTE_JY_POST);
+            if(CollectionUtils.isNotEmpty(ccListTemp) && cancelScanCollectMqDto.getJyPostType().equals(ccListTemp.get(0))) {
+                collectionCodeList.add(collectDetailPo.getCollectionCode());
+            }
+            });
+        }
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
+            if(log.isWarnEnabled()) {
+                log.warn("{}未查到相关collectionCodes不做处理，方法req={}, 查包裹返回={}", methodDesc, JsonHelper.toJson(cancelScanCollectMqDto), JsonHelper.toJson(dPoRes));
+            }
+            res.setMessage("不存在相关包裹");
+            return res;
+        }
+
+        res.setData(collectionCodeList);
+        if(log.isInfoEnabled()) {
+            log.info("{}该场地扫描该包裹collectionCodes为{}，参数={}", methodDesc, JsonHelper.toJson(collectionCodeList), JsonHelper.toJson(cancelScanCollectMqDto));
+        }
+        //根据已知collectionCodeList 进行包裹删除
+        this.deleteCollectionRecordDetail(cancelScanCollectMqDto, collectionCodeList);
+        jyScanCollectCacheService.saveCacheCancelScanPackageInSiteAndScanCode(cancelScanCollectMqDto.getOperateSiteId(), cancelScanCollectMqDto.getBarCode(), cancelScanCollectMqDto.getOperateTime());
+        return res;
+    }
+
+    private List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        JyCollectRecordDetailCondition dPo = new JyCollectRecordDetailCondition();
+        dPo.setScanCode(cancelScanCollectMqDto.getBarCode());
+        dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
+        dPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+        dPo.setEndOperateTime(new Date(cancelScanCollectMqDto.getOperateTime()));
+        return jyScanCollectService.findPageCollectDetailByCondition(dPo);
+    }
+
+    private void deleteCollectionRecordDetail(JyCancelScanCollectMqDto cancelScanCollectMqDto, List<String> collectionCodeList) {
+        JyCollectRecordDetailCondition dPo = new JyCollectRecordDetailCondition();
+        dPo.setScanCode(cancelScanCollectMqDto.getBarCode());
+        dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
+        dPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+        dPo.setEndOperateTime(new Date(cancelScanCollectMqDto.getOperateTime()));
+        if(CollectionUtils.isNotEmpty(collectionCodeList)) {
+            dPo.setCollectionCodeList(collectionCodeList);
+        }
+        jyScanCollectService.deleteCollectionRecordDetail(dPo);
+    }
+
+
+    /**
+     * 根据aggCode 查询集齐主表中的collectionCode
+     * 注： 查询结果过滤是否当前岗位，避免同场地不同岗位数据互相影响
+     * @param cancelScanCollectMqDto
+     * @return
+     */
+    private List<String> findPageCollectByCondition(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
+        JyCollectRecordCondition dPo = new JyCollectRecordCondition();
+        dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
+        dPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+        List<JyCollectRecordPo> collectRecordPoList = jyScanCollectService.findPageCollectByCondition(dPo);
+        List<String> res = new ArrayList<>();
+        //当前岗位校验
+        if(CollectionUtils.isNotEmpty(collectRecordPoList)) {
+            collectRecordPoList.forEach(collectPo -> {
+                List<String> ccListTemp = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectPo.getCollectionCode(), JQCodeServiceImpl.ATTRIBUTE_JY_POST);
+                if(CollectionUtils.isNotEmpty(ccListTemp) && cancelScanCollectMqDto.getJyPostType().equals(ccListTemp.get(0))) {
+                    res.add(collectPo.getCollectionCode());
+                }
+            });
+        }
+        if(log.isInfoEnabled()) {
+            log.info("参数={}，根据场地运单查询当前岗位扫描该单的collectionCodes为{},全场扫描collect信息为{}", JsonHelper.toJson(cancelScanCollectMqDto), JsonHelper.toJson(res), JsonHelper.toJson(collectRecordPoList));
+        }
+        return res;
     }
 
     /**
@@ -362,7 +502,35 @@ public class JyScanCollectStrategy {
      * @return
      */
     private boolean cancelScanWaybillCollectDeal(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
-        // todo zcf
+        String methodDesc = "JyScanCollectStrategy.cancelScanWaybillCollectDeal:按单取消扫描处理集齐数据";
+        //查询集齐主表中当前岗位所有所有扫描该单的collectionCode
+        List<String> collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+        if(CollectionUtils.isEmpty(collectionCodeList)) {
+            if(log.isInfoEnabled()) {
+                log.info("{}未查到当前当前岗位下操作该运单的collectionCode，不做处理，参数={}", methodDesc, JsonHelper.toJson(cancelScanCollectMqDto));
+            }
+            return true;
+        }
+        if(log.isInfoEnabled()) {
+            log.info("{}查到操作该单的collectionCodes为{},参数={}", methodDesc, JsonHelper.toJson(collectionCodeList), JsonHelper.toJson(cancelScanCollectMqDto));
+        }
+        collectionCodeList.forEach(collectionCode -> {
+            JyCollectRecordDetailCondition dPo = new JyCollectRecordDetailCondition();
+            dPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+            dPo.setCollectionCode(collectionCode);
+            dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
+            dPo.setEndOperateTime(new Date(cancelScanCollectMqDto.getOperateTime()));
+            jyScanCollectService.deleteCollectionRecordDetail(dPo);
+        });
+
+        //修改运单统计数据
+        collectionCodeList.forEach( collectionCode -> {
+            JyCollectRecordPo collectRecordPo = new JyCollectRecordPo();
+            collectRecordPo.setCollectionCode(collectionCode);
+            collectRecordPo.setAggCode(cancelScanCollectMqDto.getBarCode());
+            collectRecordPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
+            jyScanCollectService.upInsertCollectionRecord(collectRecordPo, false);
+        });
         return false;
     }
 }

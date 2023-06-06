@@ -83,6 +83,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
@@ -3926,30 +3927,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param request
      */
     private void sendCollectDealMQ(SendScanRequest request, String sendCode) {
-        if(!Objects.isNull(request.getFocusCollect()) && request.getFocusCollect()) {
-            JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
-            mqDto.setOperatorErp(request.getUser().getUserErp());
-            mqDto.setOperatorName(request.getUser().getUserName());
-            mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
-            mqDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
-            mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
-            //
-            mqDto.setMainTaskBizId(request.getSendVehicleBizId());
-            mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
-            mqDto.setSendCode(sendCode);
-            mqDto.setJyPostType(request.getPostType());
-            mqDto.setBarCode(request.getBarCode());
-            mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
-            mqDto.setCodeType(mqDto.getBarCodeType());
-            mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
-            //运单号+操作任务+岗位类型+触发节点
-            String businessId = jyScanCollectStrategy.getScanBusinessId(mqDto);
-            String msg = JsonHelper.toJson(mqDto);
-            if(log.isInfoEnabled()) {
-                log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
-            }
-            jyScanCollectProducer.sendOnFailPersistent(businessId, msg);
+        if(!JyPostEnum.isFocusCollect(request.getPostType())) {
+            log.info("JySendVehicleServiceImpl.岗位类型={}【{}】不关注集齐处理，参数={}", request.getPostType(),
+                    JyPostEnum.getDescByCode(request.getPostType()), JsonHelper.toJson(request));
         }
+        JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
+        mqDto.setOperatorErp(request.getUser().getUserErp());
+        mqDto.setOperatorName(request.getUser().getUserName());
+        mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        mqDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
+        mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
+        //
+        mqDto.setMainTaskBizId(request.getSendVehicleBizId());
+        mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+        mqDto.setSendCode(sendCode);
+        mqDto.setJyPostType(request.getPostType());
+        mqDto.setBarCode(request.getBarCode());
+        mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+        mqDto.setCodeType(mqDto.getBarCodeType());
+        mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
+        //运单号+操作任务+岗位类型+触发节点
+        String businessId = jyScanCollectStrategy.getScanBusinessId(mqDto);
+        String msg = JsonHelper.toJson(mqDto);
+        if(log.isInfoEnabled()) {
+            log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
+        }
+        jyScanCollectProducer.sendOnFailPersistent(businessId, msg);
     }
 
     public String getBarCodeType(String scanCode){

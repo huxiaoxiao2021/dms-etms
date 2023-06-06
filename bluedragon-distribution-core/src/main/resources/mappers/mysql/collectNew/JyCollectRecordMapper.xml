@@ -179,4 +179,22 @@
     having real_collect_total_num >= should_collect_total_num
     limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
   </select>
+
+
+  <!-- 查询拣运任务扫描记录 -->
+  <select id="findPageByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from collection_record
+    where yn = 1
+    and site_id = #{siteId}
+    <if test="aggCode != null" >
+      and agg_code = #{aggCode,jdbcType=VARCHAR}
+    </if>
+    <if test="collectionCode != null" >
+      and collection_code = #{collectionCode}
+    </if>
+    limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+
+  </select>
 </mapper>

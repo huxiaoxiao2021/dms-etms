@@ -29,8 +29,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_DMS;
-import static com.jd.bluedragon.distribution.jy.constants.JyPostEnum.SEND_SEAL_WAREHOUSE;
+import static com.jd.bluedragon.common.dto.base.JyPostEnum.SEND_SEAL_DMS;
+import static com.jd.bluedragon.common.dto.base.JyPostEnum.SEND_SEAL_WAREHOUSE;
 
 /**
  * @author liwenji

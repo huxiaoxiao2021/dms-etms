@@ -50,7 +50,7 @@ public class JyGroupSortCrossDetailEntity {
     private Integer focus;
     /**
      * 功能类型
-     * com.jd.bluedragon.distribution.jy.constants.JyPostEnum
+     * JyPostEnum
      */
     private String funcType;
 

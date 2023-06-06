@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.factory;
 
-import com.jd.bluedragon.distribution.jy.constants.JyPostEnum;
+import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import org.slf4j.Logger;

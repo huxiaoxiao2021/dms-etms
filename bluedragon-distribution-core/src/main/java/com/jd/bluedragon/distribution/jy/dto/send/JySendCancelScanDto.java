@@ -39,7 +39,7 @@ public class JySendCancelScanDto implements Serializable {
     private String mainTaskBizId;
     /**
      * 岗位类型
-     * com.jd.bluedragon.distribution.jy.constants.JyPostEnum
+     * com.jd.bluedragon.common.dto.base.JyPostEnum
      */
     private String jyPostType;
 
