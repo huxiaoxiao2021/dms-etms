@@ -522,7 +522,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         update.setUpdateUserErp(mq.getPrincipalErp());
         update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
-        update.setTags(StringHelper.append(bizEntity.getTags(),JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
+        update.setTags(StringHelper.append(bizEntity.getTags(),SPLIT+JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
 
 
         jyBizTaskExceptionDao.updateByBizId(update);

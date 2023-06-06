@@ -85,7 +85,7 @@ public class JyExceptionServiceTest {
     public void getExceptionTaskPageList() {
 
         ExpTaskPageReq req = new ExpTaskPageReq();
-        req.setStatus(3);
+        req.setStatus(2);
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
         JdCResponse<List<ExpTaskDto>> response = jyExceptionService.getExceptionTaskPageList(req);
@@ -240,7 +240,7 @@ public class JyExceptionServiceTest {
         JyAssignExpTaskMQ mq = new JyAssignExpTaskMQ();
         mq.setPrincipalErp("wuyoude");
         mq.setBizId("SANWU_SWTYXC111111");
-        mq.setPrincipalErp("wuyoude");
+        mq.setAssignHandlerErp("wuyoude");
         jySanwuExceptionService.dealAssignTaskData(mq);
     }
 

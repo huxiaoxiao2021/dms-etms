@@ -319,6 +319,9 @@
             <if test="yn != null">
                 yn = #{yn},
             </if>
+            <if test="tags != null">
+                tags = #{tags},
+            </if>
         </set>
         <where>
             biz_id = #{bizId}
