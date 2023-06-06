@@ -15,7 +15,7 @@ import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.utils.XmlHelper;
 
 public class ReverseRejectTestCase {
-	
+	@Test
 	public void test_add_reject() {
 		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><cky2>6</cky2><storeId>0</storeId><operateTime>2012-10-22 10:05:00</operateTime><orderId>300687686</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>操作人</operator><operatorCode>bjcaozuoren</operatorCode></RejectRequest>";
 		// String message =

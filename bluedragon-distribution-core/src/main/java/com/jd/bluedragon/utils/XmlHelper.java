@@ -142,16 +142,6 @@ public class XmlHelper {
         return (T) xStream.fromXML(xml);
     }
 
-    public static <T> T xmlToObjectOld(String xml, String aliasName, Class<T> clazz,
-                                    Converter converter) {
-        XStream xStream = toSafeXStream();
-        xStream.ignoreUnknownElements();
-        xStream.alias(aliasName, clazz);
-        if (null != converter) {
-            xStream.registerConverter(converter);
-        }
-        return (T) xStream.fromXML(xml);
-    }
 
     public static Boolean isXml(String xml, Class<?> clazz, Converter converter) {
         if (StringHelper.isEmpty(xml)) {
