@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
+import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -232,8 +233,15 @@ public class JyExceptionServiceTest {
 
         JdCResponse<Boolean> response = jySanwuExceptionService.assignExpTask(req);
         System.out.println(JSON.toJSONString(response));
+    }
 
-
+    @Test
+    public void dealAssignTaskDataTest(){
+        JyAssignExpTaskMQ mq = new JyAssignExpTaskMQ();
+        mq.setPrincipalErp("wuyoude");
+        mq.setBizId("SANWU_SWTYXC111111");
+        mq.setPrincipalErp("wuyoude");
+        jySanwuExceptionService.dealAssignTaskData(mq);
     }
 
 }

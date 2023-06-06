@@ -47,10 +47,10 @@ public class JyAssignExpTaskConsumer  extends MessageBaseConsumer {
         }
         JyAssignExpTaskMQ mqDto = JsonHelper.fromJson(message.getText(), JyAssignExpTaskMQ.class);
 
-        jySanwuExceptionService.dealAssignTaskData(mqDto);
         if(StringUtils.isBlank(mqDto.getBizId()) || StringUtils.isBlank(mqDto.getAssignHandlerErp())){
             throw new RuntimeException("指派异常任务数据异常!");
         }
+        jySanwuExceptionService.dealAssignTaskData(mqDto);
 
     }
 }

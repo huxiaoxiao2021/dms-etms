@@ -671,7 +671,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setUpdateUserName(baseStaffByErp.getStaffName());
         update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
-        update.setTaskAssign(JyExpTaskAssignTypeEnum.RECEIVE.getCode());
 
         jyBizTaskExceptionDao.updateByBizId(update);
         recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);

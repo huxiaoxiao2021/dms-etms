@@ -516,7 +516,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         //修改状态为 status处理中-processingStatus匹配中
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(mq.getBizId());
-        update.setTaskAssign(JyExpTaskAssignTypeEnum.ASSIGN.getCode());
         update.setStatus(JyExpStatusEnum.PROCESSING.getCode());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
         update.setHandlerErp(mq.getAssignHandlerErp());
