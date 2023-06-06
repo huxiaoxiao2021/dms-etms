@@ -97,7 +97,7 @@ public class JyWarehouseSendGatewayServiceTest {
         req.setUser(USER);
         req.setCurrentOperate(CURRENT_OPERATE);
         req.setGroupCode("G00000059567");
-        JdCResponse<Void> response = jyWarehouseSendGatewayService.deleteMixScanTask(req);
+        JdCResponse<String> response = jyWarehouseSendGatewayService.deleteMixScanTask(req);
         System.out.println(JsonHelper.toJson(response));
     }
     
