@@ -17,7 +17,6 @@ import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
@@ -114,7 +113,7 @@ public interface JyWarehouseSendGatewayService {
      * @param deleteMixScanTaskReq
      * @return
      */
-    JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq);
+    JdCResponse<String> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq);
     /**
      * 删除混扫任务流向
      * @param removeMixScanTaskFlowReq

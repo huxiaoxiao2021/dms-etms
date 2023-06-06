@@ -570,8 +570,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.deleteMixScanTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdCResponse<Void> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
-        JdCResponse<Void> response = new JdCResponse<>();
+    public JdCResponse<String> deleteMixScanTask(DeleteMixScanTaskReq deleteMixScanTaskReq) {
+        JdCResponse<String> response = new JdCResponse<>();
         response.toSucceed();
         try{
             checkUser(deleteMixScanTaskReq.getUser());
@@ -606,6 +606,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         }finally {
             jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(deleteMixScanTaskReq.getGroupCode(), deleteMixScanTaskReq.getTemplateCode());
         }
+        response.setData(deleteMixScanTaskReq.getTemplateCode());
         return response;   
     }
 
