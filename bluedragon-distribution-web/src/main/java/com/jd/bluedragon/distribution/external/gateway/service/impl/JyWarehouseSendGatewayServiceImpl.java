@@ -241,10 +241,6 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         }
     }
 
-    @Override
-    public JdCResponse<SendVehicleProgress> loadStatistics(SendVehicleProgressRequest request) {
-        return null;
-    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sendScan",

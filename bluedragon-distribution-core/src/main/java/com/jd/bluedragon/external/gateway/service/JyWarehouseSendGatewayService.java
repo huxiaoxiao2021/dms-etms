@@ -52,13 +52,7 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdCResponse<AppendSendVehicleTaskQueryRes> fetchToSendAndSendingTaskPage(AppendSendVehicleTaskQueryReq request);
-    /**
-     * 发货统计
-     * todo loadProgress
-     * @param request
-     * @return
-     */
-    JdCResponse<SendVehicleProgress> loadStatistics(SendVehicleProgressRequest request);
+
     /**
      * 发货扫描
      * @param request

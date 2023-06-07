@@ -26,6 +26,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendEntity" alias="JySendEntity"/>
         <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" alias="CollectionRecordPo" />
         <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" alias="CollectionRecordDetailPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" alias="JyCollectRecordPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" alias="JyCollectRecordDetailPo" />
+
     </typeAliases>
 
     <plugins>
@@ -61,6 +64,8 @@
         <mapper resource="mappers/mysql/jy/exception/JyExceptionMapper.xml"/>
         <mapper resource="mappers/mysql/collection/CollectionRecordMapper.xml"/>
         <mapper resource="mappers/mysql/collection/CollectionRecordDetailMapper.xml"/>
+        <mapper resource="mappers/mysql/collectNew/JyCollectRecordDetailMapper.xml"/>
+        <mapper resource="mappers/mysql/collectNew/JyCollectRecordMapper.xml"/>
     </mappers>
 
 </configuration>

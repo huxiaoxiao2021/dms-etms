@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.avro.data.Json;
@@ -160,4 +161,18 @@ public class JyWarehouseSendGatewayServiceTest {
         JdCResponse<MixScanTaskToSealDestAgg> re = jyWarehouseSendGatewayService.selectMixScanTaskSealDest(req);
         System.out.println(JsonHelper.toJson(re));
     }
+
+
+    @Test
+    public void vehicleStatusOptions(){
+        while(true) {
+            try{
+                JdCResponse<List<SelectOption>> obj = jyWarehouseSendGatewayService.vehicleStatusOptions();
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

@@ -55,6 +55,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     private JyCollectRecordDetailDao jyCollectRecordDetailDao;
     @Autowired
     private JyScanCollectCacheService jyScanCollectCacheService;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClient;
     @Autowired
