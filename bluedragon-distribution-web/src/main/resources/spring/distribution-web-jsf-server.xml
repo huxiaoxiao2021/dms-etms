@@ -543,4 +543,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  日志追踪接口接口   -->
+    <jsf:provider id="logTrackServiceJsf" 
+                  interface="com.jd.bluedragon.distribution.logTrack.LogTrackService"
+                  alias="dms.jsf.alias" 
+                  ref="logTrackService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

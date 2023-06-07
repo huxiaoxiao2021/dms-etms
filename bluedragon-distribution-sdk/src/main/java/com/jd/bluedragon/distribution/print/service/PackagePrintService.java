@@ -5,9 +5,7 @@ import java.util.Map;
 
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
-import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 
@@ -78,12 +76,5 @@ public interface PackagePrintService {
      * @return
      */
 	JdResult<Boolean> packagePrintComplete(JdCommand<SiteTerminalPrintCompleteRequest> printRequest);
-
-	/**
-	 * 打印校验滑道笼车信息
-	 * @param printRequest
-	 * @return
-	 */
-	JdResult<List<LogDto>> checkPrintCrossTableTrolley(String printRequest);
 
 }

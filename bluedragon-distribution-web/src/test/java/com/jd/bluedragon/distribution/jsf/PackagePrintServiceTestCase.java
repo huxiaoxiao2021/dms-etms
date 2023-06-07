@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.distribution.logTrack.LogTrackService;
 import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.etms.waybill.domain.PackageState;
@@ -30,6 +31,9 @@ public class PackagePrintServiceTestCase {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+	
+	@Autowired
+	private LogTrackService logTrackService;
 	
     @Test
     public void testUseNewTemplate() throws Exception{
@@ -175,7 +179,7 @@ public class PackagePrintServiceTestCase {
 				"siteCode\\\":10098,\\\"siteName\\\":\\\"北京双树直送第一车队-测试\\\",\\\"operateTime\\\":\\\"" +
 				"2022-09-02 10:00:53\\\",\\\"cancelFeatherLetter\\\":false,\\\"featherLetterDeviceNo\\\":null,\\\"" +
 				"discernFlag\\\":false,\\\"businessId\\\":0,\\\"barCodeType\\\":5}\"}";
-		JdResult<List<LogDto>> jdResult = packagePrintService.checkPrintCrossTableTrolley(req);
+		JdResult<List<LogDto>> jdResult = logTrackService.checkPrintCrossTableTrolley(req);
 		System.out.println(JsonHelper.toJson(jdResult));
 	}
 }
