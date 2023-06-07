@@ -268,7 +268,6 @@
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
-		<property name="waitReceiveSanwuTaskTimeOfHours" value="${waitReceiveSanwuTaskTimeOfHours:8000}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:20}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
@@ -559,7 +558,6 @@
 				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
-				<value>uccPropertyConfiguration.waitReceiveSanwuTaskTimeOfHours</value>
 				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
 			</list>
 		</property>

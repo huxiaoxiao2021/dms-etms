@@ -11,9 +11,15 @@ import java.util.List;
 public class ExpTaskAssignRequest extends ExpBaseReq implements Serializable {
 
     /**
+     *网格维度数据
+     */
+    private List<ExpTaskStatisticsDetailReq> ExpTaskStatistics;
+
+    /**
      * 异常任务主键
      */
     private List<String> bizIds;
+
 
     /**
      * 指派人处理人erp
@@ -38,4 +44,11 @@ public class ExpTaskAssignRequest extends ExpBaseReq implements Serializable {
         this.assignHandlerErp = assignHandlerErp;
     }
 
+    public List<ExpTaskStatisticsDetailReq> getExpTaskStatistics() {
+        return ExpTaskStatistics;
+    }
+
+    public void setExpTaskStatistics(List<ExpTaskStatisticsDetailReq> expTaskStatistics) {
+        ExpTaskStatistics = expTaskStatistics;
+    }
 }

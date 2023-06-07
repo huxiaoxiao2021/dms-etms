@@ -222,4 +222,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         return jySanwuExceptionService.assignExpTask(req);
     }
 
+    @Override
+    public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
+        return null;
+    }
+
 }

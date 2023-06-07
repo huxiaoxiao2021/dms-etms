@@ -1473,10 +1473,7 @@ public class UccPropertyConfiguration {
      */
     private String exScrapApproveLevelCountLimit;
 
-    /**
-     * 待领取三无任务时间范围（距离当前时间多少小时 单位小时）
-     */
-    private int waitReceiveSanwuTaskTimeOfHours;
+
 
     /**
      * 三无任务指派数量限制
@@ -3442,14 +3439,7 @@ public class UccPropertyConfiguration {
     public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
         this.completeExpDayNumLimit = completeExpDayNumLimit;
     }
-
-    public int getWaitReceiveSanwuTaskTimeOfHours() {
-        return waitReceiveSanwuTaskTimeOfHours;
-    }
-
-    public void setWaitReceiveSanwuTaskTimeOfHours(int waitReceiveSanwuTaskTimeOfHours) {
-        this.waitReceiveSanwuTaskTimeOfHours = waitReceiveSanwuTaskTimeOfHours;
-    }
+    
 
     public int getAssignExpTaskQuantityLimit() {
         return assignExpTaskQuantityLimit;

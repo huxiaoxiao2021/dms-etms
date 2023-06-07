@@ -11,14 +11,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
-import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskMQ;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
@@ -56,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service("jySanwuExceptionService")
 public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements JySanwuExceptionService {
@@ -101,6 +100,9 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     @Autowired
     @Qualifier("scheduleTaskChangeStatusProducer")
     private DefaultJMQProducer scheduleTaskChangeStatusProducer;
+
+    @Autowired
+    private JyBizTaskExceptionAssignDao jyBizTaskExceptionAssignDao;
 
     @Override
     public Integer getExceptionType() {
@@ -302,10 +304,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         }
         try{
             //补充其他字段值
-            int waitReceiveSanwuTaskTimeOfHours = uccPropertyConfiguration.getWaitReceiveSanwuTaskTimeOfHours();
-            Date newDate = DateHelper.addHours(new Date(), -waitReceiveSanwuTaskTimeOfHours);
-            //超时时间
-            req.setTimeOutTime(newDate);
             req.setGridRid(getGridRid(position));
             req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
             req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
@@ -357,10 +355,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         }
         try{
             //补充其他字段值
-            int waitReceiveSanwuTaskTimeOfHours = uccPropertyConfiguration.getWaitReceiveSanwuTaskTimeOfHours();
-            Date newDate = DateHelper.addHours(new Date(), -waitReceiveSanwuTaskTimeOfHours);
-            //超时时间
-            req.setTimeOutTime(newDate);
+
             req.setGridRid(getGridRid(position));
             req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
             req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
@@ -457,7 +452,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(Boolean.TRUE);
-        if(CollectionUtils.isEmpty(req.getBizIds())){
+        if(CollectionUtils.isEmpty(req.getBizIds()) && CollectionUtils.isEmpty(req.getExpTaskStatistics())){
             response.toFail("指派任务不能为空!");
             response.setData(Boolean.FALSE);
             return response;
@@ -468,22 +463,49 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             return response;
         }
         try{
+            PositionDetailRecord position = getPosition(req.getPositionCode());
+            if (position == null) {
+                response.toFail("网格码有误!");
+                return response;
+            }
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getAssignHandlerErp());
             if (baseStaffByErp == null) {
                 response.toFail("任务指派人不存在!");
                 response.setData(Boolean.FALSE);
                 return response;
             }
+            //获取传入网格下的所有异常任务
+            List<String> allTaskBizids =  new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(req.getExpTaskStatistics())){
+                for (int i = 0; i < req.getExpTaskStatistics().size(); i++) {
+                    ExpTaskStatisticsDetailReq statisticsDetailReq = req.getExpTaskStatistics().get(i);
+                    statisticsDetailReq.setGridRid(getGridRid(position));
+                    statisticsDetailReq.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+                    statisticsDetailReq.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+                    List<JyBizTaskExceptionEntity> taskDetailList = jyBizTaskExceptionDao.getStatisticsExceptionTaskDetailList(req.getExpTaskStatistics().get(i));
+
+                    List<String> taskDetailBizIds = taskDetailList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+                    allTaskBizids.addAll(taskDetailBizIds);
+                }
+            }
+            //
+            if(CollectionUtils.isNotEmpty(req.getBizIds())){
+                allTaskBizids.addAll(req.getBizIds());
+            }
+            //
+            allTaskBizids = allTaskBizids.stream().collect(
+                    Collectors.collectingAndThen(Collectors.toCollection(
+                            () -> new TreeSet<>(Comparator.comparing(String::toString))), ArrayList::new));
             //一次分配任务数量限制
             int assignExpTaskQuantityLimit = uccPropertyConfiguration.getAssignExpTaskQuantityLimit();
-            if(assignExpTaskQuantityLimit < req.getBizIds().size()){
+            if(assignExpTaskQuantityLimit < allTaskBizids.size()){
                 response.toFail("一次指派任务条数不能超过限制条数:"+assignExpTaskQuantityLimit+"!");
                 response.setData(Boolean.FALSE);
                 return response;
             }
 
-            for (int i = 0; i < req.getBizIds().size(); i++) {
-                JyAssignExpTaskMQ expMQ = coverToAssignExpTaskMQ(req.getBizIds().get(i),req.getAssignHandlerErp(),req.getUserErp());
+            for (int i = 0; i < allTaskBizids.size(); i++) {
+                JyAssignExpTaskMQ expMQ = coverToAssignExpTaskMQ(allTaskBizids.get(i),req.getAssignHandlerErp(),req.getUserErp());
                 logger.info("指派异常任务信息-{}",JSON.toJSONString(expMQ));
                 assignTaskExpProducer.send(expMQ.getBizId(), JsonHelper.toJson(expMQ));
             }
@@ -516,7 +538,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         //修改状态为 status处理中-processingStatus匹配中
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(mq.getBizId());
-
         update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
         update.setHandlerErp(mq.getAssignHandlerErp());
@@ -525,13 +546,59 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         update.setProcessBeginTime(new Date());
         update.setTags(StringHelper.append(bizEntity.getTags(),SPLIT+JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
 
-
         jyBizTaskExceptionDao.updateByBizId(update);
         recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
         //发送修改状态消息
         sendScheduleTaskStatusMsg(mq.getBizId(), mq.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
-        //发送咚咚消息给指派人
-        pushToDongDong(mq.getAssignHandlerErp());
+        //将指派任务保存到指派任务表中
+        JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, mq);
+        jyBizTaskExceptionAssignDao.insertSelective(assignEntity);
+
+    }
+
+    private JyBizTaskExceptionAssignEntity coverTJyBizTaskExceptionAssignEntity(JyBizTaskExceptionEntity bizEntity,JyAssignExpTaskMQ mq){
+        JyBizTaskExceptionAssignEntity assignEntity = new JyBizTaskExceptionAssignEntity();
+        assignEntity.setBizId(mq.getBizId());
+        assignEntity.setSiteCode(bizEntity.getSiteCode());
+        assignEntity.setSiteName(bizEntity.getSiteName());
+        assignEntity.setDistributionTarget(bizEntity.getDistributionTarget());
+        assignEntity.setHandlerErp(mq.getAssignHandlerErp());
+        assignEntity.setCreateUserErp(mq.getPrincipalErp());
+        assignEntity.setCreateTime(new Date());
+        return assignEntity;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getAssignExpTaskCount", mState = {JProEnum.TP})
+    public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getAssignExpTaskCount获取当前用户任务指派数量入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Integer> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        if(StringUtils.isBlank(req.getUserErp()) || StringUtils.isBlank(req.getPositionCode())){
+            response.toFail("入参不能为空!");
+        }
+
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            response.toFail("网格码有误!");
+            return response;
+        }
+        String gridRid = getGridRid(position);
+        ExpTaskStatisticsReq statisticsReq = new ExpTaskStatisticsReq();
+        statisticsReq.setGridRid(gridRid);
+        statisticsReq.setUserErp(req.getUserErp());
+        List<JyBizTaskExceptionAssignEntity> assignExpTask = jyBizTaskExceptionAssignDao.getAssignExpTask(statisticsReq);
+        if(CollectionUtils.isEmpty(assignExpTask)){
+            logger.warn("获取指派任务数为空!");
+            response.toFail("网格码有误!");
+            return response;
+        }
+        response.setData(assignExpTask.size());
+        List<Long> ids = assignExpTask.stream().map(JyBizTaskExceptionAssignEntity::getId).collect(Collectors.toList());
+        jyBizTaskExceptionAssignDao.updateByIds(ids);
+        return response;
     }
 
     private void pushToDongDong(String erp){

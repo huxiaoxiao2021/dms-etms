@@ -50,4 +50,10 @@ public interface JySanwuExceptionService {
      */
     void dealAssignTaskData(JyAssignExpTaskMQ mq);
 
+    /**
+     * 获取指派任务数
+     * @param req
+     * @return
+     */
+    JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
 }

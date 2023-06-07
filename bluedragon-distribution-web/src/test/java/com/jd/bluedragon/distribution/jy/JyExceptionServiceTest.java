@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -229,7 +230,17 @@ public class JyExceptionServiceTest {
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
         req.setAssignHandlerErp("wuyoude");
-        req.setBizIds(Arrays.asList("SANWU_SW123456789876544321345678","SANWU_SWTYXC111111"));
+        req.setBizIds(Arrays.asList("SANWU_SW123456789876544321345678","SANWU_SWNEW67890"));
+
+
+        List<ExpTaskStatisticsDetailReq> expTaskStatistics =  new ArrayList<>();
+        ExpTaskStatisticsDetailReq detailReq = new ExpTaskStatisticsDetailReq();
+        detailReq.setFloor(1);
+        detailReq.setGridCode("BGQ-01");
+        detailReq.setGridNo("01");
+        detailReq.setAreaCode("BGQ");
+        expTaskStatistics.add(detailReq);
+        req.setExpTaskStatistics(expTaskStatistics);
 
         JdCResponse<Boolean> response = jySanwuExceptionService.assignExpTask(req);
         System.out.println(JSON.toJSONString(response));
@@ -239,9 +250,21 @@ public class JyExceptionServiceTest {
     public void dealAssignTaskDataTest(){
         JyAssignExpTaskMQ mq = new JyAssignExpTaskMQ();
         mq.setPrincipalErp("wuyoude");
-        mq.setBizId("SANWU_SWTYXC111111");
+        mq.setBizId("SANWU_SWNEW67890");
         mq.setAssignHandlerErp("wuyoude");
         jySanwuExceptionService.dealAssignTaskData(mq);
+    }
+
+    @Test
+    public void getAssignExpTaskCountTest(){
+        ExpBaseReq req = new ExpBaseReq();
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setUserErp("wuyoude");
+
+
+        JdCResponse<Integer> response = jySanwuExceptionService.getAssignExpTaskCount(req);
+        System.out.println(JSON.toJSONString(response));
     }
 
 }

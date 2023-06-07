@@ -124,4 +124,11 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req);
+
+    /**
+     * 获取指派任务数
+     * @param req
+     * @return
+     */
+    JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
 }

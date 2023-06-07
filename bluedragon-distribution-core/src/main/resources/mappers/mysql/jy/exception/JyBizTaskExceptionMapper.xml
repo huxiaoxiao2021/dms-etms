@@ -452,11 +452,10 @@
         FROM jy_biz_task_exception
         WHERE
         yn = 1
-        AND site_code = #{siteId}
+        AND time_out = 1
         AND type = #{type}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        AND distribution_time <![CDATA[ >= ]]> #{timeOutTime}
         GROUP BY grid_code
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
@@ -471,7 +470,7 @@
         FROM jy_biz_task_exception
         WHERE
         yn = 1
-        AND site_code = #{siteId}
+        AND time_out = 1
         AND type = #{type}
         AND status = #{status}
         AND floor = #{floor}
@@ -479,9 +478,12 @@
         AND grid_no = #{gridNo}
         AND area_code = #{areaCode}
         AND distribution_target = #{gridRid}
-        AND distribution_time <![CDATA[ >= ]]> #{timeOutTime}
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
     </select>
+
+
+
+
 </mapper>
