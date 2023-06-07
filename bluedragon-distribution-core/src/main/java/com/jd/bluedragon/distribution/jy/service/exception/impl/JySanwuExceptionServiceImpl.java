@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
+import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -546,13 +547,18 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         update.setProcessBeginTime(new Date());
         update.setTags(StringHelper.append(bizEntity.getTags(),SPLIT+JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
 
-        jyBizTaskExceptionDao.updateByBizId(update);
-        recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
-        //发送修改状态消息
-        sendScheduleTaskStatusMsg(mq.getBizId(), mq.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
-        //将指派任务保存到指派任务表中
-        JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, mq);
-        jyBizTaskExceptionAssignDao.insertSelective(assignEntity);
+        try{
+            jyBizTaskExceptionDao.updateByBizId(update);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
+            //发送修改状态消息
+            sendScheduleTaskStatusMsg(mq.getBizId(), mq.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
+            //将指派任务保存到指派任务表中
+            JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, mq);
+            jyBizTaskExceptionAssignDao.insertSelective(assignEntity);
+        }catch (Exception e){
+            logger.error("指派异常任务处理异常!",e);
+        }
+
 
     }
 
@@ -585,28 +591,32 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             response.toFail("网格码有误!");
             return response;
         }
-        String gridRid = getGridRid(position);
-        ExpTaskStatisticsReq statisticsReq = new ExpTaskStatisticsReq();
-        statisticsReq.setGridRid(gridRid);
-        statisticsReq.setUserErp(req.getUserErp());
-        List<JyBizTaskExceptionAssignEntity> assignExpTask = jyBizTaskExceptionAssignDao.getAssignExpTask(statisticsReq);
-        if(CollectionUtils.isEmpty(assignExpTask)){
-            logger.warn("获取指派任务数为空!");
-            response.toFail("网格码有误!");
+        try{
+            String gridRid = getGridRid(position);
+            ExpTaskStatisticsReq statisticsReq = new ExpTaskStatisticsReq();
+            statisticsReq.setGridRid(gridRid);
+            statisticsReq.setUserErp(req.getUserErp());
+            logger.info("获取指派任务数入参——{}!",JSON.toJSONString(statisticsReq));
+            List<JyBizTaskExceptionAssignEntity> assignExpTask = jyBizTaskExceptionAssignDao.getAssignExpTask(statisticsReq);
+            logger.info("获取指派任务数出参——{}!",JSON.toJSONString(assignExpTask));
+            if(CollectionUtils.isEmpty(assignExpTask)){
+                logger.warn("获取指派任务数为空!");
+                response.toFail("网格码有误!");
+                return response;
+            }
+            response.setData(assignExpTask.size());
+            List<Long> ids = assignExpTask.stream().map(JyBizTaskExceptionAssignEntity::getId).collect(Collectors.toList());
+            jyBizTaskExceptionAssignDao.updateByIds(ids);
+            return response;
+        }catch (Exception e){
+            logger.error("获取指派任务数异常!",e);
+            response.toError("获取指派任务数异常!");
             return response;
         }
-        response.setData(assignExpTask.size());
-        List<Long> ids = assignExpTask.stream().map(JyBizTaskExceptionAssignEntity::getId).collect(Collectors.toList());
-        jyBizTaskExceptionAssignDao.updateByIds(ids);
-        return response;
+
     }
 
-    private void pushToDongDong(String erp){
-        String title = "指派任务下发";
-        String content = "您有一个新的指派任务，请及时查看处理";
-        List<String> erps = Arrays.asList(erp);
-        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erps);
-    }
+
 
     private Boolean checkWaitReceiveSanwuExpTask(JdCResponse<List<ExpTaskDto>> response,ExpTaskStatisticsDetailReq req){
         if(req == null){
