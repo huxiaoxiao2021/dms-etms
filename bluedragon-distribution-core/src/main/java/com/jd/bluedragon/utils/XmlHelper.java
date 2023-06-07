@@ -38,9 +38,6 @@ public class XmlHelper {
                     "javax.imageio.spi.FilterIterator", "java.lang.ProcessBuilder", "org.codehaus.groovy.runtime.MethodClosure", "groovy.util.Expando", "com.sun.xml.internal.ws.encoding.xml.XMLMessage$XmlDataSource"});
             XSTREAM.allowTypesByWildcard(new String[]{"**"});
         }
-        public static XStream getInstance(){
-            return XSTREAM;
-        }
     }
 
 
