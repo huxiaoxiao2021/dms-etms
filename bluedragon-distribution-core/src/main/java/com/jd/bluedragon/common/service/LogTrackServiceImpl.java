@@ -21,7 +21,7 @@ import java.util.List;
  * @description 
  * @date 2023-06-07 14:45
  */
-@Service
+@Service("logTrackService")
 @Slf4j
 public class LogTrackServiceImpl implements LogTrackService {
     
