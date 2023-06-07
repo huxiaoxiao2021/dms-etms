@@ -286,7 +286,7 @@
 
     <bean id="jy_collect_record_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_core{0}"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#site_id, 1, 1024#).longValue());
@@ -305,7 +305,7 @@
 
     <bean id="jy_collect_record_detail_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_core{0}"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#site_id, 1, 1024#).longValue());

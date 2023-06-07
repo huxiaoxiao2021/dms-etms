@@ -712,6 +712,18 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+
+    <!--  jy_collect_record 拣运扫描新集齐模型*主表  -->
+    <bean id="jyCollectRecordDao" class="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+    <!--  jy_collect_record_detail 拣运扫描新集齐模型*明细表  -->
+    <bean id="jyCollectRecordDetailDao" class="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+
     <!--  分拣箱号关联  -->
     <bean id="boxRelationDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
