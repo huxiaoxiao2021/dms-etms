@@ -1635,6 +1635,15 @@ public class Constants {
      */
     public static String LINE_NEXT_CHAR = "\n";
     /**
+     * {
+     */
+    public static final String JSON_START_STR1  = "{";
+
+    /**
+     * [
+     */
+    public static final String JSON_START_STR2  = "[";
+    /**
      * 默认时区-GMT+8
      */
     public final static String TIME_ZONE8 = "GMT+8";
