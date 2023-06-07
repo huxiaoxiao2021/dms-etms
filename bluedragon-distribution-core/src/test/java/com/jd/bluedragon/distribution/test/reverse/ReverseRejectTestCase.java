@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.test.reverse;
 
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.jmq.common.message.Message;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -15,9 +17,37 @@ import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.utils.XmlHelper;
 
 public class ReverseRejectTestCase {
+
+
+	@Test
+	public void test(){
+		String str1 = "{\"canReceive\":1,\"operatorName\":\"王丽|王丽\",\"orgId\":4,\"packageCode\":\"JDVA20614509420\",\"pickWareCode\":\"JDVA20614509420\",\"receiveTime\":\"2023-06-05 13:10:51\",\"receiveType\":2}";
+		String str2 = "{\"canReceive\":1,\"operatorName\":\"智能生产系统\",\"orgId\":3,\"packageCode\":\"JDVA20587158886\",\"pickWareCode\":\"2165829593\",\"receiveTime\":\"2023-06-01 19:10:50\",\"receiveType\":4,\"sendCode\":\"\"}";
+
+	}
+
+	@Test
+	public void testxml(){
+		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><cky2>6</cky2><storeId>0</storeId><operateTime>2012-10-22 10:05:00</operateTime><orderId>300687686</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>操作人</operator><operatorCode>bjcaozuoren</operatorCode></RejectRequest>";
+		RejectRequest rejectRequest = null;
+		if (XmlHelper.isXml(message, RejectRequest.class, null)) {
+			rejectRequest = (RejectRequest) XmlHelper.toObject(message, RejectRequest.class);
+		}
+		Assert.assertTrue(rejectRequest != null && Integer.valueOf(1).equals(rejectRequest.getBusinessType()) );
+
+		String message2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest><sendCode>847566-606033-20230606186277886</sendCode><orderId>275766973581</orderId><waybillCode>JDT001283626424</waybillCode><receiveType>1</receiveType><operateTime>2023-06-07 14:41:54</operateTime><userName>Receiving</userName><canReceive>1</canReceive></ReceiveRequest>";
+		ReceiveRequest receiveRequest = null;
+		if (XmlHelper.isXml(message2, ReceiveRequest.class, null)) {
+			receiveRequest = (ReceiveRequest) XmlHelper.toObject(message2, ReceiveRequest.class);
+		}
+		Assert.assertTrue(receiveRequest != null && "275766973581".equals(receiveRequest.getOrderId()) );
+
+	}
+
+
 	@Test
 	public void test_add_reject() {
-		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><cky2>6</cky2><storeId>0</storeId><operateTime>2012-10-22 10:05:00</operateTime><orderId>300687686</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>操作人</operator><operatorCode>bjcaozuoren</operatorCode></RejectRequest>";
+		String message = " <?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest><businessType>1</businessType><cky2>6</cky2><storeId>0</storeId><operateTime>2012-10-22 10:05:00</operateTime><orderId>300687686</orderId><actualPackageQuantity>1</actualPackageQuantity><operator>操作人</operator><operatorCode>bjcaozuoren</operatorCode></RejectRequest>";
 		// String message =
 		// "<?xml version=\"1.0\" encoding=\"UTF-8\"?><RejectRequest xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><businessType>1</businessType><orgId>4</orgId><cky2>4</cky2><storeId>4</storeId><operateTime>2012-12-18 15:36:53</operateTime><OrderId>2012121804</OrderId><actualPackageQuantity>1</actualPackageQuantity><operator>168</operator><operatorCode>168</operatorCode></RejectRequest>";
 		
