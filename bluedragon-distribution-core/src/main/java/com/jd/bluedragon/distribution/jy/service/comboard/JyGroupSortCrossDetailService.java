@@ -92,7 +92,7 @@ public interface JyGroupSortCrossDetailService {
      * @param removeMixScanTaskFlowReq
      * @return
      */
-    boolean removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq);
+    void removeMixScanTaskFlow(RemoveMixScanTaskFlowReq removeMixScanTaskFlowReq);
 
     /**
      * 根据条件查询混扫任务
@@ -146,4 +146,6 @@ public interface JyGroupSortCrossDetailService {
     int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto);
 
     boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto);
+
+    public void deleteByCondition(JyGroupSortCrossDetailEntity condition);
 }

@@ -329,12 +329,14 @@
     where yn = 1
       and template_code = #{templateCode} limit 1
   </select>
-  <delete id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
-    delete from jy_group_sort_cross_detail  where id in
-    <foreach collection="ids" item="item" open="(" close=")" separator=",">
-      #{item}
-    </foreach>
-  </delete>
+  <update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
+    update jy_group_sort_cross_detail set yn = 0
+    where yn = 1
+      and id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+  </update>
   <select id="listSendFlowByTemplateCodeOrEndSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
@@ -416,7 +418,9 @@
 
   <update id="mixScanTaskComplete" 
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
-    update jy_group_sort_cross_detail set complete = 1 where template_code = #{templateCode,jdbcType=VARCHAR}
+    update jy_group_sort_cross_detail
+    set complete = 1 , update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where yn = 1 and template_code = #{templateCode,jdbcType=VARCHAR}
   </update>
 
 
@@ -436,4 +440,28 @@
       and complete_status = #{completeStatus,jdbcType=BIT}
     </if>
   </select>
+
+<!-- 按条件删除：小组+场地+岗位 -->
+  <update id="deleteByCondition" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    set
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp},
+      </if>
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = 0
+    where yn = 1
+    and group_code = #{groupCode}
+    and start_site_id = #{startSiteId}
+    and func_type = #{funcType}
+    <if test="templateCode != null and templateCode != ''">
+      and template_code = #{templateCode,jdbcType=VARCHAR}
+    </if>
+    <if test="endSiteId != null">
+      and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    </if>
+    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+    </if>
+  </update>
 </mapper>

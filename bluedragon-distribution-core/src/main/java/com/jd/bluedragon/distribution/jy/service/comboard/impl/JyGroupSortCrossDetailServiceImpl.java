@@ -246,17 +246,13 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     @Override
-    public boolean removeMixScanTaskFlow(RemoveMixScanTaskFlowReq request) {
+    public void removeMixScanTaskFlow(RemoveMixScanTaskFlowReq request) {
         // 校验是否包含当前流向
-        List<Long> ids = new ArrayList<>();
         JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(assembleFlowReq(request));
-        
-        if (entity == null) {
-            throw new JyBizException("该流向已被移除，请刷新页面");
+        if (!Objects.isNull(entity)) {
+            List<Long> ids = Arrays.asList(entity.getId());
+            jyGroupSortCrossDetailDao.deleteByIds(assembleUpdateReq(request.getUser(),ids));
         }
-        
-        ids.add(entity.getId());
-        return jyGroupSortCrossDetailDao.deleteByIds(assembleUpdateReq(request.getUser(),ids)) > 0;
     }
 
     @Override
@@ -399,6 +395,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public boolean mixScanTaskComplete(String templateCode) {
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         condition.setTemplateCode(templateCode);
+        condition.setUpdateTime(new Date());
         return jyGroupSortCrossDetailDao.mixScanTaskComplete(condition) > 0;
     }
 
@@ -428,5 +425,13 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             log.info("校验混扫任务是否完成，param={},res={}(true为完成)", JsonHelper.toJson(queryDto), res);
         }
         return res;
+    }
+
+
+    public void deleteByCondition(JyGroupSortCrossDetailEntity condition) {
+        if(Objects.isNull(condition.getUpdateTime())) {
+            condition.setUpdateTime(new Date());
+        }
+        jyGroupSortCrossDetailDao.deleteByCondition(condition);
     }
 }

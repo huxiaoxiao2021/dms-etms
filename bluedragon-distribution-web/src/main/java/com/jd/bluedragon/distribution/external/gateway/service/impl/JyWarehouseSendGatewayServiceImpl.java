@@ -627,12 +627,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkUser(removeMixScanTaskFlowReq.getUser());
             checkCurrentOperate(removeMixScanTaskFlowReq.getCurrentOperate());
             checkGroupCode(removeMixScanTaskFlowReq.getGroupCode());
-
-            if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(removeMixScanTaskFlowReq.getGroupCode(), removeMixScanTaskFlowReq.getTemplateCode())) {
-                response.toFail("系统繁忙，请稍后再试！");
-                return response;
-            }
-
+//            if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(removeMixScanTaskFlowReq.getGroupCode(), removeMixScanTaskFlowReq.getTemplateCode())) {
+//                response.toFail("系统繁忙，请稍后再试！");
+//                return response;
+//            }
             JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
             queryDto.setGroupCode(removeMixScanTaskFlowReq.getGroupCode());
             queryDto.setTemplateCode(removeMixScanTaskFlowReq.getTemplateCode());
@@ -644,18 +642,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return response;
             }
             
-            if (!jyGroupSortCrossDetailService.removeMixScanTaskFlow(removeMixScanTaskFlowReq)) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL,"移除流向失败！");
-            }
+            jyGroupSortCrossDetailService.removeMixScanTaskFlow(removeMixScanTaskFlowReq);
         } catch (JyBizException e) {
             log.info("移除流向失败：{}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl removeMixScanTaskFlow 移除流向失败 {}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "移除流向异常！");
-        }finally {
-            jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(removeMixScanTaskFlowReq.getGroupCode(), removeMixScanTaskFlowReq.getTemplateCode());
         }
+//        finally {
+//            jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(removeMixScanTaskFlowReq.getGroupCode(), removeMixScanTaskFlowReq.getTemplateCode());
+//        }
         return response;
     }
 
