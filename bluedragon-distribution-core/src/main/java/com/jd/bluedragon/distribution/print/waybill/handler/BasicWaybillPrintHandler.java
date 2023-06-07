@@ -24,8 +24,11 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.dms.utils.WaybillVasUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.mdc.LogWriteUtil;
+import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -509,6 +512,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         try {
         	//返分拣报废-只设置默认目的分拣中心名称：返分拣报废
         	if(BusinessUtil.isScrapSortingSite(waybill.getWaybillSign())) {
+                LogWriteUtil.addLog(new LogDto("返分拣报废-只设置默认目的分拣中心名称"));
                 waybill.setPurposefulDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
                 waybill.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
         		return;
@@ -520,13 +524,15 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 /**
                  * 1、预分拣站点正常，查询大全表并设置滑道信息
                  */
+                LogWriteUtil.addLog(new LogDto("预分拣站点正常，查询大全表并设置滑道信息"));
                 setCrossInfoByCrossPackageTag(waybill);
             }else if(null==waybill.getPrepareSiteCode()
             		|| waybill.getPrepareSiteCode() <= ComposeService.PREPARE_SITE_CODE_NOTHING) {
             	/**
             	 * 2、全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息
             	 */
-            	setCrossInfoByCrossDetail(context,waybill);
+                LogWriteUtil.addLog(new LogDto("全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息"));
+                setCrossInfoByCrossDetail(context,waybill);
             }
         } finally {
             Profiler.registerInfoEnd(callerInfo);
@@ -591,6 +597,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             baseDmsStore.setOrgId(waybill.getOrgId());//机构编号
             baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
                 JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getTempOriginalCrossType());
+                if (LogWriteUtil.isNeedWriteLog()) {
+                    LogWriteUtil.addLog(new LogDto("查询青龙基础资料返回结果", JsonHelper.toJson(jdResult), Constants.YN_YES, "baseMinorManager.queryCrossPackageTagForPrint"));
+                }
                 if(jdResult.isSucceed()) {
                     tag=jdResult.getData();
                 }else{
@@ -634,15 +643,36 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
                 waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
-            hiddenCrossInfo(waybill);
+                
+                hiddenCrossInfo(waybill);
+                if (LogWriteUtil.isNeedWriteLog()) {
+                    writeResult(tag);
+                }
         }
 	}
-	/**
+
+    private void writeResult(CrossPackageTagNew tag) {
+        PrintWaybill waybill = new PrintWaybill();
+        //笼车号
+        waybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
+        waybill.setOriginalTabletrolleyCode(tag.getOriginalTabletrolleyCode());
+
+        waybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
+        waybill.setDestinationTabletrolleyCode(tag.getDestinationTabletrolleyCode());
+        //道口号
+        waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
+        waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+        waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
+        LogWriteUtil.addLog(new LogDto("获取滑道笼车最终结果", JsonHelper.toJson(waybill), Constants.YN_YES, ""));
+    }
+
+    /**
      * 隐藏滑道信息
      * @param waybill
      */
     private void hiddenCrossInfo(PrintWaybill waybill) {
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
+                    LogWriteUtil.addLog(new LogDto("隐藏滑道信息", "", Constants.YN_NO, "BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')"));
                     waybill.setOriginalDmsName("");
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");

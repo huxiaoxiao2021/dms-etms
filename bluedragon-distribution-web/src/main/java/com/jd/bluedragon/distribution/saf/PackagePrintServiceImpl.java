@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
+import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
@@ -38,6 +39,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.mdc.LogWriteUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.print.engine.TemplateEngine;
@@ -575,7 +577,34 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         return jdResult;
     }
 
-    /**
+	@Override
+	@JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.checkPrintCrossTableTrolley", jAppName=Constants.UMP_APP_NAME_DMSWEB,
+			mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JdResult<List<LogDto>> checkPrintCrossTableTrolley(String printRequest) {
+		if(log.isInfoEnabled()){
+			log.info("查询包裹信息参数：{}", JsonHelper.toJson(printRequest));
+		}
+		JdResult<List<LogDto>> result = new JdResult<>();
+		result.toSuccess();
+		if(printRequest == null){
+			result.toFail("传入的参数不能为空！");
+			return result;
+		}
+		try{
+			LogWriteUtil.init();
+			jdCommandService.execute(printRequest);
+			List<LogDto> list = LogWriteUtil.getLogList();
+			result.setData(list);
+			return result;
+		}catch (Exception e) {
+			log.error("校验滑道笼车信息异常：{}", JsonHelper.toJson(printRequest),e);
+		}finally {
+			LogWriteUtil.clear();
+		}
+		return null;
+	}
+
+	/**
      *
      * @param printRequest
      * @param waybill

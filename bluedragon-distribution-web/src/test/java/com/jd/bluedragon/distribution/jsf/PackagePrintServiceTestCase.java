@@ -4,10 +4,12 @@ import java.util.*;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.etms.waybill.domain.PackageState;
 import junit.framework.Assert;
 
+import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,4 +162,20 @@ public class PackagePrintServiceTestCase {
         List<PackageState> pac = waybillTraceManager.getAllOperationsByOpeCodeAndState("JDVF00001510222", stateSet);
         System.out.println(JsonHelper.toJson(pac));
     }
+	
+	@Test
+	public void checkPrintCrossTableTrolleyTest() {
+		String req = "{\"programType\":40,\"versionCode\":\"201801128WM\",\"businessType\":1001,\"operateType\"" +
+				":100103,\"data\":\"{\\\"programType\\\":0,\\\"versionCode\\\":null,\\\"outputType\\\":0,\\\"" +
+				"operateType\\\":100103,\\\"dmsSiteCode\\\":910,\\\"barCode\\\":\\\"JDVF00002123365\\\",\\\"" +
+				"packageBarCode\\\":\\\"JDVF00002123365-1-5-\\\",\\\"reBoxCode\\\":null,\\\"targetSiteCode\\\"" +
+				":0,\\\"nopaperFlg\\\":false,\\\"paperSizeCode\\\":\\\"1005\\\",\\\"trustBusinessFlag\\\":false," +
+				"\\\"weightOperType\\\":0,\\\"startSiteType\\\":0,\\\"packOpeFlowFlg\\\":0,\\\"weightOperFlow\\\"" +
+				":null,\\\"userCode\\\":10053,\\\"userName\\\":\\\"刑松\\\",\\\"userERP\\\":\\\"bjxings\\\",\\\"" +
+				"siteCode\\\":10098,\\\"siteName\\\":\\\"北京双树直送第一车队-测试\\\",\\\"operateTime\\\":\\\"" +
+				"2022-09-02 10:00:53\\\",\\\"cancelFeatherLetter\\\":false,\\\"featherLetterDeviceNo\\\":null,\\\"" +
+				"discernFlag\\\":false,\\\"businessId\\\":0,\\\"barCodeType\\\":5}\"}";
+		JdResult<List<LogDto>> jdResult = packagePrintService.checkPrintCrossTableTrolley(req);
+		System.out.println(JsonHelper.toJson(jdResult));
+	}
 }

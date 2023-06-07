@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.mdc.LogWriteUtil;
+import com.jd.bluedragon.distribution.print.domain.LogDto;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.alibaba.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
@@ -38,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static com.jd.bluedragon.utils.mdc.LogWriteUtil.isNeedWriteLog;
 
 @Service("baseMinorManager")
 public class BaseMinorManagerImpl implements BaseMinorManager {
@@ -249,9 +253,22 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
             	result.toFail("jsf-fail:basicSecondaryWS.getReverseCrossPackageTag!params:"+params+",msg:返回结果为null");
             	log.warn(result.getMessage());
             }
+			if (LogWriteUtil.isNeedWriteLog()){
+				LogWriteUtil.addLog(new LogDto(getJsfParams(new BaseDmsStore(),targetSiteId,originalDmsId),
+						JsonHelper.toJson(reverseResult),null != reverseResult
+						&& BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()? Constants.YN_YES : Constants.YN_NO,
+						"正向调用失败,或者返回数据为空，调用一次逆向接口",
+						"basicSecondaryWS.getReverseCrossPackageTag", ""));
+			}
 		}catch(Exception e){
 			result.toError("jsf-exception:basicSecondaryWS.getReverseCrossPackageTag!params:"+params+",msg:"+e.getMessage());
 			log.error(result.getMessage(), e);
+			if (LogWriteUtil.isNeedWriteLog()){
+				LogWriteUtil.addLog(new LogDto(getJsfParams(new BaseDmsStore(),targetSiteId,originalDmsId),
+						"", Constants.YN_NO,
+						"正向调用失败,或者返回数据为空，调用一次逆向接口异常",
+						"basicSecondaryWS.getReverseCrossPackageTag", JsonHelper.toJson(e)));
+			}
 			Profiler.functionError(callerInfo);
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
@@ -284,15 +301,36 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
            		result.toFail("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果为null");
            		log.warn(result.getMessage());
            }
+			
+			if (isNeedWriteLog()) {
+				List<String> request = getJsfParams(baseDmsStore, targetSiteId, originalDmsId);
+				LogWriteUtil.addLog(new LogDto(request, JsonHelper.toJson(crossPackageTagResult), 
+						null != crossPackageTagResult && BaseResult.SUCCESS==crossPackageTagResult.getResultCode() ? Constants.YN_YES : Constants.YN_NO
+						, "" ,"BasicSecondaryWS.getCrossPackageTagByPara",""));
+			}
 		}catch(Exception e){
 			result.toError("jsf-exception:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:"+e.getMessage());
 			log.error(result.getMessage(), e);
 			Profiler.functionError(callerInfo);
+			if (isNeedWriteLog()) {
+				List<String> request = getJsfParams(baseDmsStore, targetSiteId, originalDmsId);
+				LogWriteUtil.addLog(new LogDto(request, "", Constants.YN_NO
+						, "获取取包裹标签打印信息异常" ,"BasicSecondaryWS.getCrossPackageTagByPara",JsonHelper.toJson(e)));
+			}
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
 		}
 		return result;
 	}
+
+	private List<String> getJsfParams(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId) {
+		List<String> params = new ArrayList<>();
+		params.add(JsonHelper.toJson(baseDmsStore));
+		params.add("targetSiteId" + targetSiteId);
+		params.add("originalDmsId" + originalDmsId);
+		return params;
+	}
+
 	/**
 	  * jsf-调用：根据库房、目的站点ID、始发分拣中心ID、始发道口类型，获取取包裹标签打印信息
 	  * @param baseDmsStore  库房
@@ -320,9 +358,20 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
             	result.toFail("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果为null");
             	log.warn(result.getMessage());
             }
+			if (isNeedWriteLog()) {
+				List<String> request = getJsfParams(baseDmsStore, targetSiteId, originalDmsId);
+				LogWriteUtil.addLog(new LogDto(request, JsonHelper.toJson(crossPackageTagResult),
+						null != crossPackageTagResult && BaseResult.SUCCESS==crossPackageTagResult.getResultCode() ? Constants.YN_YES : Constants.YN_NO
+						, "" ,"baseCrossPackageTagWS.queryCrossPackageTagByParam",""));
+			}
 		}catch(Exception e){
 			result.toError("jsf-exception:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:"+e.getMessage());
 			log.error(result.getMessage(), e);
+			if (isNeedWriteLog()) {
+				List<String> request = getJsfParams(baseDmsStore, targetSiteId, originalDmsId);
+				LogWriteUtil.addLog(new LogDto(request, "", Constants.YN_NO
+						, "获取取包裹标签打印信息异常" ,"baseCrossPackageTagWS.queryCrossPackageTagByParam",JsonHelper.toJson(e)));
+			}
 			Profiler.functionError(callerInfo);
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
@@ -342,16 +391,19 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			BaseDmsStore baseDmsStore, Integer targetSiteId,
 			Integer originalDmsId, Integer originalCrossType) {
 		if(!useNewCrossPackageTagWS){
+			LogWriteUtil.addLog(new LogDto("开关：useNewCrossPackageTagWS 使用基础资料新接口 BasicSecondaryWS.getCrossPackageTagByPara 开始查询滑道笼车信息"));
 			return this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 		}
 		//航空或者航填，调用新接口
 		if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType)
 				|| Constants.ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType)){
+			LogWriteUtil.addLog(new LogDto("originalCrossType为航空或者航填，调用接口: BaseCrossPackageTagWS.queryCrossPackageTagByParam"));
 			JdResult<CrossPackageTagNew> result = this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
 			//如果新的大全表没有数据 则 继续查询老大全表
 			if(result.isSucceed() && result.getData()!= null && result.getData().getOriginalDmsId()!=null){
 				return result;
 			}else{
+				LogWriteUtil.addLog(new LogDto("新的大全表没有数据 则 继续查询老大全表，调用接口: BaseCrossPackageTagWS.queryCrossPackageTagByParam"));
 				JdResult<CrossPackageTagNew> normalResult = this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 				if(normalResult.isSucceed() && normalResult.getData()!=null
 						&& normalResult.getData().getOriginalDmsId()!=null && normalResult.getData().getDestinationDmsId()!=null){
@@ -363,6 +415,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				return result;
 			}
 		}else{
+			LogWriteUtil.addLog(new LogDto("originalCrossType不为航空或者航填，调用接口: BasicSecondaryWS.getCrossPackageTagByPara"));
 			return this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 		}
 	}
@@ -381,9 +434,13 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			Integer originalDmsId, Integer originalCrossType) {
 		//1、先获取正向
 		log.info("queryCrossPackageTagForPrint-targetSiteId {}-originalDmsId {}-originalCrossType {}",targetSiteId,originalDmsId,originalCrossType);
+		LogWriteUtil.addLog(new LogDto("正向获取滑道笼车数据"));
 		JdResult<CrossPackageTagNew> result = this.queryCrossPackageTag(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
 		//2、正向调用失败,或者返回数据为空，调用一次逆向接口
 		if(!result.isSucceed() || result.getData() == null){
+			if (LogWriteUtil.isNeedWriteLog()){
+				LogWriteUtil.addLog(new LogDto("正向未获取到滑道笼车数据！"));
+			}
 			JdResult<ReverseCrossPackageTag> reverseResult = this.getReverseCrossPackageTag(originalDmsId, targetSiteId);
 			if(reverseResult.isSucceed() && reverseResult.getData() != null){
 				CrossPackageTagNew tag=new CrossPackageTagNew();
