@@ -1,10 +1,12 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -20,6 +22,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.TimeUnit;
 
 public class XmlHelper {
 
@@ -144,13 +147,23 @@ public class XmlHelper {
         if (StringHelper.isEmpty(xml)) {
             return Boolean.FALSE;
         }
-
+        //丢弃无用报文
+        if (xml.startsWith(Constants.JSON_START_STR1) || xml.startsWith(Constants.JSON_START_STR2)) {
+            return Boolean.FALSE;
+        }
+        StopWatch sw = StopWatch.createStarted();
         try {
             if (XmlHelper.xmlToObject(xml, clazz, converter) != null) {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
             XmlHelper.log.warn("序列化XML发生异常[{}] 异常信息为：{}" ,xml, e.getMessage());
+        }finally {
+            sw.stop();
+            if(sw.getTime(TimeUnit.SECONDS) > Constants.CONSTANT_NUMBER_ONE){
+                log.error("XmlHelper.isXml deal too long! {},time:{}s",xml,sw.getTime(TimeUnit.SECONDS));
+            }
+
         }
 
         return Boolean.FALSE;
