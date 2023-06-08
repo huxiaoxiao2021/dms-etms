@@ -479,11 +479,16 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             List<String> allTaskBizids =  new ArrayList<>();
             if(CollectionUtils.isNotEmpty(req.getExpTaskStatistics())){
                 for (int i = 0; i < req.getExpTaskStatistics().size(); i++) {
-                    ExpTaskStatisticsDetailReq statisticsDetailReq = req.getExpTaskStatistics().get(i);
+                    ExpTaskStatisticsOfWaitReceiveDto expTaskStatisticsDto = req.getExpTaskStatistics().get(i);
+                    ExpTaskStatisticsDetailReq statisticsDetailReq = new ExpTaskStatisticsDetailReq();
+                    statisticsDetailReq.setFloor(expTaskStatisticsDto.getFloor());
+                    statisticsDetailReq.setGridNo(expTaskStatisticsDto.getGridNo());
+                    statisticsDetailReq.setGridCode(expTaskStatisticsDto.getGridCode());
+                    statisticsDetailReq.setAreaCode(expTaskStatisticsDto.getAreaCode());
                     statisticsDetailReq.setGridRid(getGridRid(position));
                     statisticsDetailReq.setStatus(JyExpStatusEnum.TO_PICK.getCode());
                     statisticsDetailReq.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
-                    List<JyBizTaskExceptionEntity> taskDetailList = jyBizTaskExceptionDao.getStatisticsExceptionTaskDetailList(req.getExpTaskStatistics().get(i));
+                    List<JyBizTaskExceptionEntity> taskDetailList = jyBizTaskExceptionDao.getStatisticsExceptionTaskDetailList(statisticsDetailReq);
 
                     List<String> taskDetailBizIds = taskDetailList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
                     allTaskBizids.addAll(taskDetailBizIds);
