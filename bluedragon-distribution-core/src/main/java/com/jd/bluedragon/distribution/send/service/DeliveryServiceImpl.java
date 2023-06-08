@@ -3959,8 +3959,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是转运装车扫描，不再发送全程跟踪
+                                if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
 
                                 //发送发货明细mq
                                 Message sendMessage = parseSendDetailToMessage(tSendDetail, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
@@ -3974,8 +3977,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是是转运装车扫描，不再发送全程跟踪
+                                if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
                             }
                         }
                     }
