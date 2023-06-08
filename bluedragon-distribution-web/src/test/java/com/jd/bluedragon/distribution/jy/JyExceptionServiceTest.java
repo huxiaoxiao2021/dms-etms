@@ -233,8 +233,8 @@ public class JyExceptionServiceTest {
         req.setBizIds(Arrays.asList("SANWU_SW123456789876544321345678","SANWU_SWNEW67890"));
 
 
-        List<ExpTaskStatisticsDetailReq> expTaskStatistics =  new ArrayList<>();
-        ExpTaskStatisticsDetailReq detailReq = new ExpTaskStatisticsDetailReq();
+        List<ExpTaskStatisticsOfWaitReceiveDto> expTaskStatistics =  new ArrayList<>();
+        ExpTaskStatisticsOfWaitReceiveDto detailReq = new ExpTaskStatisticsOfWaitReceiveDto();
         detailReq.setFloor(1);
         detailReq.setGridCode("BGQ-01");
         detailReq.setGridNo("01");

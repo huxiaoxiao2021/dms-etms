@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public class ExpTaskAssignRequest extends ExpBaseReq implements Serializable {
     /**
      *网格维度数据
      */
-    private List<ExpTaskStatisticsDetailReq> ExpTaskStatistics;
+    private List<ExpTaskStatisticsOfWaitReceiveDto> ExpTaskStatistics;
 
     /**
      * 异常任务主键
@@ -44,11 +46,11 @@ public class ExpTaskAssignRequest extends ExpBaseReq implements Serializable {
         this.assignHandlerErp = assignHandlerErp;
     }
 
-    public List<ExpTaskStatisticsDetailReq> getExpTaskStatistics() {
+    public List<ExpTaskStatisticsOfWaitReceiveDto> getExpTaskStatistics() {
         return ExpTaskStatistics;
     }
 
-    public void setExpTaskStatistics(List<ExpTaskStatisticsDetailReq> expTaskStatistics) {
+    public void setExpTaskStatistics(List<ExpTaskStatisticsOfWaitReceiveDto> expTaskStatistics) {
         ExpTaskStatistics = expTaskStatistics;
     }
 }
