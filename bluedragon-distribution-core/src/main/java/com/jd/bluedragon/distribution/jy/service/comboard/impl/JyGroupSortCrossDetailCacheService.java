@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class JyGroupSortCrossDetailCacheService {
 
-    public static final String DEFAULT_VALUE = "";
+    public static final String DEFAULT_VALUE = "1";
     /**
      * 混扫任务更新key: 前缀：岗位组：混扫任务编码
      */

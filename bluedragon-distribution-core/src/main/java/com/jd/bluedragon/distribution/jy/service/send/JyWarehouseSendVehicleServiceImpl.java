@@ -156,17 +156,20 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.fetchSendVehicleTaskPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
 
         InvokeResult<SendVehicleTaskResponse> invokeResult = super.fetchSendVehicleTask(request);
-        setMixScanTaskSiteFlowMaxNum(request, invokeResult);
+        this.setMixScanTaskSiteFlowMaxNum(request, invokeResult);
         //车辆状态差异化查询
         if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
-            fillWareHouseFocusField(request, invokeResult);
+            this.fillWareHouseFocusField(request, invokeResult);
         }
 
         return invokeResult;
     }
+
 
     @Override
     public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
@@ -191,8 +194,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param invokeResult
      */
     private void setMixScanTaskSiteFlowMaxNum(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
-        if(!Objects.isNull(invokeResult) && !Objects.isNull(invokeResult.getData()) && !Objects.isNull(invokeResult.getData().getToSealVehicleData())) {
-            invokeResult.getData().getToSealVehicleData().setMixScanTaskSiteFlowMaxNum(getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
+        if(!Objects.isNull(invokeResult) && !Objects.isNull(invokeResult.getData()) && !Objects.isNull(invokeResult.getData().getToSendVehicleData())) {
+            invokeResult.getData().getToSendVehicleData().setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
         }
     }
 
@@ -470,6 +473,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
             queryTaskSendDto.setKeyword(request.getKeyword());
             queryTaskSendDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            //条件查询
             List<String> sendVehicleBizList = resolveSearchKeyword(result, queryTaskSendDto);
             if (!result.codeSuccess()) {
                 return result;
@@ -480,10 +484,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 result.setMessage("查询数据为空");
                 return result;
             }
+            List<SendVehicleDto> sendVehicleDtoList = new ArrayList<>();
             AppendSendVehicleTaskQueryRes resData = new AppendSendVehicleTaskQueryRes();
+            resData.setSendVehicleDtoList(sendVehicleDtoList);
             result.setData(resData);
 
-            List<SendVehicleDto> sendVehicleDtoList = new ArrayList<>();
+            CallerInfo info0 = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage.0", false, true);
+
             //K-流向 V-滑道笼车号  map存储滑道笼车号减少不同派车任务中存在相同流向时的资源消耗
             HashMap<Long, String> crossTableTrolleyMap = new HashMap<>();
             vehiclePageList.forEach(entity -> {
@@ -497,7 +504,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 sendVehicleDtoList.add(dto);
             });
 
-            result.setData(resData);
+            Profiler.registerInfoEnd(info0);
+
         } catch (Exception e) {
             log.error("查询发车任务异常. {}", JsonHelper.toJson(request), e);
             result.error("查询发车任务异常，请咚咚联系分拣小秘！");
@@ -509,6 +517,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private List<SendVehicleDetailDto> getSendVehicleDetailDto(JyBizTaskSendVehicleEntity entity,
                                                                AppendSendVehicleTaskQueryReq request,
                                                                HashMap<Long, String> crossTableTrolleyMap) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.getSendVehicleDetailDto", false, true);
+
         // 根据路由下一节点查询发货流向的任务
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(entity.getStartSiteId(), entity.getBizId());
 
@@ -533,6 +543,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 res.add(dto);
             });
         }
+        Profiler.registerInfoEnd(info);
         return res;
     }
 
@@ -548,7 +559,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(StringUtils.isNotBlank(crossTableTrolleyMap.get(endSiteId))) {
             return crossTableTrolleyMap.get(endSiteId);
         }else {
-            String crossTableTrolley = fetchCrossTableTrolley(startSiteId, endSiteId.intValue());
+            String crossTableTrolley = this.fetchCrossTableTrolley(startSiteId, endSiteId.intValue());
             if(StringUtils.isNotBlank(crossTableTrolley)) {
                 crossTableTrolleyMap.put(endSiteId, crossTableTrolley);
                 return crossTableTrolley;
@@ -581,7 +592,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      */
     private String getVehicleNumber(JyBizTaskSendVehicleEntity entity){
         TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
-        return transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber();
+        if(!Objects.isNull(transWorkBillDto) && StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
+            return transWorkBillDto.getVehicleNumber();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("根据派车任务编码【{}】获取车牌号为空,派车任务信息={}，运输返回={}", entity.getTransWorkCode(), JsonHelper.toJson(entity), JsonHelper.toJson(transWorkBillDto));
+        }
+        return "未知车牌号";
     }
 
     private List<JyBizTaskSendVehicleEntity> getToSendAndSendingSendVehiclePage(AppendSendVehicleTaskQueryReq request, List<String> sendVehicleBizList){

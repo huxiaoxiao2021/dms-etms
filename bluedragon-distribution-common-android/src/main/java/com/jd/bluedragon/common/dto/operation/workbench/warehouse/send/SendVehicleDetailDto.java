@@ -7,12 +7,12 @@ public class SendVehicleDetailDto implements Serializable {
     private static final long serialVersionUID = -5809332610524693231L;
 
     /**
-     * 状态
+     * 派车流向状态
      */
     private Integer itemStatus;
 
     /**
-     * 状态描述
+     * 派车流向状态描述
      */
     private String itemStatusDesc;
 

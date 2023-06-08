@@ -3,11 +3,14 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +34,14 @@ public class JyWarehouseSendGatewayServiceTest {
     private JyWarehouseSendGatewayService jyWarehouseSendGatewayService;
     
     private static final CurrentOperate CURRENT_OPERATE = new CurrentOperate(910,"马驹桥分拣中心",new Date());
+    public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
+
     private static final User USER = new User(111,"李文吉");
+    public static final User USER_wuyoude = new User(17331,"吴有德");
+    public static final String GROUP_CODE = "G00000059567";
     static {
         USER.setUserErp("liwenji3");
+        USER_wuyoude.setUserErp("wuyoude");
     }
     
     @Test
@@ -164,15 +172,184 @@ public class JyWarehouseSendGatewayServiceTest {
 
 
     @Test
-    public void vehicleStatusOptions(){
+    public void testVehicleStatusOptions(){
         while(true) {
             try{
                 JdCResponse<List<SelectOption>> obj = jyWarehouseSendGatewayService.vehicleStatusOptions();
-                System.out.println("end");
+                System.out.println(JsonHelper.toJson(obj));
+                JdCResponse<List<SelectOption>> obj1 = jyWarehouseSendGatewayService.scanTypeOptions();
+                System.out.println(JsonHelper.toJson(obj1));
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+
+    @Test
+    public void testFetchSendVehicleTaskPage(){
+        String paramJson = " {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"752F001\",\n" +
+                "            \"operateTime\": 1686192506459,\n" +
+                "            \"operatorId\": \"95156362\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 10,\n" +
+                "            \"orgName\": \"华南\",\n" +
+                "            \"siteCode\": 554230,\n" +
+                "            \"siteName\": \"惠州分拣中心\"\n" +
+                "        },\n" +
+//                "        \"lineType\": 1,\n" +
+                "        \"pageNumber\": 1,\n" +
+                "        \"pageSize\": 30,\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 21478780,\n" +
+                "            \"userErp\": \"yxwangjun6\",\n" +
+                "            \"userName\": \"王俊\"\n" +
+                "        },\n" +
+                "        \"vehicleStatus\": 0\n" +
+                "    }";
+
+        SendVehicleTaskRequest paramDto = JsonHelper.fromJson(paramJson, SendVehicleTaskRequest.class);
+        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setUser(USER_wuyoude);
+        while(true) {
+            try{
+                    paramDto.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+                    JdCResponse<SendVehicleTaskResponse> obj0 = jyWarehouseSendGatewayService.fetchSendVehicleTaskPage(paramDto);
+                    System.out.println(JsonHelper.toJson(obj0));
+
+                    paramDto.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+                    JdCResponse<SendVehicleTaskResponse> obj1 = jyWarehouseSendGatewayService.fetchSendVehicleTaskPage(paramDto);
+                    System.out.println(JsonHelper.toJson(obj1));
+
+                    paramDto.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+                    JdCResponse<SendVehicleTaskResponse> obj2 = jyWarehouseSendGatewayService.fetchSendVehicleTaskPage(paramDto);
+                    System.out.println(JsonHelper.toJson(obj2));
+
+                    paramDto.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
+                    JdCResponse<SendVehicleTaskResponse> obj3 = jyWarehouseSendGatewayService.fetchSendVehicleTaskPage(paramDto);
+                    System.out.println(JsonHelper.toJson(obj3));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void testFetchToSendAndSendingTaskPage(){
+        String paramJson = " {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"752F001\",\n" +
+                "            \"operateTime\": 1686192506459,\n" +
+                "            \"operatorId\": \"95156362\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 10,\n" +
+                "            \"orgName\": \"华南\",\n" +
+                "            \"siteCode\": 554230,\n" +
+                "            \"siteName\": \"惠州分拣中心\"\n" +
+                "        },\n" +
+//                "        \"lineType\": 1,\n" +
+                "        \"pageNo\": 1,\n" +
+                "        \"pageSize\": 30,\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 21478780,\n" +
+                "            \"userErp\": \"yxwangjun6\",\n" +
+                "            \"userName\": \"王俊\"\n" +
+                "        },\n" +
+                "        \"vehicleStatus\": 0\n" +
+                "    }";
+
+        AppendSendVehicleTaskQueryReq paramDto = JsonHelper.fromJson(paramJson, AppendSendVehicleTaskQueryReq.class);
+        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setUser(USER_wuyoude);
+        paramDto.setMixScanTaskCode("CTT23060600000010");
+        paramDto.setGroupCode(GROUP_CODE);
+        while(true) {
+            try{
+                JdCResponse<AppendSendVehicleTaskQueryRes> obj0 = jyWarehouseSendGatewayService.fetchToSendAndSendingTaskPage(paramDto);
+                System.out.println(JsonHelper.toJson(obj0));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Test
+    public void testGetMixScanTaskDetailList(){
+        MixScanTaskQueryReq paramDto = new MixScanTaskQueryReq();
+        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setUser(USER_wuyoude);
+        paramDto.setTemplateCode("CTT23060600000010");
+        paramDto.setGroupCode(GROUP_CODE);
+        while(true) {
+            try{
+                JdCResponse<MixScanTaskDetailRes> obj0 = jyWarehouseSendGatewayService.getMixScanTaskDetailList(paramDto);
+                System.out.println(JsonHelper.toJson(obj0));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void testMixScanTaskComplete(){
+        MixScanTaskCompleteReq paramDto = new MixScanTaskCompleteReq();
+        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setUser(USER_wuyoude);
+        paramDto.setTemplateCode("CTT23060600000010");
+        paramDto.setGroupCode(GROUP_CODE);
+        while(true) {
+            try{
+                JdCResponse<Void> obj0 = jyWarehouseSendGatewayService.mixScanTaskComplete(paramDto);
+                System.out.println(JsonHelper.toJson(obj0));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Test
+    public void testSendScan(){
+        String paramJson = " {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"752F001\",\n" +
+                "            \"operateTime\": 1686192506459,\n" +
+                "            \"operatorId\": \"95156362\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 10,\n" +
+                "            \"orgName\": \"华南\",\n" +
+                "            \"siteCode\": 554230,\n" +
+                "            \"siteName\": \"惠州分拣中心\"\n" +
+                "        },\n" +
+//                "        \"lineType\": 1,\n" +
+                "        \"pageNo\": 1,\n" +
+                "        \"pageSize\": 30,\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 21478780,\n" +
+                "            \"userErp\": \"yxwangjun6\",\n" +
+                "            \"userName\": \"王俊\"\n" +
+                "        },\n" +
+                "        \"vehicleStatus\": 0\n" +
+                "    }";
+
+        SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
+        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setUser(USER_wuyoude);
+        paramDto.setMixScanTaskCode("CTT23060600000010");
+        paramDto.setGroupCode(GROUP_CODE);
+        while(true) {
+            try{
+                JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
+                System.out.println(JsonHelper.toJson(obj0));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
 }

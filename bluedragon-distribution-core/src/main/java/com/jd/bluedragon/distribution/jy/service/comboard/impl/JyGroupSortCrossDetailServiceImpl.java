@@ -413,7 +413,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto) {
         boolean res = false;
         //混扫任务状态校验
-        if(!jyGroupSortCrossDetailCacheService.existMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode())){
+        if(jyGroupSortCrossDetailCacheService.existMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode())){
             res = true;
         } else {
             if(this.countByCondition(queryDto) > 0) {

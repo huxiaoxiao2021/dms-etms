@@ -102,8 +102,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         if(Objects.isNull(pageNo) || Objects.isNull(pageSize) || pageNo < 1 || pageSize < 1) {
             throw new JyBizException("页码参数错误");
         }
-        if(pageSize > 50) {//当前岗位分页信息pageSize不建议设置太大
-            throw new JyBizException("每页查询数量超过最大值50");
+        if(pageSize > DEFAULT_PAGE_MAXSIZE) {//当前岗位分页信息pageSize不建议设置太大
+            throw new JyBizException("每页查询数量超过最大值" + DEFAULT_PAGE_MAXSIZE);
         }
     }
 
@@ -166,7 +166,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkCurrentOperate(request.getCurrentOperate());
             checkPage(request.getPageNumber(), request.getPageSize());
             //车辆状态合法性校验
-            JdCResponse illegalVehicleStatusRes =legalVehicleStatusCheck(request);
+            JdCResponse illegalVehicleStatusRes = this.legalVehicleStatusCheck(request);
             if(!illegalVehicleStatusRes.isSucceed()) {
                 return new JdCResponse<>(illegalVehicleStatusRes.getCode(), illegalVehicleStatusRes.getMessage(), null);
             }
@@ -187,7 +187,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         if(Objects.isNull(request.getVehicleStatus())) {
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "车辆状态参数为空");
         }
-        List<SelectOption> optionList = getVehicleStatusEnums();
+        List<SelectOption> optionList = this.getVehicleStatusEnums();
         if(CollectionUtils.isEmpty(optionList)) {
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "未查到该岗位车辆状态信息");
         }
@@ -224,11 +224,6 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
             if(StringUtils.isBlank(request.getGroupCode())) {
                 res.toFail("岗位小组参数为空");
-                return res;
-            }
-            if(Objects.isNull(request.getPageNo()) || Objects.isNull(request.getPageSize())
-                    || request.getPageNo() <= 0 || request.getPageSize() <= 0 || DEFAULT_PAGE_MAXSIZE > DEFAULT_PAGE_MAXSIZE) {
-                res.toFail("分页参数错误");
                 return res;
             }
             return retJdCResponse(jyWarehouseSendVehicleService.fetchToSendAndSendingTaskPage(request));
@@ -284,10 +279,6 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         }
     }
 
-//    @Override
-//    public JdCResponse<SendCancelScanRes> cancelSendScan(CancelSendScanReq request) {
-//        return null;
-//    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.findByQiWaybillPage",
@@ -863,10 +854,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
             checkUser(request.getUser());
             checkCurrentOperate(request.getCurrentOperate());
-            if(StringUtils.isBlank(request.getGroupCode())) {
-                res.toFail("岗位小组参数为空");
-                return res;
-            }
+            checkGroupCode(request.getGroupCode());
             if(StringUtils.isBlank(request.getTemplateCode())) {
                 res.toFail("混扫任务编码参数为空");
                 return res;
