@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @Date: 2023/6/1 11:28
  * @Description: 异常任务指派ＭＱ
  */
-public class  JyAssignExpTaskMQ implements Serializable {
+public class JyAssignExpTaskDto implements Serializable {
 
     /**
      * 异常任务主键

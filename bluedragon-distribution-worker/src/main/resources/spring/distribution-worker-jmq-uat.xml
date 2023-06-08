@@ -550,9 +550,5 @@
         <jmq:listener topic="${jmq.topic.exception.customerNotify}" listener="dmsExCustomerNotifyConsumer"/>
     </jmq:consumer>
 
-    <!--  异常-异常任务指派MQ  -->
-    <jmq:consumer id="jmq.jyAssignExpTaskConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.assign.exception.task}" listener="jyAssignExpTaskConsumer"/>
-    </jmq:consumer>
 </beans>
 

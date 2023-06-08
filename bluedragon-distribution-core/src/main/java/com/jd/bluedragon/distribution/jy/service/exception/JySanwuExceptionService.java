@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
-import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskMQ;
 
 import java.util.List;
 
@@ -44,11 +43,6 @@ public interface JySanwuExceptionService {
      */
     JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req);
 
-    /**
-     * 处理指派异常任务数据
-     * @param mq
-     */
-    void dealAssignTaskData(JyAssignExpTaskMQ mq);
 
     /**
      * 获取指派任务数

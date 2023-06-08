@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
@@ -32,7 +30,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -498,7 +495,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             if(CollectionUtils.isNotEmpty(req.getBizIds())){
                 allTaskBizids.addAll(req.getBizIds());
             }
-            //
+            //对任务进行去重
             allTaskBizids = allTaskBizids.stream().collect(
                     Collectors.collectingAndThen(Collectors.toCollection(
                             () -> new TreeSet<>(Comparator.comparing(String::toString))), ArrayList::new));
@@ -511,9 +508,9 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             }
 
             for (int i = 0; i < allTaskBizids.size(); i++) {
-                JyAssignExpTaskMQ expMQ = coverToAssignExpTaskMQ(allTaskBizids.get(i),req.getAssignHandlerErp(),req.getUserErp());
-                logger.info("指派异常任务信息-{}",JSON.toJSONString(expMQ));
-                assignTaskExpProducer.send(expMQ.getBizId(), JsonHelper.toJson(expMQ));
+                JyAssignExpTaskDto dto = coverToAssignExpTaskMQ(allTaskBizids.get(i),req.getAssignHandlerErp(),req.getUserErp());
+                logger.info("指派异常任务信息-{}",JSON.toJSONString(dto));
+                dealAssignTaskData(dto);
             }
             return response;
         }catch(Exception e){
@@ -524,30 +521,28 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         }
     }
 
-    @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.dealAssignTaskData", mState = {JProEnum.TP})
-    public void dealAssignTaskData(JyAssignExpTaskMQ mq) {
+    public void dealAssignTaskData(JyAssignExpTaskDto dto) {
 
         if(logger.isInfoEnabled()){
-            logger.info("指派异常任务处理信息-{}",JSON.toJSONString(mq));
+            logger.info("指派异常任务处理信息-{}",JSON.toJSONString(dto));
         }
-        JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(mq.getBizId());
+        JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(dto.getBizId());
         if (bizEntity == null) {
-            logger.warn("当前异常任务不存在-{}",mq.getBizId());
+            logger.warn("当前异常任务不存在-{}",dto.getBizId());
             return ;
         }
         if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), bizEntity.getStatus())) {
-            logger.warn("当前异常任务状态非待取件状态-{}",mq.getBizId());
+            logger.warn("当前异常任务状态非待取件状态-{}",dto.getBizId());
             return ;
         }
 
         //修改状态为 status处理中-processingStatus匹配中
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
-        update.setBizId(mq.getBizId());
+        update.setBizId(dto.getBizId());
         update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
-        update.setHandlerErp(mq.getAssignHandlerErp());
-        update.setUpdateUserErp(mq.getPrincipalErp());
+        update.setHandlerErp(dto.getAssignHandlerErp());
+        update.setUpdateUserErp(dto.getPrincipalErp());
         update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
         update.setTags(StringHelper.append(bizEntity.getTags(),SPLIT+JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
@@ -556,9 +551,9 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             jyBizTaskExceptionDao.updateByBizId(update);
             recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
             //发送修改状态消息
-            sendScheduleTaskStatusMsg(mq.getBizId(), mq.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
+            sendScheduleTaskStatusMsg(dto.getBizId(), dto.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
             //将指派任务保存到指派任务表中
-            JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, mq);
+            JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, dto);
             jyBizTaskExceptionAssignDao.insertSelective(assignEntity);
         }catch (Exception e){
             logger.error("指派异常任务处理异常!",e);
@@ -567,7 +562,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
 
     }
 
-    private JyBizTaskExceptionAssignEntity coverTJyBizTaskExceptionAssignEntity(JyBizTaskExceptionEntity bizEntity,JyAssignExpTaskMQ mq){
+    private JyBizTaskExceptionAssignEntity coverTJyBizTaskExceptionAssignEntity(JyBizTaskExceptionEntity bizEntity, JyAssignExpTaskDto mq){
         JyBizTaskExceptionAssignEntity assignEntity = new JyBizTaskExceptionAssignEntity();
         assignEntity.setBizId(mq.getBizId());
         assignEntity.setSiteCode(bizEntity.getSiteCode());
@@ -606,7 +601,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             logger.info("获取指派任务数出参——{}!",JSON.toJSONString(assignExpTask));
             if(CollectionUtils.isEmpty(assignExpTask)){
                 logger.warn("获取指派任务数为空!");
-                response.toFail("网格码有误!");
+                response.toFail("获取指派任务数为空!");
                 return response;
             }
             response.setData(assignExpTask.size());
@@ -651,8 +646,8 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
         return true;
     }
 
-    private JyAssignExpTaskMQ coverToAssignExpTaskMQ(String bizId,String erp,String principalErp){
-        JyAssignExpTaskMQ mq = new JyAssignExpTaskMQ();
+    private JyAssignExpTaskDto coverToAssignExpTaskMQ(String bizId, String erp, String principalErp){
+        JyAssignExpTaskDto mq = new JyAssignExpTaskDto();
         mq.setBizId(bizId);
         mq.setAssignHandlerErp(erp);
         mq.setPrincipalErp(principalErp);

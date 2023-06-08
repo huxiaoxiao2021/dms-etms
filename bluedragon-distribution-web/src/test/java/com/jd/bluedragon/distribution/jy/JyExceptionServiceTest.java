@@ -5,10 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
-import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -230,7 +228,7 @@ public class JyExceptionServiceTest {
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
         req.setAssignHandlerErp("wuyoude");
-        req.setBizIds(Arrays.asList("SANWU_SW123456789876544321345678","SANWU_SWNEW67890"));
+        req.setBizIds(Arrays.asList("SANWU_SW1234567892","SANWU_SWNEW67890"));
 
 
         List<ExpTaskStatisticsOfWaitReceiveDto> expTaskStatistics =  new ArrayList<>();
@@ -248,11 +246,11 @@ public class JyExceptionServiceTest {
 
     @Test
     public void dealAssignTaskDataTest(){
-        JyAssignExpTaskMQ mq = new JyAssignExpTaskMQ();
+        JyAssignExpTaskDto mq = new JyAssignExpTaskDto();
         mq.setPrincipalErp("wuyoude");
         mq.setBizId("SANWU_SWNEW67890");
         mq.setAssignHandlerErp("wuyoude");
-        jySanwuExceptionService.dealAssignTaskData(mq);
+        //jySanwuExceptionService.dealAssignTaskData(mq);
     }
 
     @Test
