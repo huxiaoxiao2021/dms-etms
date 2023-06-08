@@ -218,23 +218,15 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
     public List<ReassignWaybill> coverToReassignWaybill(ReturnScheduleRequest request,Waybill waybill,WaybillManageDomain waybillState
             ,B2bVehicleTeamMatchResult matchResult,List<String> packges){
 
-        Integer siteCode= null;
-        String siteName ="";
-        if(StringUtils.isNotBlank(request.getOperatorInfo().getOperateSiteCode())){
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(request.getOperatorInfo().getOperateSiteCode());
-            if(baseSite != null){
-                siteCode = baseSite.getSiteCode();
-                siteName = baseSite.getSiteName();
-            }
-        }
+
         List<ReassignWaybill> reassignWaybills = new ArrayList<>();
         for (String packge : packges) {
             ReassignWaybill reassignWaybill = new ReassignWaybill();
             reassignWaybill.setWaybillCode(request.getWaybillCode());
             reassignWaybill.setPackageBarcode(packge);
             reassignWaybill.setAddress(waybill.getReceiverAddress());
-            reassignWaybill.setSiteCode(siteCode);
-            reassignWaybill.setSiteName(siteName);
+            reassignWaybill.setSiteCode(matchResult.getVehicleTeamId());
+            reassignWaybill.setSiteName(waybillState.getSiteName());
             reassignWaybill.setReceiveSiteCode(waybillState.getSiteId());
             reassignWaybill.setReceiveSiteName(waybillState.getSiteName());
             reassignWaybill.setChangeSiteCode(matchResult.getVehicleTeamId());
