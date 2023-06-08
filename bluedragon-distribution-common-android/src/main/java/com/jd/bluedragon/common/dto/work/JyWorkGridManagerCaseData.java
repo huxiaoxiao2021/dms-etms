@@ -21,6 +21,11 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	 */
 	private Integer editType;
 	/**
+	 * 编辑状态
+	 * @See com.jd.bluedragon.distribution.jy.enums.EditStatusEnum
+	 */
+	private Integer editStatus;
+	/**
 	 * 任务编码
 	 */
 	private String taskCode;
@@ -46,9 +51,10 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	private String caseContent;
 
 	/**
-	 * 检查结果
+	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum
+	 * 检查结果,0-未选择,1-符合 2-不符合
 	 */
-	private String checkResult;
+	private Integer checkResult;
 
 	/**
 	 * 需要拍照,0-否,1-是
@@ -99,10 +105,10 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	public void setCaseContent(String caseContent) {
 		this.caseContent = caseContent;
 	}
-	public String getCheckResult() {
+	public Integer getCheckResult() {
 		return checkResult;
 	}
-	public void setCheckResult(String checkResult) {
+	public void setCheckResult(Integer checkResult) {
 		this.checkResult = checkResult;
 	}
 	public Integer getNeedUploadPhoto() {
@@ -122,5 +128,11 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	}
 	public void setAttachmentList(List<AttachmentDetailData> attachmentList) {
 		this.attachmentList = attachmentList;
+	}
+	public Integer getEditStatus() {
+		return editStatus;
+	}
+	public void setEditStatus(Integer editStatus) {
+		this.editStatus = editStatus;
 	}
 }
