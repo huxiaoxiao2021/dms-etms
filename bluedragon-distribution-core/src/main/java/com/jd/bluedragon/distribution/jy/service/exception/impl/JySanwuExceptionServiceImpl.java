@@ -86,10 +86,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     private UserSignRecordDao userSignRecordDao;
 
     @Autowired
-    @Qualifier("assignTaskExpProducer")
-    private DefaultJMQProducer assignTaskExpProducer;
-
-    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -514,8 +510,8 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
             }
             return response;
         }catch(Exception e){
-            logger.error("assignTaskExpProducer 发送指派任务MQ消息异常!",e);
-            response.toFail("发送指派任务MQ消息异常!");
+            logger.error("任务指派异常!-param-{}",JSON.toJSONString(req),e);
+            response.toFail("任务指派异常!");
             response.setData(Boolean.FALSE);
             return response;
         }
