@@ -3963,6 +3963,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
                                     waybillStatusList.add(tWaybillStatus);
                                     sendTypeList.add(tSendDetail.getSendType());
+                                } else {
+                                    log.info("业务来源是转运,不发送全程跟踪:waybillStatusList={}", JsonHelper.toJson(tWaybillStatus));
                                 }
 
                                 //发送发货明细mq
@@ -3981,6 +3983,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
                                     waybillStatusList.add(tWaybillStatus);
                                     sendTypeList.add(tSendDetail.getSendType());
+                                } else {
+                                    log.info("业务来源是转运,不发送全程跟踪:waybillStatusList={}", JsonHelper.toJson(tWaybillStatus));
                                 }
                             }
                         }
