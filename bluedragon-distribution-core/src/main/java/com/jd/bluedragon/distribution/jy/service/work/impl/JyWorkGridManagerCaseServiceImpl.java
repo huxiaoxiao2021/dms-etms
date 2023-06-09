@@ -57,7 +57,7 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 	private JyWorkGridManagerCaseItemService jyWorkGridManagerCaseItemService;
 	
 	@Autowired
-	@Qualifier("jyWorkGridManagerCaseItemService")
+	@Qualifier("jyAttachmentDetailService")
 	private JyAttachmentDetailService jyAttachmentDetailService;
 	
 	@Override
