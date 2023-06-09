@@ -51,7 +51,6 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	private JyWorkGridManagerCaseService jyWorkGridManagerCaseService;
 	
 	@Autowired
-	@Qualifier("positionManager")
 	private PositionManager positionManager;
 	
 
