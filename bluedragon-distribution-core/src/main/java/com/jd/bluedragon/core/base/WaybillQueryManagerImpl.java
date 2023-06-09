@@ -1303,7 +1303,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
         List<WaybillVasDto> list = baseEntity.getData();
         for(WaybillVasDto dto : list){
-            if(Constants.TE_AN_SERVICE.equals(dto.getVasNo())){
+            if(Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(dto.getVasNo())){
                 log.info("符合电商特惠件");
                 return true;
             }
