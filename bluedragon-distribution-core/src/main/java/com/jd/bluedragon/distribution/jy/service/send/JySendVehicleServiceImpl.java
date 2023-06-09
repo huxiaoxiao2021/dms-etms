@@ -1986,7 +1986,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param allDestId
      * @return
      */
-    private SendFindDestInfoDto matchSendDest(SendScanRequest request, SendKeyTypeEnum sendType,
+    public SendFindDestInfoDto matchSendDest(SendScanRequest request, SendKeyTypeEnum sendType,
                                               JyBizTaskSendVehicleEntity taskSend, Set<Long> allDestId, JdVerifyResponse<SendScanResponse> response) {
         String barCode = request.getBarCode();
         long siteCode = request.getCurrentOperate().getSiteCode();

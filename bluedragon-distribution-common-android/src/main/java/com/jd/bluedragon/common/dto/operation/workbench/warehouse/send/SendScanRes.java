@@ -9,4 +9,13 @@ public class SendScanRes extends SendScanResponse implements Serializable {
 
     private static final long serialVersionUID = -1410653337122346470L;
 
+    private Long nextSiteCode;;
+
+    public Long getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Long nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
+    }
 }

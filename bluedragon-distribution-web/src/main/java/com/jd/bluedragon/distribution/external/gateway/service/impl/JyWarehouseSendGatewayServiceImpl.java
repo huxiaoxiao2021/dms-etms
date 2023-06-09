@@ -763,7 +763,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     private MixScanTaskQueryRes getMixScanTaskPage(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         MixScanTaskQueryRes mixScanTaskQueryRes = new MixScanTaskQueryRes();
-        CTTGroupDataResp groupDataResp = jyGroupSortCrossDetailService.getMixScanTaskListPage(assembleCondition(mixScanTaskListQueryReq));
+        CTTGroupDataResp groupDataResp = jyGroupSortCrossDetailService.getMixScanTaskListPage(this.assembleCondition(mixScanTaskListQueryReq));
         if (groupDataResp != null && !CollectionUtils.isEmpty(groupDataResp.getCttGroupDtolist())) {
             List<MixScanTaskDto> mixScanTaskDtoList = groupDataResp.getCttGroupDtolist().stream()
                     .map(item -> BeanUtils.copy(item, MixScanTaskDto.class)).collect(Collectors.toList());
@@ -776,7 +776,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         String barCode = mixScanTaskListQueryReq.getBarCode();
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         
-        if (!StringUtils.isEmpty(barCode)) {
+        if (StringUtils.isNotBlank(barCode)) {
             // 获取目的地站点或者滑道笼车号
             if (WaybillUtil.isPackageCode(barCode) || BusinessHelper.isBoxcode(barCode)) {
                 SendScanReq sendScanReq = new SendScanReq();
@@ -803,7 +803,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
         condition.setCompleteStatus(JyMixScanTaskCompleteEnum.DOING.getCode());
         condition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
-        if (!StringUtils.isEmpty(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+        if (StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
             condition.setSendVehicleDetailBizId(mixScanTaskListQueryReq.getSendVehicleDetailBizId());
         }
         return condition;

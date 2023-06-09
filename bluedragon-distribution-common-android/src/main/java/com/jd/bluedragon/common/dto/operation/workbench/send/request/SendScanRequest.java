@@ -94,6 +94,11 @@ public class SendScanRequest implements Serializable {
      */
     private String postType;
 
+    /**
+     * 前置下一流向
+     */
+    private Long preNextSiteCode;
+
     public User getUser() {
         return user;
     }
@@ -236,5 +241,13 @@ public class SendScanRequest implements Serializable {
 
     public void setPostType(String postType) {
         this.postType = postType;
+    }
+
+    public Long getPreNextSiteCode() {
+        return preNextSiteCode;
+    }
+
+    public void setPreNextSiteCode(Long preNextSiteCode) {
+        this.preNextSiteCode = preNextSiteCode;
     }
 }

@@ -4,13 +4,17 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.service.DeviceGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,10 @@ public class JyWarehouseSendGatewayServiceTest {
     
     @Autowired
     private JyWarehouseSendGatewayService jyWarehouseSendGatewayService;
+
+    @Autowired
+    private DeviceGatewayService deviceGatewayService;
+
     
     private static final CurrentOperate CURRENT_OPERATE = new CurrentOperate(910,"马驹桥分拣中心",new Date());
     public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
@@ -313,41 +321,70 @@ public class JyWarehouseSendGatewayServiceTest {
 
     @Test
     public void testSendScan(){
-        String paramJson = " {\n" +
+        String paramJson =
+                "    {" +
+                "        \"barCode\": \"JDVA20764083174-1-1-\",\n" +
+                "        \"barCodeType\": 1,\n" +
                 "        \"currentOperate\": {\n" +
-                "            \"dmsCode\": \"752F001\",\n" +
-                "            \"operateTime\": 1686192506459,\n" +
-                "            \"operatorId\": \"95156362\",\n" +
+                "            \"dmsCode\": \"022F002\",\n" +
+                "            \"operateTime\": 1686293197849,\n" +
+                "            \"operatorId\": \"95309061\",\n" +
                 "            \"operatorTypeCode\": 1,\n" +
-                "            \"orgId\": 10,\n" +
-                "            \"orgName\": \"华南\",\n" +
-                "            \"siteCode\": 554230,\n" +
-                "            \"siteName\": \"惠州分拣中心\"\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 1534,\n" +
+                "            \"siteName\": \"天津分拣中心\"\n" +
                 "        },\n" +
-//                "        \"lineType\": 1,\n" +
-                "        \"pageNo\": 1,\n" +
-                "        \"pageSize\": 30,\n" +
+                "        \"forceSubmit\": false,\n" +
+                "        \"groupCode\": \"G00000634002\",\n" +
+                "        \"sendForWholeBoard\": false,\n" +
+                "        \"sendVehicleBizId\": \"NSST23060900001110\",\n" +
+                "        \"sendVehicleDetailBizId\": \"NTSD23060900001079\",\n" +
+                "        \"taskId\": \"230609300021232\",\n" +
                 "        \"user\": {\n" +
-                "            \"userCode\": 21478780,\n" +
-                "            \"userErp\": \"yxwangjun6\",\n" +
-                "            \"userName\": \"王俊\"\n" +
+                "            \"userCode\": 21665117,\n" +
+                "            \"userErp\": \"fengwanguo\",\n" +
+                "            \"userName\": \"冯万国\"\n" +
                 "        },\n" +
-                "        \"vehicleStatus\": 0\n" +
-                "    }";
+                "        \"vehicleNumber\": \"\"\n" +
+                "    }" ;
 
-        SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
-        paramDto.setCurrentOperate(SITE_40240);
-        paramDto.setUser(USER_wuyoude);
-        paramDto.setMixScanTaskCode("CTT23060600000010");
-        paramDto.setGroupCode(GROUP_CODE);
         while(true) {
             try{
+               String packageCode = "JD0003420475846-1-1-";
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
+                paramDto.setCurrentOperate(SITE_40240);
+                paramDto.setUser(USER_wuyoude);
+                paramDto.setMixScanTaskCode("CTT23060600000010");
+                paramDto.setGroupCode(GROUP_CODE);
+                paramDto.setBarCode(packageCode);
+
+                List<DeviceInfoDto> deviceList = this.getDeviceInfoList();
+                paramDto.setMachineCode(deviceList.get(0).getMachineCode());
+
+
                 JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
                 System.out.println(JsonHelper.toJson(obj0));
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private List<DeviceInfoDto> getDeviceInfoList() {
+        DeviceInfoDto paramDto = new DeviceInfoDto();
+        paramDto.setDeviceTypeCode("GANTRY");
+        paramDto.setIsEnable(1);
+//        paramDto.setSiteCode("40240");
+        paramDto.setSiteCode("910");
+
+        JdCResponse<List<DeviceInfoDto>> res = deviceGatewayService.getDeviceInfoList(paramDto);
+        if(res.isSucceed() && CollectionUtils.isNotEmpty(res.getData())) {
+            return res.getData();
+        }
+        return null;
     }
 
 
