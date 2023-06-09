@@ -580,31 +580,31 @@ public class WaybillServiceImpl implements WaybillService {
     * 是否是特安送服务的运单
     * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
     * */
-    @Override
-    public boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign) {
-        //33位不为2直接跳过
-        if (! BusinessUtil.isSignChar(waybillSign, 33, '2')) {
-            return false;
-        }
-        try {
-            //获取增值服务信息
-            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
-            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
-                List<WaybillVasDto> vasDtoList = baseEntity.getData();
-                for (WaybillVasDto waybillVasDto : vasDtoList) {
-                    if (waybillVasDto != null && Constants.TE_AN_SONG_SERVICE.equals(waybillVasDto.getVasNo())) {
-                        return true;
-                    }
-                }
-            } else {
-                log.warn("运单{}获取增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
-            }
-        } catch (Exception e) {
-            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
-        }
-        return false;
-    }
+//    @Override
+//    public boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign) {
+//        //33位不为2直接跳过
+//        if (! BusinessUtil.isSignChar(waybillSign, 33, '2')) {
+//            return false;
+//        }
+//        try {
+//            //获取增值服务信息
+//            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+//            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+//            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+//                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+//                for (WaybillVasDto waybillVasDto : vasDtoList) {
+//                    if (waybillVasDto != null && Constants.TE_AN_SONG_SERVICE.equals(waybillVasDto.getVasNo())) {
+//                        return true;
+//                    }
+//                }
+//            } else {
+//                log.warn("运单{}获取增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+//            }
+//        } catch (Exception e) {
+//            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+//        }
+//        return false;
+//    }
 
     /**
      * 1.从本地分拣中心获取WaybillCancel数据

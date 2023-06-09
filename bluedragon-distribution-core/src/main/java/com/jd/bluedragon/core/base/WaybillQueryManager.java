@@ -378,11 +378,4 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);
-
-	/**
-	 * 是否是电商特惠运单
-	 * @param waybillCode
-	 * @return
-	 */
-	boolean isECommerceSpecialOfferWaybill(String waybillCode);
 }
