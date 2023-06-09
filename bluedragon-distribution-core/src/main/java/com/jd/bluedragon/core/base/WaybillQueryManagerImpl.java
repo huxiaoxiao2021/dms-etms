@@ -1130,6 +1130,10 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             //9-生鲜专送
             res = TextConstants.PRODUCT_NAME_SXZS;
         }
+        if(isECommerceSpecialOfferWaybill(waybill.getWaybillCode())){
+            //电商特惠
+            res = TextConstants.PRODUCT_NAME_DSTH;
+        }
 
         return res;
     }
@@ -1288,4 +1292,23 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return result;
 	}
 
+    @Override
+    public boolean isECommerceSpecialOfferWaybill(String waybillCode) {
+        log.info("isECommerceSpecialOfferWaybill---运单号{}",waybillCode);
+        BaseEntity<List<WaybillVasDto>> baseEntity = getWaybillVasInfosByWaybillCode(waybillCode);
+        log.info("isECommerceSpecialOfferWaybill--获取产品编码{}",JSON.toJSONString(baseEntity));
+        if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
+                || CollectionUtils.isEmpty(baseEntity.getData())){
+            return false;
+        }
+        List<WaybillVasDto> list = baseEntity.getData();
+        for(WaybillVasDto dto : list){
+            if(Constants.TE_AN_SERVICE.equals(dto.getVasNo())){
+                log.info("符合电商特惠件");
+                return true;
+            }
+        }
+        log.info("不符合电商特惠件");
+        return false;
+    }
 }

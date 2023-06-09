@@ -377,5 +377,12 @@ public interface WaybillQueryManager{
 	 * @param waybillCode
 	 * @return
 	 */
-	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);	
+	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);
+
+	/**
+	 * 是否是电商特惠运单
+	 * @param waybillCode
+	 * @return
+	 */
+	boolean isECommerceSpecialOfferWaybill(String waybillCode);
 }

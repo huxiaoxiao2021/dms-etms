@@ -1927,4 +1927,9 @@ public class Constants {
      * 特安 增值服务编码
      * */
     public static final String TE_AN_SERVICE = "ed-a-0047";
+
+    /**
+     * 电商特惠产品编码
+     */
+    public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 }

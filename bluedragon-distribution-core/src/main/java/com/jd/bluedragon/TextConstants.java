@@ -342,4 +342,9 @@ public class TextConstants {
      * NC
      */
     public static final String SPECIAL_MARK_NC ="NC";
+
+    /**
+     * 电商特惠
+     */
+    public static final String PRODUCT_NAME_DSTH = "电商特惠";
 }
