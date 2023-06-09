@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-@Service
+@Service("workGridManagerCaseItemJsfManager")
 public class WorkGridManagerCaseItemJsfManagerImpl implements WorkGridManagerCaseItemJsfManager {
 
     

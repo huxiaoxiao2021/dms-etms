@@ -1,3 +1,4 @@
+
 package com.jd.bluedragon.core.jsf.work;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-@Service
+@Service("workGridManagerTaskJsfManager")
 public class WorkGridManagerTaskJsfManagerImpl implements WorkGridManagerTaskJsfManager {
 
     @Autowired
