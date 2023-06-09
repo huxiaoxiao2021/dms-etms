@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.work;
+package com.jd.bluedragon.distribution.jy.gateway.work;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
  * @date 2023年05月30日 14:30:43
  *
  */
-public interface JyWorkGridManagerService {
+public interface JyWorkGridManagerGatewayService {
 
 	/**
 	 * 按条件分页查询
