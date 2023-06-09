@@ -330,6 +330,7 @@ public class DmsConstants {
     public static final String WJ_BOX_PREFIX = "WJ";
 
     public static final int PAGE_SIZE_DEFAULT = 10;
+    public static final int PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY = 100;
 
     public static final String KEYS_SPLIT = ":";
 

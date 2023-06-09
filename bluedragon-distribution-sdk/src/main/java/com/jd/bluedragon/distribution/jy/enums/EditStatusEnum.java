@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.enums;
 
 /**
  * @ClassName EditStatusEnum
- * @Description 编辑状态
+ * @Description 编辑状态,0-未处理,1-处理完成 2-处理中 
  * @Author wyd
  * @Date 2023/5/30 16:49
  **/

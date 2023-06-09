@@ -27,6 +27,14 @@ public class AttachmentDetailData implements Serializable {
      * 业务主键
      */
     private String bizId;
+    /**
+     * 业务类型-区分业务场景
+     */
+    private String bizType;
+    /**
+     * 业务子类型-区分业务子场景
+     */
+    private String bizSubType;
 
     /**
      * 场地编码
@@ -85,6 +93,22 @@ public class AttachmentDetailData implements Serializable {
 
 	public void setBizId(String bizId) {
 		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getBizSubType() {
+		return bizSubType;
+	}
+
+	public void setBizSubType(String bizSubType) {
+		this.bizSubType = bizSubType;
 	}
 
 	public Integer getSiteCode() {

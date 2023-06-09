@@ -12,6 +12,10 @@ public class JyWorkGridManagerCaseItemData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 场景编码
+	 */
+	private String caseCode;
+	/**
 	 * 检查项编码
 	 */
 	private String caseItemCode;
@@ -74,6 +78,14 @@ public class JyWorkGridManagerCaseItemData implements Serializable {
 
 	public void setOrderNum(Integer orderNum) {
 		this.orderNum = orderNum;
+	}
+
+	public String getCaseCode() {
+		return caseCode;
+	}
+
+	public void setCaseCode(String caseCode) {
+		this.caseCode = caseCode;
 	}
 	
 }
