@@ -2,10 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao" >
 
-	<resultMap id="JyBizTaskWorkGridManager" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" >
+    <resultMap id="JyBizTaskWorkGridManager" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" >
         <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
         <result column="biz_id" property="bizId" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="task_type" property="taskType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="need_scan_grid" property="needScanGrid" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="task_code" property="taskCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="task_name" property="taskName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="task_description" property="taskDescription" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -32,19 +33,19 @@
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="time_out" property="timeOut" javaType="java.lang.Integer" jdbcType="TINYINT" />
-	</resultMap>
+    </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="data_num" property="dataNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
     </resultMap>    
-	<sql id="Base_Column_List" >
-        id,biz_id,task_type,task_code,task_name,task_description,
-        task_batch_code,task_ref_grid_key,order_num,site_code,site_name,
-        area_code,area_name,grid_name,pre_finish_time,handler_erp,
-        handler_position_code,status,process_begin_time,process_end_time,create_user,
-        create_user_name,update_user,update_user_name,create_time,update_time,
-        yn,ts,time_out
-	</sql>
+    <sql id="Base_Column_List" >
+        id,biz_id,task_type,need_scan_grid,task_code,task_name,
+        task_description,task_batch_code,task_ref_grid_key,order_num,site_code,
+        site_name,area_code,area_name,grid_name,pre_finish_time,
+        handler_erp,handler_position_code,status,process_begin_time,process_end_time,
+        create_user,create_user_name,update_user,update_user_name,create_time,
+        update_time,yn,ts,time_out
+    </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
         insert into jy_biz_task_work_grid_manager
@@ -58,6 +59,9 @@
                 </if>
                 <if test="taskType != null" >
                     task_type,
+                </if>
+                <if test="needScanGrid != null" >
+                    need_scan_grid,
                 </if>
                 <if test="taskCode != null" >
                     task_code,
@@ -150,6 +154,9 @@
                 </if>
                 <if test="taskType != null" >
                     #{taskType,jdbcType=TINYINT},
+                </if>
+                <if test="needScanGrid != null" >
+                    #{needScanGrid,jdbcType=TINYINT},
                 </if>
                 <if test="taskCode != null" >
                     #{taskCode,jdbcType=VARCHAR},
@@ -244,6 +251,9 @@
                 </if>
                 <if test="taskType != null" >
                     task_type = #{taskType,jdbcType=TINYINT},
+                </if>
+                <if test="needScanGrid != null" >
+                    need_scan_grid = #{needScanGrid,jdbcType=TINYINT},
                 </if>
                 <if test="taskCode != null" >
                     task_code = #{taskCode,jdbcType=VARCHAR},

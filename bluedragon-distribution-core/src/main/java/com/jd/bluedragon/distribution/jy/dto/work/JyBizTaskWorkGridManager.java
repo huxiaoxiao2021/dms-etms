@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @ClassName: JyBizTaskWorkGridManager
  * @Description: 巡检任务表-实体类
  * @author wuyoude
- * @date 2023年06月12日 17:54:00
+ * @date 2023年06月12日 21:13:01
  *
  */
 public class JyBizTaskWorkGridManager implements Serializable {
@@ -28,6 +28,11 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 任务类型：1-例会（标题+内容） 2-例会记录（仅拍照） 3-工作区任务（多页签）
 	 */
 	private Integer taskType;
+
+	/**
+	 * 需要扫描岗位码标志,0-不扫描,1-扫描
+	 */
+	private Integer needScanGrid;
 
 	/**
 	 * 任务编码
@@ -205,6 +210,22 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	public Integer getTaskType() {
 		return this.taskType;
+	}
+
+	/**
+	 *
+	 * @param needScanGrid
+	 */
+	public void setNeedScanGrid(Integer needScanGrid) {
+		this.needScanGrid = needScanGrid;
+	}
+
+	/**
+	 *
+	 * @return needScanGrid
+	 */
+	public Integer getNeedScanGrid() {
+		return this.needScanGrid;
 	}
 
 	/**

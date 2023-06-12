@@ -54,9 +54,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		Result<WorkGridManagerTask> taskInfoResult = workGridManagerTaskJsfManager.queryByTaskCode(jyTaskData.getTaskCode());
 		if(taskInfoResult != null 
 				&& taskInfoResult.getData() != null) {
-			WorkGridManagerTask taskInfo = taskInfoResult.getData();
-			taskData.setNeedScanGrid(taskInfo.getNeedScanGrid());
-			taskData.setTaskDescription(taskInfo.getTaskDescription());
+			//字段生成任务时，冗余到任务数据中
 		}
 		return taskData;
 	}
@@ -78,7 +76,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		for(JyBizTaskWorkGridManagerCount jyData: jyDataList) {
 			dataList.add(toJJyWorkGridManagerCountData(jyData));
 		}
-		return dataList;		
+		return dataList;
 	}
 	private JyWorkGridManagerCountData toJJyWorkGridManagerCountData(JyBizTaskWorkGridManagerCount jyData) {
 		JyWorkGridManagerCountData taskCountData  = new JyWorkGridManagerCountData();
