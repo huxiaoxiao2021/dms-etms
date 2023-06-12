@@ -183,6 +183,71 @@ public class JYCenterServiceImpl implements JYCenterService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.JSF.JYCenterService.batchInspectByPageWithoutSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> batchInspectByPageWithoutSendCode(BatchInspectionPageRequest batchInspectionPageRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.batchInspectByPageWithoutSendCode param {}", JsonHelper.toJson(batchInspectionPageRequest.getRequestProfile()));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+
+        if (null == batchInspectionPageRequest || CollectionUtils.isEmpty(batchInspectionPageRequest.getUnloadDetailCargoList())) {
+            result.parameterError();
+            return result;
+        }
+
+        List<List<CargoOperateInfo>> lists = Lists.partition(batchInspectionPageRequest.getUnloadDetailCargoList(), 10);
+
+        BaseStaffSiteOrgDto siteOrgDto = baseService.queryDmsBaseSiteByCode(batchInspectionPageRequest.getOperateSiteCode());
+        if (siteOrgDto == null) {
+            result.confirmMessage("操作站点未在京东维护");
+            return result;
+        }
+
+        for (List<CargoOperateInfo> list : lists) {
+            List<Task> tasks = new ArrayList<>();
+            for (CargoOperateInfo cargoOperateInfo : list) {
+                OperatorInfo operatorInfo = new OperatorInfo();
+                operatorInfo.setOperateTime(cargoOperateInfo.getOperateTime());
+                operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
+                operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
+                operatorInfo.setOperateUserId(-1);
+                operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
+                operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
+
+                JYCargoOperateEntity entity = new JYCargoOperateEntity();
+                entity.setBarcode(cargoOperateInfo.getBarcode());
+                if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
+                    entity.setPackageCode(cargoOperateInfo.getBarcode());
+                }
+
+                entity.setCreateSiteId(siteOrgDto.getSiteCode());
+                entity.setCreateSiteCode(siteOrgDto.getDmsSiteCode());
+                entity.setCreateSiteName(siteOrgDto.getSiteName());
+                entity.setOperatorInfo(operatorInfo);
+                entity.setRequestProfile(batchInspectionPageRequest.getRequestProfile());
+
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(entity));
+                task.setType(Task.TASK_TYPE_JY_CARGO_OPERATE_INSPECTION);
+                task.setTableName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE);
+                task.setSequenceName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ);
+                task.setOwnSign(BusinessHelper.getOwnSign());
+                task.setKeyword1(entity.getBarcode());
+                task.setKeyword2(operatorInfo.getOperateSiteCode());
+                task.setFingerprint(Md5Helper.encode(JsonHelper.toJson(entity)));
+
+                tasks.add(task);
+            }
+
+            taskService.addBatch(tasks);
+        }
+        result.success();
+
+        return result;
+    }
+
+    @Override
     @JProfiler(jKey = "DMS.JSF.JYCenterService.batchSortingWithPage", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> batchSortingWithPage(BatchSortingPageRequest batchSortingPageRequest) {
         if(log.isInfoEnabled()){
