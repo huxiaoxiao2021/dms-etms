@@ -282,8 +282,8 @@
 		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
 		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
-		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:''}"/>
-		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckSites:''}"/>
+		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
+		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
