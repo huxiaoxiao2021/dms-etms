@@ -48,6 +48,11 @@ public class JYCenterServiceImpl implements JYCenterService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * 批量验货每页最多条数
+     */
+    private static final int PAGE_SIZE = 200;
+
     @Autowired
     private SendCodeService sendCodeService;
 
@@ -192,6 +197,10 @@ public class JYCenterServiceImpl implements JYCenterService {
 
         if (null == batchInspectionPageRequest || CollectionUtils.isEmpty(batchInspectionPageRequest.getUnloadDetailCargoList())) {
             result.parameterError();
+            return result;
+        }
+        if (batchInspectionPageRequest.getUnloadDetailCargoList().size() > PAGE_SIZE) {
+            result.parameterError("禁止超过每页200条的限制");
             return result;
         }
 
