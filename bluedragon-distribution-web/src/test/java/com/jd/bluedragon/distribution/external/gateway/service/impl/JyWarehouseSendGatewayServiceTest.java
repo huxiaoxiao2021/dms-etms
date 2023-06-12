@@ -22,6 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -351,21 +352,28 @@ public class JyWarehouseSendGatewayServiceTest {
 
         while(true) {
             try{
-               String packageCode = "JD0003420475846-1-1-";
-                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-                SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
-                paramDto.setCurrentOperate(SITE_40240);
-                paramDto.setUser(USER_wuyoude);
-                paramDto.setMixScanTaskCode("CTT23060600000010");
-                paramDto.setGroupCode(GROUP_CODE);
-                paramDto.setBarCode(packageCode);
+                List<String> packageCodeList = Arrays.asList("JD0003420509892-1-1-",
+                        "JD0003420509903-1-1-",
+                        "JD0003420509911-1-1-",
+                        "JD0003420509920-1-1-",
+                        "JD0003420509939-1-1-");
+                for(String packageCode : packageCodeList) {
+//                    String packageCode = "JD0003420475846-1-1-";
+                    String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                    SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
+                    paramDto.setCurrentOperate(SITE_40240);
+                    paramDto.setUser(USER_wuyoude);
+                    paramDto.setMixScanTaskCode("CTT23060600000010");
+                    paramDto.setGroupCode(GROUP_CODE);
+                    paramDto.setBarCode(packageCode);
 
-                List<DeviceInfoDto> deviceList = this.getDeviceInfoList();
-                paramDto.setMachineCode(deviceList.get(0).getMachineCode());
+                    List<DeviceInfoDto> deviceList = this.getDeviceInfoList();
+                    paramDto.setMachineCode(deviceList.get(0).getMachineCode());
 
 
-                JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
-                System.out.println(JsonHelper.toJson(obj0));
+                    JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
+                    System.out.println(JsonHelper.toJson(obj0));
+                }
             }catch (Exception e) {
                 e.printStackTrace();
             }
