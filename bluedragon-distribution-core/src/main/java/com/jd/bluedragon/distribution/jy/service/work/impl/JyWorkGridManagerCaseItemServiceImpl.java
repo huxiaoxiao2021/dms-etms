@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseItemDao;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem;
@@ -31,6 +32,14 @@ public class JyWorkGridManagerCaseItemServiceImpl implements JyWorkGridManagerCa
 	@Override
 	public List<JyWorkGridManagerCaseItem> queryItemListByBizId(String bizId) {
 		return jyWorkGridManagerCaseItemDao.queryItemListByBizId(bizId);
+	}
+
+	@Override
+	public int batchInsert(List<JyWorkGridManagerCaseItem> addCaseItem) {
+		if(CollectionUtils.isEmpty(addCaseItem)) {
+			return 0;
+		}
+		return jyWorkGridManagerCaseItemDao.batchInsert(addCaseItem);
 	}
 
 

@@ -14,7 +14,14 @@ import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
 public class JyWorkGridManagerCaseData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+	/**
+	 * 主键ID
+	 */
+	private Long id;
+	/**
+	 * 业务主键
+	 */
+	private String bizId;	
 	/**
 	 * 编辑类型
 	 * @See com.jd.bluedragon.distribution.jy.enums.EditTypeEnum
@@ -61,6 +68,10 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	 */
 	private Integer needUploadPhoto;
 	/**
+	 * 排序值，1-100
+	 */
+	private Integer orderNum;	
+	/**
 	 * case列表
 	 */
 	private List<JyWorkGridManagerCaseItemData> itemList;
@@ -69,6 +80,18 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	 */
 	private List<AttachmentDetailData> attachmentList;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
 	public Integer getEditType() {
 		return editType;
 	}
@@ -116,6 +139,12 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	}
 	public void setNeedUploadPhoto(Integer needUploadPhoto) {
 		this.needUploadPhoto = needUploadPhoto;
+	}
+	public Integer getOrderNum() {
+		return orderNum;
+	}
+	public void setOrderNum(Integer orderNum) {
+		this.orderNum = orderNum;
 	}
 	public List<JyWorkGridManagerCaseItemData> getItemList() {
 		return itemList;

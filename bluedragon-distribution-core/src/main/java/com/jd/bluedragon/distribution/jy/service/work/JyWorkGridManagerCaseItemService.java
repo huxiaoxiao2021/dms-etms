@@ -18,6 +18,12 @@ public interface JyWorkGridManagerCaseItemService {
 	 * @return
 	 */
 	List<JyWorkGridManagerCaseItem> queryItemListByBizId(String bizId);
+	/**
+	 * 批量插入item数据
+	 * @param addCaseItem
+	 * @return
+	 */
+	int batchInsert(List<JyWorkGridManagerCaseItem> addCaseItem);
 
 
 }

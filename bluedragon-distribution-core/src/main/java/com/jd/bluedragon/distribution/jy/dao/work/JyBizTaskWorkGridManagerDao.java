@@ -30,5 +30,9 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListForPda", query);
 	}
 
+	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
+		return this.getSqlSession().update(NAMESPACE + ".finishTask", updateTaskData);
+	}
+
 	
 }

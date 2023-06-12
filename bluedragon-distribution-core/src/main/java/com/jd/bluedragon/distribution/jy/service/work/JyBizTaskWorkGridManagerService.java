@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerService
@@ -34,6 +35,12 @@ public interface JyBizTaskWorkGridManagerService {
 	 * @return
 	 */
 	List<JyWorkGridManagerData> queryDataListForPda(JyWorkGridManagerQueryRequest query);
+	/**
+	 * 完成任务
+	 * @param updateTaskData
+	 * @return
+	 */
+	int finishTask(JyBizTaskWorkGridManager updateTaskData);
 
 
 }

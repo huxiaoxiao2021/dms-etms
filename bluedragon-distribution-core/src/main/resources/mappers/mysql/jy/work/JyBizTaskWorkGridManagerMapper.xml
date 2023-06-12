@@ -10,7 +10,7 @@
 		<result column="task_batch_code" property="taskBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="task_ref_grid_key" property="taskRefGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="site_code" property="siteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -31,7 +31,10 @@
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="time_out" property="timeOut" javaType="java.lang.Integer" jdbcType="TINYINT" />
 	</resultMap>
-
+    <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="data_num" property="dataNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    </resultMap>    
 	<sql id="Base_Column_List" >
 		id,biz_id,task_type,task_code,task_batch_code,task_ref_grid_key,
 		order_num,site_code,site_name,area_code,area_name,
@@ -303,7 +306,17 @@
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-
+    <update id="finishTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
+        update jy_biz_task_work_grid_manager
+            set  handler_erp = #{handlerErp,jdbcType=VARCHAR},
+                 handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
+                 status = #{status,jdbcType=TINYINT},
+                 process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
+                 update_user = #{updateUser,jdbcType=VARCHAR},
+                 create_time = #{createTime,jdbcType=TIMESTAMP},
+                 update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 	<update id="deleteById" parameterType="java.lang.Long">
 		update jy_biz_task_work_grid_manager
 			set yn = 0
@@ -317,7 +330,31 @@
 			jy_biz_task_work_grid_manager t
 		where yn = 1 and id = #{id,jdbcType=BIGINT}
 	</select>
-
+    <select id="queryByBizId" parameterType="java.lang.String" resultMap="JyBizTaskWorkGridManager">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_work_grid_manager t
+        where yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>	
+    <select id="queryDataCountListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultMap="JyBizTaskWorkGridManagerCount">
+        select
+            status,count(id) as data_num
+        from
+            jy_biz_task_work_grid_manager t
+        where yn = 1 
+          and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+        group by status
+    </select>
+    <select id="queryDataListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultMap="JyBizTaskWorkGridManager">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_work_grid_manager t
+        where yn = 1 
+          and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+          and status = #{status,jdbcType=TINYINT}
+    </select>    
 	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyBizTaskWorkGridManager">
 		select
 			<include refid="Base_Column_List"/>

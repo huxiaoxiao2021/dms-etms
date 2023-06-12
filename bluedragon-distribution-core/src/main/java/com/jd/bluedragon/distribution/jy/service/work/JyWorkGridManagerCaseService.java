@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.work;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
+import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCase;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
 
 /**
@@ -20,6 +21,18 @@ public interface JyWorkGridManagerCaseService {
 	 * @return
 	 */
 	List<JyWorkGridManagerCaseData> loadCaseListForTaskData(JyWorkGridManagerCaseQuery taskCaseQuery);
+	/**
+	 * 批量插入数据
+	 * @param addCase
+	 * @return
+	 */
+	int batchInsert(List<JyWorkGridManagerCase> addCase);
+	/**
+	 * 批量更新数据
+	 * @param updateCase
+	 * @return
+	 */
+	int batchUpdate(List<JyWorkGridManagerCase> updateCase);
 
 
 }

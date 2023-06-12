@@ -114,7 +114,26 @@
 			</trim>
 			)
 	</insert>
-
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into jy_work_grid_manager_case_item (
+             biz_id,
+             case_code,
+             case_item_code, 
+             select_flag, 
+             create_user, 
+             create_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.bizId},
+            #{item.caseCode},
+            #{item.caseItemCode},
+            #{item.selectFlag},
+            #{item.createUser},
+            #{item.createTime}
+            )
+        </foreach>
+    </insert>
 	<update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem">
 		update jy_work_grid_manager_case_item
 			<set>
@@ -174,7 +193,13 @@
 			jy_work_grid_manager_case_item t
 		where yn = 1 and id = #{id,jdbcType=BIGINT}
 	</select>
-
+    <select id="queryItemListByBizId" parameterType="java.lang.String" resultMap="JyWorkGridManagerCaseItem">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_work_grid_manager_case_item t
+        where yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>
 	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyWorkGridManagerCaseItem">
 		select
 			<include refid="Base_Column_List"/>

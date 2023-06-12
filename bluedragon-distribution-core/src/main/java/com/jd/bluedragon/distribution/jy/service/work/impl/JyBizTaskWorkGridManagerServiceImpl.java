@@ -68,7 +68,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public List<JyWorkGridManagerCountData> queryDataCountListForPda(JyWorkGridManagerQueryRequest query) {
 		List<JyWorkGridManagerCountData> dataList = new ArrayList<>();
-		if(checkAndInitQuery(query)) {
+		if(!checkAndInitQuery(query)) {
 			return dataList;
 		}
 		List<JyBizTaskWorkGridManagerCount> jyDataList  = jyBizTaskWorkGridManagerDao.queryDataCountListForPda(query);
@@ -88,7 +88,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public List<JyWorkGridManagerData> queryDataListForPda(JyWorkGridManagerQueryRequest query) {
 		List<JyWorkGridManagerData> dataList = new ArrayList<>();
-		if(checkAndInitQuery(query)) {
+		if(!checkAndInitQuery(query)) {
 			return dataList;
 		}
 		List<JyBizTaskWorkGridManager> jyDataList  = jyBizTaskWorkGridManagerDao.queryDataListForPda(query);
@@ -114,5 +114,9 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		};
 		return true;
+	}
+	@Override
+	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
+		return jyBizTaskWorkGridManagerDao.finishTask(updateTaskData);
 	}
 }

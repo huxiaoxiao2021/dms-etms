@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
 import com.jd.bluedragon.distribution.jy.gateway.work.JyWorkGridManagerGatewayService;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
+import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.jsf.gd.util.StringUtils;
@@ -49,6 +50,10 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	@Autowired
 	@Qualifier("jyWorkGridManagerCaseService")
 	private JyWorkGridManagerCaseService jyWorkGridManagerCaseService;
+	
+	@Autowired
+	@Qualifier("jyWorkGridManagerBusinessService")
+	private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
 	
 	@Autowired
 	private PositionManager positionManager;
@@ -119,18 +124,13 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> saveData(JyWorkGridManagerTaskEditRequest request) {
-		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
-		result.toSucceed("保存成功！");
-		return result;
+		return jyWorkGridManagerBusinessService.saveData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.submitData",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
-		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
-		result.toSucceed("提交成功！");
-		
-		return result;
+		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

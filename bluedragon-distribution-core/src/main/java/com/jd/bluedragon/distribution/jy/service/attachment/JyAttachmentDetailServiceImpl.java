@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -26,6 +27,9 @@ public class JyAttachmentDetailServiceImpl implements JyAttachmentDetailService 
 
     @Override
     public Integer batchInsert(List<JyAttachmentDetailEntity> annexList) {
+		if(CollectionUtils.isEmpty(annexList)) {
+			return 0;
+		}
         return jyAttachmentDetailDao.batchInsert(annexList);
     }
 

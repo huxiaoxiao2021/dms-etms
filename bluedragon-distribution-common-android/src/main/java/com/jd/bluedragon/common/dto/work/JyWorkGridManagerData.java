@@ -14,6 +14,10 @@ public class JyWorkGridManagerData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 主键ID
+	 */
+	private Long id;	
+	/**
 	 * 业务主键
 	 */
 	private String bizId;
@@ -102,6 +106,14 @@ public class JyWorkGridManagerData implements Serializable {
 	private Date processEndTime;
 	
 	private List<JyWorkGridManagerCaseData> caseList;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getBizId() {
 		return bizId;

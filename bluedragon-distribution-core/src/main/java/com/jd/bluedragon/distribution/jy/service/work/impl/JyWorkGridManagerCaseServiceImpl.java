@@ -183,6 +183,7 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		caseData.setCaseTitle(taskCase.getCaseTitle());
 		caseData.setCaseContent(taskCase.getCaseContent());
 		caseData.setNeedUploadPhoto(taskCase.getNeedUploadPhoto());
+		caseData.setCheckResult(taskCase.getCheckResult());
 	}
 	private void fillDataByJyTaskCase(JyWorkGridManagerCaseData caseData,JyWorkGridManagerCase jytaskCase) {
 		if(jytaskCase == null) {
@@ -192,5 +193,23 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		caseData.setCaseContent(jytaskCase.getCaseContent());
 		caseData.setEditStatus(jytaskCase.getEditStatus());
 		caseData.setCheckResult(jytaskCase.getCheckResult());
+	}
+	@Override
+	public int batchInsert(List<JyWorkGridManagerCase> addCase) {
+		if(CollectionUtils.isEmpty(addCase)) {
+			return 0;
+		}
+		return jyWorkGridManagerCaseDao.batchInsert(addCase);
+	}
+	@Override
+	public int batchUpdate(List<JyWorkGridManagerCase> updateCase) {
+		if(CollectionUtils.isEmpty(updateCase)) {
+			return 0;
+		}
+		int updateNum = 0;
+		for(JyWorkGridManagerCase updateData: updateCase) {
+			updateNum += jyWorkGridManagerCaseDao.updateById(updateData);
+		}
+		return updateNum;
 	}	
 }

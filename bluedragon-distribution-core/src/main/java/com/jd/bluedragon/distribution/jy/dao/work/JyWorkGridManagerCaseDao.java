@@ -17,7 +17,15 @@ public class JyWorkGridManagerCaseDao extends BaseDao<JyWorkGridManagerCase> {
 	final static String NAMESPACE = JyWorkGridManagerCaseDao.class.getName();
     
 	public List<JyWorkGridManagerCase> queryCaseListByBizId(String bizId) {
-		return this.getSqlSession().selectOne(NAMESPACE + ".queryCaseListByBizId", bizId);
+		return this.getSqlSession().selectList(NAMESPACE + ".queryCaseListByBizId", bizId);
+	}
+
+	public int batchInsert(List<JyWorkGridManagerCase> addCase) {
+		return this.getSqlSession().update(NAMESPACE + ".batchInsert", addCase);
+	}
+
+	public int updateById(JyWorkGridManagerCase updateData) {
+		return this.getSqlSession().update(NAMESPACE + ".updateById", updateData);
 	}
 	
 }

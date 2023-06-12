@@ -67,7 +67,9 @@ public class JyWorkGridManagerCaseItemData implements Serializable {
 	public Integer getSelectFlag() {
 		return selectFlag;
 	}
-
+	public boolean checkIsSelected() {
+		return selectFlag != null && selectFlag > 0;
+	}
 	public void setSelectFlag(Integer selectFlag) {
 		this.selectFlag = selectFlag;
 	}
