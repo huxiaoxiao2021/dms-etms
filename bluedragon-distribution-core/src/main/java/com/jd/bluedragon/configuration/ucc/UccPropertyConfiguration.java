@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1334,7 +1335,16 @@ public class UccPropertyConfiguration {
      * 上传超长超重开关
      */
     private boolean uploadOverWeightSwitch;
-    
+
+    /**
+     * 异常处理检查场地名单
+     */
+    private String exceptionSubmitCheckSites;
+    /**
+     * 异常处理检查运单拦截类型
+     */
+    private String exceptionSubmitCheckWaybillInterceptTypes;
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3405,4 +3415,59 @@ public class UccPropertyConfiguration {
 	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
 		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
 	}
+
+    public String getExceptionSubmitCheckSites() {
+        return exceptionSubmitCheckSites;
+    }
+
+    public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
+        this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
+        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
+    }
+
+    private List<Integer> exceptionSubmitCheckSiteList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
+        if(exceptionSubmitCheckSites == null){
+            exceptionSubmitCheckSiteList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckSiteList = Arrays.stream(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA)).map(Integer::valueOf).collect(Collectors.toList());
+    }
+
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(hideSpecialStartSitPrintDestinationSiteList)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(siteId)){
+            return true;
+        }
+        return false;
+    }
+
+    public String getExceptionSubmitCheckWaybillInterceptTypes() {
+        return exceptionSubmitCheckWaybillInterceptTypes;
+    }
+
+    public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
+        this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
+        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
+    }
+
+    private List<Integer> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+
+    public List<Integer> getExceptionSubmitCheckWaybillInterceptTypeList() {
+        return exceptionSubmitCheckWaybillInterceptTypeList;
+    }
+
+    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
+        if(exceptionSubmitCheckWaybillInterceptTypes == null){
+            exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.stream(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA)).map(Integer::valueOf).collect(Collectors.toList());
+    }
 }
