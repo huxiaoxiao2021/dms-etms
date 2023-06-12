@@ -8,7 +8,7 @@ package com.jd.bluedragon.distribution.jy.work.enums;
  **/
 public enum WorkTaskStatusEnum {
 	TO_DISTRIBUTION(0, "待分配"),
-    TODO(1, "未完成"),
+    TODO(1, "待处理"),
     HANDLING(2, "处理中"),
     COMPLETE(3, "已完成"),
     OVER_TIME(4, "超时未完成"),

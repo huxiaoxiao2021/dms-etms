@@ -3,309 +3,329 @@
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao" >
 
 	<resultMap id="JyBizTaskWorkGridManager" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" >
-		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="biz_id" property="bizId" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="task_type" property="taskType" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="task_code" property="taskCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="task_batch_code" property="taskBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="task_ref_grid_key" property="taskRefGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="pre_finish_time" property="preFinishTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="handler_erp" property="handlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="handler_position_code" property="handlerPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="process_end_time" property="processEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="time_out" property="timeOut" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="biz_id" property="bizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_type" property="taskType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="task_code" property="taskCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_name" property="taskName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_description" property="taskDescription" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_batch_code" property="taskBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_ref_grid_key" property="taskRefGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="pre_finish_time" property="preFinishTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="handler_erp" property="handlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="handler_position_code" property="handlerPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="process_end_time" property="processEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="time_out" property="timeOut" javaType="java.lang.Integer" jdbcType="TINYINT" />
 	</resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="data_num" property="dataNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
     </resultMap>    
 	<sql id="Base_Column_List" >
-		id,biz_id,task_type,task_code,task_batch_code,task_ref_grid_key,
-		order_num,site_code,site_name,area_code,area_name,
-		grid_name,pre_finish_time,handler_erp,handler_position_code,status,
-		process_begin_time,process_end_time,create_user,create_user_name,update_user,
-		update_user_name,create_time,update_time,yn,ts,
-		time_out
+        id,biz_id,task_type,task_code,task_name,task_description,
+        task_batch_code,task_ref_grid_key,order_num,site_code,site_name,
+        area_code,area_name,grid_name,pre_finish_time,handler_erp,
+        handler_position_code,status,process_begin_time,process_end_time,create_user,
+        create_user_name,update_user,update_user_name,create_time,update_time,
+        yn,ts,time_out
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
-		insert into jy_biz_task_work_grid_manager
-			(
-			<trim suffixOverrides=",">
-				<if test="id != null" >
-					id,
-				</if>
-				<if test="bizId != null" >
-					biz_id,
-				</if>
-				<if test="taskType != null" >
-					task_type,
-				</if>
-				<if test="taskCode != null" >
-					task_code,
-				</if>
-				<if test="taskBatchCode != null" >
-					task_batch_code,
-				</if>
-				<if test="taskRefGridKey != null" >
-					task_ref_grid_key,
-				</if>
-				<if test="orderNum != null" >
-					order_num,
-				</if>
-				<if test="siteCode != null" >
-					site_code,
-				</if>
-				<if test="siteName != null" >
-					site_name,
-				</if>
-				<if test="areaCode != null" >
-					area_code,
-				</if>
-				<if test="areaName != null" >
-					area_name,
-				</if>
-				<if test="gridName != null" >
-					grid_name,
-				</if>
-				<if test="preFinishTime != null" >
-					pre_finish_time,
-				</if>
-				<if test="handlerErp != null" >
-					handler_erp,
-				</if>
-				<if test="handlerPositionCode != null" >
-					handler_position_code,
-				</if>
-				<if test="status != null" >
-					status,
-				</if>
-				<if test="processBeginTime != null" >
-					process_begin_time,
-				</if>
-				<if test="processEndTime != null" >
-					process_end_time,
-				</if>
-				<if test="createUser != null" >
-					create_user,
-				</if>
-				<if test="createUserName != null" >
-					create_user_name,
-				</if>
-				<if test="updateUser != null" >
-					update_user,
-				</if>
-				<if test="updateUserName != null" >
-					update_user_name,
-				</if>
-				<if test="createTime != null" >
-					create_time,
-				</if>
-				<if test="updateTime != null" >
-					update_time,
-				</if>
-				<if test="yn != null" >
-					yn,
-				</if>
-				<if test="ts != null" >
-					ts,
-				</if>
-				<if test="timeOut != null" >
-					time_out,
-				</if>
-			</trim>
-			)
-			values
-			(
-			<trim suffixOverrides=",">
-				<if test="id != null" >
-					#{id,jdbcType=BIGINT},
-				</if>
-				<if test="bizId != null" >
-					#{bizId,jdbcType=VARCHAR},
-				</if>
-				<if test="taskType != null" >
-					#{taskType,jdbcType=TINYINT},
-				</if>
-				<if test="taskCode != null" >
-					#{taskCode,jdbcType=VARCHAR},
-				</if>
-				<if test="taskBatchCode != null" >
-					#{taskBatchCode,jdbcType=VARCHAR},
-				</if>
-				<if test="taskRefGridKey != null" >
-					#{taskRefGridKey,jdbcType=VARCHAR},
-				</if>
-				<if test="orderNum != null" >
-					#{orderNum,jdbcType=INTEGER},
-				</if>
-				<if test="siteCode != null" >
-					#{siteCode,jdbcType=BIGINT},
-				</if>
-				<if test="siteName != null" >
-					#{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					#{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					#{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					#{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="preFinishTime != null" >
-					#{preFinishTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="handlerErp != null" >
-					#{handlerErp,jdbcType=VARCHAR},
-				</if>
-				<if test="handlerPositionCode != null" >
-					#{handlerPositionCode,jdbcType=VARCHAR},
-				</if>
-				<if test="status != null" >
-					#{status,jdbcType=TINYINT},
-				</if>
-				<if test="processBeginTime != null" >
-					#{processBeginTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="processEndTime != null" >
-					#{processEndTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createUser != null" >
-					#{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createUserName != null" >
-					#{createUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUser != null" >
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUserName != null" >
-					#{updateUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null" >
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null" >
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="yn != null" >
-					#{yn,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null" >
-					#{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="timeOut != null" >
-					#{timeOut,jdbcType=TINYINT},
-				</if>
-			</trim>
-			)
-	</insert>
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
+        insert into jy_biz_task_work_grid_manager
+            (
+            <trim suffixOverrides=",">
+                <if test="id != null" >
+                    id,
+                </if>
+                <if test="bizId != null" >
+                    biz_id,
+                </if>
+                <if test="taskType != null" >
+                    task_type,
+                </if>
+                <if test="taskCode != null" >
+                    task_code,
+                </if>
+                <if test="taskName != null" >
+                    task_name,
+                </if>
+                <if test="taskDescription != null" >
+                    task_description,
+                </if>
+                <if test="taskBatchCode != null" >
+                    task_batch_code,
+                </if>
+                <if test="taskRefGridKey != null" >
+                    task_ref_grid_key,
+                </if>
+                <if test="orderNum != null" >
+                    order_num,
+                </if>
+                <if test="siteCode != null" >
+                    site_code,
+                </if>
+                <if test="siteName != null" >
+                    site_name,
+                </if>
+                <if test="areaCode != null" >
+                    area_code,
+                </if>
+                <if test="areaName != null" >
+                    area_name,
+                </if>
+                <if test="gridName != null" >
+                    grid_name,
+                </if>
+                <if test="preFinishTime != null" >
+                    pre_finish_time,
+                </if>
+                <if test="handlerErp != null" >
+                    handler_erp,
+                </if>
+                <if test="handlerPositionCode != null" >
+                    handler_position_code,
+                </if>
+                <if test="status != null" >
+                    status,
+                </if>
+                <if test="processBeginTime != null" >
+                    process_begin_time,
+                </if>
+                <if test="processEndTime != null" >
+                    process_end_time,
+                </if>
+                <if test="createUser != null" >
+                    create_user,
+                </if>
+                <if test="createUserName != null" >
+                    create_user_name,
+                </if>
+                <if test="updateUser != null" >
+                    update_user,
+                </if>
+                <if test="updateUserName != null" >
+                    update_user_name,
+                </if>
+                <if test="createTime != null" >
+                    create_time,
+                </if>
+                <if test="updateTime != null" >
+                    update_time,
+                </if>
+                <if test="yn != null" >
+                    yn,
+                </if>
+                <if test="ts != null" >
+                    ts,
+                </if>
+                <if test="timeOut != null" >
+                    time_out,
+                </if>
+            </trim>
+            )
+            values
+            (
+            <trim suffixOverrides=",">
+                <if test="id != null" >
+                    #{id,jdbcType=BIGINT},
+                </if>
+                <if test="bizId != null" >
+                    #{bizId,jdbcType=VARCHAR},
+                </if>
+                <if test="taskType != null" >
+                    #{taskType,jdbcType=TINYINT},
+                </if>
+                <if test="taskCode != null" >
+                    #{taskCode,jdbcType=VARCHAR},
+                </if>
+                <if test="taskName != null" >
+                    #{taskName,jdbcType=VARCHAR},
+                </if>
+                <if test="taskDescription != null" >
+                    #{taskDescription,jdbcType=VARCHAR},
+                </if>
+                <if test="taskBatchCode != null" >
+                    #{taskBatchCode,jdbcType=VARCHAR},
+                </if>
+                <if test="taskRefGridKey != null" >
+                    #{taskRefGridKey,jdbcType=VARCHAR},
+                </if>
+                <if test="orderNum != null" >
+                    #{orderNum,jdbcType=INTEGER},
+                </if>
+                <if test="siteCode != null" >
+                    #{siteCode,jdbcType=INTEGER},
+                </if>
+                <if test="siteName != null" >
+                    #{siteName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaCode != null" >
+                    #{areaCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaName != null" >
+                    #{areaName,jdbcType=VARCHAR},
+                </if>
+                <if test="gridName != null" >
+                    #{gridName,jdbcType=VARCHAR},
+                </if>
+                <if test="preFinishTime != null" >
+                    #{preFinishTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="handlerErp != null" >
+                    #{handlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerPositionCode != null" >
+                    #{handlerPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="status != null" >
+                    #{status,jdbcType=TINYINT},
+                </if>
+                <if test="processBeginTime != null" >
+                    #{processBeginTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="processEndTime != null" >
+                    #{processEndTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="createUser != null" >
+                    #{createUser,jdbcType=VARCHAR},
+                </if>
+                <if test="createUserName != null" >
+                    #{createUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUser != null" >
+                    #{updateUser,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUserName != null" >
+                    #{updateUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null" >
+                    #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null" >
+                    #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="yn != null" >
+                    #{yn,jdbcType=TINYINT},
+                </if>
+                <if test="ts != null" >
+                    #{ts,jdbcType=TIMESTAMP},
+                </if>
+                <if test="timeOut != null" >
+                    #{timeOut,jdbcType=TINYINT},
+                </if>
+            </trim>
+            )
+    </insert>
 
-	<update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
-		update jy_biz_task_work_grid_manager
-			<set>
-				<if test="id != null" >
-					id = #{id,jdbcType=BIGINT},
-				</if>
-				<if test="bizId != null" >
-					biz_id = #{bizId,jdbcType=VARCHAR},
-				</if>
-				<if test="taskType != null" >
-					task_type = #{taskType,jdbcType=TINYINT},
-				</if>
-				<if test="taskCode != null" >
-					task_code = #{taskCode,jdbcType=VARCHAR},
-				</if>
-				<if test="taskBatchCode != null" >
-					task_batch_code = #{taskBatchCode,jdbcType=VARCHAR},
-				</if>
-				<if test="taskRefGridKey != null" >
-					task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR},
-				</if>
-				<if test="orderNum != null" >
-					order_num = #{orderNum,jdbcType=INTEGER},
-				</if>
-				<if test="siteCode != null" >
-					site_code = #{siteCode,jdbcType=BIGINT},
-				</if>
-				<if test="siteName != null" >
-					site_name = #{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					area_code = #{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					area_name = #{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					grid_name = #{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="preFinishTime != null" >
-					pre_finish_time = #{preFinishTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="handlerErp != null" >
-					handler_erp = #{handlerErp,jdbcType=VARCHAR},
-				</if>
-				<if test="handlerPositionCode != null" >
-					handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
-				</if>
-				<if test="status != null" >
-					status = #{status,jdbcType=TINYINT},
-				</if>
-				<if test="processBeginTime != null" >
-					process_begin_time = #{processBeginTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="processEndTime != null" >
-					process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="createUser != null" >
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createUserName != null" >
-					create_user_name = #{createUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUser != null" >
-					update_user = #{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="updateUserName != null" >
-					update_user_name = #{updateUserName,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null" >
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null" >
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="yn != null" >
-					yn = #{yn,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null" >
-					ts = #{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="timeOut != null" >
-					time_out = #{timeOut,jdbcType=TINYINT},
-				</if>
-			</set>
-		where id = #{id,jdbcType=BIGINT}
-	</update>
+    <update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
+        update jy_biz_task_work_grid_manager
+            <set>
+                <if test="id != null" >
+                    id = #{id,jdbcType=BIGINT},
+                </if>
+                <if test="bizId != null" >
+                    biz_id = #{bizId,jdbcType=VARCHAR},
+                </if>
+                <if test="taskType != null" >
+                    task_type = #{taskType,jdbcType=TINYINT},
+                </if>
+                <if test="taskCode != null" >
+                    task_code = #{taskCode,jdbcType=VARCHAR},
+                </if>
+                <if test="taskName != null" >
+                    task_name = #{taskName,jdbcType=VARCHAR},
+                </if>
+                <if test="taskDescription != null" >
+                    task_description = #{taskDescription,jdbcType=VARCHAR},
+                </if>
+                <if test="taskBatchCode != null" >
+                    task_batch_code = #{taskBatchCode,jdbcType=VARCHAR},
+                </if>
+                <if test="taskRefGridKey != null" >
+                    task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR},
+                </if>
+                <if test="orderNum != null" >
+                    order_num = #{orderNum,jdbcType=INTEGER},
+                </if>
+                <if test="siteCode != null" >
+                    site_code = #{siteCode,jdbcType=INTEGER},
+                </if>
+                <if test="siteName != null" >
+                    site_name = #{siteName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaCode != null" >
+                    area_code = #{areaCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaName != null" >
+                    area_name = #{areaName,jdbcType=VARCHAR},
+                </if>
+                <if test="gridName != null" >
+                    grid_name = #{gridName,jdbcType=VARCHAR},
+                </if>
+                <if test="preFinishTime != null" >
+                    pre_finish_time = #{preFinishTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="handlerErp != null" >
+                    handler_erp = #{handlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerPositionCode != null" >
+                    handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="status != null" >
+                    status = #{status,jdbcType=TINYINT},
+                </if>
+                <if test="processBeginTime != null" >
+                    process_begin_time = #{processBeginTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="processEndTime != null" >
+                    process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="createUser != null" >
+                    create_user = #{createUser,jdbcType=VARCHAR},
+                </if>
+                <if test="createUserName != null" >
+                    create_user_name = #{createUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUser != null" >
+                    update_user = #{updateUser,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUserName != null" >
+                    update_user_name = #{updateUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null" >
+                    create_time = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null" >
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="yn != null" >
+                    yn = #{yn,jdbcType=TINYINT},
+                </if>
+                <if test="ts != null" >
+                    ts = #{ts,jdbcType=TIMESTAMP},
+                </if>
+                <if test="timeOut != null" >
+                    time_out = #{timeOut,jdbcType=TINYINT},
+                </if>
+            </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
     <update id="finishTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
         update jy_biz_task_work_grid_manager
             set  handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},

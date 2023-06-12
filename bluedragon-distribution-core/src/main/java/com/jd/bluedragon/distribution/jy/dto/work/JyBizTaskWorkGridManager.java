@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @ClassName: JyBizTaskWorkGridManager
  * @Description: 巡检任务表-实体类
  * @author wuyoude
- * @date 2023年06月08日 11:27:02
+ * @date 2023年06月12日 17:54:00
  *
  */
 public class JyBizTaskWorkGridManager implements Serializable {
@@ -33,6 +33,16 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 任务编码
 	 */
 	private String taskCode;
+
+	/**
+	 * 任务名称
+	 */
+	private String taskName;
+
+	/**
+	 * 任务说明
+	 */
+	private String taskDescription;
 
 	/**
 	 * 任务批次号
@@ -211,6 +221,38 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	public String getTaskCode() {
 		return this.taskCode;
+	}
+
+	/**
+	 *
+	 * @param taskName
+	 */
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+	/**
+	 *
+	 * @return taskName
+	 */
+	public String getTaskName() {
+		return this.taskName;
+	}
+
+	/**
+	 *
+	 * @param taskDescription
+	 */
+	public void setTaskDescription(String taskDescription) {
+		this.taskDescription = taskDescription;
+	}
+
+	/**
+	 *
+	 * @return taskDescription
+	 */
+	public String getTaskDescription() {
+		return this.taskDescription;
 	}
 
 	/**
