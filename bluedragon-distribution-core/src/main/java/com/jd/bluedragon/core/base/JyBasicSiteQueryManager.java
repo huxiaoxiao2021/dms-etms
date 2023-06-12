@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jdl.basic.api.dto.site.AreaVO;
 import com.jdl.basic.api.dto.site.BasicSiteVO;
 import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
 import com.jdl.basic.api.dto.site.SiteQueryCondition;
@@ -21,6 +22,13 @@ public interface JyBasicSiteQueryManager {
      * @return
      */
     List<ProvinceAgencyVO> queryAllProvinceAgencyInfo();
+
+    /**
+     * 查询所有枢纽
+     *
+     * @return
+     */
+    List<AreaVO> queryAllAreaInfo();
 
     /**
      * 根据条件查询站点

@@ -100,6 +100,14 @@ $(function () {
             title: '操作区域名称',
             align: 'center'
         }, {
+            field: 'operateProvinceAgencyCode',
+            title: '操作省区编码',
+            align: 'center'
+        }, {
+            field: 'operateProvinceAgencyName',
+            title: '操作省区名称',
+            align: 'center'
+        }, {
             field: 'operateSiteCode',
             title: '操作场站ID',
             align: 'center'

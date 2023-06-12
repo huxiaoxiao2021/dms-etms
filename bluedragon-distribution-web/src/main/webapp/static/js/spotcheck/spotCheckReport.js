@@ -560,6 +560,10 @@ $(function () {
                 title: '复核区域',
                 align: 'center'
             }, {
+                field: 'reviewProvinceAgencyName',
+                title: '复核省区',
+                align: 'center'
+            },{
                 field: 'reviewSiteCode',
                 title: '复核分拣',
                 align: 'center',
@@ -593,6 +597,10 @@ $(function () {
             },{
                 field: 'contrastOrgName',
                 title: '核对操作区域',
+                align: 'center'
+            },{
+                field: 'contrastProvinceAgencyName',
+                title: '核对操作省区',
                 align: 'center'
             },{
                 field: 'contrastWarZoneName',

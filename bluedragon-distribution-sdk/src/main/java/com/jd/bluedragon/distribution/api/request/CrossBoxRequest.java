@@ -27,6 +27,19 @@ public class CrossBoxRequest implements Serializable {
 	private String destinationOrgName;//目的区域名称
 	private String transferOrgName;//中转区域名称
 
+	private String originateProvinceAgencyCode; // 始发省区编码
+	private String originateProvinceAgencyName; // 始发省区名称
+	private String originateAreaHubCode; // 始发枢纽编码
+	private String originateAreaHubName; // 始发枢纽名称
+	private String transferProvinceAgencyCode; // 中转省区编码
+	private String transferProvinceAgencyName; // 中转省区名称
+	private String transferAreaHubCode; // 中转枢纽编码
+	private String transferAreaHubName; // 中转枢纽名称
+	private String destinationProvinceAgencyCode; // 目的省区编码
+	private String destinationProvinceAgencyName; // 目的省区名称
+	private String destinationAreaHubCode; // 目的枢纽编码
+	private String destinationAreaHubName; // 目的枢纽名称
+
 	public String getOriginalDmsName() {
 		return originalDmsName;
 	}
@@ -193,5 +206,101 @@ public class CrossBoxRequest implements Serializable {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public String getOriginateProvinceAgencyCode() {
+		return originateProvinceAgencyCode;
+	}
+
+	public void setOriginateProvinceAgencyCode(String originateProvinceAgencyCode) {
+		this.originateProvinceAgencyCode = originateProvinceAgencyCode;
+	}
+
+	public String getOriginateProvinceAgencyName() {
+		return originateProvinceAgencyName;
+	}
+
+	public void setOriginateProvinceAgencyName(String originateProvinceAgencyName) {
+		this.originateProvinceAgencyName = originateProvinceAgencyName;
+	}
+
+	public String getOriginateAreaHubCode() {
+		return originateAreaHubCode;
+	}
+
+	public void setOriginateAreaHubCode(String originateAreaHubCode) {
+		this.originateAreaHubCode = originateAreaHubCode;
+	}
+
+	public String getOriginateAreaHubName() {
+		return originateAreaHubName;
+	}
+
+	public void setOriginateAreaHubName(String originateAreaHubName) {
+		this.originateAreaHubName = originateAreaHubName;
+	}
+
+	public String getTransferProvinceAgencyCode() {
+		return transferProvinceAgencyCode;
+	}
+
+	public void setTransferProvinceAgencyCode(String transferProvinceAgencyCode) {
+		this.transferProvinceAgencyCode = transferProvinceAgencyCode;
+	}
+
+	public String getTransferProvinceAgencyName() {
+		return transferProvinceAgencyName;
+	}
+
+	public void setTransferProvinceAgencyName(String transferProvinceAgencyName) {
+		this.transferProvinceAgencyName = transferProvinceAgencyName;
+	}
+
+	public String getTransferAreaHubCode() {
+		return transferAreaHubCode;
+	}
+
+	public void setTransferAreaHubCode(String transferAreaHubCode) {
+		this.transferAreaHubCode = transferAreaHubCode;
+	}
+
+	public String getTransferAreaHubName() {
+		return transferAreaHubName;
+	}
+
+	public void setTransferAreaHubName(String transferAreaHubName) {
+		this.transferAreaHubName = transferAreaHubName;
+	}
+
+	public String getDestinationProvinceAgencyCode() {
+		return destinationProvinceAgencyCode;
+	}
+
+	public void setDestinationProvinceAgencyCode(String destinationProvinceAgencyCode) {
+		this.destinationProvinceAgencyCode = destinationProvinceAgencyCode;
+	}
+
+	public String getDestinationProvinceAgencyName() {
+		return destinationProvinceAgencyName;
+	}
+
+	public void setDestinationProvinceAgencyName(String destinationProvinceAgencyName) {
+		this.destinationProvinceAgencyName = destinationProvinceAgencyName;
+	}
+
+	public String getDestinationAreaHubCode() {
+		return destinationAreaHubCode;
+	}
+
+	public void setDestinationAreaHubCode(String destinationAreaHubCode) {
+		this.destinationAreaHubCode = destinationAreaHubCode;
+	}
+
+	public String getDestinationAreaHubName() {
+		return destinationAreaHubName;
+	}
+
+	public void setDestinationAreaHubName(String destinationAreaHubName) {
+		this.destinationAreaHubName = destinationAreaHubName;
 	}
 }

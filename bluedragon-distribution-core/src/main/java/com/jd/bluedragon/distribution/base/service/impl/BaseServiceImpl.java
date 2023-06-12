@@ -171,6 +171,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
 		basePdaUserDto.setProvinceAgencyCode(baseStaffDto.getProvinceAgencyCode());
 		basePdaUserDto.setProvinceAgencyName(baseStaffDto.getProvinceAgencyName());
+		basePdaUserDto.setAreaHubCode(baseStaffDto.getAreaCode());
+		basePdaUserDto.setAreaHubName(baseStaffDto.getAreaName());
 		basePdaUserDto.setSiteType(baseStaffDto.getSiteType());
 		basePdaUserDto.setSubType(baseStaffDto.getSubType());
 	}

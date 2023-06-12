@@ -31,6 +31,14 @@ public class MerchantWeightAndVolumeDetailExportDto implements Serializable {
      * */
     private String operateOrgName;
     /**
+     * 操作省区编码
+     * */
+    private String operateProvinceAgencyCode;
+    /**
+     * 操作省区名称
+     * */
+    private String operateProvinceAgencyName;
+    /**
      * 操作站点编码
      * */
     private Integer operateSiteCode;
@@ -90,6 +98,22 @@ public class MerchantWeightAndVolumeDetailExportDto implements Serializable {
 
     public void setOperateOrgName(String operateOrgName) {
         this.operateOrgName = operateOrgName;
+    }
+
+    public String getOperateProvinceAgencyCode() {
+        return operateProvinceAgencyCode;
+    }
+
+    public void setOperateProvinceAgencyCode(String operateProvinceAgencyCode) {
+        this.operateProvinceAgencyCode = operateProvinceAgencyCode;
+    }
+
+    public String getOperateProvinceAgencyName() {
+        return operateProvinceAgencyName;
+    }
+
+    public void setOperateProvinceAgencyName(String operateProvinceAgencyName) {
+        this.operateProvinceAgencyName = operateProvinceAgencyName;
     }
 
     public Integer getOperateSiteCode() {

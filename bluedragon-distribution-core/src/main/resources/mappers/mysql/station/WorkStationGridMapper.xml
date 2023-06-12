@@ -7,6 +7,10 @@
 		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -37,8 +41,9 @@
 	</resultMap>
 	
 	<sql id="Base_Column_List" >
-		g.id,g.business_key,g.org_code,g.org_name,g.site_code,g.site_name,
-		g.floor,g.grid_no,g.grid_code,g.grid_name,g.standard_num,
+		g.id,g.business_key,g.org_code,g.org_name,
+		g.province_agency_code,g.province_agency_name,g.area_hub_code,g.area_hub_name,
+		g.site_code,g.site_name,g.floor,g.grid_no,g.grid_code,g.grid_name,g.standard_num,
 		g.owner_user_erp,g.ref_station_key,g.create_user,g.create_user_name,g.update_user,
 		g.update_user_name,g.create_time,g.update_time,g.yn,g.ts,
 		s.area_code,s.area_name,s.work_code,s.work_name
@@ -59,6 +64,18 @@
 				</if>
 				<if test="orgName != null" >
 					org_name,
+				</if>
+				<if test="provinceAgencyCode != null" >
+					province_agency_code,
+				</if>
+				<if test="provinceAgencyName != null" >
+					province_agency_name,
+				</if>
+				<if test="areaHubCode != null" >
+					area_hub_code,
+				</if>
+				<if test="areaHubName != null" >
+					area_hub_name,
 				</if>
 				<if test="siteCode != null" >
 					site_code,
@@ -127,6 +144,18 @@
 				</if>
 				<if test="orgName != null" >
 					#{orgName,jdbcType=VARCHAR},
+				</if>
+				<if test="provinceAgencyCode != null" >
+					#{provinceAgencyCode,jdbcType=VARCHAR},
+				</if>
+				<if test="provinceAgencyName != null" >
+					#{provinceAgencyName,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubCode != null" >
+					#{areaHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubName != null" >
+					#{areaHubName,jdbcType=VARCHAR},
 				</if>
 				<if test="siteCode != null" >
 					#{siteCode,jdbcType=INTEGER},
@@ -357,6 +386,12 @@
 			g.yn = 1
 		<if test="orgCode != null" >
 			and g.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="provinceAgencyCode != null" >
+			and g.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaHubCode != null" >
+			and g.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null" >
 			and g.site_code = #{siteCode,jdbcType=INTEGER}

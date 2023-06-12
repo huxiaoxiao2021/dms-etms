@@ -24,6 +24,8 @@ public class BasePdaUserDto implements Serializable {
     private Integer subType;    //站点子类型
     private String provinceAgencyCode;//省区编码
     private String provinceAgencyName;//省区名称
+    private String areaHubCode;//枢纽编码
+    private String areaHubName;//枢纽名称
     public String getDmsCode() {
         return dmsCode;
     }
@@ -142,5 +144,21 @@ public class BasePdaUserDto implements Serializable {
 
     public void setProvinceAgencyName(String provinceAgencyName) {
         this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }

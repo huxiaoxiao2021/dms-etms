@@ -9,6 +9,7 @@
         <result column="site_name" jdbcType="VARCHAR" property="siteName" />
         <result column="org_id" jdbcType="INTEGER" property="orgId" />
         <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+        
         <result column="dock_type" jdbcType="INTEGER" property="dockType" />
         <result column="dock_attribute" jdbcType="INTEGER" property="dockAttribute" />
         <result column="allowed_vehicle_type" jdbcType="VARCHAR" property="allowedVehicleType" />

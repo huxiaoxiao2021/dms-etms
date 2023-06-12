@@ -60,6 +60,10 @@ public class DmsBaseController {
 			loginUser.setSiteCode(userOrgInfo.getSiteCode());
 			loginUser.setSiteName(userOrgInfo.getSiteName());
 			loginUser.setDmsSiteCode(userOrgInfo.getDmsSiteCode());
+			loginUser.setProvinceAgencyCode(userOrgInfo.getProvinceAgencyCode());
+			loginUser.setProvinceAgencyName(userOrgInfo.getProvinceAgencyName());
+			loginUser.setAreaHubCode(userOrgInfo.getAreaCode());
+			loginUser.setAreaHubName(userOrgInfo.getAreaName());
 		}
 		return loginUser;    
 	}

@@ -28,6 +28,10 @@ public class MerchantWeightAndVolumeCondition extends BasePagerCondition {
      * */
     private Integer orgCode;
     /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
      * 站点编码
      * */
     private Integer siteCode;
@@ -78,6 +82,14 @@ public class MerchantWeightAndVolumeCondition extends BasePagerCondition {
 
     public void setOrgCode(Integer orgCode) {
         this.orgCode = orgCode;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
     }
 
     public Integer getSiteCode() {

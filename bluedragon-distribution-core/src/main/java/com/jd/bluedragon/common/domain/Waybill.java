@@ -727,7 +727,7 @@ public class Waybill implements Serializable {
 
 	/**
 	 * 检查运单的数据是否完整。如果有关键字段为空则返回true,正常情况返回false.
-	 * 普通运单检查机构ID、站点编码、站点编号、支付类型、特殊属性、重量、地址;POP(23&&25)还检查数量、商家ID、商家名称.
+	 * 普通运单检查站点编码、站点编号、支付类型、特殊属性、重量、地址;POP(23&&25)还检查数量、商家ID、商家名称.
 	 * 
 	 * @param waybill
 	 * @return boolean
@@ -737,15 +737,12 @@ public class Waybill implements Serializable {
 			return Boolean.TRUE;
 		}
 
-		Integer orgId = waybill.getOrgId();
-//		Integer siteCode = waybill.getSiteCode();
 		Integer paymentType = waybill.getPaymentType();
 		String address = waybill.getAddress();
 		String sendPay = waybill.getSendPay();
 		// Double weight = waybill.getWeight();
 
-		if (orgId == null 
-				|| sendPay == null || sendPay.trim().length() == 0
+		if (sendPay == null || sendPay.trim().length() == 0
 				|| paymentType == null || address == null
 				|| address.trim().length() == 0) {
 			return Boolean.TRUE;

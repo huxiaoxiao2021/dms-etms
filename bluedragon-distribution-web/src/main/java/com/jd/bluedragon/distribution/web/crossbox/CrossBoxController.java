@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
@@ -155,25 +153,64 @@ public class CrossBoxController {
 			queryInfo.put("transferOrgName",URLDecoder.decode(crossBoxRequest.getTransferOrgName(),"UTF-8"));
 			queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
 			queryInfo.put("yn",crossBoxRequest.getYn());
+
+			queryInfo.put("originateProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getOriginateProvinceAgencyCode(),"UTF-8"));
+			queryInfo.put("originateProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getOriginateProvinceAgencyName(),"UTF-8"));
+			queryInfo.put("originateAreaHubCode",URLDecoder.decode(crossBoxRequest.getOriginateAreaHubCode(),"UTF-8"));
+			queryInfo.put("originateAreaHubName",URLDecoder.decode(crossBoxRequest.getOriginateAreaHubName(),"UTF-8"));
+			queryInfo.put("transferProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getTransferProvinceAgencyCode(),"UTF-8"));
+			queryInfo.put("transferProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getTransferProvinceAgencyName(),"UTF-8"));
+			queryInfo.put("transferAreaHubCode",URLDecoder.decode(crossBoxRequest.getTransferAreaHubCode(),"UTF-8"));
+			queryInfo.put("transferAreaHubName",URLDecoder.decode(crossBoxRequest.getTransferAreaHubName(),"UTF-8"));
+			queryInfo.put("destinationProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getDestinationProvinceAgencyCode(),"UTF-8"));
+			queryInfo.put("destinationProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getDestinationProvinceAgencyName(),"UTF-8"));
+			queryInfo.put("destinationAreaHubCode",URLDecoder.decode(crossBoxRequest.getDestinationAreaHubCode(),"UTF-8"));
+			queryInfo.put("destinationAreaHubName",URLDecoder.decode(crossBoxRequest.getDestinationAreaHubName(),"UTF-8"));
 		}catch(UnsupportedEncodingException e){
 			log.error("对查询条件中的汉字解码失败：",e);
 		}
 		try {
 			CrossBox crossBox = crossBoxService.getCrossBoxById(id);
-			model.addAttribute("originateOrgId", getSiteOrgId(crossBox.getOriginalDmsId()));
-			model.addAttribute("originateOrgName", getSiteOrgName(crossBox.getOriginalDmsId()));
 
-			model.addAttribute("destinationOrgId", getSiteOrgId(crossBox.getDestinationDmsId()));
-			model.addAttribute("destinationOrgName", getSiteOrgName(crossBox.getDestinationDmsId()));
+			BaseStaffSiteOrgDto originateDto = baseSiteManager.getBaseSiteBySiteId(crossBox.getOriginalDmsId());
+			model.addAttribute("originateOrgId", originateDto == null ? null : originateDto.getOrgId());
+			model.addAttribute("originateOrgName", originateDto == null ? null : originateDto.getOrgName());
+			model.addAttribute("originateProvinceAgencyCode", originateDto == null ? null : originateDto.getProvinceAgencyCode());
+			model.addAttribute("originateProvinceAgencyName", originateDto == null ? null : originateDto.getProvinceAgencyName());
+			model.addAttribute("originateAreaHubCode", originateDto == null ? null : originateDto.getAreaCode());
+			model.addAttribute("originateAreaHubName", originateDto == null ? null : originateDto.getAreaName());
 
-			model.addAttribute("transferOneOrgId", getSiteOrgId(crossBox.getTransferOneId()));
-			model.addAttribute("transferOneOrgName", getSiteOrgName(crossBox.getTransferOneId()));
+			BaseStaffSiteOrgDto destinationDto = baseSiteManager.getBaseSiteBySiteId(crossBox.getOriginalDmsId());
+			model.addAttribute("destinationOrgId", destinationDto == null ? null : destinationDto.getOrgId());
+			model.addAttribute("destinationOrgName", destinationDto == null ? null : destinationDto.getOrgName());
+			model.addAttribute("destinationProvinceAgencyCode", destinationDto == null ? null : destinationDto.getProvinceAgencyCode());
+			model.addAttribute("destinationProvinceAgencyName", destinationDto == null ? null : destinationDto.getProvinceAgencyName());
+			model.addAttribute("destinationAreaHubCode", destinationDto == null ? null : destinationDto.getAreaCode());
+			model.addAttribute("destinationAreaHubName", destinationDto == null ? null : destinationDto.getAreaName());
 
-			model.addAttribute("transferTwoOrgId", getSiteOrgId(crossBox.getTransferTwoId()));
-			model.addAttribute("transferTwoOrgName", getSiteOrgName(crossBox.getTransferTwoId()));
+			BaseStaffSiteOrgDto transferOneDto = baseSiteManager.getBaseSiteBySiteId(crossBox.getOriginalDmsId());
+			model.addAttribute("transferOneOrgId", transferOneDto == null ? null : transferOneDto.getOrgId());
+			model.addAttribute("transferOneOrgName", transferOneDto == null ? null : transferOneDto.getOrgName());
+			model.addAttribute("transferOneProvinceAgencyCode", transferOneDto == null ? null : transferOneDto.getProvinceAgencyCode());
+			model.addAttribute("transferOneProvinceAgencyName", transferOneDto == null ? null : transferOneDto.getProvinceAgencyName());
+			model.addAttribute("transferOneAreaHubCode", transferOneDto == null ? null : transferOneDto.getAreaCode());
+			model.addAttribute("transferOneAreaHubName", transferOneDto == null ? null : transferOneDto.getAreaName());
 
-			model.addAttribute("transferThreeOrgId", getSiteOrgId(crossBox.getTransferThreeId()));
-			model.addAttribute("transferThreeOrgName", getSiteOrgName(crossBox.getTransferThreeId()));
+			BaseStaffSiteOrgDto transferTwoDto = baseSiteManager.getBaseSiteBySiteId(crossBox.getOriginalDmsId());
+			model.addAttribute("transferTwoOrgId", transferTwoDto == null ? null : transferTwoDto.getOrgId());
+			model.addAttribute("transferTwoOrgName", transferTwoDto == null ? null : transferTwoDto.getOrgName());
+			model.addAttribute("transferTwoProvinceAgencyCode", transferTwoDto == null ? null : transferTwoDto.getProvinceAgencyCode());
+			model.addAttribute("transferTwoProvinceAgencyName", transferTwoDto == null ? null : transferTwoDto.getProvinceAgencyName());
+			model.addAttribute("transferTwoAreaHubCode", transferTwoDto == null ? null : transferTwoDto.getAreaCode());
+			model.addAttribute("transferTwoAreaHubName", transferTwoDto == null ? null : transferTwoDto.getAreaName());
+
+			BaseStaffSiteOrgDto transferThreeDto = baseSiteManager.getBaseSiteBySiteId(crossBox.getOriginalDmsId());
+			model.addAttribute("transferThreeOrgId", transferThreeDto == null ? null : transferThreeDto.getOrgId());
+			model.addAttribute("transferThreeOrgName", transferThreeDto == null ? null : transferThreeDto.getOrgName());
+			model.addAttribute("transferThreeProvinceAgencyCode", transferThreeDto == null ? null : transferThreeDto.getProvinceAgencyCode());
+			model.addAttribute("transferThreeProvinceAgencyName", transferThreeDto == null ? null : transferThreeDto.getProvinceAgencyName());
+			model.addAttribute("transferThreeAreaHubCode", transferThreeDto == null ? null : transferThreeDto.getAreaCode());
+			model.addAttribute("transferThreeAreaHubName", transferThreeDto == null ? null : transferThreeDto.getAreaName());
 
 			model.addAttribute("crossDmsBox", crossBox);
 			model.addAttribute("queryInfo",queryInfo);/** 渲染出查询参数 **/
@@ -181,22 +218,6 @@ public class CrossBoxController {
 			log.error("进入跨分拣箱号中转修改页面异常：", e);
 		}
 		return "crossbox/add";
-	}
-
-	private Integer getSiteOrgId(Integer siteCode) {
-		BaseStaffSiteOrgDto dto = baseSiteManager.getBaseSiteBySiteId(siteCode);
-		if (dto != null) {
-			return dto.getOrgId();
-		}
-		return null;
-	}
-
-	private String getSiteOrgName(Integer siteCode) {
-		BaseStaffSiteOrgDto dto = baseSiteManager.getBaseSiteBySiteId(siteCode);
-		if (dto != null) {
-			return dto.getOrgName();
-		}
-		return null;
 	}
 
 	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)

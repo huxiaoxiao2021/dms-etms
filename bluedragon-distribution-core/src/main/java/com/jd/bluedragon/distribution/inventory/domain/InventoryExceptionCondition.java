@@ -53,6 +53,15 @@ public class InventoryExceptionCondition extends BasePagerCondition {
      * 是否筛选重复单
      */
     private Integer isRepeat;
+    
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
 
     public Integer getOrgId() {
         return orgId;
@@ -132,5 +141,21 @@ public class InventoryExceptionCondition extends BasePagerCondition {
 
     public void setIsRepeat(Integer isRepeat) {
         this.isRepeat = isRepeat;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

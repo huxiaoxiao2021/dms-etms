@@ -142,6 +142,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	public Result<Boolean> insert(UserSignRecord insertData){
 		Result<Boolean> result = Result.success();
+		// fill basic site info
+		BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(insertData.getSiteCode());
+		insertData.setOrgCode(baseSite == null ? null : baseSite.getOrgId());
+		insertData.setOrgName(baseSite == null ? null : baseSite.getOrgName());
+		insertData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+		insertData.setProvinceAgencyName(baseSite == null ? null : baseSite.getProvinceAgencyName());
+		insertData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
+		insertData.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());
 		result.setData(userSignRecordDao.insert(insertData) == 1);
 		return result;
 	 }
@@ -363,7 +371,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         signInRequest.setSignDate(signInRequest.getSignInTime());
 		// 设置战区信息
 		setWarZoneInfo(signInRequest);
-        userSignRecordDao.insert(signInRequest);
+        this.insert(signInRequest);
 
         if (autoSignOutSuccess) {
             result = new Result<>(201, "签到成功，自动将上次签到数据签退！");
@@ -974,6 +982,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return;
 		}
 		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(signInData.getSiteCode());
+		signInData.setOrgCode(baseSite == null ? null : baseSite.getOrgId());
+		signInData.setOrgName(baseSite == null ? null : baseSite.getOrgName());
+		signInData.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+		signInData.setProvinceAgencyName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
 		signInData.setWarZoneCode(baseSite == null ? null : baseSite.getProvinceCompanyCode());
 		signInData.setWarZoneName(baseSite == null ? null : baseSite.getProvinceCompanyName());
 	}
@@ -1056,7 +1068,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setCreateTime(date);
 		userSignRecord.setSignInTime(date);
 		userSignRecord.setSignDate(date);
-		return userSignRecordDao.insert(userSignRecord) == 1;
+		return this.insert(userSignRecord).getData();
 	}
 	/**
 	 * 设置相关的字段信息

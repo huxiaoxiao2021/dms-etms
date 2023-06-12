@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.dto.site.AreaVO;
 import com.jdl.basic.api.dto.site.BasicSiteVO;
 import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
 import com.jdl.basic.api.dto.site.SiteQueryCondition;
@@ -44,6 +45,25 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
             }
         }catch (Exception e){
             logger.error("查询拣运所有省区接口异常!", e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return list;
+    }
+
+    @Override
+    public List<AreaVO> queryAllAreaInfo() {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.JyBasicSiteQueryManager.queryAllAreaInfo",
+                false, true);
+        List<AreaVO> list = Lists.newArrayList();
+        try {
+            Result<List<AreaVO>> result = siteQueryService.queryAllAreaInfo();
+            if(result != null && CollectionUtils.isNotEmpty(result.getData())){
+                return result.getData();
+            }
+        }catch (Exception e){
+            logger.error("查询拣运所有枢纽接口异常!", e);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);

@@ -45,6 +45,16 @@ public class CurrentOperate implements Serializable {
      */
 	private String operatorId;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+
     public CurrentOperate() {
     }
 
@@ -118,4 +128,19 @@ public class CurrentOperate implements Serializable {
 		this.operatorId = operatorId;
 	}
 
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
 }
