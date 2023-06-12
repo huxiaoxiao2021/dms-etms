@@ -309,7 +309,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
                 logger.info("查询待取件统计数据出参:{}", JSON.toJSONString(statistics));
             }
             if (CollectionUtils.isEmpty(statistics)) {
-                response.toFail("获取任务为空!");
                 return response;
             }
             List<ExpTaskStatisticsOfWaitReceiveDto> waitReceiveDtos = new ArrayList<>();
@@ -362,7 +361,6 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
                 logger.info("查询待取件任务列表出参:{}", JSON.toJSONString(taskList));
             }
             if (CollectionUtils.isEmpty(taskList)) {
-                response.toFail("获取任务列表为空!");
                 return response;
             }
             List<ExpTaskDto> waitReceiveDtos = new ArrayList<>();
