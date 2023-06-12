@@ -252,8 +252,7 @@ public class QualityControlService {
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
             }
-            List<Integer> canSubmitInterceptTypeList = uccPropertyConfiguration.getExceptionSubmitCheckWaybillInterceptTypeList();
-            final long matchCount = waybillCancelList.parallelStream().filter(item -> canSubmitInterceptTypeList.contains(item.getInterceptType())).count();
+            final long matchCount = waybillCancelList.parallelStream().filter(item -> uccPropertyConfiguration.matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
             if(matchCount <= 0){
                 return result.toFail(tipMsg);
             }

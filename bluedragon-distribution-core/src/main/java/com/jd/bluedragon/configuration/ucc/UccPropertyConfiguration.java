@@ -3425,24 +3425,24 @@ public class UccPropertyConfiguration {
         this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
     }
 
-    private List<Integer> exceptionSubmitCheckSiteList = new ArrayList<>();
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
     public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
         if(exceptionSubmitCheckSites == null){
             exceptionSubmitCheckSiteList = new ArrayList<>();
             return;
         }
-        exceptionSubmitCheckSiteList = Arrays.stream(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA)).map(Integer::valueOf).collect(Collectors.toList());
+        exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
     }
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
-        if(StringUtils.isBlank(hideSpecialStartSitPrintDestinationSiteList)){
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
             return false;
         }
         if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
             return true;
         }
-        if(exceptionSubmitCheckSiteList.contains(siteId)){
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
             return true;
         }
         return false;
@@ -3457,17 +3457,26 @@ public class UccPropertyConfiguration {
         this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
     }
 
-    private List<Integer> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
-    public List<Integer> getExceptionSubmitCheckWaybillInterceptTypeList() {
-        return exceptionSubmitCheckWaybillInterceptTypeList;
-    }
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
     public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
         if(exceptionSubmitCheckWaybillInterceptTypes == null){
             exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
             return;
         }
-        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.stream(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA)).map(Integer::valueOf).collect(Collectors.toList());
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
     }
 }
