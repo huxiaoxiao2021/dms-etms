@@ -43,6 +43,16 @@ public class BaseSendVehicleDetail implements Serializable {
      */
     private String crossTableTrolley;
 
+    /**
+     * 滑道号
+     */
+    private String crossCode;
+
+    /**
+     * 笼车号
+     */
+    private String tableTrolleyCode;
+
 
     public Date getPlanDepartTime() {
         return planDepartTime;
@@ -90,5 +100,21 @@ public class BaseSendVehicleDetail implements Serializable {
 
     public void setCrossTableTrolley(String crossTableTrolley) {
         this.crossTableTrolley = crossTableTrolley;
+    }
+
+    public String getCrossCode() {
+        return crossCode;
+    }
+
+    public void setCrossCode(String crossCode) {
+        this.crossCode = crossCode;
+    }
+
+    public String getTableTrolleyCode() {
+        return tableTrolleyCode;
+    }
+
+    public void setTableTrolleyCode(String tableTrolleyCode) {
+        this.tableTrolleyCode = tableTrolleyCode;
     }
 }

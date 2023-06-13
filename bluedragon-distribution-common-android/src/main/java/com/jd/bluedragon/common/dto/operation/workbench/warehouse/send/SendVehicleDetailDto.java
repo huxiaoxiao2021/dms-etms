@@ -46,6 +46,17 @@ public class SendVehicleDetailDto implements Serializable {
      */
     private Boolean mixScanTaskProcess;
 
+    /**
+     * 滑道号
+     */
+    private String crossCode;
+
+    /**
+     * 笼车号
+     */
+    private String tableTrolleyCode;
+
+
     public String getItemStatusDesc() {
         return itemStatusDesc;
     }
@@ -108,5 +119,21 @@ public class SendVehicleDetailDto implements Serializable {
 
     public void setItemStatus(Integer itemStatus) {
         this.itemStatus = itemStatus;
+    }
+
+    public String getCrossCode() {
+        return crossCode;
+    }
+
+    public void setCrossCode(String crossCode) {
+        this.crossCode = crossCode;
+    }
+
+    public String getTableTrolleyCode() {
+        return tableTrolleyCode;
+    }
+
+    public void setTableTrolleyCode(String tableTrolleyCode) {
+        this.tableTrolleyCode = tableTrolleyCode;
     }
 }
