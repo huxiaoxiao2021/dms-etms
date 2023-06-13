@@ -666,4 +666,20 @@
             #{item}
         </foreach>
     </select>
+
+
+
+    <select id="findByDetailVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+        yn = 1
+        AND start_site_id = #{siteId}
+        and biz_id in
+        <foreach collection="detailBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+
+    </select>
 </mapper>

@@ -135,4 +135,13 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds);
+
+
+    /**
+     * 根据明细bizList获取任务明细信息
+     * @param detailBizList
+     * @param siteId
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId);
 }

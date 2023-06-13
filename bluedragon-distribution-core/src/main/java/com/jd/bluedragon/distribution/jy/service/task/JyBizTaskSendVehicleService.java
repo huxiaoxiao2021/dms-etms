@@ -155,8 +155,8 @@ public interface JyBizTaskSendVehicleService {
 
     /**
      * 批量根据bizId查询
-     * @param ids
+     * @param bizIds
      * @return
      */
-    List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> ids);
+    List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds);
 }

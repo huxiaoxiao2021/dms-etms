@@ -941,4 +941,37 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
         return retJdCResponse(jyWarehouseSendVehicleService.selectSealDest(request));
     }
+
+    @Override
+    public JdCResponse<Void> checkBeforeSealCar(SealCarCheckDtoReq request) {
+        JdCResponse<Void> res = new JdCResponse<>();
+        res.toSucceed();
+        final String methodDesc = "JyWarehouseSendGatewayServiceImpl.checkBeforeSealCar:接货仓发货岗前往封车前置校验";
+        try{
+            //参数校验
+            if(Objects.isNull(request)){
+                res.toFail("请求为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            checkUser(request.getUser());
+            checkCurrentOperate(request.getCurrentOperate());
+            checkGroupCode(request.getGroupCode());
+            if(StringUtils.isBlank(request.getMixScanTaskCode())) {
+                res.toFail("混扫任务编码参数为空");
+                return res;
+            }
+            return retJdCResponse(jyWarehouseSendVehicleService.checkBeforeSealCar(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
+        }
+    }
+
+
 }

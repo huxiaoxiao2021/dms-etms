@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("jyBizTaskSendVehicleDetailService")
 public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehicleDetailService{
@@ -169,5 +167,10 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds) {
         return jyBizTaskSendVehicleDetailDao.findDetailBySendVehicleBizIds(sendVehicleBizIds);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId) {
+        return jyBizTaskSendVehicleDetailDao.findByDetailVehicleBiz(detailBizList, siteId);
     }
 }

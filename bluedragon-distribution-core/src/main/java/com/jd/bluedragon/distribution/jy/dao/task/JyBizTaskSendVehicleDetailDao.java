@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 发车任务明细表
@@ -133,5 +134,16 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         Map<String, Object> params = new HashMap<>();
         params.put("sendVehicleBizIds", sendVehicleBizIds);
         return this.getSqlSession().selectList(NAMESPACE + ".findDetailBySendVehicleBizIds", params);
+    }
+
+
+    public List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId) {
+        if(CollectionUtils.isEmpty(detailBizList) || Objects.isNull(siteId)) {
+            return null;
+        }
+        Map<String,Object> params = new HashMap<>();
+        params.put("detailBizList", detailBizList);
+        params.put("siteId", siteId);
+        return this.getSqlSession().selectList(NAMESPACE + ".findByDetailVehicleBiz", params);
     }
 }

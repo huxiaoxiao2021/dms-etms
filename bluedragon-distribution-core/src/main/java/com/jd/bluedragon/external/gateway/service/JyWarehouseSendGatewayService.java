@@ -182,4 +182,12 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
+
+    /**
+     * 封车前置校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Void> checkBeforeSealCar(SealCarCheckDtoReq req);
+
 }

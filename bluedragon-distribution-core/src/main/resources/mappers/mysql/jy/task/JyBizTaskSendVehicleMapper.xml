@@ -789,7 +789,7 @@
         from jy_biz_task_send_vehicle
         where yn = 1
         and biz_id in
-        <foreach collection="ids" separator="," open="(" close=")" item="item">
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
     </select>

@@ -53,5 +53,12 @@ public interface JyWarehouseSendVehicleService {
      * @param request
      * @return
      */
-    Object buQiCancelSendScan(BuQiCancelSendScanReq request);
+    InvokeResult<Void>  buQiCancelSendScan(BuQiCancelSendScanReq request);
+
+    /**
+     * 封车前置校验
+     * @param request
+     * @return
+     */
+    InvokeResult<Void>  checkBeforeSealCar(SealCarCheckDtoReq request);
 }

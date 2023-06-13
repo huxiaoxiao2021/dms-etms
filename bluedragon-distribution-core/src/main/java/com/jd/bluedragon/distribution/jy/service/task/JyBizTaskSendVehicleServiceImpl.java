@@ -194,7 +194,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
 	}
 
     @Override
-    public List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> ids) {
-        return jyBizTaskSendVehicleDao.findSendTaskByBizIds(ids);
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds) {
+        return jyBizTaskSendVehicleDao.findSendTaskByBizIds(bizIds);
     }
 }

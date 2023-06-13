@@ -56,6 +56,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -154,7 +155,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private DefaultJMQProducer jyCancelScanProducer;
     @Autowired
     private JyWarehouseSendVehicleCacheService jyWarehouseSendVehicleCacheService;
-
+    @Autowired
+    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
 
 
     @Override
@@ -505,6 +507,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request, crossTableTrolleyMap));
                 sendVehicleDtoList.add(dto);
             });
+
+            //最大流向配置
+            resData.setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
+
+            //已添加流向配置
+            JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+            entity.setGroupCode(request.getGroupCode());
+            entity.setTemplateCode(request.getMixScanTaskCode());
+            entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+            resData.setMixScanTaskSiteFlowNum(CollectionUtils.isEmpty(entityList) ? 0 : entityList.size());
 
             Profiler.registerInfoEnd(info0);
 
@@ -1364,6 +1377,61 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             throw new JyBizException("未获取到流向信息!");
         }
         setMixScanTaskSendProgressData(res, invokeResult.getData().getMixScanTaskDetailDtoList(), mixScanTaskFlowReq);
+        return res;
+    }
+
+
+
+    @Override
+    public InvokeResult<Void> checkBeforeSealCar(SealCarCheckDtoReq request) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        //混扫任务状态校验
+        JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+        queryDto.setGroupCode(request.getGroupCode());
+        queryDto.setTemplateCode(request.getMixScanTaskCode());
+        queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+        if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+            res.error("当前混扫任务已经结束，请刷新页面重新选择混扫任务");
+            return res;
+        }
+
+        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        entity.setGroupCode(request.getGroupCode());
+        entity.setTemplateCode(request.getMixScanTaskCode());
+        entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+        if(CollectionUtils.isEmpty(entityList)) {
+            res.setMessage("查询混扫任务流向为空");
+            return res;
+        }
+
+        List<String> detailBizList = entityList.stream().map(JyGroupSortCrossDetailEntity::getSendVehicleDetailBizId).collect(Collectors.toList());
+        List<JyBizTaskSendVehicleDetailEntity> jyBizTaskSendVehicleDetailEntityList = jyBizTaskSendVehicleDetailService.findByDetailVehicleBiz(detailBizList, request.getCurrentOperate().getSiteCode());
+        if(CollectionUtils.isEmpty(detailBizList)) {
+            res.setMessage("查询发货明细任务为空");
+            return res;
+        }
+
+        HashSet<String> bizIdSet = new HashSet<>();
+        jyBizTaskSendVehicleDetailEntityList.forEach(detailEntity -> {
+            bizIdSet.add(detailEntity.getSendVehicleBizId());
+        });
+
+        List<String> bizIds = bizIdSet.stream().collect(Collectors.toList());
+        List<JyBizTaskSendVehicleEntity> jyBizTaskSendVehicleEntityList = jyBizTaskSendVehicleService.findSendTaskByBizIds(bizIds);
+        if(CollectionUtils.isEmpty(jyBizTaskSendVehicleEntityList)) {
+            res.setMessage("查询发货任务为空");
+            return res;
+        }
+        //自建任务&未绑定  禁止前往封车
+        for (JyBizTaskSendVehicleEntity entity1 : jyBizTaskSendVehicleEntityList) {
+            if(Constants.NUMBER_ONE.equals(entity1.getManualCreatedFlag()) && !Constants.NUMBER_ONE.equals(entity1.getBindFlag())) {
+                res.error("存在自建任务未绑定发货任务，禁止前往封车");
+                return res;
+            }
+        }
         return res;
     }
 }

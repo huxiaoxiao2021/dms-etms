@@ -274,9 +274,37 @@ public class JyWarehouseSendGatewayServiceTest {
         paramDto.setUser(USER_wuyoude);
         paramDto.setMixScanTaskCode("CTT23060600000010");
         paramDto.setGroupCode(GROUP_CODE);
+
+        String testPdaJson = "{\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"dmsCode\": \"010F002\",\n" +
+                "        \"operateTime\": 1686639850033,\n" +
+                "        \"operatorId\": \"50966\",\n" +
+                "        \"operatorTypeCode\": 1,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 40240,\n" +
+                "        \"siteName\": \"北京通州分拣中心\"\n" +
+                "    },\n" +
+                "    \"groupCode\": \"G00000089001\",\n" +
+                "    \"keyword\": \"\",\n" +
+                "    \"mixScanTaskCode\": \"CTT23060600000007\",\n" +
+                "    \"pageNo\": 1,\n" +
+                "    \"pageSize\": 30,\n" +
+                "    \"requestId\": \"10ff1989b55c489f873586f6012f14bd\",\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    }\n" +
+                "}";
+
+        AppendSendVehicleTaskQueryReq testPdaReq = JsonHelper.fromJson(testPdaJson, AppendSendVehicleTaskQueryReq.class);
+
         while(true) {
             try{
-                JdCResponse<AppendSendVehicleTaskQueryRes> obj0 = jyWarehouseSendGatewayService.fetchToSendAndSendingTaskPage(paramDto);
+//                JdCResponse<AppendSendVehicleTaskQueryRes> obj0 = jyWarehouseSendGatewayService.fetchToSendAndSendingTaskPage(paramDto);
+                JdCResponse<AppendSendVehicleTaskQueryRes> obj0 = jyWarehouseSendGatewayService.fetchToSendAndSendingTaskPage(testPdaReq);
                 System.out.println(JsonHelper.toJson(obj0));
             }catch (Exception e) {
                 e.printStackTrace();
@@ -396,5 +424,31 @@ public class JyWarehouseSendGatewayServiceTest {
     }
 
 
+
+    @Test
+    public void testFindByQiWaybillPage(){
+
+    }
+
+
+
+    @Test
+    public void testCheckBeforeSealCar() {
+        while(true) {
+            try{
+                SealCarCheckDtoReq paramDto = new SealCarCheckDtoReq();
+                paramDto.setCurrentOperate(SITE_40240);
+                paramDto.setUser(USER_wuyoude);
+                paramDto.setMixScanTaskCode("CTT23060600000010");
+                paramDto.setGroupCode(GROUP_CODE);
+
+                Object obj = jyWarehouseSendGatewayService.checkBeforeSealCar(paramDto);
+                System.out.println(JsonHelper.toJson(obj));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 }
