@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JyScanCollectCacheService {
 
-    public static final String DEFAULT_VALUE = Strings.EMPTY;
+    public static final String DEFAULT_VALUE = "1";
 
     public static final String LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD = "lock:upInsert:collectionRecord:%s:%s";
     public static final int LOCK_UP_INSERT_JY_SCAN_COLLECTION_RECORD_TIMEOUT_SECONDS = 120;

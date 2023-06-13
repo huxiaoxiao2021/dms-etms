@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanRe
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -626,6 +627,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         SendScanRequest sendScanRequest = new SendScanRequest();
         BeanUtils.copyProperties(request, sendScanRequest);
         JdVerifyResponse<SendScanResponse> scanRes = super.sendScan(sendScanRequest);
+        if(log.isInfoEnabled()) {
+            log.info("JyWarehouseSendVehicleServiceImpl.sendScan，req={},res={}", JsonHelper.toJson(request), JsonHelper.toJson(scanRes));
+        }
 
         response.setCode(scanRes.getCode());
         response.setMessage(scanRes.getMessage());
@@ -728,10 +732,21 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             log.info("接货仓发货岗按流向{}匹配混扫任务明细,request={},混扫明细={}", JsonHelper.toJson(endSiteIdList),
                     JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
         }
-        request.setSendVehicleDetailBizId(resEntityList.get(0).getSendVehicleDetailBizId());
-        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(resEntityList.get(0).getSendVehicleDetailBizId());
+        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity = resEntityList.get(0);
+        request.setSendVehicleDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
+        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
         request.setPreNextSiteCode(entity.getEndSiteId());
+        //确定是否强发
+        if(Objects.isNull(request.getUnfocusedFlowForceSend()) || !request.getUnfocusedFlowForceSend()) {
+            if(!Objects.isNull(jyGroupSortCrossDetailEntity.getFocus()) && FocusEnum.FOCUS.getCode() != jyGroupSortCrossDetailEntity.getFocus()) {
+                response.toBizError();
+                String customMsg = String.format(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND, entity.getEndSiteName());
+                response.addConfirmBox(SendScanRes.CODE_UNFOCUSED_FLOW_FORCE_SEND, customMsg);
+                return;
+            }
+        }
+
         Profiler.registerInfoEnd(info);
     }
 
@@ -1226,6 +1241,15 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         if(Objects.isNull(resData.getSendDetailBizId())) {
             resData.setSendDetailBizId(request.getSendVehicleDetailBizId());
+        }
+
+        if(response.codeSuccess() && !Objects.isNull(request.getLastNextSiteCode()) && !Objects.isNull(request.getPreNextSiteCode())) {
+            if(!request.getLastNextSiteCode().equals(request.getPreNextSiteCode())) {
+                response.setCode(SendScanRes.CODE_FOCUS_FLOW_DIFFER);
+                response.setMessage(SendScanRes.String_FOCUS_FLOW_DIFFER);
+                response.addPromptBox(SendScanRes.CODE_FOCUS_FLOW_DIFFER, SendScanRes.String_FOCUS_FLOW_DIFFER);
+                return;
+            }
         }
     }
 

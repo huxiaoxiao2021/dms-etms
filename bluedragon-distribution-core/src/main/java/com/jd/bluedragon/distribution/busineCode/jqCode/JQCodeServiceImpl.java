@@ -47,7 +47,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JQCodeServiceImpl implements JQCodeService {
 
-    public static final String JQ_CONDITION = "JQ_condition";
+    public static final String LOCK_DEFAULT_VALUE = "1";
+
+//    public static final String JQ_CONDITION = "JQ_condition";
     public static final String ATTRIBUTE_POST_TYPE_SEND = "send";//发货岗
     public static final String ATTRIBUTE_POST_TYPE_UNLOAD = "unload";//卸车岗
 
@@ -161,12 +163,12 @@ public class JQCodeServiceImpl implements JQCodeService {
             log.warn("拣运扫描获取collectionCondition为空,attributeParam={}", JsonHelper.toJson(attributeParam));
             throw new JyBizException("拣运扫描获取collectionCondition为空");
         }
-        if(StringUtils.isBlank(attributeParam.get(JQCodeServiceImpl.JQ_CONDITION))) {
-            attributeParam.put(JQCodeServiceImpl.JQ_CONDITION, collectionCondition);
+        if(StringUtils.isBlank(attributeParam.get(JQCodeServiceImpl.ATTRIBUTE_CONDITION))) {
+            attributeParam.put(JQCodeServiceImpl.ATTRIBUTE_CONDITION, collectionCondition);
         }
 
         String jqCodeKey = "collection_code_".concat(collectionCondition);
-        String value = StringUtils.EMPTY;
+        String value = JQCodeServiceImpl.LOCK_DEFAULT_VALUE;
         if (!jimDbLock.lock(jqCodeKey, value, 120, TimeUnit.SECONDS)) {
             log.error("{}未获取到锁,condition={},source={},attributeMap={}",
                     methodDesc, collectionCondition, fromSource.name(), JsonHelper.toJson(attributeParam));
@@ -182,7 +184,7 @@ public class JQCodeServiceImpl implements JQCodeService {
             /* 生成待集齐的集合号 */
             String collectionCode = smartJQCodeSNGen.gen(fromSource.name());
             //
-            addKvIndex(collectionCode, collectionCode);
+            addKvIndex(collectionCondition, collectionCode);
             //保存主副表数据，
             saveBusinessCodeAndAttribute(collectionCode, BusinessCodeNodeTypeEnum.collection_code, attributeParam, createUser, fromSource);
             return collectionCode;
@@ -234,7 +236,7 @@ public class JQCodeServiceImpl implements JQCodeService {
         String methodDesc =  "JQCodeServiceImpl.getOrGenerateCollectionCodeByBusinessType:获取collectionCode:";
         String datePartition = DateUtil.format(new Date(), DateUtil.FORMAT_DATE);
         //
-        String condition = getJyScanSendCodeCollectionCondition(jyPostEnum, sendCode);
+        String condition = this.getJyScanSendCodeCollectionCondition(jyPostEnum, sendCode);
         //
         String cacheKey = String.format("JQCondition:%s", condition);
         String collectionCode = jimdbCacheService.get(cacheKey);
@@ -254,10 +256,10 @@ public class JQCodeServiceImpl implements JQCodeService {
             log.info("{}没有查到collectionCode,进行生成，collection={}", methodDesc, condition);
         }
 
-        Map<String,String> attributeParam = getJyScanCollectionAttributeMap(jyPostEnum, sendCode, datePartition, condition);
+        Map<String,String> attributeParam = this.getJyScanCollectionAttributeMap(jyPostEnum, sendCode, datePartition, condition);
         BusinessCodeFromSourceEnum fromSource = BusinessCodeFromSourceEnum.DMS_WORKER_SYS;
         //当前没有符合的condition进行生成
-        collectionCode = createCollectionCode(condition, attributeParam, fromSource, userErp);
+        collectionCode = this.createCollectionCode(condition, attributeParam, fromSource, userErp);
         if(log.isInfoEnabled()) {
             log.info("{}生成collectionCode={}，collection={}", methodDesc, collectionCode, condition);
         }
@@ -292,6 +294,7 @@ public class JQCodeServiceImpl implements JQCodeService {
         }
         StringBuffer sb = new StringBuffer();
         sb.append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())
+                .append(Constants.SEPARATOR_COLON)
                 .append(JQCodeServiceImpl.CONDITION_JY_BATCH).append(sendCode);
         return sb.toString().toUpperCase();
     }

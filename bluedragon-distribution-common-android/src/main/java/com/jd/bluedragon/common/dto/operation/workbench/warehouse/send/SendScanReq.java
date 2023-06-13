@@ -20,6 +20,23 @@ public class SendScanReq extends SendScanRequest {
      */
     private Integer operateType;
 
+    /**
+     * 非关注流向强发
+     */
+    private Boolean unfocusedFlowForceSend;
+
+    /**
+     * 上一次扫描的单号
+     */
+    private String lastBarCode;
+    /**
+     * 上一次扫描的单号
+     */
+    private String lastNextSiteCode;
+    /**
+     * 上一次扫描的发货明细任务bizId
+     */
+    private String lastDetailBizId;
 
 
     public String getMixScanTaskCode() {
@@ -44,5 +61,38 @@ public class SendScanReq extends SendScanRequest {
 
     public void setOperateType(Integer operateType) {
         this.operateType = operateType;
+    }
+
+
+    public Boolean getUnfocusedFlowForceSend() {
+        return unfocusedFlowForceSend;
+    }
+
+    public void setUnfocusedFlowForceSend(Boolean unfocusedFlowForceSend) {
+        this.unfocusedFlowForceSend = unfocusedFlowForceSend;
+    }
+
+    public String getLastBarCode() {
+        return lastBarCode;
+    }
+
+    public void setLastBarCode(String lastBarCode) {
+        this.lastBarCode = lastBarCode;
+    }
+
+    public String getLastNextSiteCode() {
+        return lastNextSiteCode;
+    }
+
+    public void setLastNextSiteCode(String lastNextSiteCode) {
+        this.lastNextSiteCode = lastNextSiteCode;
+    }
+
+    public String getLastDetailBizId() {
+        return lastDetailBizId;
+    }
+
+    public void setLastDetailBizId(String lastDetailBizId) {
+        this.lastDetailBizId = lastDetailBizId;
     }
 }

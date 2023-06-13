@@ -133,16 +133,19 @@ public class JyScanCollectStrategy {
             log.error("{}拣运扫描包裹维度包裹号为空,mqDto={}", methodDesc, JsonHelper.toJson(collectDto));
             throw new JyBizException("拣运扫描包裹维度包裹号为空");
         }
+
+        if(StringUtils.isBlank(collectDto.getCollectionCode())) {
+            //实操扫描没有collectionCode, 消费拆分再拆异步时会前置存入collectionCode
+            collectDto.setCollectionCode(this.getCollectionCode(collectDto));
+        }
+
         if (jyScanCollectCacheService.existCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode, collectDto.getOperateTime())) {
             log.warn("{}防重cache拦截，当前包裹已处理过，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
-        if(StringUtils.isBlank(collectDto.getCollectionCode())) {
-            //实操扫描没有collectionCode, 消费拆分再拆异步时会前置存入collectionCode
-            collectDto.setCollectionCode(this.getCollectionCode(collectDto));
-        }
+
         collectDto.setPackageCode(packageCode);
         collectDto.setWaybillCode(waybillCode);
         //修改集齐运单明细表
@@ -230,7 +233,7 @@ public class JyScanCollectStrategy {
             boxQuery.setOffset(pageSize * (pageNo - 1));
             List<Sorting> sortList = dynamicSortingQueryDao.getPagePackageNoByBoxCode(boxQuery);
             sortingList.addAll(sortList);
-            if(CollectionUtils.isEmpty(sortingList) || sortingList.size() < pageSize) {
+            if(CollectionUtils.isEmpty(sortingList) || sortList.size() < pageSize) {
                 break;
             }
         }

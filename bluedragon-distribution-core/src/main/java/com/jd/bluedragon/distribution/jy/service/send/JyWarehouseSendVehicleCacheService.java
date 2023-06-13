@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 public class JyWarehouseSendVehicleCacheService {
     private static final Logger log = LoggerFactory.getLogger(JyWarehouseSendVehicleCacheService.class);
 
-    public static final String DEFAULT_VALUE = Strings.EMPTY;
     public static final String DEFAULT_VALUE_1 = "1";
 
     /**
