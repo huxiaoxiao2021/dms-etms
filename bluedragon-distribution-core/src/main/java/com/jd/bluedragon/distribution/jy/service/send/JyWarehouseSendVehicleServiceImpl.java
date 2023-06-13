@@ -753,9 +753,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         //确定是否强发
         if(Objects.isNull(request.getUnfocusedFlowForceSend()) || !request.getUnfocusedFlowForceSend()) {
             if(!Objects.isNull(jyGroupSortCrossDetailEntity.getFocus()) && FocusEnum.FOCUS.getCode() != jyGroupSortCrossDetailEntity.getFocus()) {
-                response.toBizError();
-                String customMsg = String.format(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND, entity.getEndSiteName());
-                response.addConfirmBox(SendScanRes.CODE_UNFOCUSED_FLOW_FORCE_SEND, customMsg);
+                response.setCode(SendScanRes.CODE_UNFOCUSED_FLOW_FORCE_SEND);
+                response.setMessage(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND);
                 return;
             }
         }
@@ -1260,7 +1259,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if(!request.getLastNextSiteCode().equals(request.getPreNextSiteCode())) {
                 response.setCode(SendScanRes.CODE_FOCUS_FLOW_DIFFER);
                 response.setMessage(SendScanRes.String_FOCUS_FLOW_DIFFER);
-                response.addPromptBox(SendScanRes.CODE_FOCUS_FLOW_DIFFER, SendScanRes.String_FOCUS_FLOW_DIFFER);
                 return;
             }
         }
