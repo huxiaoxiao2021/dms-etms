@@ -428,6 +428,57 @@ public class JyWarehouseSendGatewayServiceTest {
     @Test
     public void testFindByQiWaybillPage(){
 
+        while(true) {
+            try{
+                BuQiWaybillReq paramDto = new BuQiWaybillReq();
+                paramDto.setCurrentOperate(SITE_40240);
+                paramDto.setUser(USER_wuyoude);
+                paramDto.setMixScanTaskCode("CTT23060600000010");
+                paramDto.setGroupCode(GROUP_CODE);
+                paramDto.setSendVehicleDetailBizId("TW22081600806720-001");
+                paramDto.setPageNo(1);
+                paramDto.setPageSize(3);
+                Object obj = jyWarehouseSendGatewayService.findByQiWaybillPage(paramDto);
+                System.out.println(JsonHelper.toJson(obj));
+
+                paramDto.setPageNo(2);
+                Object obj2 = jyWarehouseSendGatewayService.findByQiWaybillPage(paramDto);
+                System.out.println(JsonHelper.toJson(obj));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+
+
+    @Test
+    public void testFindByQiPackagePage(){
+
+        while(true) {
+            try{
+                BuQiWaybillReq paramDto = new BuQiWaybillReq();
+                paramDto.setCurrentOperate(SITE_40240);
+                paramDto.setUser(USER_wuyoude);
+                paramDto.setMixScanTaskCode("CTT23060600000010");
+                paramDto.setGroupCode(GROUP_CODE);
+                paramDto.setSendVehicleDetailBizId("TW22081600806720-001d");
+                paramDto.setSendVehicleBizId("SST22081600000007");
+                paramDto.setWaybillCode("JD0003420475846");
+                paramDto.setPageNo(1);
+                paramDto.setPageSize(10);
+                Object obj = jyWarehouseSendGatewayService.findByQiPackagePage(paramDto);
+                System.out.println(JsonHelper.toJson(obj));
+
+                paramDto.setPageNo(2);
+                Object obj2 = jyWarehouseSendGatewayService.findByQiPackagePage(paramDto);
+                System.out.println(JsonHelper.toJson(obj));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 

@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
@@ -138,7 +138,7 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
                 return true;
             }
 
-            List<JyCollectRecordPo> jyCollectRecordPoList = jyScanCollectService.getAllBuQiWaybillCodes(mqBody);
+            List<JyCollectRecordStatistics> jyCollectRecordPoList = jyScanCollectService.getAllBuQiWaybillCodes(mqBody);
             if (CollectionUtils.isEmpty(jyCollectRecordPoList)) {
                 if(log.isInfoEnabled()) {
                     log.info("任务{}取消发货全选处理不齐运单，未发现不齐运单，不做处理，businessId={}，mqBody={}",
@@ -199,17 +199,17 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
      * 取消扫描运单
      * (当前消息的producer)
      */
-    private void sendCancelScanWaybillMq(JySendCancelScanDto jySendCancelScanDto, List<JyCollectRecordPo> jyCollectRecordPoList) {
+    private void sendCancelScanWaybillMq(JySendCancelScanDto jySendCancelScanDto, List<JyCollectRecordStatistics> jyCollectRecordPoList) {
         String methodDesc = "JyCancelScanConsumer:sendCancelScanMq:接货仓发货岗取消发货MQ发送：";
         JySendCancelScanDto mqDto = new JySendCancelScanDto();
         BeanUtils.copyProperties(jySendCancelScanDto, mqDto);
         mqDto.setBizSource(JyWarehouseSendVehicleServiceImpl.OPERATE_SOURCE_MQ);
         mqDto.setBuQiAllSelectFlag(false);//todo 此处该字段一定不能true 否则会消息消费-生产 死循环
         List<Message> messageList = new ArrayList<>();
-        for(JyCollectRecordPo jyCollectRecordPo : jyCollectRecordPoList) {
-            mqDto.setBarCode(jyCollectRecordPo.getAggCode());
+        for(JyCollectRecordStatistics statistics : jyCollectRecordPoList) {
+            mqDto.setBarCode(statistics.getAggCode());
             mqDto.setBarCodeType(JyScanCodeTypeEnum.WAYBILL.getCode());
-            String businessId = String.format("%s:%s:%s:%s", jyCollectRecordPo.getAggCode(), mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+            String businessId = String.format("%s:%s:%s:%s", statistics.getAggCode(), mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
                 log.info("{}按运单取消：businessId={},msx={}", methodDesc, businessId, msg);

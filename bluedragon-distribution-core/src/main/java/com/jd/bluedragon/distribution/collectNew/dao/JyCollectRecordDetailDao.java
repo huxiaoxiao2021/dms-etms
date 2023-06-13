@@ -72,7 +72,7 @@ public class JyCollectRecordDetailDao extends BaseDao<JyCollectRecordDetailPo> {
      * @return
      */
     public List<JyCollectRecordDetailPo> findByCollectionCodesAndAggCode(JyCollectRecordDetailCondition condition) {
-        if(StringUtils.isBlank(condition.getCollectionCode()) || CollectionUtils.isEmpty(condition.getCollectionCodeList())) {
+        if(StringUtils.isBlank(condition.getCollectionCode()) && CollectionUtils.isEmpty(condition.getCollectionCodeList())) {
             return null;
         }
         if(Objects.isNull(condition.getSiteId())) {

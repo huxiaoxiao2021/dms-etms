@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.collectNew.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class JyCollectRecordDao extends BaseDao<JyCollectRecordPo> {
      * @param condition
      * @return
      */
-    public List<JyCollectRecordPo> findBuQiByCollectionCodes(JyCollectRecordCondition condition) {
+    public List<JyCollectRecordStatistics> findBuQiByCollectionCodes(JyCollectRecordCondition condition) {
         return super.getSqlSession().selectList(NAMESPACE.concat(".findPageBuQiByCollectionCodes"), condition);
     }
 

@@ -5,17 +5,13 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.*;
 import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
@@ -193,7 +189,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
 
 
     @Override
-    public List<JyCollectRecordPo> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition) {
+    public List<JyCollectRecordStatistics> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition) {
         return jyCollectRecordDao.findBuQiByCollectionCodes(condition);
     }
 
@@ -203,7 +199,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     }
 
     @Override
-    public List<JyCollectRecordPo> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody) {
+    public List<JyCollectRecordStatistics> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody) {
         String methodDesc = "JyScanCollectServiceImpl.getAllBuQiWaybillCodes:获取所有不齐运单号：";
         if(Objects.isNull(mqBody) || CollectionUtils.isEmpty(mqBody.getCollectionCodes())) {
             return null;
@@ -219,17 +215,18 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
         int pageNum = JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MAX / pageSize;
 
         jqQueryParam.setPageSize(pageSize);
-        List<JyCollectRecordPo> res = new ArrayList<>();
+        List<JyCollectRecordStatistics> res = new ArrayList<>();
         for(int pageNo = 1; pageNo <= pageNum; pageNo ++) {
             int offset = (pageNo - 1) * pageSize;
             jqQueryParam.setOffset(offset);
             if(log.isInfoEnabled()) {
                 log.info("{}查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
             }
-            List<JyCollectRecordPo> collectionRecordPoList = this.findBuQiWaybillByCollectionCodes(jqQueryParam);
+            List<JyCollectRecordStatistics> collectionRecordPoList = this.findBuQiWaybillByCollectionCodes(jqQueryParam);
             if(CollectionUtils.isEmpty(collectionRecordPoList)) {
                 break;
             }
+
             if(collectionRecordPoList.size() < pageSize) {
                 res.addAll(collectionRecordPoList);
                 break;

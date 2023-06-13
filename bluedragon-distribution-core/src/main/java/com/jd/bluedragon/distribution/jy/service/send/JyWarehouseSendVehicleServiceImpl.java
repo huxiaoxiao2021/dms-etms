@@ -33,10 +33,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
+import com.jd.bluedragon.distribution.collectNew.entity.*;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
@@ -828,7 +825,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(log.isInfoEnabled()) {
             log.info("{}不齐运单查询参数={}", methodDesc, JsonHelper.toJson(jqQueryParam));
         }
-        List<JyCollectRecordPo> collectionRecordPoList = jyScanCollectService.findBuQiWaybillByCollectionCodes(jqQueryParam);
+        List<JyCollectRecordStatistics> collectionRecordPoList = jyScanCollectService.findBuQiWaybillByCollectionCodes(jqQueryParam);
         if(CollectionUtils.isEmpty(collectionRecordPoList)) {
             res.setMessage("未查到任务下不齐数据");
             return res;
@@ -841,10 +838,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         collectionRecordPoList.forEach(collectionRecordPo -> {
             BuQiWaybillDto buQiWaybillDto = new BuQiWaybillDto();
             buQiWaybillDto.setWaybillCode(collectionRecordPo.getAggCode());
-            buQiWaybillDto.setTotalNum(collectionRecordPo.getShouldCollectNum());
-            buQiWaybillDto.setScanNum(collectionRecordPo.getRealCollectNum());
+            buQiWaybillDto.setTotalNum(collectionRecordPo.getShouldCollectTotalNum());
+            buQiWaybillDto.setScanNum(collectionRecordPo.getRealCollectTotalNum());
             buQiWaybillDtoList.add(buQiWaybillDto);
         });
+        resData.setBuQiWaybillDtoList(buQiWaybillDtoList);
         res.setData(resData);
         return res;
     }
@@ -869,6 +867,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 log.warn("接货仓发货岗根据批次号condition查collectionCode为空，场地={}，jqCondition={}", siteCode, jqCondition);
                 continue;
             }
+            collectionCodeNewList.add(collectionCode);
             //todo 下面几行代码未来会使用，本期暂时不执行：：当处理错流向任务迁移时，会删除原批次，转移生成新批次，需要在新批次上维护原批次信息。保证新批次查询时能关联到已经删除的批次下的操作数据
 //            List<String> relationCollectionCodeList = businessCodeDao.findAttributeValueByCodeAndPossibleKey(collectionCode, JQCodeServiceImpl.ATTRIBUTE_COLLECTION_CODE);
 //            if(CollectionUtils.isNotEmpty(relationCollectionCodeList)) {
@@ -935,6 +934,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         collectionRecordPoList.forEach(collectionRecordPo -> {
             packageList.add(collectionRecordPo.getScanCode());
         });
+        resData.setPackageList(packageList);
         res.setData(resData);
         return res;
     }

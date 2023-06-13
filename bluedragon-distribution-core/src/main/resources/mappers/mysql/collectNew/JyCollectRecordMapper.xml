@@ -20,7 +20,7 @@
 
   <resultMap id="collectStatistics" type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics">
     <result column="agg_code" property="aggCode" jdbcType="VARCHAR" />
-    <result column="should_collect_total_num" property="shouldCollectNum" jdbcType="INTEGER" />
+    <result column="should_collect_total_num" property="shouldCollectTotalNum" jdbcType="INTEGER" />
     <result column="real_collect_total_num" property="realCollectTotalNum" jdbcType="INTEGER" />
 
   </resultMap>
@@ -176,7 +176,7 @@
       and custom_type = #{customType,jdbcType=VARCHAR}
     </if>
     group by agg_code
-    having real_collect_total_num >= should_collect_total_num
+    having should_collect_total_num >= real_collect_total_num
     limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
   </select>
 

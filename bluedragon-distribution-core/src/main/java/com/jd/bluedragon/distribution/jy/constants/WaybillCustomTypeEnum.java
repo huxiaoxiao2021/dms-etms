@@ -4,8 +4,8 @@ import org.apache.logging.log4j.util.Strings;
 
 public enum WaybillCustomTypeEnum {
     DEFAULT(Strings.EMPTY, "未知"),
-    TO_B("101", "B网"),
-    TO_C("102", "C网")
+    TO_B("toB", "B网"),
+    TO_C("toC", "C网")
     ;
     private String code;
     private String desc;

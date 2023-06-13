@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.collectNew.service;
 
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.*;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 
@@ -28,7 +25,7 @@ public interface JyScanCollectService {
      */
     void upInsertCollectionRecord(JyCollectRecordPo collectRecordPo, boolean insertFlag);
 
-    List<JyCollectRecordPo> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition);
+    List<JyCollectRecordStatistics> findBuQiWaybillByCollectionCodes(JyCollectRecordCondition condition);
 
     List<JyCollectRecordDetailPo> findByCollectionCodesAndAggCode(JyCollectRecordDetailCondition jqDetailQueryParam);
 
@@ -37,7 +34,7 @@ public interface JyScanCollectService {
      * @param mqBody
      * @return
      */
-    List<JyCollectRecordPo> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody);
+    List<JyCollectRecordStatistics> getAllBuQiWaybillCodes(JySendCancelScanDto mqBody);
 
     List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCollectRecordDetailCondition dPo);
 
