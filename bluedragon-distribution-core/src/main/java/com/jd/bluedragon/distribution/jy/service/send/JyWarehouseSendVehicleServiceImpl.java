@@ -234,8 +234,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 && CollectionUtils.isNotEmpty(invokeResult.getData().getToSendVehicleData().getData())) {
 
             List<ToSendVehicle> toSendVehicleList = invokeResult.getData().getToSendVehicleData().getData();
-            //K-流向 V-滑道笼车号  map存储滑道笼车号减少不同派车任务中存在相同流向时的资源消耗
-            HashMap<Long, String> crossTableTrolleyMap = new HashMap<>();
             //派车任务
             for(ToSendVehicle toSendVehicle : toSendVehicleList) {
                 String bizId = toSendVehicle.getSendVehicleBizId();
@@ -249,10 +247,15 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                         sendVehicleDetail.setBizId(bizId);
                     }
                     //滑道笼车号
-                    if(StringUtils.isBlank(sendVehicleDetail.getCrossTableTrolley())) {
-                        sendVehicleDetail.setCrossTableTrolley(this.getCrossTableTrolley(
-                                request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId(), crossTableTrolleyMap)
-                        );
+                    JdResult<TableTrolleyJsfResp> tableTrolleyRes = this.fetchCrossTableTrolley(request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId().intValue());
+                    if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes)) {
+                        String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
+                        String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
+                        sendVehicleDetail.setCrossCode(crossCode);
+                        sendVehicleDetail.setTableTrolleyCode(tableTrolleyCode);
+                        sendVehicleDetail.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
+                    }else {
+                        unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId().intValue());
                     }
                 }
             }
@@ -266,24 +269,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 返回值要么正确，要么null, null由调用方自己处理默认值
      * @return
      */
-    private String fetchCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
+    private JdResult<TableTrolleyJsfResp> fetchCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchCrossTableTrolley:获取滑道笼车号：";
         try{
             TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
             tableTrolleyQuery.setDmsId(currentSiteCode);
             tableTrolleyQuery.setSiteCode(nextSiteCode);
-            JdResult<TableTrolleyJsfResp> jdResult = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlow(tableTrolleyQuery);
-            String crossCode = jdResult.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
-            String tableTrolleyCode = jdResult.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
-
-            if(StringUtils.isBlank(crossCode) || StringUtils.isBlank(tableTrolleyCode)) {
-                if(log.isInfoEnabled()) {
-                    log.info("{}查询滑道号或笼车号为空，参数={}|{}，滑道笼车信息返回={}", methodDesc,
-                            currentSiteCode, nextSiteCode, JsonHelper.toJson(jdResult));
-                }
-                return null;
+            JdResult<TableTrolleyJsfResp>  res = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlow(tableTrolleyQuery);
+            if(log.isInfoEnabled()) {
+                log.info("{}.currentSiteCode={},nextSiteCode={},res={}", methodDesc, currentSiteCode, nextSiteCode, JsonHelper.toJson(res));
             }
-            return String.format("%s-%s", crossCode, tableTrolleyCode);
+            return res;
         }catch (Exception e) {
             log.error("{}服务异常，errMsg={},接货仓发货岗派车任务主页展示滑道笼车号，不卡实操流程，request={]|{}",
                     methodDesc, e.getMessage(), currentSiteCode, nextSiteCode);
@@ -492,8 +488,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage.0", false, true);
 
-            //K-流向 V-滑道笼车号  map存储滑道笼车号减少不同派车任务中存在相同流向时的资源消耗
-            HashMap<Long, String> crossTableTrolleyMap = new HashMap<>();
             vehiclePageList.forEach(entity -> {
                 SendVehicleDto dto = new SendVehicleDto();
                 dto.setSendVehicleBizId(entity.getBizId());
@@ -501,7 +495,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 //获取车牌号
                 dto.setVehicleNumber(this.getVehicleNumber(entity));
                 //获取明细
-                dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request, crossTableTrolleyMap));
+                dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request));
                 sendVehicleDtoList.add(dto);
             });
 
@@ -527,8 +521,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
     private List<SendVehicleDetailDto> getSendVehicleDetailDto(JyBizTaskSendVehicleEntity entity,
-                                                               AppendSendVehicleTaskQueryReq request,
-                                                               HashMap<Long, String> crossTableTrolleyMap) {
+                                                               AppendSendVehicleTaskQueryReq request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.getSendVehicleDetailDto", false, true);
 
         // 根据路由下一节点查询发货流向的任务
@@ -548,8 +541,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 dto.setItemStatus(detailEntity.getVehicleStatus());
                 dto.setItemStatusDesc(JyBizTaskSendStatusEnum.getNameByCode(detailEntity.getVehicleStatus()));
                 //获取滑道笼车号
-                dto.setCrossTableTrolley(this.getCrossTableTrolley(request.getCurrentOperate().getSiteCode(),
-                        detailEntity.getEndSiteId(), crossTableTrolleyMap));
+                //滑道笼车号
+                JdResult<TableTrolleyJsfResp> tableTrolleyRes = this.fetchCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
+                if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes)) {
+                    String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
+                    String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
+                    dto.setCrossCode(crossCode);
+                    dto.setTableTrolleyCode(tableTrolleyCode);
+                    dto.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
+                }else {
+                    unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
+                }
                 //是否已添加到混扫任务中
                 dto.setMixScanTaskProcess(this.isMixScanProcess(detailEntity, request));
                 res.add(dto);
@@ -557,28 +559,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         Profiler.registerInfoEnd(info);
         return res;
-    }
-
-    /**
-     * 获取滑道笼车号
-     * @param startSiteId
-     * @param endSiteId
-     * @param crossTableTrolleyMap  调用方必传对象，不允许为空
-     * @return
-     */
-    private String getCrossTableTrolley(Integer startSiteId, Long endSiteId, HashMap<Long, String> crossTableTrolleyMap) {
-        //滑道笼车号
-        if(StringUtils.isNotBlank(crossTableTrolleyMap.get(endSiteId))) {
-            return crossTableTrolleyMap.get(endSiteId);
-        }else {
-            String crossTableTrolley = this.fetchCrossTableTrolley(startSiteId, endSiteId.intValue());
-            if(StringUtils.isNotBlank(crossTableTrolley)) {
-                crossTableTrolleyMap.put(endSiteId, crossTableTrolley);
-                return crossTableTrolley;
-            }else {
-                return unknownCrossTableTrolley(startSiteId, endSiteId.intValue());
-            }
-        }
     }
 
     /**
