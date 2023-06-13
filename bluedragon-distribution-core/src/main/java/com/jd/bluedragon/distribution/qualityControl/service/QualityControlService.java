@@ -224,7 +224,7 @@ public class QualityControlService {
         try{
             final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request);
             if (!checkCanSubmitResult.isSuccess()) {
-                result.setMessage(checkCanSubmitResult.getMessage());
+                result.customMessage(QualityControlResponse.CODE_WRONG_STATUS, checkCanSubmitResult.getMessage());
                 return result;
             }
             convertThenAddTask(request);
