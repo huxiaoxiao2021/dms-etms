@@ -40,6 +40,11 @@ public class MixScanTaskDetailDto implements Serializable {
     
     private String vehicleNumber;
 
+    /**
+     * 是否是自建任务 true：自建
+     */
+    private Boolean manualCreatedFlag;
+    
     public String getTemplateCode() {
         return templateCode;
     }
@@ -126,5 +131,13 @@ public class MixScanTaskDetailDto implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public Boolean getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Boolean manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 }
