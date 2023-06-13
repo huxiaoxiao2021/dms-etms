@@ -113,6 +113,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		}
 		JyWorkGridManagerCaseQuery taskCaseQuery = new JyWorkGridManagerCaseQuery();
 		taskCaseQuery.setBizId(taskData.getBizId());
+		taskCaseQuery.setSiteCode(taskData.getSiteCode());
 		taskCaseQuery.setTaskType(taskData.getTaskType());
 		taskCaseQuery.setTaskCode(taskData.getTaskCode());
 		List<JyWorkGridManagerCaseData> caseList = jyWorkGridManagerCaseService.loadCaseListForTaskData(taskCaseQuery);

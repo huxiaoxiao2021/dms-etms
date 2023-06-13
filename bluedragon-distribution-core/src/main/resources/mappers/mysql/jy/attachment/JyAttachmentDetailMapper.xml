@@ -155,7 +155,7 @@
         limit 1
     </select>
 
-    <select id="queryPageListByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultMap="JyAttachmentDetailDao">
+    <select id="queryDataListByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultMap="JyAttachmentDetailDao">
         select
             <include refid="Base_Column_List"/>
         from

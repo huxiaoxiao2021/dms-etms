@@ -13,7 +13,7 @@ import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem;
  *
  */
 public class JyWorkGridManagerCaseItemDao extends BaseDao<JyWorkGridManagerCaseItem> {
-	final static String NAMESPACE = JyWorkGridManagerCaseDao.class.getName();
+	final static String NAMESPACE = JyWorkGridManagerCaseItemDao.class.getName();
     
 	public List<JyWorkGridManagerCaseItem> queryItemListByBizId(String bizId) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryItemListByBizId", bizId);
