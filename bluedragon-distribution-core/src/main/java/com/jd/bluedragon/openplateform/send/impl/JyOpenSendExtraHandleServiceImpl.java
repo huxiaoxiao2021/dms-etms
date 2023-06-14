@@ -210,7 +210,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         Result<Boolean> result = Result.success();
         try {
             // 发出转运发货完成后的两个mq消息
-            this.sendTysSendMq4Urban(jyCargoOperate);
+            this.sendSendFinishMq4Urban(jyCargoOperate);
         } catch (Exception e) {
             log.error("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish exception param {}", JSON.toJSONString(jyCargoOperate), e);
             return result.toFail("系统异常");
