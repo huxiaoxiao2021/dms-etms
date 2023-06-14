@@ -460,7 +460,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.info("创建混扫任务失败：{}", JsonHelper.toJson(createMixScanTaskReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
-            log.error("JyGroupSortCrossDetailServiceImpl deleteMixScanTask 创建混扫任务异常 {}", JsonHelper.toJson(createMixScanTaskReq), e);
+            log.error("JyGroupSortCrossDetailServiceImpl createMixScanTask 创建混扫任务异常 {}", JsonHelper.toJson(createMixScanTaskReq), e);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "创建混扫任务异常！");
         }
     }
@@ -492,7 +492,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkUser(appendMixScanTaskFlowReq.getUser());
             checkCurrentOperate(appendMixScanTaskFlowReq.getCurrentOperate());
             checkGroupCode(appendMixScanTaskFlowReq.getGroupCode());
-
+            if(StringUtils.isEmpty(appendMixScanTaskFlowReq.getTemplateCode())) {
+                response.toFail("入参没有混扫任务编号");
+                return response;
+            }
+            
             if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(appendMixScanTaskFlowReq.getGroupCode(), appendMixScanTaskFlowReq.getTemplateCode())) {
                 response.toFail("系统繁忙，请稍后再试！");
                 return response;
@@ -538,6 +542,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         condition.setStartSiteId(Long.valueOf(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
         condition.setTemplateCode(appendMixScanTaskFlowReq.getTemplateCode());
         List<JyGroupSortCrossDetailEntity> detailList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+        if (CollectionUtils.isEmpty(detailList)) {
+            throw new JyBizException("未查询到该混扫任务信息");
+        }
+        appendMixScanTaskFlowReq.setTemplateName(detailList.get(0).getTemplateName());
         
         Integer max = jyWarehouseSendVehicleService.getFlowMaxBySiteCode(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
         if (max < (appendMixScanTaskFlowReq.getSendFlowList().size() + detailList.size() )) {
