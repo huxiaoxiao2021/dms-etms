@@ -858,6 +858,11 @@
         <property name="topic" value="${jmq.topic.jy.open.platform.send}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 拣运开发平台接收发货完成消息 -->
+    <bean id="jyOpenPlatformSendFinishProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.open.platform.sendFinish}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
     <!-- 转运发货任务完成消息 -->
     <bean id="loadPackageSendCompleteProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.load_package_send_complete}"/>

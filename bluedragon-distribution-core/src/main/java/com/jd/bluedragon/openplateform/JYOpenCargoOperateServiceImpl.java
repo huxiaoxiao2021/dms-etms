@@ -65,8 +65,8 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     private SortingServiceFactory sortingServiceFactory;
 
     @Autowired
-    @Qualifier("jyOpenPlatformSendProducer")
-    private DefaultJMQProducer jyOpenPlatformSendProducer;
+    @Qualifier("jyOpenPlatformSendFinishProducer")
+    private DefaultJMQProducer jyOpenPlatformSendFinishProducer;
 
     @Override
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
@@ -298,12 +298,32 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         return new InvokeResult<>();
     }
 
+    /**
+     * 发货完成处理
+     * @param entity 发货数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-06-13 21:36:57 周二
+     */
+    @Override
+    public InvokeResult<Boolean> sendVehicleFinish(JYCargoOperateEntity entity) {
+        try {
+            log.info("JYOpenCargoOperateServiceImpl sendVehicleFinish {}", JsonHelper.toJson(entity));
+            this.sendOpenPlatformSendMq(entity);
+            return new InvokeResult<>();
+        } catch (Exception e) {
+            log.error("JYOpenCargoOperateServiceImpl sendVehicleFinish exception {}", JsonHelper.toJson(entity), e);
+            throw new RuntimeException(e);
+        }
+    }
+
     private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
         try {
             log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
-            jyOpenPlatformSendProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
+            jyOpenPlatformSendFinishProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
         } catch (JMQException e) {
             log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+            throw new RuntimeException(e);
         }
     }
 }

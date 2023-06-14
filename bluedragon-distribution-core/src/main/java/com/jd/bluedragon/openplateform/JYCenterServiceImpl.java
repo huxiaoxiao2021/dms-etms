@@ -1,5 +1,6 @@
 package com.jd.bluedragon.openplateform;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.openplateform.entity.JYCargoOperateEntity;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -444,6 +446,184 @@ public class JYCenterServiceImpl implements JYCenterService {
         }
         result.success();
 
+        return result;
+    }
+
+    /**
+     * 接收装车发货完成接口
+     *
+     * @param sendVehicleFinishRequest 发货完成请求
+     * @return 返回是否成功
+     */
+    @Override
+    @JProfiler(jKey = "DMS.JSF.JYCenterService.sendVehicleFinish", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> sendVehicleFinish(SendVehicleFinishRequest sendVehicleFinishRequest) {
+        if(log.isInfoEnabled()){
+            log.info("JYCenterServiceImpl.sendVehicleFinish param {}", JsonHelper.toJson(sendVehicleFinishRequest));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+
+        // check param
+        final Result<Void> checkResult = this.checkParam4sendVehicleFinish(sendVehicleFinishRequest);
+        if (!checkResult.isSuccess()) {
+            log.info("JYCenterServiceImpl.sendVehicleFinish check fail {} {}", JSON.toJSONString(sendVehicleFinishRequest), JSON.toJSONString(checkResult));
+            result.parameterError(checkResult.getMessage());
+            return result;
+        }
+
+        try {
+            OperatorInfo operatorInfo = sendVehicleFinishRequest.getOperatorInfo();
+
+            BaseStaffSiteOrgDto operateSiteInfo = baseService.queryDmsBaseSiteByCode(operatorInfo.getOperateSiteCode());
+            if (operateSiteInfo == null) {
+                result.confirmMessage(String.format("操作站点%s未在京东维护", operatorInfo.getOperateSiteCode()));
+                return result;
+            }
+
+            final List<String> batchCodes = sendVehicleFinishRequest.getBatchCodes();
+
+            // 根据批次获取去重的始发地、目的地
+            Map<String, Integer> batchCodeStartSiteCodeMap = new HashMap<>();
+            Map<String, Integer> batchCodeReceiveSiteCodeMap = new HashMap<>();
+            Map<Integer, BaseStaffSiteOrgDto> siteMap = new HashMap<>();
+            siteMap.put(operateSiteInfo.getSiteCode(), operateSiteInfo);
+
+            for (String batchCode : batchCodes) {
+                Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(batchCode);
+                Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(batchCode);
+
+                batchCodeStartSiteCodeMap.put(batchCode, createSiteCode);
+                batchCodeReceiveSiteCodeMap.put(batchCode, receiveSiteCode);
+
+                if (!siteMap.containsKey(createSiteCode)){
+                    BaseStaffSiteOrgDto startSite = baseService.queryDmsBaseSiteByCode(String.valueOf(createSiteCode));
+                    if (startSite == null) {
+                        result.confirmMessage(String.format("批次号%s表示的货物始发站点%s未在京东维护", batchCode, createSiteCode));
+                        return result;
+                    }
+                    siteMap.put(createSiteCode, startSite);
+                }
+
+                if (!siteMap.containsKey(receiveSiteCode)) {
+                    BaseStaffSiteOrgDto receiveSite = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
+                    if (receiveSite == null) {
+                        result.confirmMessage(String.format("批次号%s表示的货物目的站点%s未在京东维护", batchCode, receiveSite));
+                        return result;
+                    }
+                    siteMap.put(receiveSiteCode, receiveSite);
+                }
+            }
+
+            List<Task> tasks = new ArrayList<>();
+            for (String batchCode : batchCodes) {
+                final Integer startSiteCode = batchCodeStartSiteCodeMap.get(batchCode);
+                final Integer receiveSiteCode = batchCodeReceiveSiteCodeMap.get(batchCode);
+                final BaseStaffSiteOrgDto startSite = siteMap.get(startSiteCode);
+                final BaseStaffSiteOrgDto receiveSite = siteMap.get(receiveSiteCode);
+
+                operatorInfo.setOperateSiteId(operateSiteInfo.getSiteCode());
+                operatorInfo.setOperateSiteCode(operateSiteInfo.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(operateSiteInfo.getSiteName());
+                operatorInfo.setOperateUserId(-1);
+
+                JYCargoOperateEntity entity = new JYCargoOperateEntity();
+                entity.setSendCode(batchCode);
+                // 增加任务开始扫描时间及结束时间
+                entity.setTaskScanBeginTime(sendVehicleFinishRequest.getScanBeginTime());
+                entity.setTaskScanEndTime(sendVehicleFinishRequest.getScanEndTime());
+
+                entity.setCreateSiteId(startSite.getSiteCode());
+                entity.setCreateSiteCode(startSite.getDmsSiteCode());
+                entity.setCreateSiteName(startSite.getSiteName());
+                entity.setReceiveSiteId(receiveSite.getSiteCode());
+                entity.setReceiveSiteCode(receiveSite.getDmsSiteCode());
+                entity.setReceiveSiteName(receiveSite.getSiteName());
+                entity.setOperatorInfo(operatorInfo);
+                entity.setRequestProfile(sendVehicleFinishRequest.getRequestProfile());
+
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(entity));
+                task.setType(Task.TASK_TYPE_JY_CARGO_OPERATE_SEND_FINISH);
+                task.setTableName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE);
+                task.setSequenceName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ);
+                task.setOwnSign(BusinessHelper.getOwnSign());
+                task.setKeyword1(entity.getBarcode());
+                task.setKeyword2(operatorInfo.getOperateSiteCode());
+                task.setFingerprint(Md5Helper.encode(JsonHelper.toJson(entity)));
+                tasks.add(task);
+            }
+            taskService.addBatch(tasks);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    private Result<Void> checkParam4OperatorInfo(OperatorInfo operatorInfo){
+        Result<Void> result = Result.success();
+        if (operatorInfo == null) {
+            return result.toFail("参数错误，operatorInfo不能为空");
+        }
+        if (StringUtils.isEmpty(operatorInfo.getOperateUserErp())) {
+            return result.toFail("参数错误，operatorInfo.operateUserErp不能为空");
+        }
+        if (StringUtils.isEmpty(operatorInfo.getOperateUserName())) {
+            return result.toFail("参数错误，operatorInfo.operateUserName不能为空");
+        }
+        if (StringUtils.isEmpty(operatorInfo.getOperateSiteCode())) {
+            return result.toFail("参数错误，operatorInfo.operateSiteCode不能为空");
+        }
+        if (StringUtils.isEmpty(operatorInfo.getOperateSiteName())) {
+            return result.toFail("参数错误，operatorInfo.operateSiteName不能为空");
+        }
+        if (operatorInfo.getOperateTime() == null) {
+            return result.toFail("参数错误，operatorInfo.operateTime不能为空");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4RequestProfile(RequestProfile requestProfile){
+        Result<Void> result = Result.success();
+        if (requestProfile == null) {
+            return result.toFail("参数错误，requestProfile不能为空");
+        }
+        if (StringUtils.isEmpty(requestProfile.getSysSource())) {
+            return result.toFail("参数错误，requestProfile.sysSource不能为空");
+        }
+        if (requestProfile.getTimestamp() == null) {
+            return result.toFail("参数错误，requestProfile.timestamp不能为空");
+        }
+        if (requestProfile.getTimestamp() <= 0) {
+            return result.toFail("参数错误，requestProfile.timestamp值不合法，必须大于0");
+        }
+
+        return result;
+    }
+
+    private Result<Void> checkParam4sendVehicleFinish(SendVehicleFinishRequest sendVehicleFinishRequest) {
+        Result<Void> result = Result.success();
+
+        if (sendVehicleFinishRequest == null) {
+            return result.toFail("参数错误，参数不能为空");
+        }
+        final Result<Void> checkParam4OperatorInfoResult = this.checkParam4OperatorInfo(sendVehicleFinishRequest.getOperatorInfo());
+        if (!checkParam4OperatorInfoResult.isSuccess()) {
+            return result.toFail(checkParam4OperatorInfoResult.getMessage(), checkParam4OperatorInfoResult.getCode());
+        }
+        final Result<Void> checkParam4RequestProfileResult = this.checkParam4RequestProfile(sendVehicleFinishRequest.getRequestProfile());
+        if (!checkParam4RequestProfileResult.isSuccess()) {
+            return result.toFail(checkParam4RequestProfileResult.getMessage(), checkParam4RequestProfileResult.getCode());
+        }
+        if (sendVehicleFinishRequest.getScanBeginTime() == null) {
+            return result.toFail("参数错误，scanBeginTime不能为空");
+        }
+        if (sendVehicleFinishRequest.getScanEndTime() == null) {
+            return result.toFail("参数错误，scanEndTime不能为空");
+        }
+        if (CollectionUtils.isEmpty(sendVehicleFinishRequest.getBatchCodes())) {
+            return result.toFail("参数错误，batchCodes不能为空");
+        }
         return result;
     }
 

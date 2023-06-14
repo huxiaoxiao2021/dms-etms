@@ -19,4 +19,12 @@ public interface JyOpenSendExtraHandleService {
      * @time 2023-05-26 17:42:19 周五
      */
     Result<Boolean> afterOpenPlatformSend(JYCargoOperateEntity jyCargoOperateDto);
+
+    /**
+     * 发货完成后处理
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-06-08 10:09:32 周四
+     */
+    Result<Boolean> afterOpenPlatformSendFinish(JYCargoOperateEntity jyCargoOperateDto);
 }

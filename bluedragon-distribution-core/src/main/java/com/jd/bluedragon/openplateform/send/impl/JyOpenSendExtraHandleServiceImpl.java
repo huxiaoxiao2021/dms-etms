@@ -190,4 +190,27 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         message.setBusinessId(jyTysSendPackageDetailDto.getPackageCode());
         return message;
     }
+
+    /**
+     * 发货完成后处理
+     *
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-06-08 10:09:32 周四
+     */
+    @Override
+    public Result<Boolean> afterOpenPlatformSendFinish(JYCargoOperateEntity jyCargoOperate) {
+        log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish param {}", JSON.toJSONString(jyCargoOperate));
+        Result<Boolean> result = Result.success();
+        try {
+            // 发出转运发货完成后的两个mq消息
+            // 发送装车完成消息
+            // 查找发货明细，发送明细消息
+            this.sendTysSendMq4Urban(jyCargoOperate);
+        } catch (Exception e) {
+            log.error("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish exception param {}", JSON.toJSONString(jyCargoOperate), e);
+            return result.toFail("系统异常");
+        }
+        return result;
+    }
 }
