@@ -1935,6 +1935,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setReceiveSiteName(receiveSiteName);
         sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
         sortDomain.setOperatorId(domain.getOperatorId());
+        sortDomain.setBizSource(domain.getBizSource());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
