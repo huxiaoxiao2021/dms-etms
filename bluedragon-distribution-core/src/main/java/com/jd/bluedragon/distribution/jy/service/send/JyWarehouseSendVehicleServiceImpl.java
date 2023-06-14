@@ -778,15 +778,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         res.success();
 
         String sendVehicleBizId = request.getSendVehicleBizId();
-        if(StringUtils.isBlank(sendVehicleBizId)) {
-            JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
-            if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
-                log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
-                res.parameterError("未查到该流向任务信息");
-                return res;
-            }
-            sendVehicleBizId = entity.getSendVehicleBizId();
-        }
 
         Integer siteId = request.getCurrentOperate().getSiteCode();
         List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(sendVehicleBizId);
@@ -876,15 +867,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         InvokeResult<BuQiPackageRes> res = new InvokeResult<>();
         res.success();
         String sendVehicleBizId = request.getSendVehicleBizId();
-        if(StringUtils.isBlank(sendVehicleBizId)) {
-            JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
-            if(Objects.isNull(entity) || StringUtils.isBlank(entity.getSendVehicleBizId())) {
-                log.warn("{}未查到当前发货任务派车流向信息，req={},res={}", methodDesc, JsonHelper.toJson(request), JsonHelper.toJson(entity));
-                res.parameterError("未查到该流向任务信息");
-                return res;
-            }
-            sendVehicleBizId = entity.getSendVehicleBizId();
-        }
         List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(sendVehicleBizId);
         if(CollectionUtils.isEmpty(sendCodes)) {
             res.parameterError("未查到该任务发货批次数据");
