@@ -83,6 +83,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -1411,5 +1413,33 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             }
         }
         return res;
+    }
+
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean mixScanTaskComplete(MixScanTaskCompleteReq request) {
+        try {
+            // 完成混扫任务
+            if (!jyGroupSortCrossDetailService.mixScanTaskComplete(request.getTemplateCode())) {
+                return false;
+            }
+            // 获取混扫任务下的流向信息
+            JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+            condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            condition.setTemplateCode(request.getTemplateCode());
+            condition.setGroupCode(request.getGroupCode());
+            // 更新车辆状态
+            List<JyGroupSortCrossDetailEntity> entities = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
+            List<String> detailBizIds = new ArrayList<>();
+            for (JyGroupSortCrossDetailEntity entity : entities) {
+                detailBizIds.add(entity.getSendVehicleDetailBizId());
+            }
+            
+            if (!updateStatusByTemplateCode(detailBizIds)) {
+                throw new JyBizException("完成混扫任务失败!");
+            }
+        }catch (Exception e) {
+            throw new JyBizException("完成混扫任务失败!");
+        }
+        return true;
     }
 }

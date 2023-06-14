@@ -687,12 +687,13 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已经完成，请勿重新操作");
                 return response;
             }
-            // 完成混扫任务
-            if (!jyGroupSortCrossDetailService.mixScanTaskComplete(mixScanTaskReq.getTemplateCode())) {
+
+            // 完成混扫任务 修改派车任务状态
+            if (!jyWarehouseSendVehicleService.mixScanTaskComplete(mixScanTaskReq)){
                 response.toFail("完成混扫任务失败！");
                 return response;
             }
-
+            
             jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
 
         } catch (JyBizException e) {
