@@ -409,7 +409,7 @@ public class JyScanCollectStrategy {
      * @return
      */
     private InvokeResult<List<String>> delCollectDetailAndReturnDelCollectionCodes(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
-        String methodDesc = "JyScanCollectStrategy.delCollectDetailAndReturnDelCollectionCodes删除集齐明细返回删除数据的collectionCode：";
+        String methodDesc = "JyScanCollectStrategy.delCollectDetailAndReturnDelCollectionCodes删除集齐明细返回删除数据的：";
         InvokeResult<List<String>> res = new InvokeResult<>();
         res.success();
         //防重复（区分真的查不到和重复操作同一批数据删除之后再查查不到， 删除后面统计修改获取不到锁会重试，需要保证删除后可以再次出发后面逻辑）

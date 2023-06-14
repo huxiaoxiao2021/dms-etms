@@ -107,7 +107,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public static final Integer MIX_SCAN_TASK_DEFAULT_FLOW_NUM = 10;
 
     public static final String OPERATE_SOURCE_PDA = "pdaScan";
-    public static final String OPERATE_SOURCE_MQ = "allSelectSplit";
+    public static final String OPERATE_SOURCE_MQ = "allSelectMqSplit";
 
 
     @Autowired
@@ -248,14 +248,19 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     }
                     //滑道笼车号
                     JdResult<TableTrolleyJsfResp> tableTrolleyRes = this.fetchCrossTableTrolley(request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId().intValue());
-                    if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes)) {
+                    if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() &&
+                            !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
                         String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
                         String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
                         sendVehicleDetail.setCrossCode(crossCode);
                         sendVehicleDetail.setTableTrolleyCode(tableTrolleyCode);
                         sendVehicleDetail.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
                     }else {
-                        unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId().intValue());
+                        String crossTableTrolley = unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), sendVehicleDetail.getEndSiteId().intValue());
+                        if(log.isInfoEnabled()) {
+                            log.info("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，设置默认滑道笼车号={}，request={}", crossTableTrolley, JsonHelper.toJson(request));
+                        }
+                        sendVehicleDetail.setCrossTableTrolley(crossTableTrolley);
                     }
                 }
             }
@@ -550,7 +555,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     dto.setTableTrolleyCode(tableTrolleyCode);
                     dto.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
                 }else {
-                    unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
+                    String crossTableTrolley = unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
+                    if(log.isInfoEnabled()) {
+                        log.info("getSendVehicleDetailDto:滑道笼车查询为空或者查询失败，设置默认滑道笼车号={}，request={}", crossTableTrolley, JsonHelper.toJson(request));
+                    }
+                    dto.setCrossTableTrolley(crossTableTrolley);
                 }
                 //是否已添加到混扫任务中
                 dto.setMixScanTaskProcess(this.isMixScanProcess(detailEntity, request));
@@ -929,7 +938,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public InvokeResult<Void> buQiCancelSendScan(BuQiCancelSendScanReq request) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.buQiCancelSendScan:不齐取消处理：";
         if(log.isInfoEnabled()) {
-            log.info("{},start:参数={}", JsonHelper.toJson(request));
+            log.info("{},start:参数={}", methodDesc, JsonHelper.toJson(request));
         }
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
@@ -945,37 +954,32 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             return res;
         }
         //发车任务状态校验
-        JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleBizId());
+        JyBizTaskSendVehicleEntity entity = jyBizTaskSendVehicleService.findByBizId(request.getSendVehicleBizId());
         if(Objects.isNull(entity)) {
             res.parameterError("未找到当前派车任务");
             return res;
         }
         if(JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())) {
-            res.parameterError(String.format("已封车禁止取消发货", JyBizTaskSendDetailStatusEnum.getNameByCode(entity.getVehicleStatus())));
+            res.parameterError(String.format("已封车禁止取消发货[%s]", JyBizTaskSendDetailStatusEnum.getNameByCode(entity.getVehicleStatus())));
             return res;
         }
-        //不齐数据过滤
-        List<SendM> sendMList = new ArrayList();
+
+        InvokeResult<List<String>> invokeResult = this.getTaskAllCollectionCode(request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId());
+        if(!invokeResult.codeSuccess()) {
+            res.parameterError(invokeResult.getMessage());
+            return  res;
+        }
+
         if (!Objects.isNull(request.getCheckAllFlag()) && request.getCheckAllFlag()) {
             //同一个BizId全选防刷保护
             if(!jyWarehouseSendVehicleCacheService.lockCacheCancelScanAllSelectProtect(request.getSendVehicleBizId(), request.getUser().getUserErp())) {
                 res.parameterError(String.format("该任务全选正在操作中，%s秒后再操作", JyWarehouseSendVehicleCacheService.LOCK_CANCEL_SCAN_ALL_SELECT_PROTECT_TIMEOUT_SECONDS));
                 return res;
             }
-            InvokeResult<List<String>> invokeResult = this.getTaskAllCollectionCode(request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId());
-            if(!invokeResult.codeSuccess()) {
-                res.parameterError(invokeResult.getMessage());
-                return  res;
-            }
 
             sendCancelScanMq(true, request, invokeResult.getData());
         } else if (ObjectHelper.isNotNull(request.getPackList())) {
-            sendCancelScanMq(true, request, null);
-        }
-        //
-        if(CollectionUtils.isEmpty(sendMList)) {
-            res.parameterError("未查到符合条件数据");
-            return res;
+            sendCancelScanMq(false, request, null);
         }
         return res;
 
@@ -1034,7 +1038,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             String businessId = String.format("selectAll:%s:%s", mqDto.getMainTaskBizId(), mqDto.getJyPostType());
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {
-                log.info("{}全选：businessId={},msx={}", methodDesc, businessId, msg);
+                log.info("{}全选：businessId={},msg={}", methodDesc, businessId, msg);
             }
             jyCancelScanProducer.sendOnFailPersistent(businessId, msg);
         }else {

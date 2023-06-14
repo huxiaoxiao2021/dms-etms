@@ -125,7 +125,7 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
         if(StringUtils.isNotBlank(mqBody.getBarCode())){
             //按件处理
             SendM sendM = generateSendM(mqBody.getBarCode(), mqBody);
-            boolean cancelFlag =  singleCancelDeliverHandler(sendM, businessId);
+            boolean cancelFlag = singleCancelDeliverHandler(sendM, businessId);
             if(cancelFlag) {
                 //取消扫描处理集齐数据
                 sendCancelScanCollectHandlerMQ(mqBody);
@@ -186,6 +186,10 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
             if (!JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())) {
                 if(DeliveryResponse.CODE_DELIVERY_BY_WAYBILL_PROCESSING.equals(tDResponse.getCode())) {
                     log.warn("{}正在取消发货中，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
+                    return true;
+                }
+                if(DeliveryResponse.CODE_Delivery_NO_MESAGE.equals(tDResponse.getCode())) {
+                    log.warn("{}未查到包裹的发货数据，不做处理，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
                     return true;
                 }
                 log.error("{}取消发货失败，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));

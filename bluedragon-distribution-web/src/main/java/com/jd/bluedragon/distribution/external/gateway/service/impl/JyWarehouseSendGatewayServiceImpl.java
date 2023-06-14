@@ -399,7 +399,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("派车任务编码为空");
                 return res;
             }
-            if(CollectionUtils.isEmpty(request.getPackList()) || Objects.isNull(request.getCheckAllFlag())) {
+            if(CollectionUtils.isEmpty(request.getPackList()) && Objects.isNull(request.getCheckAllFlag())) {
                 res.toFail("不齐取消数据为空");
                 return res;
             }
