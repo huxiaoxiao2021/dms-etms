@@ -276,6 +276,11 @@ public class JYCenterServiceImpl implements JYCenterService {
             return result;
         }
 
+        if (batchSortingPageRequest.getCargoNoList().size() > PAGE_SIZE) {
+            result.parameterError(String.format("一次最多传%s条", PAGE_SIZE));
+            return result;
+        }
+
 
         BaseStaffSiteOrgDto siteOrgDto = baseService.queryDmsBaseSiteByCode(batchSortingPageRequest.getOperateSiteCode());
         if (siteOrgDto == null) {
@@ -366,6 +371,11 @@ public class JYCenterServiceImpl implements JYCenterService {
 
         if (StringUtils.isEmpty(batchSendPageRequest.getBatchCode()) || !BusinessHelper.isSendCode(batchSendPageRequest.getBatchCode())) {
             result.parameterError("缺少货物流向批次信息");
+            return result;
+        }
+
+        if (batchSendPageRequest.getCargoNoList().size() > PAGE_SIZE) {
+            result.parameterError(String.format("一次最多传%s条", PAGE_SIZE));
             return result;
         }
 
@@ -623,6 +633,9 @@ public class JYCenterServiceImpl implements JYCenterService {
         }
         if (CollectionUtils.isEmpty(sendVehicleFinishRequest.getBatchCodes())) {
             return result.toFail("参数错误，batchCodes不能为空");
+        }
+        if (sendVehicleFinishRequest.getBatchCodes().size() > PAGE_SIZE) {
+            return result.toFail(String.format("参数错误，batchCodes一次最多传%s条", PAGE_SIZE));
         }
         return result;
     }
