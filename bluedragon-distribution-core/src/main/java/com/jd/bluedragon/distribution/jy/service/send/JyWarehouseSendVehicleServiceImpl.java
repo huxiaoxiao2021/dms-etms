@@ -537,7 +537,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             vehicleDetailList.forEach(detailEntity -> {
                 SendVehicleDetailDto dto = new SendVehicleDetailDto();
                 dto.setBizId(entity.getBizId());
-                dto.setSendDetailBizId(detailEntity.getSendVehicleBizId());
+                dto.setSendDetailBizId(detailEntity.getBizId());
                 dto.setEndSiteId(detailEntity.getEndSiteId());
                 dto.setEndSiteName(detailEntity.getEndSiteName());
                 dto.setItemStatus(detailEntity.getVehicleStatus());
@@ -1107,8 +1107,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             List<Integer> siteRouters = new ArrayList<Integer>();
             Set<Integer> nextRouters = new HashSet<Integer>();
             siteRouters.add(siteCode);
-            siteRouters.addAll(nextRouters);
-            result.setData(siteRouters);
+
             /* 根据operateType判断是否走路由，还是走分拣的配置 */
             if (request.getOperateType().equals(JySendFlowConfigEnum.ROUTER.getCode())) {
                 /* 通过路由调用 */
@@ -1116,7 +1115,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 if (nextRouters.size() == 1) {
                     result.error("获取路由数据失败");
                 }
-                return result;
             } else {
                 /* 按龙门架时需要先获取大小站逻辑 */
                 Integer receiveSite = siteCode;
@@ -1125,8 +1123,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     receiveSite = selfSite;
                 }
                 /* 通过发货配置jsf接口调用 */
-                return getSiteRoutersFromDMSAutoJsf(request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
+                result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
             }
+            siteRouters.addAll(nextRouters);
+            result.setData(siteRouters);
+            return result;
         }catch (Exception e) {
             Profiler.functionError(info);
             log.info("{},请求={}", methodDesc, JsonHelper.toJson(request), e);

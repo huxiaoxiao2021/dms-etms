@@ -45,6 +45,8 @@ public class JyWarehouseSendGatewayServiceTest {
     private static final CurrentOperate CURRENT_OPERATE = new CurrentOperate(910,"马驹桥分拣中心",new Date());
     public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
 
+    public static final CurrentOperate SITE_223094 = new CurrentOperate(223094, "北京马驹桥接货仓", new Date());
+
     private static final User USER = new User(111,"李文吉");
     public static final User USER_wuyoude = new User(17331,"吴有德");
     public static final String GROUP_CODE = "G00000059567";
@@ -270,7 +272,7 @@ public class JyWarehouseSendGatewayServiceTest {
                 "    }";
 
         AppendSendVehicleTaskQueryReq paramDto = JsonHelper.fromJson(paramJson, AppendSendVehicleTaskQueryReq.class);
-        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setCurrentOperate(SITE_223094);
         paramDto.setUser(USER_wuyoude);
         paramDto.setMixScanTaskCode("CTT23060600000010");
         paramDto.setGroupCode(GROUP_CODE);
@@ -389,7 +391,7 @@ public class JyWarehouseSendGatewayServiceTest {
 //                    String packageCode = "JD0003420475846-1-1-";
                     String waybillCode = WaybillUtil.getWaybillCode(packageCode);
                     SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
-                    paramDto.setCurrentOperate(SITE_40240);
+                    paramDto.setCurrentOperate(SITE_223094);
                     paramDto.setUser(USER_wuyoude);
                     paramDto.setMixScanTaskCode("CTT23060600000010");
                     paramDto.setGroupCode(GROUP_CODE);
@@ -414,7 +416,7 @@ public class JyWarehouseSendGatewayServiceTest {
         paramDto.setDeviceTypeCode("GANTRY");
         paramDto.setIsEnable(1);
 //        paramDto.setSiteCode("40240");
-        paramDto.setSiteCode("910");
+        paramDto.setSiteCode("223094");
 
         JdCResponse<List<DeviceInfoDto>> res = deviceGatewayService.getDeviceInfoList(paramDto);
         if(res.isSucceed() && CollectionUtils.isNotEmpty(res.getData())) {
