@@ -144,4 +144,12 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId);
+
+    /**
+     * 根据bizId更新派车任务状态
+     * @param detailBizList
+     * @param status
+     * @return
+     */
+    boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status);
 }

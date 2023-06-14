@@ -682,4 +682,14 @@
         </foreach>
 
     </select>
+    
+    <update id="updateStatusByDetailVehicleBizIds">
+        update jy_biz_task_send_vehicle_detail
+        set vehicle_status = #{status}
+        where yn = 1
+        and biz_id in
+        <foreach collection="detailBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </update>
 </mapper>

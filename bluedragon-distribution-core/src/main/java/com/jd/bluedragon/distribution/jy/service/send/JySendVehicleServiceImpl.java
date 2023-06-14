@@ -31,10 +31,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskDetailDto;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowAgg;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailReq;
-import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.MixScanTaskFlowDetailRes;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
@@ -3978,5 +3975,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return JyScanCodeTypeEnum.BOX.getCode();
         }
         return Strings.EMPTY;
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.updateStatusByTemplateCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateStatusByTemplateCode(List<String> detailBizIds) {
+        return taskSendVehicleDetailService.updateStatusByDetailVehicleBizIds(detailBizIds, JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
     }
 }
