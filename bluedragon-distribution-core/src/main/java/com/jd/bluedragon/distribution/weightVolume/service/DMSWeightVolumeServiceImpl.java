@@ -289,7 +289,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode,checkType)) {
                     logger.info("零称重量方 本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
                     if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
-                        logger.info("零称重量方 经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
+                        logger.info("零称重量方 校验分拣中心复重需要拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
                         return Boolean.TRUE;
                     }else{
                         logger.info("零称重量方 本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
