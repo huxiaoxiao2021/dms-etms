@@ -1,17 +1,10 @@
-package com.jd.bluedragon.distribution.jy.dto.work;
+package com.jd.bluedragon.distribution.work.domain;
 
-import java.util.Date;
 import java.io.Serializable;
+import java.util.Date;
 
-/**
- * @ClassName: JyBizTaskWorkGridManager
- * @Description: 巡检任务表-实体类
- * @author wuyoude
- * @date 2023年06月14日 17:33:11
- *
- */
-public class JyBizTaskWorkGridManager implements Serializable {
-
+public class WorkGridManagerReportVo  implements Serializable {
+	
 	private static final long serialVersionUID = 1L;
 	
 	/**
@@ -148,6 +141,10 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 异常状态:0：待分配 1：待处理 2：处理中 3：已完成  4:超时删除
 	 */
 	private Integer status;
+	/**
+	 * 状态:0：待分配 1：待处理 2：处理中 3：已完成  4:超时删除
+	 */
+	private String statusName;	
 
 	/**
 	 * 开始处理时间
@@ -188,608 +185,231 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 更新时间
 	 */
 	private Date updateTime;
-
-	/**
-	 * 是否删除：1-有效，0-删除
-	 */
-	private Integer yn;
-
 	/**
 	 * 数据库时间
 	 */
 	private Date ts;
-
-	/**
-	 *
-	 * @param id
-	 */
+	public Long getId() {
+		return id;
+	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	/**
-	 *
-	 * @return id
-	 */
-	public Long getId() {
-		return this.id;
+	public String getBizId() {
+		return bizId;
 	}
-
-	/**
-	 *
-	 * @param bizId
-	 */
 	public void setBizId(String bizId) {
 		this.bizId = bizId;
 	}
-
-	/**
-	 *
-	 * @return bizId
-	 */
-	public String getBizId() {
-		return this.bizId;
+	public Integer getTaskType() {
+		return taskType;
 	}
-
-	/**
-	 *
-	 * @param taskType
-	 */
 	public void setTaskType(Integer taskType) {
 		this.taskType = taskType;
 	}
-
-	/**
-	 *
-	 * @return taskType
-	 */
-	public Integer getTaskType() {
-		return this.taskType;
+	public Integer getNeedScanGrid() {
+		return needScanGrid;
 	}
-
-	/**
-	 *
-	 * @param needScanGrid
-	 */
 	public void setNeedScanGrid(Integer needScanGrid) {
 		this.needScanGrid = needScanGrid;
 	}
-
-	/**
-	 *
-	 * @return needScanGrid
-	 */
-	public Integer getNeedScanGrid() {
-		return this.needScanGrid;
+	public String getTaskCode() {
+		return taskCode;
 	}
-
-	/**
-	 *
-	 * @param taskCode
-	 */
 	public void setTaskCode(String taskCode) {
 		this.taskCode = taskCode;
 	}
-
-	/**
-	 *
-	 * @return taskCode
-	 */
-	public String getTaskCode() {
-		return this.taskCode;
+	public String getTaskName() {
+		return taskName;
 	}
-
-	/**
-	 *
-	 * @param taskName
-	 */
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
 	}
-
-	/**
-	 *
-	 * @return taskName
-	 */
-	public String getTaskName() {
-		return this.taskName;
+	public String getTaskDescription() {
+		return taskDescription;
 	}
-
-	/**
-	 *
-	 * @param taskDescription
-	 */
 	public void setTaskDescription(String taskDescription) {
 		this.taskDescription = taskDescription;
 	}
-
-	/**
-	 *
-	 * @return taskDescription
-	 */
-	public String getTaskDescription() {
-		return this.taskDescription;
+	public String getTaskBatchCode() {
+		return taskBatchCode;
 	}
-
-	/**
-	 *
-	 * @param taskBatchCode
-	 */
 	public void setTaskBatchCode(String taskBatchCode) {
 		this.taskBatchCode = taskBatchCode;
 	}
-
-	/**
-	 *
-	 * @return taskBatchCode
-	 */
-	public String getTaskBatchCode() {
-		return this.taskBatchCode;
+	public String getTaskRefGridKey() {
+		return taskRefGridKey;
 	}
-
-	/**
-	 *
-	 * @param taskRefGridKey
-	 */
 	public void setTaskRefGridKey(String taskRefGridKey) {
 		this.taskRefGridKey = taskRefGridKey;
 	}
-
-	/**
-	 *
-	 * @return taskRefGridKey
-	 */
-	public String getTaskRefGridKey() {
-		return this.taskRefGridKey;
+	public Integer getOrderNum() {
+		return orderNum;
 	}
-
-	/**
-	 *
-	 * @param orderNum
-	 */
 	public void setOrderNum(Integer orderNum) {
 		this.orderNum = orderNum;
 	}
-
-	/**
-	 *
-	 * @return orderNum
-	 */
-	public Integer getOrderNum() {
-		return this.orderNum;
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
 	}
-
-	/**
-	 *
-	 * @param provinceAgencyCode
-	 */
 	public void setProvinceAgencyCode(String provinceAgencyCode) {
 		this.provinceAgencyCode = provinceAgencyCode;
 	}
-
-	/**
-	 *
-	 * @return provinceAgencyCode
-	 */
-	public String getProvinceAgencyCode() {
-		return this.provinceAgencyCode;
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
 	}
-
-	/**
-	 *
-	 * @param provinceAgencyName
-	 */
 	public void setProvinceAgencyName(String provinceAgencyName) {
 		this.provinceAgencyName = provinceAgencyName;
 	}
-
-	/**
-	 *
-	 * @return provinceAgencyName
-	 */
-	public String getProvinceAgencyName() {
-		return this.provinceAgencyName;
+	public String getAreaHubCode() {
+		return areaHubCode;
 	}
-
-	/**
-	 *
-	 * @param areaHubCode
-	 */
 	public void setAreaHubCode(String areaHubCode) {
 		this.areaHubCode = areaHubCode;
 	}
-
-	/**
-	 *
-	 * @return areaHubCode
-	 */
-	public String getAreaHubCode() {
-		return this.areaHubCode;
+	public String getAreaHubName() {
+		return areaHubName;
 	}
-
-	/**
-	 *
-	 * @param areaHubName
-	 */
 	public void setAreaHubName(String areaHubName) {
 		this.areaHubName = areaHubName;
 	}
-
-	/**
-	 *
-	 * @return areaHubName
-	 */
-	public String getAreaHubName() {
-		return this.areaHubName;
+	public Integer getSiteCode() {
+		return siteCode;
 	}
-
-	/**
-	 *
-	 * @param siteCode
-	 */
 	public void setSiteCode(Integer siteCode) {
 		this.siteCode = siteCode;
 	}
-
-	/**
-	 *
-	 * @return siteCode
-	 */
-	public Integer getSiteCode() {
-		return this.siteCode;
+	public String getSiteName() {
+		return siteName;
 	}
-
-	/**
-	 *
-	 * @param siteName
-	 */
 	public void setSiteName(String siteName) {
 		this.siteName = siteName;
 	}
-
-	/**
-	 *
-	 * @return siteName
-	 */
-	public String getSiteName() {
-		return this.siteName;
+	public String getAreaCode() {
+		return areaCode;
 	}
-
-	/**
-	 *
-	 * @param areaCode
-	 */
 	public void setAreaCode(String areaCode) {
 		this.areaCode = areaCode;
 	}
-
-	/**
-	 *
-	 * @return areaCode
-	 */
-	public String getAreaCode() {
-		return this.areaCode;
+	public String getAreaName() {
+		return areaName;
 	}
-
-	/**
-	 *
-	 * @param areaName
-	 */
 	public void setAreaName(String areaName) {
 		this.areaName = areaName;
 	}
-
-	/**
-	 *
-	 * @return areaName
-	 */
-	public String getAreaName() {
-		return this.areaName;
+	public String getGridName() {
+		return gridName;
 	}
-
-	/**
-	 *
-	 * @param gridName
-	 */
 	public void setGridName(String gridName) {
 		this.gridName = gridName;
 	}
-
-	/**
-	 *
-	 * @return gridName
-	 */
-	public String getGridName() {
-		return this.gridName;
+	public Date getTaskDate() {
+		return taskDate;
 	}
-
-	/**
-	 *
-	 * @param taskDate
-	 */
 	public void setTaskDate(Date taskDate) {
 		this.taskDate = taskDate;
 	}
-
-	/**
-	 *
-	 * @return taskDate
-	 */
-	public Date getTaskDate() {
-		return this.taskDate;
+	public Date getPreFinishTime() {
+		return preFinishTime;
 	}
-
-	/**
-	 *
-	 * @param preFinishTime
-	 */
 	public void setPreFinishTime(Date preFinishTime) {
 		this.preFinishTime = preFinishTime;
 	}
-
-	/**
-	 *
-	 * @return preFinishTime
-	 */
-	public Date getPreFinishTime() {
-		return this.preFinishTime;
+	public String getHandlerErp() {
+		return handlerErp;
 	}
-
-	/**
-	 *
-	 * @param handlerErp
-	 */
 	public void setHandlerErp(String handlerErp) {
 		this.handlerErp = handlerErp;
 	}
-
-	/**
-	 *
-	 * @return handlerErp
-	 */
-	public String getHandlerErp() {
-		return this.handlerErp;
+	public String getHandlerUserName() {
+		return handlerUserName;
 	}
-
-	/**
-	 *
-	 * @param handlerUserName
-	 */
 	public void setHandlerUserName(String handlerUserName) {
 		this.handlerUserName = handlerUserName;
 	}
-
-	/**
-	 *
-	 * @return handlerUserName
-	 */
-	public String getHandlerUserName() {
-		return this.handlerUserName;
+	public String getHandlerUserPositionCode() {
+		return handlerUserPositionCode;
 	}
-
-	/**
-	 *
-	 * @param handlerUserPositionCode
-	 */
 	public void setHandlerUserPositionCode(String handlerUserPositionCode) {
 		this.handlerUserPositionCode = handlerUserPositionCode;
 	}
-
-	/**
-	 *
-	 * @return handlerUserPositionCode
-	 */
-	public String getHandlerUserPositionCode() {
-		return this.handlerUserPositionCode;
+	public String getHandlerUserPositionName() {
+		return handlerUserPositionName;
 	}
-
-	/**
-	 *
-	 * @param handlerUserPositionName
-	 */
 	public void setHandlerUserPositionName(String handlerUserPositionName) {
 		this.handlerUserPositionName = handlerUserPositionName;
 	}
-
-	/**
-	 *
-	 * @return handlerUserPositionName
-	 */
-	public String getHandlerUserPositionName() {
-		return this.handlerUserPositionName;
+	public String getHandlerPositionCode() {
+		return handlerPositionCode;
 	}
-
-	/**
-	 *
-	 * @param handlerPositionCode
-	 */
 	public void setHandlerPositionCode(String handlerPositionCode) {
 		this.handlerPositionCode = handlerPositionCode;
 	}
-
-	/**
-	 *
-	 * @return handlerPositionCode
-	 */
-	public String getHandlerPositionCode() {
-		return this.handlerPositionCode;
+	public Integer getStatus() {
+		return status;
 	}
-
-	/**
-	 *
-	 * @param status
-	 */
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-
-	/**
-	 *
-	 * @return status
-	 */
-	public Integer getStatus() {
-		return this.status;
+	public String getStatusName() {
+		return statusName;
 	}
-
-	/**
-	 *
-	 * @param processBeginTime
-	 */
+	public void setStatusName(String statusName) {
+		this.statusName = statusName;
+	}
+	public Date getProcessBeginTime() {
+		return processBeginTime;
+	}
 	public void setProcessBeginTime(Date processBeginTime) {
 		this.processBeginTime = processBeginTime;
 	}
-
-	/**
-	 *
-	 * @return processBeginTime
-	 */
-	public Date getProcessBeginTime() {
-		return this.processBeginTime;
+	public Date getProcessEndTime() {
+		return processEndTime;
 	}
-
-	/**
-	 *
-	 * @param processEndTime
-	 */
 	public void setProcessEndTime(Date processEndTime) {
 		this.processEndTime = processEndTime;
 	}
-
-	/**
-	 *
-	 * @return processEndTime
-	 */
-	public Date getProcessEndTime() {
-		return this.processEndTime;
+	public String getCreateUser() {
+		return createUser;
 	}
-
-	/**
-	 *
-	 * @param createUser
-	 */
 	public void setCreateUser(String createUser) {
 		this.createUser = createUser;
 	}
-
-	/**
-	 *
-	 * @return createUser
-	 */
-	public String getCreateUser() {
-		return this.createUser;
+	public String getCreateUserName() {
+		return createUserName;
 	}
-
-	/**
-	 *
-	 * @param createUserName
-	 */
 	public void setCreateUserName(String createUserName) {
 		this.createUserName = createUserName;
 	}
-
-	/**
-	 *
-	 * @return createUserName
-	 */
-	public String getCreateUserName() {
-		return this.createUserName;
+	public String getUpdateUser() {
+		return updateUser;
 	}
-
-	/**
-	 *
-	 * @param updateUser
-	 */
 	public void setUpdateUser(String updateUser) {
 		this.updateUser = updateUser;
 	}
-
-	/**
-	 *
-	 * @return updateUser
-	 */
-	public String getUpdateUser() {
-		return this.updateUser;
+	public String getUpdateUserName() {
+		return updateUserName;
 	}
-
-	/**
-	 *
-	 * @param updateUserName
-	 */
 	public void setUpdateUserName(String updateUserName) {
 		this.updateUserName = updateUserName;
 	}
-
-	/**
-	 *
-	 * @return updateUserName
-	 */
-	public String getUpdateUserName() {
-		return this.updateUserName;
+	public Date getCreateTime() {
+		return createTime;
 	}
-
-	/**
-	 *
-	 * @param createTime
-	 */
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
-
-	/**
-	 *
-	 * @return createTime
-	 */
-	public Date getCreateTime() {
-		return this.createTime;
+	public Date getUpdateTime() {
+		return updateTime;
 	}
-
-	/**
-	 *
-	 * @param updateTime
-	 */
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
 	}
-
-	/**
-	 *
-	 * @return updateTime
-	 */
-	public Date getUpdateTime() {
-		return this.updateTime;
+	public Date getTs() {
+		return ts;
 	}
-
-	/**
-	 *
-	 * @param yn
-	 */
-	public void setYn(Integer yn) {
-		this.yn = yn;
-	}
-
-	/**
-	 *
-	 * @return yn
-	 */
-	public Integer getYn() {
-		return this.yn;
-	}
-
-	/**
-	 *
-	 * @param ts
-	 */
 	public void setTs(Date ts) {
 		this.ts = ts;
 	}
-
-	/**
-	 *
-	 * @return ts
-	 */
-	public Date getTs() {
-		return this.ts;
-	}
-
 
 }

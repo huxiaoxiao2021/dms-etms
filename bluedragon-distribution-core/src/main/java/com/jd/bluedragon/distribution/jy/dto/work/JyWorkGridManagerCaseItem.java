@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @ClassName: JyWorkGridManagerCaseItem
  * @Description: 巡检任务表-检查项明细-实体类
  * @author wuyoude
- * @date 2023年06月12日 21:13:01
+ * @date 2023年06月14日 17:33:11
  *
  */
 public class JyWorkGridManagerCaseItem implements Serializable {

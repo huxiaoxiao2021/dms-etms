@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount;
+import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerDao
@@ -32,6 +33,14 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 
 	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
 		return this.getSqlSession().update(NAMESPACE + ".finishTask", updateTaskData);
+	}
+
+	public List<JyBizTaskWorkGridManager> queryListForReport(WorkGridManagerReportQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryListForReport", query);
+	}
+
+	public Integer queryCountForReport(WorkGridManagerReportQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryCountForReport", query);
 	}
 
 	

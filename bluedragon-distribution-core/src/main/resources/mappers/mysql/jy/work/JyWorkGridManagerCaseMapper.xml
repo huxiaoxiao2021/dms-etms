@@ -256,13 +256,6 @@
         from
             jy_work_grid_manager_case t
         where yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
-    </select>	
-	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyWorkGridManagerCase">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			jy_work_grid_manager_case t
-		where yn = 1 
-	</select>
+    </select>
 
 </mapper>

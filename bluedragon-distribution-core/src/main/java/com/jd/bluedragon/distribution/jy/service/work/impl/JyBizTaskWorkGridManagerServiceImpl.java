@@ -74,11 +74,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return dataList;
 		}
 		for(JyBizTaskWorkGridManagerCount jyData: jyDataList) {
-			dataList.add(toJJyWorkGridManagerCountData(jyData));
+			dataList.add(toJyWorkGridManagerCountData(jyData));
 		}
 		return dataList;
 	}
-	private JyWorkGridManagerCountData toJJyWorkGridManagerCountData(JyBizTaskWorkGridManagerCount jyData) {
+	private JyWorkGridManagerCountData toJyWorkGridManagerCountData(JyBizTaskWorkGridManagerCount jyData) {
 		JyWorkGridManagerCountData taskCountData  = new JyWorkGridManagerCountData();
 		BeanUtils.copyProperties(jyData, taskCountData);
 		return taskCountData;

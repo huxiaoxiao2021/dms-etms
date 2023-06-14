@@ -13,13 +13,21 @@
         <result column="task_batch_code" property="taskBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="task_ref_grid_key" property="taskRefGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="task_date" property="taskDate" javaType="java.util.Date" jdbcType="DATE" />
         <result column="pre_finish_time" property="preFinishTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="handler_erp" property="handlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="handler_user_name" property="handlerUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="handler_user_position_code" property="handlerUserPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="handler_user_position_name" property="handlerUserPositionName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="handler_position_code" property="handlerPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -32,7 +40,6 @@
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-        <result column="time_out" property="timeOut" javaType="java.lang.Integer" jdbcType="TINYINT" />
     </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -40,11 +47,13 @@
     </resultMap>    
     <sql id="Base_Column_List" >
         id,biz_id,task_type,need_scan_grid,task_code,task_name,
-        task_description,task_batch_code,task_ref_grid_key,order_num,site_code,
-        site_name,area_code,area_name,grid_name,pre_finish_time,
-        handler_erp,handler_position_code,status,process_begin_time,process_end_time,
-        create_user,create_user_name,update_user,update_user_name,create_time,
-        update_time,yn,ts,time_out
+        task_description,task_batch_code,task_ref_grid_key,order_num,province_agency_code,
+        province_agency_name,area_hub_code,area_hub_name,site_code,site_name,
+        area_code,area_name,grid_name,task_date,pre_finish_time,
+        handler_erp,handler_user_name,handler_user_position_code,handler_user_position_name,handler_position_code,
+        status,process_begin_time,process_end_time,create_user,create_user_name,
+        update_user,update_user_name,create_time,update_time,yn,
+        ts
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
@@ -81,6 +90,18 @@
                 <if test="orderNum != null" >
                     order_num,
                 </if>
+                <if test="provinceAgencyCode != null" >
+                    province_agency_code,
+                </if>
+                <if test="provinceAgencyName != null" >
+                    province_agency_name,
+                </if>
+                <if test="areaHubCode != null" >
+                    area_hub_code,
+                </if>
+                <if test="areaHubName != null" >
+                    area_hub_name,
+                </if>
                 <if test="siteCode != null" >
                     site_code,
                 </if>
@@ -96,11 +117,23 @@
                 <if test="gridName != null" >
                     grid_name,
                 </if>
+                <if test="taskDate != null" >
+                    task_date,
+                </if>
                 <if test="preFinishTime != null" >
                     pre_finish_time,
                 </if>
                 <if test="handlerErp != null" >
                     handler_erp,
+                </if>
+                <if test="handlerUserName != null" >
+                    handler_user_name,
+                </if>
+                <if test="handlerUserPositionCode != null" >
+                    handler_user_position_code,
+                </if>
+                <if test="handlerUserPositionName != null" >
+                    handler_user_position_name,
                 </if>
                 <if test="handlerPositionCode != null" >
                     handler_position_code,
@@ -138,9 +171,6 @@
                 <if test="ts != null" >
                     ts,
                 </if>
-                <if test="timeOut != null" >
-                    time_out,
-                </if>
             </trim>
             )
             values
@@ -176,6 +206,18 @@
                 <if test="orderNum != null" >
                     #{orderNum,jdbcType=INTEGER},
                 </if>
+                <if test="provinceAgencyCode != null" >
+                    #{provinceAgencyCode,jdbcType=VARCHAR},
+                </if>
+                <if test="provinceAgencyName != null" >
+                    #{provinceAgencyName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubCode != null" >
+                    #{areaHubCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubName != null" >
+                    #{areaHubName,jdbcType=VARCHAR},
+                </if>
                 <if test="siteCode != null" >
                     #{siteCode,jdbcType=INTEGER},
                 </if>
@@ -191,11 +233,23 @@
                 <if test="gridName != null" >
                     #{gridName,jdbcType=VARCHAR},
                 </if>
+                <if test="taskDate != null" >
+                    #{taskDate,jdbcType=DATE},
+                </if>
                 <if test="preFinishTime != null" >
                     #{preFinishTime,jdbcType=TIMESTAMP},
                 </if>
                 <if test="handlerErp != null" >
                     #{handlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserName != null" >
+                    #{handlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserPositionCode != null" >
+                    #{handlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserPositionName != null" >
+                    #{handlerUserPositionName,jdbcType=VARCHAR},
                 </if>
                 <if test="handlerPositionCode != null" >
                     #{handlerPositionCode,jdbcType=VARCHAR},
@@ -232,9 +286,6 @@
                 </if>
                 <if test="ts != null" >
                     #{ts,jdbcType=TIMESTAMP},
-                </if>
-                <if test="timeOut != null" >
-                    #{timeOut,jdbcType=TINYINT},
                 </if>
             </trim>
             )
@@ -273,6 +324,18 @@
                 <if test="orderNum != null" >
                     order_num = #{orderNum,jdbcType=INTEGER},
                 </if>
+                <if test="provinceAgencyCode != null" >
+                    province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                </if>
+                <if test="provinceAgencyName != null" >
+                    province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubCode != null" >
+                    area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubName != null" >
+                    area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+                </if>
                 <if test="siteCode != null" >
                     site_code = #{siteCode,jdbcType=INTEGER},
                 </if>
@@ -288,11 +351,23 @@
                 <if test="gridName != null" >
                     grid_name = #{gridName,jdbcType=VARCHAR},
                 </if>
+                <if test="taskDate != null" >
+                    task_date = #{taskDate,jdbcType=DATE},
+                </if>
                 <if test="preFinishTime != null" >
                     pre_finish_time = #{preFinishTime,jdbcType=TIMESTAMP},
                 </if>
                 <if test="handlerErp != null" >
                     handler_erp = #{handlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserName != null" >
+                    handler_user_name = #{handlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserPositionCode != null" >
+                    handler_user_position_code = #{handlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="handlerUserPositionName != null" >
+                    handler_user_position_name = #{handlerUserPositionName,jdbcType=VARCHAR},
                 </if>
                 <if test="handlerPositionCode != null" >
                     handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
@@ -329,9 +404,6 @@
                 </if>
                 <if test="ts != null" >
                     ts = #{ts,jdbcType=TIMESTAMP},
-                </if>
-                <if test="timeOut != null" >
-                    time_out = #{timeOut,jdbcType=TINYINT},
                 </if>
             </set>
         where id = #{id,jdbcType=BIGINT}
@@ -386,12 +458,37 @@
         order by id desc
         limit #{offset}, #{limit}
     </select>    
-	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyBizTaskWorkGridManager">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			jy_biz_task_work_grid_manager t
-		where yn = 1 
-	</select>
-
+   <select id="queryCountForReport" parameterType="com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery" resultType="java.lang.Integer">
+        select
+            count(id) as data_num
+        from
+            jy_biz_task_work_grid_manager t
+           <include refid="queryConditionForReport"/>
+    </select>
+    <select id="queryListForReport" parameterType="com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery" resultMap="JyBizTaskWorkGridManager">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_work_grid_manager t
+           <include refid="queryConditionForReport"/>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+    
+    <sql id="queryConditionForReport">
+        <where>
+            yn = 1
+            <if test="siteCode != null" >
+                and t.site_code = #{siteCode,jdbcType=INTEGER}
+            </if>             
+	        <if test="status != null" >
+	            and t.status = #{status,jdbcType=INTEGER}
+	        </if>            
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+                and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+            </if>
+		        and t.process_end_time >= #{processEndTimeStart,jdbcType=TIMESTAMP}
+		        and t.process_end_time &lt;= #{processEndTimeEnd,jdbcType=TIMESTAMP}            
+        </where>
+    </sql>    
 </mapper>
