@@ -2696,4 +2696,14 @@ public class BusinessUtil {
     public static boolean isAirFill(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_67,WaybillSignConstants.CHAR_67_1);
     }
+
+    /**
+     * 冷链生鲜单子
+     * 冷链卡班、冷链卡班小票、冷链城配、冷链专送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isColdFresh(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_67,WaybillSignConstants.CHAR_67_1);
+    }
 }
