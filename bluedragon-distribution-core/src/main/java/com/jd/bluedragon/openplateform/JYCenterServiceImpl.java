@@ -220,7 +220,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
                 operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
                 operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
-                operatorInfo.setOperateUserId(-1);
+                operatorInfo.setOperateUserId(-2);
                 operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
 
