@@ -382,7 +382,11 @@ public class JyScanCollectStrategy {
         }else if(JyScanCollectStrategy.CODE_FAIL_REPEAT.equals(invokeResult.getCode())) {
             //上面逻辑重复拦截时，下面逻辑正常执行，可能重试,
             //正常逻辑是删除明细，对删除的collectionCode
-            collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+             collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+             if(log.isInfoEnabled()) {
+                 log.info("{}按包裹取消重复时，对当前岗位所有collectionCode进行处理不齐，req={}.collectionCodeList={}",
+                         methodDesc, JsonHelper.toJson(cancelScanCollectMqDto), JsonHelper.toJson(collectionCodeList));
+             }
 
         }
         if(CollectionUtils.isEmpty(collectionCodeList)) {
@@ -501,7 +505,7 @@ public class JyScanCollectStrategy {
     }
 
     /**
-     * 按包裹处理取消扫描
+     * 按包裹处理取消扫描(*幂等)
      * @param cancelScanCollectMqDto
      * @return
      */
@@ -535,6 +539,6 @@ public class JyScanCollectStrategy {
             collectRecordPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
             jyScanCollectService.upInsertCollectionRecord(collectRecordPo, false);
         });
-        return false;
+        return true;
     }
 }

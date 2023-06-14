@@ -59,8 +59,8 @@ public class JyCollectRecordDao extends BaseDao<JyCollectRecordPo> {
         if(Objects.isNull(condition.getOffset()) || condition.getOffset() < 0) {
             condition.setOffset(0);
         }
-        if(Objects.isNull(condition.getPageSize()) || condition.getOffset() <= 0) {
-            condition.setOffset(1000);
+        if(Objects.isNull(condition.getPageSize()) || condition.getPageSize() <= 0) {
+            condition.setPageSize(1000);
         }
 
         return super.getSqlSession().selectList(NAMESPACE.concat(".findPageByCondition"), condition);
