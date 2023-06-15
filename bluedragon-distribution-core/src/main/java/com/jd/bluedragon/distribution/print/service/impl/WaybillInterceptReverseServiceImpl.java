@@ -31,7 +31,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WaybillInterceptReverseServiceImpl.class);
 
-    private static final String ERROR_MESSAGE = "该运单已换单完成";
+    private static final String ERROR_MESSAGE = "换单前获取外单信息接口失败 该运单已换单完成";
 
     @Qualifier("reversePrintServiceDpk")
     @Autowired
