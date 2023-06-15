@@ -31,6 +31,8 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WaybillInterceptReverseServiceImpl.class);
 
+    private static final String ERROR_MESSAGE = "该运单已换单完成";
+
     @Qualifier("reversePrintServiceDpk")
     @Autowired
     private ReversePrintServiceDpkImpl reversePrintServiceDpk;
@@ -89,7 +91,13 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 // 查询外单原单信息
                 DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO, errorMessage);
                 if (waybillReverseResponseDTO == null) {
-                    LOGGER.warn("exchangeNewWaybill|外单查询原单号信息返回失败:request={},waybillReverseResponseDTO为空", JsonHelper.toJson(request));
+                    LOGGER.warn("exchangeNewWaybill|外单查询原单号信息返回失败:request={},waybillReverseResponseDTO为空,errorMessage={}", JsonHelper.toJson(request), errorMessage);
+                    // 如果是重复换单，返回之前的新单号
+                    if (ERROR_MESSAGE.contentEquals(errorMessage)) {
+                        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                        invokeResult.setData(waybill.getReturnWaybillCode());
+                        return invokeResult;
+                    }
                     invokeResult.parameterError(errorMessage.toString());
                     return invokeResult;
                 }
