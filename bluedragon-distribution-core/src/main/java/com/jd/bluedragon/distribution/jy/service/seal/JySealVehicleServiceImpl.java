@@ -298,7 +298,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyPostEnum.SEND_SEAL_BOARD.getCode())) {
+            if (sealVehicleReq.getFuncType() == null) {
                 if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
                     for (String sendCode:sealVehicleReq.getBatchCodes()){
                         if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
@@ -335,7 +335,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 if (ObjectHelper.isNotNull(sealResp.getData())){
                     List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
                     saveSealSendCode(successSealCarList.get(0).getBatchCodes(),sealVehicleReq);
-                    if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyPostEnum.SEND_SEAL_BOARD.getCode())) {
+                    if (sealVehicleReq.getFuncType() == null) {
                         jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
                                 sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
                     }
