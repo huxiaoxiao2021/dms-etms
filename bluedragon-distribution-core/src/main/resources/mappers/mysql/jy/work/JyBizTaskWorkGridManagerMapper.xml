@@ -487,8 +487,8 @@
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
                 and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
             </if>
-		        and t.process_end_time >= #{processEndTimeStart,jdbcType=TIMESTAMP}
-		        and t.process_end_time &lt;= #{processEndTimeEnd,jdbcType=TIMESTAMP}            
+		        and t.task_date >= #{taskDateStart,jdbcType=TIMESTAMP}
+		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}            
         </where>
     </sql>    
 </mapper>

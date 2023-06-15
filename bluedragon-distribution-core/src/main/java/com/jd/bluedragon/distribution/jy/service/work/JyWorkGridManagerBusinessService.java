@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.work;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 
 /**
  * @ClassName: JyWorkGridManagerBusinessService
@@ -15,5 +17,22 @@ public interface JyWorkGridManagerBusinessService {
 	JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request);
 
 	JdCResponse<Boolean> saveData(JyWorkGridManagerTaskEditRequest request);
+	/**
+	 * 开启-任务线上化配置扫描任务
+	 * @param workGridManagerTaskConfig
+	 */
+	void startWorkGridManagerScanTask(WorkGridManagerTaskConfig workGridManagerTaskConfig);
+	/**
+	 * 执行任务
+	 * @param task
+	 * @return
+	 */
+	boolean executeWorkGridManagerScanTask(Task task);
+	/**
+	 * 执行场地维度的任务
+	 * @param task
+	 * @return
+	 */
+	boolean executeWorkGridManagerSiteScanTask(Task task);
 
 }

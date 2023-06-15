@@ -42,7 +42,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	@Qualifier("jyBizTaskWorkGridManagerDao")
 	private JyBizTaskWorkGridManagerDao jyBizTaskWorkGridManagerDao;
 	
-	@Value("${beans.workGridManagerReportService.queryRangeDays:7}")
+	@Value("${beans.workGridManagerReportService.queryRangeDays:6}")
 	private int queryRangeDays;
 
 	private Result<Boolean> checkAndInitQuery(WorkGridManagerReportQuery query) {
@@ -61,25 +61,25 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		//设置时间范围
 		Date startTime = null;
 		Date endTime = 	null;	
-		if(StringUtils.isNotBlank(query.getProcessEndTimeStartStr())) {
-			startTime = DateHelper.parseDate(query.getProcessEndTimeStartStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		if(StringUtils.isNotBlank(query.getTaskDateStartStr())) {
+			startTime = DateHelper.parseDate(query.getTaskDateStartStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
 		}
-		if(StringHelper.isNotEmpty(query.getProcessEndTimeEndStr())) {
-			endTime = DateHelper.parseDate(query.getProcessEndTimeEndStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		if(StringHelper.isNotEmpty(query.getTaskDateEndStr())) {
+			endTime = DateHelper.parseDate(query.getTaskDateEndStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
 		}
 		//有日期查询范围，校验是否超过7天
 		if(startTime != null && endTime != null) {
 			Date checkDate = DateHelper.addDate(startTime,queryRangeDays);
 			if(endTime.after(checkDate)) {
-				return result.toFail("查询日期范围不能超过" + (queryRangeDays) + "天");
+				return result.toFail("查询日期范围不能超过" + (queryRangeDays + 1) + "天");
 			}
 
 		}else {
 			endTime = new Date();
 			startTime = DateHelper.addDate(endTime,-queryRangeDays);
 		}
-		query.setProcessEndTimeStart(startTime);
-		query.setProcessEndTimeEnd(endTime);
+		query.setTaskDateStart(startTime);
+		query.setTaskDateEnd(endTime);
 		return result;
 	}
 	@Override

@@ -49,95 +49,118 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 	/**
 	 * 签到日期-开始
 	 */
-	private String processEndTimeStartStr;
+	private String taskDateStartStr;
 	/**
 	 * 签到日期-结束
 	 */
-	private String processEndTimeEndStr;
+	private String taskDateEndStr;
 	/**
 	 * 签到日期-开始
 	 */
-	private Date processEndTimeStart;
+	private Date taskDateStart;
 	/**
 	 * 签到日期-结束
 	 */
-	private Date processEndTimeEnd;
+	private Date taskDateEnd;
 	
 	/**
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
+
 	public String getAreaHubCode() {
 		return areaHubCode;
 	}
+
 	public void setAreaHubCode(String areaHubCode) {
 		this.areaHubCode = areaHubCode;
 	}
+
 	public String getProvinceAgencyCode() {
 		return provinceAgencyCode;
 	}
+
 	public void setProvinceAgencyCode(String provinceAgencyCode) {
 		this.provinceAgencyCode = provinceAgencyCode;
 	}
+
 	public Integer getOrgCode() {
 		return orgCode;
 	}
+
 	public void setOrgCode(Integer orgCode) {
 		this.orgCode = orgCode;
 	}
+
 	public String getOrgName() {
 		return orgName;
 	}
+
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
 	}
+
 	public Integer getSiteCode() {
 		return siteCode;
 	}
+
 	public void setSiteCode(Integer siteCode) {
 		this.siteCode = siteCode;
 	}
+
 	public String getSiteName() {
 		return siteName;
 	}
+
 	public void setSiteName(String siteName) {
 		this.siteName = siteName;
 	}
+
 	public Integer getStatus() {
 		return status;
 	}
+
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-	public String getProcessEndTimeStartStr() {
-		return processEndTimeStartStr;
+
+	public String getTaskDateStartStr() {
+		return taskDateStartStr;
 	}
-	public void setProcessEndTimeStartStr(String processEndTimeStartStr) {
-		this.processEndTimeStartStr = processEndTimeStartStr;
+
+	public void setTaskDateStartStr(String taskDateStartStr) {
+		this.taskDateStartStr = taskDateStartStr;
 	}
-	public String getProcessEndTimeEndStr() {
-		return processEndTimeEndStr;
+
+	public String getTaskDateEndStr() {
+		return taskDateEndStr;
 	}
-	public void setProcessEndTimeEndStr(String processEndTimeEndStr) {
-		this.processEndTimeEndStr = processEndTimeEndStr;
+
+	public void setTaskDateEndStr(String taskDateEndStr) {
+		this.taskDateEndStr = taskDateEndStr;
 	}
-	public Date getProcessEndTimeStart() {
-		return processEndTimeStart;
+
+	public Date getTaskDateStart() {
+		return taskDateStart;
 	}
-	public void setProcessEndTimeStart(Date processEndTimeStart) {
-		this.processEndTimeStart = processEndTimeStart;
+
+	public void setTaskDateStart(Date taskDateStart) {
+		this.taskDateStart = taskDateStart;
 	}
-	public Date getProcessEndTimeEnd() {
-		return processEndTimeEnd;
+
+	public Date getTaskDateEnd() {
+		return taskDateEnd;
 	}
-	public void setProcessEndTimeEnd(Date processEndTimeEnd) {
-		this.processEndTimeEnd = processEndTimeEnd;
+
+	public void setTaskDateEnd(Date taskDateEnd) {
+		this.taskDateEnd = taskDateEnd;
 	}
+
 	public Integer getPageSize() {
 		return pageSize;
 	}
+
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
 	}
-
 }

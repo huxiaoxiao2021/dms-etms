@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
@@ -20,11 +22,16 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskConfigJsfManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCase;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScan;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScan;
 import com.jd.bluedragon.distribution.jy.enums.EditTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
@@ -32,7 +39,12 @@ import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessS
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseItemService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
+import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.common.utils.Result;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
@@ -61,6 +73,14 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	@Autowired
 	@Qualifier("workGridManagerTaskJsfManager")
 	private WorkGridManagerTaskJsfManager workGridManagerTaskJsfManager;
+	
+	@Autowired
+	@Qualifier("workGridManagerTaskConfigJsfManager")
+	private WorkGridManagerTaskConfigJsfManager workGridManagerTaskConfigJsfManager;
+	
+	@Autowired
+	@Qualifier("workStationGridManager")
+	private WorkStationGridManager workStationGridManager;
 	
 	@Autowired
 	@Qualifier("jyAttachmentDetailService")
@@ -193,6 +213,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         attachmentEntity.setCreateUserErp(userErp);
         attachmentEntity.setCreateTime(currentTime);
         attachmentEntity.setUpdateUserErp(userErp);
+        
         attachmentEntity.setAttachmentUrl(attachmentData.getAttachmentUrl());
 		return attachmentEntity;
 	}
@@ -202,5 +223,76 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
 		result.toSucceed("保存成功！");
 		return result;
+	}
+
+	@Override
+	public void startWorkGridManagerScanTask(WorkGridManagerTaskConfig workGridManagerTaskConfig) {
+		//初始化-workGridManagerScanTask任务数据
+		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(workGridManagerTaskConfig.getTaskConfigCode());
+		if(configResult == null
+				|| configResult.isEmptyData()) {
+			Log.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(workGridManagerTaskConfig));
+			return;
+		}
+		//根据taskConfigCode查询是否存在未执行的任务，
+		WorkGridManagerTaskConfigVo configData = configResult.getData();
+		TaskWorkGridManagerScan taskData = new TaskWorkGridManagerScan();
+		taskData.setTaskConfigCode(configData.getTaskConfigCode());
+		taskData.setExecuteTime(getNextExecuteTime(configData));
+		//新增|修改任务-修改执行时间
+	}
+	private Date getNextExecuteTime(WorkGridManagerTaskConfigVo configData) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        
+        Integer curDay = calendar.get(Calendar.DAY_OF_WEEK);
+        configData.getFrequencyDayList();
+        
+		return new Date();
+	}
+	@Override
+	public boolean executeWorkGridManagerScanTask(Task task) {
+		TaskWorkGridManagerScan taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerScan.class);
+		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(taskWorkGridManagerScan.getTaskConfigCode());
+		if(configResult == null
+				|| configResult.isEmptyData()) {
+			Log.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(taskWorkGridManagerScan));
+			return false;
+		}
+		//根据taskConfigCode查询是否存在未执行的任务，
+		WorkGridManagerTaskConfigVo configData = configResult.getData();
+		//查询网格场地
+		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+		List<Integer> siteCodeList = workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
+		for(Integer siteCode : siteCodeList) {
+			TaskWorkGridManagerSiteScan taskData = new TaskWorkGridManagerSiteScan();
+			taskData.setTaskConfigCode(configData.getTaskConfigCode());
+			taskData.setSiteCode(siteCode);
+			taskData.setExecuteTime(getNextExecuteTime(configData));
+		}
+		return false;
+	}
+
+	@Override
+	public boolean executeWorkGridManagerSiteScanTask(Task task) {
+		TaskWorkGridManagerSiteScan taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerSiteScan.class);
+		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(taskWorkGridManagerScan.getTaskConfigCode());
+		if(configResult == null
+				|| configResult.isEmptyData()) {
+			Log.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(taskWorkGridManagerScan));
+			return false;
+		}
+		//根据taskConfigCode查询是否存在未执行的任务
+		WorkGridManagerTaskConfigVo configData = configResult.getData();
+		//查询网格场地
+		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+		List<Integer> siteCodeList = workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
+		for(Integer siteCode : siteCodeList) {
+			TaskWorkGridManagerSiteScan taskData = new TaskWorkGridManagerSiteScan();
+			taskData.setTaskConfigCode(configData.getTaskConfigCode());
+			taskData.setSiteCode(siteCode);
+			taskData.setExecuteTime(getNextExecuteTime(configData));
+		}
+		return true;
 	}
 }
