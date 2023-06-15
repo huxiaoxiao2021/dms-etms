@@ -153,9 +153,9 @@ public class JyWarehouseSendGatewayServiceTest {
     @Test
     public void getMixScanTaskListPageTest() {
         MixScanTaskListQueryReq req = new MixScanTaskListQueryReq();
-        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setCurrentOperate(SITE_40240);
         req.setUser(USER);
-        req.setGroupCode("G00000059567");
+        req.setGroupCode("G00000089001");
         req.setPageNo(1);
         req.setPageSize(10);
         JdCResponse<MixScanTaskQueryRes> mixScanTaskListPage = jyWarehouseSendGatewayService.getMixScanTaskListPage(req);

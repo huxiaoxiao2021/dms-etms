@@ -276,7 +276,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 返回值要么正确，要么null, null由调用方自己处理默认值
      * @return
      */
-    private JdResult<TableTrolleyJsfResp> fetchCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
+    public JdResult<TableTrolleyJsfResp> fetchCrossTableTrolley(Integer currentSiteCode, Integer nextSiteCode) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchCrossTableTrolley:获取滑道笼车号：";
         try{
             TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
@@ -587,22 +587,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return jyGroupSortCrossDetailService.isMixScanProcess(jyGroupSortCrossDetailEntity);
 
     }
-
-    /**
-     * 获取派车任务车牌号
-     * @param entity
-     * @return
-     */
-    private String getVehicleNumber(JyBizTaskSendVehicleEntity entity){
-        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
-        if(!Objects.isNull(transWorkBillDto) && StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
-            return transWorkBillDto.getVehicleNumber();
-        }
-        if(log.isInfoEnabled()) {
-            log.info("根据派车任务编码【{}】获取车牌号为空,派车任务信息={}，运输返回={}", entity.getTransWorkCode(), JsonHelper.toJson(entity), JsonHelper.toJson(transWorkBillDto));
-        }
-        return "未知车牌号";
-    }
+    
 
     private List<JyBizTaskSendVehicleEntity> getToSendAndSendingSendVehiclePage(AppendSendVehicleTaskQueryReq request, List<String> sendVehicleBizList){
         JyBizTaskSendVehicleEntity queryEntity = new JyBizTaskSendVehicleEntity();

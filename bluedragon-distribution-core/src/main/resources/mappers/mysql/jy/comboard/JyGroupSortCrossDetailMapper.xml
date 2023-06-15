@@ -301,7 +301,7 @@
     <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
       and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
     </if>
-    <if test="completeStatus != null and completeStatus!= ''">
+    <if test="completeStatus != null">
       and complete_status = #{completeStatus}
     </if>
     group by template_code

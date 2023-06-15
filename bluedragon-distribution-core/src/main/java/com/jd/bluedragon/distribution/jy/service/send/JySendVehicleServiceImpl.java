@@ -2995,7 +2995,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (detail != null) {
                 JyBizTaskSendVehicleEntity bizTaskSendVehicle = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
                 Integer vehicleType = bizTaskSendVehicle.getVehicleType();
-                flowAgg.setVehicleNumber(bizTaskSendVehicle.getVehicleNumber());
                 BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
 
                 if (basicVehicleTypeDto == null) {
@@ -3028,6 +3027,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 flowAgg.setToScanCount(toScanCountSum); 
                 flowAgg.setSendVehicleBizId(bizTaskSendVehicle.getBizId());
                 flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
+                // 查询车牌
+                flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
             }
 
             if (sendAgg != null) {
@@ -3044,6 +3045,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         res.setMixScanTaskFlowDtoList(flowAggs);
     }
 
+    /**
+     * 获取派车任务车牌号
+     * @param entity
+     * @return
+     */
+    public String getVehicleNumber(JyBizTaskSendVehicleEntity entity){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
+        if(!Objects.isNull(transWorkBillDto) && StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
+            return transWorkBillDto.getVehicleNumber();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("根据派车任务编码【{}】获取车牌号为空,派车任务信息={}，运输返回={}", entity.getTransWorkCode(), JsonHelper.toJson(entity), JsonHelper.toJson(transWorkBillDto));
+        }
+        return "未知车牌号";
+    }
+    
     private HashMap<String, JyBizTaskSendVehicleDetailEntity> getSendVehicleDetailMap(List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails) {
         HashMap<String, JyBizTaskSendVehicleDetailEntity> map = new HashMap<>();
         sendVehicleDetails.forEach(item -> map.put(item.getBizId(),item));

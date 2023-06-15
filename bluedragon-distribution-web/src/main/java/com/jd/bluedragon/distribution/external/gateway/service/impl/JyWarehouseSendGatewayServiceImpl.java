@@ -27,6 +27,7 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
@@ -45,6 +46,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -473,6 +475,22 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         for (MixScanTaskDetailDto detailDto : createMixScanTaskReq.getSendFlowList()) {
             if (endSiteSet.contains(detailDto.getEndSiteId())) {
                 throw new JyBizException("混扫任务不能包含相同流向: " + detailDto.getEndSiteName());
+            }
+            // 如果滑道笼车为空 不能创建混扫任务
+            if (detailDto.getCrossCode() == null || detailDto.getTabletrolleyCode() == null) {
+                JdResult<TableTrolleyJsfResp> tableTrolleyRes = jyWarehouseSendVehicleService.fetchCrossTableTrolley(createMixScanTaskReq.getCurrentOperate().getSiteCode(), detailDto.getEndSiteId().intValue());
+                if (!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() &&
+                        !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
+                    String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
+                    String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
+                    detailDto.setCrossCode(crossCode);
+                    detailDto.setTabletrolleyCode(tableTrolleyCode);
+                } else {
+                    if (log.isInfoEnabled()) {
+                        log.info("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，request={}", JsonHelper.toJson(detailDto));
+                    }
+                    throw new JyBizException("流向{}未获取到滑道笼车信息，创建混扫任务失败: " + detailDto.getEndSiteName());
+                }
             }
             endSiteSet.add(detailDto.getEndSiteId());
         }
