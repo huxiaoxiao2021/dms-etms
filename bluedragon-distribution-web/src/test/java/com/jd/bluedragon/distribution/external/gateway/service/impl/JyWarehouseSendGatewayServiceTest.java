@@ -406,30 +406,62 @@ public class JyWarehouseSendGatewayServiceTest {
                 "        \"vehicleNumber\": \"\"\n" +
                 "    }" ;
 
+
+        String pdaJson = "\n" +
+                "    {\n" +
+                "        \"barCode\": \"JD0003420560600-1-1-\",\n" +
+                "        \"barCodeType\": 0,\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1686834109569,\n" +
+                "            \"operatorId\": \"51259\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 223094,\n" +
+                "            \"siteName\": \"北京马驹桥接货仓\"\n" +
+                "        },\n" +
+                "        \"forceSubmit\": false,\n" +
+                "        \"groupCode\": \"G00000099001\",\n" +
+                "        \"machineCode\": \"mjq-lmj-001\",\n" +
+                "        \"mixScanTaskCode\": \"CTT23061500000014\",\n" +
+                "        \"operateType\": 101,\n" +
+                "        \"sendForWholeBoard\": false,\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
+                "        }\n" +
+                "    }";
+
         while(true) {
             try{
-                List<String> packageCodeList = Arrays.asList("JD0003420509892-1-1-",
-                        "JD0003420509903-1-1-",
-                        "JD0003420509911-1-1-",
-                        "JD0003420509920-1-1-",
-                        "JD0003420509939-1-1-");
-                for(String packageCode : packageCodeList) {
-//                    String packageCode = "JD0003420475846-1-1-";
-                    String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-                    SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
-                    paramDto.setCurrentOperate(SITE_223094);
-                    paramDto.setUser(USER_wuyoude);
-                    paramDto.setMixScanTaskCode("CTT23060600000010");
-                    paramDto.setGroupCode(GROUP_CODE);
-                    paramDto.setBarCode(packageCode);
+                SendScanReq paramDto = JsonHelper.fromJson(pdaJson, SendScanReq.class);
 
-                    List<DeviceInfoDto> deviceList = this.getDeviceInfoList();
-                    paramDto.setMachineCode(deviceList.get(0).getMachineCode());
-
-
-                    JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
-                    System.out.println(JsonHelper.toJson(obj0));
-                }
+                JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
+                System.out.println(JsonHelper.toJson(obj0));
+//                List<String> packageCodeList = Arrays.asList("JD0003420509892-1-1-",
+//                        "JD0003420509903-1-1-",
+//                        "JD0003420509911-1-1-",
+//                        "JD0003420509920-1-1-",
+//                        "JD0003420509939-1-1-");
+//                for(String packageCode : packageCodeList) {
+////                    String packageCode = "JD0003420475846-1-1-";
+//                    String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+//                    SendScanReq paramDto = JsonHelper.fromJson(paramJson, SendScanReq.class);
+//                    paramDto.setCurrentOperate(SITE_223094);
+//                    paramDto.setUser(USER_wuyoude);
+//                    paramDto.setMixScanTaskCode("CTT23060600000010");
+//                    paramDto.setGroupCode(GROUP_CODE);
+//                    paramDto.setBarCode(packageCode);
+//
+//                    List<DeviceInfoDto> deviceList = this.getDeviceInfoList();
+//                    paramDto.setMachineCode(deviceList.get(0).getMachineCode());
+//
+//
+//                    JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
+//                    System.out.println(JsonHelper.toJson(obj0));
+//                }
             }catch (Exception e) {
                 e.printStackTrace();
             }

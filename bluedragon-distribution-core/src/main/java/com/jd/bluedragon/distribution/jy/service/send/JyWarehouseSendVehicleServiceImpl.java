@@ -688,7 +688,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(!nextSiteCodeRes.codeSuccess()) {
             log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
             String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
-            response.toFail(customMsg);
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage(customMsg);
             return;
         }
         List<Long> endSiteIdList = new ArrayList<>();
@@ -709,7 +710,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             log.warn("接货仓发货岗该单据{}匹配龙门架流向为{}，未匹配到混扫任务,request={},派车信息={}", request.getBarCode(), JsonHelper.toJson(endSiteIdList),
                     JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
             String customMsg = MessageFormat.format("没有单据{0}对应的派车任务，请先添加该流向派车任务！", request.getBarCode());
-            response.toFail(customMsg);
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage(customMsg);
             return;
         }
         if(log.isInfoEnabled()) {
