@@ -21,6 +21,10 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
      * 岗位码
      */
     private String positionCode;
+    /**
+     * 岗位码-对应的网格key
+     */
+    private String taskRefGridKey;
 	/**
 	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
 	 */
@@ -85,6 +89,14 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 
 	public void setPositionCode(String positionCode) {
 		this.positionCode = positionCode;
+	}
+
+	public String getTaskRefGridKey() {
+		return taskRefGridKey;
+	}
+
+	public void setTaskRefGridKey(String taskRefGridKey) {
+		this.taskRefGridKey = taskRefGridKey;
 	}
 
 	public Integer getStatus() {

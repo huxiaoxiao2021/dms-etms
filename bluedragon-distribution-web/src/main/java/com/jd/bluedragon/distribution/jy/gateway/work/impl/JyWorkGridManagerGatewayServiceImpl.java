@@ -30,6 +30,7 @@ import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 
@@ -67,6 +68,15 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		result.toSucceed("查询成功！");
 		JyWorkGridManagerPageData pageData = new JyWorkGridManagerPageData();
 		result.setData(pageData);
+		if(StringUtils.isNotBlank(query.getPositionCode())) {
+			Result<PositionDetailRecord> positionRecord = positionManager.queryOneByPositionCode(query.getPositionCode());
+			if(positionRecord == null
+					|| positionRecord.getData() == null) {
+				result.toFail("扫描的网格码无效！");
+				return result;
+			}
+			query.setTaskRefGridKey(positionRecord.getData().getRefGridKey());
+		}
 		Map<Integer,JyWorkGridManagerCountData> statusCount = new HashMap<>();
 		List<JyWorkGridManagerData> dataList = new ArrayList<>();
 		pageData.setDataList(dataList);
@@ -141,21 +151,21 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		result.setData(Boolean.FALSE);
 		result.toSucceed("扫描成功！");
 		if(StringUtils.isBlank(request.getScanPositionCode())) {
-			result.toFail("扫描的岗位码不能为空！");
+			result.toFail("扫描的网格码不能为空！");
 			return result;
 		}
 		if(StringUtils.isBlank(request.getTaskRefGridKey())) {
-			result.toFail("任务岗位码不能为空！");
+			result.toFail("任务网格码不能为空！");
 			return result;
 		}
-		Result<PositionDetailRecord> positionRecord = positionManager.queryOneByPositionCode(request.getScanPositionCode());
+		Result<PositionData> positionRecord = positionManager.queryPositionByGridKey(request.getTaskRefGridKey());
 		if(positionRecord == null
 				|| positionRecord.getData() == null) {
-			result.toFail("扫描的岗位码无效！");
+			result.toFail("任务网格码无效！");
 			return result;
 		}
-		if(!request.getTaskRefGridKey().equals(positionRecord.getData().getRefGridKey())) {
-			result.toFail("验证失败，请扫描巡检任务对应的岗位码！");
+		if(!request.getScanPositionCode().equals(positionRecord.getData().getPositionCode())) {
+			result.toFail("请扫描#"+positionRecord.getData().getGridName()+"#的网格码！");
 			return result;
 		}else {
 			result.setData(Boolean.TRUE);

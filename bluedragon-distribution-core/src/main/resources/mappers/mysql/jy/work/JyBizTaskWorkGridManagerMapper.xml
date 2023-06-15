@@ -445,6 +445,9 @@
             jy_biz_task_work_grid_manager t
         where yn = 1 
           and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+          <if test="taskRefGridKey != null and taskRefGridKey != ''">
+              and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
+          </if>           
         group by status
     </select>
     <select id="queryDataListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultMap="JyBizTaskWorkGridManager">
@@ -455,6 +458,9 @@
         where yn = 1 
           and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
           and status = #{status,jdbcType=TINYINT}
+          <if test="taskRefGridKey != null and taskRefGridKey != ''">
+              and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
+          </if>          
         order by id desc
         limit #{offset}, #{limit}
     </select>    
