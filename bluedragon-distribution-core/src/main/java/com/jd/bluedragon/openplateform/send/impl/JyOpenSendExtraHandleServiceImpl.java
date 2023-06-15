@@ -9,7 +9,9 @@ import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.openplateform.entity.JYCargoOperateEntity;
@@ -24,6 +26,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.constants.JyConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,9 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
 
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private SendDetailService sendDetailService;
 
     @Autowired
     private DeliveryService deliveryService;
@@ -189,5 +195,90 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         message.setText(JSON.toJSONString(jyTysSendPackageDetailDto));
         message.setBusinessId(jyTysSendPackageDetailDto.getPackageCode());
         return message;
+    }
+
+    /**
+     * 发货完成后处理
+     *
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-06-08 10:09:32 周四
+     */
+    @Override
+    public Result<Boolean> afterOpenPlatformSendFinish(JYCargoOperateEntity jyCargoOperate) {
+        log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish param {}", JSON.toJSONString(jyCargoOperate));
+        Result<Boolean> result = Result.success();
+        try {
+            // 发出转运发货完成后的两个mq消息
+            this.sendSendFinishMq4Urban(jyCargoOperate);
+        } catch (Exception e) {
+            log.error("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish exception param {}", JSON.toJSONString(jyCargoOperate), e);
+            return result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private void sendSendFinishMq4Urban(JYCargoOperateEntity jyCargoOperate) throws JMQException {
+        if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
+            return;
+        }
+        final OperatorInfo operatorInfo = jyCargoOperate.getOperatorInfo();
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(jyCargoOperate.getCreateSiteId());
+        currentOperate.setSiteName(jyCargoOperate.getCreateSiteName());
+        currentOperate.setOperateTime(new Date(operatorInfo.getOperateTime()));
+
+        User user = new User();
+        user.setUserCode(JyConstants.JY_DEPPON_OPERATOR_ID);
+        user.setUserErp(JyConstants.JY_DEPPON_OPERATOR_ERP);
+        user.setUserName(operatorInfo.getOperateUserName());
+
+        // 发送装车完成消息
+        String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
+        final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
+        log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
+        if(existSendCodeVal == null){
+            boolean needSend = false;
+            if((System.currentTimeMillis() - operatorInfo.getOperateTime()) < 5 * 60 * 1000){
+                needSend = true;
+            } else {
+                // 查询send_d是否已有同批次已发货数据
+                Integer sendExistCount = sendDetailService.querySendDCountBySendCode(jyCargoOperate.getSendCode());
+                log.info("sendTysSendMq4Urban sendExistCount: {}", sendExistCount);
+                if (sendExistCount <= 0) {
+                    needSend = true;
+                }
+            }
+            if(!needSend){
+                return;
+            }
+
+            // 查找发货明细，发送明细消息
+            final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(jyCargoOperate.getSendCode());
+            SendDetailDto sendDetailDto = new SendDetailDto();
+            sendDetailDto.setSendCode(jyCargoOperate.getSendCode());
+            sendDetailDto.setIsCancel(0);
+            sendDetailDto.setCreateSiteCode(createSiteCode);
+            final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
+            // 进一步分批，批量发送mq
+            int batchSize = 50;
+            int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
+            for (int i = 0; i < batchCount; i++) {
+                int start = i * batchSize;
+                int end = start + batchSize;
+                if (end > packageCodeList.size()) {
+                    end = packageCodeList.size();
+                }
+                final List<String> packageCodeSubList = packageCodeList.subList(start, end);
+                List<Message> sendDetailMQList = new ArrayList<>();
+                for (String packageCode : packageCodeSubList) {
+                    final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, packageCode, currentOperate, user);
+                    log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                    sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
+                }
+                transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
+            }
+        }
+
     }
 }
