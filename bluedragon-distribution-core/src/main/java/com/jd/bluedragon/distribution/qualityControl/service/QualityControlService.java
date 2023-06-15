@@ -248,7 +248,7 @@ public class QualityControlService {
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(request.getQcValue());
-            String tipMsg = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG, HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE);
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
             }
