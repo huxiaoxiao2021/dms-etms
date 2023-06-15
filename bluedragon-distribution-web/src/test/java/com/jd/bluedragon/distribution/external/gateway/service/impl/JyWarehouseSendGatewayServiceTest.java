@@ -248,7 +248,7 @@ public class JyWarehouseSendGatewayServiceTest {
                 "}";
 
         SendVehicleTaskRequest paramDto = JsonHelper.fromJson(str, SendVehicleTaskRequest.class);
-        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setCurrentOperate(SITE_223094);
         paramDto.setUser(USER_wuyoude);
         while(true) {
             try{

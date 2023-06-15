@@ -11,10 +11,6 @@ public class BuQiWaybillRes implements Serializable {
 
     private List<BuQiWaybillDto> buQiWaybillDtoList;
 
-    /**
-     * 不齐运单总数
-     */
-    private Integer buQiWaybillTotalSum;
 
     private String sendVehicleBizId;
 
@@ -24,14 +20,6 @@ public class BuQiWaybillRes implements Serializable {
 
     public void setBuQiWaybillDtoList(List<BuQiWaybillDto> buQiWaybillDtoList) {
         this.buQiWaybillDtoList = buQiWaybillDtoList;
-    }
-
-    public Integer getBuQiWaybillTotalSum() {
-        return buQiWaybillTotalSum;
-    }
-
-    public void setBuQiWaybillTotalSum(Integer buQiWaybillTotalSum) {
-        this.buQiWaybillTotalSum = buQiWaybillTotalSum;
     }
 
     public String getSendVehicleBizId() {

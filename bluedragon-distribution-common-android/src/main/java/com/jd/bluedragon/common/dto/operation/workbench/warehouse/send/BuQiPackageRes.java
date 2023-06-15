@@ -8,23 +8,14 @@ public class BuQiPackageRes implements Serializable {
 
     private static final long serialVersionUID = -5809332610524693231L;
 
-    private String waybillCode;
 
-    private List<String> packageList;
+    private List<BuQiPackageDto> buQiPackageDtoList;
 
-    public List<String> getPackageList() {
-        return packageList;
+    public List<BuQiPackageDto> getBuQiPackageDtoList() {
+        return buQiPackageDtoList;
     }
 
-    public void setPackageList(List<String> packageList) {
-        this.packageList = packageList;
-    }
-
-    public String getWaybillCode() {
-        return waybillCode;
-    }
-
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
+    public void setBuQiPackageDtoList(List<BuQiPackageDto> buQiPackageDtoList) {
+        this.buQiPackageDtoList = buQiPackageDtoList;
     }
 }

@@ -815,7 +815,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         BuQiWaybillRes resData = new BuQiWaybillRes();
         resData.setSendVehicleBizId(sendVehicleBizId);
-        resData.setBuQiWaybillTotalSum(collectionRecordPoList.size());
+//        resData.setBuQiWaybillTotalSum(collectionRecordPoList.size());
         List<BuQiWaybillDto> buQiWaybillDtoList = new ArrayList<>();
         collectionRecordPoList.forEach(collectionRecordPo -> {
             BuQiWaybillDto buQiWaybillDto = new BuQiWaybillDto();
@@ -900,14 +900,15 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             res.setMessage("未查到运单数据");
             return res;
         }
-
+        List<BuQiPackageDto> buQiPackageDtoList = new ArrayList<>();
         BuQiPackageRes resData = new BuQiPackageRes();
-        resData.setWaybillCode(request.getWaybillCode());
-        List<String> packageList = new ArrayList<>();
         collectionRecordPoList.forEach(collectionRecordPo -> {
-            packageList.add(collectionRecordPo.getScanCode());
+            BuQiPackageDto buQiPackageDto = new BuQiPackageDto();
+            buQiPackageDto.setWaybillCode(request.getWaybillCode());
+            buQiPackageDto.setPackageCode(collectionRecordPo.getScanCode());
+            buQiPackageDtoList.add(buQiPackageDto);
         });
-        resData.setPackageList(packageList);
+        resData.setBuQiPackageDtoList(buQiPackageDtoList);
         res.setData(resData);
         return res;
     }
