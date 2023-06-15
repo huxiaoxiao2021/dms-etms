@@ -687,9 +687,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         InvokeResult<List<Integer>> nextSiteCodeRes = this.fetchNextSiteId(request);
         if(!nextSiteCodeRes.codeSuccess()) {
             log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
-            response.toBizError();
             String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
-            response.addInterceptBox(0, customMsg);
+            response.toFail(customMsg);
             return;
         }
         List<Long> endSiteIdList = new ArrayList<>();
@@ -709,9 +708,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(CollectionUtils.isEmpty(resEntityList)) {
             log.warn("接货仓发货岗该单据{}匹配龙门架流向为{}，未匹配到混扫任务,request={},派车信息={}", request.getBarCode(), JsonHelper.toJson(endSiteIdList),
                     JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
-            response.toBizError();
             String customMsg = MessageFormat.format("没有单据{0}对应的派车任务，请先添加该流向派车任务！", request.getBarCode());
-            response.addInterceptBox(0, customMsg);
+            response.toFail(customMsg);
             return;
         }
         if(log.isInfoEnabled()) {
@@ -1168,11 +1166,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE
                 || jsfResponse.getData() == null) {
             if (log.isWarnEnabled()) {
-                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:{}"
-                        , JsonHelper.toJson(jsfResponse));
+                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，req={}，返回值为:{}"
+                        , JsonHelper.toJson(jsfRequest), JsonHelper.toJson(jsfResponse));
             }
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-            result.setMessage("未配置发货关系");
+            result.setMessage("龙门架配置未配置发货关系");
             return result;
         }
         for (AreaDestJsfVo areaDestJsfVo : jsfResponse.getData()) {
