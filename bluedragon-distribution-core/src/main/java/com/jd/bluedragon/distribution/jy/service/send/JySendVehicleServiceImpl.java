@@ -3025,7 +3025,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         toScanCountSum += toScanSum.longValue();
                     }
                 }
-                flowAgg.setToScanCount(toScanCountSum);
+                flowAgg.setToScanCount(toScanCountSum); 
+                flowAgg.setSendVehicleBizId(bizTaskSendVehicle.getBizId());
                 flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
             }
 
