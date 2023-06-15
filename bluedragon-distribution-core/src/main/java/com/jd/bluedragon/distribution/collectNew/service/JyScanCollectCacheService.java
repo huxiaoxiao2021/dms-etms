@@ -39,6 +39,7 @@ public class JyScanCollectCacheService {
 
     @Autowired
     private JimDbLock jimDbLock;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 

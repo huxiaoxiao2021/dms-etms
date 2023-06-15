@@ -306,7 +306,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("混扫任务编码为空");
                 return res;
             }
-            if(StringUtils.isBlank(request.getSendVehicleDetailBizId())) {
+            if(StringUtils.isBlank(request.getSendVehicleBizId())) {
                 res.toFail("派车任务编码为空");
                 return res;
             }
@@ -347,10 +347,6 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
             if(StringUtils.isBlank(request.getMixScanTaskCode())) {
                 res.toFail("混扫任务编码为空");
-                return res;
-            }
-            if(StringUtils.isBlank(request.getSendVehicleDetailBizId())) {
-                res.toFail("派车任务明细编码为空");
                 return res;
             }
             if(StringUtils.isBlank(request.getSendVehicleBizId())) {
@@ -399,7 +395,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("派车任务编码为空");
                 return res;
             }
-            if(CollectionUtils.isEmpty(request.getPackList()) || Objects.isNull(request.getCheckAllFlag())) {
+            if(CollectionUtils.isEmpty(request.getPackList()) && Objects.isNull(request.getCheckAllFlag())) {
                 res.toFail("不齐取消数据为空");
                 return res;
             }

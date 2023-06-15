@@ -382,7 +382,11 @@ public class JyScanCollectStrategy {
         }else if(JyScanCollectStrategy.CODE_FAIL_REPEAT.equals(invokeResult.getCode())) {
             //上面逻辑重复拦截时，下面逻辑正常执行，可能重试,
             //正常逻辑是删除明细，对删除的collectionCode
-            collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+             collectionCodeList = this.findPageCollectByCondition(cancelScanCollectMqDto);
+             if(log.isInfoEnabled()) {
+                 log.info("{}按包裹取消重复时，对当前岗位所有collectionCode进行处理不齐，req={}.collectionCodeList={}",
+                         methodDesc, JsonHelper.toJson(cancelScanCollectMqDto), JsonHelper.toJson(collectionCodeList));
+             }
 
         }
         if(CollectionUtils.isEmpty(collectionCodeList)) {
@@ -409,7 +413,7 @@ public class JyScanCollectStrategy {
      * @return
      */
     private InvokeResult<List<String>> delCollectDetailAndReturnDelCollectionCodes(JyCancelScanCollectMqDto cancelScanCollectMqDto) {
-        String methodDesc = "JyScanCollectStrategy.delCollectDetailAndReturnDelCollectionCodes删除集齐明细返回删除数据的collectionCode：";
+        String methodDesc = "JyScanCollectStrategy.delCollectDetailAndReturnDelCollectionCodes删除集齐明细返回删除数据的：";
         InvokeResult<List<String>> res = new InvokeResult<>();
         res.success();
         //防重复（区分真的查不到和重复操作同一批数据删除之后再查查不到， 删除后面统计修改获取不到锁会重试，需要保证删除后可以再次出发后面逻辑）
@@ -501,7 +505,7 @@ public class JyScanCollectStrategy {
     }
 
     /**
-     * 按包裹处理取消扫描
+     * 按包裹处理取消扫描(*幂等)
      * @param cancelScanCollectMqDto
      * @return
      */
@@ -535,6 +539,6 @@ public class JyScanCollectStrategy {
             collectRecordPo.setSiteId(cancelScanCollectMqDto.getOperateSiteId().longValue());
             jyScanCollectService.upInsertCollectionRecord(collectRecordPo, false);
         });
-        return false;
+        return true;
     }
 }
