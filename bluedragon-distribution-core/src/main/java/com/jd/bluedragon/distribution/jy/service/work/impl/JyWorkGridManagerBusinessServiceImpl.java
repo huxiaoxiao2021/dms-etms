@@ -79,7 +79,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private WorkGridManagerTaskConfigJsfManager workGridManagerTaskConfigJsfManager;
 	
 	@Autowired
-	@Qualifier("workStationGridManager")
 	private WorkStationGridManager workStationGridManager;
 	
 	@Autowired
