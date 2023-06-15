@@ -12,6 +12,9 @@ import com.jdl.basic.api.service.workStation.WorkStationGridJsfService;
 import com.jdl.basic.common.utils.PageDto;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,4 +90,9 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         }
         return result;
     }
+
+	@Override
+	public List<Integer> querySiteListForManagerScan(WorkStationGridQuery workStationGridQuery) {
+		return null;
+	}
 }
