@@ -257,6 +257,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
                     needSend = true;
                 }
             }
+            log.info("sendTysSendMq4Urban {} needSend {}", JsonHelper.toJson(jyCargoOperate),needSend);
             if(!needSend){
                 return;
             }
