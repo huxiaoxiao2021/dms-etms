@@ -301,7 +301,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(Objects.isNull(currentSiteCode) || Objects.isNull(nextSiteCode)) {
             return "未知滑道笼车号";
         }
-        return String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode);
+        if(log.isInfoEnabled()) {
+            log.info("接货仓发货岗查询滑道笼车号逻辑：{}", String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode));
+        }
+//        return String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode);
+        return "未知滑道笼车号";
     }
 
     /**
