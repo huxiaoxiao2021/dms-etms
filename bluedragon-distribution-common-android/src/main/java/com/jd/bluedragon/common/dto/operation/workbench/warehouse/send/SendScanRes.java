@@ -26,6 +26,12 @@ public class SendScanRes extends SendScanResponse implements Serializable {
     public static final int CODE_UNFOCUSED_FLOW_FORCE_SEND = 2102;
     public static final String MSG_UNFOCUSED_FLOW_FORCE_SEND = "当前单据流向[%s]未关注，请确认是否强发！";
 
+    /**
+     * 异常提示框
+     * 提示框
+     */
+    public static final int DEFAULT_FAIL = 4100;
+
     private Long nextSiteCode;
 
 

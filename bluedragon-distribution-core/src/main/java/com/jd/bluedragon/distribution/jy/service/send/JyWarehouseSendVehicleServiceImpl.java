@@ -20,6 +20,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnu
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -33,7 +34,10 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
-import com.jd.bluedragon.distribution.collectNew.entity.*;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
+import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
@@ -59,7 +63,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEnt
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -67,8 +70,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.erp.util.BeanUtils;
-import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -86,7 +89,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -156,7 +158,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private JyWarehouseSendVehicleCacheService jyWarehouseSendVehicleCacheService;
     @Autowired
     private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
-
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.fetchSendVehicleTaskPage",
@@ -681,16 +684,19 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param response
      */
     private void fetchBarCodeBindSendVehicleTask(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
-
+        String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchBarCodeBindSendVehicleTask:接货仓发货岗扫描前查找发货流向及混扫任务信息：";
         CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.fetchBarCodeBindSendVehicleTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         //根据发货方式获取流向
         InvokeResult<List<Integer>> nextSiteCodeRes = this.fetchNextSiteId(request);
         if(!nextSiteCodeRes.codeSuccess()) {
             log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
-            response.toBizError();
             String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
-            response.addInterceptBox(0, customMsg);
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage(customMsg);
             return;
+        }
+        if(log.isInfoEnabled()) {
+            log.info("{}，当前扫描单号可能流向为{}，request={}", methodDesc, JsonHelper.toJson(nextSiteCodeRes), JsonHelper.toJson(request));
         }
         List<Long> endSiteIdList = new ArrayList<>();
         nextSiteCodeRes.getData().forEach(siteId ->{
@@ -709,9 +715,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(CollectionUtils.isEmpty(resEntityList)) {
             log.warn("接货仓发货岗该单据{}匹配龙门架流向为{}，未匹配到混扫任务,request={},派车信息={}", request.getBarCode(), JsonHelper.toJson(endSiteIdList),
                     JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
-            response.toBizError();
-            String customMsg = MessageFormat.format("没有单据{0}对应的派车任务，请先添加该流向派车任务！", request.getBarCode());
-            response.addInterceptBox(0, customMsg);
+            //
+            String getNextSiteName = this.getImpossibleNextSiteName(request, endSiteIdList);
+            String customMsg = String.format("混扫任务中无该单%s流向的任务，请先添加！流向场地为[%s]", request.getBarCode(), getNextSiteName);
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage(customMsg);
             return;
         }
         if(log.isInfoEnabled()) {
@@ -733,6 +741,33 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         Profiler.registerInfoEnd(info);
+    }
+
+    /**
+     * 根据发货规则匹配可能的流向，获取可能的流向场地名称
+     * @param endSiteIdList
+     * @return
+     */
+    private String getImpossibleNextSiteName(SendScanReq request, List<Long> endSiteIdList) {
+        if(StringUtils.isBlank(request.getBarCode()) || CollectionUtils.isEmpty(endSiteIdList)) {
+            return "";
+        }
+
+        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(0).intValue());
+            return baseStaffSiteOrgDto.getSiteName();
+        }else if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto;
+            //按单按包裹扫描，流向get(0)是运单的预分拣站点，其他的是发货规则配置的可能分拣中心流向
+            if(endSiteIdList.size() == 1) {
+                baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(0).intValue());
+            }else {
+                baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(1).intValue());
+            }
+            return baseStaffSiteOrgDto.getSiteName();
+        }else {
+            return "";
+        }
     }
 
 
@@ -1168,11 +1203,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE
                 || jsfResponse.getData() == null) {
             if (log.isWarnEnabled()) {
-                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:{}"
-                        , JsonHelper.toJson(jsfResponse));
+                log.warn("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，req={}，返回值为:{}"
+                        , JsonHelper.toJson(jsfRequest), JsonHelper.toJson(jsfResponse));
             }
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-            result.setMessage("未配置发货关系");
+            result.setMessage("龙门架配置未配置发货关系");
             return result;
         }
         for (AreaDestJsfVo areaDestJsfVo : jsfResponse.getData()) {
