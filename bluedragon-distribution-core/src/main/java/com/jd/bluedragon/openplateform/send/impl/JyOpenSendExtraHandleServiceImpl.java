@@ -269,9 +269,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             sendDetailDto.setIsCancel(0);
             sendDetailDto.setCreateSiteCode(createSiteCode);
             final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
+            log.info("sendTysSendMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
             // 进一步分批，批量发送mq
             int batchSize = 50;
             int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
+            log.info("sendTysSendMq4Urban batchCount {}", batchCount);
             for (int i = 0; i < batchCount; i++) {
                 int start = i * batchSize;
                 int end = start + batchSize;
