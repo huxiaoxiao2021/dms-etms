@@ -303,29 +303,29 @@ public class JyWarehouseSendGatewayServiceTest {
         paramDto.setMixScanTaskCode("CTT23060600000010");
         paramDto.setGroupCode(GROUP_CODE);
 
-        String testPdaJson = "{\n" +
-                "    \"currentOperate\": {\n" +
-                "        \"dmsCode\": \"010F002\",\n" +
-                "        \"operateTime\": 1686639850033,\n" +
-                "        \"operatorId\": \"50966\",\n" +
-                "        \"operatorTypeCode\": 1,\n" +
-                "        \"orgId\": 6,\n" +
-                "        \"orgName\": \"华北\",\n" +
-                "        \"siteCode\": 40240,\n" +
-                "        \"siteName\": \"北京通州分拣中心\"\n" +
-                "    },\n" +
-                "    \"groupCode\": \"G00000089001\",\n" +
-                "    \"keyword\": \"\",\n" +
-                "    \"mixScanTaskCode\": \"CTT23060600000007\",\n" +
-                "    \"pageNo\": 1,\n" +
-                "    \"pageSize\": 30,\n" +
-                "    \"requestId\": \"10ff1989b55c489f873586f6012f14bd\",\n" +
-                "    \"user\": {\n" +
-                "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
-                "    }\n" +
-                "}";
+        String testPdaJson = "    {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010K001\",\n" +
+                "            \"operateTime\": 1686910482800,\n" +
+                "            \"operatorId\": \"51410\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 223094,\n" +
+                "            \"siteName\": \"北京马驹桥接货仓\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00000099001\",\n" +
+                "        \"keyword\": \"\",\n" +
+                "        \"mixScanTaskCode\": \"CTT23061600000001\",\n" +
+                "        \"pageNo\": 1,\n" +
+                "        \"pageSize\": 30,\n" +
+                "        \"requestId\": \"d1d05f0bda5d427484c79a49cb1b415c\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 18225,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"徐迷根\"\n" +
+                "        }\n" +
+                "    }";
 
         AppendSendVehicleTaskQueryReq testPdaReq = JsonHelper.fromJson(testPdaJson, AppendSendVehicleTaskQueryReq.class);
 
