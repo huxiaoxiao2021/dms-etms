@@ -69,6 +69,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     private SortingServiceFactory sortingServiceFactory;
 
     @Autowired
+    @Qualifier("jyOpenPlatformSendProducer")
+    private DefaultJMQProducer jyOpenPlatformSendProducer;
+
+    @Autowired
     @Qualifier("jyOpenPlatformSendFinishProducer")
     private DefaultJMQProducer jyOpenPlatformSendFinishProducer;
 
@@ -336,6 +340,16 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         return new InvokeResult<>();
     }
 
+    private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
+        try {
+            log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            jyOpenPlatformSendProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
+        } catch (JMQException e) {
+            log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * 发货完成处理
      * @param entity 发货数据
@@ -347,7 +361,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     public InvokeResult<Boolean> sendVehicleFinish(JYCargoOperateEntity entity) {
         try {
             log.info("JYOpenCargoOperateServiceImpl sendVehicleFinish {}", JsonHelper.toJson(entity));
-            this.sendOpenPlatformSendMq(entity);
+            this.sendOpenPlatformSendFinishMq(entity);
             return new InvokeResult<>();
         } catch (Exception e) {
             log.error("JYOpenCargoOperateServiceImpl sendVehicleFinish exception {}", JsonHelper.toJson(entity), e);
@@ -355,12 +369,12 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         }
     }
 
-    private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
+    private void sendOpenPlatformSendFinishMq(JYCargoOperateEntity jyCargoOperateEntity) {
         try {
-            log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            log.info("sendOpenPlatformSendFinishMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
             jyOpenPlatformSendFinishProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
         } catch (JMQException e) {
-            log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+            log.error("sendOpenPlatformSendFinishMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
             throw new RuntimeException(e);
         }
     }

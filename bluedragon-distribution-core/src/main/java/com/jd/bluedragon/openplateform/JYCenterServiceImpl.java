@@ -557,8 +557,10 @@ public class JYCenterServiceImpl implements JYCenterService {
                 task.setTableName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE);
                 task.setSequenceName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ);
                 task.setOwnSign(BusinessHelper.getOwnSign());
-                task.setKeyword1(entity.getBarcode());
+                task.setKeyword1(entity.getSendCode());
                 task.setKeyword2(operatorInfo.getOperateSiteCode());
+                task.setCreateSiteCode(startSite.getSiteCode());
+                task.setReceiveSiteCode(receiveSite.getSiteCode());
                 task.setFingerprint(Md5Helper.encode(JsonHelper.toJson(entity)));
                 tasks.add(task);
             }
@@ -628,8 +630,14 @@ public class JYCenterServiceImpl implements JYCenterService {
         if (sendVehicleFinishRequest.getScanBeginTime() == null) {
             return result.toFail("参数错误，scanBeginTime不能为空");
         }
+        if (sendVehicleFinishRequest.getScanBeginTime() <= 0) {
+            return result.toFail("参数错误，scanBeginTime不合法");
+        }
         if (sendVehicleFinishRequest.getScanEndTime() == null) {
             return result.toFail("参数错误，scanEndTime不能为空");
+        }
+        if (sendVehicleFinishRequest.getScanEndTime() <= 0) {
+            return result.toFail("参数错误，scanEndTime不合法");
         }
         if (CollectionUtils.isEmpty(sendVehicleFinishRequest.getBatchCodes())) {
             return result.toFail("参数错误，batchCodes不能为空");

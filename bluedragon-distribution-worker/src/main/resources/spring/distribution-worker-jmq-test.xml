@@ -630,6 +630,10 @@
     <jmq:consumer id="jmq.jyOpenPlatformSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.open.platform.send}" listener="jyOpenPlatformSendConsumer"/>
     </jmq:consumer>
+    <!--  拣运开放平台发货完成消息消费  -->
+    <jmq:consumer id="jmq.jyOpenPlatformSendFinishConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.open.platform.sendFinish}" listener="jyOpenPlatformSendFinishConsumer"/>
+    </jmq:consumer>
 
 </beans>
 

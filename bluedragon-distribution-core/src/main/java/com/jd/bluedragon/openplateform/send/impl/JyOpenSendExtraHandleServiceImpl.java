@@ -103,6 +103,14 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
             return;
         }
+        if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
+            log.warn("sendTysSendMq4Urban taskScanBeginTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
+        if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() <= 0) {
+            log.warn("sendTysSendMq4Urban taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
         final OperatorInfo operatorInfo = jyCargoOperate.getOperatorInfo();
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(jyCargoOperate.getCreateSiteId());
@@ -237,48 +245,43 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
         log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
-        if(existSendCodeVal == null){
-            boolean needSend = false;
-            if((System.currentTimeMillis() - operatorInfo.getOperateTime()) < 5 * 60 * 1000){
-                needSend = true;
-            } else {
-                // 查询send_d是否已有同批次已发货数据
-                Integer sendExistCount = sendDetailService.querySendDCountBySendCode(jyCargoOperate.getSendCode());
-                log.info("sendTysSendMq4Urban sendExistCount: {}", sendExistCount);
-                if (sendExistCount <= 0) {
-                    needSend = true;
-                }
-            }
-            if(!needSend){
-                return;
-            }
-
-            // 查找发货明细，发送明细消息
-            final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(jyCargoOperate.getSendCode());
-            SendDetailDto sendDetailDto = new SendDetailDto();
-            sendDetailDto.setSendCode(jyCargoOperate.getSendCode());
-            sendDetailDto.setIsCancel(0);
-            sendDetailDto.setCreateSiteCode(createSiteCode);
-            final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
-            // 进一步分批，批量发送mq
-            int batchSize = 50;
-            int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
-            for (int i = 0; i < batchCount; i++) {
-                int start = i * batchSize;
-                int end = start + batchSize;
-                if (end > packageCodeList.size()) {
-                    end = packageCodeList.size();
-                }
-                final List<String> packageCodeSubList = packageCodeList.subList(start, end);
-                List<Message> sendDetailMQList = new ArrayList<>();
-                for (String packageCode : packageCodeSubList) {
-                    final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, packageCode, currentOperate, user);
-                    log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
-                    sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
-                }
-                transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
-            }
+        if(existSendCodeVal != null){
+            return;
         }
+        // 发送完成消息
+        this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
+
+        // 查找发货明细，发送明细消息
+        final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(jyCargoOperate.getSendCode());
+        SendDetailDto sendDetailDto = new SendDetailDto();
+        sendDetailDto.setSendCode(jyCargoOperate.getSendCode());
+        sendDetailDto.setIsCancel(0);
+        sendDetailDto.setCreateSiteCode(createSiteCode);
+        final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
+        log.info("sendTysSendMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
+        // 进一步分批，批量发送mq
+        int batchSize = 50;
+        int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
+        log.info("sendTysSendMq4Urban batchCount {}", batchCount);
+        for (int i = 0; i < batchCount; i++) {
+            int start = i * batchSize;
+            int end = start + batchSize;
+            if (end > packageCodeList.size()) {
+                end = packageCodeList.size();
+            }
+            final List<String> packageCodeSubList = packageCodeList.subList(start, end);
+            List<Message> sendDetailMQList = new ArrayList<>();
+            for (String packageCode : packageCodeSubList) {
+                final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, packageCode, currentOperate, user);
+                log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
+            }
+            transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
+        }
+
+        // 设置缓存
+        redisClientOfJy.setEx(jyOpenPlatformSendTaskCompleteLockKey, Constants.YN_YES.toString(),
+                JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED, JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT);
 
     }
 }
