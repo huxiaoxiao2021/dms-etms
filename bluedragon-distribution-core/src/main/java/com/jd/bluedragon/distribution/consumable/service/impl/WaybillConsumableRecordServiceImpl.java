@@ -529,7 +529,11 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
             resDataTemp.setConsumableCode(wcdi.getConsumableCode());
             resDataTemp.setConsumableTypeCode(wcdi.getType());
-            resDataTemp.setVolume(BigDecimal.valueOf(wcdi.getConfirmVolume()));
+            if (wcdi.getVolume() != null) {
+                resDataTemp.setVolume(wcdi.getVolume());
+            } else if (wcdi.getConfirmVolume() != null) {
+                resDataTemp.setVolume(BigDecimal.valueOf(wcdi.getConfirmVolume()));
+            }
             resDataList.add(resDataTemp);
         }
         res.setData(resDataList);

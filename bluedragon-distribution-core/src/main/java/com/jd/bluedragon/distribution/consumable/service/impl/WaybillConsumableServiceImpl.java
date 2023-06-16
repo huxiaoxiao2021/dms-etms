@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +91,8 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
             } else {
                 // 参数没传，默认使用上游下发的体积
                 if (confirmRes.getVolume() != null) {
-                    pdaRequest.setConfirmVolume(Double.valueOf(confirmRes.getVolume().toPlainString()));
+                    BigDecimal volume = confirmRes.getVolume().divide(BigDecimal.valueOf(1000000));
+                    pdaRequest.setConfirmVolume(volume.doubleValue());
                 }
             }
             waybillConsumablePdaRequestList.add(pdaRequest);
