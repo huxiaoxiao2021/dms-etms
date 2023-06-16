@@ -557,8 +557,10 @@ public class JYCenterServiceImpl implements JYCenterService {
                 task.setTableName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE);
                 task.setSequenceName(Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE_SEQ);
                 task.setOwnSign(BusinessHelper.getOwnSign());
-                task.setKeyword1(entity.getBarcode());
+                task.setKeyword1(entity.getSendCode());
                 task.setKeyword2(operatorInfo.getOperateSiteCode());
+                task.setCreateSiteCode(startSite.getSiteCode());
+                task.setReceiveSiteCode(receiveSite.getSiteCode());
                 task.setFingerprint(Md5Helper.encode(JsonHelper.toJson(entity)));
                 tasks.add(task);
             }
