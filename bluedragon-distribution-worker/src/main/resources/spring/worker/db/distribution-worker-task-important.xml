@@ -336,7 +336,7 @@
         <property name="desc" value="拣运开放发货任务"/>
     </bean>
 
-    <bean id="jYOpenSendVehicleFinishTask" class="com.jd.bluedragon.distribution.worker.jy.open.JYOpenSendVehicleFinishTask"
+    <bean id="jyOpenSendVehicleFinishTask" class="com.jd.bluedragon.distribution.worker.jy.open.JYOpenSendVehicleFinishTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
