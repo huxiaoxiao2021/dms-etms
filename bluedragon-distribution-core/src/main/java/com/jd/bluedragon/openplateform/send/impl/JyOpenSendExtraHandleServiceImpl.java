@@ -103,6 +103,14 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
             return;
         }
+        if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
+            log.warn("sendTysSendMq4Urban taskScanBeginTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
+        if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() <= 0) {
+            log.warn("sendTysSendMq4Urban taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
         final OperatorInfo operatorInfo = jyCargoOperate.getOperatorInfo();
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(jyCargoOperate.getCreateSiteId());

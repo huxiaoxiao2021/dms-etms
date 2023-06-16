@@ -628,8 +628,14 @@ public class JYCenterServiceImpl implements JYCenterService {
         if (sendVehicleFinishRequest.getScanBeginTime() == null) {
             return result.toFail("参数错误，scanBeginTime不能为空");
         }
+        if (sendVehicleFinishRequest.getScanBeginTime() <= 0) {
+            return result.toFail("参数错误，scanBeginTime不合法");
+        }
         if (sendVehicleFinishRequest.getScanEndTime() == null) {
             return result.toFail("参数错误，scanEndTime不能为空");
+        }
+        if (sendVehicleFinishRequest.getScanEndTime() <= 0) {
+            return result.toFail("参数错误，scanEndTime不合法");
         }
         if (CollectionUtils.isEmpty(sendVehicleFinishRequest.getBatchCodes())) {
             return result.toFail("参数错误，batchCodes不能为空");
