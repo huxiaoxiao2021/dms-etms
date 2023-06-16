@@ -489,7 +489,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                     if (log.isInfoEnabled()) {
                         log.info("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，request={}", JsonHelper.toJson(detailDto));
                     }
-                    throw new JyBizException("流向{}未获取到滑道笼车信息，创建混扫任务失败: " + detailDto.getEndSiteName());
+                    throw new JyBizException("流向" + detailDto.getEndSiteName() + "未获取到滑道笼车信息，创建混扫任务失败: ");
                 }
             }
             endSiteSet.add(detailDto.getEndSiteId());
