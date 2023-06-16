@@ -407,32 +407,31 @@ public class JyWarehouseSendGatewayServiceTest {
                 "    }" ;
 
 
-        String pdaJson = "\n" +
-                "    {\n" +
-                "        \"barCode\": \"JD0003420560600-1-1-\",\n" +
-                "        \"barCodeType\": 0,\n" +
-                "        \"currentOperate\": {\n" +
-                "            \"dmsCode\": \"010F002\",\n" +
-                "            \"operateTime\": 1686834109569,\n" +
-                "            \"operatorId\": \"51259\",\n" +
-                "            \"operatorTypeCode\": 1,\n" +
-                "            \"orgId\": 6,\n" +
-                "            \"orgName\": \"华北\",\n" +
-                "            \"siteCode\": 223094,\n" +
-                "            \"siteName\": \"北京马驹桥接货仓\"\n" +
-                "        },\n" +
-                "        \"forceSubmit\": false,\n" +
-                "        \"groupCode\": \"G00000099001\",\n" +
-                "        \"machineCode\": \"mjq-lmj-001\",\n" +
-                "        \"mixScanTaskCode\": \"CTT23061500000014\",\n" +
-                "        \"operateType\": 101,\n" +
-                "        \"sendForWholeBoard\": false,\n" +
-                "        \"user\": {\n" +
-                "            \"userCode\": 17331,\n" +
-                "            \"userErp\": \"wuyoude\",\n" +
-                "            \"userName\": \"吴有德\"\n" +
-                "        }\n" +
-                "    }";
+        String pdaJson = "{\n" +
+                "    \"barCode\": \"JD0003420560619-1-1-\",\n" +
+                "    \"barCodeType\": 0,\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"dmsCode\": \"010F002\",\n" +
+                "        \"operateTime\": 1686881540353,\n" +
+                "        \"operatorId\": \"51268\",\n" +
+                "        \"operatorTypeCode\": 1,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 223094,\n" +
+                "        \"siteName\": \"北京马驹桥接货仓\"\n" +
+                "    },\n" +
+                "    \"forceSubmit\": false,\n" +
+                "    \"groupCode\": \"G00000099001\",\n" +
+                "    \"machineCode\": \"mjq-lmj-001\",\n" +
+                "    \"mixScanTaskCode\": \"CTT23061500000014\",\n" +
+                "    \"operateType\": 101,\n" +
+                "    \"sendForWholeBoard\": false,\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    }\n" +
+                "}";
 
         while(true) {
             try{
