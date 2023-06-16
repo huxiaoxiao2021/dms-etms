@@ -39,8 +39,8 @@ public class JyOpenPlatformSendFinishConsumer extends MessageBaseConsumer {
             }
             // 将mq消息体转换成SendDetail对象
             JYCargoOperateEntity jyCargoOperate = JsonHelper.fromJson(message.getText(), JYCargoOperateEntity.class);
-            if (jyCargoOperate == null || StringHelper.isEmpty(jyCargoOperate.getBarcode())) {
-                log.warn("JyOpenPlatformSendFinishConsumer:消息体[{}]转换实体失败或没有合法的包裹号",message.getText());
+            if (jyCargoOperate == null || StringHelper.isEmpty(jyCargoOperate.getSendCode())) {
+                log.warn("JyOpenPlatformSendFinishConsumer:消息体[{}]转换实体失败或没有合法的批次号",message.getText());
                 return;
             }
             // 发送任务完成和发货明细消息给城配
