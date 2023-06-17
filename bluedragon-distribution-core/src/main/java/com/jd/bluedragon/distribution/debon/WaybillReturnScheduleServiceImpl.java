@@ -225,8 +225,8 @@ public class WaybillReturnScheduleServiceImpl implements WaybillReturnScheduleSe
             reassignWaybill.setWaybillCode(request.getWaybillCode());
             reassignWaybill.setPackageBarcode(packge);
             reassignWaybill.setAddress(waybill.getReceiverAddress());
-            reassignWaybill.setSiteCode(matchResult.getVehicleTeamId());
-            reassignWaybill.setSiteName(waybillState.getSiteName());
+            reassignWaybill.setSiteCode(Constants.OPERATE_SITE_CODE_DEBON);
+            reassignWaybill.setSiteName(Constants.OPERATE_SITE_NAME_DEBON);
             reassignWaybill.setReceiveSiteCode(waybillState.getSiteId());
             reassignWaybill.setReceiveSiteName(waybillState.getSiteName());
             reassignWaybill.setChangeSiteCode(matchResult.getVehicleTeamId());

@@ -1946,4 +1946,9 @@ public class Constants {
     //德邦默认用户id
     public static final Integer USER_CODE_DEBON = 0;
 
+    //德邦默认操作站点id
+    public static final Integer OPERATE_SITE_CODE_DEBON = -1;
+
+    //德邦默认操作站点名称
+    public static final String OPERATE_SITE_NAME_DEBON = "system";
 }
