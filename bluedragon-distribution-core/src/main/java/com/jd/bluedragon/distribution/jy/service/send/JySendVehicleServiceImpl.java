@@ -41,6 +41,8 @@ import com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.*;
+import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
@@ -50,6 +52,8 @@ import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -101,6 +105,8 @@ import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -130,7 +136,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.CodeConstants;
-import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
@@ -2960,7 +2965,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         
         // 查询车型
         List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
-        HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getBasicVehicleTypeMap(taskSendList);
+        HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getTaskSendVehicleMap(taskSendList);
 
         // 批量根据主任务id获取目的地站点
         List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
@@ -3029,6 +3034,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
                 // 查询车牌
                 flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
+                flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
             }
 
             if (sendAgg != null) {
@@ -3075,7 +3081,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return map;
     }
 
-    private HashMap<String, JyBizTaskSendVehicleEntity> getBasicVehicleTypeMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+    private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
         HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
         taskSendList.forEach(item -> map.put(item.getBizId(),item));
         return map;
@@ -3996,7 +4002,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.updateStatusByTemplateCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public boolean updateStatusByTemplateCode(List<String> detailBizIds) {
-        return taskSendVehicleDetailService.updateStatusByDetailVehicleBizIds(detailBizIds, JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
+    public boolean updateStatusByTemplateCode(MixScanTaskCompleteReq request, List<String> detailBizIds) {
+        List<JyBizTaskSendVehicleDetailEntity> sendDetailList = taskSendVehicleDetailService
+                .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(), detailBizIds);
+        
+        HashMap<String, JyBizTaskSendVehicleDetailEntity> sendDetailMap = new HashMap<>();
+        List<String> sendVehicleBizIds = new ArrayList<>();
+        for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
+            sendDetailMap.put(detailEntity.getBizId(), detailEntity);
+            sendVehicleBizIds.add(detailEntity.getSendVehicleBizId());
+        }
+        List<JyBizTaskSendVehicleEntity> sendTaskByBizIds = taskSendVehicleService.findSendTaskByBizIds(sendVehicleBizIds);
+        HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleMap(sendTaskByBizIds);
+
+        for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
+            if (!transactionManager.updateTaskStatus(sendTaskMap.get(detailEntity.getSendVehicleBizId()), sendDetailMap.get(detailEntity.getBizId()), JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
+                throw new JyBizException("完成混扫任务失败！");
+            }
+        }
+        return true;
     }
 }

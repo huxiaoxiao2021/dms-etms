@@ -1442,7 +1442,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 detailBizIds.add(entity.getSendVehicleDetailBizId());
             }
             
-            if (!updateStatusByTemplateCode(detailBizIds)) {
+            if (!updateStatusByTemplateCode(request, detailBizIds)) {
                 throw new JyBizException("完成混扫任务失败!");
             }
         }catch (Exception e) {

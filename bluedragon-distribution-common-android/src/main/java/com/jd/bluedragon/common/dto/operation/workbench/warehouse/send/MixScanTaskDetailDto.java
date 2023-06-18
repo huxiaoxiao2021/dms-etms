@@ -49,6 +49,11 @@ public class MixScanTaskDetailDto implements Serializable {
      * 主任务ID
      */
     private String sendVehicleBizId;
+
+    /**
+     * 自建任务名称
+     */
+    private String taskName;
     
     public String getTemplateCode() {
         return templateCode;
@@ -152,5 +157,13 @@ public class MixScanTaskDetailDto implements Serializable {
 
     public void setSendVehicleBizId(String sendVehicleBizId) {
         this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }
