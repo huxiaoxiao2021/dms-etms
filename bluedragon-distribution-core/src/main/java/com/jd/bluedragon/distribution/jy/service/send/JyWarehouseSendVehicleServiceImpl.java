@@ -301,7 +301,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(Objects.isNull(currentSiteCode) || Objects.isNull(nextSiteCode)) {
             return "未知滑道笼车号";
         }
-        return String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode);
+        if(log.isInfoEnabled()) {
+            log.info("接货仓发货岗查询滑道笼车号逻辑：{}", String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode));
+        }
+//        return String.format("%s-%s未知滑道笼车号", currentSiteCode, nextSiteCode);
+        return "未知滑道笼车号";
     }
 
     /**
@@ -553,7 +557,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 //获取滑道笼车号
                 //滑道笼车号
                 JdResult<TableTrolleyJsfResp> tableTrolleyRes = this.fetchCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
-                if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes)) {
+                if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
                     String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
                     String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
                     dto.setCrossCode(crossCode);

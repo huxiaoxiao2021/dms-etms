@@ -573,6 +573,9 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (endSiteSet.contains(item.getEndSiteId())) {
                 throw new JyBizException("包含重复流向！请重新选择新增流向");
             }
+            if(StringUtils.isBlank(item.getCrossCode()) || StringUtils.isBlank(item.getTabletrolleyCode())) {
+                throw new JyBizException("未知滑道笼车号无法添加混扫任务");
+            }
             endSiteSet.add(item.getEndSiteId());
         });
     }

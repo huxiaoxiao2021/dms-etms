@@ -110,7 +110,44 @@ public class JyWarehouseSendGatewayServiceTest {
         detailDto.setCrossCode("324");
         detailDto.setTabletrolleyCode("rfbrf");
         sendFLow.add(detailDto);
-        System.out.println(JsonHelper.toJson(jyWarehouseSendGatewayService.appendMixScanTaskFlow(req)));
+        String pdaJson = "     {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1686932865296,\n" +
+                "            \"operatorId\": \"51435\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 223094,\n" +
+                "            \"siteName\": \"北京马驹桥接货仓\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00000099001\",\n" +
+                "        \"requestId\": \"11243bf50bb84d0c81ed649d162d8cc0\",\n" +
+                "        \"sendFlowList\": [\n" +
+                "            {\n" +
+                "                \"endSiteId\": 64812,\n" +
+                "                \"endSiteName\": \"红妍DP嘉峪关测试\",\n" +
+                "                \"sendVehicleDetailBizId\": \"NTSD23061600000002\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"templateCode\": \"CTT23061600000002\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
+                "        }\n" +
+                "    }";
+
+        while(true) {
+            try{
+
+                AppendMixScanTaskFlowReq paramDto = JsonHelper.fromJson(pdaJson, AppendMixScanTaskFlowReq.class);
+
+                System.out.println(JsonHelper.toJson(jyWarehouseSendGatewayService.appendMixScanTaskFlow(paramDto)));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     @Test
@@ -303,29 +340,29 @@ public class JyWarehouseSendGatewayServiceTest {
         paramDto.setMixScanTaskCode("CTT23060600000010");
         paramDto.setGroupCode(GROUP_CODE);
 
-        String testPdaJson = "{\n" +
-                "    \"currentOperate\": {\n" +
-                "        \"dmsCode\": \"010F002\",\n" +
-                "        \"operateTime\": 1686639850033,\n" +
-                "        \"operatorId\": \"50966\",\n" +
-                "        \"operatorTypeCode\": 1,\n" +
-                "        \"orgId\": 6,\n" +
-                "        \"orgName\": \"华北\",\n" +
-                "        \"siteCode\": 40240,\n" +
-                "        \"siteName\": \"北京通州分拣中心\"\n" +
-                "    },\n" +
-                "    \"groupCode\": \"G00000089001\",\n" +
-                "    \"keyword\": \"\",\n" +
-                "    \"mixScanTaskCode\": \"CTT23060600000007\",\n" +
-                "    \"pageNo\": 1,\n" +
-                "    \"pageSize\": 30,\n" +
-                "    \"requestId\": \"10ff1989b55c489f873586f6012f14bd\",\n" +
-                "    \"user\": {\n" +
-                "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
-                "    }\n" +
-                "}";
+        String testPdaJson = "       {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010K001\",\n" +
+                "            \"operateTime\": 1686922789366,\n" +
+                "            \"operatorId\": \"51428\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 223094,\n" +
+                "            \"siteName\": \"北京马驹桥接货仓\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00000099001\",\n" +
+                "        \"keyword\": \"\",\n" +
+                "        \"mixScanTaskCode\": \"CTT23061600000002\",\n" +
+                "        \"pageNo\": 1,\n" +
+                "        \"pageSize\": 30,\n" +
+                "        \"requestId\": \"5551423fb70a416faf56967344d67ca6\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 18225,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"徐迷根\"\n" +
+                "        }\n" +
+                "    }";
 
         AppendSendVehicleTaskQueryReq testPdaReq = JsonHelper.fromJson(testPdaJson, AppendSendVehicleTaskQueryReq.class);
 
