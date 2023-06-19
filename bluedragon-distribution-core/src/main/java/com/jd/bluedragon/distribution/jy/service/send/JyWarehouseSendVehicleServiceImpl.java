@@ -1274,7 +1274,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         if(response.codeSuccess() && !Objects.isNull(request.getLastNextSiteCode()) && !Objects.isNull(request.getPreNextSiteCode())) {
-            if(!request.getLastNextSiteCode().equals(request.getPreNextSiteCode())) {
+            if(!request.getLastNextSiteCode().trim().equals(request.getPreNextSiteCode().toString().trim())) {
                 response.setCode(SendScanRes.CODE_FOCUS_FLOW_DIFFER);
                 response.setMessage(SendScanRes.String_FOCUS_FLOW_DIFFER);
                 return;
