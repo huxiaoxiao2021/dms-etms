@@ -181,7 +181,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return new InvokeResult(RESULT_NO_FOUND_DATA_CODE, RESULT_NO_FOUND_DATA_MESSAGE);
         }
         SealVehicleInfoResp sealVehicleInfoResp = new SealVehicleInfoResp();
-        sealVehicleInfoResp.setSendVehicleBizId(detailEntity.getSendVehicleBizId());
         //查询已经发货的批次信息sendcodeList
         List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList)){

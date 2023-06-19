@@ -56,12 +56,6 @@ public class SealVehicleInfoResp implements Serializable {
      */
     private String routeLineName;
     
-    /**
-     * send_vehicle业务主键
-     */
-    private String sendVehicleBizId;
-    
-
     public String getRouteLineCode() {
         return routeLineCode;
     }
@@ -149,12 +143,4 @@ public class SealVehicleInfoResp implements Serializable {
 	public void setSavedPageData(JyAppDataSealVo savedPageData) {
 		this.savedPageData = savedPageData;
 	}
-
-    public String getSendVehicleBizId() {
-        return sendVehicleBizId;
-    }
-
-    public void setSendVehicleBizId(String sendVehicleBizId) {
-        this.sendVehicleBizId = sendVehicleBizId;
-    }
 }
