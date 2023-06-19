@@ -156,8 +156,10 @@ public class JYCenterServiceImpl implements JYCenterService {
                 operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
                 operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
                 operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
-                operatorInfo.setOperateUserId(batchInspectionPageRequest.getOperateUserCode());
-                operatorInfo.setOperateUserErp(batchInspectionPageRequest.getOperateUserErp());
+                Integer operateUserCode = batchInspectionPageRequest.getOperateUserCode();
+                operatorInfo.setOperateUserId(operateUserCode == null ? -1 : operateUserCode);
+                String operateUserErp = batchInspectionPageRequest.getOperateUserErp();
+                operatorInfo.setOperateUserErp(operateUserErp == null ? cargoOperateInfo.getOperateUserErp() : operateUserErp);
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
 
                 JYCargoOperateEntity entity = new JYCargoOperateEntity();
