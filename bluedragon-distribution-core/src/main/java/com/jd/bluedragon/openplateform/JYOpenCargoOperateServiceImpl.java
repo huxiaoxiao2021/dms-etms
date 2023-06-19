@@ -348,7 +348,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
     private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
         try {
-            log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            if(log.isInfoEnabled()) {
+                log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            }
             jyOpenPlatformSendProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
         } catch (JMQException e) {
             log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
@@ -366,7 +368,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     @Override
     public InvokeResult<Boolean> sendVehicleFinish(JYCargoOperateEntity entity) {
         try {
-            log.info("JYOpenCargoOperateServiceImpl sendVehicleFinish {}", JsonHelper.toJson(entity));
+            if(log.isInfoEnabled()) {
+                log.info("JYOpenCargoOperateServiceImpl sendVehicleFinish {}", JsonHelper.toJson(entity));
+            }
             this.sendOpenPlatformSendFinishMq(entity);
             return new InvokeResult<>();
         } catch (Exception e) {
@@ -377,7 +381,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
     private void sendOpenPlatformSendFinishMq(JYCargoOperateEntity jyCargoOperateEntity) {
         try {
-            log.info("sendOpenPlatformSendFinishMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            if(log.isInfoEnabled()) {
+                log.info("sendOpenPlatformSendFinishMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            }
             jyOpenPlatformSendFinishProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
         } catch (JMQException e) {
             log.error("sendOpenPlatformSendFinishMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);

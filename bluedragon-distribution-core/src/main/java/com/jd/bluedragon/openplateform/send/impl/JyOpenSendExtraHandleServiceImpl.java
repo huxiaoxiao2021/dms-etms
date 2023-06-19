@@ -24,6 +24,8 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.constants.JyConstants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -75,8 +77,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
      * @time 2023-05-26 17:42:19 周五
      */
     @Override
+    @JProfiler(jKey = "JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> afterOpenPlatformSend(JYCargoOperateEntity jyCargoOperate){
-        log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend param {}", JSON.toJSONString(jyCargoOperate));
+        if(log.isInfoEnabled()) {
+            log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSend param {}", JSON.toJSONString(jyCargoOperate));
+        }
         Result<Boolean> result = Result.success();
         try {
             // 发出转运发货完成后的两个mq消息
@@ -86,10 +91,6 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             return result.toFail("系统异常");
         }
         return result;
-    }
-
-    private String getJyOpenPlatformSendTaskCompleteLockKey(String batchCode) {
-        return String.format(JyCacheKeyConstants.JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_LOCK, batchCode);
     }
 
     private String getJyOpenPlatformSendTaskCompleteCacheKey(String batchCode) {
@@ -142,16 +143,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
         log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
         if(existSendCodeVal == null){
-            if((System.currentTimeMillis() - operatorInfo.getOperateTime()) < 5 * 60 * 1000){
-                this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
-            } else {
-                // 查询send_d是否已有同批次已发货数据
-                final Integer sendExistCount = sendDatailDao.querySendDCountBySendCode(jyCargoOperate.getSendCode());
-                log.info("sendTysSendMq4Urban sendExistCount: {}", sendExistCount);
-                if (sendExistCount <= 0) {
-                    this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
-                }
-            }
+            this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
         }
     }
 
@@ -213,6 +205,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
      * @time 2023-06-08 10:09:32 周四
      */
     @Override
+    @JProfiler(jKey = "JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> afterOpenPlatformSendFinish(JYCargoOperateEntity jyCargoOperate) {
         log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish param {}", JSON.toJSONString(jyCargoOperate));
         Result<Boolean> result = Result.success();
