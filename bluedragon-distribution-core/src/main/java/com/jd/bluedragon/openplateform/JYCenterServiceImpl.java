@@ -416,11 +416,12 @@ public class JYCenterServiceImpl implements JYCenterService {
 
                 JYCargoOperateEntity entity = new JYCargoOperateEntity();
                 entity.setBarcode(cargoOperateInfo.getBarcode());
-                if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
-                    entity.setPackageCode(cargoOperateInfo.getBarcode());
-                }
                 if (BusinessHelper.isBoxcode(cargoOperateInfo.getBarcode())) {
                     entity.setBoxCode(cargoOperateInfo.getBarcode());
+                } else {
+                    if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
+                        entity.setPackageCode(cargoOperateInfo.getBarcode());
+                    }
                 }
                 if (BusinessHelper.isSendCode(batchSendPageRequest.getBatchCode())) {
                     entity.setSendCode(batchSendPageRequest.getBatchCode());
