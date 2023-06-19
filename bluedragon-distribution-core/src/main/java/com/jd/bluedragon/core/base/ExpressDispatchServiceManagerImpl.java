@@ -2,12 +2,15 @@ package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.preseparate.jsf.ExpressDispatchServiceAPI;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchRequest;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchResult;
 import com.jd.preseparate.vo.ServiceResponse;
 import com.jd.preseparate.vo.stationmatch.StationMatchParameter;
 import com.jd.preseparate.vo.stationmatch.StationMatchResult;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,8 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
     @Override
     public B2bVehicleTeamMatchResult getStandardB2bSupportMatch(B2bVehicleTeamMatchRequest request) {
 
+        CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWEB.ExpressDispatchServiceManagerImpl.getStandardB2bSupportMatch");
+
         try{
             //todo   补充其他必填字段
             request.setSystemCode(systemCode);
@@ -57,6 +62,9 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
             }
         }catch (Exception e){
             logger.error("根据地址获取匹配站点信息异常!入参-{},异常信息-{}",request,e.getMessage(),e);
+            Profiler.functionError(callerInfo);
+        }finally{
+            Profiler.registerInfoEnd(callerInfo);
         }
         return null;
 

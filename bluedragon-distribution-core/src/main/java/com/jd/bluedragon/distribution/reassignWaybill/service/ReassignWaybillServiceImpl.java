@@ -13,11 +13,12 @@ import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -55,6 +56,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Autowired
 	@Qualifier("waybillSiteChangeProducer")
 	private DefaultJMQProducer waybillSiteChangeProducer;
+
+	@Autowired
+	private TaskService taskService;
 
 
 	private Boolean add(ReassignWaybill packTagPrint) {
@@ -195,21 +199,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 	@Override
 	public Boolean addToDebon(ReassignWaybill packTagPrint) {
-
-		CenConfirm cenConfirm=new CenConfirm();
-		cenConfirm.setWaybillCode(packTagPrint.getWaybillCode());
-		cenConfirm.setCreateSiteCode(packTagPrint.getSiteCode());
-		cenConfirm.setPackageBarcode(packTagPrint.getPackageBarcode());
-		cenConfirm.setOperateType(Constants.OPERATE_TYPE_RCD);
-		cenConfirm.setType(Integer.valueOf(Constants.BUSSINESS_TYPE_RCD).shortValue());
-		cenConfirm.setOperateTime(packTagPrint.getOperateTime());
-		cenConfirm.setOperateUser(packTagPrint.getUserName());
-		cenConfirm.setOperateUserCode(packTagPrint.getUserCode());
-		cenConfirm.setReceiveSiteCode(packTagPrint.getChangeSiteCode());
-		log.info("addToDebon-cenConfirm-信息-{}",JsonHelper.toJson(cenConfirm));
-		cenConfirmService.syncWaybillStatusTask(cenConfirm);
-		//添加返调度运单信息到本地库
-		//sendReassignWaybillMq(packTagPrint);
+		//写全称跟踪信息
+		sendWaybillTrace(packTagPrint);
 		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
@@ -246,6 +237,36 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			packList.add(ReassignWaybill.toReassignWaybill(reassignWaybillRequest));
 		}
 		return packList;
+	}
+
+	private void sendWaybillTrace(ReassignWaybill reassignWaybill){
+		WaybillStatus tWaybillStatus = new WaybillStatus();
+		//设置站点相关属性
+		tWaybillStatus.setPackageCode(reassignWaybill.getPackageBarcode());
+
+		tWaybillStatus.setCreateSiteCode(reassignWaybill.getSiteCode());
+		tWaybillStatus.setCreateSiteName(reassignWaybill.getSiteName());
+
+		tWaybillStatus.setOperatorId(reassignWaybill.getUserCode());
+		tWaybillStatus.setOperator(reassignWaybill.getUserName());
+		Date operateTime = reassignWaybill.getOperateTime() == null ? new Date() : reassignWaybill.getOperateTime();
+		tWaybillStatus.setOperateTime(operateTime);
+		tWaybillStatus.setOperateType(Constants.OPERATE_TYPE_RCD);
+
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorId(reassignWaybill.getUserCode()!= null ? reassignWaybill.getUserCode().toString():"-1");
+		tWaybillStatus.setOperatorData(operatorData);
+		tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + " 进行返调度");
+		Task task = new Task();
+		task.setTableName(Task.TABLE_NAME_POP);
+		task.setSequenceName(Task.getSequenceName(task.getTableName()));
+		task.setKeyword1(tWaybillStatus.getPackageCode());
+		task.setKeyword2(String.valueOf(tWaybillStatus.getOperateType()));
+		task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
+		task.setBody(JsonHelper.toJson(tWaybillStatus));
+		task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+		task.setOwnSign(BusinessHelper.getOwnSign());
+		taskService.add(task);
 	}
 	
 }
