@@ -994,7 +994,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             }
 
             sendCancelScanMq(true, request, invokeResult.getData());
-        } else if (ObjectHelper.isNotNull(request.getPackList())) {
+        } else {
+            //按包裹或运单
             sendCancelScanMq(false, request, null);
         }
         return res;
@@ -1060,15 +1061,31 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }else {
             mqDto.setBuQiAllSelectFlag(false);
             List<Message> messageList = new ArrayList<>();
-            for(String packageCode : request.getPackList()) {
-                mqDto.setBarCode(packageCode);
-                mqDto.setBarCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());
-                String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
-                String msg = JsonHelper.toJson(mqDto);
-                if(log.isInfoEnabled()) {
-                    log.info("{}按包裹取消：businessId={},msx={}", methodDesc, businessId, msg);
+            //包裹取消
+            if(CollectionUtils.isNotEmpty(request.getPackList())) {
+                for(String packageCode : request.getPackList()) {
+                    mqDto.setBarCode(packageCode);
+                    mqDto.setBarCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());
+                    String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+                    String msg = JsonHelper.toJson(mqDto);
+                    if(log.isInfoEnabled()) {
+                        log.info("{}按包裹取消：businessId={},msx={}", methodDesc, businessId, msg);
+                    }
+                    messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
                 }
-                messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
+            }
+            //运单取消
+            if(CollectionUtils.isNotEmpty(request.getWaybillCodeList())) {
+                for(String waybillCode : request.getWaybillCodeList()) {
+                    mqDto.setBarCode(waybillCode);
+                    mqDto.setBarCodeType(JyScanCodeTypeEnum.WAYBILL.getCode());
+                    String businessId = String.format("%s:%s:%s:%s", waybillCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+                    String msg = JsonHelper.toJson(mqDto);
+                    if(log.isInfoEnabled()) {
+                        log.info("{}按运单取消：businessId={},msx={}", methodDesc, businessId, msg);
+                    }
+                    messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
+                }
             }
             jyCancelScanProducer.batchSendOnFailPersistent(messageList);
         }
