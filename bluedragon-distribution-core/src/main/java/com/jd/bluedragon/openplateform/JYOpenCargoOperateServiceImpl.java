@@ -94,12 +94,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             }
         } else {
             if(BarCodeType.PACKAGE_OR_WAYBILL_CODE.equals(barCodeType)){
-                if(WaybillCodeRuleValidateUtil.isDpWaybillCode(entity.getBarcode())){
-                    final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
-                    if(!waybillExist){
-                        log.warn("JYOpenCargoOperateServiceImpl.inspection 德邦运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
-                        return new InvokeResult<>();
-                    }
+                final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+                if(!Objects.equals(waybillExist, true)){
+                    log.warn("JYOpenCargoOperateServiceImpl.inspection 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                    return new InvokeResult<>();
                 }
             }
             addInspectionTask(entity, null);
@@ -190,12 +188,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
         if(BarCodeType.PACKAGE_OR_WAYBILL_CODE.equals(barCodeType)){
-            if(WaybillCodeRuleValidateUtil.isDpWaybillCode(entity.getBarcode())){
-                final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
-                if(!waybillExist){
-                    log.error("JYOpenCargoOperateServiceImpl.sorting 德邦运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
-                    return new InvokeResult<>();
-                }
+            final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+            if(!Objects.equals(waybillExist, true)){
+                log.error("JYOpenCargoOperateServiceImpl.sorting 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                return new InvokeResult<>();
             }
         }
 
@@ -271,12 +267,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
         if(BarCodeType.PACKAGE_OR_WAYBILL_CODE.equals(barCodeType)){
-            if(WaybillCodeRuleValidateUtil.isDpWaybillCode(entity.getBarcode())){
-                final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
-                if(!waybillExist){
-                    log.error("JYOpenCargoOperateServiceImpl.send 德邦运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
-                    return new InvokeResult<>();
-                }
+            final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+            if(!Objects.equals(waybillExist, true)){
+                log.error("JYOpenCargoOperateServiceImpl.send 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                return new InvokeResult<>();
             }
         }
 
