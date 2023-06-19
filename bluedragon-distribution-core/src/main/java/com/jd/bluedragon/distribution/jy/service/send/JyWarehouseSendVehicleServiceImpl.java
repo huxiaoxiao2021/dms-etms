@@ -639,7 +639,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             BeanUtils.copyProperties(scanRes.getData(), resData);
             //调用发货后接货仓发货岗单独逻辑处理
         }
-        warehouseSendScanResponseHandler(request, scanRes, resData);
+        warehouseSendScanResponseHandler(request, response, resData);
         response.setData(resData);
         return response;
     }
@@ -746,7 +746,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if(Objects.isNull(request.getUnfocusedFlowForceSend()) || !request.getUnfocusedFlowForceSend()) {
             if(!Objects.isNull(jyGroupSortCrossDetailEntity.getFocus()) && FocusEnum.FOCUS.getCode() != jyGroupSortCrossDetailEntity.getFocus()) {
                 response.setCode(SendScanRes.CODE_UNFOCUSED_FLOW_FORCE_SEND);
-                response.setMessage(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND);
+                response.setMessage(String.format(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND, jyGroupSortCrossDetailEntity.getEndSiteName()));
                 return;
             }
         }
@@ -1248,7 +1248,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 接货仓发货岗扫描结果集逻辑处理
      * @param resData
      */
-    private void warehouseSendScanResponseHandler(SendScanReq request, JdVerifyResponse<SendScanResponse> response, SendScanRes resData) {
+    private void warehouseSendScanResponseHandler(SendScanReq request, JdVerifyResponse<SendScanRes> response, SendScanRes resData) {
         if(Objects.isNull(resData.getNextSiteCode())) {
             resData.setNextSiteCode(request.getPreNextSiteCode());
         }
