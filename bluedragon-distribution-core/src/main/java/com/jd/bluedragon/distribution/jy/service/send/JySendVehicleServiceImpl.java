@@ -3035,6 +3035,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 // 查询车牌
                 flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
                 flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
+                flowAgg.setBizNo(bizTaskSendVehicle.getBizNo());
             }
 
             if (sendAgg != null) {
