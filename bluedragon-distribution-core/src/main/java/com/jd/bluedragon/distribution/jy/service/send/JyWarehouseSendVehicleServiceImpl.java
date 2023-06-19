@@ -1307,7 +1307,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         // 批量获取车牌号
         List<JyBizTaskSendVehicleEntity> sendTaskList = taskSendVehicleService.findSendTaskByBizIds(new ArrayList<>(sendVehicleBizIds));
-        HashMap<String,String> vehicleNumberMap = getVehicleNumberMap(sendTaskList);
+        HashMap<String,JyBizTaskSendVehicleEntity> sendTaskMap = getSendTaskMap(sendTaskList);
         
         // 批量获取统计数据
         List<JySendAggsEntity> sendAggs = sendAggService.findBySendVehicleDetailBizs(bizIds);
@@ -1316,7 +1316,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         for (JyBizTaskSendVehicleDetailEntity entity : vehicleDetailList) {
             CarToSealDetail detail = new CarToSealDetail();
             detail.setSendVehicleBizId(entity.getSendVehicleBizId());
-            detail.setVehicleNumber(vehicleNumberMap.get(entity.getSendVehicleBizId()));
+            // 查询车牌
+            JyBizTaskSendVehicleEntity bizTask = sendTaskMap.get(entity.getSendVehicleBizId());
+            if (bizTask != null) {
+                detail.setVehicleNumber(getVehicleNumber(bizTask));
+            }
             detail.setSendDetailBizId(entity.getBizId());
             detail.setEndSiteId(entity.getEndSiteId().intValue());
             detail.setEndSiteName(entity.getEndSiteName());
@@ -1334,10 +1338,10 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return carToSealList;
     }
 
-    private HashMap<String, String> getVehicleNumberMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
-        HashMap<String,String> map = new HashMap<>();
+    private HashMap<String, JyBizTaskSendVehicleEntity> getSendTaskMap(List<JyBizTaskSendVehicleEntity> sendTaskList) {
+        HashMap<String,JyBizTaskSendVehicleEntity> map = new HashMap<>();
         for (JyBizTaskSendVehicleEntity entity : sendTaskList) {
-            map.put(entity.getBizId(),entity.getVehicleNumber());
+            map.put(entity.getBizId(),entity);
         }
         return map;
     }
