@@ -31,13 +31,6 @@ public interface JYCenterService {
     InvokeResult<Boolean> batchInspectionWithPage(BatchInspectionPageRequest batchInspectionPageRequest);
 
     /**
-     * 批量验货接口(不传批次号)
-     * @param batchInspectionPageRequest 批量验货请求参数
-     * @return 返回是否成功
-     */
-    InvokeResult<Boolean> batchInspectByPageWithoutSendCode(BatchInspectionPageRequest batchInspectionPageRequest);
-
-    /**
      * 批量分拣接口
      * @param batchSortingPageRequest 批量分拣请求参数
      * @return 返回是否成功

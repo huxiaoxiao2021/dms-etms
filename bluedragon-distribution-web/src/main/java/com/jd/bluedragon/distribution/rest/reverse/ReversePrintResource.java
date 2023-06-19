@@ -68,7 +68,6 @@ public class ReversePrintResource {
     private static final Logger log = LoggerFactory.getLogger(ReversePrintResource.class);
 
     @Autowired
-    @Qualifier("ReversePrintService")
     private ReversePrintService reversePrintService;
 
     @Autowired

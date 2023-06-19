@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.service.ReversePrintServiceDpkImpl;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,7 +23,6 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service("waybillInterceptReverseService")
@@ -33,9 +32,8 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
 
     private static final String ERROR_MESSAGE = "换单前获取外单信息接口失败 该运单已换单完成";
 
-    @Qualifier("reversePrintServiceDpk")
     @Autowired
-    private ReversePrintServiceDpkImpl reversePrintServiceDpk;
+    private ReversePrintService reversePrintService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
@@ -61,7 +59,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 return invokeResult;
             }
             // 换单前校验
-            InvokeResult<Boolean> beforeCheckResult = reversePrintServiceDpk.checkWayBillForExchange(oldWaybillCode, operateSiteId);
+            InvokeResult<Boolean> beforeCheckResult = reversePrintService.checkWayBillForDpkExchange(oldWaybillCode, operateSiteId);
             if (!beforeCheckResult.getData()) {
                 LOGGER.warn("exchangeNewWaybill|换单前校验返回失败:request={},msg={}", JsonHelper.toJson(request), beforeCheckResult.getMessage());
                 invokeResult.parameterError(beforeCheckResult.getMessage());
@@ -73,7 +71,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 LOGGER.info("exchangeNewWaybill|自营换单:waybillCode={}", oldWaybillCode);
                 // 执行自营逆向换单提交
                 OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
-                InvokeResult<String> ownExchangeResult = reversePrintServiceDpk.exchangeOwnWaybillSync(ownReverseParam);
+                InvokeResult<String> ownExchangeResult = reversePrintService.exchangeOwnWaybillSync(ownReverseParam);
                 if (!ownExchangeResult.codeSuccess()) {
                     LOGGER.warn("exchangeNewWaybill|自营换单提交操作返回失败:request={},ownExchangeResult={}", JsonHelper.toJson(request), JsonHelper.toJson(ownExchangeResult));
                     invokeResult.parameterError(ownExchangeResult.getMessage());
@@ -116,7 +114,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                     return invokeResult;
                 }
                 // 外单换单成功后处理
-                reversePrintServiceDpk.exchangeSuccessAfter(exchangeWaybillDto);
+                reversePrintService.exchangeSuccessAfter(exchangeWaybillDto);
                 invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                 invokeResult.setData(waybillReverseResult.getWaybillCode());
                 return invokeResult;
@@ -145,7 +143,6 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
         exchangeWaybillDto.setOperatorId(request.getUser().getUserCode());
         exchangeWaybillDto.setOperatorName(request.getUser().getUserName());
         exchangeWaybillDto.setOperateTime(DateHelper.formatDateTime(request.getCurrentOperate().getOperateTime()));
-        // todo exchangeWaybillDto.setisTotalout();
         return exchangeWaybillDto;
     }
 

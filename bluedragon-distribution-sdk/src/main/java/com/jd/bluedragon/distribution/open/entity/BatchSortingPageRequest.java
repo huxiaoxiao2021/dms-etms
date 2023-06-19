@@ -50,6 +50,16 @@ public class BatchSortingPageRequest extends BatchPageRequest{
      */
     private String operateSiteName;
 
+    /**
+     * 操作人编码
+     */
+    private Integer operateUserCode;
+
+    /**
+     * 操作人erp
+     */
+    private String operateUserErp;
+
     public List<CargoOperateInfo> getCargoNoList() {
         return cargoNoList;
     }
@@ -104,5 +114,21 @@ public class BatchSortingPageRequest extends BatchPageRequest{
 
     public void setOperateSiteName(String operateSiteName) {
         this.operateSiteName = operateSiteName;
+    }
+
+    public Integer getOperateUserCode() {
+        return operateUserCode;
+    }
+
+    public void setOperateUserCode(Integer operateUserCode) {
+        this.operateUserCode = operateUserCode;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
     }
 }

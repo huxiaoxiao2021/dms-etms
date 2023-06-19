@@ -59,6 +59,15 @@ public interface ReversePrintService {
      * @return
      */
     InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode);
+
+    /**
+     * 执行逆向换单前校验（专为德邦提供,不校验异常处理）
+     * @param wayBillCode
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<Boolean> checkWayBillForDpkExchange(String wayBillCode, Integer siteCode);
+
     /**
      * 获取二次换单信息
      * @param twiceExchangeRequest

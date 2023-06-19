@@ -88,7 +88,6 @@ public class QualityControlService {
     private TaskService taskService;
 
     @Autowired
-    @Qualifier("ReversePrintService")
     private ReversePrintService reversePrintService;
 
     @Autowired

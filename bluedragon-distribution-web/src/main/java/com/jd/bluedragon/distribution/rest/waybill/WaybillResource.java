@@ -216,7 +216,6 @@ public class WaybillResource {
     @Autowired
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
     @Autowired
-	@Qualifier("ReversePrintService")
     private ReversePrintService reversePrintService;
 
     @Autowired

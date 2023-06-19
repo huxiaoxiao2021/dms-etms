@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +64,6 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	private CrossBoxService crossBoxService;
 
 	@Autowired
-	@Qualifier("ReversePrintService")
 	private ReversePrintService reversePrintService;
 
     @Value("${jsf.dmsExternal.pageLimit}")
