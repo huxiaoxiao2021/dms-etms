@@ -24,6 +24,19 @@ public class SendVehicleDto implements Serializable {
     private List<SendVehicleDetailDto> sendVehicleDetailDtoList;
 
 
+    /**
+     * 自建任务的流水号
+     */
+    private String bizNo;
+    /**
+     * 是否是自建任务 true：自建
+     */
+    private Boolean manualCreatedFlag;
+    /**
+     * 自建任务名称
+     */
+    private String taskName;
+
     public Integer getVehicleStatus() {
         return vehicleStatus;
     }
@@ -54,5 +67,29 @@ public class SendVehicleDto implements Serializable {
 
     public void setSendVehicleDetailDtoList(List<SendVehicleDetailDto> sendVehicleDetailDtoList) {
         this.sendVehicleDetailDtoList = sendVehicleDetailDtoList;
+    }
+
+    public String getBizNo() {
+        return bizNo;
+    }
+
+    public void setBizNo(String bizNo) {
+        this.bizNo = bizNo;
+    }
+
+    public Boolean getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Boolean manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }

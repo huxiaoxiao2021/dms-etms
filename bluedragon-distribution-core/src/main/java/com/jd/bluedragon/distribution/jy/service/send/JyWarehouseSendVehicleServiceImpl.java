@@ -507,7 +507,14 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 dto.setSendVehicleBizId(entity.getBizId());
                 dto.setVehicleStatus(entity.getVehicleStatus());
                 //获取车牌号
-                dto.setVehicleNumber(this.getVehicleNumber(entity));
+                if(!Objects.isNull(entity.getManualCreatedFlag()) && entity.getManualCreatedFlag().equals(1)) {
+                    dto.setManualCreatedFlag(true);
+                    dto.setBizNo(entity.getBizNo());
+                    dto.setTaskName(entity.getTaskName());
+                }else {
+                    dto.setManualCreatedFlag(false);
+                    dto.setVehicleNumber(this.getVehicleNumber(entity));
+                }
                 //获取明细
                 dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request));
                 sendVehicleDtoList.add(dto);
