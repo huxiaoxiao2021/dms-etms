@@ -244,7 +244,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         // 发送装车完成消息
         String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
-        log.info("sendTysSendMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
+        log.info("sendSendFinishMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
         if(existSendCodeVal != null){
             return;
         }
@@ -258,11 +258,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         sendDetailDto.setIsCancel(0);
         sendDetailDto.setCreateSiteCode(createSiteCode);
         final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
-        log.info("sendTysSendMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
+        log.info("sendSendFinishMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
         // 进一步分批，批量发送mq
         int batchSize = 50;
         int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
-        log.info("sendTysSendMq4Urban batchCount {}", batchCount);
+        log.info("sendSendFinishMq4Urban batchCount {}", batchCount);
         for (int i = 0; i < batchCount; i++) {
             int start = i * batchSize;
             int end = start + batchSize;
@@ -273,7 +273,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             List<Message> sendDetailMQList = new ArrayList<>();
             for (String packageCode : packageCodeSubList) {
                 final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, packageCode, currentOperate, user);
-                log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                log.info("sendSendFinishMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
                 sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
             }
             transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
