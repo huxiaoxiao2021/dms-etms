@@ -921,9 +921,18 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         if(StringUtils.isBlank(cRequest.getSendCode())){
             cRequest.setSendCode(coldChainSendService.getOrGenerateSendCode(cRequest.getTransPlanCode(),cRequest.getSiteCode(),cRequest.getReceiveSiteCode()));
         }
-        //构造一单单发货入参
-        PackageSendRequest request = createPackageSendRequest(cRequest,SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
-        //一单单发货
+        PackageSendRequest request = new PackageSendRequest();
+        request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
+        request.setIsForceSend(cRequest.isForceSend());
+        request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
+        request.setBoxCode(boxCode);
+        request.setSendCode(cRequest.getSendCode());
+        request.setUserCode(cRequest.getUserCode());
+        request.setUserName(cRequest.getUserName());
+        request.setSiteCode(cRequest.getSiteCode());
+        request.setSiteName(cRequest.getSiteName());
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setOperateTime(cRequest.getOperateTime());
         com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,Constants.CONSTANT_NUMBER_ONE);
 
         if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
@@ -1060,9 +1069,20 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号|包裹号");
             return result;
         }
-        //构造一单单发货入参
-        PackageSendRequest request = createPackageSendRequest(cRequest,SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW.getCode());
-        //一单单发货
+
+        PackageSendRequest request = new PackageSendRequest();
+        request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW.getCode());
+        request.setIsForceSend(cRequest.isForceSend());
+        request.setIsCancelLastSend(false);
+        request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
+        request.setBoxCode(cRequest.getBoxCode());
+        request.setSendCode(cRequest.getSendCode());
+        request.setUserCode(cRequest.getUserCode());
+        request.setUserName(cRequest.getUserName());
+        request.setSiteCode(cRequest.getSiteCode());
+        request.setSiteName(cRequest.getSiteName());
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setOperateTime(cRequest.getOperateTime());
         com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,barCodeType);
 
         if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
@@ -1107,28 +1127,5 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         List<SendM> list = new ArrayList<>(1);
         list.add(sendM);
         return list;
-    }
-
-    /**
-     * 构造一单单发货入参
-     * @param cRequest
-     * @param sendBizSourceCode
-     * @return
-     */
-    private PackageSendRequest createPackageSendRequest(ColdSendVo cRequest,Integer sendBizSourceCode) {
-        PackageSendRequest request = new PackageSendRequest();
-        request.setBizSource(sendBizSourceCode);
-        request.setIsForceSend(cRequest.isForceSend());
-        request.setIsCancelLastSend(false);
-        request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
-        request.setBoxCode(cRequest.getBoxCode());
-        request.setSendCode(cRequest.getSendCode());
-        request.setUserCode(cRequest.getUserCode());
-        request.setUserName(cRequest.getUserName());
-        request.setSiteCode(cRequest.getSiteCode());
-        request.setSiteName(cRequest.getSiteName());
-        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-        request.setOperateTime(cRequest.getOperateTime());
-        return request;
     }
 }
