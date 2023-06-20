@@ -321,4 +321,18 @@ public class TaskDao extends BaseDao<Task> {
 		}
 		return super.getSqlSession().selectOne(TaskDao.namespace + ".findLastTaskByQuery", query);
 	}
+	/**
+	 * 查找任务列表
+	 * @author fanggang7
+	 * @time 2023-03-21 16:34:55 周二
+	 */
+	public List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findListForDelayTask", request);
+	}	
 }

@@ -37,9 +37,9 @@ public class TaskWorkGridManagerSiteScanData implements Serializable {
 	 */
 	private int executeCount = 0;
 	/**
-	 * 记录上次任务执行日期:yyyy-mm-dd格式
+	 * 记录上次任务执行时间
 	 */
-	private String lastExecuteDay;
+	private Date lastExecuteTime;
 	
 	public String getTaskConfigCode() {
 		return taskConfigCode;
@@ -71,10 +71,10 @@ public class TaskWorkGridManagerSiteScanData implements Serializable {
 	public void setExecuteCount(int executeCount) {
 		this.executeCount = executeCount;
 	}
-	public String getLastExecuteDay() {
-		return lastExecuteDay;
+	public Date getLastExecuteTime() {
+		return lastExecuteTime;
 	}
-	public void setLastExecuteDay(String lastExecuteDay) {
-		this.lastExecuteDay = lastExecuteDay;
+	public void setLastExecuteTime(Date lastExecuteTime) {
+		this.lastExecuteTime = lastExecuteTime;
 	}
 }

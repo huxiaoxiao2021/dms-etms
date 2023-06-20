@@ -155,4 +155,11 @@ public interface TaskService {
      * @return
      */
 	Task findLastWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData);
+	
+    /**
+     * 查找延迟调度任务
+     * @author wuyoude
+     * @time 2023-06-20 16:34:55 周二
+     */
+    List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);	
 }

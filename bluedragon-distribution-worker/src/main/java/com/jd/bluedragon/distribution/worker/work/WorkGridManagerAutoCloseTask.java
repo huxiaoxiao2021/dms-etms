@@ -15,11 +15,11 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 
 /**
  * 任务线上化-扫描任务
- * 定时扫描task_work_grid_manager_site_scan数据记录，生成网格巡检任务，并分配给相应的岗位
+ * 定时关闭任务
  * @author wuyoude
  *
  */
-public class WorkGridManagerSiteScanTask extends DBSingleScheduler {
+public class WorkGridManagerAutoCloseTask extends DBSingleScheduler {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -27,12 +27,13 @@ public class WorkGridManagerSiteScanTask extends DBSingleScheduler {
 	@Qualifier("jyWorkGridManagerBusinessService")
     private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
     
-    public WorkGridManagerSiteScanTask(){
+    public WorkGridManagerAutoCloseTask(){
     	super();
     }
     @Override
+    
     public boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        return jyWorkGridManagerBusinessService.executeWorkGridManagerSiteScanTask(task);
+        return jyWorkGridManagerBusinessService.executeWorkGridManagerAutoCloseTask(task);
     }
 
     /**

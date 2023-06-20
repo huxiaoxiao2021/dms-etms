@@ -1193,4 +1193,17 @@ public class TaskServiceImpl implements TaskService {
         query.setStatus(Task.TASK_STATUS_UNHANDLED);
         return routerDao.findLastTaskByQuery(query);
 	}
+    /**
+     * 查找延迟调度任务
+     * @author wuyoude
+     * @time 2023-06-20 16:34:55 周二
+     */
+    @Override
+    public List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+        Assert.notNull(type, "type must not be null");
+        Assert.notNull(fetchNum, "fetchNum must not be null");
+        Assert.notNull(ownSign, "ownSign must not be null");
+        TaskDao routerDao = taskDao;
+        return routerDao.findListForDelayTask(type, fetchNum, ownSign, queueIds);
+    }	
 }
