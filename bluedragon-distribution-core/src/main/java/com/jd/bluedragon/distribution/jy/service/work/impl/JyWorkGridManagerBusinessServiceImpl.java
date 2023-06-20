@@ -3,8 +3,12 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +32,13 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCase;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem;
-import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScan;
-import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScan;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseData;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScanData;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.jy.enums.EditTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
@@ -40,10 +47,19 @@ import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseItemS
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.api.enums.FrequencyTypeEnum;
+import com.jdl.basic.api.enums.WorkFinishTypeEnum;
 import com.jdl.basic.common.utils.Result;
 
 /**
@@ -83,7 +99,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	
 	@Autowired
 	@Qualifier("jyAttachmentDetailService")
-	private JyAttachmentDetailService jyAttachmentDetailService;	
+	private JyAttachmentDetailService jyAttachmentDetailService;
+	
+    @Autowired
+    protected TaskService taskService;
+    
+    private Random random = new Random();
 
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
@@ -103,6 +124,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		JyWorkGridManagerData taskData = request.getTaskData();
 		String bizId = taskData.getBizId();
 		String userErp = request.getUser().getUserErp();
+		String userName = request.getUser().getUserName();
 		Date currentTime = new Date();
 		JyWorkGridManagerData oldData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
 		if(oldData == null) {
@@ -122,6 +144,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
 		updateTaskData.setUpdateUser(userErp);
+		updateTaskData.setUpdateUserName(userName);
 		updateTaskData.setUpdateTime(currentTime);
 		updateTaskData.setProcessEndTime(currentTime);
 		updateTaskData.setId(oldData.getId());
@@ -230,28 +253,59 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(workGridManagerTaskConfig.getTaskConfigCode());
 		if(configResult == null
 				|| configResult.isEmptyData()) {
-			Log.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(workGridManagerTaskConfig));
+			logger.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(workGridManagerTaskConfig));
 			return;
 		}
-		//根据taskConfigCode查询是否存在未执行的任务，
+		//根据taskConfigCode查询是否存在未执行的任务
 		WorkGridManagerTaskConfigVo configData = configResult.getData();
-		TaskWorkGridManagerScan taskData = new TaskWorkGridManagerScan();
+		
+		TaskWorkGridManagerScanData taskData = new TaskWorkGridManagerScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
-		taskData.setExecuteTime(getNextExecuteTime(configData));
-		//新增|修改任务-修改执行时间
+		taskData.setExecuteTime(getExecuteTime(configData));
+		
+		Task tTask = taskService.findLastWorkGridManagerScanTask(taskData);
+		//判断是否存在任务
+		if(tTask != null) {
+			TaskWorkGridManagerScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerScanData.class);
+			if(!taskData.getExecuteTime().equals(oldTaskData.getExecuteTime())) {
+				Task updateTask = new Task();
+				//更新任务执行时间
+				updateTask.setType(Task.TASK_TYPE_WorkGridManagerScan);
+				updateTask.setBody(JsonHelper.toJson(taskData));
+			      //提前10分钟执行
+				updateTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , 10));
+				updateTask.setId(tTask.getId());
+		        taskService.updateBySelectiveWithBody(updateTask);		        
+			}
+		}else {
+			//新增任务
+	        addWorkGridManagerScanTask(taskData);
+		}
+		tTask = new Task();
+		tTask.setBody(JsonHelper.toJson(taskData));
+        executeWorkGridManagerScanTask(tTask);
 	}
-	private Date getNextExecuteTime(WorkGridManagerTaskConfigVo configData) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        
-        Integer curDay = calendar.get(Calendar.DAY_OF_WEEK);
-        configData.getFrequencyDayList();
-        
-		return new Date();
+	private Date getExecuteTime(WorkGridManagerTaskConfigVo configData) {
+		FrequencyTypeEnum  frequencyType = FrequencyTypeEnum.getEnum(configData.getFrequencyType());
+		if(frequencyType == null) {
+			logger.warn("任务配置-frequencyType无效，无法计算执行时间");
+			return null;
+		}
+		Date executeTime = frequencyType.getNextTime(new Date(), configData.getFrequencyHour(), configData.getFrequencyMinute(), configData.getFrequencyDayList());
+        return executeTime;
 	}
+	private Date getNextExecuteTime(Date lastExecuteTime,WorkGridManagerTaskConfigVo configData) {
+		FrequencyTypeEnum  frequencyType = FrequencyTypeEnum.getEnum(configData.getFrequencyType());
+		if(frequencyType == null) {
+			logger.warn("任务配置-frequencyType无效，无法计算执行时间");
+			return null;
+		}
+		Date executeTime = frequencyType.getNextTime(lastExecuteTime, configData.getFrequencyHour(), configData.getFrequencyMinute(), configData.getFrequencyDayList());
+        return executeTime;
+	}	
 	@Override
 	public boolean executeWorkGridManagerScanTask(Task task) {
-		TaskWorkGridManagerScan taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerScan.class);
+		TaskWorkGridManagerScanData taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerScanData.class);
 		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(taskWorkGridManagerScan.getTaskConfigCode());
 		if(configResult == null
 				|| configResult.isEmptyData()) {
@@ -262,36 +316,280 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		WorkGridManagerTaskConfigVo configData = configResult.getData();
 		//查询网格场地
 		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+		workStationGridQuery.setAreaCodeList(configData.getWorkAreaCodeList());
 		List<Integer> siteCodeList = workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
 		for(Integer siteCode : siteCodeList) {
-			TaskWorkGridManagerSiteScan taskData = new TaskWorkGridManagerSiteScan();
+			TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
 			taskData.setTaskConfigCode(configData.getTaskConfigCode());
 			taskData.setSiteCode(siteCode);
-			taskData.setExecuteTime(getNextExecuteTime(configData));
+			taskData.setTaskBatchCode(String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)));
+			taskData.setExecuteTime(getExecuteTime(configData));
+			
+			Task tTask = taskService.findLastWorkGridManagerSiteScanTask(taskData);
+			if(tTask != null) {
+				TaskWorkGridManagerSiteScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerSiteScanData.class);
+				taskData.setTaskBatchCode(oldTaskData.getTaskBatchCode());
+				taskData.setExecuteCount(oldTaskData.getExecuteCount());
+				if(!taskData.getExecuteTime().equals(oldTaskData.getExecuteTime())) {
+					Task updateTask = new Task();
+					updateTask.setType(Task.TASK_TYPE_WorkGridManagerSiteScan);
+					//更新任务执行时间
+					updateTask.setBody(JsonHelper.toJson(taskData));
+				      //提前10分钟执行
+					updateTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , 5));
+					updateTask.setId(tTask.getId());
+			        taskService.updateBySelectiveWithBody(updateTask);
+				}
+			}else {
+				//新增|修改任务-修改执行时间
+		        this.addWorkGridManagerSiteScanTask(taskData);
+			}
+			tTask = new Task();
+			tTask.setBody(JsonHelper.toJson(taskData));
+			executeWorkGridManagerSiteScanTask(tTask);
 		}
+		
+		//插入一条新的待执行任务
+		TaskWorkGridManagerScanData taskData = new TaskWorkGridManagerScanData();
+		taskData.setTaskConfigCode(configData.getTaskConfigCode());
+		taskData.setExecuteTime(getNextExecuteTime(taskWorkGridManagerScan.getExecuteTime(),configData));
+        addWorkGridManagerScanTask(taskData);
 		return false;
 	}
 
 	@Override
 	public boolean executeWorkGridManagerSiteScanTask(Task task) {
-		TaskWorkGridManagerSiteScan taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerSiteScan.class);
+		TaskWorkGridManagerSiteScanData taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerSiteScanData.class);
 		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(taskWorkGridManagerScan.getTaskConfigCode());
 		if(configResult == null
 				|| configResult.isEmptyData()) {
-			Log.warn("startWorkGridManagerScanTask-fail! taskConfig={}",JsonHelper.toJson(taskWorkGridManagerScan));
+			Log.warn("executeWorkGridManagerSiteScanTask-fail! taskConfig={}",JsonHelper.toJson(taskWorkGridManagerScan));
 			return false;
 		}
 		//根据taskConfigCode查询是否存在未执行的任务
 		WorkGridManagerTaskConfigVo configData = configResult.getData();
+		Integer siteCode = taskWorkGridManagerScan.getSiteCode();
+		String taskBatchCode = taskWorkGridManagerScan.getTaskBatchCode();
+		Integer site910 = 910;
+		if(!site910.equals(siteCode)) {
+			return true;
+		}
+		Result<WorkGridManagerTask> taskInfoResult = workGridManagerTaskJsfManager.queryByTaskCode(configData.getTaskCode());
+		if(taskInfoResult == null
+				|| taskInfoResult.getData() == null) {
+			Log.warn("startWorkGridManagerScanTask-fail! taskCode={}",configData.getTaskCode());
+			return false;
+		}
+		WorkGridManagerTask taskInfo = taskInfoResult.getData();
 		//查询网格场地
 		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
-		List<Integer> siteCodeList = workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
-		for(Integer siteCode : siteCodeList) {
-			TaskWorkGridManagerSiteScan taskData = new TaskWorkGridManagerSiteScan();
-			taskData.setTaskConfigCode(configData.getTaskConfigCode());
-			taskData.setSiteCode(siteCode);
-			taskData.setExecuteTime(getNextExecuteTime(configData));
+		workStationGridQuery.setSiteCode(siteCode);
+		workStationGridQuery.setAreaCodeList(configData.getWorkAreaCodeList());
+		workStationGridQuery.setPageSize(100);
+		
+		Date curDate = new Date();
+		Date taskTime = taskWorkGridManagerScan.getExecuteTime();
+		
+		List<WorkStationGrid> gridList = workStationGridManager.queryListForManagerSiteScan(workStationGridQuery);
+		if(taskWorkGridManagerScan.getExecuteCount() == 0) {
+			for(WorkStationGrid grid: gridList) {
+				JyBizTaskWorkGridManager jyTask = new JyBizTaskWorkGridManager();
+				jyTask.setBizId(UUID.randomUUID().toString());
+				//设置任务配置信息
+				jyTask.setTaskConfigCode(taskBatchCode);
+				jyTask.setTaskBatchCode(taskWorkGridManagerScan.getTaskBatchCode());
+				jyTask.setHandlerUserPositionCode(configData.getHandlerUserPositionCode());
+				jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
+				jyTask.setCreateTime(curDate);
+				if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
+					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 7));
+				}else {
+					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 1));
+				}
+				jyTask.setStatus(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
+				
+				//设置网格信息
+				jyTask.setTaskRefGridKey(grid.getBusinessKey());
+				jyTask.setAreaCode(grid.getAreaCode());
+				jyTask.setAreaName(grid.getAreaName());
+				jyTask.setGridName(grid.getGridName());			
+				jyTask.setSiteCode(grid.getSiteCode());
+				jyTask.setSiteName(grid.getSiteName());
+				
+				jyTask.setProvinceAgencyName("北京市");
+				//设置任务信息
+				jyTask.setTaskType(taskInfo.getTaskType());
+				jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
+				jyTask.setTaskCode(taskInfo.getTaskCode());
+				jyTask.setTaskName(taskInfo.getTaskName());
+				jyTask.setTaskDescription(taskInfo.getTaskDescription());
+				jyTask.setOrderNum(random.nextInt(1000));
+				jyBizTaskWorkGridManagerService.addTask(jyTask);
+			}
 		}
+		String[] users = new String[] {"wuyoude","bjchqf","bjadmin"};
+		users = new String[] {"bjxings","wuyoude2"};
+		int needGridNum = users.length * configData.getPerGridNum();
+		boolean changeBatchCode = false;
+		JyBizTaskWorkGridManagerQuery query = new JyBizTaskWorkGridManagerQuery();
+		query.setTaskBatchCode(taskBatchCode);
+		query.setAreaCodeList(configData.getWorkAreaCodeList());
+		query.setStatus(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
+		query.setLimit(needGridNum + 1);
+		
+		List<JyBizTaskWorkGridManager> jyTaskList = jyBizTaskWorkGridManagerService.queryDataListForDistribution(query);
+		if(jyTaskList == null
+				|| jyTaskList.size() <= needGridNum) {
+			changeBatchCode = true;
+		}
+		int gridIndex = 0 ;
+		boolean finishTask = false;
+		List<String> bizIdListAutoClose = new ArrayList<>();		
+		for(String user : users) {
+			if(finishTask) {
+				break;
+			}
+			JyBizTaskWorkGridManagerBatchUpdate distributionData = new JyBizTaskWorkGridManagerBatchUpdate();
+			List<String> bizIdUserList = new ArrayList<>();
+			distributionData.setBizIdList(bizIdUserList);
+			for(int i=0;i<configData.getPerGridNum();i++) {
+				if(gridIndex >= jyTaskList.size() || gridIndex >= needGridNum) {
+					finishTask = true;
+					break;
+				}
+				JyBizTaskWorkGridManager jyTask = jyTaskList.get(gridIndex);
+				bizIdUserList.add(jyTask.getBizId());
+				bizIdListAutoClose.add(jyTask.getBizId());
+				//设置任务配置信息
+				jyTask.setHandlerUserPositionCode(configData.getHandlerUserPositionCode());
+				jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
+				jyTask.setCreateTime(curDate);
+				jyTask.setProcessBeginTime(taskTime);
+				jyTask.setHandlerErp(user);
+				if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
+					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 7));
+				}else {
+					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 1));
+				}
+				jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
+				jyTask.setTaskDate(taskTime);
+				gridIndex++;
+				distributionData.setData(jyTask);
+			}
+			jyBizTaskWorkGridManagerService.distributionTask(distributionData);
+		}
+		//批次完结，取消无用的任务
+		if(changeBatchCode) {
+			JyBizTaskWorkGridManagerBatchUpdate closeData = new JyBizTaskWorkGridManagerBatchUpdate();
+			JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
+			closeData.setData(data);
+			data.setStatus(WorkTaskStatusEnum.CANCEL.getCode());
+			data.setUpdateTime(new Date());
+			data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
+			data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);			
+			jyBizTaskWorkGridManagerService.closeTaskForEndBatch(closeData);
+		}
+		//已分配的任务，新增一个自动关闭任务
+		TaskWorkGridManagerAutoCloseData autoCloseTaskData = new TaskWorkGridManagerAutoCloseData();
+		autoCloseTaskData.setTaskConfigCode(configData.getTaskConfigCode());
+		autoCloseTaskData.setSiteCode(siteCode);
+		autoCloseTaskData.setTaskBatchCode(taskBatchCode);
+		autoCloseTaskData.setExecuteTime(taskWorkGridManagerScan.getExecuteTime());
+		autoCloseTaskData.setBizIdList(bizIdListAutoClose);
+		addWorkGridManagerAutoCloseTask(autoCloseTaskData);
+		
+		Task autoCloseTask = new Task();
+		autoCloseTask.setBody(JsonHelper.toJson(autoCloseTaskData));
+		executeWorkGridManagerAutoCloseTask(autoCloseTask);
+		
+		//新增下次执行时间的任务
+		TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
+		taskData.setTaskConfigCode(configData.getTaskConfigCode());
+		taskData.setSiteCode(siteCode);
+		taskData.setTaskBatchCode(taskBatchCode);
+		taskData.setExecuteTime(getNextExecuteTime(taskWorkGridManagerScan.getExecuteTime(),configData));
+		taskData.setExecuteCount(taskWorkGridManagerScan.getExecuteCount() + 1);
+		taskData.setLastExecuteDay(DateHelper.formatDate(taskWorkGridManagerScan.getExecuteTime()));
+		addWorkGridManagerSiteScanTask(taskData);
 		return true;
+	}
+	private boolean initJyTaskDataForNewBatch() {
+		
+		return true;
+	}
+	@Override
+	public boolean executeWorkGridManagerAutoCloseTask(Task task) {
+		TaskWorkGridManagerAutoCloseData taskData = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerAutoCloseData.class);
+		JyBizTaskWorkGridManagerBatchUpdate closeData = new JyBizTaskWorkGridManagerBatchUpdate();
+		closeData.setBizIdList(taskData.getBizIdList());
+		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
+		data.setStatus(WorkTaskStatusEnum.TODO.getCode());
+		data.setUpdateTime(new Date());
+		data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
+		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
+		closeData.setData(data);
+		jyBizTaskWorkGridManagerService.autoCloseTask(closeData);
+		return true;
+	}
+	void addWorkGridManagerScanTask(TaskWorkGridManagerScanData taskData){
+		//新增|修改任务-修改执行时间
+		Task tTask = new Task();
+		tTask.setBody(JsonHelper.toJson(taskData));
+
+        tTask.setCreateSiteCode(0);
+        tTask.setKeyword1(taskData.getTaskConfigCode());
+        tTask.setKeyword2(DateHelper.formatDateTime(taskData.getExecuteTime()));
+        tTask.setType(Task.TASK_TYPE_WorkGridManagerScan);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WorkGridManagerScan));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s", tTask.getKeyword1(), tTask.getKeyword2())));
+      //提前10分钟执行
+        tTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , -10));
+        tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+        tTask.setExecuteCount(0);
+
+        logger.info("startWorkGridManagerScanTask-taskData={}", JsonHelper.toJson(taskData));
+        taskService.doAddTask(tTask, false);
+	}
+	void addWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData) {
+		Task tTask = new Task();
+		tTask.setBody(JsonHelper.toJson(taskData));
+
+        tTask.setCreateSiteCode(taskData.getSiteCode());
+        tTask.setKeyword1(taskData.getTaskConfigCode());
+        tTask.setKeyword2(taskData.getSiteCode().toString());
+        tTask.setType(Task.TASK_TYPE_WorkGridManagerSiteScan);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WorkGridManagerSiteScan));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), DateHelper.formatDate(taskData.getExecuteTime()))));
+        //提前5分钟执行
+        tTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , -5));
+        tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+        tTask.setExecuteCount(0);
+
+        logger.info("executeWorkGridManagerScanTask-taskSiteData={}", JsonHelper.toJson(taskData));
+        taskService.doAddTask(tTask, false);
+	}
+	void addWorkGridManagerAutoCloseTask(TaskWorkGridManagerAutoCloseData taskData) {
+		Task tTask = new Task();
+		tTask.setBody(JsonHelper.toJson(taskData));
+
+        tTask.setCreateSiteCode(taskData.getSiteCode());
+        tTask.setKeyword1(taskData.getTaskConfigCode());
+        tTask.setKeyword2(taskData.getSiteCode().toString());
+        tTask.setType(Task.TASK_TYPE_JyWorkGridManagerAutoClose);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_JyWorkGridManagerAutoClose));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), DateHelper.formatDate(taskData.getExecuteTime()))));
+        //延后1分钟执行
+        tTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , 1));
+        tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+        tTask.setExecuteCount(0);
+
+        logger.info("executeWorkGridManagerScanTask-taskSiteData={}", JsonHelper.toJson(taskData));
+        taskService.doAddTask(tTask, false);
 	}
 }

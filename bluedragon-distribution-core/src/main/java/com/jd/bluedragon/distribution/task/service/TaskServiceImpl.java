@@ -20,10 +20,13 @@ import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScanData;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.domain.TaskQuery;
 import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -531,7 +534,10 @@ public class TaskServiceImpl implements TaskService {
             }else{
                 log.warn(" Duplicate task: {}",task.getBody());
             }
-        } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(task.getType())) {
+        } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(task.getType())
+        		   ||Task.TASK_TYPE_WorkGridManagerScan.equals(task.getType())
+        		   ||Task.TASK_TYPE_WorkGridManagerSiteScan.equals(task.getType())
+        		   ||Task.TASK_TYPE_JyWorkGridManagerAutoClose.equals(task.getType())) {
             return routerDao.addWithParam(task);
         }else{
             return routerDao.add(TaskDao.namespace, task);
@@ -627,7 +633,12 @@ public class TaskServiceImpl implements TaskService {
         routerDao.updateBySelective(task);
         return Boolean.TRUE;
     }
-
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.updateBySelectiveWithBody",mState = {JProEnum.TP,JProEnum.FunctionError})
+    public Boolean updateBySelectiveWithBody(Task task) {
+        TaskDao routerDao = taskDao;
+        routerDao.updateBySelectiveWithBody(task);
+        return Boolean.TRUE;
+    }
     public Boolean doLock(Task task) {
         task.setStatus(Task.TASK_STATUS_PROCESSING);
         return this.updateBySelective(task);
@@ -1159,4 +1170,27 @@ public class TaskServiceImpl implements TaskService {
         TaskDao routerDao = taskDao;
         return routerDao.findJyBizAutoCloseTasks(type, fetchNum, ownSign, queueIds);
     }
+
+
+	@Override
+	public Task findLastWorkGridManagerScanTask(TaskWorkGridManagerScanData taskData) {
+        TaskDao routerDao = taskDao;
+        TaskQuery query = new TaskQuery();
+        query.setTableName(Task.TASK_NAME_WorkGridManagerScan);
+        query.setKeyword1(taskData.getTaskConfigCode());
+        query.setStatus(Task.TASK_STATUS_UNHANDLED);
+        return routerDao.findLastTaskByQuery(query);
+	}
+
+
+	@Override
+	public Task findLastWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData) {
+        TaskDao routerDao = taskDao;
+        TaskQuery query = new TaskQuery();
+        query.setTableName(Task.TASK_NAME_WorkGridManagerSiteScan);
+        query.setKeyword1(taskData.getTaskConfigCode());
+        query.setKeyword2(taskData.getSiteCode().toString());
+        query.setStatus(Task.TASK_STATUS_UNHANDLED);
+        return routerDao.findLastTaskByQuery(query);
+	}
 }

@@ -35,6 +35,11 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	private Integer needScanGrid;
 
 	/**
+	 * 任务配置编码
+	 */
+	private String taskConfigCode;
+
+	/**
 	 * 任务编码
 	 */
 	private String taskCode;
@@ -261,6 +266,22 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	public Integer getNeedScanGrid() {
 		return this.needScanGrid;
+	}
+
+	/**
+	 *
+	 * @param taskConfigCode
+	 */
+	public void setTaskConfigCode(String taskConfigCode) {
+		this.taskConfigCode = taskConfigCode;
+	}
+
+	/**
+	 *
+	 * @return taskConfigCode
+	 */
+	public String getTaskConfigCode() {
+		return this.taskConfigCode;
 	}
 
 	/**
@@ -790,6 +811,4 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	public Date getTs() {
 		return this.ts;
 	}
-
-
 }

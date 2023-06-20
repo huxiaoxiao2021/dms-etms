@@ -49,4 +49,10 @@ public interface WorkStationGridManager {
      * @return
      */
 	List<Integer> querySiteListForManagerScan(WorkStationGridQuery workStationGridQuery);
+    /**
+     * 线上化站点任务扫描-查询站点下网格列表
+     * @param workStationGridQuery
+     * @return
+     */
+	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
 }

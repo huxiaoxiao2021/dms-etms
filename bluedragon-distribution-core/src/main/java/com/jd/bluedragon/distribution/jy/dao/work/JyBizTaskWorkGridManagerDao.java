@@ -5,7 +5,9 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
 import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
 
 /**
@@ -19,6 +21,9 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	
     final static String NAMESPACE = JyBizTaskWorkGridManagerDao.class.getName();
     
+	public int addTask(JyBizTaskWorkGridManager jyTask) {
+		return this.getSqlSession().insert(NAMESPACE + ".insert", jyTask);
+	}
 	public JyBizTaskWorkGridManager queryByBizId(String bizId) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryByBizId", bizId);
 	}
@@ -42,6 +47,23 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	public Integer queryCountForReport(WorkGridManagerReportQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryCountForReport", query);
 	}
-
+	public Integer queryDataCountForDistribution(JyBizTaskWorkGridManagerQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryDataCountForDistribution", query);
+	}
+	public List<JyBizTaskWorkGridManager> queryDataListForDistribution(JyBizTaskWorkGridManagerQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListForDistribution", query);
+	}
+	public int distributionTask(JyBizTaskWorkGridManagerBatchUpdate distributionData) {
+		return this.getSqlSession().update(NAMESPACE + ".distributionTask", distributionData);
+	}
+	public int autoCloseTask(JyBizTaskWorkGridManagerBatchUpdate closeData) {
+		return this.getSqlSession().update(NAMESPACE + ".autoCloseTask", closeData);
+	}
+	public int closeTaskForEndBatch(JyBizTaskWorkGridManagerBatchUpdate closeData) {
+		return this.getSqlSession().update(NAMESPACE + ".closeTaskForEndBatch", closeData);
+	}
+	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
+		return this.getSqlSession().update(NAMESPACE + ".batchAddTask", taskList);
+	}
 	
 }

@@ -34,5 +34,11 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean executeWorkGridManagerSiteScanTask(Task task);
+	/**
+	 * 执行自动关闭任务
+	 * @param task
+	 * @return
+	 */
+	boolean executeWorkGridManagerAutoCloseTask(Task task);
 
 }

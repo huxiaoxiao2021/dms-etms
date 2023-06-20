@@ -17,7 +17,9 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
 import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.jsf.gd.util.StringUtils;
@@ -116,5 +118,48 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
 		return jyBizTaskWorkGridManagerDao.finishTask(updateTaskData);
+	}
+	@Override
+	public int addTask(JyBizTaskWorkGridManager jyTask) {
+		return jyBizTaskWorkGridManagerDao.addTask(jyTask);
+	}
+	@Override
+	public Integer queryDataCountForDistribution(JyBizTaskWorkGridManagerQuery query) {
+		return jyBizTaskWorkGridManagerDao.queryDataCountForDistribution(query);
+	}
+	@Override
+	public List<JyBizTaskWorkGridManager> queryDataListForDistribution(JyBizTaskWorkGridManagerQuery query) {
+		return jyBizTaskWorkGridManagerDao.queryDataListForDistribution(query);
+	}
+	@Override
+	public int distributionTask(JyBizTaskWorkGridManagerBatchUpdate distributionData) {
+		if(distributionData == null
+				|| distributionData.getData() == null
+				|| CollectionUtils.isEmpty(distributionData.getBizIdList())) {
+			return 0;
+		}
+		return jyBizTaskWorkGridManagerDao.distributionTask(distributionData);
+	}
+	@Override
+	public int autoCloseTask(JyBizTaskWorkGridManagerBatchUpdate closeData) {
+		if(closeData == null
+				|| closeData.getData() == null
+				|| CollectionUtils.isEmpty(closeData.getBizIdList())) {
+			return 0;
+		}		
+		return jyBizTaskWorkGridManagerDao.autoCloseTask(closeData);
+	}
+	@Override
+	public int closeTaskForEndBatch(JyBizTaskWorkGridManagerBatchUpdate closeData) {
+		if(closeData == null
+				|| closeData.getData() == null
+				|| CollectionUtils.isEmpty(closeData.getBizIdList())) {
+			return 0;
+		}		
+		return jyBizTaskWorkGridManagerDao.closeTaskForEndBatch(closeData);
+	}
+	@Override
+	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
+		return jyBizTaskWorkGridManagerDao.batchAddTask(taskList);
 	}
 }

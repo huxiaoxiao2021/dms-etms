@@ -6,6 +6,8 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerService
@@ -16,6 +18,12 @@ import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
  */
 public interface JyBizTaskWorkGridManagerService {
 	
+	/**
+	 * 新增一条任务数据
+	 * @param jyTask
+	 * @return
+	 */
+	int addTask(JyBizTaskWorkGridManager jyTask);
 	/**
 	 * 根据bizId查询单条数据
 	 * @param bizId
@@ -41,6 +49,40 @@ public interface JyBizTaskWorkGridManagerService {
 	 * @return
 	 */
 	int finishTask(JyBizTaskWorkGridManager updateTaskData);
-
-
+	/**
+	 * 任务分配-查询数量
+	 * @param query
+	 * @return
+	 */
+	Integer queryDataCountForDistribution(JyBizTaskWorkGridManagerQuery query);
+	/**
+	 * 任务分配-查询待分配数据
+	 * @param query
+	 * @return
+	 */
+	List<JyBizTaskWorkGridManager> queryDataListForDistribution(JyBizTaskWorkGridManagerQuery query);
+	/**
+	 * 分配任务
+	 * @param distributionData
+	 * @return
+	 */
+	int distributionTask(JyBizTaskWorkGridManagerBatchUpdate distributionData);
+	/**
+	 * 自动关闭任务
+	 * @param closeData
+	 * @return
+	 */
+	int autoCloseTask(JyBizTaskWorkGridManagerBatchUpdate closeData);
+	/**
+	 * 批次完结-关闭无效的任务
+	 * @param closeData
+	 * @return
+	 */
+	int closeTaskForEndBatch(JyBizTaskWorkGridManagerBatchUpdate closeData);
+	/**
+	 * 新增一条任务数据
+	 * @param jyTask
+	 * @return
+	 */
+	int batchAddTask(List<JyBizTaskWorkGridManager> taskList);	
 }

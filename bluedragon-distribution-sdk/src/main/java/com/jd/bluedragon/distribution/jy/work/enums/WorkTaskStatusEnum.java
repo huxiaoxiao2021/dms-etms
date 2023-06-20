@@ -12,6 +12,7 @@ public enum WorkTaskStatusEnum {
     HANDLING(2, "处理中"),
     COMPLETE(3, "已完成"),
     OVER_TIME(4, "超时未完成"),
+    CANCEL(5, "任务取消"),
     ;
 	
 	private WorkTaskStatusEnum(Integer code, String name) {

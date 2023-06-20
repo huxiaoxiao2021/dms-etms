@@ -208,9 +208,10 @@
 		50
 	</select>
 
-	<update id="updateBySelective" parameterType="task">
+	<update id="updateBySelectiveWithBody" parameterType="task">
 		UPDATE ${tableName}
 		<set>
+		       body = #{body,jdbcType=VARCHAR},
 			<if test="executeCount != null">
 				execute_count = #{executeCount},
 			</if>
@@ -226,7 +227,24 @@
 		</set>
 		WHERE task_id = #{id}
 	</update>
-
+    <update id="updateBySelective" parameterType="task">
+        UPDATE ${tableName}
+        <set>
+            <if test="executeCount != null">
+                execute_count = #{executeCount},
+            </if>
+            <if test="executeTime != null">
+                execute_time = #{executeTime},
+            </if>
+            <if test="status != null">
+                task_status = #{status},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </set>
+        WHERE task_id = #{id}
+    </update>
 	<select id="findSendTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
@@ -514,4 +532,25 @@
         </if>
         LIMIT #{fetchNum}
     </select>
+    <select id="findLastTaskByQuery" resultMap="task" parameterType="com.jd.bluedragon.distribution.task.domain.TaskQuery">
+        <![CDATA[
+        SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+        FROM ${tableName}
+        WHERE yn = 1  
+          AND keyword1 = #{keyword1,jdbcType=VARCHAR} ]]>
+        <if test="keyword2 != null and keyword2 != '' ">
+            AND keyword2 = #{keyword2}
+        </if>
+        <if test="status != null">
+            AND task_status = #{status}
+        </if>
+        <if test="statusList != null">
+            AND task_status in
+            <foreach collection="statusList" item="statusItem" open="(" close=")" separator=",">
+                #{statusItem}
+            </foreach>
+        </if>
+        order by task_id desc
+        LIMIT 1
+    </select>    
 </mapper>

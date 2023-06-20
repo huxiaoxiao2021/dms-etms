@@ -201,6 +201,19 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     // 拣运作业任务自动关闭
     public static final Integer TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE = 1326;
+    
+    /**
+     * 线上化-任务扫描
+     */
+    public static final Integer TASK_TYPE_WorkGridManagerScan = 1327;
+    /**
+     * 线上化-站点维度-任务扫描
+     */    
+    public static final Integer TASK_TYPE_WorkGridManagerSiteScan = 1328;
+    /**
+     * 线上化-任务自动关闭
+     */    
+    public static final Integer TASK_TYPE_JyWorkGridManagerAutoClose = 1329;
 
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
@@ -286,6 +299,20 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     // 拣运作业任务自动关闭表
     public static final String TABLE_NAME_TASK_JY_WORK_TASK_AUTO_CLOSE="task_jy_work_task_auto_close";
+    
+    /**
+     * 线上化-任务扫描
+     */
+    public static final String TASK_NAME_WorkGridManagerScan="task_work_grid_manager_scan";
+    /**
+     * 线上化-站点-任务扫描
+     */
+    public static final String TASK_NAME_WorkGridManagerSiteScan="task_work_grid_manager_site_scan";
+    /**
+     * 线上化-任务自动关闭
+     */
+    public static final String TASK_NAME_JyWorkGridManagerAutoClose="task_work_grid_manager_auto_close";    
+    
 
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
@@ -664,6 +691,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)) {
             return Task.TABLE_NAME_TASK_JY_WORK_TASK_AUTO_CLOSE;
+        } else if (Task.TASK_TYPE_WorkGridManagerScan.equals(type)) {
+            return Task.TASK_NAME_WorkGridManagerScan;
+        } else if (Task.TASK_TYPE_WorkGridManagerSiteScan.equals(type)) {
+            return Task.TASK_NAME_WorkGridManagerSiteScan;
+        } else if (Task.TASK_TYPE_JyWorkGridManagerAutoClose.equals(type)) {
+            return Task.TASK_NAME_JyWorkGridManagerAutoClose;
         }
         
         return Task.TABLE_NAME_SORTING;
