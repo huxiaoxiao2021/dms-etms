@@ -3031,6 +3031,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
                 flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
                 flowAgg.setBizNo(bizTaskSendVehicle.getBizNo());
+                
+                // 调度任务ID
+                flowAgg.setTaskId(getJyScheduleTaskId(bizTaskSendVehicle.getBizId()));
             }
 
             if (sendAgg != null) {
