@@ -2670,6 +2670,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             attachment.setImgUrl(url);
         } else if (SendImageTypeEnum.SEAL_IMAGE.getCode().equals(request.getType())) {
             attachment.setSealImgUrl(url);
+        } else if(SendImageTypeEnum.SEAL_OVER_LOAD_IMAGE.getCode().equals(request.getType())){
+            attachment.setSealOverLoadImgUrl(url);
         }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
         attachment.setCreateTime(request.getCurrentOperate().getOperateTime());
@@ -2768,12 +2770,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         boolean sendPhotoFlag = false;
         // 封车前拍照标识
         boolean sealPhotoFlag = false;
+        //
+        boolean sealOverLoadPhotoFlag = false;
         if (attachmentEntity != null) {
             sendPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getImgUrl());
             sealPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getSealImgUrl());
+            sealOverLoadPhotoFlag =StringUtils.isBlank(attachmentEntity.getSealOverLoadImgUrl());
         }
         sendVehicleInfo.setPhoto(sendPhotoFlag);
         sendVehicleInfo.setSealPhoto(sealPhotoFlag);
+        sendVehicleInfo.setSealOverLoadPhoto(sealOverLoadPhotoFlag);
         // 无任务不需拍照
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);

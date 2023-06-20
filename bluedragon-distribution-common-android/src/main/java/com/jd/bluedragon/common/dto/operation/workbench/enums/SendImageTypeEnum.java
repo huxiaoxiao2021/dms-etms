@@ -6,7 +6,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum SendImageTypeEnum {
 
     SEND_IMAGE(0, "发货前照片"),
-    SEAL_IMAGE(1, "封车前照片");
+    SEAL_IMAGE(1, "封车前照片"),
+    SEAL_OVER_LOAD_IMAGE(2,"封车超载图片");
 
     private Integer code;
 
