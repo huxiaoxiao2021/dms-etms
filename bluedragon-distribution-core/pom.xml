@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jmq.version>2.3.2</jmq.version>
-		<etms.waybill.agent.version>4.2.284</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.298</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -1566,7 +1566,7 @@
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
-			<version>2.3.0-SNAPSHOT</version>
+			<version>3.2.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -2023,7 +2023,7 @@
         <dependency>
 			<groupId>com.jd.ps.epf</groupId>
 			<artifactId>ps-epf-api</artifactId>
-			<version>1.3-uat-SNAPSHOT</version>
+			<version>1.4-SNAPSHOT</version>
         </dependency>
 		<!--运输系统 集包袋相关-->
 		<dependency>

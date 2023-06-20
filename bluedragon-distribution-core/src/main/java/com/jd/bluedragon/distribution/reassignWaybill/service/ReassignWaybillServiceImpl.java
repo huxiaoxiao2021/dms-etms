@@ -13,11 +13,12 @@ import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -55,6 +56,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Autowired
 	@Qualifier("waybillSiteChangeProducer")
 	private DefaultJMQProducer waybillSiteChangeProducer;
+
+	@Autowired
+	private TaskService taskService;
 
 
 	private Boolean add(ReassignWaybill packTagPrint) {
@@ -193,6 +197,34 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		return jdResult;
 	}
 
+	@Override
+	public Boolean addToDebon(ReassignWaybill packTagPrint) {
+		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
+			//每个运单只需要发一次就可以
+			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
+			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
+			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
+			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
+			siteChangeMqDto.setOperatorId(packTagPrint.getUserCode());
+			siteChangeMqDto.setOperatorName(packTagPrint.getUserName());
+			siteChangeMqDto.setOperatorSiteId(packTagPrint.getSiteCode());
+			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
+			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+			try {
+				log.info("addToDebon-siteChangeMqDto-信息-{}",JsonHelper.toJson(siteChangeMqDto));
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				if(log.isDebugEnabled()){
+					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
+				}
+			} catch (Exception e) {
+				log.error("发送预分拣站点变更mq消息失败(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+			}
+		}
+		return reassignWaybillDao.add(packTagPrint);
+	}
+
 	private List<ReassignWaybill> toReassignWaybillList(ReassignWaybillRequest reassignWaybillRequest) {
 		List<ReassignWaybill> packList = new ArrayList<>();
 		if(reassignWaybillRequest.getPackageCodeList() == null) {
@@ -204,5 +236,5 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		return packList;
 	}
-	
+
 }
