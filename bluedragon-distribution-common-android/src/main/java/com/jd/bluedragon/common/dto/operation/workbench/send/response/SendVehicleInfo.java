@@ -85,7 +85,12 @@ public class SendVehicleInfo implements Serializable {
      */
     private Long teanPackageCount;
 
-    private Boolean  sealOverLoadPhoto;
+    /**
+     *
+     */
+    private Boolean  sealLowLoadPhoto;
+
+    private Boolean sendOverLoadPhoto;
 
     public String getSendDetailBizId() {
         return sendDetailBizId;
@@ -207,11 +212,19 @@ public class SendVehicleInfo implements Serializable {
         this.teanPackageCount = teanPackageCount;
     }
 
-    public Boolean getSealOverLoadPhoto() {
-        return sealOverLoadPhoto;
+    public Boolean getSealLowLoadPhoto() {
+        return sealLowLoadPhoto;
     }
 
-    public void setSealOverLoadPhoto(Boolean sealOverLoadPhoto) {
-        this.sealOverLoadPhoto = sealOverLoadPhoto;
+    public void setSealLowLoadPhoto(Boolean sealLowLoadPhoto) {
+        this.sealLowLoadPhoto = sealLowLoadPhoto;
+    }
+
+    public Boolean getSendOverLoadPhoto() {
+        return sendOverLoadPhoto;
+    }
+
+    public void setSendOverLoadPhoto(Boolean sendOverLoadPhoto) {
+        this.sendOverLoadPhoto = sendOverLoadPhoto;
     }
 }

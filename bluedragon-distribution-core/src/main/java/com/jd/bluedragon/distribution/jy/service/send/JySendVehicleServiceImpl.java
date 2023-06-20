@@ -2670,8 +2670,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             attachment.setImgUrl(url);
         } else if (SendImageTypeEnum.SEAL_IMAGE.getCode().equals(request.getType())) {
             attachment.setSealImgUrl(url);
-        } else if(SendImageTypeEnum.SEAL_OVER_LOAD_IMAGE.getCode().equals(request.getType())){
-            attachment.setSealOverLoadImgUrl(url);
+        } else if(SendImageTypeEnum.SEND_OVER_LOAD_IMAGE.getCode().equals(request.getType())){
+            attachment.setSnedOverLoadImgUrl(url);
+        } else if(SendImageTypeEnum.SEAL_LOW_LOAD_IMAGE.getCode().equals(request.getType())){
+            attachment.setSealLowLoadImgUrl(url);
         }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
         attachment.setCreateTime(request.getCurrentOperate().getOperateTime());
@@ -2770,16 +2772,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         boolean sendPhotoFlag = false;
         // 封车前拍照标识
         boolean sealPhotoFlag = false;
-        //
-        boolean sealOverLoadPhotoFlag = false;
+        //发货超载拍照标识
+        boolean snedOverLoadPhotoFlag = false;
+        // 封车低载拍照标识
+        boolean sealLowLoadPhotoFlag = false;
         if (attachmentEntity != null) {
             sendPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getImgUrl());
             sealPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getSealImgUrl());
-            sealOverLoadPhotoFlag =StringUtils.isBlank(attachmentEntity.getSealOverLoadImgUrl());
+            snedOverLoadPhotoFlag =StringUtils.isNotBlank(attachmentEntity.getSnedOverLoadImgUrl());
+            sealLowLoadPhotoFlag =StringUtils.isBlank(attachmentEntity.getSealLowLoadImgUrl());
         }
         sendVehicleInfo.setPhoto(sendPhotoFlag);
         sendVehicleInfo.setSealPhoto(sealPhotoFlag);
-        sendVehicleInfo.setSealOverLoadPhoto(sealOverLoadPhotoFlag);
+        sendVehicleInfo.setSendOverLoadPhoto(snedOverLoadPhotoFlag);
+        sendVehicleInfo.setSealLowLoadPhoto(sealLowLoadPhotoFlag);
         // 无任务不需拍照
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);

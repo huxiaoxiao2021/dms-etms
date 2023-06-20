@@ -89,7 +89,12 @@ public class JySendAttachmentEntity implements Serializable {
 	/**
 	 * 封车超载拍照图片
 	 */
-	private String sealOverLoadImgUrl;
+	private String snedOverLoadImgUrl;
+
+	/**
+	 * 封车低载拍照图片
+	 */
+	private String sealLowLoadImgUrl;
 
 	public Long getId() {
 		return id;
@@ -219,11 +224,19 @@ public class JySendAttachmentEntity implements Serializable {
 		this.ts = ts;
 	}
 
-	public String getSealOverLoadImgUrl() {
-		return sealOverLoadImgUrl;
+	public String getSnedOverLoadImgUrl() {
+		return snedOverLoadImgUrl;
 	}
 
-	public void setSealOverLoadImgUrl(String sealOverLoadImgUrl) {
-		this.sealOverLoadImgUrl = sealOverLoadImgUrl;
+	public void setSnedOverLoadImgUrl(String snedOverLoadImgUrl) {
+		this.snedOverLoadImgUrl = snedOverLoadImgUrl;
+	}
+
+	public String getSealLowLoadImgUrl() {
+		return sealLowLoadImgUrl;
+	}
+
+	public void setSealLowLoadImgUrl(String sealLowLoadImgUrl) {
+		this.sealLowLoadImgUrl = sealLowLoadImgUrl;
 	}
 }
