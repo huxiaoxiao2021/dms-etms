@@ -532,7 +532,16 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	}
 	private List<String> getUserList(Integer siteCode,String userPositionCode){
 		String[] users = new String[] {"wuyoude","bjchqf","bjadmin"};
-		users = new String[] {"bjxings","wuyoude2"};
+		if("1".equals(userPositionCode)) {
+			users = new String[] {"wuyoude","bjchqf","bjadmin"};
+		}else if("2".equals(userPositionCode)) {
+			users = new String[] {"wuyoude","bjchqf","bjadmin"};
+		}else if("3".equals(userPositionCode)) {
+			users = new String[] {"wuyoude","bjchqf","bjadmin"};
+		}else if("4".equals(userPositionCode)) {
+			users = new String[] {"bjxings"};
+		}
+		
 		List<String> userList = new ArrayList<>();
 		for(String user:users) {
 			userList.add(user);
