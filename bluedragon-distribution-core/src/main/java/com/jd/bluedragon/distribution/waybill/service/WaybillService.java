@@ -271,4 +271,11 @@ public interface WaybillService {
      */
     InvokeResult<Boolean> checkTEANWaybillCondition(String waybillCode);
 
+    /**
+     * 现场预分拣拦截校验
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
+
 }
