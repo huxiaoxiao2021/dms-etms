@@ -24,11 +24,11 @@ public interface JyBasicSiteQueryManager {
     List<ProvinceAgencyVO> queryAllProvinceAgencyInfo();
 
     /**
-     * 查询所有枢纽
+     * 查询省区下所有枢纽
      *
      * @return
      */
-    List<AreaVO> queryAllAreaInfo();
+    List<AreaVO> queryAllAreaInfo(String provinceAgencyCode);
 
     /**
      * 根据条件查询站点

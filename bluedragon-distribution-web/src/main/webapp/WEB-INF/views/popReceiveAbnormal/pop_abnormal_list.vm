@@ -13,11 +13,17 @@
 <script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.md5.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/utils/clickFrequency.js')"></script>
+#parse("system/common/baseImport.vm")
 <script type="application/javascript" src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
 </head>
 
 <script type="text/javascript">
 $(document).ready(function() {
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		'text': '#2C9929'
+	});
+
 	$("#mainType").change(function(){
 		selectInt("#subType");
 		if (this.value == '') {
@@ -192,39 +198,41 @@ function cancel(abnormalId) {
           <tbody>
             <tr>
 			  <th align="right">分拣中心：</th>
-              <td width="25%">
-				<select class="select12" id="orgCode" name="orgCode">
-                    #if($null.isNull($!orgList) || $!orgList.size() != 1)
-						<option value="">请选择</option>
-					#end
-					#if(!$null.isNull($!orgList))
-        				#foreach($baseOrg in $orgList)
-                            <option value="${baseOrg.orgId}"
-								#if( $!{userInfo.orgId} == ${baseOrg.orgId})
-                                      selected="selected" 
-								#elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
-                                      selected="selected" 
-                                #end
-								>${baseOrg.orgName}</option>
-    					#end
-					#end
-                </select>
-                <select class="select18" name="createSiteCode" id="createSiteCode">
-                    #if($null.isNull($!siteList) || $!siteList.size() != 1)
-						<option value="">请选择</option>
-					#end
-					#if(!$null.isNull($!siteList))
-    					#foreach($baseStaffSiteOrgDto in $siteList)
-                            <option value="${baseStaffSiteOrgDto.siteCode}"
-								#if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
-                                      selected="selected" 
-								#elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
-                                      selected="selected" 
-                                #end
-								>${baseStaffSiteOrgDto.siteName}</option>
-    					#end
-					#end
-                </select>
+              <td width="25%" >
+				  <switchSiteDom id = "switchSiteDom">
+					<select class="select12" id="orgCode" name="orgCode">
+						#if($null.isNull($!orgList) || $!orgList.size() != 1)
+							<option value="">请选择</option>
+						#end
+						#if(!$null.isNull($!orgList))
+							#foreach($baseOrg in $orgList)
+								<option value="${baseOrg.orgId}"
+									#if( $!{userInfo.orgId} == ${baseOrg.orgId})
+										  selected="selected"
+									#elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
+										  selected="selected"
+									#end
+									>${baseOrg.orgName}</option>
+							#end
+						#end
+					</select>
+					<select class="select18" name="createSiteCode" id="createSiteCode">
+						#if($null.isNull($!siteList) || $!siteList.size() != 1)
+							<option value="">请选择</option>
+						#end
+						#if(!$null.isNull($!siteList))
+							#foreach($baseStaffSiteOrgDto in $siteList)
+								<option value="${baseStaffSiteOrgDto.siteCode}"
+									#if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
+										  selected="selected"
+									#elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
+										  selected="selected"
+									#end
+									>${baseStaffSiteOrgDto.siteName}</option>
+							#end
+						#end
+					</select>
+				  </switchSiteDom>
 			  </td>
               <th align="right">时间类型：</th>
               <td colspan="5">

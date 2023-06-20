@@ -53,12 +53,12 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
     }
 
     @Override
-    public List<AreaVO> queryAllAreaInfo() {
+    public List<AreaVO> queryAllAreaInfo(String provinceAgencyCode) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.JyBasicSiteQueryManager.queryAllAreaInfo",
                 false, true);
         List<AreaVO> list = Lists.newArrayList();
         try {
-            Result<List<AreaVO>> result = siteQueryService.queryAllAreaInfo();
+            Result<List<AreaVO>> result = siteQueryService.queryAllAreaInfo(provinceAgencyCode);
             if(result != null && CollectionUtils.isNotEmpty(result.getData())){
                 return result.getData();
             }
