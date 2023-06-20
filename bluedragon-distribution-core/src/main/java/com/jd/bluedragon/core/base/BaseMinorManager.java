@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.distribution.base.domain.BaseProvinceAgencyVO;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -8,7 +7,6 @@ import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;
 
@@ -109,10 +107,4 @@ public interface BaseMinorManager {
      * @return
      */
     JdResult<SortCrossDetail> queryCrossDetailByDmsIdAndSiteCode(Integer dmsId, String siteCode, Integer crossType);
-
-    /**
-     * 查询所有省区
-     *
-     */
-    List<BaseProvinceAgencyVO> queryAllProvinceAgency();
 }

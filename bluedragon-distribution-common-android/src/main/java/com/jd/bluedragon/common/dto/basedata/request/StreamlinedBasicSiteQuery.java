@@ -56,12 +56,6 @@ public class StreamlinedBasicSiteQuery extends BaseRequest implements Serializab
      *  支持模糊字段
      */
     private String address;
-
-    /**
-     * 省区编码
-     */
-    private String provinceAgencyCode;
-
     /**
      * 机构ID
      */
@@ -175,14 +169,6 @@ public class StreamlinedBasicSiteQuery extends BaseRequest implements Serializab
         this.address = address;
     }
 
-    public String getProvinceAgencyCode() {
-        return provinceAgencyCode;
-    }
-
-    public void setProvinceAgencyCode(String provinceAgencyCode) {
-        this.provinceAgencyCode = provinceAgencyCode;
-    }
-
     public List<Integer> getOrgIds() {
         return orgIds;
     }
@@ -254,7 +240,7 @@ public class StreamlinedBasicSiteQuery extends BaseRequest implements Serializab
     public void setProvinceAgencyCode(String provinceAgencyCode) {
         this.provinceAgencyCode = provinceAgencyCode;
     }
-
+    
     public String getAreaHubCode() {
         return areaHubCode;
     }

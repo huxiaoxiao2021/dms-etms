@@ -516,9 +516,9 @@ public class BaseResource {
 	public List<BaseResponse> selectPageSiteList(SiteQueryRequest request) {
 		List<BaseResponse> list = Lists.newArrayList();
 		Pager<SiteQueryCondition> siteQueryPager = new Pager<>();
-		siteQueryPager.setPageNo();
-		siteQueryPager.setPageSize();
-		siteQueryPager.setSearchVo();
+//		siteQueryPager.setPageNo();
+//		siteQueryPager.setPageSize();
+//		siteQueryPager.setSearchVo();
 		
 		Pager<BasicSiteVO> pagerResult = jyBasicSiteQueryManager.querySitePageByConditionFromBasicSite(siteQueryPager);
 		if(pagerResult != null && CollectionUtils.isNotEmpty(pagerResult.getData())){
