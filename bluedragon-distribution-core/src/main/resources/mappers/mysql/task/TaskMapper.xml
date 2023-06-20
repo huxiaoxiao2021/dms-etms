@@ -559,7 +559,7 @@
         SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
         FROM ${tableName}
         WHERE yn = 1 AND execute_count < 10
-            AND (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+            AND (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3, 4)  ]]>
         <if test="type != null">
             AND task_type = #{type}
         </if>

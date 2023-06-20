@@ -362,7 +362,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
 		taskData.setExecuteTime(getNextExecuteTime(taskWorkGridManagerScan.getExecuteTime(),configData));
         addWorkGridManagerScanTask(taskData);
-		return false;
+		return true;
 	}
 
 	@Override
