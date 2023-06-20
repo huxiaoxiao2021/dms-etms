@@ -136,7 +136,17 @@ public class BaseResponse extends JdResponse {
 
 	/** 站点业务类型 */
 	private Integer siteBusinessType;
-	
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+
+	/**
+	 * 省区名称
+	 */
+	private String provinceAgencyName;
+
 	public Integer getSiteBusinessType() {
 		return siteBusinessType;
 	}
@@ -174,24 +184,6 @@ public class BaseResponse extends JdResponse {
 
 	/** 运输类型 1：干线；2：支线； */
 	private int routeType;
-
-	/**
-	 * 省区编码
-	 */
-	private String provinceAgencyCode;
-
-	/**
-	 * 省区名称
-	 */
-	private String provinceAgencyName;
-	/**
-	 * 枢纽编码
-	 */
-	private String areaHubCode;
-	/**
-	 * 枢纽名称
-	 */
-	private String areaHubName;
 
 	public String getPinyinCode() {
 		return pinyinCode;

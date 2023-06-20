@@ -1,10 +1,13 @@
 package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.base.domain.BaseProvinceAgencyVO;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
@@ -14,10 +17,13 @@ import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.ResultData;
 import com.jd.ql.basic.ws.*;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,11 @@
 $(function() {
+
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		//'createSiteCode': 65396
+	});
+
+
 	var saveUrl = '/reverse/part/reversePartDetail/save';
 	var deleteUrl = '/reverse/part/reversePartDetail/deleteByIds';
   var detailUrl = '/reverse/part/reversePartDetail/detail/';
