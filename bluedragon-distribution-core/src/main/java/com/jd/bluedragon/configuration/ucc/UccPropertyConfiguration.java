@@ -1334,6 +1334,11 @@ public class UccPropertyConfiguration {
      * 上传超长超重开关
      */
     private boolean uploadOverWeightSwitch;
+
+    /**
+     * 封车前装载率限制
+     */
+    private double beforeSealVehicleLoadRateLimit;
     
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
@@ -3405,4 +3410,12 @@ public class UccPropertyConfiguration {
 	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
 		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
 	}
+
+    public double getBeforeSealVehicleLoadRateLimit() {
+        return beforeSealVehicleLoadRateLimit;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+        this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+    }
 }

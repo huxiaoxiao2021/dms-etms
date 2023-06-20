@@ -282,6 +282,7 @@
 		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
 		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
+		<property name="beforeSealVehicleLoadRateLimit" value="${beforeSealVehicleLoadRateLimit:10.00}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -553,6 +554,7 @@
 				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
 				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
 				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
+				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
 			</list>
 		</property>
 	</bean>

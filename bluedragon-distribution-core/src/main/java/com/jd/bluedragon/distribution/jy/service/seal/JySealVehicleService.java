@@ -108,4 +108,6 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
+
+    InvokeResult<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq);
 }
