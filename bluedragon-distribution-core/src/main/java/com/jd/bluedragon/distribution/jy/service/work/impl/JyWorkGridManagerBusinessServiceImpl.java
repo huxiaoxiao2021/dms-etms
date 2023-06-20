@@ -26,6 +26,8 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskConfigJsfManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
@@ -53,6 +55,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
@@ -104,6 +107,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
     @Autowired
     protected TaskService taskService;
     
+	@Autowired
+	private PositionManager positionManager;
+	
     private Random random = new Random();
 
 	@Override
@@ -517,6 +523,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		
 		return true;
 	}
+	private List<String> getUserList(Integer siteCode,String userPositionCode){
+		return null;
+	}
 	@Override
 	public boolean executeWorkGridManagerAutoCloseTask(Task task) {
 		TaskWorkGridManagerAutoCloseData taskData = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerAutoCloseData.class);
@@ -591,5 +600,42 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
         logger.info("executeWorkGridManagerScanTask-taskSiteData={}", JsonHelper.toJson(taskData));
         taskService.doAddTask(tTask, false);
+	}
+
+	@Override
+	public JdCResponse<Boolean> scanTaskPosition(ScanTaskPositionRequest request) {
+		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
+		result.setData(Boolean.FALSE);
+		result.toSucceed("扫描成功！");
+		if(StringUtils.isBlank(request.getScanPositionCode())) {
+			result.toFail("扫描的网格码不能为空！");
+			return result;
+		}
+		if(StringUtils.isBlank(request.getTaskRefGridKey())) {
+			result.toFail("任务网格码不能为空！");
+			return result;
+		}
+
+		Result<PositionData> positionRecord = this.positionManager.queryPositionByGridKey(request.getTaskRefGridKey());
+		if(positionRecord == null
+				|| positionRecord.getData() == null) {
+			result.toFail("任务网格码无效！");
+			return result;
+		}
+		if(!request.getScanPositionCode().equals(positionRecord.getData().getPositionCode())) {
+			WorkStationGridQuery checkQuery = new WorkStationGridQuery();
+			checkQuery.setBusinessKey(request.getTaskRefGridKey());
+			Result<WorkStationGrid> gridResult = this.workStationGridManager.queryByGridKey(checkQuery);
+			if(gridResult == null
+					|| gridResult.getData() == null) {
+				result.toFail("任务网格无效！");
+				return result;
+			}
+			result.toFail("请扫描#"+gridResult.getData().getGridName()+"#的网格码！");
+			return result;
+		}else {
+			result.setData(Boolean.TRUE);
+		}
+		return result;
 	}
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.work;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 
@@ -40,5 +41,10 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean executeWorkGridManagerAutoCloseTask(Task task);
-
+	/**
+	 * 扫描岗位码操作
+	 * @param request
+	 * @return
+	 */
+	JdCResponse<Boolean> scanTaskPosition(ScanTaskPositionRequest request);
 }

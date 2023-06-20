@@ -147,30 +147,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> scanTaskPosition(ScanTaskPositionRequest request) {
-		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
-		result.setData(Boolean.FALSE);
-		result.toSucceed("扫描成功！");
-		if(StringUtils.isBlank(request.getScanPositionCode())) {
-			result.toFail("扫描的网格码不能为空！");
-			return result;
-		}
-		if(StringUtils.isBlank(request.getTaskRefGridKey())) {
-			result.toFail("任务网格码不能为空！");
-			return result;
-		}
-		Result<PositionData> positionRecord = positionManager.queryPositionByGridKey(request.getTaskRefGridKey());
-		if(positionRecord == null
-				|| positionRecord.getData() == null) {
-			result.toFail("任务网格码无效！");
-			return result;
-		}
-		if(!request.getScanPositionCode().equals(positionRecord.getData().getPositionCode())) {
-			result.toFail("请扫描#"+positionRecord.getData().getGridName()+"#的网格码！");
-			return result;
-		}else {
-			result.setData(Boolean.TRUE);
-		}
-		return result;
+		return jyWorkGridManagerBusinessService.scanTaskPosition(request);
 	}
 
 }
