@@ -13,7 +13,10 @@ import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.ResultData;
-import com.jd.ql.basic.ws.*;
+import com.jd.ql.basic.ws.BaseCrossPackageTagWS;
+import com.jd.ql.basic.ws.BasicAirConfigWS;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ql.basic.ws.BasicSortCrossDetailWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -68,9 +71,6 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private BasicSortCrossDetailWS basicSortCrossDetailWS;
-
-	@Autowired
-	private BasicOrganStructWS basicOrganStructWS;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
