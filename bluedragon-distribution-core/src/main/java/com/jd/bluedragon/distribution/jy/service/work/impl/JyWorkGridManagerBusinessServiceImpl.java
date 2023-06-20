@@ -398,7 +398,10 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		
 		Date curDate = new Date();
 		Date taskTime = taskWorkGridManagerScan.getExecuteTime();
-		
+		Date taskEndTime = DateHelper.addDate(taskTime, 1);
+		if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
+			taskEndTime = DateHelper.addDate(taskTime, 7);
+		}
 		List<WorkStationGrid> gridList = workStationGridManager.queryListForManagerSiteScan(workStationGridQuery);
 		if(taskWorkGridManagerScan.getExecuteCount() == 0) {
 			for(WorkStationGrid grid: gridList) {
@@ -410,11 +413,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				jyTask.setHandlerUserPositionCode(configData.getHandlerUserPositionCode());
 				jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
 				jyTask.setCreateTime(curDate);
-				if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
-					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 7));
-				}else {
-					jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 1));
-				}
+				jyTask.setPreFinishTime(taskEndTime);
 				jyTask.setStatus(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
 				
 				//设置网格信息
@@ -510,7 +509,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			autoCloseTaskData.setTaskConfigCode(configData.getTaskConfigCode());
 			autoCloseTaskData.setSiteCode(siteCode);
 			autoCloseTaskData.setTaskBatchCode(taskBatchCode);
-			autoCloseTaskData.setExecuteTime(taskWorkGridManagerScan.getExecuteTime());
+			autoCloseTaskData.setExecuteTime(taskEndTime);
 			autoCloseTaskData.setBizIdList(bizIdListAutoClose);
 			addWorkGridManagerAutoCloseTask(autoCloseTaskData);
 		}
