@@ -423,8 +423,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
                 /*************纯配外单 非C网 统一拦截场景开始******************/
 
-                //冷链生鲜单，校验分拣中心称重
-                if(BusinessUtil.isColdFresh(waybillSign)){
+                //纯配冷链生鲜单，校验分拣中心称重
+                if(BusinessUtil.isExternalPureDeliveryAndColdFresh(waybillSign)){
                     logger.info("零称重量方 纯配外单 非C网 冷链生鲜单场景，需要拦截，运单号{}",waybillCode);
                     return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
                 }

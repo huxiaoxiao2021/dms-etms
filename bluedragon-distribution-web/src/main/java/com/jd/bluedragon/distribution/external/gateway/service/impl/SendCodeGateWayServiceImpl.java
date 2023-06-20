@@ -437,11 +437,10 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             return result;
         }
         //构建调用生成批次号的参数
-        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyMap = new HashMap<>();
-        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(query.getBeginningSiteCode()));
-        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(query.getDestSiteCode()));
-        BusinessCodeFromSourceEnum sourceType = BusinessCodeFromSourceEnum.getFromName(String.valueOf(query.getSysSource()));
-        String sendCode = sendCodeService.createSendCode(attributeKeyMap, sourceType, query.getCreateUserErp());
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyMap = new HashMap<>(4);
+        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(query.getCreateSiteCode()));
+        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(query.getReceiveSiteCode()));
+        String sendCode = sendCodeService.createSendCode(attributeKeyMap, BusinessCodeFromSourceEnum.DMS_APP, query.getCreateUserErp());
         result.setData(sendCode);
         log.info("SendCodeGateWayServiceImpl-> genSendCode result:{}", sendCode);
         return result;
@@ -459,11 +458,11 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             result.toFail("传入参数不能为空！");
             return result;
         }
-        if(query.getBeginningSiteCode() == null){
+        if(query.getCreateSiteCode() == null){
             result.toFail("始发场地不能为空！");
             return result;
         }
-        if(query.getDestSiteCode() == null){
+        if(query.getReceiveSiteCode() == null){
             result.toFail("目的场地不能为空！");
             return result;
         }

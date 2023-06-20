@@ -16,37 +16,32 @@ public class SendCodeGenRequest implements Serializable {
     /**
      * 起始场地
      */
-    private Integer beginningSiteCode;
+    private Integer createSiteCode;
     /**
      * 目的场地
      */
-    private Integer destSiteCode;
+    private Integer receiveSiteCode;
     /**
      * 操作人
      */
     private String createUserErp;
-    /**
-     * 来源
-     */
-    private Integer sysSource;
 
     //======================================
 
-
-    public Integer getBeginningSiteCode() {
-        return beginningSiteCode;
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setBeginningSiteCode(Integer beginningSiteCode) {
-        this.beginningSiteCode = beginningSiteCode;
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public Integer getDestSiteCode() {
-        return destSiteCode;
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
     }
 
-    public void setDestSiteCode(Integer destSiteCode) {
-        this.destSiteCode = destSiteCode;
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
     }
 
     public String getCreateUserErp() {
@@ -57,11 +52,4 @@ public class SendCodeGenRequest implements Serializable {
         this.createUserErp = createUserErp;
     }
 
-    public Integer getSysSource() {
-        return sysSource;
-    }
-
-    public void setSysSource(Integer sysSource) {
-        this.sysSource = sysSource;
-    }
 }
