@@ -21,7 +21,8 @@ public class SendScanReq extends SendScanRequest {
     private Integer operateType;
 
     /**
-     * 非关注流向强发
+     * 1、非关注流向强发
+     * 2、未添加流向强发也走该字段
      */
     private Boolean unfocusedFlowForceSend;
 
