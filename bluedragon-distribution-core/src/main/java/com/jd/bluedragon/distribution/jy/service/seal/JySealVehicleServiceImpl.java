@@ -922,7 +922,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if(log.isInfoEnabled()){
             log.info("checkLoadRateBeforeSealVehicle 封车前校验装载率入参-{}",JsonHelper.toJson(sealVehicleReq));
         }
-        InvokeResult result = new InvokeResult<>();
+        InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(Boolean.FALSE);
         if(!checkLoadRateBeforeSealVehicleParam(result,sealVehicleReq)){
             return result;
