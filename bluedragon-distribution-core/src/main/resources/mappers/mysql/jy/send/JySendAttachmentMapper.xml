@@ -46,6 +46,12 @@
         <if test="sealImgUrl != null">
             seal_img_url,
         </if>
+        <if test="snedOverLoadImgUrl != null">
+            send_over_load_img_url,
+        </if>
+        <if test="sealLowLoadImgUrl != null">
+            seal_low_load_img_url
+        </if>
         <if test="remark != null">
             remark,
         </if>
@@ -68,13 +74,7 @@
             create_time,
         </if>
         <if test="updateTime != null">
-            update_time,
-        </if>
-        <if test="snedOverLoadImgUrl != null">
-            send_over_load_img_url,
-        </if>
-        <if test="sealLowLoadImgUrl != null">
-            seal_low_load_img_url
+            update_time
         </if>
         ) VALUES (
         <if test="sendVehicleBizId != null">
@@ -91,6 +91,12 @@
         </if>
         <if test="sealImgUrl != null">
             #{sealImgUrl},
+        </if>
+        <if test="snedOverLoadImgUrl != null">
+            #{snedOverLoadImgUrl},
+        </if>
+        <if test="sealLowLoadImgUrl != null">
+            #{sealLowLoadImgUrl}
         </if>
         <if test="remark != null">
             #{remark},
@@ -114,13 +120,7 @@
             #{createTime},
         </if>
         <if test="updateTime != null">
-            #{updateTime},
-        </if>
-        <if test="snedOverLoadImgUrl != null">
-            #{snedOverLoadImgUrl},
-        </if>
-        <if test="sealLowLoadImgUrl != null">
-            #{sealLowLoadImgUrl}
+            #{updateTime}
         </if>
         )
     </insert>
@@ -140,6 +140,12 @@
             <if test="sealImgUrl != null">
                 seal_img_url = #{sealImgUrl},
             </if>
+            <if test="snedOverLoadImgUrl != null">
+                send_over_load_img_url = #{snedOverLoadImgUrl},
+            </if>
+            <if test="sealLowLoadImgUrl != null">
+                seal_low_load_img_url = #{sealLowLoadImgUrl},
+            </if>
             <if test="remark != null">
                 remark = #{remark},
             </if>
@@ -154,12 +160,6 @@
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
-            </if>
-            <if test="snedOverLoadImgUrl != null">
-                send_over_load_img_url = #{snedOverLoadImgUrl},
-            </if>
-            <if test="sealLowLoadImgUrl != null">
-                seal_low_load_img_url = #{sealLowLoadImgUrl},
             </if>
         </set>
         <where>
