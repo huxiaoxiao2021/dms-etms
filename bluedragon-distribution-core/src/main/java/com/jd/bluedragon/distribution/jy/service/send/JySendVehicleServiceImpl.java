@@ -2780,7 +2780,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getImgUrl());
             sealPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getSealImgUrl());
             snedOverLoadPhotoFlag =StringUtils.isNotBlank(attachmentEntity.getSnedOverLoadImgUrl());
-            sealLowLoadPhotoFlag =StringUtils.isBlank(attachmentEntity.getSealLowLoadImgUrl());
+            sealLowLoadPhotoFlag =StringUtils.isNotBlank(attachmentEntity.getSealLowLoadImgUrl());
         }
         sendVehicleInfo.setPhoto(sendPhotoFlag);
         sendVehicleInfo.setSealPhoto(sealPhotoFlag);
