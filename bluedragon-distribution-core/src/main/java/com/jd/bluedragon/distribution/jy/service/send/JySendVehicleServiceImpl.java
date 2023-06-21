@@ -3068,12 +3068,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     
     private HashMap<String, JyBizTaskSendVehicleDetailEntity> getSendVehicleDetailMap(List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails) {
         HashMap<String, JyBizTaskSendVehicleDetailEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+            return map;
+        }
         sendVehicleDetails.forEach(item -> map.put(item.getBizId(),item));
         return map;
     }
 
     private HashMap<Long, Integer> getToScanMap(List<JySendProductAggsEntity> toScanAggList) {
         HashMap<Long, Integer> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(toScanAggList)) {
+            return map;
+        }
         for (JySendProductAggsEntity entity : toScanAggList) {
             map.put(entity.getReceiveSiteId(),entity.getShouldScanCount());
         }
@@ -3082,12 +3088,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
         HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(taskSendList)) {
+            return map;
+        }
         taskSendList.forEach(item -> map.put(item.getBizId(),item));
         return map;
     }
 
     public HashMap<String, JySendAggsEntity> getAggsMag(List<JySendAggsEntity> sendAggs) {
         HashMap<String, JySendAggsEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(sendAggs)) {
+            return map;
+        }
         for (JySendAggsEntity sendAgg : sendAggs) {
             map.put(sendAgg.getBizId(),sendAgg);
         }
