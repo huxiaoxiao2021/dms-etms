@@ -259,6 +259,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             }
 
             JdVerifyResponse<SendScanRes> res = new JdVerifyResponse<>();
+            SendScanRes resData = new SendScanRes();
+            res.setData(resData);
             res.toSuccess();
             if(StringUtils.isBlank(request.getMixScanTaskCode())) {
                 res.toFail("混扫任务编码参数为空");
@@ -267,6 +269,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
             if(StringUtils.isBlank(request.getMachineCode())) {
                 res.toFail("设备编码参数为空");
+                return res;
+            }
+
+            if(!Objects.isNull(request.getUnfocusedFlowForceSend()) && request.getUnfocusedFlowForceSend()
+                && (StringUtils.isBlank(request.getSendVehicleBizId()) || StringUtils.isBlank(request.getSendVehicleDetailBizId()))) {
+                res.toFail("强发时未指定发货任务");
                 return res;
             }
 

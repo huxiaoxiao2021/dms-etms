@@ -668,8 +668,19 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             response.addInterceptBox(0, "当前混扫任务已经结束，请重新选择混扫任务");
             return ;
         }
-        //扫描单据关联派车任务查询
-        fetchBarCodeBindSendVehicleTask(request, response);
+
+        if(!Objects.isNull(request.getUnfocusedFlowForceSend()) && request.getUnfocusedFlowForceSend()) {
+            //强发不走龙门架匹配，直接指定任务发货
+            if (log.isInfoEnabled()) {
+                log.info("warehouseSendScanBeforeHandler:接货仓发货岗强发时指定发货任务信息,req={}", JsonHelper.toJson(request));
+            }
+            if(StringUtils.isBlank(request.getTaskId())) {
+                request.setTaskId(super.getJyScheduleTaskId(request.getSendVehicleBizId()));
+            }
+        }else {
+            //扫描单据关联派车任务查询
+            fetchBarCodeBindSendVehicleTask(request, response);
+        }
 
     }
 
@@ -690,7 +701,10 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
     /**
-     * 获取当前扫描单据关联的派车任务信息（bizId）
+     * 1、走龙门架配置获取可能下游流向
+     * 2、根据流向匹配混扫任务中已添加流向
+     * 3、如果匹配到混扫任务且关注，request中填充任务信息
+     * 4、强发校验（1）未匹配到混扫任务、（2）匹配到混扫任务未关注
      * @param request
      * @param response
      */
@@ -728,9 +742,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
             //
             String getNextSiteName = this.getImpossibleNextSiteName(request, endSiteIdList);
-            String customMsg = String.format("混扫任务中无该单%s流向的任务，请先添加！流向场地为[%s]", request.getBarCode(), getNextSiteName);
-            response.setCode(SendScanRes.DEFAULT_FAIL);
-            response.setMessage(customMsg);
+            response.setCode(SendScanRes.CODE_NULL_FLOW_FORCE_SEND);
+            response.setMessage(String.format(SendScanRes.MSG_NULL_FLOW_FORCE_SEND, getNextSiteName));
             return;
         }
         if(log.isInfoEnabled()) {
@@ -742,9 +755,15 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
         request.setPreNextSiteCode(entity.getEndSiteId());
+        request.setTaskId(super.getJyScheduleTaskId(entity.getSendVehicleBizId()));
         //确定是否强发
         if(Objects.isNull(request.getUnfocusedFlowForceSend()) || !request.getUnfocusedFlowForceSend()) {
             if(!Objects.isNull(jyGroupSortCrossDetailEntity.getFocus()) && FocusEnum.FOCUS.getCode() != jyGroupSortCrossDetailEntity.getFocus()) {
+                SendScanRes resData = response.getData();
+                resData.setUnfocusedDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
+                resData.setUnfocusedBizId(entity.getSendVehicleBizId());
+                resData.setUnfocusedNextSiteCode(entity.getEndSiteId());
+                resData.setUnfocusedNextSiteName(entity.getEndSiteName());
                 response.setCode(SendScanRes.CODE_UNFOCUSED_FLOW_FORCE_SEND);
                 response.setMessage(String.format(SendScanRes.MSG_UNFOCUSED_FLOW_FORCE_SEND, jyGroupSortCrossDetailEntity.getEndSiteName()));
                 return;

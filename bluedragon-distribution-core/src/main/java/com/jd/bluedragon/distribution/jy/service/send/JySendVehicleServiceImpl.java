@@ -773,7 +773,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param bizId
      * @return
      */
-    private String getJyScheduleTaskId(String bizId) {
+    public String getJyScheduleTaskId(String bizId) {
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(bizId);
         req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
