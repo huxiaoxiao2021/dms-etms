@@ -102,6 +102,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
      */
     private void sendTysSendMq4Urban(JYCargoOperateEntity jyCargoOperate) throws JMQException {
         if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
+            log.warn("sendSendFinishMq4Urban taskScanBeginTime and taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
             return;
         }
         if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
@@ -180,7 +181,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         final Integer receiveSiteCode = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
 
         final JyTysSendFinishDto jyTysSendFinishDto = new JyTysSendFinishDto();
-        jyTysSendFinishDto.setSendCode(jyTysSendFinishDto.getSendCode());
+        jyTysSendFinishDto.setSendCode(jyCargoOperate.getSendCode());
         jyTysSendFinishDto.setCurrentOperate(currentOperate);
         jyTysSendFinishDto.setUser(user);
         jyTysSendFinishDto.setTaskFinishTime(new Date(jyCargoOperate.getTaskScanEndTime()));
@@ -207,7 +208,9 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
     @Override
     @JProfiler(jKey = "JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> afterOpenPlatformSendFinish(JYCargoOperateEntity jyCargoOperate) {
-        log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish param {}", JSON.toJSONString(jyCargoOperate));
+        if(log.isInfoEnabled()){
+            log.info("JyOpenSendExtraHandleServiceImpl.afterOpenPlatformSendFinish param {}", JSON.toJSONString(jyCargoOperate));
+        }
         Result<Boolean> result = Result.success();
         try {
             // 发出转运发货完成后的两个mq消息
@@ -221,6 +224,15 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
 
     private void sendSendFinishMq4Urban(JYCargoOperateEntity jyCargoOperate) throws JMQException {
         if (jyCargoOperate.getTaskScanBeginTime() == null || jyCargoOperate.getTaskScanEndTime() == null) {
+            log.warn("sendSendFinishMq4Urban taskScanBeginTime and taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
+        if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
+            log.warn("sendSendFinishMq4Urban taskScanBeginTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
+            return;
+        }
+        if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() <= 0) {
+            log.warn("sendSendFinishMq4Urban taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
             return;
         }
         final OperatorInfo operatorInfo = jyCargoOperate.getOperatorInfo();

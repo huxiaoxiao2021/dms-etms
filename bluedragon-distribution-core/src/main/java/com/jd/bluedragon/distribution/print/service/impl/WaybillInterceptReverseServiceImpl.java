@@ -32,6 +32,8 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
 
     private static final String ERROR_MESSAGE = "换单前获取外单信息接口失败 该运单已换单完成";
 
+    private static final String BAI_CHUAN_ERROR_MESSAGE = "该运单已换单完成!";
+
     @Autowired
     private ReversePrintService reversePrintService;
     @Autowired
@@ -91,7 +93,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 if (waybillReverseResponseDTO == null) {
                     LOGGER.warn("exchangeNewWaybill|外单查询原单号信息返回失败:request={},waybillReverseResponseDTO为空,errorMessage={}", JsonHelper.toJson(request), errorMessage);
                     // 如果是重复换单，返回之前的新单号
-                    if (ERROR_MESSAGE.contentEquals(errorMessage)) {
+                    if (ERROR_MESSAGE.contentEquals(errorMessage) || BAI_CHUAN_ERROR_MESSAGE.contentEquals(errorMessage)) {
                         invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                         invokeResult.setData(waybill.getReturnWaybillCode());
                         return invokeResult;
