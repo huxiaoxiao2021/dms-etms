@@ -33,6 +33,7 @@ public class JyOpenPlatformSendFinishConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception{
         CallerInfo info = Profiler.registerInfo("JyOpenPlatformSendFinishConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
         try {
+            log.info("JyOpenPlatformSendFinishConsumer 发货完成消息，内容为【{}】", message.getText());
             if (!JsonHelper.isJsonString(message.getText())) {
                 log.warn("JyOpenPlatformSendFinishConsumer 发货完成消息 消息体非JSON格式，内容为【{}】", message.getText());
                 return;
