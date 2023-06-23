@@ -410,6 +410,13 @@ public class SortingResponse extends JdResponse {
     //发货校验-德邦单子校验
     public static final Integer CODE_DP_SEND_ERROR =29463;
 
+
+    public static final Integer CODE_29464 = 29464;
+    public static final String  MESSAGE_29464 = "此单为普通包裹，请勿与特安件进行混包！";
+
+    public static final Integer CODE_29465 = 29465;
+    public static final String  MESSAGE_29465 = "此单为特安包裹，请勿与普通包裹进行混包！";
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
