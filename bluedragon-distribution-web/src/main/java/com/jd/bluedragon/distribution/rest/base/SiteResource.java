@@ -296,7 +296,7 @@ public class SiteResource {
 	private SiteQueryCondition convertToPageQueryCondition(SiteQueryRequest request) {
 		SiteQueryCondition basicSiteQuery = new SiteQueryCondition();
 		if(request.getSiteId() != null && request.getSiteId() > Constants.NUMBER_ZERO){
-			basicSiteQuery.setSiteCodes(Collections.singletonList(request.getSiteId()));
+			//basicSiteQuery.setSiteCodes(Collections.singletonList(request.getSiteId()));
 		}
 		if(StringUtils.isNotEmpty(request.getSiteName())){
 			basicSiteQuery.setSiteName(request.getSiteName());
@@ -314,19 +314,19 @@ public class SiteResource {
 			basicSiteQuery.setSubTypes(request.getSubTypeList());
 		}
 		if(request.getOrgId() != null && request.getOrgId() > Constants.NUMBER_ZERO){
-			basicSiteQuery.setOrgIds(Collections.singletonList(request.getOrgId()));
+			//basicSiteQuery.setOrgIds(Collections.singletonList(request.getOrgId()));
 		}
 		if(StringUtils.isNotEmpty(request.getProvinceAgencyCode())){
 			basicSiteQuery.setProvinceAgencyCode(request.getProvinceAgencyCode());
 		}
 		if(request.getProvinceId() != null && request.getProvinceId() > Constants.NUMBER_ZERO){
-			basicSiteQuery.setProvinceIds(Collections.singletonList(request.getProvinceId()));
+			//basicSiteQuery.setProvinceIds(Collections.singletonList(request.getProvinceId()));
 		}
 		if(request.getCityId() != null && request.getCityId() > Constants.NUMBER_ZERO){
-			basicSiteQuery.setCityIds(Collections.singletonList(request.getCityId()));
+			//basicSiteQuery.setCityIds(Collections.singletonList(request.getCityId()));
 		}
 		if(request.getCountryId() != null && request.getCountryId() > Constants.NUMBER_ZERO){
-			basicSiteQuery.setCountryIds(Collections.singletonList(request.getCountryId()));
+			//basicSiteQuery.setCountryIds(Collections.singletonList(request.getCountryId()));
 		}
 		return basicSiteQuery;
 	}
