@@ -409,6 +409,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.UNLOAD_HALF_CAR;
             tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
         }
+        // 特安服务
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_4)) {
+            UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.TE_AN_SERVICE;
+            tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
+        }
 
         return tagList;
     }
