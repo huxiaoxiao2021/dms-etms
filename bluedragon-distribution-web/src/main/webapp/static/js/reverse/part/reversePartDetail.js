@@ -4,7 +4,9 @@ $(function() {
 	$('#switchSiteDom').sitePluginSelect({
 		'createSiteCode': 481,
 		'provinceAgencyCodeReadOnly':true,
-		'onlySiteAndProvinceSelect':true
+		'onlySiteAndProvinceSelect':true,
+		'changeBtnShow':false,
+		'provinceOrOrgMode':'province'
 	});
 
 
