@@ -576,6 +576,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setSiteName(grid.getSiteName());
 		//省区相关字段等，上线后设置
 		jyTask.setAreaHubCode("");
+		jyTask.setAreaHubName("");
+		jyTask.setProvinceAgencyCode("");
 		jyTask.setProvinceAgencyName("北京市");
 		//设置任务信息
 		jyTask.setTaskType(taskInfo.getTaskType());

@@ -32,6 +32,8 @@ public class JyUserManagerImpl implements JyUserManager {
 		Result<List<String>> result = Result.success();
 		List<String> userList = new ArrayList<>();
 		JyUserQueryCondition condition = new JyUserQueryCondition();
+		condition.setSiteCode(siteCode);
+		condition.setPositionCode(userPosition);
         try {
             log.info("获取岗位人员列表列表数据 queryUserListBySiteAndPosition： siteCode={},userPosition={}",siteCode,userPosition);
     		com.jd.dms.java.utils.sdk.base.Result<List<JyUser>> apiResult = userJsfService.queryUserListBySiteAndPosition(condition);
