@@ -264,22 +264,22 @@ public class JyWarehouseSendGatewayServiceTest {
 
         String str = "{\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"dmsCode\": \"010F002\",\n" +
-                "        \"operateTime\": 1686748394632,\n" +
-                "        \"operatorId\": \"51118\",\n" +
+                "        \"dmsCode\": \"BJ00001\",\n" +
+                "        \"operateTime\": 1687672561538,\n" +
+                "        \"operatorId\": \"51905\",\n" +
                 "        \"operatorTypeCode\": 1,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"华北\",\n" +
-                "        \"siteCode\": 40240,\n" +
-                "        \"siteName\": \"北京通州分拣中心\"\n" +
+                "        \"siteCode\": 223094,\n" +
+                "        \"siteName\": \"北京马驹桥接货仓\"\n" +
                 "    },\n" +
-                "    \"keyword\": \"\",\n" +
+                "    \"keyword\": \"JD0003420687329-1-1-\",\n" +
                 "    \"pageNumber\": 1,\n" +
                 "    \"pageSize\": 30,\n" +
                 "    \"user\": {\n" +
-                "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
+                "        \"userCode\": 17907,\n" +
+                "        \"userErp\": \"shipeilin\",\n" +
+                "        \"userName\": \"石培林\"\n" +
                 "    },\n" +
                 "    \"vehicleStatus\": 0\n" +
                 "}";
