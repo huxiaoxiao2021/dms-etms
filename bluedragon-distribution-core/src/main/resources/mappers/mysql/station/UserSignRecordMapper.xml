@@ -1045,9 +1045,8 @@
 	<select id="listSignRecordByTime" resultMap="UserSignRecord">
 		SELECT
 			r.id,r.org_code,r.site_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
-			r.ref_station_key,g.ref_work_grid_key
+			r.ref_station_key
 		FROM user_sign_record r
-		LEFT JOIN work_station_grid g on r.ref_grid_key = g.business_key
 		WHERE r.sign_date BETWEEN #{signDateStart} AND #{signDateEnd}
 		AND r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
 		AND TIMESTAMPDIFF(HOUR, r.sign_in_time, r.sign_out_time) >1
