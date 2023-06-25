@@ -722,7 +722,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
 
         } catch (JyBizException e) {
-            log.info("完成混扫任务失败：{}", JsonHelper.toJson(mixScanTaskReq));
+            log.info("完成混扫任务失败：error={},req={}", e.getMessage(), JsonHelper.toJson(mixScanTaskReq));
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl mixScanTaskComplete 完成混扫任务异常 {}", JsonHelper.toJson(mixScanTaskReq), e);

@@ -1478,7 +1478,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public boolean mixScanTaskComplete(MixScanTaskCompleteReq request) {
         try {
             // 完成混扫任务
-            if (!jyGroupSortCrossDetailService.mixScanTaskComplete(request.getTemplateCode())) {
+            if (!jyGroupSortCrossDetailService.mixScanTaskComplete(request.getTemplateCode(), request.getCurrentOperate().getSiteCode())) {
                 return false;
             }
             // 获取混扫任务下的流向信息

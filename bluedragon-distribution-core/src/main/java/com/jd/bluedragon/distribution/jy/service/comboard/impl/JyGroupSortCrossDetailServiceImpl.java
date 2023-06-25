@@ -392,10 +392,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     @Override
-    public boolean mixScanTaskComplete(String templateCode) {
+    public boolean mixScanTaskComplete(String templateCode, Integer siteCode) {
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         condition.setTemplateCode(templateCode);
         condition.setUpdateTime(new Date());
+        condition.setStartSiteId(siteCode.longValue());
         return jyGroupSortCrossDetailDao.mixScanTaskComplete(condition) > 0;
     }
 
