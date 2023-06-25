@@ -3086,6 +3086,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return map;
     }
 
+    private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleSendingMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+        HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(taskSendList)) {
+            return map;
+        }
+        taskSendList.forEach(item -> {
+            if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(item.getVehicleStatus())) {
+                map.put(item.getBizId(),item);
+            }
+        });
+        return map;
+    }
+    
     private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
         HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
         if (CollectionUtils.isEmpty(taskSendList)) {
@@ -4012,8 +4025,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return Strings.EMPTY;
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.updateStatusByTemplateCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public boolean updateStatusByTemplateCode(MixScanTaskCompleteReq request, List<String> detailBizIds) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.updateStatusByDetailBizIds", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateStatusByDetailBizIds(MixScanTaskCompleteReq request, List<String> detailBizIds) {
         List<JyBizTaskSendVehicleDetailEntity> sendDetailList = taskSendVehicleDetailService
                 .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(), detailBizIds);
         
@@ -4024,7 +4037,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendVehicleBizIds.add(detailEntity.getSendVehicleBizId());
         }
         List<JyBizTaskSendVehicleEntity> sendTaskByBizIds = taskSendVehicleService.findSendTaskByBizIds(sendVehicleBizIds);
-        HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleMap(sendTaskByBizIds);
+        // 过滤待发货状态的数据
+        HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleSendingMap(sendTaskByBizIds);
 
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
             if (!transactionManager.updateTaskStatus(sendTaskMap.get(detailEntity.getSendVehicleBizId()), sendDetailMap.get(detailEntity.getBizId()), JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
