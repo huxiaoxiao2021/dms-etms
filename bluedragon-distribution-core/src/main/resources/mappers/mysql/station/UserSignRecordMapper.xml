@@ -40,6 +40,7 @@
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="ref_work_grid_key" property="refWorkGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
@@ -1043,8 +1044,10 @@
     </select>
 	<select id="listSignRecordByTime" resultMap="UserSignRecord">
 		SELECT
-		<include refid="Main_Column_List"/>
+			r.id,r.org_code,r.site_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
+			r.ref_station_key,g.ref_work_grid_key
 		FROM user_sign_record r
+		LEFT JOIN work_station_grid g on r.ref_grid_key = g.business_key
 		WHERE r.sign_date BETWEEN #{signDateStart} AND #{signDateEnd}
 		AND r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
 		AND TIMESTAMPDIFF(HOUR, r.sign_in_time, r.sign_out_time) >1

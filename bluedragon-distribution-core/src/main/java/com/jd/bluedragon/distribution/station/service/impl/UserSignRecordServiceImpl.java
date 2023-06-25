@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
@@ -37,6 +38,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
@@ -1650,5 +1652,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
+		if (ObjectHelper.isEmpty(query.getSignDateStart())){
+			throw new JyBizException("参数错误：签到开始时间为空！");
+		}
+		if (ObjectHelper.isEmpty(query.getSignDateEnd())){
+			throw new JyBizException("参数错误：签到结束时间为空！");
+		}
+		if (ObjectHelper.isEmpty(query.getUserCode())){
+			throw new JyBizException("参数错误：用户编码为空！");
+		}
 	}
 }
