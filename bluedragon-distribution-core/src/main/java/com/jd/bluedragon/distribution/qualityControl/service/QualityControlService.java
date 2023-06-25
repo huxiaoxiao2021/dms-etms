@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -39,7 +40,10 @@ import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -53,6 +57,7 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +129,12 @@ public class QualityControlService {
 
     @Resource(name = "checkPrintInterceptReasonIdSetForOld")
     private Set<Integer> checkPrintInterceptReasonIdSetForOld;
+
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 协商再投状态校验
@@ -219,6 +230,11 @@ public class QualityControlService {
             return result;
         }
         try{
+            final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request);
+            if (!checkCanSubmitResult.isSuccess()) {
+                result.customMessage(QualityControlResponse.CODE_WRONG_STATUS, checkCanSubmitResult.getMessage());
+                return result;
+            }
             convertThenAddTask(request);
         }catch(Exception ex){
             log.error("PDA调用异常配送接口插入质控任务表失败，原因 " , ex);
@@ -228,6 +244,30 @@ public class QualityControlService {
         }
         result.setCode(QualityControlResponse.CODE_OK);
         result.setMessage(QualityControlResponse.MESSAGE_OK);
+        return result;
+    }
+
+    private Result<Void> checkCanSubmit(QualityControlRequest request){
+        Result<Void> result = Result.success();
+        try {
+            // ucc开关
+            if(!uccPropertyConfiguration.matchExceptionSubmitCheckSite(request.getDistCenterID())){
+                return result;
+            }
+            log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
+            final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(request.getQcValue());
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG, HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE);
+            if (CollectionUtils.isEmpty(waybillCancelList)) {
+                return result.toFail(tipMsg);
+            }
+            final long matchCount = waybillCancelList.parallelStream().filter(item -> uccPropertyConfiguration.matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
+            if(matchCount <= 0){
+                return result.toFail(tipMsg);
+            }
+            // 增加取消拦截校验
+        } catch (Exception e) {
+            log.error("checkCanSubmit exception {}", JsonHelper.toJson(request), e);
+        }
         return result;
     }
 
