@@ -313,19 +313,19 @@ public class SiteResource {
 		if(CollectionUtils.isNotEmpty(request.getSubTypeList())){
 			basicSiteQuery.setSubTypes(request.getSubTypeList());
 		}
-		if(request.getOrgId() != null){
+		if(request.getOrgId() != null && request.getOrgId() > Constants.NUMBER_ZERO){
 			basicSiteQuery.setOrgId(request.getOrgId());
 		}
 		if(StringUtils.isNotEmpty(request.getProvinceAgencyCode())){
 			basicSiteQuery.setProvinceAgencyCode(request.getProvinceAgencyCode());
 		}
-		if(request.getProvinceId() != null){
+		if(request.getProvinceId() != null && request.getProvinceId() > Constants.NUMBER_ZERO){
 			basicSiteQuery.setProvinceId(request.getProvinceId());
 		}
-		if(request.getCityId() != null){
+		if(request.getCityId() != null && request.getCityId() > Constants.NUMBER_ZERO){
 			basicSiteQuery.setCityId(request.getCityId());
 		}
-		if(request.getCountryId() != null){
+		if(request.getCountryId() != null && request.getCountryId() > Constants.NUMBER_ZERO){
 			basicSiteQuery.setCountryId(request.getCountryId());
 		}
 		return basicSiteQuery;
