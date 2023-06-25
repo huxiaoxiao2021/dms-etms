@@ -379,7 +379,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
         vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
-        vehicleBaseInfo.setTeanFlag(entity.getTeanFlag());
 
         return vehicleBaseInfo;
     }
