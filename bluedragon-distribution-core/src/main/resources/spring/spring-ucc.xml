@@ -289,6 +289,7 @@
 		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
 		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
 		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
+		<property name="ignoreTysTrackSwitch" value="${ignoreTysTrackSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -515,6 +516,7 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
 				<value>uccPropertyConfiguration.jyUnloadCarListDoneQueryDayFilter</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
@@ -563,7 +565,6 @@
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
-				<value>uccPropertyConfiguration.aggsDataSource</value>
 				<value>uccPropertyConfiguration.boardCombinationRouterSwitch</value>
 				<value>uccPropertyConfiguration.pdaVersionSwitch</value>
 				<value>uccPropertyConfiguration.dpTransferSwitch</value>
@@ -576,12 +577,12 @@
 				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockRefreshTime</value>
 				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
 				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
-				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
 				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
 				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
 				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
+				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
 			</list>
 		</property>
 	</bean>
