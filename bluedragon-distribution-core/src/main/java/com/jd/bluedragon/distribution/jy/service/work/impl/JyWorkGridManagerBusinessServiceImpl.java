@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.esotericsoftware.minlog.Log;
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
@@ -54,6 +56,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
@@ -337,6 +340,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				TaskWorkGridManagerSiteScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerSiteScanData.class);
 				taskData.setTaskBatchCode(oldTaskData.getTaskBatchCode());
 				taskData.setExecuteCount(oldTaskData.getExecuteCount());
+				taskData.setLastExecuteTime(oldTaskData.getLastExecuteTime());
+				//判断上次执行时间和这次是否同一天,改成下个执行周期时间
+				if(DateHelper.isSameDay(taskData.getExecuteTime(),oldTaskData.getLastExecuteTime())) {
+					taskData.setExecuteTime(getNextExecuteTime(taskData.getExecuteTime(),configData));
+				}
 				if(!taskData.getExecuteTime().equals(oldTaskData.getExecuteTime())) {
 					Task updateTask = new Task();
 					updateTask.setType(Task.TASK_TYPE_WorkGridManagerSiteScan);
@@ -443,6 +451,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			needDistribution = false;
 			logger.warn("任务分配失败，场地【{}】岗位【{}】人员为空！",siteCode,configData.getHandlerUserPositionName());
 		}
+		//判断上次执行时间和这次是否同一天,改成下个执行周期时间
+		if(DateHelper.isSameDay(taskWorkGridManagerScan.getExecuteTime(),taskWorkGridManagerScan.getLastExecuteTime())) {
+			needDistribution = false;
+			logger.warn("本次不执行任务分配，本次执行时间和上次执行时间相同！");
+		}
 		if(needDistribution) {
 			int needGridNum = userList.size() * configData.getPerGridNum();
 			JyBizTaskWorkGridManagerQuery query = new JyBizTaskWorkGridManagerQuery();
@@ -490,6 +503,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					distributionData.setData(jyTask);
 				}
 				jyBizTaskWorkGridManagerService.distributionTask(distributionData);
+				//发送咚咚通知
+				sendTimeLineNotice(user);
 			}
 		}
 		//批次完结，取消无用的任务
@@ -518,13 +533,29 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
 		taskData.setSiteCode(siteCode);
-		taskData.setTaskBatchCode(taskBatchCode);
+		
 		taskData.setExecuteTime(getNextExecuteTime(taskWorkGridManagerScan.getExecuteTime(),configData));
-		taskData.setExecuteCount(taskWorkGridManagerScan.getExecuteCount() + 1);
+		if(changeBatchCode) {
+			taskBatchCode = String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
+			taskData.setExecuteCount(0);
+		}else {
+			taskData.setTaskBatchCode(taskBatchCode);
+			taskData.setExecuteCount(taskWorkGridManagerScan.getExecuteCount() + 1);
+		}
 		taskData.setLastExecuteTime(taskWorkGridManagerScan.getExecuteTime());
 		addWorkGridManagerSiteScanTask(taskData);
 		return true;
 	}
+	private void sendTimeLineNotice(String user) {
+		//发送咚咚通知
+        String title = "场地自检巡检任务通知";
+        String content = "您已收到场地自检巡检任务，请进入拣运APP，扫描管理者网格码，查看任务，并按时完成，逾期将记录在册";
+        List<String> erpList = Lists.newArrayList();
+        erpList.add(user);
+		logger.info("分配任务完成，发送咚咚通知：{} 标题：{} 内容：{}",title,user,content);
+        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);		
+	}
+
 	private boolean initJyTaskDataForNewBatch() {
 		
 		return true;
