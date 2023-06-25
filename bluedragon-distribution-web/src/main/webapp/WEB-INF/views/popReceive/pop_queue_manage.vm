@@ -19,6 +19,10 @@ return $(obj).html("<option value=''>请选择</option>");
 
 $(document).ready(function() {
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'text': '#2C9929'
+    });
 
 
 
@@ -109,6 +113,7 @@ jQuery.ajax({
 				~
 				<input type="text" class="Wdate" id="printEndTime" name="printEndTime" value="$!query.printEndTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
 			  </td>
+                <switchSiteDom id = "switchSiteDom">
 			  <th align="right">分拣中心：</th>
               <td colspan="3">
 				<select class="select22" id="orgId" name="orgCode" >
@@ -140,6 +145,7 @@ jQuery.ajax({
                   #end
                 </select>
 			  </td>
+                </switchSiteDom>
               <td colspan="2"></td>
             </tr>
 			<tr >

@@ -9,7 +9,14 @@
    	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+    #parse("system/common/baseImport.vm")
 	<script type="text/javascript">
+        //加载站点组件
+        $('#switchSiteDom').sitePluginSelect({
+            'text': '#2C9929',
+            'onlySiteSelect': true,
+            'siteTypes' : [64]
+        });
 		function querySubmit(){
     		//$("#differenceList").attr("action", '#springUrl("/partnerInspection/partnerDifferentList")');
     		//$("#differenceList").attr("method", "GET");
@@ -71,6 +78,7 @@
                             <tr>
                                 <th align="right">创建人ID：</th>
                                 <td><input id="createUserCode" name="createUserCode" type="text" class="textField28"/></td>
+                                <switchSiteDom id = "switchSiteDom">
                                 <th align="right">分拣中心ID：</th>
                                 <td>
 									<!--<input id="createSiteCode" name="createSiteCode" type="text" class="textField28"/>-->
@@ -85,6 +93,7 @@
                     					#end
                                     </select>
 								</td>
+                                </switchSiteDom>
                                 <th align="right">三方ID：</th>
                                 <td><input id="receiveSiteCode" name="receiveSiteCode" type="text" class="textField28"/></td>
             					<th align="right">最后操作人ID：</th>

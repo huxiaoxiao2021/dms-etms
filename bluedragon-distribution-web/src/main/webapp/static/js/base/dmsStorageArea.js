@@ -1,4 +1,8 @@
 $(function() {
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        //'createSiteCode': 65396
+    });
     var saveUrl = '/base/dmsStorageArea/save';
     var deleteUrl = '/base/dmsStorageArea/deleteByIds';
     var detailUrl = '/base/dmsStorageArea/detail/';

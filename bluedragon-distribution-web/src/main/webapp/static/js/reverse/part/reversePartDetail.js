@@ -148,6 +148,10 @@ $(function() {
 
 			$('#dataEditDiv').hide();		
 		    $('#btn_query').click(function() {
+				if(!$('#createSiteCode').val()){
+					Jd.alert("请选择场地!");
+					return
+				}
 		    	tableInit().refresh();
 			});
 		    //导出

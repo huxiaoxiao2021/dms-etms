@@ -7,6 +7,11 @@ var deleteUrl = '/funcSwitchConfig/deleteByIds';
 var uploadExcelUrl = '/funcSwitchConfig/uploadExcel';
 $(function () {
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        //'createSiteCode': 65396
+    });
+    
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {

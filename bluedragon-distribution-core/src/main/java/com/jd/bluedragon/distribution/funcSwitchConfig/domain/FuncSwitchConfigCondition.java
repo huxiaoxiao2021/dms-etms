@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -8,6 +9,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @author: hujiping
  * @date: 2020/9/16 18:25
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuncSwitchConfigCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;

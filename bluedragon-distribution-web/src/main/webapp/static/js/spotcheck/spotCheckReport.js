@@ -1,4 +1,10 @@
 $(function () {
+
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        //'createSiteCode': 65396
+    });
+    
     var queryUrl = '/spotCheckReport/listData';
     var packageDetailQueryUrl = '/spotCheckReport/packageDetailListData';
     var exportUrl = '/spotCheckReport/toExport';

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.reverse.part.domain;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -14,6 +15,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @date 2019年02月12日 11:40:45
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ReversePartDetailCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
@@ -67,6 +69,15 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 	private String sendTimeGEStr;
 
 	private String sendTimeLEStr;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	public Integer getAllPackSum() {
 		return allPackSum;
@@ -285,5 +296,21 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 		this.sendTimeLEStr = sendTimeLEStr;
 		sendTimeLE = DateHelper.parseDate(sendTimeLEStr,DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
 
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
 	}
 }

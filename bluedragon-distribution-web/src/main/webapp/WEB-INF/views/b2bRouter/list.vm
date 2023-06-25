@@ -15,6 +15,7 @@
 	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
 	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    #parse("system/common/baseImport.vm")
     <style type="text/css"></style>
 </head>
 

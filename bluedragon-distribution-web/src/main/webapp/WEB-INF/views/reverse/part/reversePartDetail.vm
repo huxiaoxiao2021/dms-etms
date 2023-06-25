@@ -26,8 +26,8 @@
                         <div class="col-xs-12 " >
                             <div class="col-xs-8">
                                 <div class="form-group" >
-                                    <label class="control-label col-xs-3" for="site-select">分拣中心 ：</label>
                                     <switchSiteDom id="switchSiteDom">
+                                    <label class="control-label col-xs-3" for="site-select">分拣中心 ：</label>
                                         <div class=" col-xs-4">
                                             <select id="site-group-select" class="form-control " name="site-group-select"
                                                     value=""></select>
@@ -39,7 +39,6 @@
                                                class="form-control search-param " >
                                     </switchSiteDom>
                                 </div>
-
                             </div>
                             <div class="col-xs-4">
                                 <div class="form-group">

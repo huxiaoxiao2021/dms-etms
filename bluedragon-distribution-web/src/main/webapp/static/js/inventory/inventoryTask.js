@@ -2,6 +2,11 @@ $(function () {
     var queryUrl = '/inventoryTask/listData';
     var exportUrl = '/inventoryTask/toExport';
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        //'createSiteCode': 65396
+    });
+
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {

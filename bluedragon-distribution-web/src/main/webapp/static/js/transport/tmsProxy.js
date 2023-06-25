@@ -1,4 +1,12 @@
 $(function() {
+
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'text': '#2C9929',
+        'onlySiteSelect': true,
+        'siteTypes' : [64]
+    });
+    
     var queryUrl = '/transport/tmsProxy/listData';
     var tableInit = function() {
         var oTableInit = new Object();

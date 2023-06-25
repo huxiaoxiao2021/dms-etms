@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.inventory.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InventoryExceptionCondition extends BasePagerCondition {
 
     /**

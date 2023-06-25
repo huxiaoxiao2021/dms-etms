@@ -21,6 +21,7 @@
         <div id="query-condition">
             <form id="query-form" class="form-inline">
                 <fieldset>
+                    <switchSiteDom id="switchSiteDom">
                     <div class="form-group" style="margin-left: 40px;">
                         <label class="control-label" for="org-select">区域 ：</label>
                         <select id="org-select" class="form-control"></select>
@@ -31,6 +32,7 @@
                         <select id="site-select" class="form-control"></select>
                         <input type="hidden" id="createSiteCode" name="createSiteCode" class="form-control search-param " >
                     </div>
+                    </switchSiteDom>
                     <div class="form-group" style="margin-left: 40px;">
                         <label class="control-label" for="direction-select">下游场地 ：</label>
                             <select id="direction-select" class="form-control"></select>

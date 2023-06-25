@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CrossBoxRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer originateOrg; // 始发区域ID

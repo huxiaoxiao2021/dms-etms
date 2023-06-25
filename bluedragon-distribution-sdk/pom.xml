@@ -46,6 +46,11 @@
 			<groupId>com.jd.dms.utis</groupId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<version>2.10.0</version>
+		</dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.jd.transboard</groupId>-->
 <!--            <artifactId>transboard-api</artifactId>-->

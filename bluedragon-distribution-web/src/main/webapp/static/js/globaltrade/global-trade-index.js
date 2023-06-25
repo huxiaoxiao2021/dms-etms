@@ -3,6 +3,13 @@ $(document).ready(main);
 
 function main() {
 
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		'text': '#2C9929',
+		'onlySiteSelect': true,
+		'siteTypes' : [64]
+	});
+	
 	// 查询按钮提交处理
 	$('#queryBtn').click(function() {
 		onQueryBtnClick(1);

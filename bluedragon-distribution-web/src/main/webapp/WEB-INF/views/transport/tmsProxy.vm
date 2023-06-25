@@ -34,10 +34,12 @@
                     <input type="text" id="vehicleNumber" class="form-control search-param" name="vehicleNumber" style="width: 200px;">
                 </div>
                 <hr />
+                <switchSiteDom id = "switchSiteDom">
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="endNodeCode">目的网点</label>
                     <input type="text" id="endNodeCode" class="form-control search-param" name="endNodeCode" style="width: 200px;"></input>
                 </div>
+                </switchSiteDom>
                 <div class="form-group" style="margin-left: 29px;">
                     <label class="control-label" for="requirePickupTimeBegin"><span style="color: red;">*</span>预约提货时间</label>
                     <input type="text" id="requirePickupTimeBegin" name="requirePickupTimeBegin" class="form-control search-param" style="width: 190px;"

@@ -25,6 +25,7 @@
 
                     <div class="row">
                         <div class="col-xs-12">
+                            <switchSiteDom id="switchSiteDom">
                             <div class="col-xs-4">
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="site-select">区域 ：</label>
@@ -45,6 +46,7 @@
                                            class="form-control search-param " >
                                 </div>
                             </div>
+                            </switchSiteDom>
                         </div>
                     </div>
 

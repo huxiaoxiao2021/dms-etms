@@ -1,4 +1,8 @@
 function main() {
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		'text': '#2C9929'
+	});
 	getSiteData(-1, -1);
 	$("#originateOrg").change(function() {
 		$("#originalDmsName").val("");

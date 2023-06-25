@@ -1,4 +1,8 @@
 $(function() {
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        //'createSiteCode': 65396
+    });
 	var saveUrl = '/collect/collectGoodsPlace/save';
     var updateUrl = '/collect/collectGoodsPlace/update';
     var saveTypeUrl = '/collect/collectGoodsPlace/saveType';
