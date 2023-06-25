@@ -348,6 +348,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					taskData.setTaskBatchCode(oldTaskData.getTaskBatchCode());
 					taskData.setExecuteCount(oldTaskData.getExecuteCount());
 					taskData.setLastExecuteTime(oldTaskData.getLastExecuteTime());
+					taskData.setExecuteTime(getNextExecuteTime(oldTaskData.getLastExecuteTime(),configData));
 					//判断上次执行时间和这次是否同一天,改成下个执行周期时间
 					if(DateHelper.isSameDay(taskData.getExecuteTime(),oldTaskData.getLastExecuteTime())) {
 						taskData.setExecuteTime(getNextExecuteTime(taskData.getExecuteTime(),configData));
@@ -438,7 +439,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		boolean needDistribution = true;
 		boolean changeBatchCode = false;
-		List<String> bizIdListAutoClose = new ArrayList<>();
 		List<String> userList = getUserList(siteCode,configData.getHandlerUserPositionCode());
 		int needGridNum = userList.size() * configData.getPerGridNum();
 		if(CollectionUtils.isEmpty(userList)) {
@@ -462,43 +462,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					|| jyTaskList.size() <= needGridNum) {
 				changeBatchCode = true;
 			}
-			int gridIndex = 0 ;
-			boolean finishTask = false;
-			for(String user : userList) {
-				if(finishTask) {
-					break;
-				}
-				JyBizTaskWorkGridManagerBatchUpdate distributionData = new JyBizTaskWorkGridManagerBatchUpdate();
-				List<String> bizIdUserList = new ArrayList<>();
-				distributionData.setBizIdList(bizIdUserList);
-				for(int i=0;i<configData.getPerGridNum();i++) {
-					if(gridIndex >= jyTaskList.size() || gridIndex >= needGridNum) {
-						finishTask = true;
-						break;
-					}
-					JyBizTaskWorkGridManager jyTask = jyTaskList.get(gridIndex);
-					bizIdUserList.add(jyTask.getBizId());
-					bizIdListAutoClose.add(jyTask.getBizId());
-					//设置任务配置信息
-					jyTask.setHandlerUserPositionCode(configData.getHandlerUserPositionCode());
-					jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
-					jyTask.setCreateTime(curDate);
-					jyTask.setProcessBeginTime(taskTime);
-					jyTask.setHandlerErp(user);
-					if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
-						jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 7));
-					}else {
-						jyTask.setPreFinishTime(DateHelper.addDate(taskTime, 1));
-					}
-					jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
-					jyTask.setTaskDate(taskTime);
-					gridIndex++;
-					distributionData.setData(jyTask);
-				}
-				jyBizTaskWorkGridManagerService.distributionTask(distributionData);
-				//发送咚咚通知
-				sendTimeLineNotice(user);
-			}
+			this.doDistributionTask(taskWorkGridManagerScan, taskInfo, configData, userList, jyTaskList, needGridNum, curDate, taskTime, taskEndTime);
 		}
 		//批次完结，取消无用的任务
 		if(changeBatchCode) {
@@ -511,17 +475,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);			
 			jyBizTaskWorkGridManagerService.closeTaskForEndBatch(closeData);
 		}
-		//已分配的任务，新增一个自动关闭任务
-		if(bizIdListAutoClose.size() > 0) {
-			TaskWorkGridManagerAutoCloseData autoCloseTaskData = new TaskWorkGridManagerAutoCloseData();
-			autoCloseTaskData.setTaskConfigCode(configData.getTaskConfigCode());
-			autoCloseTaskData.setSiteCode(siteCode);
-			autoCloseTaskData.setTaskBatchCode(taskBatchCode);
-			autoCloseTaskData.setExecuteTime(taskEndTime);
-			autoCloseTaskData.setBizIdList(bizIdListAutoClose);
-			addWorkGridManagerAutoCloseTask(autoCloseTaskData);
-		}
-		
 		//新增下次执行时间的任务
 		TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
@@ -552,7 +505,55 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		logger.info("分配任务完成，发送咚咚通知：{} 标题：{} 内容：{}",title,user,content);
         NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);		
 	}
-
+	private void doDistributionTask(TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,WorkGridManagerTask taskInfo,WorkGridManagerTaskConfigVo configData,
+	 List<String> userList,List<JyBizTaskWorkGridManager> jyTaskList,int needGridNum,
+	 Date curDate,Date taskTime,Date taskEndTime){
+		String taskBatchCode = taskWorkGridManagerScan.getTaskBatchCode();
+		int gridIndex = 0 ;
+		boolean finishTask = false;
+		List<String> bizIdListAutoClose = new ArrayList<>();
+		for(String user : userList) {
+			if(finishTask) {
+				break;
+			}
+			JyBizTaskWorkGridManagerBatchUpdate distributionData = new JyBizTaskWorkGridManagerBatchUpdate();
+			List<String> bizIdUserList = new ArrayList<>();
+			distributionData.setBizIdList(bizIdUserList);
+			for(int i=0;i<configData.getPerGridNum();i++) {
+				if(gridIndex >= jyTaskList.size() || gridIndex >= needGridNum) {
+					finishTask = true;
+					break;
+				}
+				JyBizTaskWorkGridManager jyTask = jyTaskList.get(gridIndex);
+				bizIdUserList.add(jyTask.getBizId());
+				bizIdListAutoClose.add(jyTask.getBizId());
+				//设置任务配置信息
+				jyTask.setHandlerUserPositionCode(configData.getHandlerUserPositionCode());
+				jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
+				jyTask.setCreateTime(curDate);
+				jyTask.setProcessBeginTime(taskTime);
+				jyTask.setHandlerErp(user);
+				jyTask.setPreFinishTime(taskEndTime);
+				jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
+				jyTask.setTaskDate(taskTime);
+				gridIndex++;
+				distributionData.setData(jyTask);
+			}
+			jyBizTaskWorkGridManagerService.distributionTask(distributionData);
+			//发送咚咚通知
+			sendTimeLineNotice(user);
+		}
+		//已分配的任务，新增一个自动关闭任务
+		if(bizIdListAutoClose.size() > 0) {
+			TaskWorkGridManagerAutoCloseData autoCloseTaskData = new TaskWorkGridManagerAutoCloseData();
+			autoCloseTaskData.setTaskConfigCode(configData.getTaskConfigCode());
+			autoCloseTaskData.setSiteCode(taskWorkGridManagerScan.getSiteCode());
+			autoCloseTaskData.setTaskBatchCode(taskBatchCode);
+			autoCloseTaskData.setExecuteTime(taskEndTime);
+			autoCloseTaskData.setBizIdList(bizIdListAutoClose);
+			addWorkGridManagerAutoCloseTask(autoCloseTaskData);
+		}		
+	}
 	private JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
 			WorkGridManagerTask taskInfo,WorkGridManagerTaskConfigVo configData,
 			WorkStationGrid grid,Date curDate) {

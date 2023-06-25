@@ -63,7 +63,7 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 		return this.getSqlSession().update(NAMESPACE + ".closeTaskForEndBatch", closeData);
 	}
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
-		return this.getSqlSession().update(NAMESPACE + ".batchAddTask", taskList);
+		return this.getSqlSession().update(NAMESPACE + ".batchInsert", taskList);
 	}
 	
 }
