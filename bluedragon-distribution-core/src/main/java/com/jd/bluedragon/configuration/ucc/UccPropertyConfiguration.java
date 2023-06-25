@@ -1404,6 +1404,11 @@ public class UccPropertyConfiguration {
      */
     private String exceptionSubmitCheckWaybillInterceptTypes;
 
+    /**
+     * 忽略转运全程跟踪开关
+     */
+    private boolean ignoreTysTrackSwitch;
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -3597,5 +3602,13 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public boolean isIgnoreTysTrackSwitch() {
+        return ignoreTysTrackSwitch;
+    }
+
+    public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+        this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
     }
 }
