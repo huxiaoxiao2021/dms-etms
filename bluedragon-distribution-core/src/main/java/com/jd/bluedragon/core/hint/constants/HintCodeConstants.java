@@ -1038,4 +1038,7 @@ public class HintCodeConstants {
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED = "40025";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED_MSG = "校验失败，场地不一致！";
+
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
 }
