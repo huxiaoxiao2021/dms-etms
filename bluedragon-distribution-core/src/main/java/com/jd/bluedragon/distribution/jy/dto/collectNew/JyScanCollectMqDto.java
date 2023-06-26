@@ -54,7 +54,7 @@ public class JyScanCollectMqDto implements Serializable {
     private String sendCode;
     /**
      * 岗位类型
-     * com.jd.bluedragon.common.dto.base.JyPostEnum
+     * JyFuncCodeEnum
      */
     private String jyPostType;
 

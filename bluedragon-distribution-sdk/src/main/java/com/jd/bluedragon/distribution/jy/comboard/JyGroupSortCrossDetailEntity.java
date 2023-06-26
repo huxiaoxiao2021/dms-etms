@@ -50,7 +50,7 @@ public class JyGroupSortCrossDetailEntity {
     private Integer focus;
     /**
      * 功能类型
-     * JyPostEnum
+     * JyFuncCodeEnum
      */
     private String funcType;
 

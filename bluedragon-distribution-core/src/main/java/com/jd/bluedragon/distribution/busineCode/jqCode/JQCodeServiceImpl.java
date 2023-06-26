@@ -298,20 +298,6 @@ public class JQCodeServiceImpl implements JQCodeService {
                 .append(JQCodeServiceImpl.CONDITION_JY_BATCH).append(sendCode);
         return sb.toString().toUpperCase();
     }
-    /**
-     * 集齐collectionCode按时间分区 （当前可不考虑）
-     * @param jyPostEnum
-     * @param siteId
-     * @param bizId
-     * @param datePartition
-     * @return
-     */
-//    private String getJyScanCollectionConditionWithDataPartition(JyPostEnum jyPostEnum, Integer siteId, String bizId, String datePartition) {
-//        StringBuffer sb = new StringBuffer();
-//        sb.append(this.getJyScanCollectionCondition(jyPostEnum, siteId, bizId));
-//        sb.append(JQCodeServiceImpl.CONDITION_DATE_PARTITION).append(datePartition);
-//        return sb.toString();
-//    }
 
 
 }

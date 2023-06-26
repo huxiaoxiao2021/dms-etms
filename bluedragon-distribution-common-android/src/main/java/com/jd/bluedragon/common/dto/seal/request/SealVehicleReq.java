@@ -135,7 +135,7 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     /**
      * 入口类型
-     * JyPostEnum
+     * JyFuncCodeEnum
      */
     private String funcType;
 
