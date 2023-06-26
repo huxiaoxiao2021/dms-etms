@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        JyScanCollectStrategyFactory.registerJyScanCollectService(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode(), this);
+        JyScanCollectStrategyFactory.registerJyScanCollectService(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode(), this);
     }
 
     @Override

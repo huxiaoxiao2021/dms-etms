@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -11,6 +10,7 @@ import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
@@ -92,10 +92,10 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
 
         boolean consumeRes;
         try {
-            if(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode().equals(mqBody.getJyPostType())) {
+            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(mqBody.getJyPostType())) {
                 consumeRes = warehouseSendCancelScanDeal(mqBody, message.getBusinessId());
             }else {
-                log.warn("{}，当前仅支持接货仓发货岗取消扫描，不支持当前岗位【{}】，msg={}", JyPostEnum.getDescByCode(mqBody.getJyPostType()), message.getText());
+                log.warn("{}，当前仅支持接货仓发货岗取消扫描，不支持当前岗位【{}】，msg={}", JyFuncCodeEnum.getDescByCode(mqBody.getJyPostType()), message.getText());
                 return;
             }
         } catch (Exception e) {

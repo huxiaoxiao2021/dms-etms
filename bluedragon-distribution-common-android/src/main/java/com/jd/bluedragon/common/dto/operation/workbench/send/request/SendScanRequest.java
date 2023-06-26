@@ -90,9 +90,9 @@ public class SendScanRequest implements Serializable {
 
     /**
      * 岗位类型
-     * JyPostEnum
+     * JyFuncCodeEnum
      */
-    private String postType;
+    private String post;
 
     /**
      * 前置下一流向
@@ -235,19 +235,19 @@ public class SendScanRequest implements Serializable {
         this.taskName = taskName;
     }
 
-    public String getPostType() {
-        return postType;
-    }
-
-    public void setPostType(String postType) {
-        this.postType = postType;
-    }
-
     public Long getPreNextSiteCode() {
         return preNextSiteCode;
     }
 
     public void setPreNextSiteCode(Long preNextSiteCode) {
         this.preNextSiteCode = preNextSiteCode;
+    }
+
+    public String getPost() {
+        return post;
+    }
+
+    public void setPost(String post) {
+        this.post = post;
     }
 }

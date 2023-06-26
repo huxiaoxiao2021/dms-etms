@@ -13,9 +13,9 @@ public class BaseReq implements Serializable {
     private String requestId = UUID.randomUUID().toString().replace("-","");
     /**
      * 岗位类型
-     * JyPostEnum
+     * JyFuncCodeEnum
      */
-    private String postType;
+    private String post;
 
     public String getGroupCode() {
         return groupCode;
@@ -49,11 +49,11 @@ public class BaseReq implements Serializable {
         this.requestId = requestId;
     }
 
-    public String getPostType() {
-        return postType;
+    public String getPost() {
+        return post;
     }
 
-    public void setPostType(String postType) {
-        this.postType = postType;
+    public void setPost(String post) {
+        this.post = post;
     }
 }

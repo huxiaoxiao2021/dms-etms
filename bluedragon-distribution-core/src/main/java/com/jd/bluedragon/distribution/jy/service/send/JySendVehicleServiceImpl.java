@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
@@ -3985,9 +3984,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param request
      */
     private void sendCollectDealMQ(SendScanRequest request, String sendCode) {
-        if(!JyPostEnum.isFocusCollect(request.getPostType())) {
-            log.info("JySendVehicleServiceImpl.岗位类型={}【{}】不关注集齐处理，参数={}", request.getPostType(),
-                    JyPostEnum.getDescByCode(request.getPostType()), JsonHelper.toJson(request));
+        if(!JyFuncCodeEnum.isFocusCollect(request.getPost())) {
+            log.info("JySendVehicleServiceImpl.岗位类型={}【{}】不关注集齐处理，参数={}", request.getPost(),
+                    JyFuncCodeEnum.getDescByCode(request.getPost()), JsonHelper.toJson(request));
             return;
         }
         JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
@@ -4001,7 +4000,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
         //
         mqDto.setSendCode(sendCode);
-        mqDto.setJyPostType(request.getPostType());
+        mqDto.setJyPostType(request.getPost());
         mqDto.setBarCode(request.getBarCode());
         mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
         mqDto.setCodeType(mqDto.getBarCodeType());

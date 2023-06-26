@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
@@ -20,10 +19,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
-import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
-import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -547,10 +543,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
 
             //接货仓发货岗任务绑定or迁移时，被迁移流向从混扫任务中删除
-            if(JyPostEnum.SEND_SEAL_WAREHOUSE.equals(bindVehicleDetailTaskReq.getPostType())) {
+            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.equals(bindVehicleDetailTaskReq.getPost())) {
                 JyGroupSortCrossDetailEntity sortCrossDetailEntity = new JyGroupSortCrossDetailEntity();
                 sortCrossDetailEntity.setStartSiteId((long)bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode());
-                sortCrossDetailEntity.setFuncType(bindVehicleDetailTaskReq.getPostType());
+                sortCrossDetailEntity.setFuncType(bindVehicleDetailTaskReq.getPost());
                 sortCrossDetailEntity.setGroupCode(bindVehicleDetailTaskReq.getGroupCode());
                 sortCrossDetailEntity.setSendVehicleDetailBizId(fromSvdTask.getBizId());
                 sortCrossDetailEntity.setUpdateTime(now);

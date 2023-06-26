@@ -18,7 +18,9 @@ import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.common.dto.base.JyPostEnum.SEND_SEAL_DMS;
-import static com.jd.bluedragon.common.dto.base.JyPostEnum.SEND_SEAL_WAREHOUSE;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.SEND_CAR_POSITION;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.WAREHOUSE_SEND_POSITION;
 
 /**
  * @author liwenji
@@ -90,7 +92,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
             entity.setStartSiteName(request.getCurrentOperate().getSiteName());
             entity.setTabletrolleyCode(tableTrolleyDto.getTableTrolleyCode());
-            entity.setFuncType(SEND_SEAL_DMS.getCode());
+            entity.setFuncType(SEND_CAR_POSITION.getCode());
             list.add(entity);
         }
         return list;
@@ -107,7 +109,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         List<CTTGroupDto> cttGroupDtos;
         JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        entity.setFuncType(SEND_SEAL_DMS.getCode());
+        entity.setFuncType(SEND_CAR_POSITION.getCode());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
@@ -149,7 +151,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             query.setGroupCode(request.getGroupCode());
             query.setTemplateCode(request.getTemplateCode());
             query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
-            query.setFuncType(SEND_SEAL_DMS.getCode());
+            query.setFuncType(SEND_CAR_POSITION.getCode());
             JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(query);
             if (entity == null) {
                 log.error("未查询到该流向：{}", JsonHelper.toJson(query));
@@ -305,7 +307,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setCreateUserName(request.getUser().getUserName());
             entity.setCreateUserErp(request.getUser().getUserErp());
             entity.setCreateTime(new Date());
-            entity.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+            entity.setFuncType(WAREHOUSE_SEND_POSITION.getCode());
             entity.setTemplateName(request.getTemplateName());
             entity.setFocus(FocusEnum.FOCUS.getCode());
             entity.setTemplateCode(templateCode);
@@ -321,7 +323,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         codition.setEndSiteId(request.getEndSiteId().longValue());
         codition.setGroupCode(request.getGroupCode());
         codition.setSendVehicleDetailBizId(request.getSendVehicleDetailBizId());
-        codition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        codition.setFuncType(WAREHOUSE_SEND_POSITION.getCode());
         return codition;
     }
 
@@ -341,7 +343,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         codition.setEndSiteId(request.getEndSiteId().longValue());
         codition.setGroupCode(request.getGroupCode());
         codition.setSendVehicleDetailBizId(request.getSendVehicleDetailBizId());
-        codition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        codition.setFuncType(WAREHOUSE_SEND_POSITION.getCode());
         return codition;
     }
 
@@ -376,7 +378,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setCreateUserName(request.getUser().getUserName());
             entity.setCreateUserErp(request.getUser().getUserErp());
             entity.setCreateTime(new Date());
-            entity.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+            entity.setFuncType(WAREHOUSE_SEND_POSITION.getCode());
             entity.setTemplateName(request.getTemplateName());
             entity.setFocus(FocusEnum.FOCUS.getCode());
             entity.setTemplateCode(request.getTemplateCode());

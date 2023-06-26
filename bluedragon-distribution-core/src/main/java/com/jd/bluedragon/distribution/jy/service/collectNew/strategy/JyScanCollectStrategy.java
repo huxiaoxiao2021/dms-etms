@@ -14,10 +14,10 @@ import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectCacheService;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
@@ -221,10 +221,10 @@ public class JyScanCollectStrategy {
 
        int pageSize = 1000;
         List<Sorting> sortingList = new ArrayList<>();
-        for(int pageNo = 1; pageNo <= 11; pageNo++) {
-            if(pageNo > 10) {
-                log.error("{}集齐处理查询箱内包裹已超过1W,超过理论上的最大值(实际ucc配置几百)，视为异常，研发处理，参数={}", methodDesc, JsonHelper.toJson(collectDto));
-                throw new JyBizException("拣运扫描箱号处理集齐数据异常" + collectDto.getBarCode());
+        for(int pageNo = 1; pageNo <= 100; pageNo++) {
+            if(pageNo > 50) {
+                log.error("{}集齐处理查询箱内包裹已超过5W,超过理论上的最大值(实际ucc配置几百)，超出不做处理，参数={}", methodDesc, JsonHelper.toJson(collectDto));
+                break;
             }
             SortingPageRequest boxQuery = new SortingPageRequest();
             boxQuery.setBoxCode(collectDto.getBarCode());
@@ -301,7 +301,7 @@ public class JyScanCollectStrategy {
             throw new JyBizException("获取collectionCode参数缺失");
         }
         String collectionCode = jqCodeService.getOrGenJyScanTaskSendCodeCollectionCode(
-                JyPostEnum.getJyPostEnumByCode(collectDto.getJyPostType()), collectDto.getSendCode(), null);
+                JyFuncCodeEnum.getJyPostEnumByCode(collectDto.getJyPostType()), collectDto.getSendCode(), null);
         if(StringUtils.isBlank(collectionCode)) {
             log.error("JyScanCollectStrategy.getCollectionCode获取为空，param={}", JsonHelper.toJson(collectDto));
             throw new JyBizException("获取collectionCode为空");

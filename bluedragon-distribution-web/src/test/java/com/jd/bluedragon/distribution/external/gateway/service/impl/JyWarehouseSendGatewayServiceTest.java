@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -11,7 +10,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.DeviceGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -626,7 +625,7 @@ public class JyWarehouseSendGatewayServiceTest {
             req.setSendVehicleBizId("SST22081600000007");
 
 
-            req.setPostType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            req.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
 
             req.setCheckAllFlag(true);
             jyWarehouseSendGatewayService.buQiCancelSendScan(req);

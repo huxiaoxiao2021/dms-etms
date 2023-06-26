@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.sn.SmartSNGen;
@@ -226,17 +226,17 @@ public class JQCodeServiceImpl implements JQCodeService {
 
     /**
      * 任务维度 collectionCode 获取
-     * @param jyPostEnum  岗位类型（必填）
+     * @param jyFuncCodeEnum  岗位类型（必填）
      * @param sendCode  批次号
      * @param userErp  操作人（选填）
      * @return
      */
     @Override
-    public String getOrGenJyScanTaskSendCodeCollectionCode(JyPostEnum jyPostEnum, String sendCode,  String userErp) {
+    public String getOrGenJyScanTaskSendCodeCollectionCode(JyFuncCodeEnum jyFuncCodeEnum, String sendCode,  String userErp) {
         String methodDesc =  "JQCodeServiceImpl.getOrGenerateCollectionCodeByBusinessType:获取collectionCode:";
         String datePartition = DateUtil.format(new Date(), DateUtil.FORMAT_DATE);
         //
-        String condition = this.getJyScanSendCodeCollectionCondition(jyPostEnum, sendCode);
+        String condition = this.getJyScanSendCodeCollectionCondition(jyFuncCodeEnum, sendCode);
         //
         String cacheKey = String.format("JQCondition:%s", condition);
         String collectionCode = jimdbCacheService.get(cacheKey);
@@ -256,7 +256,7 @@ public class JQCodeServiceImpl implements JQCodeService {
             log.info("{}没有查到collectionCode,进行生成，collection={}", methodDesc, condition);
         }
 
-        Map<String,String> attributeParam = this.getJyScanCollectionAttributeMap(jyPostEnum, sendCode, datePartition, condition);
+        Map<String,String> attributeParam = this.getJyScanCollectionAttributeMap(jyFuncCodeEnum, sendCode, datePartition, condition);
         BusinessCodeFromSourceEnum fromSource = BusinessCodeFromSourceEnum.DMS_WORKER_SYS;
         //当前没有符合的condition进行生成
         collectionCode = this.createCollectionCode(condition, attributeParam, fromSource, userErp);
@@ -266,13 +266,13 @@ public class JQCodeServiceImpl implements JQCodeService {
         return collectionCode;
     }
 
-    private Map<String, String> getJyScanCollectionAttributeMap(JyPostEnum jyPostEnum, String sendCode, String datePartition, String condition) {
+    private Map<String, String> getJyScanCollectionAttributeMap(JyFuncCodeEnum jyFuncCodeEnum, String sendCode, String datePartition, String condition) {
         Map<String, String> attributeMap = new HashMap<>();
         attributeMap.put(ATTRIBUTE_BATCH_CODE, sendCode);
-        attributeMap.put(ATTRIBUTE_JY_POST, jyPostEnum.getCode());
+        attributeMap.put(ATTRIBUTE_JY_POST, jyFuncCodeEnum.getCode());
         attributeMap.put(ATTRIBUTE_DATE_PARTITION, datePartition);
         attributeMap.put(ATTRIBUTE_CONDITION, condition);
-        if(JyPostEnum.isSendPost(jyPostEnum.getCode())) {
+        if(JyFuncCodeEnum.isSendPost(jyFuncCodeEnum.getCode())) {
             //记录下是不是发货岗， 取消发货时要找发货collectionCode
             attributeMap.put(ATTRIBUTE_POST_TYPE, JQCodeServiceImpl.ATTRIBUTE_POST_TYPE_SEND);
         }
@@ -283,17 +283,17 @@ public class JQCodeServiceImpl implements JQCodeService {
      * 获取集齐condition （批次维度）
      * 进来保证长度不要过长，底层对场地有限制，超过长度后会截取处理
      * 辨识度高的字段放前面：  岗位 + 批次
-     * @param jyPostEnum
+     * @param jyFuncCodeEnum
      * @param sendCode
      * @return
      */
     @Override
-    public String getJyScanSendCodeCollectionCondition(JyPostEnum jyPostEnum, String sendCode) {
-        if(Objects.isNull(jyPostEnum) || StringUtils.isBlank(sendCode)) {
+    public String getJyScanSendCodeCollectionCondition(JyFuncCodeEnum jyFuncCodeEnum, String sendCode) {
+        if(Objects.isNull(jyFuncCodeEnum) || StringUtils.isBlank(sendCode)) {
             return null;
         }
         StringBuffer sb = new StringBuffer();
-        sb.append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyPostEnum.getCode())
+        sb.append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyFuncCodeEnum.getCode())
                 .append(Constants.SEPARATOR_COLON)
                 .append(JQCodeServiceImpl.CONDITION_JY_BATCH).append(sendCode);
         return sb.toString().toUpperCase();

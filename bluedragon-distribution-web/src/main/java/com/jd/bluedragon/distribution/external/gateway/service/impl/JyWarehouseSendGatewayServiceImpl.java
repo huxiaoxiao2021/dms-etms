@@ -11,9 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -31,7 +29,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -57,7 +55,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.common.dto.base.JyPostEnum.SEND_SEAL_WAREHOUSE;
 import static com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendServiceImpl.checkCTTCode;
 
 @Service
@@ -278,7 +275,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return res;
             }
 
-            request.setPostType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             return jyWarehouseSendVehicleService.scan(request, res);
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
@@ -528,7 +525,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             queryDto.setGroupCode(appendMixScanTaskFlowReq.getGroupCode());
             queryDto.setTemplateCode(appendMixScanTaskFlowReq.getTemplateCode());
             queryDto.setStartSiteId((long)appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
-            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
             if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
                 response.toFail("该混扫任务已经完成，请勿操作");
@@ -608,7 +605,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             queryDto.setGroupCode(deleteMixScanTaskReq.getGroupCode());
             queryDto.setTemplateCode(deleteMixScanTaskReq.getTemplateCode());
             queryDto.setStartSiteId((long)deleteMixScanTaskReq.getCurrentOperate().getSiteCode());
-            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
             if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
                 response.toFail("该混扫任务已经完成，请勿重新操作");
@@ -659,7 +656,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             queryDto.setGroupCode(removeMixScanTaskFlowReq.getGroupCode());
             queryDto.setTemplateCode(removeMixScanTaskFlowReq.getTemplateCode());
             queryDto.setStartSiteId((long)removeMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
-            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
             if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
                 response.toFail("该混扫任务已经完成，请勿重新操作");
@@ -698,7 +695,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             queryDto.setGroupCode(mixScanTaskReq.getGroupCode());
             queryDto.setTemplateCode(mixScanTaskReq.getTemplateCode());
             queryDto.setStartSiteId((long)mixScanTaskReq.getCurrentOperate().getSiteCode());
-            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
             if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
                 response.toFail("该混扫任务已经完成，请勿重新操作");
@@ -751,7 +748,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             queryDto.setGroupCode(mixScanTaskFocusReq.getGroupCode());
             queryDto.setTemplateCode(mixScanTaskFocusReq.getTemplateCode());
             queryDto.setStartSiteId((long)mixScanTaskFocusReq.getCurrentOperate().getSiteCode());
-            queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
             if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
                 response.toFail("该混扫任务已经完成，请勿重新操作");
@@ -836,7 +833,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         condition.setGroupCode(mixScanTaskListQueryReq.getGroupCode());
         condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
         condition.setCompleteStatus(JyMixScanTaskCompleteEnum.DOING.getCode());
-        condition.setFuncType(SEND_SEAL_WAREHOUSE.getCode());
+        condition.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         if (StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
             condition.setSendVehicleDetailBizId(mixScanTaskListQueryReq.getSendVehicleDetailBizId());
         }

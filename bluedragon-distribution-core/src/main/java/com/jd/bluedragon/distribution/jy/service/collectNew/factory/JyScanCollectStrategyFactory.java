@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.factory;
 
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class JyScanCollectStrategyFactory {
     public static JyScanCollectStrategy getJyScanCollectService(String jyPostType) {
         JyScanCollectStrategy result = jyScanCollectStrategyMap.get(jyPostType);
         if(result == null) {
-            log.error("获取拣运扫描处理集齐服务异常：未查到岗位【{}|{}】的集齐处理逻辑", jyPostType, JyPostEnum.getDescByCode(jyPostType));
+            log.error("获取拣运扫描处理集齐服务异常：未查到岗位【{}|{}】的集齐处理逻辑", jyPostType, JyFuncCodeEnum.getDescByCode(jyPostType));
             throw new JyBizException("获取拣运扫描处理集齐服务异常");
         }
         return result;

@@ -4,7 +4,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 
 import java.util.Map;
 
@@ -37,16 +37,16 @@ public interface JQCodeService {
 
     /**
      * 拣运app岗位处理集齐获取 collectionCode  （批次维度）
-     * @param jyPostEnum  岗位类型（必填）
+     * @param jyFuncCodeEnum  岗位类型（必填）
      * @param userErp  操作人（选填）
      * @return
      */
-    String getOrGenJyScanTaskSendCodeCollectionCode(JyPostEnum jyPostEnum, String sendCode, String userErp);
+    String getOrGenJyScanTaskSendCodeCollectionCode(JyFuncCodeEnum jyFuncCodeEnum, String sendCode, String userErp);
 
     /**
      * 获取condition
-     * @param jyPostEnum
+     * @param jyFuncCodeEnum
      * @return
      */
-    String getJyScanSendCodeCollectionCondition(JyPostEnum jyPostEnum, String sendCode);
+    String getJyScanSendCodeCollectionCondition(JyFuncCodeEnum jyFuncCodeEnum, String sendCode);
 }

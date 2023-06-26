@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.consumer.jy.collectNew;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
@@ -56,11 +56,11 @@ public class JyCancelScanCollectConsumer extends MessageBaseConsumer {
 
         boolean consumeRes;
         try {
-            if(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode().equals(mqBody.getJyPostType())) {
+            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(mqBody.getJyPostType())) {
                 consumeRes = cancelScanCollectDeal(mqBody);
 
             }else {
-                log.warn("拣运取消扫描处理集齐服务暂不支持接货仓发货岗之外的岗位取消集齐处理，当前岗位=【{}】，msg={}", JyPostEnum.getDescByCode(mqBody.getJyPostType()), message.getText());
+                log.warn("拣运取消扫描处理集齐服务暂不支持接货仓发货岗之外的岗位取消集齐处理，当前岗位=【{}】，msg={}", JyFuncCodeEnum.getDescByCode(mqBody.getJyPostType()), message.getText());
                 return;
             }
         } catch (Exception e) {

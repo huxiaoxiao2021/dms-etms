@@ -6,7 +6,6 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.base.JyPostEnum;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
@@ -52,6 +51,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
@@ -695,7 +695,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         queryDto.setGroupCode(request.getGroupCode());
         queryDto.setTemplateCode(request.getMixScanTaskCode());
         queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
         return jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto);
     }
@@ -735,7 +735,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         entityQueryParam.setTemplateCode(request.getMixScanTaskCode());
         entityQueryParam.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
         entityQueryParam.setEndSiteIdList(endSiteIdList);
-        entityQueryParam.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        entityQueryParam.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
         if(CollectionUtils.isEmpty(resEntityList)) {
             log.warn("接货仓发货岗该单据{}匹配龙门架流向为{}，未匹配到混扫任务,request={},派车信息={}", request.getBarCode(), JsonHelper.toJson(endSiteIdList),
@@ -893,7 +893,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         Set<String> collectionCodeOldList = new HashSet<>();
 
         for(String sendCode : sendCodes) {
-            String jqCondition = jqCodeService.getJyScanSendCodeCollectionCondition(JyPostEnum.SEND_SEAL_WAREHOUSE, sendCode);
+            String jqCondition = jqCodeService.getJyScanSendCodeCollectionCondition(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION, sendCode);
             String collectionCode = kvIndexDao.queryRecentOneByKeyword(jqCondition);
             if(StringUtils.isBlank(collectionCode)) {
                 log.warn("接货仓发货岗根据批次号condition查collectionCode为空，场地={}，jqCondition={}", siteCode, jqCondition);
@@ -982,7 +982,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         queryDto.setGroupCode(request.getGroupCode());
         queryDto.setTemplateCode(request.getMixScanTaskCode());
         queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
         if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
             res.parameterError("当前混扫任务已完成");
@@ -992,10 +992,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         JyBizTaskSendVehicleEntity entity = jyBizTaskSendVehicleService.findByBizId(request.getSendVehicleBizId());
         if(Objects.isNull(entity)) {
             res.parameterError("未找到当前派车任务");
-            return res;
-        }
-        if(JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())) {
-            res.parameterError(String.format("已封车禁止取消发货[%s]", JyBizTaskSendDetailStatusEnum.getNameByCode(entity.getVehicleStatus())));
             return res;
         }
 
@@ -1063,7 +1059,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
         mqDto.setOperatorName(request.getCurrentOperate().getSiteName());
         mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
-        mqDto.setJyPostType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        mqDto.setJyPostType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         mqDto.setBizSource(JyWarehouseSendVehicleServiceImpl.OPERATE_SOURCE_PDA);
         //
         mqDto.setMainTaskBizId(request.getSendVehicleBizId());
@@ -1429,7 +1425,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         queryDto.setGroupCode(request.getGroupCode());
         queryDto.setTemplateCode(request.getMixScanTaskCode());
         queryDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-        queryDto.setFuncType(JyPostEnum.SEND_SEAL_WAREHOUSE.getCode());
+        queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
         if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
             res.error("当前混扫任务已经结束，请刷新页面重新选择混扫任务");
