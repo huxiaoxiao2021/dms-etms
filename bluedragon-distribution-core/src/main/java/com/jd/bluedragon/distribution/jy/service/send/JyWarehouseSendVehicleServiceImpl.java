@@ -43,7 +43,7 @@ import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
-import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
@@ -746,11 +746,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             response.setMessage(String.format(SendScanRes.MSG_NULL_FLOW_FORCE_SEND, getNextSiteName));
             return;
         }
+        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity = this.getDetailSendVehicleByReceiveSiteCodes(resEntityList, endSiteIdList);
         if(log.isInfoEnabled()) {
             log.info("接货仓发货岗按流向{}匹配混扫任务明细,request={},混扫明细={}", JsonHelper.toJson(endSiteIdList),
-                    JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
+                    JsonHelper.toJson(request), JsonHelper.toJson(jyGroupSortCrossDetailEntity));
         }
-        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity = resEntityList.get(0);
         request.setSendVehicleDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
@@ -771,6 +771,26 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         Profiler.registerInfoEnd(info);
+    }
+
+    private JyGroupSortCrossDetailEntity getDetailSendVehicleByReceiveSiteCodes(List<JyGroupSortCrossDetailEntity> detailEntityList, List<Long> endSiteIdList) {
+        if(detailEntityList.size() == 1) {
+            return detailEntityList.get(0);
+        }
+
+        // K-流向 V-混扫任务中该流向发货任务    根据龙门架流向list和混扫任务list匹配结果可能多个，按照龙门架发货流向取前面的
+        Map<Long, JyGroupSortCrossDetailEntity> nextSiteCodeMap = new HashMap<>();
+        for(JyGroupSortCrossDetailEntity entity : detailEntityList) {
+            nextSiteCodeMap.put(entity.getEndSiteId(), entity);
+        }
+
+        for(Long receiveSiteCode : endSiteIdList) {
+            if(!Objects.isNull(nextSiteCodeMap.get(receiveSiteCode))) {
+                return nextSiteCodeMap.get(receiveSiteCode);
+            }
+        }
+        //上游detailEntityList 是根据endSiteIdList匹配出来的，一定会if成功返回
+        return null;
     }
 
     /**
@@ -1080,7 +1100,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if(CollectionUtils.isNotEmpty(request.getPackList())) {
                 for(String packageCode : request.getPackList()) {
                     mqDto.setBarCode(packageCode);
-                    mqDto.setBarCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());
+                    mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.PACKAGE.getCode());
                     String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
                     String msg = JsonHelper.toJson(mqDto);
                     if(log.isInfoEnabled()) {
@@ -1093,7 +1113,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if(CollectionUtils.isNotEmpty(request.getWaybillCodeList())) {
                 for(String waybillCode : request.getWaybillCodeList()) {
                     mqDto.setBarCode(waybillCode);
-                    mqDto.setBarCodeType(JyScanCodeTypeEnum.WAYBILL.getCode());
+                    mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.WAYBILL.getCode());
                     String businessId = String.format("%s:%s:%s:%s", waybillCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
                     String msg = JsonHelper.toJson(mqDto);
                     if(log.isInfoEnabled()) {

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 扫描单号类型枚举
  */
-public enum JyScanCodeTypeEnum {
+public enum JyCollectScanCodeTypeEnum {
     //
     WAYBILL("101","运单号"),
     PACKAGE("102","包裹号"),
@@ -16,7 +16,7 @@ public enum JyScanCodeTypeEnum {
     private String code;
     private String msg;
 
-    JyScanCodeTypeEnum(String code, String msg) {
+    JyCollectScanCodeTypeEnum(String code, String msg) {
         this.code = code;
         this.msg = msg;
     }
@@ -41,11 +41,11 @@ public enum JyScanCodeTypeEnum {
      * 接货仓扫描单据类型
      * @return
      */
-    public static List<JyScanCodeTypeEnum> jyWarehouseSendScanCodeType() {
-        List<JyScanCodeTypeEnum> list = new ArrayList<>();
-        list.add(JyScanCodeTypeEnum.PACKAGE);
-        list.add(JyScanCodeTypeEnum.WAYBILL);
-        list.add(JyScanCodeTypeEnum.BOX);
+    public static List<JyCollectScanCodeTypeEnum> jyWarehouseSendScanCodeType() {
+        List<JyCollectScanCodeTypeEnum> list = new ArrayList<>();
+        list.add(JyCollectScanCodeTypeEnum.PACKAGE);
+        list.add(JyCollectScanCodeTypeEnum.WAYBILL);
+        list.add(JyCollectScanCodeTypeEnum.BOX);
         return list;
     }
 

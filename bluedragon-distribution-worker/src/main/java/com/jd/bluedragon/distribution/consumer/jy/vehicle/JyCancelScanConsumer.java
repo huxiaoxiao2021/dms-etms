@@ -7,7 +7,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
-import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
@@ -212,7 +212,7 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
         List<Message> messageList = new ArrayList<>();
         for(JyCollectRecordStatistics statistics : jyCollectRecordPoList) {
             mqDto.setBarCode(statistics.getAggCode());
-            mqDto.setBarCodeType(JyScanCodeTypeEnum.WAYBILL.getCode());
+            mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.WAYBILL.getCode());
             String businessId = String.format("%s:%s:%s:%s", statistics.getAggCode(), mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
             String msg = JsonHelper.toJson(mqDto);
             if(log.isInfoEnabled()) {

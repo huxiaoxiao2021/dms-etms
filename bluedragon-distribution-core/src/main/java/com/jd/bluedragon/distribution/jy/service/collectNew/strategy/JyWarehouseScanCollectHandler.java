@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
-import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
@@ -35,11 +35,11 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
             return true;
         }
 
-        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
+        if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return super.scanWaybillCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
             return super.scanPackageCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.BOX.getCode().equals(collectDto.getCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.BOX.getCode().equals(collectDto.getCodeType())) {
             return super.scanBoxCollectDeal(collectDto);
         } else {
             log.warn("{}目前仅支持处理按包裹、运单、箱号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));

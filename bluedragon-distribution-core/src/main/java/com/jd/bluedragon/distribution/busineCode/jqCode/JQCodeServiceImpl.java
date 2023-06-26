@@ -61,7 +61,6 @@ public class JQCodeServiceImpl implements JQCodeService {
 //    public static final String CONDITION_JY_BIZ_ID = "TASK:";//任务主键
     public static final String CONDITION_JY_BATCH = "BATCH:";//批次号
     public static final String CONDITION_JY_POST = "POST:";//岗位枚举
-    public static final String CONDITION_DATE_PARTITION = "DATE";//时间分区
     /**
      * 组装collectionCode附属属性attribute的字段
      */
@@ -91,7 +90,16 @@ public class JQCodeServiceImpl implements JQCodeService {
     @Autowired
     private JimDbLock jimDbLock;
 
+    /**
+     * 创建collectionCode时，如果遇到锁，直接返回改collectionCode使用，认为有效，实际锁内会异常，该collectionCode可能是无效
+     * @param collectionConditionKeyMap 待集齐集合的必要条件，也是待集齐集合属性collection_condition
+     * @param collectionBusinessTypeEnum 待集齐集合的业务类型
+     * @param fromSource 创建来源
+     * @param createUser 创建人
+     * @return
+     */
     @Override
+    @Deprecated
     @JProfiler(jKey = "DMS.CORE.JQCodeService.createJQCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
         JProEnum.TP,JProEnum.FunctionError})
     public String createJQCode(Map<CollectionConditionKeyEnum, Object> collectionConditionKeyMap,

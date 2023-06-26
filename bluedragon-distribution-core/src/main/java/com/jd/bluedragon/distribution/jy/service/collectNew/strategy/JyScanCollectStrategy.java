@@ -14,7 +14,7 @@ import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
 import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectCacheService;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
-import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
@@ -84,13 +84,13 @@ public class JyScanCollectStrategy {
         if(!this.scanFilterInvalid(collectDto)) {
             return true;
         }
-        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
+        if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return this.scanWaybillCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
             return this.scanPackageCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.BOX.getCode().equals(collectDto.getCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.BOX.getCode().equals(collectDto.getCodeType())) {
             return this.scanBoxCollectDeal(collectDto);
-        } else if (JyScanCodeTypeEnum.BOARD.getCode().equals(collectDto.getCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.BOARD.getCode().equals(collectDto.getCodeType())) {
             return this.scanBoardCollectDeal(collectDto);
         }else {
             log.warn("{}目前仅支持处理按包裹、运单、箱号、板号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));
@@ -189,7 +189,7 @@ public class JyScanCollectStrategy {
             mqDto.setPackageCode(deliveryPackageD.getPackageBarcode());
             mqDto.setWaybillCode(waybillCode);
             mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_MQ_WAYBILL_SPLIT.getCode());
-            mqDto.setCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
+            mqDto.setCodeType(JyCollectScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
 
             //运单号+操作任务+岗位类型+触发节点
             String businessId = this.getScanBusinessId(collectDto);
@@ -248,7 +248,7 @@ public class JyScanCollectStrategy {
             mqDto.setPackageCode(sorting.getPackageCode());
             mqDto.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getPackageCode()));
             mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_MQ_BOX_SPLIT.getCode());
-            mqDto.setCodeType(JyScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
+            mqDto.setCodeType(JyCollectScanCodeTypeEnum.PACKAGE.getCode());//实操扫描非包裹维度，拆分后类型改为包裹维度
 
             //运单号+操作任务+岗位类型+触发节点
             String businessId = this.getScanBusinessId(collectDto);
@@ -337,9 +337,9 @@ public class JyScanCollectStrategy {
         if(!this.cancelScanFilterInvalid(cancelScanCollectMqDto)) {
             return true;
         }
-        if (JyScanCodeTypeEnum.WAYBILL.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
+        if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
             return this.cancelScanWaybillCollectDeal(cancelScanCollectMqDto);
-        } else if (JyScanCodeTypeEnum.PACKAGE.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
+        } else if (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(cancelScanCollectMqDto.getBarCodeType())) {
             return this.cancelScanPackageCollectDeal(cancelScanCollectMqDto);
         } else {
             log.warn("{}目前仅支持按包裹、运单取消发货处理集齐数据，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(cancelScanCollectMqDto));

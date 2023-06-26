@@ -81,7 +81,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
-import com.jd.bluedragon.distribution.jy.constants.JyScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
@@ -4016,13 +4016,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     public String getBarCodeType(String scanCode){
         if (WaybillUtil.isWaybillCode(scanCode)) {
-            return JyScanCodeTypeEnum.WAYBILL.getCode();
+            return JyCollectScanCodeTypeEnum.WAYBILL.getCode();
         } else if (BusinessUtil.isBoardCode(scanCode)) {
-            return JyScanCodeTypeEnum.BOARD.getCode();
+            return JyCollectScanCodeTypeEnum.BOARD.getCode();
         } else if (WaybillUtil.isPackageCode(scanCode)) {
-            return JyScanCodeTypeEnum.PACKAGE.getCode();
+            return JyCollectScanCodeTypeEnum.PACKAGE.getCode();
         } else if (BusinessHelper.isBoxcode(scanCode)) {
-            return JyScanCodeTypeEnum.BOX.getCode();
+            return JyCollectScanCodeTypeEnum.BOX.getCode();
         }
         return Strings.EMPTY;
     }
