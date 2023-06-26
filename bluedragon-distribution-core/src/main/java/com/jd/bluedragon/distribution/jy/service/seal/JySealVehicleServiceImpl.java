@@ -940,6 +940,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
 
         double loadRateLimit = ucc.getBeforeSealVehicleLoadRateLimit();
+        if(log.isInfoEnabled()){
+            log.info("ucc loadRateLimit 配置-{}",loadRateLimit);
+        }
         if(loadRateLimit <= 0.00){
             log.warn("封车前装载率限制配置未开启---");
             result.error("封车前装载率限制配置未开启!");
@@ -976,6 +979,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         }
         //实际装载率
+        log.info("实际已扫包裹数:totalScannedCount-{} 配置容量:vehicleVolume-{}",totalScannedCount,vehicleVolume);
         BigDecimal realLoadRate = dealLoadRate(totalScannedCount, vehicleVolume);
         log.info("实际装载率-{}",realLoadRate);
         //限制装载率
