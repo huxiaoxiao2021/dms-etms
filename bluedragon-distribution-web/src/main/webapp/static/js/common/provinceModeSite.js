@@ -34,6 +34,8 @@
         siteTypes : [64], //默认只查询分拣中心
         onlySiteSelect : false, //只显示场地检索条件
         onlySiteAndProvinceSelect : false, //只显示站点和省区条件
+        changeBtnShow : true, //切换按钮是否显示
+        provinceOrOrgMode : 'org', // 默认显示org模式，province 时显示省区模式
         callback : null
     };
     var methods = {
@@ -66,7 +68,8 @@
             this._bindEvent();
             //只读效果设置
             this._selectReadOnly();
-            //隐藏效果设置
+            //默认显示模式
+            this._defaultMode();
         },
         _initHtml : function(){
             //拉取原来内容
@@ -109,7 +112,20 @@
             //tmp.push('</table>');
 
             this._targetDom.html(tmp.join(''));
-            this._hideProvince();
+
+        },
+        _defaultMode : function (){
+            //显示模式设置
+            if(this._options.provinceOrOrgMode == 'org'){
+                this._hideProvince();
+            }else{
+                this._changeSiteSwitchModeClick();
+            }
+            
+            //按钮显示隐藏
+            if(!this._options.changeBtnShow){
+                this._targetDom.find('switchMode').hide();
+            }
         },
         _initParams : function () {
             //补充省区和枢纽数据，以传入站点查询到的数据为准
