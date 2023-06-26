@@ -2954,6 +2954,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
                 taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
+        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+            throw new JyBizException("未获取到发货任务信息");
+        }
         List<String> taskBizIds = new ArrayList<>();
         sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
         HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
