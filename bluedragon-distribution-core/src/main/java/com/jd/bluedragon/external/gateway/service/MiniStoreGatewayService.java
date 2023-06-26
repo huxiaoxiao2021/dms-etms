@@ -14,7 +14,7 @@ public interface MiniStoreGatewayService {
     JdCResponse validateDeviceStatus(DeviceStatusValidateReq request);
 
     /**
-     * 微仓相关设备（保温箱、冰板、箱子）进行绑定
+     * 微仓相关设备（保温箱、箱子）进行绑定
      * @param request
      * @return
      */
@@ -33,7 +33,7 @@ public interface MiniStoreGatewayService {
     JdCResponse<Integer> querySortCount(String boxCode);
 
     /**
-     * 校验三码(微仓码 冰板码 集包码)的原绑定关系是否正确/是否存在绑定关系（解封箱或者集包时校验）
+     * 校验二码(微仓码 集包码)的原绑定关系是否正确/是否存在绑定关系（解封箱或者集包时校验）
      * @param unBoxValidateReq
      * @return
      */
@@ -61,7 +61,7 @@ public interface MiniStoreGatewayService {
     JdCResponse<PageObject<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq);
 
     /**
-     * 解绑定微仓设备：解除三码（微仓码 冰板码 集包码）的绑定关系
+     * 解绑定微仓设备：解除二码（微仓码 集包码）的绑定关系
      * @param unBindReq
      * @return
      */
