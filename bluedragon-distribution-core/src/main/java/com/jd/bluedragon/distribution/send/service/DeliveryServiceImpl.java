@@ -1935,6 +1935,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setReceiveSiteName(receiveSiteName);
         sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
         sortDomain.setOperatorId(domain.getOperatorId());
+        sortDomain.setBizSource(domain.getBizSource());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -3959,8 +3960,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是转运装车扫描，不再发送全程跟踪
+                                if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+                                    if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                        waybillStatusList.add(tWaybillStatus);
+                                        sendTypeList.add(tSendDetail.getSendType());
+                                    }
+                                } else {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
 
                                 //发送发货明细mq
                                 Message sendMessage = parseSendDetailToMessage(tSendDetail, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
@@ -3974,8 +3983,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是是转运装车扫描，不再发送全程跟踪
+                                if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+                                    if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                        waybillStatusList.add(tWaybillStatus);
+                                        sendTypeList.add(tSendDetail.getSendType());
+                                    }
+                                } else {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
                             }
                         }
                     }
