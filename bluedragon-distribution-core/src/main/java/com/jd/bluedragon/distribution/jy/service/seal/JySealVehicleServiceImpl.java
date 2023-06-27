@@ -918,12 +918,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkLoadRateBeforeSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq) {
-
         if(log.isInfoEnabled()){
             log.info("checkLoadRateBeforeSealVehicle 封车前校验装载率入参-{}",JsonHelper.toJson(sealVehicleReq));
         }
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(Boolean.FALSE);
+        if(!ucc.isBeforeSealVehicleLoadRateLimitCheckSwitch()){
+            result.error("封车前校验装载率开关关闭!");
+            return result;
+        }
         if(!checkLoadRateBeforeSealVehicleParam(result,sealVehicleReq)){
             return result;
         }

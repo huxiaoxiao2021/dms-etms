@@ -1339,6 +1339,8 @@ public class UccPropertyConfiguration {
      * 封车前装载率限制
      */
     private double beforeSealVehicleLoadRateLimit;
+
+    private boolean beforeSealVehicleLoadRateLimitCheckSwitch;
     
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
@@ -3417,5 +3419,13 @@ public class UccPropertyConfiguration {
 
     public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
         this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+    }
+
+    public boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+        return beforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+        this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
     }
 }
