@@ -173,8 +173,8 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
                     log.warn("{}未查到包裹的发货数据，不做处理，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
                     return true;
                 }
-                log.error("{}取消发货失败，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
-                return false;
+                //todo 此处失败不做重试，后续改造同步，把异常给PDA,理论上取消就需要成功
+                log.error("{}取消发货失败,该失败未做重试，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
             }
             return true;
     }

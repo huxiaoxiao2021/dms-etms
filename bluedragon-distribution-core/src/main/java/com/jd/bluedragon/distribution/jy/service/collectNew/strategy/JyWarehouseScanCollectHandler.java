@@ -1,16 +1,22 @@
 package com.jd.bluedragon.distribution.jy.service.collectNew.strategy;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyCancelScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collectNew.factory.JyScanCollectStrategyFactory;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  *
@@ -21,6 +27,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy implements InitializingBean {
     private Logger log = LoggerFactory.getLogger(JyWarehouseScanCollectHandler.class);
+
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+    @Autowired
+    private JyScanCollectService jyScanCollectService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -68,5 +80,24 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
     @Override
     public boolean cancelScanCollectDeal(JyCancelScanCollectMqDto jyCancelScanCollectMqDto){
         return super.cancelScanCollectDeal(jyCancelScanCollectMqDto);
+    }
+
+
+    @Override
+    public void mustFieldFill(JyScanCollectMqDto collectDto) {
+        //扫描类型getBarCodeType是运单，或者扫描任何维度最终类型getCodeType转为包裹维度（扫包、扫单拆包、扫箱拆包）  补齐运单属性
+        if( (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())
+                || JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getBarCodeType()))
+            &&
+                (StringUtils.isBlank(collectDto.getToBWaybill())) || Objects.isNull(collectDto.getWaybillGoodNumber()))
+        {
+            //按包裹扫描需要补充
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(collectDto.getWaybillCode());
+            String wbs = Objects.isNull(waybill) ? "" : waybill.getWaybillSign();
+            Integer goodNumber = (Objects.isNull(waybill) || Objects.isNull(waybill.getGoodNumber())) ? 0 : waybill.getGoodNumber();
+
+            collectDto.setToBWaybill(jyScanCollectService.toBNetFlag(collectDto.getWaybillCode(), wbs));
+            collectDto.setWaybillGoodNumber(goodNumber);
+        }
     }
 }
