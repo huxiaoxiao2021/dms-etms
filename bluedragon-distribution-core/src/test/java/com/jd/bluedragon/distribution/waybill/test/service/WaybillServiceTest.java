@@ -102,6 +102,6 @@ public class WaybillServiceTest {
         baseEntity.setData(list);
         waybillVasDto.setVasNo(Constants.TE_AN_SONG_SERVICE);
         when(waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode)).thenReturn(baseEntity);
-        //Assert.assertTrue(waybillService.isSpecialRequirementTeAnSongService(waybillCode, waybillSign));
+        Assert.assertTrue(waybillService.isSpecialRequirementTeAnSongService(waybillCode, waybillSign));
     }
 }

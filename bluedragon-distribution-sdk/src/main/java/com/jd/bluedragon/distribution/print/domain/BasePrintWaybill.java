@@ -501,8 +501,6 @@ public class BasePrintWaybill implements Serializable {
 	 * 始发滑道号类型 (临时变量)
 	 */
 	private Integer tempOriginalCrossType;
-
-	private Boolean matchTeAnSong;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1774,13 +1772,5 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setTempOriginalCrossType(Integer tempOriginalCrossType) {
 		this.tempOriginalCrossType = tempOriginalCrossType;
-	}
-
-	public Boolean getMatchTeAnSong() {
-		return matchTeAnSong;
-	}
-
-	public void setMatchTeAnSong(Boolean matchTeAnSong) {
-		this.matchTeAnSong = matchTeAnSong;
 	}
 }

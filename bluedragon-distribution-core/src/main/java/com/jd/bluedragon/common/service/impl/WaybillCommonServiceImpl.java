@@ -771,11 +771,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	}
 		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
 		waybillPrintService.dealSignTexts(waybill.getSendPay(), target, Constants.DIC_NAME_SEND_PAY_CONFIG);
-        //获取运单的产品编码列表
-        List<WaybillVasDto> waybillVasList = new ArrayList<>();
-        if(StringUtils.isNotBlank(waybill.getWaybillCode())){
-            waybillVasList = getWaybillVasList(waybill.getWaybillCode());
-        }
 
         // 设置打印模板分组编码
         setPrintTemplateGroup(waybill, target);
@@ -1036,6 +1031,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
         }
+        /*** 产品类型为ed-m-0059时:医药专送 */
+        if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
+        }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
             if(StringHelper.isNotEmpty(transportMode)){
@@ -1044,11 +1043,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             	target.setTransportMode(TextConstants.PRODUCT_FLAG_DOUYIN);
             }
         }
-        //是否匹配产品类型-电商特惠
-        boolean matchDSTH = BusinessHelper.matchWaybillVasDto(Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE, waybillVasList);
-        if(matchDSTH){
-            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
-        }
+
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
@@ -1183,11 +1178,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //根据sendpay第293位=1，在面单上打印海运标记“H”
         if(BusinessUtil.isSignChar(waybill.getSendPay(), SendPayConstants.POSITION_293, SendPayConstants.CHAR_293_1)){
         	target.appendSpecialMark(TextConstants.TRANSPORT_SEA_FLAG);
-        }
-        //增值服务中某个对象的vosNo=fr-a-0010
-
-        if(BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SONG_SERVICE, waybillVasList)){
-            target.setMatchTeAnSong(true);
         }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
@@ -1982,7 +1972,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
             }
             //特安送
-            if (waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode()) && isSpecialRequirementTeAnSongService(waybillSign,printWaybill.getMatchTeAnSong())) {
+            if (waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode()) && waybillService.isSpecialRequirementTeAnSongService(waybill.getWaybillCode(), waybillSign)) {
                 specialRequirement = specialRequirement + SPECIAL_REQUIREMENT_TE_AN_SONG + ",";
             }
         }
@@ -1991,17 +1981,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
     }
 
-    /*
-     * 是否是特安送服务的运单
-     * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
-     * */
-    boolean isSpecialRequirementTeAnSongService(String waybillSign,Boolean matchTeAnSong){
-        //33位不为2直接跳过
-        if (! BusinessUtil.isSignChar(waybillSign, 33, '2')) {
-            return false;
-        }
-        return  matchTeAnSong;
-    }
     /**
      * 修改取件单换单后新单的包裹数
      * @param newWaybillCode 新单号
