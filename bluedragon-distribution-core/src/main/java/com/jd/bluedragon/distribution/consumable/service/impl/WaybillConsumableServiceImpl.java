@@ -71,8 +71,12 @@ public class WaybillConsumableServiceImpl implements WaybillConsumableService {
             result.setCode(response.getCode());
             result.setMessage(response.getMessage());
             result.setData(response.getData());
+        } catch (RuntimeException e) {
+            LOGGER.warn("doWaybillConsumablePackConfirm|德邦包装耗材确认出现自定义异常:request={},errorMsg={}", JsonHelper.toJson(request), e.getMessage());
+            result.parameterError(e.getMessage());
+            return result;
         } catch (Exception e) {
-            LOGGER.error("doWaybillConsumablePackConfirm|包装耗材确认出现异常:request={}", JsonHelper.toJson(request), e);
+            LOGGER.error("doWaybillConsumablePackConfirm|德邦包装耗材确认出现异常:request={}", JsonHelper.toJson(request), e);
             result.error();
         }
         return result;
