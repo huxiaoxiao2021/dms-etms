@@ -31,8 +31,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.SEND_CAR_POSITION;
-import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.WAREHOUSE_SEND_POSITION;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.*;
 
 /**
  * @author liwenji
@@ -92,7 +91,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
             entity.setStartSiteName(request.getCurrentOperate().getSiteName());
             entity.setTabletrolleyCode(tableTrolleyDto.getTableTrolleyCode());
-            entity.setFuncType(SEND_CAR_POSITION.getCode());
+            entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
             list.add(entity);
         }
         return list;
@@ -109,7 +108,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         List<CTTGroupDto> cttGroupDtos;
         JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        entity.setFuncType(SEND_CAR_POSITION.getCode());
+        entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
@@ -151,7 +150,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             query.setGroupCode(request.getGroupCode());
             query.setTemplateCode(request.getTemplateCode());
             query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
-            query.setFuncType(SEND_CAR_POSITION.getCode());
+            query.setFuncType(COMBOARD_SEND_POSITION.getCode());
             JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByFlowAndTemplateCode(query);
             if (entity == null) {
                 log.error("未查询到该流向：{}", JsonHelper.toJson(query));

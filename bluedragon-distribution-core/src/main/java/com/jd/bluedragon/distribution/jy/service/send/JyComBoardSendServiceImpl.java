@@ -119,7 +119,7 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.SEND_CAR_POSITION;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.*;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
 @Service
@@ -491,7 +491,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setGroupCode(request.getGroupCode());
       query.setTemplateCode(request.getTemplateCode());
       query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
-      query.setFuncType(SEND_CAR_POSITION.getCode());
+      query.setFuncType(COMBOARD_SEND_POSITION.getCode());
       JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailService.selectOneByFlowAndTemplateCode(query);
       if (entity != null) {
         log.error("已经存在流向，无法新增：{}", JsonHelper.toJson(entity));

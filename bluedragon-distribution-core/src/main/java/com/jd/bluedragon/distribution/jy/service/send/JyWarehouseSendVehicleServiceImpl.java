@@ -1502,13 +1502,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
             condition.setTemplateCode(request.getTemplateCode());
             condition.setGroupCode(request.getGroupCode());
-            // 更新车辆状态
             List<JyGroupSortCrossDetailEntity> entities = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
             List<String> detailBizIds = new ArrayList<>();
             for (JyGroupSortCrossDetailEntity entity : entities) {
                 detailBizIds.add(entity.getSendVehicleDetailBizId());
             }
-            
+
+            // 更新车辆状态
             if (!updateStatusByDetailBizIds(request, detailBizIds)) {
                 throw new JyBizException("完成混扫任务失败!");
             }
