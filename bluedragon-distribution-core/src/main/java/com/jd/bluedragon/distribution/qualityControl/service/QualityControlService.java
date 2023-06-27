@@ -247,7 +247,7 @@ public class QualityControlService {
                 return result;
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
-            final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(request.getQcValue());
+            final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(request.getQcValue()));
             String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG, HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE);
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
