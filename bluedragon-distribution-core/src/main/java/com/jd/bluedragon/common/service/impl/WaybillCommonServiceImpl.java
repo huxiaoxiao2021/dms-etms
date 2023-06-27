@@ -1044,7 +1044,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             	target.setTransportMode(TextConstants.PRODUCT_FLAG_DOUYIN);
             }
         }
-
+        log.info("setTransportMode -{}",target.getTransportMode());
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
