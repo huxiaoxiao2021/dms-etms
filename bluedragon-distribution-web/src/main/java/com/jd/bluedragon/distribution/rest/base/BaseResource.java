@@ -358,20 +358,6 @@ public class BaseResource {
 	}
 
 	/**
-	 * 下线电脑版PDA
-	 * @param siteCode 场地
-	 * @return
-	 */
-	private FuncUsageProcessDto offlinePDAOfPC(Integer siteCode){
-		//菜单权限验证，按场地限制
-		FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
-		funcUsageConfigRequestDto.setFuncCode("pda_pc");
-		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
-		operateUser.setSiteCode(siteCode);
-		funcUsageConfigRequestDto.setOperateUser(operateUser);
-		return baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
-	}
-	/**
 	 * 设备信息上传
 	 */
 	@POST
