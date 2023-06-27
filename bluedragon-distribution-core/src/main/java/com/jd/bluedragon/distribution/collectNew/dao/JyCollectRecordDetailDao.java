@@ -78,7 +78,7 @@ public class JyCollectRecordDetailDao extends BaseDao<JyCollectRecordDetailPo> {
         if(Objects.isNull(condition.getSiteId())) {
             return null;
         }
-        return super.getSqlSession().selectList(NAMESPACE.concat(".findPageByCondition"), condition);
+        return this.findPageByCondition(condition);
     }
 
     public List<JyCollectRecordDetailPo> findPageByCondition(JyCollectRecordDetailCondition condition) {

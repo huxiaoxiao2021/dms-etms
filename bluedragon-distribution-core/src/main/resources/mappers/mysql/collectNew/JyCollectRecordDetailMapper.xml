@@ -90,11 +90,14 @@
     </trim>
   </insert>
 
+  <!-- 删除给操作时间，避免删除操作时间之后的数据 -->
   <update id="deleteByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
     update jy_collect_record_detail
     set yn = 0
     where   yn = 1
     and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    and  operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
     <if test="collectionCode != null" >
       and collection_code = #{collectionCode,jdbcType=VARCHAR}
     </if>
@@ -106,12 +109,6 @@
     </if>
     <if test="scanCode != null" >
       and scan_code = #{scanCode,jdbcType=VARCHAR}
-    </if>
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
-    </if>
-    <if test="endOperateTime != null" >
-      and  operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
     </if>
     <if test="startOperateTime != null" >
       and  operate_time &gt;=  #{startOperateTime,jdbcType=TIMESTAMP}
@@ -150,29 +147,6 @@
   </select>
 
 
-<!--  &lt;!&ndash; 查询拣运任务扫描记录 &ndash;&gt;
-  <select id="findPageByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from jy_collect_record_detail
-    where yn = 1
-    and site_id = #{siteId}
-    <if test="collectionCodeList != null and collectionCodeList.size() > 0" >
-      and collection_code in
-      <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
-        #{item}
-      </foreach>
-    </if>
-    <if test="collectionCode != null" >
-      and collection_code = #{collectionCode, jdbcType=VARCHAR}
-    </if>
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
-    </if>
-    limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
-
-  </select>-->
-
 
   <select id="findPageByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" resultMap="BaseResultMap">
     SELECT
@@ -181,6 +155,7 @@
     jy_collect_record_detail
     where    yn = 1
     and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
     <if test="collectionCode != null" >
       and collection_code = #{collectionCode, jdbcType=VARCHAR}
     </if>
@@ -192,9 +167,6 @@
     </if>
     <if test="scanCode != null" >
       and scan_code = #{scanCode, jdbcType=VARCHAR}
-    </if>
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
     </if>
     <if test="endOperateTime != null" >
       and  operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
