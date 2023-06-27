@@ -154,18 +154,6 @@ public class CrossBoxController {
 			queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
 			queryInfo.put("yn",crossBoxRequest.getYn());
 
-			queryInfo.put("originateProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getOriginateProvinceAgencyCode(),"UTF-8"));
-			queryInfo.put("originateProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getOriginateProvinceAgencyName(),"UTF-8"));
-			queryInfo.put("originateAreaHubCode",URLDecoder.decode(crossBoxRequest.getOriginateAreaHubCode(),"UTF-8"));
-			queryInfo.put("originateAreaHubName",URLDecoder.decode(crossBoxRequest.getOriginateAreaHubName(),"UTF-8"));
-			queryInfo.put("transferProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getTransferProvinceAgencyCode(),"UTF-8"));
-			queryInfo.put("transferProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getTransferProvinceAgencyName(),"UTF-8"));
-			queryInfo.put("transferAreaHubCode",URLDecoder.decode(crossBoxRequest.getTransferAreaHubCode(),"UTF-8"));
-			queryInfo.put("transferAreaHubName",URLDecoder.decode(crossBoxRequest.getTransferAreaHubName(),"UTF-8"));
-			queryInfo.put("destinationProvinceAgencyCode",URLDecoder.decode(crossBoxRequest.getDestinationProvinceAgencyCode(),"UTF-8"));
-			queryInfo.put("destinationProvinceAgencyName",URLDecoder.decode(crossBoxRequest.getDestinationProvinceAgencyName(),"UTF-8"));
-			queryInfo.put("destinationAreaHubCode",URLDecoder.decode(crossBoxRequest.getDestinationAreaHubCode(),"UTF-8"));
-			queryInfo.put("destinationAreaHubName",URLDecoder.decode(crossBoxRequest.getDestinationAreaHubName(),"UTF-8"));
 		}catch(UnsupportedEncodingException e){
 			log.error("对查询条件中的汉字解码失败：",e);
 		}
