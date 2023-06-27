@@ -119,21 +119,18 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
             recordPo.setSiteId(collectRecordPo.getSiteId());
             JyCollectRecordPo jyCollectRecord = jyCollectRecordDao.findJyCollectRecordByAggCode(recordPo);
 
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(collectRecordPo.getAggCode());
-            String wbs = Objects.isNull(waybill) ? "" : waybill.getWaybillSign();
-            Integer goodNumber = (Objects.isNull(waybill) || Objects.isNull(waybill.getGoodNumber())) ? 0 : waybill.getGoodNumber();
-            recordPo.setShouldCollectNum(goodNumber);
 
             if(Objects.isNull(jyCollectRecord)) {
                 if(!insertFlag) {
                     return;
                 }
+                recordPo.setShouldCollectNum(collectRecordPo.getShouldCollectNum());
                 recordPo.setAggCodeType(CollectionScanCodeTypeEnum.waybill_code.name());
                 recordPo.setCreateTime(new Date());
                 recordPo.setUpdateTime(recordPo.getCreateTime());
-                recordPo.setCustomType(toBNetFlag(collectRecordPo.getAggCode(), wbs));
+                recordPo.setCustomType(collectRecordPo.getCustomType());
                 recordPo.setRealCollectNum(1);
-                recordPo.setIsCollected(goodNumber > 1 ? JyScanCollectServiceImpl.BU_QI : JyScanCollectServiceImpl.JI_QI);
+                recordPo.setIsCollected(collectRecordPo.getShouldCollectNum() > 1 ? JyScanCollectServiceImpl.BU_QI : JyScanCollectServiceImpl.JI_QI);
                 jyCollectRecordDao.insertSelective(recordPo);
             } else {
                 JyCollectRecordPo updateRecordPo = new JyCollectRecordPo();
@@ -141,11 +138,14 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
                 updateRecordPo.setCollectionCode(jyCollectRecord.getCollectionCode());
                 updateRecordPo.setAggCode(jyCollectRecord.getAggCode());
                 updateRecordPo.setUpdateTime(new Date());
-                updateRecordPo.setCustomType(toBNetFlag(collectRecordPo.getAggCode(), wbs));
-                updateRecordPo.setShouldCollectNum(goodNumber);
                 int collectNum = this.countScanCodeNumNumByCollectedMarkAndAggCode(collectRecordPo);
                 updateRecordPo.setRealCollectNum(collectNum);
-                updateRecordPo.setIsCollected( (goodNumber > 0 && collectNum >= goodNumber) ? JyScanCollectServiceImpl.JI_QI : JyScanCollectServiceImpl.BU_QI);
+                updateRecordPo.setIsCollected( (jyCollectRecord.getShouldCollectNum() > 0 && collectNum >= jyCollectRecord.getShouldCollectNum()) ? JyScanCollectServiceImpl.JI_QI : JyScanCollectServiceImpl.BU_QI);
+                if(insertFlag) {
+                    //扫描关注更新字段，取消扫描不需要关注
+                    updateRecordPo.setShouldCollectNum(collectRecordPo.getShouldCollectNum());
+                    updateRecordPo.setCustomType(collectRecordPo.getCustomType());
+                }
 
                 jyCollectRecordDao.updateByCondition(updateRecordPo);
             }
@@ -162,7 +162,8 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @param waybillSign
      * @return
      */
-    String toBNetFlag(String waybillCode, String waybillSign) {
+    @Override
+    public String toBNetFlag(String waybillCode, String waybillSign) {
         if(StringUtils.isNotBlank(waybillSign) && BusinessUtil.isB2b(waybillSign)) {
             return WaybillCustomTypeEnum.TO_B.getCode();
         }
