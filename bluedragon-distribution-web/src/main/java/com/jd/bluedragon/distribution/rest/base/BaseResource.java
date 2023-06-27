@@ -334,10 +334,10 @@ public class BaseResource {
 			if(StringUtils.isNotBlank(request.getClientInfo()) ){
 				ClientInfo clientInfo = com.jd.bluedragon.distribution.api.utils.JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
 
-				if(Objects.equals(ProgramTypeEnum.PDA_WF_10.getCode(),clientInfo.getProgramType())
-						|| Objects.equals(ProgramTypeEnum.PDA_WF_20.getCode(),clientInfo.getProgramType())
-						|| Objects.equals(ProgramTypeEnum.PDA_WF_30.getCode(),clientInfo.getProgramType())
-						|| Objects.equals(ProgramTypeEnum.PDA_PC.getCode(),clientInfo.getProgramType())){
+				if(ProgramTypeEnum.PDA_WF_10.getCode().equals(clientInfo.getProgramType())
+						|| ProgramTypeEnum.PDA_WF_20.getCode().equals(clientInfo.getProgramType())
+						|| ProgramTypeEnum.PDA_WF_30.getCode().equals(clientInfo.getProgramType())
+						|| ProgramTypeEnum.PDA_PC.getCode().equals(clientInfo.getProgramType())){
 
 					FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
 					funcUsageConfigRequestDto.setFuncCode("win_pda_offline");
@@ -345,7 +345,7 @@ public class BaseResource {
 					operateUser.setSiteCode(response.getSiteCode());
 					funcUsageConfigRequestDto.setOperateUser(operateUser);
 					FuncUsageProcessDto processDto =  baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
-					if(processDto != null && Objects.equals(Constants.YN_NO,processDto.getCanUse())){
+					if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
 						response.setCode(JdResponse.CODE_WRONG_STATUS);
 						response.setMessage(processDto.getMsg());
 						return response;
