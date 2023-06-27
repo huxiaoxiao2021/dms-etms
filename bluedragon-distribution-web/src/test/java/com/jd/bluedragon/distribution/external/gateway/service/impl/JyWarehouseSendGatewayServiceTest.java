@@ -442,13 +442,13 @@ public class JyWarehouseSendGatewayServiceTest {
                 "        \"vehicleNumber\": \"\"\n" +
                 "    }" ;
 
-        String pdaJson = "    {\n" +
-                "        \"barCode\": \"JD0003420599479-8-20-\",\n" +
+        String pdaJson = "      {\n" +
+                "        \"barCode\": \"BC1001230627240000600118\",\n" +
                 "        \"barCodeType\": 0,\n" +
                 "        \"currentOperate\": {\n" +
-                "            \"dmsCode\": \"010K001\",\n" +
-                "            \"operateTime\": 1687172775273,\n" +
-                "            \"operatorId\": \"51543\",\n" +
+                "            \"dmsCode\": \"BJ00001\",\n" +
+                "            \"operateTime\": 1687867879228,\n" +
+                "            \"operatorId\": \"52255\",\n" +
                 "            \"operatorTypeCode\": 1,\n" +
                 "            \"orgId\": 6,\n" +
                 "            \"orgName\": \"华北\",\n" +
@@ -456,18 +456,18 @@ public class JyWarehouseSendGatewayServiceTest {
                 "            \"siteName\": \"北京马驹桥接货仓\"\n" +
                 "        },\n" +
                 "        \"groupCode\": \"G00000099001\",\n" +
-                "        \"lastBarCode\": \"JD0003420599479-3-20-\",\n" +
-                "        \"lastDetailBizId\": \"TW23061900961556-001\",\n" +
-                "        \"lastNextSiteCode\": \"910\",\n" +
                 "        \"machineCode\": \"mjq-lmj-001\",\n" +
-                "        \"mixScanTaskCode\": \"CTT23061900000010\",\n" +
+                "        \"mixScanTaskCode\": \"CTT23062700000020\",\n" +
                 "        \"operateType\": 101,\n" +
                 "        \"sendForWholeBoard\": false,\n" +
-                "        \"unfocusedFlowForceSend\": false,\n" +
+                "        \"sendVehicleBizId\": \"SST23062100000032\",\n" +
+                "        \"sendVehicleDetailBizId\": \"TW23062100962018-001\",\n" +
+                "        \"taskId\": \"230621300000051\",\n" +
+                "        \"unfocusedFlowForceSend\": true,\n" +
                 "        \"user\": {\n" +
-                "            \"userCode\": 18225,\n" +
-                "            \"userErp\": \"xumigen\",\n" +
-                "            \"userName\": \"徐迷根\"\n" +
+                "            \"userCode\": 17907,\n" +
+                "            \"userErp\": \"shipeilin\",\n" +
+                "            \"userName\": \"石培林\"\n" +
                 "        }\n" +
                 "    }";
         while(true) {
@@ -477,19 +477,19 @@ public class JyWarehouseSendGatewayServiceTest {
                 JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
                 System.out.println(JsonHelper.toJson(obj0));
 
-                paramDto.setBarCode("JD0003420599479-9-20-");
-                JdVerifyResponse<SendScanRes> obj1 = jyWarehouseSendGatewayService.sendScan(paramDto);
-                System.out.println(JsonHelper.toJson(obj0));
-
-
-                paramDto.setBarCode("JD0003420599479-10-20-");
-                JdVerifyResponse<SendScanRes> obj2 = jyWarehouseSendGatewayService.sendScan(paramDto);
-                System.out.println(JsonHelper.toJson(obj0));
-
-
-                paramDto.setBarCode("JD0003420599479-11-20-");
-                JdVerifyResponse<SendScanRes> obj3 = jyWarehouseSendGatewayService.sendScan(paramDto);
-                System.out.println(JsonHelper.toJson(obj0));
+//                paramDto.setBarCode("JD0003420599479-9-20-");
+//                JdVerifyResponse<SendScanRes> obj1 = jyWarehouseSendGatewayService.sendScan(paramDto);
+//                System.out.println(JsonHelper.toJson(obj0));
+//
+//
+//                paramDto.setBarCode("JD0003420599479-10-20-");
+//                JdVerifyResponse<SendScanRes> obj2 = jyWarehouseSendGatewayService.sendScan(paramDto);
+//                System.out.println(JsonHelper.toJson(obj0));
+//
+//
+//                paramDto.setBarCode("JD0003420599479-11-20-");
+//                JdVerifyResponse<SendScanRes> obj3 = jyWarehouseSendGatewayService.sendScan(paramDto);
+//                System.out.println(JsonHelper.toJson(obj0));
 //                List<String> packageCodeList = Arrays.asList("JD0003420509892-1-1-",
 //                        "JD0003420509903-1-1-",
 //                        "JD0003420509911-1-1-",

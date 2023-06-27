@@ -502,6 +502,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage.0", false, true);
 
+           Set<Integer> allQueryNextSiteCodeSet = new HashSet<>();
+
             vehiclePageList.forEach(entity -> {
                 SendVehicleDto dto = new SendVehicleDto();
                 dto.setSendVehicleBizId(entity.getBizId());
@@ -516,9 +518,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     dto.setVehicleNumber(this.getVehicleNumber(entity));
                 }
                 //获取明细
-                dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request));
+                dto.setSendVehicleDetailDtoList(this.getSendVehicleDetailDto(entity, request, allQueryNextSiteCodeSet));
                 sendVehicleDtoList.add(dto);
             });
+
+            this.fillFieldCrossTableTrolley(request, sendVehicleDtoList, allQueryNextSiteCodeSet);
 
             //最大流向配置
             resData.setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
@@ -541,8 +545,55 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return result;
     }
 
+    private void fillFieldCrossTableTrolley(AppendSendVehicleTaskQueryReq request, List<SendVehicleDto> sendVehicleDtoList, Set<Integer> allQueryNextSiteCodeSet) {
+
+        TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
+        tableTrolleyQuery.setDmsId(request.getCurrentOperate().getSiteCode());
+        List<Integer> allQueryNextSiteCodeList= allQueryNextSiteCodeSet.stream().collect(Collectors.toList());
+        tableTrolleyQuery.setSiteCodeList(allQueryNextSiteCodeList);
+        JdResult<TableTrolleyJsfResp> tableTrolleyRes = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlowList(tableTrolleyQuery);
+        if(Objects.isNull(tableTrolleyRes) || !tableTrolleyRes.isSucceed()) {
+            log.error("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，request={},滑道笼车查询参数={}，响应={}", JsonHelper.toJson(request), JsonHelper.toJson(tableTrolleyQuery), JsonHelper.toJson(tableTrolleyRes));
+            throw new JyBizException("滑道笼车信息获取失败");
+        }
+        if (Objects.isNull(tableTrolleyRes.getData()) || CollectionUtils.isEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
+            log.warn("fillWareHouseFocusField:滑道笼车查询成功，返回为空，request={},滑道笼车查询参数={}，响应={}", JsonHelper.toJson(request), JsonHelper.toJson(tableTrolleyQuery), JsonHelper.toJson(tableTrolleyRes));
+            return;
+        }
+
+        Map<Integer, TableTrolleyJsfDto> nextSiteTableTrolleyMap = new HashMap<>();
+        tableTrolleyRes.getData().getTableTrolleyDtoJsfList().forEach(tableTrolleyDto -> {
+            if(!Objects.isNull(tableTrolleyDto.getEndSiteId())) {
+                nextSiteTableTrolleyMap.put(tableTrolleyDto.getEndSiteId(), tableTrolleyDto);
+            }
+        });
+        //遍历发货任务下的明细任务，组装滑道笼车号
+        sendVehicleDtoList.forEach(sendVehicleEntityList -> {
+            if(CollectionUtils.isNotEmpty(sendVehicleEntityList.getSendVehicleDetailDtoList())) {
+                sendVehicleEntityList.getSendVehicleDetailDtoList().forEach(detailEntityDto -> {
+                    TableTrolleyJsfDto tableTrolleyJsfDto = nextSiteTableTrolleyMap.get(detailEntityDto.getEndSiteId().intValue());
+                    if(!Objects.isNull(tableTrolleyJsfDto)) {
+                        String crossCode = tableTrolleyJsfDto.getCrossCode();
+                        String tableTrolleyCode = tableTrolleyJsfDto.getTableTrolleyCode();
+                        detailEntityDto.setCrossCode(crossCode);
+                        detailEntityDto.setTableTrolleyCode(tableTrolleyCode);
+                        detailEntityDto.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
+                    }else {
+                        String crossTableTrolley = unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntityDto.getEndSiteId().intValue());
+                        if(log.isInfoEnabled()) {
+                            log.info("fillFieldCrossTableTrolley:滑道笼车查询为空或者查询失败，设置默认滑道笼车号={}，request={}", crossTableTrolley, JsonHelper.toJson(request));
+                        }
+                        detailEntityDto.setCrossTableTrolley(crossTableTrolley);
+                }
+                });
+            }
+        });
+    }
+
+
     private List<SendVehicleDetailDto> getSendVehicleDetailDto(JyBizTaskSendVehicleEntity entity,
-                                                               AppendSendVehicleTaskQueryReq request) {
+                                                               AppendSendVehicleTaskQueryReq request,
+                                                               Set<Integer> allQueryNextSiteCodeSet) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.getSendVehicleDetailDto", false, true);
 
         // 根据路由下一节点查询发货流向的任务
@@ -561,22 +612,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 dto.setEndSiteName(detailEntity.getEndSiteName());
                 dto.setItemStatus(detailEntity.getVehicleStatus());
                 dto.setItemStatusDesc(JyBizTaskSendStatusEnum.getNameByCode(detailEntity.getVehicleStatus()));
-                //获取滑道笼车号
-                //滑道笼车号
-                JdResult<TableTrolleyJsfResp> tableTrolleyRes = this.fetchCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
-                if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
-                    String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
-                    String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
-                    dto.setCrossCode(crossCode);
-                    dto.setTableTrolleyCode(tableTrolleyCode);
-                    dto.setCrossTableTrolley(String.format("%s-%s", crossCode, tableTrolleyCode));
-                }else {
-                    String crossTableTrolley = unknownCrossTableTrolley(request.getCurrentOperate().getSiteCode(), detailEntity.getEndSiteId().intValue());
-                    if(log.isInfoEnabled()) {
-                        log.info("getSendVehicleDetailDto:滑道笼车查询为空或者查询失败，设置默认滑道笼车号={}，request={}", crossTableTrolley, JsonHelper.toJson(request));
-                    }
-                    dto.setCrossTableTrolley(crossTableTrolley);
-                }
+                allQueryNextSiteCodeSet.add(detailEntity.getEndSiteId().intValue());
                 //是否已添加到混扫任务中
                 dto.setMixScanTaskProcess(this.isMixScanProcess(detailEntity, request));
                 res.add(dto);
@@ -676,6 +712,18 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             }
             if(StringUtils.isBlank(request.getTaskId())) {
                 request.setTaskId(super.getJyScheduleTaskId(request.getSendVehicleBizId()));
+            }
+
+            if(StringUtils.isBlank(request.getSendVehicleDetailBizId())) {
+                throw new JyBizException("强发任务为空");
+            }
+            //避免页面停留过久强发任务失效
+            JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+            if(Objects.isNull(entity) || Objects.isNull(entity.getEndSiteId())) {
+                throw new JyBizException("强发任务不存在");
+            }
+            if(Objects.isNull(request.getPreNextSiteCode())) {
+                request.setPreNextSiteCode(entity.getEndSiteId());
             }
         }else {
             //扫描单据关联派车任务查询

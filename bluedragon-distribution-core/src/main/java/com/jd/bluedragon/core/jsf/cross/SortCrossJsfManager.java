@@ -57,5 +57,9 @@ public interface SortCrossJsfManager {
      */
     JdResult<TableTrolleyJsfResp> querySiteFlowByCrossCodeTableTrolley(TableTrolleyQuery query);
 
+    /**
+     * 根据场地流向批量查询滑道笼车信息
+     */
+    JdResult<TableTrolleyJsfResp> queryCrossCodeTableTrolleyBySiteFlowList(TableTrolleyQuery query);
 
 }
