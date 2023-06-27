@@ -1034,6 +1034,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         log.info("waybillExt.getProductType() -{}",waybillExt.getProductType());
         /*** 产品类型为ed-m-0059时:医药专送 */
         if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            log.info("电商特惠----");
             target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
         }
         //添加抖音标识
