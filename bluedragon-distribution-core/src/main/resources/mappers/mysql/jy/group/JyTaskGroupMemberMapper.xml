@@ -125,7 +125,7 @@
                             end_time,
                             work_times,
                             org_code,
-                            province_agency_code,area_hub_code
+                            province_agency_code,area_hub_code,
                             site_code,
                             create_user,
                             create_user_name,
