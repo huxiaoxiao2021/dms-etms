@@ -627,9 +627,7 @@ public class JyWarehouseSendGatewayServiceTest {
 
             req.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
 
-            req.setCheckAllFlag(true);
             jyWarehouseSendGatewayService.buQiCancelSendScan(req);
-            req.setCheckAllFlag(false);
             List<String> packageCodeList = Arrays.asList("JD0003420509892-1-1-",
                     "JD0003420509903-1-1-",
                     "JD0003420509911-1-1-",

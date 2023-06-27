@@ -27,10 +27,6 @@ public class BuQiCancelSendScanReq extends BaseReq implements Serializable {
     private List<String> packList;
 
     /**
-     * 是否全选
-     */
-    private Boolean checkAllFlag;
-    /**
      * 运单号列表
      */
     private List<String> waybillCodeList;
@@ -58,14 +54,6 @@ public class BuQiCancelSendScanReq extends BaseReq implements Serializable {
 
     public void setPackList(List<String> packList) {
         this.packList = packList;
-    }
-
-    public Boolean getCheckAllFlag() {
-        return checkAllFlag;
-    }
-
-    public void setCheckAllFlag(Boolean checkAllFlag) {
-        this.checkAllFlag = checkAllFlag;
     }
 
     public List<String> getWaybillCodeList() {

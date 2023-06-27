@@ -1015,63 +1015,18 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             return res;
         }
 
-        InvokeResult<List<String>> invokeResult = this.getTaskAllCollectionCode(request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId());
-        if(!invokeResult.codeSuccess()) {
-            res.parameterError(invokeResult.getMessage());
-            return  res;
-        }
-
-        if (!Objects.isNull(request.getCheckAllFlag()) && request.getCheckAllFlag()) {
-            //同一个BizId全选防刷保护
-            if(!jyWarehouseSendVehicleCacheService.lockCacheCancelScanAllSelectProtect(request.getSendVehicleBizId(), request.getUser().getUserErp())) {
-                res.parameterError(String.format("该任务全选正在操作中，%s秒后再操作", JyWarehouseSendVehicleCacheService.LOCK_CANCEL_SCAN_ALL_SELECT_PROTECT_TIMEOUT_SECONDS));
-                return res;
-            }
-
-            sendCancelScanMq(true, request, invokeResult.getData());
-        } else {
-            //按包裹或运单
-            sendCancelScanMq(false, request, null);
-        }
+        //按包裹或运单 异步取消 todo 按单按包取消发货tp99 150ms上下，异步处理（存在问题，异步取消失败，PDA无法感知，后面改造）
+        sendCancelScanMq(request);
         return res;
 
-    }
-
-    /**
-     * 获取任务下所有collectionCode
-     * @param bizId
-     * @param siteCode
-     * @return
-     */
-    private InvokeResult<List<String>> getTaskAllCollectionCode(Integer siteCode, String bizId) {
-        InvokeResult<List<String>> res = new InvokeResult<>();
-        List<String> sendCodes = jySendCodeDao.querySendCodesByVehicleBizId(bizId);
-        if(CollectionUtils.isEmpty(sendCodes)) {
-            if(log.isWarnEnabled()) {
-                log.info("未查到任务发货批次数据，siteId={},bizId={}", siteCode, bizId);
-            }
-            res.parameterError("未查到任务发货批次数据");
-            return res;
-        }
-        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteCode, sendCodes);
-        if(CollectionUtils.isEmpty(collectionCodeList)) {
-            if(log.isWarnEnabled()) {
-                log.info("未查到该任务扫描信息：siteId={},bizId={}", siteCode, bizId);
-            }
-            res.setMessage("未查到该任务扫描信息");
-            return res;
-        }
-        res.setData(collectionCodeList);
-        return res;
     }
 
 
     /**
      * 接货仓发货岗取消扫描包裹或运单
-     * @param selectAll  是否全选
      * @param request
      */
-    private void sendCancelScanMq(boolean selectAll, BuQiCancelSendScanReq request, List<String> collectionCodes) {
+    private void sendCancelScanMq(BuQiCancelSendScanReq request) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl:sendCancelScanMq:接货仓发货岗取消发货MQ发送：";
         JySendCancelScanDto mqDto = new JySendCancelScanDto();
         mqDto.setOperatorName(request.getUser().getUserName());
@@ -1084,46 +1039,35 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         //
         mqDto.setMainTaskBizId(request.getSendVehicleBizId());
 
-        if(selectAll) {
-            mqDto.setBuQiAllSelectFlag(true);
-            mqDto.setCollectionCodes(collectionCodes);
-            String businessId = String.format("selectAll:%s:%s", mqDto.getMainTaskBizId(), mqDto.getJyPostType());
-            String msg = JsonHelper.toJson(mqDto);
-            if(log.isInfoEnabled()) {
-                log.info("{}全选：businessId={},msg={}", methodDesc, businessId, msg);
-            }
-            jyCancelScanProducer.sendOnFailPersistent(businessId, msg);
-        }else {
-            mqDto.setBuQiAllSelectFlag(false);
-            List<Message> messageList = new ArrayList<>();
-            //包裹取消
-            if(CollectionUtils.isNotEmpty(request.getPackList())) {
-                for(String packageCode : request.getPackList()) {
-                    mqDto.setBarCode(packageCode);
-                    mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.PACKAGE.getCode());
-                    String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
-                    String msg = JsonHelper.toJson(mqDto);
-                    if(log.isInfoEnabled()) {
-                        log.info("{}按包裹取消：businessId={},msx={}", methodDesc, businessId, msg);
-                    }
-                    messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
+        mqDto.setBuQiAllSelectFlag(false);
+        List<Message> messageList = new ArrayList<>();
+        //包裹取消
+        if(CollectionUtils.isNotEmpty(request.getPackList())) {
+            for(String packageCode : request.getPackList()) {
+                mqDto.setBarCode(packageCode);
+                mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.PACKAGE.getCode());
+                String businessId = String.format("%s:%s:%s:%s", packageCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+                String msg = JsonHelper.toJson(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("{}按包裹取消：businessId={},msx={}", methodDesc, businessId, msg);
                 }
+                messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
             }
-            //运单取消
-            if(CollectionUtils.isNotEmpty(request.getWaybillCodeList())) {
-                for(String waybillCode : request.getWaybillCodeList()) {
-                    mqDto.setBarCode(waybillCode);
-                    mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.WAYBILL.getCode());
-                    String businessId = String.format("%s:%s:%s:%s", waybillCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
-                    String msg = JsonHelper.toJson(mqDto);
-                    if(log.isInfoEnabled()) {
-                        log.info("{}按运单取消：businessId={},msx={}", methodDesc, businessId, msg);
-                    }
-                    messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
-                }
-            }
-            jyCancelScanProducer.batchSendOnFailPersistent(messageList);
         }
+        //运单取消
+        if(CollectionUtils.isNotEmpty(request.getWaybillCodeList())) {
+            for(String waybillCode : request.getWaybillCodeList()) {
+                mqDto.setBarCode(waybillCode);
+                mqDto.setBarCodeType(JyCollectScanCodeTypeEnum.WAYBILL.getCode());
+                String businessId = String.format("%s:%s:%s:%s", waybillCode, mqDto.getMainTaskBizId(), mqDto.getJyPostType(), mqDto.getBizSource());
+                String msg = JsonHelper.toJson(mqDto);
+                if(log.isInfoEnabled()) {
+                    log.info("{}按运单取消：businessId={},msx={}", methodDesc, businessId, msg);
+                }
+                messageList.add(new Message(jyCancelScanProducer.getTopic(), msg, businessId));
+            }
+        }
+        jyCancelScanProducer.batchSendOnFailPersistent(messageList);
     }
 
 
