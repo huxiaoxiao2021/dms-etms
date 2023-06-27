@@ -26,6 +26,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -144,11 +145,14 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(jyCargoOperate.getBarcode());
         List<Message> sendDetailMQList = new ArrayList<>();
         if(BarCodeType.BOX_CODE.equals(barCodeType)){
-            final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(jyCargoOperate.getBarcode());
-            for (SendDetail sendDetail : boxDetailList) {
-                final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, sendDetail.getPackageBarcode(), currentOperate, user);
-                // log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
-                sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
+            final String sendCode = jyCargoOperate.getSendCode();
+            final List<SendDetail> boxDetailList = deliveryService.getSendDetailByBoxAndCreateAndReceiveSiteCode(jyCargoOperate.getBarcode(), BusinessUtil.getCreateSiteCodeFromSendCode(sendCode), BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
+            if(CollectionUtils.isNotEmpty(boxDetailList)){
+                for (SendDetail sendDetail : boxDetailList) {
+                    final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, sendDetail.getPackageBarcode(), currentOperate, user);
+                    // log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                    sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
+                }
             }
         } else {
             final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, jyCargoOperate.getBarcode(), currentOperate, user);

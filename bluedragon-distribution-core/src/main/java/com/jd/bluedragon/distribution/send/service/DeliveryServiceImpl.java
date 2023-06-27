@@ -6135,6 +6135,87 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return sendDetailList;
     }
 
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeliveryServiceImpl.getSendDetailByBoxAndCreateAndReceiveSiteCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<SendDetail> getSendDetailByBoxAndCreateAndReceiveSiteCode(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
+        Box box = null;
+        box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            if(createSiteCode == null || receiveSiteCode == null){
+                return null;
+            }
+            SendDetail tsendDatail = new SendDetail();
+            tsendDatail.setBoxCode(boxCode);
+            tsendDatail.setCreateSiteCode(createSiteCode);
+            tsendDatail.setReceiveSiteCode(receiveSiteCode);
+            tsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_Y);
+            // 查询未操作取消的跨中转发货明细数据，用于补中转发货sendD数据
+            List<SendDetail> sendDetailList = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+            return sendDetailList;
+        }
+        Integer yCreateSiteCode = box.getCreateSiteCode();
+        Integer yReceiveSiteCode = box.getReceiveSiteCode();
+        SendDetail tsendDatail = new SendDetail();
+        tsendDatail.setBoxCode(boxCode);
+        tsendDatail.setCreateSiteCode(yCreateSiteCode);
+        tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
+        tsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_Y);
+        // 查询未操作取消的跨中转发货明细数据，用于补中转发货sendD数据
+        List<SendDetail> sendDetailList = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+        // 判断sendD数据是否存在，若不存在则视为站点发货至分拣，调用TMS获取箱子对应的装箱明细信息
+        if (sendDetailList == null || sendDetailList.isEmpty()) {
+            if(sendDetailList == null){
+                sendDetailList = new ArrayList<SendDetail>();
+            }
+            List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
+            if (CollectionUtils.isNotEmpty(sendDetailsFromZD)) {
+                //根据箱号判断终端箱子的正逆向
+                Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? Constants.BUSSINESS_TYPE_REVERSE : Constants.BUSSINESS_TYPE_POSITIVE;
+                for (SendInfoDto dto : sendDetailsFromZD) {
+                    SendDetail dsendDatail = new SendDetail();
+                    dsendDatail.setBoxCode(dto.getBoxCode());
+
+                    dsendDatail.setWaybillCode(dto.getWaybillCode());
+                    dsendDatail.setPackageBarcode(dto.getPackageBarcode());
+
+                    if (WaybillUtil.isSurfaceCode(dto.getPackageBarcode())) {
+                        BaseEntity<PickupTask> pickup = null;
+                        try {
+                            pickup = this.waybillPickupTaskApi.getDataBySfCode(WaybillUtil.getWaybillCode(dto.getPackageBarcode()));
+                        } catch (Exception e) {
+                            this.log.error("调用取件单号信息ws接口异常：{}",dto.getPackageBarcode(),e);
+                        }
+                        if (pickup != null && pickup.getData() != null) {
+                            dsendDatail.setPickupCode(pickup.getData().getPickupCode());
+                            dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
+                        }
+                        if(WaybillUtil.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                            dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
+                        }
+                    }
+                    dsendDatail.setCreateUser(dto.getOperatorName());
+                    dsendDatail.setCreateUserCode(dto.getOperatorId());
+                    dsendDatail.setOperateTime(dto.getHandoverDate());
+                    dsendDatail.setSendType(businessType);
+                    if (dsendDatail.getPackageBarcode() != null) {
+                        dsendDatail.setPackageNum(BusinessUtil.getPackNumByPackCode(dsendDatail.getPackageBarcode()));
+                    } else {
+                        dsendDatail.setPackageNum(1);
+                    }
+                    dsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
+                    sendDetailList.add(dsendDatail);
+                }
+            }else{
+                sendDetailList = getCancelSendByBoxFromThird(box);
+                if(!CollectionUtils.isEmpty(sendDetailList)){
+                    return sendDetailList;
+                }
+            }
+        }
+        return sendDetailList;
+    }
+
     /**
      * 获取经济网装箱明细
      * @param box

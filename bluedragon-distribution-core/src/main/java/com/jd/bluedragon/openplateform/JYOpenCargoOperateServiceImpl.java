@@ -275,7 +275,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
         if(barCodeType == null){
-            log.error("JYOpenCargoOperateServiceImpl.sorting 未知条码类型 param {}", JsonHelper.toJson(entity));
+            log.error("JYOpenCargoOperateServiceImpl.send 未知条码类型 param {}", JsonHelper.toJson(entity));
             return new InvokeResult<>();
         }
         if(Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())){
