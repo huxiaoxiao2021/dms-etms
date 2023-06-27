@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.merchantWeightAndVolume.domain;
 
+import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
 /**
@@ -142,6 +143,9 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
     }
 
     public void setOperateProvinceAgencyCode(String operateProvinceAgencyCode) {
+        if(operateProvinceAgencyCode == null){
+            operateProvinceAgencyCode = Constants.EMPTY_FILL;
+        }
         this.operateProvinceAgencyCode = operateProvinceAgencyCode;
     }
 
@@ -150,6 +154,9 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
     }
 
     public void setOperateProvinceAgencyName(String operateProvinceAgencyName) {
+        if(operateProvinceAgencyName == null){
+            operateProvinceAgencyName = Constants.EMPTY_FILL;
+        }
         this.operateProvinceAgencyName = operateProvinceAgencyName;
     }
 
@@ -158,6 +165,9 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
     }
 
     public void setOperateAreaHubCode(String operateAreaHubCode) {
+        if(operateAreaHubCode == null){
+            operateAreaHubCode = Constants.EMPTY_FILL;
+        }
         this.operateAreaHubCode = operateAreaHubCode;
     }
 
@@ -166,6 +176,9 @@ public class MerchantWeightAndVolumeDetail extends DbEntity {
     }
 
     public void setOperateAreaHubName(String operateAreaHubName) {
+        if(operateAreaHubName == null){
+            operateAreaHubName = Constants.EMPTY_FILL;
+        }
         this.operateAreaHubName = operateAreaHubName;
     }
 }

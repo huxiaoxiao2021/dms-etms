@@ -344,6 +344,9 @@ public class PopReceiveAbnormal {
 	}
 
 	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		if(provinceAgencyCode == null){
+			provinceAgencyCode = "";
+		}
 		this.provinceAgencyCode = provinceAgencyCode;
 	}
 
@@ -352,6 +355,9 @@ public class PopReceiveAbnormal {
 	}
 
 	public void setProvinceAgencyName(String provinceAgencyName) {
+		if(provinceAgencyName == null){
+			provinceAgencyName = "";
+		}
 		this.provinceAgencyName = provinceAgencyName;
 	}
 
@@ -360,6 +366,9 @@ public class PopReceiveAbnormal {
 	}
 
 	public void setAreaHubCode(String areaHubCode) {
+		if(areaHubCode == null){
+			areaHubCode = "";
+		}
 		this.areaHubCode = areaHubCode;
 	}
 
@@ -368,6 +377,9 @@ public class PopReceiveAbnormal {
 	}
 
 	public void setAreaHubName(String areaHubName) {
+		if(areaHubName == null){
+			areaHubName = "";
+		}
 		this.areaHubName = areaHubName;
 	}
 }

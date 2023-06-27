@@ -1,19 +1,19 @@
 function main() {
 	//加载站点组件
 	$('#switchSiteDom_start').sitePluginSelect({
-		// 'createSiteCode' : $!{defaultSiteCode},
+		'createSiteCodeName' : 'originalDmsId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true
 	});
 	$('#switchSiteDom_dest').sitePluginSelect({
-		// 'createSiteCode' : $!{defaultSiteCode},
+		'createSiteCodeName' : 'destinationDmsId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true
 	});
 	$('#switchSiteDom_transfer').sitePluginSelect({
-		// 'createSiteCode' : $!{defaultSiteCode},
+		'createSiteCodeName' : 'transferId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true

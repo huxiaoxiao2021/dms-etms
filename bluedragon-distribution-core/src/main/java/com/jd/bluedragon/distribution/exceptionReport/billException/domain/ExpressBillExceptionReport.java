@@ -450,6 +450,9 @@ public class ExpressBillExceptionReport implements Serializable {
     }
 
     public void setProvinceAgencyCode(String provinceAgencyCode) {
+        if(provinceAgencyCode == null){
+            provinceAgencyCode = "";
+        }
         this.provinceAgencyCode = provinceAgencyCode;
     }
 
@@ -458,6 +461,9 @@ public class ExpressBillExceptionReport implements Serializable {
     }
 
     public void setProvinceAgencyName(String provinceAgencyName) {
+        if(provinceAgencyName == null){
+            provinceAgencyName = "";
+        }
         this.provinceAgencyName = provinceAgencyName;
     }
 
@@ -466,6 +472,9 @@ public class ExpressBillExceptionReport implements Serializable {
     }
 
     public void setAreaHubCode(String areaHubCode) {
+        if(areaHubCode == null){
+            areaHubCode = "";
+        }
         this.areaHubCode = areaHubCode;
     }
 
@@ -474,6 +483,9 @@ public class ExpressBillExceptionReport implements Serializable {
     }
 
     public void setAreaHubName(String areaHubName) {
+        if(areaHubName == null){
+            areaHubName = "";
+        }
         this.areaHubName = areaHubName;
     }
 }

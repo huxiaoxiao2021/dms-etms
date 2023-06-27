@@ -293,6 +293,9 @@ public class DockBaseInfoPo implements Entity {
     }
 
     public void setProvinceAgencyCode(String provinceAgencyCode) {
+        if(provinceAgencyCode == null){
+            provinceAgencyCode = "";
+        }
         this.provinceAgencyCode = provinceAgencyCode;
     }
 
@@ -301,6 +304,9 @@ public class DockBaseInfoPo implements Entity {
     }
 
     public void setProvinceAgencyName(String provinceAgencyName) {
+        if(provinceAgencyName == null){
+            provinceAgencyName = "";
+        }
         this.provinceAgencyName = provinceAgencyName;
     }
 
@@ -309,6 +315,9 @@ public class DockBaseInfoPo implements Entity {
     }
 
     public void setAreaHubCode(String areaHubCode) {
+        if(areaHubCode == null){
+            areaHubCode = "";
+        }
         this.areaHubCode = areaHubCode;
     }
 
@@ -317,6 +326,9 @@ public class DockBaseInfoPo implements Entity {
     }
 
     public void setAreaHubName(String areaHubName) {
+        if(areaHubName == null){
+            areaHubName = "";
+        }
         this.areaHubName = areaHubName;
     }
 }

@@ -317,6 +317,9 @@ public class JyTaskGroupMemberEntity implements Serializable {
     }
 
     public void setProvinceAgencyCode(String provinceAgencyCode) {
+        if(provinceAgencyCode == null){
+            provinceAgencyCode = "";
+        }
         this.provinceAgencyCode = provinceAgencyCode;
     }
 
@@ -325,6 +328,9 @@ public class JyTaskGroupMemberEntity implements Serializable {
     }
 
     public void setAreaHubCode(String areaHubCode) {
+        if(areaHubCode == null){
+            areaHubCode = "";
+        }
         this.areaHubCode = areaHubCode;
     }
 }

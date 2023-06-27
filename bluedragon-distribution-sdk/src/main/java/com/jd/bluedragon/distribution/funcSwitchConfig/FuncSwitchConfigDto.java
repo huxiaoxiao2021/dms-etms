@@ -209,6 +209,9 @@ public class FuncSwitchConfigDto extends DbEntity {
     }
 
     public void setProvinceAgencyCode(String provinceAgencyCode) {
+        if(provinceAgencyCode == null){
+            provinceAgencyCode = "";
+        }
         this.provinceAgencyCode = provinceAgencyCode;
     }
 
@@ -217,6 +220,9 @@ public class FuncSwitchConfigDto extends DbEntity {
     }
 
     public void setProvinceAgencyName(String provinceAgencyName) {
+        if(provinceAgencyName == null){
+            provinceAgencyName = "";
+        }
         this.provinceAgencyName = provinceAgencyName;
     }
 
@@ -225,6 +231,9 @@ public class FuncSwitchConfigDto extends DbEntity {
     }
 
     public void setAreaHubCode(String areaHubCode) {
+        if(areaHubCode == null){
+            areaHubCode = "";
+        }
         this.areaHubCode = areaHubCode;
     }
 
@@ -233,6 +242,9 @@ public class FuncSwitchConfigDto extends DbEntity {
     }
 
     public void setAreaHubName(String areaHubName) {
+        if(areaHubName == null){
+            areaHubName = "";
+        }
         this.areaHubName = areaHubName;
     }
 }
