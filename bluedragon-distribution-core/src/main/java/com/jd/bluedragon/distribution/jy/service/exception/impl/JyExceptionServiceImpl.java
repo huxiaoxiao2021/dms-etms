@@ -1569,6 +1569,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         reqDTO.setOperateTime(new Date());
         reqDTO.setOperatorId(OPERATE_ID);
         reqDTO.setOperatorName(OPERATE_NAME);
+        if(exTaskEntity.getSiteCode() != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(exTaskEntity.getSiteCode().intValue());
+            if(baseSite != null){
+                reqDTO.setSiteType(baseSite.getSiteType());
+            }
+        }
         deliveryWSManager.delivered(reqDTO);
     }
 }
