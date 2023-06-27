@@ -485,7 +485,7 @@ public class JyScanCollectStrategy {
         if(CollectionUtils.isNotEmpty(collectionCodeList)) {
             dPo.setCollectionCodeList(collectionCodeList);
         }
-        jyScanCollectService.deleteCollectionRecordDetail(dPo);
+        jyScanCollectService.deleteByScanCode(dPo);
     }
 
 
@@ -517,7 +517,7 @@ public class JyScanCollectStrategy {
     }
 
     /**
-     * 按包裹处理取消扫描(*幂等)
+     * 按运单处理取消扫描(*幂等)
      * @param cancelScanCollectMqDto
      * @return
      */
@@ -540,7 +540,7 @@ public class JyScanCollectStrategy {
             dPo.setCollectionCode(collectionCode);
             dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
             dPo.setEndOperateTime(new Date(cancelScanCollectMqDto.getOperateTime()));
-            jyScanCollectService.deleteCollectionRecordDetail(dPo);
+            jyScanCollectService.deleteByAggCode(dPo);
         });
 
         //修改运单统计数据

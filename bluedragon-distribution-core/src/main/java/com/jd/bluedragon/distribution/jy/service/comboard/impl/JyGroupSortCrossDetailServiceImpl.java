@@ -430,10 +430,10 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
 
-    public void deleteByCondition(JyGroupSortCrossDetailEntity condition) {
+    public void deleteBySiteAndBizId(JyGroupSortCrossDetailEntity condition) {
         if(Objects.isNull(condition.getUpdateTime())) {
             condition.setUpdateTime(new Date());
         }
-        jyGroupSortCrossDetailDao.deleteByCondition(condition);
+        jyGroupSortCrossDetailDao.deleteBySiteAndBizId(condition);
     }
 }

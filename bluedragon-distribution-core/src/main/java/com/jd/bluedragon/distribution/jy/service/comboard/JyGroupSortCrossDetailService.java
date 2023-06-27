@@ -147,5 +147,5 @@ public interface JyGroupSortCrossDetailService {
 
     boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto);
 
-    public void deleteByCondition(JyGroupSortCrossDetailEntity condition);
+    void deleteBySiteAndBizId(JyGroupSortCrossDetailEntity condition);
 }

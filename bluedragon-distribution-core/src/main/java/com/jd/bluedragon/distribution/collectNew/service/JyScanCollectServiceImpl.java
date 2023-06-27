@@ -74,7 +74,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
             dPo.setCollectionCode(collectDto.getCollectionCode());
             dPo.setScanCode(collectDto.getPackageCode());
             dPo.setSiteId(collectDto.getOperateSiteId().longValue());
-            List<JyCollectRecordDetailPo> dPoRes = jyCollectRecordDetailDao.findAggCodeByCondition(dPo);
+            List<JyCollectRecordDetailPo> dPoRes = jyCollectRecordDetailDao.findAggCodeByScanCode(dPo);
             if(CollectionUtils.isNotEmpty(dPoRes)) {
                 log.warn("{}当前包裹重复扫描，collectDto={}", methodDesc, JsonHelper.toJson(collectDto));
                 return;
@@ -263,9 +263,15 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     }
 
     @Override
-    public void deleteCollectionRecordDetail(JyCollectRecordDetailCondition condition) {
-        jyCollectRecordDetailDao.deleteByCondition(condition);
+    public void deleteByAggCode(JyCollectRecordDetailCondition condition) {
+        jyCollectRecordDetailDao.deleteByAggCode(condition);
     }
+
+    @Override
+    public void deleteByScanCode(JyCollectRecordDetailCondition condition) {
+        jyCollectRecordDetailDao.deleteByScanCode(condition);
+    }
+
 
     @Override
     public List<JyCollectRecordPo> findPageCollectByCondition(JyCollectRecordCondition condition) {

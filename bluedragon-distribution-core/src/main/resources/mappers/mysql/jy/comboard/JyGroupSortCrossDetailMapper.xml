@@ -444,7 +444,7 @@
   </select>
 
 <!-- 按条件删除：小组+场地+岗位 -->
-  <update id="deleteByCondition" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+  <update id="deleteBySiteAndBizId" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
     update jy_group_sort_cross_detail
     set
       <if test="updateUserErp != null">
@@ -456,14 +456,6 @@
     and group_code = #{groupCode}
     and start_site_id = #{startSiteId}
     and func_type = #{funcType}
-    <if test="templateCode != null and templateCode != ''">
-      and template_code = #{templateCode,jdbcType=VARCHAR}
-    </if>
-    <if test="endSiteId != null">
-      and end_site_id = #{endSiteId,jdbcType=BIGINT}
-    </if>
-    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
-      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
-    </if>
+    and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
   </update>
 </mapper>

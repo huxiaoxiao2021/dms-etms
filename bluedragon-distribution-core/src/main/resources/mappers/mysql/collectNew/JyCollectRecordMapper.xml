@@ -140,9 +140,7 @@
     where  yn = 1
     and site_id = #{siteId,jdbcType=BIGINT}
     and collection_code = #{collectionCode,jdbcType=VARCHAR}
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
-    </if>
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
   </update>
 
   <!-- 查询拣运任务扫描记录 -->
@@ -153,9 +151,7 @@
     where yn = 1
     and site_id = #{siteId}
     and collection_code = #{collectionCode}
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
-    </if>
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
 
   </select>
 
@@ -189,9 +185,6 @@
     where yn = 1
     and site_id = #{siteId}
     and agg_code = #{aggCode,jdbcType=VARCHAR}
-    <if test="collectionCode != null" >
-      and collection_code = #{collectionCode}
-    </if>
     limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
 
   </select>

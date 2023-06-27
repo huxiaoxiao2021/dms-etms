@@ -554,7 +554,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 if(log.isInfoEnabled()) {
                     log.info("任务绑定时，将被绑定流向【{}】从【接货仓发货岗混扫任务】中删除，request={}", fromSvdTask.getBizId(), JsonHelper.toJson(bindVehicleDetailTaskReq));
                 }
-                jyGroupSortCrossDetailService.deleteByCondition(sortCrossDetailEntity);
+                jyGroupSortCrossDetailService.deleteBySiteAndBizId(sortCrossDetailEntity);
             }
 
             //关闭调度任务

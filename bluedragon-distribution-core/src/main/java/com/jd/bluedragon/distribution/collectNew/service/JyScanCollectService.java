@@ -38,7 +38,8 @@ public interface JyScanCollectService {
 
     List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCollectRecordDetailCondition dPo);
 
-    void deleteCollectionRecordDetail(JyCollectRecordDetailCondition dPo);
+    void deleteByAggCode(JyCollectRecordDetailCondition condition);
+    void deleteByScanCode(JyCollectRecordDetailCondition condition);
 
     List<JyCollectRecordPo> findPageCollectByCondition(JyCollectRecordCondition dPo);
 

@@ -41,17 +41,27 @@ public class JyCollectRecordDetailDao extends BaseDao<JyCollectRecordDetailPo> {
      * @param condition
      * @return
      */
-    public Integer deleteByCondition(JyCollectRecordDetailCondition condition) {
-        return super.getSqlSession().update(NAMESPACE.concat(".deleteByCondition"), condition);
+    public Integer deleteByAggCode(JyCollectRecordDetailCondition condition) {
+        return super.getSqlSession().update(NAMESPACE.concat(".deleteByAggCode"), condition);
     }
+    /**
+     * 删除
+     * @param condition
+     * @return
+     */
+    public Integer deleteByScanCode(JyCollectRecordDetailCondition condition) {
+        return super.getSqlSession().update(NAMESPACE.concat(".deleteByScanCode"), condition);
+    }
+
+
 
     /**
      * 根据collectionCode 和scanCode查询
      * @param condition
      * @return
      */
-    public List<JyCollectRecordDetailPo> findAggCodeByCondition(JyCollectRecordDetailPo condition) {
-        return super.getSqlSession().selectList(NAMESPACE.concat(".findAggCodeByCondition"), condition);
+    public List<JyCollectRecordDetailPo> findAggCodeByScanCode(JyCollectRecordDetailPo condition) {
+        return super.getSqlSession().selectList(NAMESPACE.concat(".findAggCodeByScanCode"), condition);
     }
 
     /**
