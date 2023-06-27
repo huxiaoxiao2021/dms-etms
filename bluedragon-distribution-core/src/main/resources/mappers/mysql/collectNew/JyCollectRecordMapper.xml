@@ -188,9 +188,7 @@
     from jy_collect_record
     where yn = 1
     and site_id = #{siteId}
-    <if test="aggCode != null" >
-      and agg_code = #{aggCode,jdbcType=VARCHAR}
-    </if>
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
     <if test="collectionCode != null" >
       and collection_code = #{collectionCode}
     </if>
