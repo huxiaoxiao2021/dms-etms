@@ -197,9 +197,9 @@ function cancel(abnormalId) {
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
           <tbody>
             <tr>
-				<switchSiteDom id = "switchSiteDom">
 			  <th align="right">分拣中心：</th>
               <td width="25%" >
+				  <switchSiteDom id = "switchSiteDom">
 					<select class="select12" id="orgCode" name="orgCode">
 						#if($null.isNull($!orgList) || $!orgList.size() != 1)
 							<option value="">请选择</option>
@@ -232,8 +232,8 @@ function cancel(abnormalId) {
 							#end
 						#end
 					</select>
+				  </switchSiteDom>
 			  </td>
-				</switchSiteDom>
               <th align="right">时间类型：</th>
               <td colspan="5">
 				<select id="dateType" name="dateType" class="select18">

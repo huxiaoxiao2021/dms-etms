@@ -3,6 +3,12 @@ var saveUrl = '/whiteList/save';
 var deleteUrl = '/whiteList/deleteByIds';
 $(function () {
 
+    $('#switchSiteDom_add').sitePluginSelect({
+        'changeBtnShow': false,
+        'provinceOrOrgMode': 'province',
+        'onlySiteSelect': true
+    });
+    
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -124,7 +130,6 @@ $(function () {
                 });
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
-                initOrg();
             });
             // 删除
             $('#btn_delete').click(function() {
@@ -191,92 +196,7 @@ $(function () {
     };
 
 
-    initOrg();
     tableInit().init();
     pageInit().init();
 
 });
-
-function findSite(selectId,siteListUrl,initIdSelectId){
-    $(selectId).html("");
-    $.ajax({
-        type : "get",
-        url : siteListUrl,
-        data : {},
-        async : false,
-        success : function (data) {
-            var result = [];
-            if(data.length==1 && data[0].code!="200"){
-                result.push({id:"-999",text:data[0].message});
-            }else{
-                for(var i in data){
-                    if(data[i].siteCode && data[i].siteCode != ""){
-                        result.push({id:data[i].siteCode,text:data[i].siteName});
-                    }
-                }
-            }
-            if(initIdSelectId && result[0].id!="-999"){
-                $(initIdSelectId).val(result[0].id);
-            }
-            $(selectId).select2({
-                width: '100%',
-                placeholder:'请选择分拣中心',
-                allowClear:true,
-                data:result
-            });
-            $(selectId).val(null).trigger('change');
-        }
-    });
-}
-
-// 初始化大区下拉框
-function initOrg() {
-
-    var url = "/services/bases/allorgs";
-    var param = {};
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: false,
-        success: function (data) {
-            var result = [];
-            for (var i in data) {
-                if (data[i].orgId && data[i].orgId != "") {
-                    result.push({id: data[i].orgId, text: data[i].orgName});
-                }
-            }
-            $('#site-group-select').select2({
-                width: '100%',
-                placeholder: '请选择机构',
-                allowClear: true,
-                data: result
-            });
-            $("#site-group-select")
-                .on("change", function (e) {
-                    $("#edit-form #siteCode").val("");
-                    var orgId = $("#site-group-select").val();
-                    $("#edit-form #reviewOrgCode").val(orgId);
-                    if (orgId) {
-                        var siteListUrl = '/services/bases/dms/' + orgId;
-                        findSite("#site-select", siteListUrl, "#edit-form #siteCode");
-                    }
-
-                });
-            $("#site-select").on("change", function (e) {
-                var _s = $("#site-select").val();
-                $("#edit-form #siteCode").val(_s);
-                var _n = $("#site-select").find("option:selected").text();
-                $("#edit-form #siteName").val(_n);
-            });
-
-            if ($("#loginUserOrgId").val() != -1) {
-                //登录人大区
-                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
-            } else {
-                $('#site-group-select').val(null).trigger('change');
-            }
-        }
-    });
-
-}

@@ -1,7 +1,13 @@
 $(function() {
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        //'createSiteCode': 65396
+        'createSiteCode' : $("#loginUserCreateSiteCode").val(),
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'provinceAgencyCodeReadOnly' : true, 
+        'areaHubCodeReadOnly' : true,  
+        'createSiteCodeReadOnly' : true,
+        'onlySiteAndProvinceSelect' : true
     });
 	var saveUrl = '/collect/collectGoodsPlace/save';
     var updateUrl = '/collect/collectGoodsPlace/update';

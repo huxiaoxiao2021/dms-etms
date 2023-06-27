@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -10,6 +11,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @date 2018年03月13日 16:25:45
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DmsStorageAreaCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;

@@ -9,6 +9,7 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+#parse("system/common/baseImport.vm")
 </head>
 
 <script type="text/javascript">
@@ -19,9 +20,14 @@ return $(obj).html("<option value=''>请选择</option>");
 
 $(document).ready(function() {
 
-    //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        'text': '#2C9929'
+        'createSiteCode' : $!{defaultSiteCode},
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'provinceAgencyCodeReadOnly' : true,
+        'areaHubCodeReadOnly' : true,
+        'createSiteCodeReadOnly' : true,
+        'onlySiteAndProvinceSelect' : true
     });
 
 $("#orgId").change(function(){
@@ -97,16 +103,16 @@ jQuery.ajax({
 		<input type="hidden" id="pageSize" name="pageSize" />
         <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
           <tbody>
-            <tr>11
+            <tr>
 			   <th align="right">操作时间：</th>
               <td>
 				<input type="text" class="Wdate" id="operateStartTime" name="operateStartTime" value="$!query.operateStartTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
 				~
 				<input type="text" class="Wdate" id="operateEndTime" name="operateEndTime" value="$!query.operateEndTime" onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
 			  </td>
-                <switchSiteDom id = "switchSiteDom">
 			  <th align="right">分拣中心：</th>
               <td >
+                  <switchSiteDom id = "switchSiteDom">
 				<select class="select22" id="orgId" name="orgCode" >
                   #if( !$!{defaultOrgId})
                   <option value="">请选择</option>
@@ -135,8 +141,8 @@ jQuery.ajax({
                          </option>
                   #end
                 </select>
+                  </switchSiteDom>
 			  </td>
-                </switchSiteDom>
               <td >
               </td>
             </tr>

@@ -5,9 +5,10 @@ function main() {
 
 	//加载站点组件
 	$('#switchSiteDom').sitePluginSelect({
-		'text': '#2C9929',
 		'onlySiteSelect': true,
-		'siteTypes' : [64]
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : [64],
+		'changeBtnShow': false
 	});
 	
 	// 查询按钮提交处理

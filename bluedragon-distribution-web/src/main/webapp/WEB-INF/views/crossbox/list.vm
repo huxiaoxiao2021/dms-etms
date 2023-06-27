@@ -41,9 +41,9 @@
 				<table border="0" cellpadding="0" cellspacing="0" width="100%">
 					<tbody>
 						<tr>
-							<switchSiteDom id = "switchSiteDom">
-                            <td align="right">始发区域：</td>
+                            <td align="right">始发：</td>
 							<td>
+								<switchSiteDom id = "switchSiteDom_start">
 								<select id="originateOrg" name="originateOrg" class="select20" style="width:130px" >
                                     <option value="-1">全部</option>
                                     #if($queryInfo.originateOrg)
@@ -53,15 +53,15 @@
 								始发分拣：
 								<input type="text" id="originalDmsName" name="originalDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.originalDmsName}"/>
 								<input type="hidden" id="originalDmsId" name="originalDmsId" value="$!{queryInfo.originalDmsId}"/>
+								</switchSiteDom>
 								数据维护人：
 								<input type="text" id="updateOperatorName" name="updateOperatorName" maxlength="30" style="width:130px" value="$!{queryInfo.updateOperatorName}"/>
                             </td>
-							</switchSiteDom>
 						</tr>							    
 						<tr>
-							<switchSiteDom id = "switchSiteDom">
-							<td align="right">目的区域：</td>
+							<td align="right">目的：</td>
 							<td>
+								<switchSiteDom id = "switchSiteDom_dest">
 								<select id="destinationOrg" name="destinationOrg" class="select20" style="width:130px" value="$!{queryInfo.destinationOrg}">
                                     <option value="-1">全部</option>
                                     #if($queryInfo.destinationOrg)
@@ -71,6 +71,7 @@
 								目的分拣：
                                 <input type="text" id="destinationDmsName" name="destinationDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.destinationDmsName}"/>
 								<input type="hidden" id="destinationDmsId" name="destinationDmsId" value="$!{queryInfo.destinationDmsId}"/>
+								</switchSiteDom>
 								维护时间&nbsp;&nbsp;&nbsp;&nbsp;：
                                 <input type="text" id= "startDate"  name="startDate" style="width: 130px" class="Wdate"
                                        onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})" value="$!{queryInfo.startDate}"/>
@@ -78,12 +79,11 @@
 								<input type="text" id= "endDate"  name="endDate" style="width: 130px" class="Wdate"
                                        onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd'})" value="$!{queryInfo.endDate}"/>
                             </td>
-							</switchSiteDom>          	           
 						 </tr>
 						 <tr >
-							<td align="right">中转区域：</td>
-							 <switchSiteDom id = "switchSiteDom">
+							<td align="right">中转：</td>
 							<td>
+								<switchSiteDom id = "switchSiteDom_transfer">
 								<select id="transferOrg" name="transferOrg" class="select20" style="width:130px" value="$!{queryInfo.transferOrg}">
                                     <option value="-1">全部</option>
                                     #if($queryInfo.transferOrg)
@@ -93,6 +93,7 @@
 								中转分拣：
 								<input type="text" id="transferName" name="transferName" maxlength="50" style="width:130px" value="$!{queryInfo.transferName}"/>
 								<input type="hidden" id="transferId" name="transferId" value="$!{queryInfo.transferId}"/>
+								</switchSiteDom>
 								<select id="yn" name="yn" class="select8" value="$!{queryInfo.yn}">
 									 <option value = "-1">全部</option>
 									 <option value = "1" #if($!{queryInfo.yn} == 1) selected = "selected"
@@ -105,7 +106,6 @@
 								<input type="button"  value="重置查询条件" class="btn_c" onclick="funReset()"/>
 								<input type="hidden" id="contextPath" value="#springUrl('')">
                             </td>
-							 </switchSiteDom>
                             <td>
                             <input type="button" id="add" name="add" value="新增" class="btn_c" onclick="addBtn();"/>
                             <input type="button" id="import_data" name="import_data" value="导入" class="btn_c"  onclick="importDataBtn();"/>

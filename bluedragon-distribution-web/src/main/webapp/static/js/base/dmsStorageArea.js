@@ -1,7 +1,9 @@
 $(function() {
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        //'createSiteCode': 65396
+        'createSiteCodeName': 'dmsSiteCode',
+        'changeBtnShow': false,
+        'provinceOrOrgMode': 'province'
     });
     var saveUrl = '/base/dmsStorageArea/save';
     var deleteUrl = '/base/dmsStorageArea/deleteByIds';
@@ -271,11 +273,11 @@ function initSiteSelect(){
         placeholder:'请选择机构',
         allowClear:true
     });
-    $("#dmsSiteCode").select2({
-        width: '100%',
-        placeholder:'请选择分拣中心',
-        allowClear:true
-    });
+    // $("#dmsSiteCode").select2({
+    //     width: '100%',
+    //     placeholder:'请选择分拣中心',
+    //     allowClear:true
+    // });
     $("#desProvinceCode").select2({
         width: '100%',
         placeholder:'请选择收件省',

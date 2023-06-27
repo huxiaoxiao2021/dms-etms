@@ -11,11 +11,14 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
     #parse("system/common/baseImport.vm")
 	<script type="text/javascript">
-        //加载站点组件
-        $('#switchSiteDom').sitePluginSelect({
-            'text': '#2C9929',
-            'onlySiteSelect': true,
-            'siteTypes' : [64]
+        $(document).ready(function() {
+            //加载站点组件
+            $('#switchSiteDom').sitePluginSelect({
+                'onlySiteSelect': true,
+                'provinceOrOrgMode': 'province',
+                'siteTypes' : [64],
+                'changeBtnShow': false
+            });
         });
 		function querySubmit(){
     		//$("#differenceList").attr("action", '#springUrl("/partnerInspection/partnerDifferentList")');
@@ -78,8 +81,8 @@
                             <tr>
                                 <th align="right">创建人ID：</th>
                                 <td><input id="createUserCode" name="createUserCode" type="text" class="textField28"/></td>
-                                <switchSiteDom id = "switchSiteDom">
                                 <th align="right">分拣中心ID：</th>
+                                <switchSiteDom id = "switchSiteDom">
                                 <td>
 									<!--<input id="createSiteCode" name="createSiteCode" type="text" class="textField28"/>-->
 									<select id="createSiteCode" name="createSiteCode">

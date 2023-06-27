@@ -9,7 +9,7 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
-    #parse("system/common/baseImport.vm")
+#parse("system/common/baseImport.vm")
 </head>
 
 <script type="text/javascript">
@@ -36,9 +36,14 @@ var inteval=1000*60*60*24*30;
 
 $(document).ready(function() {
 
-    //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        'text': '#2C9929'
+        'createSiteCode' : $!{defaultSiteCode},
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'provinceAgencyCodeReadOnly' : true,
+        'areaHubCodeReadOnly' : true,
+        'createSiteCodeReadOnly' : true,
+        'onlySiteAndProvinceSelect' : true
     });
 
 
@@ -130,9 +135,9 @@ jQuery.ajax({
 			  </td>
 			</tr>
 			<tr>
-                <switchSiteDom id = "switchSiteDom">
 			  <th align="right">操作单位：</th>
               <td colspan="3">
+                  <switchSiteDom id = "switchSiteDom">
 				<select class="select22" id="orgId" name="orgCode" >
                   #if( !$!{defaultOrgId})
                   <option value="">请选择</option>
@@ -161,9 +166,9 @@ jQuery.ajax({
                          </option>
                   #end
                 </select>
+                  </switchSiteDom>
 			  </td>
               <td colspan="2"></td>
-                </switchSiteDom>
             </tr>
 			<tr >
 			  <th align="right">操作时间：</th>

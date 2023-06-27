@@ -57,8 +57,8 @@
                     <input id="waybillOrPackageCode" name="waybillOrPackageCode" type="text" style="width:180px">
                 </div>
                 <div id="condition_mid" style="height: 34px;padding-bottom: 5px;border-bottom: 2px solid #999;">
-                    <switchSiteDom id = "switchSiteDom">
                     <span>分拣中心：</span>
+                    <switchSiteDom id = "switchSiteDom">
                     <select id="dmsList" style="width:180px;height: 23px;">
                     </select>
                     </switchSiteDom>

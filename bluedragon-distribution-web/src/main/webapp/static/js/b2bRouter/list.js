@@ -1,4 +1,11 @@
 function main() {
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		'onlySiteSelect': true,
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : [64],
+		'changeBtnShow': false
+	});
 	// 初始化任务表下拉框
 	var originalSiteType = $("#originalSiteType").val();
 	var destinationSiteType = $("#destinationSiteType").val();

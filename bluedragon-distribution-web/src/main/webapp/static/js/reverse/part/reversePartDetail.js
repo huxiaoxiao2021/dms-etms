@@ -2,11 +2,6 @@ $(function() {
 
 	//加载站点组件
 	$('#switchSiteDom').sitePluginSelect({
-		'createSiteCode': 481,
-		'provinceAgencyCodeReadOnly':true,
-		'onlySiteAndProvinceSelect':true,
-		'changeBtnShow':false,
-		'provinceOrOrgMode':'province'
 	});
 
 

@@ -1,8 +1,24 @@
 function main() {
 	//加载站点组件
-	$('#switchSiteDom').sitePluginSelect({
-		'text': '#2C9929'
+	$('#switchSiteDom_start').sitePluginSelect({
+		// 'createSiteCode' : $!{defaultSiteCode},
+		'changeBtnShow': false,
+		'provinceOrOrgMode' : 'province',
+		'onlySiteAndProvinceSelect' : true
 	});
+	$('#switchSiteDom_dest').sitePluginSelect({
+		// 'createSiteCode' : $!{defaultSiteCode},
+		'changeBtnShow': false,
+		'provinceOrOrgMode' : 'province',
+		'onlySiteAndProvinceSelect' : true
+	});
+	$('#switchSiteDom_transfer').sitePluginSelect({
+		// 'createSiteCode' : $!{defaultSiteCode},
+		'changeBtnShow': false,
+		'provinceOrOrgMode' : 'province',
+		'onlySiteAndProvinceSelect' : true
+	});
+	
 	getSiteData(-1, -1);
 	$("#originateOrg").change(function() {
 		$("#originalDmsName").val("");

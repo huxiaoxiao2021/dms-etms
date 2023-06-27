@@ -151,7 +151,7 @@
                       #{item.endTime},
                       #{item.workTimes},
                       #{item.orgCode},
-                      #{provinceAgencyCode},#{areaHubCode},
+                      #{item.provinceAgencyCode},#{item.areaHubCode},
                       #{item.siteCode},
                       #{item.createUser},
                       #{item.createUserName},
