@@ -1353,6 +1353,7 @@
     <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
     <!--  快运订单修改接口-jsf  -->
     <jsf:consumer id="expressOrderServiceWs"
                   interface="com.jd.merchant.sdk.order.ws.ExpressOrderServiceWs"

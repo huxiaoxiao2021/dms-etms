@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
 
@@ -103,4 +106,16 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
     public Integer queryScrapCountByCondition(JyBizTaskExceptionEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryScrapCountByCondition", entity);
     }
+
+    /**
+     * 按网格统计超时未领取统计数据
+     */
+    public List<StatisticsTimeOutExpTaskDto> getStatisticsExceptionTaskList(ExpTaskStatisticsReq req){
+        return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskList", req);
+    }
+
+    public List<JyBizTaskExceptionEntity> getStatisticsExceptionTaskDetailList(ExpTaskStatisticsDetailReq req){
+        return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskDetailList", req);
+    }
+
 }

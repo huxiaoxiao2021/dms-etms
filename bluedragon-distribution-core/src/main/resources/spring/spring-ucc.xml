@@ -273,6 +273,7 @@
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
@@ -583,6 +584,7 @@
 				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
 				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
+				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
 			</list>
 		</property>
 	</bean>

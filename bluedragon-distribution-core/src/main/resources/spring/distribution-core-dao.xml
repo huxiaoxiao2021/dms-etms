@@ -814,6 +814,9 @@
     <bean id="jyBizTaskExceptionLogDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyBizTaskExceptionAssignDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
