@@ -2940,28 +2940,30 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param mixScanTaskFlowReq
      */
     public void setMixScanTaskSendProgressData(MixScanTaskFlowDetailRes res, List<MixScanTaskDetailDto> mixScanTaskDetailDtoList, MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
-        try {
-            List<String> taskDetailBizs = new ArrayList<>();
-            int focusCount = 0;
-            for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
-                taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
-                if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
-                    focusCount++;
-                }
+
+        List<String> taskDetailBizs = new ArrayList<>();
+        int focusCount = 0;
+        for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
+            taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
+            if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
+                focusCount++;
             }
+        }
+        
+        List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
+                taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
+        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+            throw new JyBizException("未获取到发货任务信息");
+        }
+        List<String> taskBizIds = new ArrayList<>();
+        sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
+        HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
+
+        try {
             // 获取统计数据
             List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
             HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
-
-            List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
-                    taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
-            if (CollectionUtils.isEmpty(sendVehicleDetails)) {
-                throw new JyBizException("未获取到发货任务信息");
-            }
-            List<String> taskBizIds = new ArrayList<>();
-            sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
-            HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
-
+            
             // 查询车型
             List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
             HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getTaskSendVehicleMap(taskSendList);
@@ -3056,9 +3058,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
                 MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
                 BeanUtils.copyProperties(item, flowAgg);
+                JyBizTaskSendVehicleDetailEntity detailEntity = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
+                if (detailEntity != null) {
+                    flowAgg.setSendVehicleBizId(detailEntity.getSendVehicleBizId());
+                }
                 return flowAgg;
             }).collect(Collectors.toList());
             res.setMixScanTaskFlowDtoList(flowAggs);
+            
             log.error("接货仓发货岗查询统计数据异常：{}",JsonHelper.toJson(mixScanTaskDetailDtoList),e);
         }
         
