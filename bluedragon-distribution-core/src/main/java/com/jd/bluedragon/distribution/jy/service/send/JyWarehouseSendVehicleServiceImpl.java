@@ -1509,7 +1509,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 throw new JyBizException("完成混扫任务失败!");
             }
         }catch (Exception e) {
-            throw new JyBizException("完成混扫任务失败!");
+            log.warn("完成混扫任务异常: {}",JsonHelper.toJson(request), e);
+            throw new JyBizException("完成混扫任务异常!");
         }
         return true;
     }

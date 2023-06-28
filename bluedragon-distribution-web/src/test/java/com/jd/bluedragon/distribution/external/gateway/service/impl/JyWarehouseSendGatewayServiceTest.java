@@ -397,10 +397,10 @@ public class JyWarehouseSendGatewayServiceTest {
     @Test
     public void testMixScanTaskComplete(){
         MixScanTaskCompleteReq paramDto = new MixScanTaskCompleteReq();
-        paramDto.setCurrentOperate(SITE_40240);
+        paramDto.setCurrentOperate(SITE_223094);
         paramDto.setUser(USER_wuyoude);
-        paramDto.setTemplateCode("CTT23060600000010");
-        paramDto.setGroupCode(GROUP_CODE);
+        paramDto.setTemplateCode("CTT23062800000004");
+        paramDto.setGroupCode("G00000099001");
         while(true) {
             try{
                 JdCResponse<Void> obj0 = jyWarehouseSendGatewayService.mixScanTaskComplete(paramDto);

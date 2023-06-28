@@ -3014,7 +3014,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         if(basicVehicleTypeDto.getWeight() != null) {
                             flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
                         }
-                        flowAgg.setLoadRate(calculateLoadRate(bizTaskSendVehicle, basicVehicleTypeDto, sendAgg));
+                        if (sendAgg != null) {
+                            flowAgg.setLoadRate(calculateLoadRate(bizTaskSendVehicle, basicVehicleTypeDto, sendAgg));
+                        }
                     }
 
                     // 带扫数据组装
