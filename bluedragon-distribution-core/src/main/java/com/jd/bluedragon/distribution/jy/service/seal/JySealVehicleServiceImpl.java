@@ -934,9 +934,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if(log.isInfoEnabled()){
             log.info("获取车辆任务信息出参-{}",JsonHelper.toJson(sendVehicle));
         }
-        if(sendVehicle == null
-                || sendVehicle.getVehicleType() == null
-                || sendVehicle.getLineType() == null){
+        if(sendVehicle == null || sendVehicle.getLineType() == null){
             log.warn("任务信息为空!");
             result.error("任务信息为空!");
             return result;
