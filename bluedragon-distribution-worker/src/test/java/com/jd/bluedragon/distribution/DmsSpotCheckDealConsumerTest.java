@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution;
 
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
+import com.jd.bluedragon.distribution.consumer.debon.DebonReturnScheduleConsumer;
 import com.jd.bluedragon.distribution.consumer.spotCheck.DmsSpotCheckDealConsumer;
 import com.jd.bluedragon.distribution.consumer.spotCheck.DwsCalibrateDealSpotCheckConsumer;
 import com.jd.bluedragon.distribution.consumer.weight.DwsWeightVolumeCalibrateConsumer;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
+import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -108,5 +111,31 @@ public class DmsSpotCheckDealConsumerTest {
             logger.error("设备校准mq处理异常!", e);
             Assert.fail();
         }
+    }
+
+    @Autowired
+    private DebonReturnScheduleConsumer debonReturnScheduleConsumer;
+
+    @Test
+    public void  debonReturnScheduleConsumeTest() throws Exception{
+
+        ReassignWaybill reassignWaybill = new ReassignWaybill();
+        reassignWaybill.setPackageBarcode("JD0003420119555-1-1-");
+        reassignWaybill.setAddress("北京朝阳区三环以内未访问");
+        reassignWaybill.setReceiveSiteCode(910);
+        reassignWaybill.setReceiveSiteName("北京马驹桥分拣中心");
+        reassignWaybill.setChangeSiteCode(14508);
+        reassignWaybill.setChangeSiteName("城配揽派调度车队");
+        reassignWaybill.setOperateTime(new Date());
+        reassignWaybill.setUserCode(1);
+        reassignWaybill.setUserName("德邦运营人员");
+        reassignWaybill.setSiteCode(39);
+        reassignWaybill.setSiteName("石景山营业部");
+        reassignWaybill.setWaybillCode("JD0003420119555");
+        reassignWaybill.setInterfaceType(100111);
+
+        Message message = new Message();
+        message.setText(JsonHelper.toJson(reassignWaybill));
+        debonReturnScheduleConsumer.consume(message);
     }
 }
