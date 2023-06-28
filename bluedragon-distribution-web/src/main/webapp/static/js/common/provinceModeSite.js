@@ -32,6 +32,7 @@
         areaHubCodeWidth : '120px',
         createSiteCodeWidth : '200px',
         siteTypes : [64], //默认只查询分拣中心
+        subTypes : null,
         onlySiteSelect : false, //只显示场地检索条件
         onlySiteAndProvinceSelect : false, //只显示站点和省区条件
         changeBtnShow : true, //切换按钮是否显示
@@ -352,7 +353,8 @@
                 provinceAgencyCode:provinceAgencyCode,
                 areaCode:areaHubCode?areaHubCode:null,
                 siteName:siteName,
-                siteTypes:this._options.siteTypes
+                siteTypes:this._options.siteTypes,
+                subTypes:this._options.subTypes
             };
             $.ajax({
                 type : "post",
@@ -380,7 +382,8 @@
             var url = "/common/querySitePageByCondition";
             var params = {
                 siteCode:siteCode,
-                siteTypes:this._options.siteTypes
+                siteTypes:this._options.siteTypes,
+                subTypes:this._options.subTypes
             };
             $.ajax({
                 type : "post",
@@ -461,7 +464,8 @@
                             provinceAgencyCode:provinceAgencyCode,
                             areaCode:areaHubCode?areaHubCode:null,
                             siteName:params.term,
-                            siteTypes:that._options.siteTypes
+                            siteTypes:that._options.siteTypes,
+                            subTypes:that._options.subTypes
                         });
                     },
                     processResults: function(data, params) {

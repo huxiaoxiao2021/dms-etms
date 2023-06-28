@@ -1,9 +1,19 @@
 function main() {
 	//加载站点组件
-	$('#switchSiteDom').sitePluginSelect({
+	$('#switchSiteDom_start').sitePluginSelect({
 		'onlySiteSelect': true,
+		'createSiteCodeName': 'originalSiteCode',
 		'provinceOrOrgMode': 'province',
-		'siteTypes' : [64],
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_dest').sitePluginSelect({
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'destinationSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
 		'changeBtnShow': false
 	});
 	// 初始化任务表下拉框
