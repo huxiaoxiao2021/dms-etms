@@ -84,6 +84,9 @@ public class JyScanCollectStrategy {
         if(!this.scanFilterInvalid(collectDto)) {
             return true;
         }
+        //必要字段前置加工
+        this.mustFieldFill(collectDto);
+
         if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return this.scanWaybillCollectDeal(collectDto);
         } else if (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
@@ -96,6 +99,13 @@ public class JyScanCollectStrategy {
             log.warn("{}目前仅支持处理按包裹、运单、箱号、板号维度处理集齐，当前类型暂不支持处理，直接丢弃，param={}", methodDesc, JsonHelper.toJson(collectDto));
             return true;
         }
+    }
+
+    /**
+     * 必填字段填充
+     * @param collectDto
+     */
+    public void mustFieldFill(JyScanCollectMqDto collectDto) {
     }
 
     /**
@@ -155,6 +165,8 @@ public class JyScanCollectStrategy {
         collectRecordPo.setCollectionCode(collectDto.getCollectionCode());
         collectRecordPo.setAggCode(collectDto.getWaybillCode());
         collectRecordPo.setSiteId(collectDto.getOperateSiteId().longValue());
+        collectRecordPo.setCustomType(collectDto.getToBWaybill());
+        collectRecordPo.setShouldCollectNum(collectDto.getWaybillGoodNumber());
         jyScanCollectService.upInsertCollectionRecord(collectRecordPo, true);
 
         jyScanCollectCacheService.saveCacheScanPackageCollectDeal(collectDto.getCollectionCode(), packageCode, collectDto.getOperateTime());
@@ -473,7 +485,7 @@ public class JyScanCollectStrategy {
         if(CollectionUtils.isNotEmpty(collectionCodeList)) {
             dPo.setCollectionCodeList(collectionCodeList);
         }
-        jyScanCollectService.deleteCollectionRecordDetail(dPo);
+        jyScanCollectService.deleteByScanCode(dPo);
     }
 
 
@@ -505,7 +517,7 @@ public class JyScanCollectStrategy {
     }
 
     /**
-     * 按包裹处理取消扫描(*幂等)
+     * 按运单处理取消扫描(*幂等)
      * @param cancelScanCollectMqDto
      * @return
      */
@@ -528,7 +540,7 @@ public class JyScanCollectStrategy {
             dPo.setCollectionCode(collectionCode);
             dPo.setAggCode(WaybillUtil.getWaybillCode(cancelScanCollectMqDto.getBarCode()));
             dPo.setEndOperateTime(new Date(cancelScanCollectMqDto.getOperateTime()));
-            jyScanCollectService.deleteCollectionRecordDetail(dPo);
+            jyScanCollectService.deleteByAggCode(dPo);
         });
 
         //修改运单统计数据

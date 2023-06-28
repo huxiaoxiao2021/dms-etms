@@ -122,36 +122,17 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
      */
     private boolean warehouseSendCancelScanDeal(JySendCancelScanDto mqBody, String businessId) {
 
-        if(StringUtils.isNotBlank(mqBody.getBarCode())){
-            //按件处理
-            SendM sendM = generateSendM(mqBody.getBarCode(), mqBody);
-            boolean cancelFlag = singleCancelDeliverHandler(sendM, businessId);
-            if(cancelFlag) {
-                //取消扫描处理集齐数据
-                sendCancelScanCollectHandlerMQ(mqBody);
-            }
-            return cancelFlag;
-        } else if(!Objects.isNull(mqBody.getBuQiAllSelectFlag()) && mqBody.getBuQiAllSelectFlag()) {
-            //全选处理
-            if(CollectionUtils.isEmpty(mqBody.getCollectionCodes())) {
-                //无效数据过滤
-                return true;
-            }
-
-            List<JyCollectRecordStatistics> jyCollectRecordPoList = jyScanCollectService.getAllBuQiWaybillCodes(mqBody);
-            if (CollectionUtils.isEmpty(jyCollectRecordPoList)) {
-                if(log.isInfoEnabled()) {
-                    log.info("任务{}取消发货全选处理不齐运单，未发现不齐运单，不做处理，businessId={}，mqBody={}",
-                            mqBody.getMainTaskBizId(), businessId, JsonHelper.toJson(mqBody));
-                }
-                return true;
-            }
-            this.sendCancelScanWaybillMq(mqBody, jyCollectRecordPoList);
-            return true;
-        }else {
-            //无效消息不处理
+        if(StringUtils.isBlank(mqBody.getBarCode())){
             return true;
         }
+        //按件处理
+        SendM sendM = generateSendM(mqBody.getBarCode(), mqBody);
+        boolean cancelFlag = singleCancelDeliverHandler(sendM, businessId);
+        if(cancelFlag) {
+            //取消扫描处理集齐数据
+            sendCancelScanCollectHandlerMQ(mqBody);
+        }
+        return cancelFlag;
 
     }
 
@@ -192,8 +173,8 @@ public class JyCancelScanConsumer extends MessageBaseConsumer {
                     log.warn("{}未查到包裹的发货数据，不做处理，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
                     return true;
                 }
-                log.error("{}取消发货失败，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
-                return false;
+                //todo 此处失败不做重试，后续改造同步，把异常给PDA,理论上取消就需要成功
+                log.error("{}取消发货失败,该失败未做重试，req={}，res={}", methodDesc, JsonHelper.toJson(sendM), JsonHelper.toJson(tDResponse));
             }
             return true;
     }

@@ -68,5 +68,13 @@ public class JyScanCollectMqDto implements Serializable {
     private String waybillCode;
     private String packageCode;
     private String collectionCode;
-    private Integer goodNumber;
+
+    /**
+     * B网标识
+     */
+    private String toBWaybill;
+    /**
+     * 运单goodNumber
+     */
+    private Integer waybillGoodNumber;
 }

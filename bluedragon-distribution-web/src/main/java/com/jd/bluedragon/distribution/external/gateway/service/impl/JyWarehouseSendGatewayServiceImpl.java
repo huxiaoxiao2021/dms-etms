@@ -402,7 +402,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("派车任务编码为空");
                 return res;
             }
-            if(CollectionUtils.isEmpty(request.getPackList()) && CollectionUtils.isEmpty(request.getWaybillCodeList()) && Objects.isNull(request.getCheckAllFlag())) {
+            if(CollectionUtils.isEmpty(request.getPackList()) && CollectionUtils.isEmpty(request.getWaybillCodeList())) {
                 res.toFail("不齐取消数据为空");
                 return res;
             }

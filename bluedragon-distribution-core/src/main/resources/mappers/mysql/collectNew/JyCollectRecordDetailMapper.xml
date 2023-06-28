@@ -90,32 +90,35 @@
     </trim>
   </insert>
 
-  <!-- 删除给操作时间，避免删除操作时间之后的数据 -->
-  <update id="deleteByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
+  <!-- 按包取消扫描处理：删除给操作时间，避免删除操作时间之后的数据 -->
+  <update id="deleteByScanCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
     update jy_collect_record_detail
     set yn = 0
     where   yn = 1
     and site_id = #{siteId,jdbcType=BIGINT}
     and agg_code = #{aggCode,jdbcType=VARCHAR}
-    and  operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
-    <if test="collectionCode != null" >
-      and collection_code = #{collectionCode,jdbcType=VARCHAR}
-    </if>
+    and scan_code = #{scanCode,jdbcType=VARCHAR}
+    and operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
     <if test="collectionCodeList != null and collectionCodeList.size() > 0" >
       and collection_code in
       <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
         #{item}
       </foreach>
     </if>
-    <if test="scanCode != null" >
-      and scan_code = #{scanCode,jdbcType=VARCHAR}
-    </if>
-    <if test="startOperateTime != null" >
-      and  operate_time &gt;=  #{startOperateTime,jdbcType=TIMESTAMP}
-    </if>
   </update>
 
-  <select id="findAggCodeByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" resultMap="BaseResultMap">
+  <!-- 按单取消扫描处理：删除给操作时间，避免删除操作时间之后的数据 -->
+  <update id="deleteByAggCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
+    update jy_collect_record_detail
+    set yn = 0
+    where   yn = 1
+    and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    and operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
+    and collection_code = #{collectionCode,jdbcType=VARCHAR}
+  </update>
+
+  <select id="findAggCodeByScanCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
     FROM
@@ -123,12 +126,7 @@
     where    yn = 1
       and site_id = #{siteId,jdbcType=BIGINT}
       and collection_code = #{collectionCode, jdbcType=VARCHAR}
-      <if test="scanCode != null" >
-        and scan_code = #{scanCode, jdbcType=VARCHAR}
-      </if>
-      <if test="aggCode != null" >
-        and agg_code = #{aggCode,jdbcType=VARCHAR}
-      </if>
+      and scan_code = #{scanCode, jdbcType=VARCHAR}
   </select>
 
 

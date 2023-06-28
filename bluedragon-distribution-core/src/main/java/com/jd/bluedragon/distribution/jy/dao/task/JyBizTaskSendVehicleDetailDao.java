@@ -137,16 +137,6 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     }
 
 
-    public List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId) {
-        if(CollectionUtils.isEmpty(detailBizList) || Objects.isNull(siteId)) {
-            return null;
-        }
-        Map<String,Object> params = new HashMap<>();
-        params.put("detailBizList", detailBizList);
-        params.put("siteId", siteId);
-        return this.getSqlSession().selectList(NAMESPACE + ".findByDetailVehicleBiz", params);
-    }
-
     public boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status) {
         if(CollectionUtils.isEmpty(detailBizList)) {
             return false;

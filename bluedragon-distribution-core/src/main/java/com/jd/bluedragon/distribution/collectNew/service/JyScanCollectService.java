@@ -21,7 +21,7 @@ public interface JyScanCollectService {
     /**
      * 按任务维度插入或修改一条集齐运单数据
      * @param collectRecordPo
-     * @param insertFlag true 存在修改，不存在插入， false 存在修改，不存在不处理
+     * @param insertFlag true 存在修改，不存在插入， false 存在修改，不存在不处理，用于取消扫描
      */
     void upInsertCollectionRecord(JyCollectRecordPo collectRecordPo, boolean insertFlag);
 
@@ -38,7 +38,17 @@ public interface JyScanCollectService {
 
     List<JyCollectRecordDetailPo> findPageCollectDetailByCondition(JyCollectRecordDetailCondition dPo);
 
-    void deleteCollectionRecordDetail(JyCollectRecordDetailCondition dPo);
+    void deleteByAggCode(JyCollectRecordDetailCondition condition);
+    void deleteByScanCode(JyCollectRecordDetailCondition condition);
 
     List<JyCollectRecordPo> findPageCollectByCondition(JyCollectRecordCondition dPo);
+
+
+    /**
+     * 校验B网
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    String toBNetFlag(String waybillCode, String waybillSign);
 }

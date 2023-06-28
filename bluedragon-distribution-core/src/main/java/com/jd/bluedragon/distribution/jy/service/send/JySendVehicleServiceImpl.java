@@ -4013,6 +4013,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         mqDto.setJyPostType(request.getPost());
         mqDto.setBarCode(request.getBarCode());
         mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+        if(JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(mqDto.getBarCodeType())) {
+            mqDto.setPackageCode(mqDto.getBarCode());
+            mqDto.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getBarCode()));
+        }
         mqDto.setCodeType(mqDto.getBarCodeType());
         mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
         //运单号+操作任务+岗位类型+触发节点

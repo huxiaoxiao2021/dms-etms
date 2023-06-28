@@ -136,4 +136,25 @@ public class SortCrossJsfManagerImpl implements SortCrossJsfManager {
             return res;
         }
     }
+
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "SortCrossJsfManagerImpl.queryCrossCodeTableTrolleyBySiteFlowList",mState={JProEnum.TP,JProEnum.FunctionError})
+    public JdResult<TableTrolleyJsfResp> queryCrossCodeTableTrolleyBySiteFlowList(TableTrolleyQuery query) {
+        final String methodDesc = "SortCrossJsfManagerImpl.queryCrossCodeTableTrolleyBySiteFlow根据场地流向pist批量查询滑道笼车信息";
+        JdResult<TableTrolleyJsfResp> res = new JdResult<>();
+        res.toSuccess();
+        try{
+            Result<TableTrolleyJsfResp> jsfRes = sortCrossJsfService.queryCrossCodeTableTrolleyBySiteFlowList(query);
+            if(log.isInfoEnabled()) {
+                log.info("{}查询成功：参数={}，返回={}", methodDesc, JsonHelper.toJson(query), JsonHelper.toJson(jsfRes));
+            }
+            res.setData(jsfRes.getData());
+            return res;
+        }catch (Exception e) {
+            log.error("{}，参数={}，errMsg={}", methodDesc, JsonHelper.toJson(query), e.getMessage(), e);
+            res.toError(String.format("根据场地流向批量查询滑道笼车信息服务异常:%s", e.getMessage()));
+            return res;
+        }
+    }
 }
