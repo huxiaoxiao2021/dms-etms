@@ -1337,6 +1337,12 @@ public class UccPropertyConfiguration {
     private boolean uploadOverWeightSwitch;
 
     /**
+     * 忽略转运全程跟踪开关
+     */
+    private boolean ignoreTysTrackSwitch;
+
+
+    /**
      * 异常处理检查场地名单
      */
     private String exceptionSubmitCheckSites;
@@ -3415,6 +3421,14 @@ public class UccPropertyConfiguration {
 	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
 		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
 	}
+
+    public boolean isIgnoreTysTrackSwitch() {
+        return ignoreTysTrackSwitch;
+    }
+
+    public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+        this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
+    }
 
     public String getExceptionSubmitCheckSites() {
         return exceptionSubmitCheckSites;
