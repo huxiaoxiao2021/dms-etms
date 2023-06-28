@@ -138,10 +138,10 @@ public interface JyGroupSortCrossDetailService {
 
     /**
      * 完成混扫任务
-     * @param templateCode
+     * @param condition
      * @return
      */
-    boolean mixScanTaskComplete(String templateCode, Integer siteCode);
+    boolean mixScanTaskComplete(JyGroupSortCrossDetailEntity condition);
 
     int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto);
 

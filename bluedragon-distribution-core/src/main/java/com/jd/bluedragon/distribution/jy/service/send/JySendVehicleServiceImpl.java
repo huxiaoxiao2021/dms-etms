@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -2939,117 +2940,126 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param mixScanTaskFlowReq
      */
     public void setMixScanTaskSendProgressData(MixScanTaskFlowDetailRes res, List<MixScanTaskDetailDto> mixScanTaskDetailDtoList, MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
-        List<String> taskDetailBizs = new ArrayList<>();
-        int focusCount = 0;
-        for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
-            taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
-            if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
-                focusCount++;
-            }
-        }
-        // 获取统计数据
-        List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
-        HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
-
-        List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
-                taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
-        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
-            throw new JyBizException("未获取到发货任务信息");
-        }
-        List<String> taskBizIds = new ArrayList<>();
-        sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
-        HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
-        
-        // 查询车型
-        List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
-        HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getTaskSendVehicleMap(taskSendList);
-
-        // 批量根据主任务id获取目的地站点
-        List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
-        HashMap<String, List<Long>> taskEndSiteMap = new HashMap<>();
-        HashSet<Long> endSiteSet = new HashSet<>();
-        for (JyBizTaskSendVehicleDetailEntity entity : detailEntityList) {
-            endSiteSet.add(entity.getEndSiteId());
-            List<Long> endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
-            if (CollectionUtils.isEmpty(endSiteList)) {
-                taskEndSiteMap.put(entity.getSendVehicleBizId(), new ArrayList<>());
-                endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
-            }
-            endSiteList.add(entity.getEndSiteId());
-        }
-        
-        // 根据始发目的地查询带扫数据
-        JySendProductAggsEntityQuery query = new JySendProductAggsEntityQuery();
-        query.setEndSiteIds(new ArrayList<>(endSiteSet));
-        query.setOperateSiteId(Long.valueOf(mixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
-        List<JySendProductAggsEntity> toScanAggList = 
-                jySendProductAggsService.getToScanNumByEndSiteList(query);
-        HashMap<Long,Integer> toScanSumMap = getToScanMap(toScanAggList);
-        
-        // 组装数据
-        HashMap<Integer, BasicVehicleTypeDto> basicVehicleTypeDtoMap = new HashMap<>();
-        int count = focusCount;
-        List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
-            MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
-            BeanUtils.copyProperties(item, flowAgg);
-            JySendAggsEntity sendAgg = aggsMag.get(item.getSendVehicleDetailBizId());
-            JyBizTaskSendVehicleDetailEntity detail = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
-            if (detail != null) {
-                JyBizTaskSendVehicleEntity bizTaskSendVehicle = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
-                Integer vehicleType = bizTaskSendVehicle.getVehicleType();
-                BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
-
-                if (basicVehicleTypeDto == null) {
-                    BasicVehicleTypeDto basicVehicle = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
-                    basicVehicleTypeDtoMap.put(vehicleType, basicVehicle);
-                    basicVehicleTypeDto = basicVehicle;
+        try {
+            List<String> taskDetailBizs = new ArrayList<>();
+            int focusCount = 0;
+            for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
+                taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
+                if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
+                    focusCount++;
                 }
+            }
+            // 获取统计数据
+            List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
+            HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
 
-                if (basicVehicleTypeDto != null) {
-                    if(basicVehicleTypeDto.getVolume() != null) {
-                        flowAgg.setVolume(BigDecimal.valueOf(basicVehicleTypeDto.getVolume()));
+            List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
+                    taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
+            if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+                throw new JyBizException("未获取到发货任务信息");
+            }
+            List<String> taskBizIds = new ArrayList<>();
+            sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
+            HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
+
+            // 查询车型
+            List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
+            HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getTaskSendVehicleMap(taskSendList);
+
+            // 批量根据主任务id获取目的地站点
+            List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
+            HashMap<String, List<Long>> taskEndSiteMap = new HashMap<>();
+            HashSet<Long> endSiteSet = new HashSet<>();
+            for (JyBizTaskSendVehicleDetailEntity entity : detailEntityList) {
+                endSiteSet.add(entity.getEndSiteId());
+                List<Long> endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
+                if (CollectionUtils.isEmpty(endSiteList)) {
+                    taskEndSiteMap.put(entity.getSendVehicleBizId(), new ArrayList<>());
+                    endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
+                }
+                endSiteList.add(entity.getEndSiteId());
+            }
+
+            // 根据始发目的地查询带扫数据
+            JySendProductAggsEntityQuery query = new JySendProductAggsEntityQuery();
+            query.setEndSiteIds(new ArrayList<>(endSiteSet));
+            query.setOperateSiteId(Long.valueOf(mixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
+            List<JySendProductAggsEntity> toScanAggList =
+                    jySendProductAggsService.getToScanNumByEndSiteList(query);
+            HashMap<Long,Integer> toScanSumMap = getToScanMap(toScanAggList);
+
+            // 组装数据
+            HashMap<Integer, BasicVehicleTypeDto> basicVehicleTypeDtoMap = new HashMap<>();
+            int count = focusCount;
+            List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
+                MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
+                BeanUtils.copyProperties(item, flowAgg);
+                JySendAggsEntity sendAgg = aggsMag.get(item.getSendVehicleDetailBizId());
+                JyBizTaskSendVehicleDetailEntity detail = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
+                if (detail != null) {
+                    JyBizTaskSendVehicleEntity bizTaskSendVehicle = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
+                    Integer vehicleType = bizTaskSendVehicle.getVehicleType();
+                    BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
+
+                    if (basicVehicleTypeDto == null) {
+                        BasicVehicleTypeDto basicVehicle = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+                        basicVehicleTypeDtoMap.put(vehicleType, basicVehicle);
+                        basicVehicleTypeDto = basicVehicle;
                     }
-                    if(basicVehicleTypeDto.getWeight() != null) {
-                        flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
+
+                    if (basicVehicleTypeDto != null) {
+                        if(basicVehicleTypeDto.getVolume() != null) {
+                            flowAgg.setVolume(BigDecimal.valueOf(basicVehicleTypeDto.getVolume()));
+                        }
+                        if(basicVehicleTypeDto.getWeight() != null) {
+                            flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
+                        }
+                        flowAgg.setLoadRate(calculateLoadRate(bizTaskSendVehicle, basicVehicleTypeDto, sendAgg));
                     }
-                }
-                if (sendAgg != null && basicVehicleTypeDto != null) {
-                    flowAgg.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()))));
+
+                    // 带扫数据组装
+                    long toScanCountSum = 0L;
+                    List<Long> endSiteList = taskEndSiteMap.get(detail.getSendVehicleBizId());
+                    if (!CollectionUtils.isNotEmpty(endSiteList)) {
+                        for (Long endSiteCode : endSiteList) {
+                            Integer toScanSum = toScanSumMap.getOrDefault(endSiteCode, 0);
+                            toScanCountSum += toScanSum.longValue();
+                        }
+                    }
+                    flowAgg.setToScanCount(toScanCountSum);
+                    flowAgg.setSendVehicleBizId(bizTaskSendVehicle.getBizId());
+                    flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
+                    // 查询车牌
+                    flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
+                    flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
+                    flowAgg.setBizNo(bizTaskSendVehicle.getBizNo());
+
+                    // 调度任务ID
+                    flowAgg.setTaskId(getJyScheduleTaskId(bizTaskSendVehicle.getBizId()));
                 }
 
-                // 带扫数据组装
-                long toScanCountSum = 0L;
-                List<Long> endSiteList = taskEndSiteMap.get(detail.getSendVehicleBizId());
-                if (!CollectionUtils.isNotEmpty(endSiteList)) {
-                    for (Long endSiteCode : endSiteList) {
-                        Integer toScanSum = toScanSumMap.getOrDefault(endSiteCode, 0);
-                        toScanCountSum += toScanSum.longValue();
-                    }
+                if (sendAgg != null) {
+                    flowAgg.setLoadVolume(sendAgg.getTotalScannedVolume());
+                    flowAgg.setLoadWeight(sendAgg.getTotalScannedWeight());
+                    flowAgg.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
+                    flowAgg.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
+                    flowAgg.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
+                    flowAgg.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
                 }
-                flowAgg.setToScanCount(toScanCountSum); 
-                flowAgg.setSendVehicleBizId(bizTaskSendVehicle.getBizId());
-                flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
-                // 查询车牌
-                flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
-                flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
-                flowAgg.setBizNo(bizTaskSendVehicle.getBizNo());
-                
-                // 调度任务ID
-                flowAgg.setTaskId(getJyScheduleTaskId(bizTaskSendVehicle.getBizId()));
-            }
-
-            if (sendAgg != null) {
-                flowAgg.setLoadVolume(sendAgg.getTotalScannedVolume());
-                flowAgg.setLoadWeight(sendAgg.getTotalScannedWeight());
-                flowAgg.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
-                flowAgg.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
-                flowAgg.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
-                flowAgg.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
-            }
-            flowAgg.setFocusCount(count);
-            return flowAgg;
-        }).collect(Collectors.toList());
-        res.setMixScanTaskFlowDtoList(flowAggs);
+                flowAgg.setFocusCount(count);
+                return flowAgg;
+            }).collect(Collectors.toList());
+            res.setMixScanTaskFlowDtoList(flowAggs);
+        }catch (Exception e) {
+            List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
+                MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
+                BeanUtils.copyProperties(item, flowAgg);
+                return flowAgg;
+            }).collect(Collectors.toList());
+            res.setMixScanTaskFlowDtoList(flowAggs);
+            log.error("接货仓发货岗查询统计数据异常：{}",JsonHelper.toJson(mixScanTaskDetailDtoList),e);
+        }
+        
     }
 
     /**
