@@ -142,6 +142,12 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private Date nowDateEnd;
 	
 	private String refGridKey;
+
+	/**
+	 * 签到人名称
+	 */
+	private String userErp;
+
 	
 	public Integer getOrgCode() {
 		return orgCode;
@@ -310,5 +316,13 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setRefGridKey(String refGridKey) {
 		this.refGridKey = refGridKey;
+	}
+
+	public String getUserErp() {
+		return userErp;
+	}
+
+	public void setUserErp(String userErp) {
+		this.userErp = userErp;
 	}
 }

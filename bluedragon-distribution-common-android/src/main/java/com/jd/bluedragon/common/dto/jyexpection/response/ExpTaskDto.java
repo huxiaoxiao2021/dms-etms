@@ -75,6 +75,12 @@ public class ExpTaskDto implements Serializable {
      */
     private Integer processingStatus;
 
+
+    /**
+     * 特殊标识
+     */
+    private String specialFlag;
+
     public String getBizId() {
         return bizId;
     }
@@ -229,5 +235,14 @@ public class ExpTaskDto implements Serializable {
 
     public void setProcessingStatus(Integer processingStatus) {
         this.processingStatus = processingStatus;
+    }
+
+
+    public String getSpecialFlag() {
+        return specialFlag;
+    }
+
+    public void setSpecialFlag(String specialFlag) {
+        this.specialFlag = specialFlag;
     }
 }

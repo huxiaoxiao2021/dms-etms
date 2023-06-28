@@ -60,7 +60,7 @@ public interface JyExceptionService {
     JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req);
 
     /**
-     * 处理任务接口-三无
+     * 处理任务接口
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
 
@@ -121,4 +121,12 @@ public interface JyExceptionService {
      * @param precessComplete 是否处理完成
      */
     void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete);
+
+    /**
+     *校验当前登录erp是否是负责人
+     * @return
+     */
+    JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+
 }

@@ -6,9 +6,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
+import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
-import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -24,7 +27,8 @@ public class JyExceptionServiceTest {
     @Autowired
     JyExceptionService jyExceptionService;
 
-
+    @Autowired
+    JySanwuExceptionService jySanwuExceptionService;
 
     @Autowired
     private DmsTimingHandlerService dmsTimingHandlerService;
@@ -80,7 +84,7 @@ public class JyExceptionServiceTest {
     public void getExceptionTaskPageList() {
 
         ExpTaskPageReq req = new ExpTaskPageReq();
-        req.setStatus(3);
+        req.setStatus(2);
         req.setPositionCode("GW00003001");
         req.setUserErp("wuyoude");
         JdCResponse<List<ExpTaskDto>> response = jyExceptionService.getExceptionTaskPageList(req);
@@ -162,6 +166,103 @@ public class JyExceptionServiceTest {
         Assert.assertTrue(true);
         dmsTimingHandlerService.timingHandlerOverTimeException();
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void checkExceptionPrincipalTest(){
+
+        ExpBaseReq req = new ExpBaseReq();
+        req.setSiteId(65388);
+        req.setUserErp("liuduo");
+        req.setPositionCode("GW00145001");
+        JdCResponse<Boolean> response = jyExceptionService.checkExceptionPrincipal(req);
+        System.out.println(JSON.toJSONString(response));
+    }
+
+    @Test
+    public void getWaitReceiveSanwuExceptionByPageTest(){
+
+        ExpTaskStatisticsReq req = new ExpTaskStatisticsReq();
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setPageSize(10);
+        req.setPageNumber(1);
+        JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> response = jySanwuExceptionService.getExpTaskStatisticsOfWaitReceiveByPage(req);
+        System.out.println(JSON.toJSONString(response));
+
+    }
+
+    @Test
+    public void getWaitReceiveSanwuExpTaskByPageTest(){
+        ExpTaskStatisticsDetailReq req = new ExpTaskStatisticsDetailReq();
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setPageSize(10);
+        req.setPageNumber(1);
+        req.setFloor(1);
+        req.setGridCode("BDXC-01");
+        req.setGridNo("01");
+        req.setAreaCode("BDXC");
+        JdCResponse<List<ExpTaskDto>> response = jySanwuExceptionService.getWaitReceiveSanwuExpTaskByPage(req);
+        System.out.println(JSON.toJSONString(response));
+
+    }
+
+    @Test
+    public void getExpSignInUserByPageTest(){
+
+        ExpSignUserReq req = new ExpSignUserReq();
+        req.setPositionCode("GW00019001");
+        req.setExpUserErp("wu");
+        req.setPageSize(10);
+        req.setPageNumber(1);
+        JdCResponse<List<ExpSignUserResp>> response = jySanwuExceptionService.getExpSignInUserByPage(req);
+        System.out.println(JSON.toJSONString(response));
+
+    }
+
+    @Test
+    public void assignExpTaskTest(){
+        ExpTaskAssignRequest req = new ExpTaskAssignRequest();
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setUserErp("wuyoude");
+        req.setAssignHandlerErp("wuyoude");
+        req.setBizIds(Arrays.asList("SANWU_SW1234567892","SANWU_SWNEW67890"));
+
+
+        List<ExpTaskStatisticsOfWaitReceiveDto> expTaskStatistics =  new ArrayList<>();
+        ExpTaskStatisticsOfWaitReceiveDto detailReq = new ExpTaskStatisticsOfWaitReceiveDto();
+        detailReq.setFloor(1);
+        detailReq.setGridCode("BGQ-01");
+        detailReq.setGridNo("01");
+        detailReq.setAreaCode("BGQ");
+        expTaskStatistics.add(detailReq);
+        req.setExpTaskStatistics(expTaskStatistics);
+
+        JdCResponse<Boolean> response = jySanwuExceptionService.assignExpTask(req);
+        System.out.println(JSON.toJSONString(response));
+    }
+
+    @Test
+    public void dealAssignTaskDataTest(){
+        JyAssignExpTaskDto mq = new JyAssignExpTaskDto();
+        mq.setPrincipalErp("wuyoude");
+        mq.setBizId("SANWU_SWNEW67890");
+        mq.setAssignHandlerErp("wuyoude");
+        //jySanwuExceptionService.dealAssignTaskData(mq);
+    }
+
+    @Test
+    public void getAssignExpTaskCountTest(){
+        ExpBaseReq req = new ExpBaseReq();
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setUserErp("wuyoude");
+
+
+        JdCResponse<Integer> response = jySanwuExceptionService.getAssignExpTaskCount(req);
+        System.out.println(JSON.toJSONString(response));
     }
 
 }

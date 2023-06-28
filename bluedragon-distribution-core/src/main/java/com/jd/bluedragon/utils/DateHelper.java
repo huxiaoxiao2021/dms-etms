@@ -236,7 +236,7 @@ public class DateHelper {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
-        
+
         Date thisDate = calendar.getTime();
         Date lastDate = thisDate;
         Date currentDate = new Date();
@@ -273,7 +273,7 @@ public class DateHelper {
         for(int i=1;i<=28;i++) {
         	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
         }
-        
+
         Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
         System.out.println(date);
 
