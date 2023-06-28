@@ -49,18 +49,6 @@ public class JQCodeServiceImpl implements JQCodeService {
 
     public static final String LOCK_DEFAULT_VALUE = "1";
 
-//    public static final String JQ_CONDITION = "JQ_condition";
-    public static final String ATTRIBUTE_POST_TYPE_SEND = "send";//发货岗
-    public static final String ATTRIBUTE_POST_TYPE_UNLOAD = "unload";//卸车岗
-
-
-    /**
-     * 组装collectionCode对应condition的字段
-     */
-//    public static final String CONDITION_SITE_ID = "SITE";//场地编码
-//    public static final String CONDITION_JY_BIZ_ID = "TASK:";//任务主键
-    public static final String CONDITION_JY_BATCH = "BATCH:";//批次号
-    public static final String CONDITION_JY_POST = "POST:";//岗位枚举
     /**
      * 组装collectionCode附属属性attribute的字段
      */
@@ -72,7 +60,7 @@ public class JQCodeServiceImpl implements JQCodeService {
     public static final String ATTRIBUTE_DATE_PARTITION = "date_partition";//创建时间
     public static final String ATTRIBUTE_POST_TYPE = "post_type";//岗位类型
     public static final String  ATTRIBUTE_COLLECTION_CODE = "collection_code";//关联的collectionCode
-
+    public static final String ATTRIBUTE_POST_TYPE_SEND = "send";//发货岗
 
 
     @Autowired
@@ -300,11 +288,27 @@ public class JQCodeServiceImpl implements JQCodeService {
         if(Objects.isNull(jyFuncCodeEnum) || StringUtils.isBlank(sendCode)) {
             return null;
         }
-        StringBuffer sb = new StringBuffer();
-        sb.append(JQCodeServiceImpl.CONDITION_JY_POST).append(jyFuncCodeEnum.getCode())
-                .append(Constants.SEPARATOR_COLON)
-                .append(JQCodeServiceImpl.CONDITION_JY_BATCH).append(sendCode);
-        return sb.toString().toUpperCase();
+        return String.format("%s:%s", convertPost(jyFuncCodeEnum), sendCode);
+    }
+
+    /**
+     * 岗位类型转换
+     * kv_index 表定义keyword长度有限，原岗位码场地过长， 批次号拼岗位码 长度超长
+     * 目前接货仓发货岗使用，其他岗位根据业务需要单独处理转换
+     * @param jyFuncCodeEnum
+     * @return
+     */
+    String convertPost(JyFuncCodeEnum jyFuncCodeEnum) {
+        String res = null;
+        switch(jyFuncCodeEnum.getCode()) {
+            case "WAREHOUSE_SEND_POSITION":
+                res = "101";
+                break;
+        }
+        if(StringUtils.isBlank(res)) {
+         throw new JyBizException("集齐转换collectionCode不支持的岗位类型" + jyFuncCodeEnum.getName());
+        }
+        return res;
     }
 
 

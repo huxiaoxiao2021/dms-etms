@@ -84,8 +84,8 @@ public class JyScanCollectStrategy {
         if(!this.scanFilterInvalid(collectDto)) {
             return true;
         }
-        //必要字段前置加工
-        this.mustFieldFill(collectDto);
+//        //必要字段前置加工
+//        this.mustFieldFill(collectDto);
 
         if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return this.scanWaybillCollectDeal(collectDto);

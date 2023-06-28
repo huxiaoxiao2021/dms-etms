@@ -47,6 +47,9 @@ public class JyWarehouseScanCollectHandler extends JyScanCollectStrategy impleme
             return true;
         }
 
+        //必要字段前置加工
+        this.mustFieldFill(collectDto);
+
         if (JyCollectScanCodeTypeEnum.WAYBILL.getCode().equals(collectDto.getCodeType())) {
             return super.scanWaybillCollectDeal(collectDto);
         } else if (JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(collectDto.getCodeType())) {
