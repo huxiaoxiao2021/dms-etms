@@ -525,30 +525,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.info("autoHandleSignOutByAttendJmq：userErp为空，无需处理！");
 			return result;
 		}
-		if(StringUtils.isBlank(mqData.getDcNo())) {
-			log.info("autoHandleSignOutByAttendJmq：dcNo为空，无需处理！");
-			return result;
-		}		
 		if(mqData.getActualOffTime() == null) {
 			log.info("autoHandleSignOutByAttendJmq：签退时间为空，无需处理！");
-			return result;
-		}
-		Integer siteCode = NumberHelper.convertToInteger(mqData.getDcNo());
-		if(siteCode == null) {
-			log.warn("autoHandleSignOutByAttendJmq：站点数据无效{}，无需处理！",mqData.getDcNo());
 			return result;
 		}
 		//根据erp+场地查询，已签未退的数据
 		UserSignRecordQuery query = new UserSignRecordQuery();
 		query.setUserCode(mqData.getUserErp());
-		query.setSiteCode(siteCode);
 		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
 		if(lastUnSignOutRecord == null) {
-			log.info("autoHandleSignOutByAttendJmq：站点【{}】用户【{}】已签未退数据为空，无需处理！",siteCode,mqData.getUserErp());
+			log.info("autoHandleSignOutByAttendJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
 			return result;
 		}
 		if(!mqData.getActualOffTime().after(lastUnSignOutRecord.getSignInTime())) {
-			log.info("autoHandleSignOutByAttendJmq：打卡签退时间小于签到时间，无需处理！",siteCode,mqData.getUserErp());
+			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间小于签到时间，无需处理！",mqData.getUserErp());
 			return result;
 		}
 		//执行-签退逻辑
