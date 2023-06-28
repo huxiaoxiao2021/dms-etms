@@ -1080,7 +1080,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         mqDto.setOperatorName(request.getUser().getUserName());
         mqDto.setOperatorErp(request.getUser().getUserErp());
         mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
-        mqDto.setOperatorName(request.getCurrentOperate().getSiteName());
+        mqDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
         mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
         mqDto.setJyPostType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
         mqDto.setBizSource(JyWarehouseSendVehicleServiceImpl.OPERATE_SOURCE_PDA);
@@ -1247,7 +1247,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
         } catch (Exception e) {
             Profiler.functionError(info);
-            log.error("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->配置接口调用异常,单号为：{}" , waybillCode,e);
+            log.error("JyWarehouseSendVehicleServiceImpl.getBarCodeAllRouters-->配置接口调用异常,单号为：{}, 请求={}" , waybillCode, JsonHelper.toJson(jsfRequest), e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(HintService.getHint(HintCodeConstants.GET_AREA_DEST_ERROR));
             return result;

@@ -36,7 +36,7 @@ public class JyCollectRecordPo {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
 

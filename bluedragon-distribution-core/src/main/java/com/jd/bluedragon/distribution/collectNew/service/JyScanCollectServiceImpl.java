@@ -145,6 +145,12 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
                     //扫描关注更新字段，取消扫描不需要关注
                     updateRecordPo.setShouldCollectNum(collectRecordPo.getShouldCollectNum());
                     updateRecordPo.setCustomType(collectRecordPo.getCustomType());
+                }else {
+                    //取消扫描关注字段
+                    if(collectNum <= 0) {
+                        updateRecordPo.setYn(0);
+                    }
+
                 }
 
                 jyCollectRecordDao.updateByCondition(updateRecordPo);

@@ -5,12 +5,14 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.external.gateway.service.DeviceGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -442,13 +444,13 @@ public class JyWarehouseSendGatewayServiceTest {
                 "        \"vehicleNumber\": \"\"\n" +
                 "    }" ;
 
-        String pdaJson = "      {\n" +
-                "        \"barCode\": \"BC1001230627240000600118\",\n" +
+        String pdaJson = "     {\n" +
+                "        \"barCode\": \"JDVA00272331780-4-15-\",\n" +
                 "        \"barCodeType\": 0,\n" +
                 "        \"currentOperate\": {\n" +
-                "            \"dmsCode\": \"BJ00001\",\n" +
-                "            \"operateTime\": 1687867879228,\n" +
-                "            \"operatorId\": \"52255\",\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1687954471192,\n" +
+                "            \"operatorId\": \"52377\",\n" +
                 "            \"operatorTypeCode\": 1,\n" +
                 "            \"orgId\": 6,\n" +
                 "            \"orgName\": \"华北\",\n" +
@@ -463,17 +465,19 @@ public class JyWarehouseSendGatewayServiceTest {
                 "        \"sendVehicleBizId\": \"SST23062100000032\",\n" +
                 "        \"sendVehicleDetailBizId\": \"TW23062100962018-001\",\n" +
                 "        \"taskId\": \"230621300000051\",\n" +
-                "        \"unfocusedFlowForceSend\": true,\n" +
+                "        \"unfocusedFlowForceSend\": false,\n" +
                 "        \"user\": {\n" +
-                "            \"userCode\": 17907,\n" +
-                "            \"userErp\": \"shipeilin\",\n" +
-                "            \"userName\": \"石培林\"\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
                 "        }\n" +
                 "    }";
         while(true) {
             try{
+
                 SendScanReq paramDto = JsonHelper.fromJson(pdaJson, SendScanReq.class);
 
+                testDmsSendScan();
                 JdVerifyResponse<SendScanRes> obj0 = jyWarehouseSendGatewayService.sendScan(paramDto);
                 System.out.println(JsonHelper.toJson(obj0));
 
@@ -516,6 +520,43 @@ public class JyWarehouseSendGatewayServiceTest {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
+
+    public void testDmsSendScan()  {
+        String body = "  {\n" +
+                "        \"barCode\": \"JDVA00272331780-5-15-\",\n" +
+                "        \"barCodeType\": 1,\n" +
+                "        \"confirmSendDestId\": 910,\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1687954426618,\n" +
+                "            \"operatorId\": \"52376\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 40240,\n" +
+                "            \"siteName\": \"北京通州分拣中心\"\n" +
+                "        },\n" +
+                "        \"forceSubmit\": false,\n" +
+                "        \"groupCode\": \"G00000047003\",\n" +
+                "        \"sendForWholeBoard\": false,\n" +
+                "        \"sendVehicleBizId\": \"SST23062800000039\",\n" +
+                "        \"sendVehicleDetailBizId\": \"TW23062800963246-001\",\n" +
+                "        \"taskId\": \"230628300000039\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
+                "        },\n" +
+                "        \"vehicleNumber\": \"京AN0723\"\n" +
+                "    }";
+
+        SendScanRequest request = JsonHelper.fromJson(body, SendScanRequest.class);
+        Object obj = jySendVehicleService.sendScan(request);
+        System.out.println(JsonHelper.toJson(obj));
     }
 
 
