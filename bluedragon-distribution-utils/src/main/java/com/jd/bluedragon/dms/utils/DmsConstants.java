@@ -417,7 +417,18 @@ public class DmsConstants {
      * 运单-称重-longPackage:2-超长超重服务
      */
     public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
-    
+    /**
+     * 用户编码-超时自动签退
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_TIME_OUT = "sys.dms";
+    /**
+     * 用户编码-接收attend_detail_change_topic消息，自动签退标识
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_FORM_RZ = "sys_attend_topic";
+    /**
+     * 用户名称-人脸识别
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
     /**
      * 暂存类型枚举值
      */
