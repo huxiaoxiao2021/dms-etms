@@ -423,6 +423,7 @@
     where yn = 1
       and template_code = #{templateCode,jdbcType=VARCHAR}
       and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
   </update>
 
 
