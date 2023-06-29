@@ -45,7 +45,7 @@ public interface JySealVehicleService {
      * 传站封车
      *
      */
-    InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq);
+    InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq);
 
 
     /**

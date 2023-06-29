@@ -55,7 +55,7 @@ public class SealVehicleInfoResp implements Serializable {
      * 线路名称
      */
     private String routeLineName;
-
+    
     public String getRouteLineCode() {
         return routeLineCode;
     }

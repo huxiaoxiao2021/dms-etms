@@ -120,6 +120,7 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.*;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
 @Service
@@ -375,10 +376,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
       throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个！");
     }
-    CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
-    if (resp == null ) {
+    
+    String templateCode = jyGroupSortCrossDetailService.createGroup(request);
+    CreateGroupCTTResp resp = new CreateGroupCTTResp();
+    if (templateCode == null ) {
       return new InvokeResult(CREATE_GROUP_CTT_DATA_CODE, CREATE_GROUP_CTT_DATA_MESSAGE);
+    }else {
+      resp.setTemplateCode(templateCode);
     }
+    
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
@@ -386,7 +392,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.getDefaultGroupCTTName", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
     CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
-    String groupName = String.format(GROUP_NAME_PREFIX, this.genObjectId.getObjectId(JyGroupSortCrossDetailEntity.class.getName()));
+    String groupName = jyGroupSortCrossDetailService.getMixScanTaskDefaultName(GROUP_NAME_PREFIX);
     createGroupCTTResp.setTemplateName(groupName);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
   }
@@ -462,7 +468,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   /**
    * 校验是否为滑道-笼车号
    */
-  private boolean checkCTTCode(String barCode) {
+  public static boolean checkCTTCode(String barCode) {
     if (barCode.contains("-")) {
       return Boolean.TRUE;
     }
@@ -486,7 +492,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setGroupCode(request.getGroupCode());
       query.setTemplateCode(request.getTemplateCode());
       query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
-      JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailService.selectOneByGroupCrossTableTrolley(query);
+      query.setFuncType(COMBOARD_SEND_POSITION.getCode());
+      JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailService.selectOneByFlowAndTemplateCode(query);
       if (entity != null) {
         log.error("已经存在流向，无法新增：{}", JsonHelper.toJson(entity));
         return new InvokeResult(HAVE_SEND_FLOW_UNDER_GROUP_CODE, HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE);
@@ -506,12 +513,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return new InvokeResult( UPDATE_CTT_GROUP_LIST_CODE, "混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
       }
     }
-
-    if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
-      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
-    } else {
-      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
+    
+    try {
+      if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+      }
+    }catch (JyBizException e) {
+      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, e.getMessage());
     }
+    return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
   }
 
   private Boolean checkBaseRequest(BaseReq request) {

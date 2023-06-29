@@ -95,7 +95,7 @@ public class DmsConstants {
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
-    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{21,23}$");
+    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{15}T[0-9]{6}$|^B[0-9]{15}T[0-9]{7}$|^B[0-9]{21,23}$");
 
     /**
      * 返单号正则表达式
