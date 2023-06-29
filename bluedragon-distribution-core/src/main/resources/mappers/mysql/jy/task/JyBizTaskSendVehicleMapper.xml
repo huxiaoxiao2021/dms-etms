@@ -597,19 +597,19 @@
     <sql id="taskQueryCondition">
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="lineTypeList != null and lineTypeList.size() > 0">
+        <if test="lineTypeList != null and lineTypeList.length > 0">
             AND line_type IN
             <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
         </if>
-        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+        <if test="sendVehicleBizList != null and sendVehicleBizList.length > 0">
             AND biz_id IN
             <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
         </if>
-        <if test="statuses != null and statuses.size() > 0">
+        <if test="statuses != null and statuses.length > 0">
             AND vehicle_status IN
             <foreach collection="statuses" separator="," open="(" close=")" item="item">
                 #{item}

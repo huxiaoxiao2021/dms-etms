@@ -70,6 +70,13 @@ public class JdResult<T> implements Serializable{
 	public boolean isWarn(){
 		return CODE_WARN.equals(this.code);
 	}
+    /**
+     * 判断是否异常
+     * @return
+     */
+	public boolean isError() {
+	    return CODE_ERROR.equals(this.code);
+    }	
 	/**
 	 * 更改状态为成功
 	 */

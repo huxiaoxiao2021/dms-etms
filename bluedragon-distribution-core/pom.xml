@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jmq.version>2.3.2</jmq.version>
-		<etms.waybill.agent.version>4.2.284</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.298</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -241,7 +241,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.8-SNAPSHOT</version>
+			<version>2.0.11-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -275,7 +275,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.7-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -604,7 +604,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.7.4-HOTFIX-T5</version>
+			<version>1.7.4-HOTFIX-T8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -1579,7 +1579,7 @@
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
-			<version>2.3.0-SNAPSHOT</version>
+			<version>3.2.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1899,6 +1899,12 @@
 		<dependency>
 			<groupId>com.jd.ssa</groupId>
 			<artifactId>oidc-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ea</groupId>
@@ -2035,7 +2041,7 @@
         <dependency>
 			<groupId>com.jd.ps.epf</groupId>
 			<artifactId>ps-epf-api</artifactId>
-			<version>1.3-SNAPSHOT</version>
+			<version>1.4-SNAPSHOT</version>
         </dependency>
 		<!--运输系统 集包袋相关-->
 		<dependency>
@@ -2137,7 +2143,12 @@
 			<artifactId>jdwdata</artifactId>
 			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.merchant</groupId>
+            <artifactId>platform-sdk</artifactId>
+            <!-- 测试环境1.0.0-TEST-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
@@ -2374,7 +2385,7 @@
 		<dependency>
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<!--查询冷链耗材-->
 		<dependency>

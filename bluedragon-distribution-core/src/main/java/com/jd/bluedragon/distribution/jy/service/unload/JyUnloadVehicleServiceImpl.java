@@ -39,6 +39,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -102,6 +103,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private static final int UNLOAD_CACHE_EXPIRE = 12;
 
     private static final int UNLOAD_SCAN_BAR_EXPIRE = 6;
+
+    private static final int TEAN_PACKAGE_FLAG = 1;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -198,6 +201,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
 
             UnloadVehicleTaskResponse response = new UnloadVehicleTaskResponse();
+            // 增加刷新间隔配置
+            response.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
 
             // 封车状态数量统计
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
@@ -229,9 +234,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                                            JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
         List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
+        Long teanCount = unloadVehicleService.findStatusCountByCondition4StatusAndLineOfTEAN(condition, sealCarCodes, curQueryStatus);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
+        unloadVehicleData.setTotalOfTEAN(teanCount);
 
         // 按车辆状态组装
         makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
@@ -312,6 +319,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     break;
                 case UN_LOAD_DONE:
                     UnloadCompleteVehicle completeVehicle = (UnloadCompleteVehicle) vehicleBaseInfo;
+                    completeVehicle.setTags(resolveTagSign(entity.getTagsSign()));
                     completeVehicle.setLessCount(entity.getLessCount());
                     completeVehicle.setMoreCount(entity.getMoreCount());
                     completeVehicle.setManualCreatedTask(entity.unloadWithoutTask());
@@ -371,6 +379,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
         vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
+        vehicleBaseInfo.setTeanFlag(entity.getTeanFlag());
 
         return vehicleBaseInfo;
     }
@@ -417,6 +426,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return lineTypeList;
     }
 
+
     private LineTypeStatis createLineTypeAgg(JyBizTaskUnloadCountDto countDto) {
         LineTypeStatis lineTypeStatis = new LineTypeStatis();
         lineTypeStatis.setLineType(countDto.getLineType());
@@ -452,6 +462,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
         condition.setTaskType(request.getTaskType());
+        if(Objects.equals(request.getTeanFlag(),TEAN_PACKAGE_FLAG)){
+            condition.setTeanFlag(request.getTeanFlag());
+        }
 
         return condition;
     }
@@ -949,6 +962,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
 
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
+            // 增加刷新间隔配置
+            if (scanProgress != null) {
+                scanProgress.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
+            }
             result.setData(scanProgress);
             if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_UNLOAD_IS_DEMOTION)){
                 throw new JyDemotionException("卸车进度不准，flink降级!");

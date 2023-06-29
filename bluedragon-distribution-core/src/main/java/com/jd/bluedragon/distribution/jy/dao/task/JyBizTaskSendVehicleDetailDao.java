@@ -116,6 +116,11 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByTransWorkCode", entity);
     }
 
+    public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findBySendVehicleBizId", sendVehicleBizId);
+    }
+
+
     public List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", queryEntity);
@@ -129,7 +134,7 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         params.put("bizIds", bizIds);
         return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByBizIds", params);
     }
-    
+
     public List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds) {
         Map<String, Object> params = new HashMap<>();
         params.put("sendVehicleBizIds", sendVehicleBizIds);

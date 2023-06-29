@@ -34,7 +34,6 @@
             float: left;
             margin-left: 20px;
         }
-
         #waybill-weight-btn-wrapper{
             float: left;
             margin-left:30px;
@@ -62,30 +61,49 @@
     <div id="breadcrumb">
         <p><a href="#">工具</a>&nbsp;&gt;&nbsp;<a href="#">快运运单称重</a></p>
     </div>
-    <div id="waybill-weight-form-wrapper">
+    <div id="waybill-weight-form-wrapper" style="width:100%;height:40px">
         <form id="waybill-weight-form">
-            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
-                <span class="input-text-span"><span style="color: red">*</span>运单号/运单下包裹号 : </span>
-                <input id="waybill-weight-code-input" type="text" value="codeStr">
+            <div style="width:100%;height:25px">
+	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+	                <span class="input-text-span"><span style="color: red">*</span>运单号/运单下包裹号 : </span>
+	                <input id="waybill-weight-code-input" type="text" value="codeStr"></input>
+	            </div>
+	            <div id="weight-input-wrapper" class="waybill-weight-input-wrapper">
+	                <span class="input-text-span"><span style="color: red">*</span>总重量 : </span>
+	                <input id="waybill-weight-kg-input" type="text" value="weight"></input>
+	            </div>
+	            <div id="cbm-input-wrapper" class="waybill-weight-input-wrapper">
+	                <span class="input-text-span"><span style="color: red">*</span>总体积 : </span>
+	                <input id="waybill-weight-cbm-input" type="text" value="volume"></input>
+	            </div>
+	            <div id="waybill-weight-btn-wrapper">
+	                <a id="waybill-weight-btn" href="#">录入运单总重量体积</a>
+	            </div>
+	            <div id="waybill-weight-improt-btn-wrapper">
+	                <a id="waybill-weight-import-btn" href="#">批量导入</a>
+	            </div>
+	            <div id="waybill-weight-improtbypackage-btn-wrapper">
+	                <a id="waybill-weight-improtbypackage-btn" href="#">按包裹维度批量录入</a>
+	            </div>
             </div>
-            <div id="weight-input-wrapper" class="waybill-weight-input-wrapper">
-                <span class="input-text-span"><span style="color: red">*</span>总重量 : </span>
-                <input id="waybill-weight-kg-input" type="text" value="weight"></input>
-            </div>
-            <div id="cbm-input-wrapper" class="waybill-weight-input-wrapper">
-                <span class="input-text-span"><span style="color: red">*</span>总体积 : </span>
-                <input id="waybill-weight-cbm-input" type="text" value="volume"></input>
-            </div>
-            <div id="waybill-weight-btn-wrapper">
-                <a id="waybill-weight-btn" href="#">录入运单总重量体积</a>
-            </div>
-            <div id="waybill-weight-improt-btn-wrapper">
-                <a id="waybill-weight-import-btn" href="#">批量导入</a>
-            </div>
-            <div id="waybill-weight-improtbypackage-btn-wrapper">
-                <a id="waybill-weight-improtbypackage-btn" href="#">按包裹维度批量录入</a>
-            </div>
-
+            <div style="width:100%;height:25px;margin-top: 26px;">
+	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+	                <input id="over-enable-input" style="height:100%;margin-top: 1px;" type="checkbox" value="overLengthAndWeightEnable">
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>是否超长超重</span>
+	            </div>
+	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+	                <input id="one-side-input" disabled="disabled" style="height:100%;margin-top: 1px;" type="checkbox" value="oneSide">
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>3.1m&lt;单边≤4m</span>
+	            </div> 
+	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+	                <input id="three-side-input" disabled="disabled" style="height:100%;margin-top: 1px;" type="checkbox" value="threeSide">
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>5.5m&lt;三边和≤6.3m</span>
+	            </div>
+	            <div id="waybill-input-wrapper" class="waybill-weight-input-wrapper">
+	                <input id="over-weight-input" disabled="disabled" style="height:100%;margin-top: 1px;" type="checkbox" value="overWeight">
+	                <span class="input-text-span" style="height:100%;"><span style="color: red"></span>300kg&lt;单件≤1000kg</span>
+	            </div>
+            </div>                                   
         </form>
     </div>
     <div id="waybill-weight-success-datagrid-wrapper">

@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -22,6 +24,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -55,6 +58,7 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
@@ -133,6 +137,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
+
+    @Autowired
+    private IJySendVehicleJsfManager sendVehicleJsfManager;
 
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;

@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.slf4j.Logger;
@@ -16,6 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.*;
 
 @Service("jyBizTaskSendVehicleDetailService")
@@ -154,6 +159,11 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
 		return jyBizTaskSendVehicleDetailDao.findByTransWorkItemCode(query);
 	}
+
+    @Override
+    public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
+        return jyBizTaskSendVehicleDetailDao.findBySendVehicleBizId(sendVehicleBizId);
+    }
 
     @Override
     public List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity) {

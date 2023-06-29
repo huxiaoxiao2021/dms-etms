@@ -19,6 +19,9 @@ public class BoardCombinationRequest extends JdRequest {
     /** 目的地名称 **/
     private String receiveSiteName;
 
+    /** 包裹目的地 **/
+    private Integer nextSiteCode;
+
     /** 箱号或包裹号 **/
     private String boxOrPackageCode;
 
@@ -48,8 +51,8 @@ public class BoardCombinationRequest extends JdRequest {
     /**
      * 操作者id
      */
-	private String operatorId;    
-
+	private String operatorId;
+    
     public String getBoardCode() {
         return boardCode;
     }
@@ -72,6 +75,14 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public Integer getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Integer nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
     }
 
     public String getBoxOrPackageCode() {

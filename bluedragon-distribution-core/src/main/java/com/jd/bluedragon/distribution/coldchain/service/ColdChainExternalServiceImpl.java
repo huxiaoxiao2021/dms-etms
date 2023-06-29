@@ -917,6 +917,10 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             return result;
         }
 
+        //运输计划号与批次号一一对应
+        if(StringUtils.isBlank(cRequest.getSendCode())){
+            cRequest.setSendCode(coldChainSendService.getOrGenerateSendCode(cRequest.getTransPlanCode(),cRequest.getSiteCode(),cRequest.getReceiveSiteCode()));
+        }
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
         request.setIsForceSend(cRequest.isForceSend());
@@ -971,7 +975,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      */
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> newPackageSend(PackageSendRequest request,int barCodeType) {
         if (log.isInfoEnabled()) {
-            log.info(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request));
+            log.info("ColdChainExternalServiceImpl->newPackageSend,入参：{}",JsonHelper.toJson(request));
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.ColdChainExternalServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
@@ -1001,12 +1005,12 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         } catch (Exception ex) {
             Profiler.functionError(info);
             result.error(ex);
-            log.error("ColdChainExternalServiceImpl.newPackageSend一车一单发货{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request), ex);
+            log.error("ColdChainExternalServiceImpl.newPackageSend一车一单发货{}", JsonHelper.toJson(request), ex);
         }finally {
             Profiler.registerInfoEnd(info);
         }
         if (log.isInfoEnabled()) {
-            log.info(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(result));
+            log.info("ColdChainExternalServiceImpl->newPackageSend,发货结果：{}",JsonHelper.toJson(result));
         }
         return result;
     }

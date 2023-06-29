@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
@@ -53,5 +55,11 @@ public interface DMSWeightVolumeService {
      * @return
      */
     Boolean zeroWeightVolumeIntercept(ZeroWeightVolumeCheckEntity entity);
+    /**
+     * 上传前校验
+     * @param condition
+     * @return
+     */
+	JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition);
 
 }

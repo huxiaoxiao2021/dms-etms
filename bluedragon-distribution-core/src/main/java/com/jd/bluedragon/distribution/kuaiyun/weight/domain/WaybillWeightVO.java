@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class WaybillWeightVO implements Serializable
 {
@@ -50,7 +51,25 @@ public class WaybillWeightVO implements Serializable
 
     /*是否可强制提交 0否 1是*/
     private Integer canSubmit;
-
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
+    
+    private String overLengthAndWeightTypesStr;
+    /**
+     * 长包裹 0:普通包裹 1:长包裹
+     * */
+    private Integer longPackage;
+    /**
+     * 处理类型
+     * @see com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum
+     */
+    private String businessType;    
     @Override
     public String toString()
     {
@@ -207,4 +226,44 @@ public class WaybillWeightVO implements Serializable
     {
 
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
+
+	public Integer getLongPackage() {
+		return longPackage;
+	}
+
+	public void setLongPackage(Integer longPackage) {
+		this.longPackage = longPackage;
+	}
+
+	public String getOverLengthAndWeightTypesStr() {
+		return overLengthAndWeightTypesStr;
+	}
+
+	public void setOverLengthAndWeightTypesStr(String overLengthAndWeightTypesStr) {
+		this.overLengthAndWeightTypesStr = overLengthAndWeightTypesStr;
+	}
+
+	public String getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
+	}
 }

@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
+import java.util.Date;
 import java.util.List;
 
 public interface JyBizTaskSendVehicleDetailService {
@@ -113,6 +115,8 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
 	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
+
+    JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId);
 
     /**
      * 根据流向list查询发货明细表中主任务BizIds

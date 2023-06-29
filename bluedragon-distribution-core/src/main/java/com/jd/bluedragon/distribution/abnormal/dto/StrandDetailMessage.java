@@ -47,6 +47,11 @@ public class StrandDetailMessage implements Serializable{
      */
     private Integer routerNextSiteCode;
 
+    /**
+     * 容器号
+     */
+    private String containerCode;
+
     public Integer getReasonCode() {
         return reasonCode;
     }
@@ -158,5 +163,12 @@ public class StrandDetailMessage implements Serializable{
 	public void setRouterNextSiteCode(Integer routerNextSiteCode) {
 		this.routerNextSiteCode = routerNextSiteCode;
 	}
-	
+
+    public String getContainerCode() {
+        return containerCode;
+    }
+
+    public void setContainerCode(String containerCode) {
+        this.containerCode = containerCode;
+    }
 }

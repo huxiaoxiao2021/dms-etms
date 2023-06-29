@@ -802,6 +802,45 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!--  异常提报消息  -->
+    <bean id="abnormalReportRecordProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.abnormal.report.record}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!-- 拣运-滞留扫描：容器处理 -->
+    <bean id="jyStrandScanContainerDealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strandScan.containerDeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 德邦返调度包裹处理 -->
+    <bean id="debonReturnScheduleProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.debon.return.schedule}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 拣运开发平台接收发货消息 -->
+    <bean id="jyOpenPlatformSendProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.open.platform.send}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 拣运开发平台接收发货完成消息 -->
+    <bean id="jyOpenPlatformSendFinishProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.open.platform.sendFinish}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 转运发货任务完成消息 -->
+    <bean id="loadPackageSendCompleteProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.load_package_send_complete}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 转运发货任务完成包裹明细消息 -->
+    <bean id="transportSendPackageProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.transport_send_package}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!-- 拣运扫描集齐-新 -->
     <bean id="jyScanCollectProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.scan.collect}" />

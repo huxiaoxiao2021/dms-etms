@@ -8,6 +8,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -41,6 +42,8 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.cache.util.WaybillConstants;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -65,6 +68,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
@@ -2104,6 +2109,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
             target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+        }
+        //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
         }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);

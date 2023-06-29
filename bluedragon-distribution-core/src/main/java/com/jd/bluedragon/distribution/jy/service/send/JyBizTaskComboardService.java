@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
@@ -29,7 +30,7 @@ public interface JyBizTaskComboardService {
    * @param endSiteCode
    * @return
    */
-  List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCode);
+  List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCode,String groupCode);
 
   boolean save(JyBizTaskComboardEntity entity);
 
@@ -84,5 +85,7 @@ public interface JyBizTaskComboardService {
 
 
   boolean updateBoardStatusBySendCodeList(List<String> batchCodeList, String operateUserCode, String operateUserName, ComboardStatusEnum comboardStatusEnum);
+
+  List<SendFlowDto> countBoardGroupBySendFlow(CountBoardDto countBoardDto);
 }
 

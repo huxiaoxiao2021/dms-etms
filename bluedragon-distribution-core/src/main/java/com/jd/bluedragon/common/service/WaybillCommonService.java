@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.service;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -253,6 +254,8 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode);
+
+
 
 	/**
 	 * 获取预分拣站点id
