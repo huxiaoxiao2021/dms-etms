@@ -69,6 +69,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.erp.util.BeanUtils;
@@ -1410,6 +1411,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param mixScanTaskFlowReq
      * @return
      */
+    @CacheMethod(key="getMixScanTaskFlowDetailList.queryCache-{0.templateCode}",cacheBean="redisCache", nullTimeout = 1000 * 10, timeout = 1000 * 10)
     public MixScanTaskFlowDetailRes getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
         MixScanTaskFlowDetailRes res = new MixScanTaskFlowDetailRes();
         // 获取混扫任务信息

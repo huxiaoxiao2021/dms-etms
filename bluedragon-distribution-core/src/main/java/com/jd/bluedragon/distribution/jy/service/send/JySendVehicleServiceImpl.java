@@ -3055,18 +3055,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }).collect(Collectors.toList());
             res.setMixScanTaskFlowDtoList(flowAggs);
         }catch (Exception e) {
-            List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
-                MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
-                BeanUtils.copyProperties(item, flowAgg);
-                JyBizTaskSendVehicleDetailEntity detailEntity = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
-                if (detailEntity != null) {
-                    flowAgg.setSendVehicleBizId(detailEntity.getSendVehicleBizId());
-                }
-                return flowAgg;
-            }).collect(Collectors.toList());
-            res.setMixScanTaskFlowDtoList(flowAggs);
-            
             log.error("接货仓发货岗查询统计数据异常：{}",JsonHelper.toJson(mixScanTaskDetailDtoList),e);
+            throw new JyBizException("接货仓发货岗查询统计数据异常");
         }
         
     }
@@ -4066,9 +4056,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleSendingMap(sendTaskByBizIds);
 
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
-            if (!transactionManager.updateTaskStatus(sendTaskMap.get(detailEntity.getSendVehicleBizId()), sendDetailMap.get(detailEntity.getBizId()), JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
-                throw new JyBizException("完成混扫任务失败！");
+            JyBizTaskSendVehicleEntity taskSendVehicle = sendTaskMap.get(detailEntity.getSendVehicleBizId());
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = sendDetailMap.get(detailEntity.getBizId());
+            if (taskSendVehicle != null ) {
+                if (!transactionManager.updateTaskStatus(taskSendVehicle, sendVehicleDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
+                    throw new JyBizException("完成混扫任务失败！");
+                }
             }
+
         }
         return true;
     }
