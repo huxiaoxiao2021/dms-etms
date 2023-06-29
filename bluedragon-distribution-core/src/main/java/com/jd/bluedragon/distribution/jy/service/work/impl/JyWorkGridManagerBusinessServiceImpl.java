@@ -162,6 +162,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
+		updateTaskData.setHandlerUserName(userName);
 		updateTaskData.setUpdateUser(userErp);
 		updateTaskData.setUpdateUserName(userName);
 		updateTaskData.setUpdateTime(currentTime);
@@ -463,6 +464,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		//初始化网格数据
 		if(needInitTaskData) {
+			logger.info("初始化任务数据：batchCode={},executeTime={}",taskWorkGridManagerScan.getTaskBatchCode(),DateHelper.formatDateTime(taskWorkGridManagerScan.getExecuteTime()));
 			while(!CollectionUtils.isEmpty(gridList)) {
 				List<JyBizTaskWorkGridManager> jyTaskInitList = new ArrayList<>();
 				for(WorkStationGrid grid: gridList) {
@@ -516,6 +518,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		taskData.setLastExecuteTime(taskWorkGridManagerScan.getExecuteTime());
 		addWorkGridManagerSiteScanTask(taskData);
+		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskWorkGridManagerScan.getExecuteTime()));
 		return true;
 	}
     /**
@@ -545,7 +548,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         String content = "您已收到场地自检巡检任务，请进入拣运APP，扫描管理者网格码，查看任务，并按时完成，逾期将记录在册";
         List<String> erpList = Lists.newArrayList();
         erpList.add(user);
-		logger.info("分配任务完成，发送咚咚通知：{} 标题：{} 内容：{}",title,user,content);
+		logger.info("分配任务完成，发送咚咚通知：{} 标题：{} 内容：{}",user,title,content);
         NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);		
 	}
 	/**
@@ -613,6 +616,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * 完结一个任务
 	 */
 	private void endBatchCode(String batchCode) {
+		logger.info("完结一个任务批次：batchCode={}",batchCode);
 		JyBizTaskWorkGridManagerBatchUpdate closeData = new JyBizTaskWorkGridManagerBatchUpdate();
 		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
 		closeData.setData(data);
@@ -647,7 +651,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setAreaHubCode("");
 		jyTask.setAreaHubName("");
 		jyTask.setProvinceAgencyCode("");
-		jyTask.setProvinceAgencyName("北京市");
+		jyTask.setProvinceAgencyName("");
 		//设置任务信息
 		jyTask.setTaskType(taskInfo.getTaskType());
 		jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
@@ -692,7 +696,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
         tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s", tTask.getKeyword1(), tTask.getKeyword2())));
-      //提前10分钟执行
+      //提前30分钟执行
         tTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , -30));
         tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
         tTask.setExecuteCount(0);
@@ -712,7 +716,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
         tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), DateHelper.formatDate(taskData.getExecuteTime()))));
-        //提前5分钟执行
+        //提前15分钟执行
         tTask.setExecuteTime(DateHelper.add(taskData.getExecuteTime(),Calendar.MINUTE , -15));
         tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
         tTask.setExecuteCount(0);

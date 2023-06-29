@@ -472,6 +472,7 @@
     <update id="finishTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
         update jy_biz_task_work_grid_manager
             set  handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
+                 handler_user_name = #{handlerUserName,jdbcType=VARCHAR},            
                  status = #{status,jdbcType=TINYINT},
                  process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
                  update_user = #{updateUser,jdbcType=VARCHAR},
