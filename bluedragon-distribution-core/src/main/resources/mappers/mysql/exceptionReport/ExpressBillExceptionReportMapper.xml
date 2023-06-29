@@ -340,10 +340,10 @@
             AND org_code = #{orgCode,jdbcType=INTEGER}
         </if>
         <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-            province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
         </if>
         <if test="areaHubCode != null and areaHubCode != ''" >
-            area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
         </if>
         <if test="siteCode != null">
             AND site_code = #{siteCode,jdbcType=INTEGER}

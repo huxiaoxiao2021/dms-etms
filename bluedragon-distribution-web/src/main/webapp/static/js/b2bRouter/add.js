@@ -1,4 +1,70 @@
 function main() {
+
+	//加载站点组件
+	$('#switchSiteDom_start').sitePluginSelect({
+		'createSiteCode': $("#originalSiteCode") ? null : $("#originalSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'originalSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer1').sitePluginSelect({
+		'createSiteCode': $("#transferOneSiteCode") ? null : $("#transferOneSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferOneSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer2').sitePluginSelect({
+		'createSiteCode': $("#transferTwoSiteCode") ? null : $("#transferTwoSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferTwoSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer3').sitePluginSelect({
+		'createSiteCode': $("#transferThreeSiteCode") ? null : $("#transferThreeSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferThreeSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer4').sitePluginSelect({
+		'createSiteCode': $("#transferFourSiteCode") ? null : $("#transferFourSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferFourSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer5').sitePluginSelect({
+		'createSiteCode': $("#transferFiveSiteCode") ? null : $("#transferFiveSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferFiveSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_dest').sitePluginSelect({
+		'createSiteCode': $("#destinationSiteCode") ? null : $("#destinationSiteCode"),
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'destinationSiteCode',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	
 	//初始化网点信息
 	var originalSiteType = $("#originalSiteType").val();
 	var destinationSiteType = $("#destinationSiteType").val();

@@ -153,10 +153,10 @@
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR} and
             </if>
             <if test="areaHubCode != null and areaHubCode != ''" >
-                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR} and
             </if>
             <if test="siteCode != null">
                 site_code = #{siteCode, jdbcType=INTEGER} and
@@ -175,10 +175,10 @@
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR} and
             </if>
             <if test="areaHubCode != null and areaHubCode != ''" >
-                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR} and
             </if>
             <if test="siteCodeList != null">
                 site_code in
@@ -202,10 +202,10 @@
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR} and
             </if>
             <if test="areaHubCode != null and areaHubCode != ''" >
-                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR} and
             </if>
             <if test="siteCodeList != null">
                 site_code in

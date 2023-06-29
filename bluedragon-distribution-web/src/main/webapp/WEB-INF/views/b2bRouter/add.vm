@@ -21,7 +21,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
-
+    #parse("system/common/baseImport.vm")
     <style type="text/css"></style>
 </head>
 
@@ -50,19 +50,23 @@
                         <tr>
                             <td align="right" class="c_f8f8f8">始发网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_start">
                                 <input type = "hidden"name ="originalSiteType" id="originalSiteType" value = "1" />
                                 <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" style="width:130px" value="$!originalSiteName"/>
                                 <font class="star" style = "color:red">*</font>
                                 <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!originalSiteCode"/>
                                 <input type="hidden" name="id" id="id" value ="$!id"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
 
                         <tr>
                             <td align="right" class="c_f8f8f8">中转1网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_transfer1">
                                 <input type="text" name="transferOneSiteName" id="transferOneSiteName" v="require;length:30;" value="$!transferOneSiteName" maxlength="50" style="width:130px"/>
                                 <input type="hidden" name="transferOneSiteCode" id="transferOneSiteCode" value="$!transferOneSiteCode"/>
+                                </switchSiteDom>
                             </td>
 
                         </tr>
@@ -70,32 +74,40 @@
                         <tr>
                             <td align="right" class="c_f8f8f8">中转2网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_transfer2">
                                 <input type="text" name="transferTwoSiteName" id="transferTwoSiteName" v="require;length:30;" value="$!transferTwoSiteName" maxlength="50" style="width:130px"/>
                                 <input type="hidden" name="transferTwoSiteCode" id="transferTwoSiteCode" value="$!transferTwoSiteCode"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
 
                         <tr>
                             <td align="right" class="c_f8f8f8">中转3网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_transfer3">
                                 <input type="text" name="transferThreeSiteName" id="transferThreeSiteName" v="require;length:30;" value="$!transferThreeSiteName" maxlength="50" style="width:130px"/>
                                 <input type="hidden" name="transferThreeSiteCode" id="transferThreeSiteCode" value="$!transferThreeSiteCode"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
 
                         <tr>
                             <td align="right" class="c_f8f8f8">中转4网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_transfer4">
                                 <input type="text" name="transferFourSiteName" id="transferFourSiteName" v="require;length:30;" value="$!transferFourSiteName" maxlength="50" style="width:130px"/>
                                 <input type="hidden" name="transferFourSiteCode" id="transferFourSiteCode" value="$!transferFourSiteCode"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
 
                         <tr>
                             <td align="right" class="c_f8f8f8">中转5网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_transfer5">
                                 <input type="text" name="transferFiveSiteName" id="transferFiveSiteName" v="require;length:30;" value="$!transferFiveSiteName" maxlength="50" style="width:130px"/>
                                 <input type="hidden" name="transferFiveSiteCode" id="transferFiveSiteCode" value="$!transferFiveSiteCode"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
 
@@ -107,10 +119,11 @@
                                     <option value= 2 >仓库</option>
 
                                 </select>
-
+                                <switchSiteDom id = "switchSiteDom_dest">
                                 <input type="text" name="destinationSiteName" id="destinationSiteName" value="$!destinationSiteName" v="require;length:30;" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>
                                 <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!destinationSiteCode"/>
+                                </switchSiteDom>
                             </td>
                         </tr>
                         <tr>
