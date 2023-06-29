@@ -291,6 +291,11 @@
 		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
 		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
 		<property name="ignoreTysTrackSwitch" value="${ignoreTysTrackSwitch:false}"/>
+		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
+		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
+		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
+
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -585,6 +590,11 @@
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
 				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
 				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
+				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
+				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
+				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
+
+
 			</list>
 		</property>
 	</bean>

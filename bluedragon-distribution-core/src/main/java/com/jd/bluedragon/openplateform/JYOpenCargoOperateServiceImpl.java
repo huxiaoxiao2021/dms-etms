@@ -83,10 +83,6 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
         // 纯箱号时，查箱号内明细，发验货记录 + 收货记录
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
-        if(barCodeType == null){
-            log.error("JYOpenCargoOperateServiceImpl.sorting 未知条码类型 param {}", JsonHelper.toJson(entity));
-            return new InvokeResult<>();
-        }
         // 如果是箱号
         if(BarCodeType.BOX_CODE.equals(barCodeType)){
             final List<SendDetail> boxDetailList = deliveryService.getCancelSendByBox(entity.getBarcode());
@@ -97,7 +93,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 addInspectionTask(entity, boxCode);
             }
         } else {
-            if(Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())){
+            if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
                 final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
                 if(!Objects.equals(waybillExist, true)){
                     log.error("JYOpenCargoOperateServiceImpl.inspection 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
@@ -191,11 +187,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     public InvokeResult<Boolean> sorting(JYCargoOperateEntity entity) {
 
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
-        if(barCodeType == null){
-            log.error("JYOpenCargoOperateServiceImpl.sorting 未知条码类型 param {}", JsonHelper.toJson(entity));
-            return new InvokeResult<>();
-        }
-        if(Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())){
+        if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
             final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
             if(!Objects.equals(waybillExist, true)){
                 log.error("JYOpenCargoOperateServiceImpl.sorting 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
@@ -274,11 +266,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     public InvokeResult<Boolean> send(JYCargoOperateEntity entity) {
 
         final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
-        if(barCodeType == null){
-            log.error("JYOpenCargoOperateServiceImpl.sorting 未知条码类型 param {}", JsonHelper.toJson(entity));
-            return new InvokeResult<>();
-        }
-        if(Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())){
+        if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
             final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
             if(!Objects.equals(waybillExist, true)){
                 log.error("JYOpenCargoOperateServiceImpl.send 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));

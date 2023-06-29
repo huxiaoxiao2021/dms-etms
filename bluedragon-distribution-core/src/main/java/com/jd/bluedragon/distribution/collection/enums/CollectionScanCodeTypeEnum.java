@@ -15,10 +15,8 @@ public enum CollectionScanCodeTypeEnum {
 
     package_code("包裹号"),
 
-    @Deprecated
     waybill_code("运单号"),
 
-    @Deprecated
     box_code("箱号"),
 
     ;

@@ -165,7 +165,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 JYCargoOperateEntity entity = new JYCargoOperateEntity();
                 entity.setBarcode(cargoOperateInfo.getBarcode());
                 if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
-                    entity.setPackageCode(cargoOperateInfo.getBarcode());
+                    entity.setPackageCode(cargoOperateInfo.getBarcode().toUpperCase());
                 }
                 if (BusinessHelper.isSendCode(batchInspectionPageRequest.getBatchCode())) {
                     entity.setSendCode(batchInspectionPageRequest.getBatchCode());
@@ -261,7 +261,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 JYCargoOperateEntity entity = new JYCargoOperateEntity();
                 entity.setBarcode(cargoOperateInfo.getBarcode());
                 if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
-                    entity.setPackageCode(cargoOperateInfo.getBarcode());
+                    entity.setPackageCode(cargoOperateInfo.getBarcode().toUpperCase());
                 }
                 entity.setBoxCode(batchSortingPageRequest.getBoxCode());
                 entity.setDataOperateType(batchSortingPageRequest.getOperateType());
@@ -358,7 +358,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                     entity.setBoxCode(cargoOperateInfo.getBarcode());
                 } else {
                     if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
-                        entity.setPackageCode(cargoOperateInfo.getBarcode());
+                        entity.setPackageCode(cargoOperateInfo.getBarcode().toUpperCase());
                     }
                 }
                 if (BusinessHelper.isSendCode(batchSendPageRequest.getBatchCode())) {

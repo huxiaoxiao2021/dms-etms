@@ -132,7 +132,8 @@ public class BusinessUtil {
      */
     private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX_OLD.matcher(boxCode.trim().toUpperCase()).matches()
-                || DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
+                || DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()
+                || DmsConstants.RULE_BOXCODE_REGEX_OPEN_DP.matcher(boxCode.trim().toUpperCase()).matches();
     }
 
     /**

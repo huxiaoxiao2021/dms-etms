@@ -782,4 +782,15 @@
         </foreach>
        and create_time &gt;= #{entity.createTimeBegin}
     </select>
+    
+    <select id="findSendTaskByBizIds" resultMap="jyBizTaskSendVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where yn = 1
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

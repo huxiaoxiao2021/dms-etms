@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,5 +25,11 @@ public interface JySendProductAggsService {
 
     Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity);
 
+    /**
+     * 根据流向查询数量
+     * @param query
+     * @return
+     */
+    List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query);
 }
 
