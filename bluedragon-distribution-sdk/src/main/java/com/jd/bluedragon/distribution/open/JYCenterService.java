@@ -45,6 +45,13 @@ public interface JYCenterService {
     InvokeResult<Boolean> batchSendWithPage(BatchSendPageRequest batchSendPageRequest);
 
     /**
+     * 接收装车发货完成接口
+     * @param sendVehicleFinishRequest 发货完成请求
+     * @return 返回是否成功
+     */
+    InvokeResult<Boolean> sendVehicleFinish(SendVehicleFinishRequest sendVehicleFinishRequest);
+
+    /**
      * 批量称重量方接口
      * @param batchWeightVolumeRequest 批量称重量方请求参数
      * @return 返回是否成功

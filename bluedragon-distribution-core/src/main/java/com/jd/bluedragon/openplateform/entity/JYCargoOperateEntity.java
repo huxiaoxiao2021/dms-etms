@@ -70,6 +70,16 @@ public class JYCargoOperateEntity {
     private String receiveSiteCode;
     private String receiveSiteName;
 
+    /**
+     * 扫描开始时间
+     */
+    private Long taskScanBeginTime;
+
+    /**
+     * 扫描结束时间
+     */
+    private Long taskScanEndTime;
+
     public RequestProfile getRequestProfile() {
         return requestProfile;
     }
@@ -180,5 +190,21 @@ public class JYCargoOperateEntity {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public Long getTaskScanBeginTime() {
+        return taskScanBeginTime;
+    }
+
+    public void setTaskScanBeginTime(Long taskScanBeginTime) {
+        this.taskScanBeginTime = taskScanBeginTime;
+    }
+
+    public Long getTaskScanEndTime() {
+        return taskScanEndTime;
+    }
+
+    public void setTaskScanEndTime(Long taskScanEndTime) {
+        this.taskScanEndTime = taskScanEndTime;
     }
 }
