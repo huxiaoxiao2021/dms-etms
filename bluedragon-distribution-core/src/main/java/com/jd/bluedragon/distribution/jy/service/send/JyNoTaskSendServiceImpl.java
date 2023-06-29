@@ -543,7 +543,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
 
             //接货仓发货岗任务绑定or迁移时，被迁移流向从混扫任务中删除
-            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.equals(bindVehicleDetailTaskReq.getPost())) {
+            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(bindVehicleDetailTaskReq.getPost())) {
                 JyGroupSortCrossDetailEntity sortCrossDetailEntity = new JyGroupSortCrossDetailEntity();
                 sortCrossDetailEntity.setStartSiteId((long)bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode());
                 sortCrossDetailEntity.setFuncType(bindVehicleDetailTaskReq.getPost());
