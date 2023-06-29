@@ -525,8 +525,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.info("autoHandleSignOutByAttendJmq：userErp为空，无需处理！");
 			return result;
 		}
-		if(mqData.getActualOffTime() == null) {
+		if(StringUtils.isBlank(mqData.getActualOffTime())) {
 			log.info("autoHandleSignOutByAttendJmq：签退时间为空，无需处理！");
+			return result;
+		}
+		Date actualOffTime = DateHelper.parseDateTime(mqData.getActualOffTime());
+		if(actualOffTime == null) {
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】格式不正确为空，无需处理！",mqData.getActualOffTime());
 			return result;
 		}
 		//根据erp+场地查询，已签未退的数据
@@ -537,15 +542,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.info("autoHandleSignOutByAttendJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
 			return result;
 		}
-		if(!mqData.getActualOffTime().after(lastUnSignOutRecord.getSignInTime())) {
+		if(!actualOffTime.after(lastUnSignOutRecord.getSignInTime())) {
 			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间小于签到时间，无需处理！",mqData.getUserErp());
 			return result;
 		}
 		//执行-签退逻辑
 		List<Long> toSignOutPks = new ArrayList<>();
         UserSignRecord updateData = new UserSignRecord();
-        updateData.setSignOutTime(mqData.getActualOffTime());
-        updateData.setUpdateTime(mqData.getActualOffTime());
+        updateData.setSignOutTime(actualOffTime);
+        updateData.setUpdateTime(new Date());
         updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ);
         updateData.setUpdateUserName(DmsConstants.USER_NAME_AUTO_SIGN_OUT_FORM_RZ);
         toSignOutPks.add(lastUnSignOutRecord.getId());

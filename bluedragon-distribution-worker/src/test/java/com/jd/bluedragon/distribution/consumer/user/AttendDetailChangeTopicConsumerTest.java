@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -36,7 +37,7 @@ public class AttendDetailChangeTopicConsumerTest {
             Message message = new Message();
             
             AttendDetailChangeTopicData mqData = new AttendDetailChangeTopicData();
-            mqData.setActualOffTime(new Date());
+            mqData.setActualOffTime(DateHelper.formatDateTime(new Date()));
             mqData.setUserErp("bjxings");
             mqData.setOpType(AttendDetailChangeTopicData.OP_TYPE_UPDATE);
             mqData.setDcNo("910");

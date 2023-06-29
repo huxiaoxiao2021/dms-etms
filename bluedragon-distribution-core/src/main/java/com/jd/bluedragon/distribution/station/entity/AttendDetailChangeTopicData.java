@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.station.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 考勤数据-jmq对象 -实体
@@ -27,7 +26,7 @@ public class AttendDetailChangeTopicData implements Serializable{
 	/**
 	 * 考勤日期
 	 */
-	private Date eday;
+	private String eday;
 	/**
 	 * 配送中心编号
 	 */
@@ -39,11 +38,11 @@ public class AttendDetailChangeTopicData implements Serializable{
 	/**
 	 * 实际上班卡
 	 */
-	private Date actualOnTime;
+	private String actualOnTime;
 	/**
 	 * 实际下班卡
 	 */
-	private Date actualOffTime;
+	private String actualOffTime;
 	/**
 	 * 操作标识：1 新增、2 更新、0 删除
 	 */
@@ -61,10 +60,10 @@ public class AttendDetailChangeTopicData implements Serializable{
 	public void setUserErp(String userErp) {
 		this.userErp = userErp;
 	}
-	public Date getEday() {
+	public String getEday() {
 		return eday;
 	}
-	public void setEday(Date eday) {
+	public void setEday(String eday) {
 		this.eday = eday;
 	}
 	public String getDcNo() {
@@ -79,16 +78,16 @@ public class AttendDetailChangeTopicData implements Serializable{
 	public void setDcName(String dcName) {
 		this.dcName = dcName;
 	}
-	public Date getActualOnTime() {
+	public String getActualOnTime() {
 		return actualOnTime;
 	}
-	public void setActualOnTime(Date actualOnTime) {
+	public void setActualOnTime(String actualOnTime) {
 		this.actualOnTime = actualOnTime;
 	}
-	public Date getActualOffTime() {
+	public String getActualOffTime() {
 		return actualOffTime;
 	}
-	public void setActualOffTime(Date actualOffTime) {
+	public void setActualOffTime(String actualOffTime) {
 		this.actualOffTime = actualOffTime;
 	}
 	public Integer getOpType() {
