@@ -1061,6 +1061,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "JYOpenSendTask";
         }else if(TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)){
             return "JyBizTaskAutoCloseTask";
+        }else if(TASK_TYPE_WorkGridManagerScan.equals(type)){
+            return "WorkGridManagerScanTask";
+        }else if(TASK_TYPE_WorkGridManagerSiteScan.equals(type)){
+            return "WorkGridManagerSiteScanTask";
+        }else if(TASK_TYPE_JyWorkGridManagerAutoClose.equals(type)){
+            return "WorkGridManagerAutoCloseTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){

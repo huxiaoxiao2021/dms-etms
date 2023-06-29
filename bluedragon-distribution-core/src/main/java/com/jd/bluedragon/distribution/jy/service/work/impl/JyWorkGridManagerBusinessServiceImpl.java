@@ -301,9 +301,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			//新增任务
 	        addWorkGridManagerScanTask(taskData);
 		}
-//		tTask = new Task();
-//		tTask.setBody(JsonHelper.toJson(taskData));
-//      executeWorkGridManagerScanTask(tTask);
 	}
 	private Date getExecuteTime(WorkGridManagerTaskConfigVo configData) {
 		FrequencyTypeEnum  frequencyType = FrequencyTypeEnum.getEnum(configData.getFrequencyType());
@@ -518,7 +515,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		taskData.setLastExecuteTime(taskWorkGridManagerScan.getExecuteTime());
 		addWorkGridManagerSiteScanTask(taskData);
-		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskWorkGridManagerScan.getExecuteTime()));
+		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskData.getExecuteTime()));
 		return true;
 	}
     /**
