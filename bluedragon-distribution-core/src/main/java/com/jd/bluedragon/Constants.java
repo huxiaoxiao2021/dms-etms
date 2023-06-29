@@ -898,7 +898,10 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
-
+    /**
+     * 配置信息-任务线上化任务-推送-功能开启的分拣中心
+     */
+    public static final String SYS_CONFIG_WORK_GRID_MANAGER_SITES="sys.config.task.workGridManager.sites";
     /**
      * 配置信息-新分拣开启的分拣中心
      */

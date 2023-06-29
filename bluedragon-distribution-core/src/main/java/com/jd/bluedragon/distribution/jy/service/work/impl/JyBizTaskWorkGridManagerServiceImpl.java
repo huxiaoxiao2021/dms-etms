@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -113,6 +114,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		if(query.getPageNumber() != null && query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		};
+		query.setProcessBeginTime(new Date());
 		return true;
 	}
 	@Override

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.work;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @ClassName: JyWorkGridManagerQueryRequest
@@ -28,7 +29,11 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 	/**
 	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
 	 */
-	private Integer status;	    
+	private Integer status;	
+	/**
+	 * 开始处理时间
+	 */
+	private Date processBeginTime;	
 	/**
 	 * 分页参数-开始值
 	 */
@@ -105,6 +110,14 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+
+	public Date getProcessBeginTime() {
+		return processBeginTime;
+	}
+
+	public void setProcessBeginTime(Date processBeginTime) {
+		this.processBeginTime = processBeginTime;
 	}
 
 }

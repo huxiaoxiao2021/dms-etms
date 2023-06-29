@@ -18,6 +18,6 @@ public interface JyUserManager {
      * @param userPosition
      * @return
      */
-    Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String userPosition);
+    Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String userPositionCode,String userPositionName);
 
 }

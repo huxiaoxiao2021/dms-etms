@@ -506,6 +506,7 @@
             jy_biz_task_work_grid_manager t
         where yn = 1 
           and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+          and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
           <if test="taskRefGridKey != null and taskRefGridKey != ''">
               and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
           </if>           
@@ -518,6 +519,7 @@
             jy_biz_task_work_grid_manager t
         where yn = 1 
           and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+          and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
           and status = #{status,jdbcType=TINYINT}
           <if test="taskRefGridKey != null and taskRefGridKey != ''">
               and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
