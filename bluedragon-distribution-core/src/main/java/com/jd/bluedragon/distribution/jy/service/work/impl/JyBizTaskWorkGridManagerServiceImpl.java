@@ -154,8 +154,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public int closeTaskForEndBatch(JyBizTaskWorkGridManagerBatchUpdate closeData) {
 		if(closeData == null
-				|| closeData.getData() == null
-				|| CollectionUtils.isEmpty(closeData.getBizIdList())) {
+				|| closeData.getData() == null) {
 			return 0;
 		}		
 		return jyBizTaskWorkGridManagerDao.closeTaskForEndBatch(closeData);
