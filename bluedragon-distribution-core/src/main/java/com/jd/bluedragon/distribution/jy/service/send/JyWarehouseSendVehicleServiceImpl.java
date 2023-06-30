@@ -802,6 +802,12 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         request.setSendVehicleDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
+        if(Objects.isNull(entity)) {
+            //正常场景不会有异常，异常数据可能会存在NPE，比如自建任务绑定后自建任务无效，但是混扫任务没有删除该无效数据，解决办法，找到这个任务，在PDA上删除
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage("混扫任务中添加的流向任务错误");
+            return;
+        }
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
         request.setPreNextSiteCode(entity.getEndSiteId());
         request.setTaskId(super.getJyScheduleTaskId(entity.getSendVehicleBizId()));
