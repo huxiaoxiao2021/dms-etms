@@ -1969,4 +1969,9 @@ public class Constants {
 
     //德邦默认操作站点名称
     public static final String OPERATE_SITE_NAME_DEBON = "system";
+
+    /**
+     * 电商特惠产品编码
+     */
+    public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 }
