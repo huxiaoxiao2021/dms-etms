@@ -9,8 +9,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +18,6 @@ import org.springframework.stereotype.Service;
  */
 @Service("specialMarkComposeService")
 public class SpecialMarkComposeServiceImpl implements ComposeService {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private TransbillMService transbillMService;
     @Override
@@ -116,7 +111,6 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
 
         //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
         if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
-            log.info("setTransportMode 为空");
             waybill.setTransportMode("");
         }
 

@@ -1031,9 +1031,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
         }
-        if(waybillExt != null){
-            log.info("waybillExt.getProductType() -{}",waybillExt.getProductType());
-        }
         /*** 产品类型为ed-m-0059时:医药专送 */
         if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
             log.info("电商特惠----");
@@ -1047,7 +1044,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             	target.setTransportMode(TextConstants.PRODUCT_FLAG_DOUYIN);
             }
         }
-        log.info("setTransportMode -{}",target.getTransportMode());
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
