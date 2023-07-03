@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -43,6 +44,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -63,6 +65,11 @@ import com.jd.tms.jdi.dto.*;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
+import java.util.concurrent.TimeUnit;
+
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
+import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,6 +156,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired
     @Qualifier("jySendVehicleServiceTys")
     private IJySendVehicleService jySendVehicleServiceTys;
+
+    @Autowired
+    private SendDetailService sendDetailService;
+
+    @Autowired
+    private VehicleBasicManager vehicleBasicManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -892,6 +905,124 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,commonDto.getMessage());
         }
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkLoadRateBeforeSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq) {
+        if(log.isInfoEnabled()){
+            log.info("checkLoadRateBeforeSealVehicle 封车前校验装载率入参-{}",JsonHelper.toJson(sealVehicleReq));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.FALSE);
+        if(!ucc.isBeforeSealVehicleLoadRateLimitCheckSwitch()){
+            result.error("封车前校验装载率开关关闭!");
+            return result;
+        }
+        if(!checkLoadRateBeforeSealVehicleParam(result,sealVehicleReq)){
+            return result;
+        }
+        JyBizTaskSendVehicleEntity sendVehicle = jyBizTaskSendVehicleService.findByBizId(sealVehicleReq.getSendVehicleBizId());
+        if(log.isInfoEnabled()){
+            log.info("获取车辆任务信息出参-{}",JsonHelper.toJson(sendVehicle));
+        }
+        if(sendVehicle == null || sendVehicle.getLineType() == null){
+            log.warn("任务信息为空!");
+            result.error("任务信息为空!");
+            return result;
+        }
+
+        double loadRateLimit = ucc.getBeforeSealVehicleLoadRateLimit();
+        if(log.isInfoEnabled()){
+            log.info("ucc loadRateLimit 配置-{}",loadRateLimit);
+        }
+        if(loadRateLimit <= 0.00){
+            log.warn("封车前装载率限制配置未开启---");
+            result.error("封车前装载率限制配置未开启!");
+            return result;
+        }
+
+        VehicleVolumeDicReq vehicleVolumeDicReq = new VehicleVolumeDicReq();
+        vehicleVolumeDicReq.setVehicleType(sendVehicle.getVehicleType());
+        //获取当前车辆配置中的容量总数
+        log.info("获取车辆类型配置信息入参-{}",JsonHelper.toJson(vehicleVolumeDicReq));
+        VehicleVolumeDicResp vehicleVolumeDicResp = vehicleBasicManager.queryVolumeByVehicleType(vehicleVolumeDicReq);
+        log.info("获取车辆类型配置信息出参-{}",JsonHelper.toJson(vehicleVolumeDicResp));
+        if(vehicleVolumeDicResp == null){
+            result.error("获取车辆类型配置为空!");
+            return result;
+        }
+        //配置容量
+        Integer vehicleVolume = getVehicleVolume(sendVehicle, vehicleVolumeDicResp);
+        //实际已扫
+        int totalScannedCount =0;
+        //获取当前任务已扫总数
+        JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleReq.getSendVehicleBizId());
+        log.info("获取当前任务已扫总数 -{}",JsonHelper.toJson(jySendAggsEntity));
+        if(jySendAggsEntity != null){
+            totalScannedCount += jySendAggsEntity.getTotalScannedCount();
+        }
+        //获取自动化已扫包裹数
+        if(CollectionUtils.isNotEmpty(sealVehicleReq.getBatchCodes())){
+            for (String sendCode:sealVehicleReq.getBatchCodes()) {
+                Integer sendDCount = sendDetailService.querySendDCountBySendCode(sendCode);
+                if(sendDCount != null){
+                    totalScannedCount += sendDCount;
+                }
+            }
+        }
+        //实际装载率
+        log.info("实际已扫包裹数:totalScannedCount-{} 配置容量:vehicleVolume-{}",totalScannedCount,vehicleVolume);
+        BigDecimal realLoadRate = dealLoadRate(totalScannedCount, vehicleVolume);
+        log.info("实际装载率-{}",realLoadRate);
+        //限制装载率
+        BigDecimal limitLoadRate = BigDecimal.valueOf(loadRateLimit);
+        //比较装载率大小 如果实际装载率小于限制装载率 则进行提示
+       if(realLoadRate.compareTo(limitLoadRate) == -1){
+           result.success();
+           result.setData(Boolean.TRUE);
+       }
+        return result;
+    }
+
+    /**
+     * 根据线路类型获取线路干支容量值  （这里只涉及C网）
+     * @param
+     * @param vehicleVolumeDicResp
+     * @return
+     */
+    private Integer getVehicleVolume(JyBizTaskSendVehicleEntity sendVehicle,VehicleVolumeDicResp vehicleVolumeDicResp) {
+        if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(sendVehicle.getLineType())){
+            return vehicleVolumeDicResp.getVolumeTrunkC();
+        } else {
+            return vehicleVolumeDicResp.getVolumeBranchC();
+        }
+    }
+
+    private boolean checkLoadRateBeforeSealVehicleParam(InvokeResult result,SealVehicleReq sealVehicleReq){
+
+        if(sealVehicleReq == null){
+            result.parameterError("入参不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(sealVehicleReq.getSendVehicleBizId())){
+            result.parameterError("任务编号不能为空!");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 根据 已装包裹量/车辆最大承载包裹量 计算装载进度
+     * @param scannedCount
+     * @param volume
+     * @return
+     */
+    public BigDecimal dealLoadRate(Integer scannedCount, Integer volume) {
+        if (!NumberHelper.gt0(volume)) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(BigDecimalHelper.div(scannedCount, volume, 6)).multiply(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
     }
 
     private void checkGetTaskSimpleCodeParams(GetTaskSimpleCodeReq request) {
