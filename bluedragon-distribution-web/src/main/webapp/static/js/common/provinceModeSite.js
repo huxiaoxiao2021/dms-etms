@@ -22,6 +22,8 @@
         provinceAgencyCodeName : 'provinceAgencyCode', //省区属性名字
         areaHubCodeName : 'areaHubCode',  //枢纽属性名字
         createSiteCodeName : 'createSiteCode',  //场地属性名字
+        createSiteNameName : 'createSiteName',  //场地名字属性名字
+        createDmsSiteCodeName : 'createDmsSiteCode',  //场地7位编码属性名字
         provinceAgencyCodeClass : null, //省区下拉框样式
         areaHubCodeClass : null,  //枢纽下拉框样式
         createSiteCodeClass : null,  //场地下拉框样式
@@ -37,7 +39,7 @@
         onlySiteAndProvinceSelect : false, //只显示站点和省区条件
         changeBtnShow : true, //切换按钮是否显示
         provinceOrOrgMode : 'org', // 默认显示org模式，province 时显示省区模式
-        callback : null
+        siteChangeCallback : function () {}
     };
     var methods = {
         _optionsDetail : null,
@@ -92,12 +94,14 @@
             //tmp.push('<td>')
 
             tmp.push('<province>');
-            tmp.push('<select id="provinceSelect" class="'+this._options.provinceAgencyCodeClass+'"></select>');
-            tmp.push('<areaHub><select id="areaSelect" class="'+this._options.areaHubCodeClass+'"></select></areaHub>');
-            tmp.push('<select id="siteSelect" class="'+this._options.createSiteCodeClass+'"></select>');
-            tmp.push('<input type="hidden" id="'+this._options.provinceAgencyCodeName+'"  name="'+this._options.provinceAgencyCodeName+'" class="form-control search-param">');
-            tmp.push('<input type="hidden" id="'+this._options.areaHubCodeName+'" name="'+this._options.areaHubCodeName+'" class="form-control search-param">');
-            tmp.push('<input type="hidden" id="'+this._options.createSiteCodeName+'"  name="'+this._options.createSiteCodeName+'" class="form-control search-param">');
+            tmp.push('<select class="provinceSelect '+this._options.provinceAgencyCodeClass+'"></select>');
+            tmp.push('<areaHub><select class="areaSelect '+this._options.areaHubCodeClass+'"></select></areaHub>');
+            tmp.push('<select  class="siteSelect '+this._options.createSiteCodeClass+'"></select>');
+            tmp.push('<input type="hidden" id="'+this._options.provinceAgencyCodeName+'"  name="'+this._options.provinceAgencyCodeName+'" class="form-control search-param edit-param">');
+            tmp.push('<input type="hidden" id="'+this._options.areaHubCodeName+'" name="'+this._options.areaHubCodeName+'" class="form-control search-param edit-param">');
+            tmp.push('<input type="hidden" id="'+this._options.createSiteCodeName+'"  name="'+this._options.createSiteCodeName+'" class="form-control search-param edit-param">');
+            tmp.push('<input type="hidden" id="'+this._options.createSiteNameName+'"  name="'+this._options.createSiteNameName+'" class="form-control search-param edit-param">');
+            tmp.push('<input type="hidden" id="'+this._options.createDmsSiteCodeName+'"  name="'+this._options.createDmsSiteCodeName+'" class="form-control search-param edit-param">');
             tmp.push('</province>');
             //tmp.push('</td>')
 
@@ -149,33 +153,33 @@
             });
 
             //省区变化
-            this._targetDom.find('province #provinceSelect').on("change", function (e) {
+            this._targetDom.find('province .provinceSelect').on("change", function (e) {
                 that._provinceSelectChange();
-                that._targetDom.find('province #areaSelect').val(that._targetDom.find('province #areaSelect').val()).trigger('change');
-                that._targetDom.find('province #siteSelect').val(that._targetDom.find('province #siteSelect').val()).trigger('change');
+                that._targetDom.find('province .areaSelect').val(that._targetDom.find('province .areaSelect').val()).trigger('change');
+                that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
             });
             //枢纽变化
-            this._targetDom.find('province #areaSelect').on("change", function (e) {
+            this._targetDom.find('province .areaSelect').on("change", function (e) {
                 that._areaHubChange();
-                that._targetDom.find('province #siteSelect').val(that._targetDom.find('province #siteSelect').val()).trigger('change');
+                that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
             });
             //站点变化
-            this._targetDom.find('province #siteSelect').on("change", function (e) {
+            this._targetDom.find('province .siteSelect').on("change", function (e) {
                 that._siteChange();
             });
 
         },
         _provinceSelectChange : function (){
             //省区变化事件
-            var _s = this._targetDom.find('province #provinceSelect').val();
+            var _s = this._targetDom.find('province .provinceSelect').val();
             this._targetDom.find('province [name='+this._options.provinceAgencyCodeName+']').val(_s);
             //清理待上传的数据
             this._targetDom.find('province [name='+this._options.areaHubCodeName+']').val("");
             this._targetDom.find('province [name='+this._options.createSiteCodeName+']').val("");
             //清理下拉框
-            this._targetDom.find('province #areaSelect').html('');
-            this._targetDom.find('province #siteSelect').html('');
-            var province = this._targetDom.find('province #provinceSelect').select2("data");
+            this._targetDom.find('province .areaSelect').html('');
+            this._targetDom.find('province .siteSelect').html('');
+            var province = this._targetDom.find('province .provinceSelect').select2("data");
             //单选只取第一个
             if (province[0]) {
                 //是否存在枢纽 并且 不是省区和站点直接显示模式
@@ -183,7 +187,7 @@
                     //存在 开始渲染枢纽
                     this._initAreaSelect(province[0].id,this._options.areaHubCode);
                     this._targetDom.find('province areaHub').show();
-                    //this._targetDom.find('province #areaSelect').val(this._targetDom.find('province #areaSelect').val()).trigger('change');
+                    //this._targetDom.find('province .areaSelect').val(this._targetDom.find('province .areaSelect').val()).trigger('change');
                 }else{
                     this._targetDom.find('province areaHub').hide();
                     //加载站点列表
@@ -195,23 +199,31 @@
         },
         _areaHubChange : function (){
             //枢纽变化事件
-            var _s = this._targetDom.find('province #areaSelect').val();
+            var _s = this._targetDom.find('province .areaSelect').val();
             this._targetDom.find('province [name='+this._options.areaHubCodeName+']').val(_s);
 
-            this._targetDom.find('province #siteSelect').html('');
+            this._targetDom.find('province .siteSelect').html('');
             //初始化站点插件
             this._initSiteSelect(this._targetDom.find('province [name='+this._options.provinceAgencyCodeName+']').val(),
                 this._targetDom.find('province [name='+this._options.areaHubCodeName+']').val(),this._options.createSiteCode);
 
             //触发站点选择事件
-            //this._targetDom.find('province #siteSelect').val(this._targetDom.find('province #siteSelect').val()).trigger('change');
+            //this._targetDom.find('province .siteSelect').val(this._targetDom.find('province .siteSelect').val()).trigger('change');
 
 
         },
         _siteChange : function (){
             //站点变化事件
-            var _s = this._targetDom.find('province #siteSelect').val();
-            this._targetDom.find('province [name='+this._options.createSiteCodeName+']').val(_s);
+            var site = this._targetDom.find('province .siteSelect').select2("data");
+            //var _s = this._targetDom.find('province .siteSelect').val();
+            if(site[0]){
+                this._targetDom.find('province [name='+this._options.createSiteCodeName+']').val(site[0].id);
+                this._targetDom.find('province [name='+this._options.createSiteNameName+']').val(site[0].siteName);
+                this._targetDom.find('province [name='+this._options.createDmsSiteCodeName+']').val(site[0].dmsSiteCode);
+            }
+            if(this._options.siteChangeCallback){
+                this._options.siteChangeCallback(this);
+            }
         },
         _changeSiteSwitchModeClick : function (){
             //切换模式绑定事件
@@ -224,9 +236,9 @@
                 changeSiteSwitchModeBtn.attr('nowSiteSwitchMode','province');
 
 
-                this._targetDom.find('province #provinceSelect').html('');
-                this._targetDom.find('province #areaSelect').html('');
-                this._targetDom.find('province #siteSelect').html('');
+                this._targetDom.find('province .provinceSelect').html('');
+                this._targetDom.find('province .areaSelect').html('');
+                this._targetDom.find('province .siteSelect').html('');
                 this._targetDom.find('province [name='+this._options.provinceAgencyCodeName+']').val('');
 
                 if(this._options.onlySiteSelect){
@@ -345,37 +357,6 @@
             });
             return result;
         },
-        _querySitePageByCondition : function(provinceAgencyCode,areaHubCode,siteName){
-            //获取站点列表
-            var result = [];
-            var url = "/common/querySitePageByCondition";
-            var params = {
-                provinceAgencyCode:provinceAgencyCode,
-                areaCode:areaHubCode?areaHubCode:null,
-                siteName:siteName,
-                siteTypes:this._options.siteTypes,
-                subTypes:this._options.subTypes
-            };
-            $.ajax({
-                type : "post",
-                url : url,
-                data : JSON.stringify(params),
-                dataType:'json',
-                contentType: 'application/json',
-                async : false,
-                success : function (data) {
-                    if(data.code == 200 && data.data != null && data.data.data != null){
-                        var siteInfos = data.data.data;
-                        for(var i in siteInfos){
-                            result.push({
-                                id:siteInfos[i].siteCode,
-                                text:siteInfos[i].siteCode + '-' + siteInfos[i].siteName});
-                        }
-                    }
-                }
-            });
-            return result;
-        },
         _querySiteBySiteCode : function (siteCode){
             //根据站点编码获取站点
             var result = null;
@@ -407,7 +388,7 @@
             provinces.unshift({id:'-1',text:'请选择省区'});
             let selectedData = [] ;
             let that = this;
-            this._targetDom.find('province #provinceSelect').select2({
+            this._targetDom.find('province .provinceSelect').select2({
                 width: that._options.provinceAgencyCodeWidth,
                 placeholder: '请选择省份',
                 allowClear: true,
@@ -415,10 +396,10 @@
             });
             if(provinceAgencyCode){
                 //存在直接反选
-                this._targetDom.find('province #provinceSelect').val(provinceAgencyCode).trigger('change');
+                this._targetDom.find('province .provinceSelect').val(provinceAgencyCode).trigger('change');
             }else{
                 //触发一次选择事件
-                this._targetDom.find('province #provinceSelect').val(this._targetDom.find('province #provinceSelect').val()).trigger('change');
+                this._targetDom.find('province .provinceSelect').val(this._targetDom.find('province .provinceSelect').val()).trigger('change');
             }
         },
         _initAreaSelect : function (provinceAgencyCode,areaHubCode) {
@@ -426,7 +407,7 @@
             var areaInfos = this._queryAllAreaInfo(provinceAgencyCode);
             areaInfos.unshift({id:'-1',text:'请选择枢纽'});
             let that = this;
-            this._targetDom.find('province #areaSelect').select2({
+            this._targetDom.find('province .areaSelect').select2({
                 width: that._options.areaHubCodeWidth,
                 placeholder: '请选择枢纽',
                 allowClear: true,
@@ -435,7 +416,7 @@
             });
             if(areaHubCode && this._options.provinceAgencyCode == provinceAgencyCode){
                 //存在直接反选
-                this._targetDom.find('province #areaSelect').val(areaHubCode).trigger('change');
+                this._targetDom.find('province .areaSelect').val(areaHubCode).trigger('change');
             }
         },
         _initSiteSelect : function (provinceAgencyCode,areaHubCode,siteCode) {
@@ -451,7 +432,7 @@
                 selectedData.push({id: siteCode, text: this._formatShowSiteName(this._options.createSiteCode ,this._options.createSiteName), selected: true})
                 needChangeEvent = true;
             }
-            this._targetDom.find('province #siteSelect').select2({
+            this._targetDom.find('province .siteSelect').select2({
                 ajax: {
                     url: '/common/querySitePageByCondition',
                     dataType: 'json',
@@ -476,7 +457,9 @@
                             for(var i in siteInfos){
                                 sites.push({
                                     id:siteInfos[i].siteCode,
-                                    text:that._formatShowSiteName(siteInfos[i].siteCode,siteInfos[i].siteName)});
+                                    text:that._formatShowSiteName(siteInfos[i].siteCode,siteInfos[i].siteName),
+                                    dmsSiteCode:siteInfos[i].dmsSiteCode,
+                                    siteName:siteInfos[i].siteName});
                             }
                         }
 
@@ -499,6 +482,7 @@
                         return "没有查找到对应场地请检查输入的内容是否正确";
                     }
                 },
+                allowClear: true,
                 placeholder: '请输入场地名称检索',
                 width: that._options.createSiteCodeWidth,
                 data: selectedData// 默认选中
@@ -506,12 +490,12 @@
             //默认加载站点列表
             // var siteInfos = this._querySitePageByCondition(provinceAgencyCode,areaHubCode,null)
             // siteInfos.unshift({id:'-1',text:'请选择场地'});
-            // this._targetDom.find('province #siteSelect').select2({data:siteInfos});
+            // this._targetDom.find('province .siteSelect').select2({data:siteInfos});
             //触发站点选择事件
-            //this._targetDom.find('province #siteSelect').val(this._targetDom.find('province #siteSelect').val()).trigger('change');
+            //this._targetDom.find('province .siteSelect').val(this._targetDom.find('province .siteSelect').val()).trigger('change');
 
             if(needChangeEvent){
-                this._targetDom.find('province #siteSelect').val(siteCode).trigger('change');
+                this._targetDom.find('province .siteSelect').val(siteCode).trigger('change');
             }
         },
         _hideProvince : function (){
@@ -533,19 +517,19 @@
         _selectReadOnly : function (){
             //下拉框只读
             if(this._options.provinceAgencyCodeReadOnly){
-                this._targetDom.find('#provinceSelect').prop('disabled',true);
+                this._targetDom.find('.provinceSelect').prop('disabled',true);
             }
             if(this._options.areaHubCodeReadOnly){
-                this._targetDom.find('#areaSelect').prop('disabled',true);
+                this._targetDom.find('.areaSelect').prop('disabled',true);
             }
             if(this._options.createSiteCodeReadOnly){
-                this._targetDom.find('#siteSelect').prop('disabled',true);
+                this._targetDom.find('.siteSelect').prop('disabled',true);
             }
         },
         _onlySiteMode : function (){
           //仅仅保留场地筛选
-          this._targetDom.find('#provinceSelect').hide();
-          this._targetDom.find('#areaSelect').hide();
+          this._targetDom.find('.provinceSelect').hide();
+          this._targetDom.find('.areaSelect').hide();
           this._options.provinceAgencyCode = null;
           this._options.areaHubCode = null;
           this._initSiteSelect(this._options.provinceAgencyCode,this._options.areaHubCode,this._options.createSiteCode);
