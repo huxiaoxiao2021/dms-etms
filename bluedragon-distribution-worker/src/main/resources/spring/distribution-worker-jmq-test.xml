@@ -638,7 +638,10 @@
     <jmq:consumer id="jmq.transportRejectAddCarApplyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
     </jmq:consumer>
-
+    <!--  线上化管理-任务配置  -->
+    <jmq:consumer id="jmq.workGridManagerTaskConfigMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.workGridManagerTaskConfigMq}" listener="workGridManagerTaskConfigMqConsumer"/>
+    </jmq:consumer>
     <!--  异常-报废审批处理自消费  -->
     <jmq:consumer id="jmq.dmsExScrapApproveSelfConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>

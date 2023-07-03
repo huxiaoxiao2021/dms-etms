@@ -217,5 +217,29 @@
                 "task_type": 1340
             }
         ]
+    },
+    {
+        "table_name": "task_work_grid_manager_scan",
+        "task_type_list": [
+            {
+                "task_type": 1327
+            }
+        ]
+    },
+    {
+        "table_name": "task_work_grid_manager_site_scan",
+        "task_type_list": [
+            {
+                "task_type": 1328
+            }
+        ]
+    },
+    {
+        "table_name": "task_work_grid_manager_auto_close",
+        "task_type_list": [
+            {
+                "task_type": 1329
+            }
+        ]
     }
 ]

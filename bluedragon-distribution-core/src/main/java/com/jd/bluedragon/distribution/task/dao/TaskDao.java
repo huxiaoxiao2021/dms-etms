@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.domain.TaskQuery;
+import com.jd.jsf.gd.util.StringUtils;
 
 public class TaskDao extends BaseDao<Task> {
 
@@ -98,7 +100,10 @@ public class TaskDao extends BaseDao<Task> {
 		task.setTableName(Task.getTableName(task.getType()));
 		return super.getSqlSession().update(TaskDao.namespace + ".updateBySelective", task);
 	}
-
+	public int updateBySelectiveWithBody(Task task) {
+		task.setTableName(Task.getTableName(task.getType()));
+		return super.getSqlSession().update(TaskDao.namespace + ".updateBySelectiveWithBody", task);
+	}
 	@SuppressWarnings("unchecked")
 	public List<Task> findTasks(Task task) {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findTasksStatusByBoxcode", task);
@@ -302,5 +307,32 @@ public class TaskDao extends BaseDao<Task> {
 		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findJyBizAutoCloseTasks", request);
 	}
-
+	/**
+	 * 根据条件查询最近的一条任务数据
+	 * @param query
+	 * @return
+	 */
+	public Task findLastTaskByQuery(TaskQuery query){
+		if(StringUtils.isBlank(query.getTableName())) {
+			return null;
+		}
+		if(StringUtils.isBlank(query.getKeyword1())) {
+			return null;
+		}
+		return super.getSqlSession().selectOne(TaskDao.namespace + ".findLastTaskByQuery", query);
+	}
+	/**
+	 * 查找任务列表
+	 * @author fanggang7
+	 * @time 2023-03-21 16:34:55 周二
+	 */
+	public List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findListForDelayTask", request);
+	}	
 }
