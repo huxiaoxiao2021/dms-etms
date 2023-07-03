@@ -1078,6 +1078,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+
+            //接货仓发货岗绑定不限制线路类型，分拣发货岗绑定只查干支
+            if(!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+                curSendDest.setLineTypeList(lineTypeList);
+            }
             // 统计发货任务数量
             Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
             VehicleTaskResp taskResp = new VehicleTaskResp();
@@ -1243,6 +1249,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            //仅关注干支
+            List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+            queryDetail.setLineTypeList(lineTypeList);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
@@ -1369,6 +1378,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            //仅关注干支
+            List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+            queryDetail.setLineTypeList(lineTypeList);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
