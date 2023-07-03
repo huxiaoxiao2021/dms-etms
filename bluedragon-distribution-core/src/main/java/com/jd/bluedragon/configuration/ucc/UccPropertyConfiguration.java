@@ -798,7 +798,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Double jyComboardSealQueryBoardListTime;
+    private String jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -3139,11 +3139,11 @@ public class UccPropertyConfiguration {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 
-    public Double getJyComboardSealQueryBoardListTime() {
+    public String getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
