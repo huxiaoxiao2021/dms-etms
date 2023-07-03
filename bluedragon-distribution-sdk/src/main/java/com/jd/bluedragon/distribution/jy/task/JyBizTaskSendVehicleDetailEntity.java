@@ -157,6 +157,12 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private String lineTypeName;
 	private String taskSimpleCode;
 
+
+	/**
+	 * 线路类型集合
+	 */
+	private List<Integer> lineTypeList;
+
 	public String getTaskSimpleCode() {
 		return taskSimpleCode;
 	}
@@ -406,5 +412,13 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 			}
 			return o2.getId().compareTo(o1.getId());
 		}
+	}
+
+	public List<Integer> getLineTypeList() {
+		return lineTypeList;
+	}
+
+	public void setLineTypeList(List<Integer> lineTypeList) {
+		this.lineTypeList = lineTypeList;
 	}
 }
