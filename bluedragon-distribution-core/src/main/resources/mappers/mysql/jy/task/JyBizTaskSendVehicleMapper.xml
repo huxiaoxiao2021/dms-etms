@@ -701,9 +701,9 @@
         m.yn = 1
         AND m.manual_created_flag = 0
         <!--AND m.line_type in (1,2)-->
-        <if test="lineTypeList != null and lineTypeList.size() > 0">
+        <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
             AND m.line_type in
-            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
         </if>
