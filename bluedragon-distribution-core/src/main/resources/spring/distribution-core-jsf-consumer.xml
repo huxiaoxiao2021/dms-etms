@@ -1088,7 +1088,46 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-
+    <!--  任务管理-线上化task-jsf服务  -->
+    <jsf:consumer id="workGridManagerTaskJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerTaskJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>     
+    <!--  任务管理-线上化case-jsf服务  -->
+    <jsf:consumer id="workGridManagerCaseJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerCaseJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  任务管理-线上化task-config-jsf服务  -->
+    <jsf:consumer id="workGridManagerTaskConfigJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerTaskConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  用户管理-jsf服务  -->
+    <jsf:consumer id="userJsfService"
+                  interface="com.jdl.basic.api.service.user.UserJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!--  基础资料获取货区编码  -->
     <jsf:consumer id="basicGoodsAreaWS" interface="com.jd.ql.basic.ws.BasicGoodsAreaWS" alias="${basic.jsfGoodsArea.alias}" protocol="jsf"
                   timeout="10000">

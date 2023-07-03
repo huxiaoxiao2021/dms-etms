@@ -24,7 +24,15 @@ public class JyAttachmentDetailEntity implements Serializable {
     private String bizId;
 
     /**
-     * 场地编码
+     * 业务类型-区分业务场景
+     */
+    private String bizType;
+    /**
+     * 业务子类型-区分业务子场景
+     */
+    private String bizSubType;
+    /**
+     * 场地编码-数据库拆分键
      */
     private Integer siteCode;
 
@@ -155,4 +163,20 @@ public class JyAttachmentDetailEntity implements Serializable {
     public void setTs(Date ts) {
         this.ts = ts;
     }
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getBizSubType() {
+		return bizSubType;
+	}
+
+	public void setBizSubType(String bizSubType) {
+		this.bizSubType = bizSubType;
+	}
 }
