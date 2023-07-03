@@ -617,12 +617,14 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         //查询最新的名称
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(recycleMaterial.getCurrentSiteCode());
         String siteName = recycleMaterial.getCurrentSiteName();
+        String provinceAgencyName = recycleMaterial.getCurrentProvinceAgencyName();
         if(baseStaffSiteOrgDto != null){
             siteName = baseStaffSiteOrgDto.getSiteName();
+            provinceAgencyName = baseStaffSiteOrgDto.getProvinceAgencyName();
         }
         printInfo.setCreateSiteName(siteName);
         printInfo.setOrgName(recycleMaterial.getOrgName());
-        printInfo.setOrgAndSiteName(recycleMaterial.getOrgName() + "-" + siteName);
+        printInfo.setOrgAndSiteName(provinceAgencyName + "-" + siteName);
         List<String> codes = new ArrayList<>();
         codes.add(recycleMaterial.getMaterialCode());
         printInfo.setRecycleBasketCodes(codes);
