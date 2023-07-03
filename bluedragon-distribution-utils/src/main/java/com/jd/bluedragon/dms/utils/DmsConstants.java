@@ -226,9 +226,9 @@ public class DmsConstants {
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
     /**
-     * 快运产品-特快零担（fr-m-001)
+     * 快运产品-特快零担（fr-m-0001)
      */
-    public static final String PRODUCT_TYPE_KY_001 = "fr-m-001";
+    public static final String PRODUCT_TYPE_KY_001 = "fr-m-0001";
     /**
      * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
      */
