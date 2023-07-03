@@ -4368,19 +4368,19 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             newSendDetail.setCreateTime(sendDetail.getCreateTime());
 
             // 增加操作站点和目的站点的站点类型信息
-            newSendDetail.setcSiteType(createSiteDto.getSiteType());
-            newSendDetail.setcSubType(createSiteDto.getSubType());
-            newSendDetail.setcThirdType(createSiteDto.getThirdType());
-            newSendDetail.setcSortType(createSiteDto.getSortType());
-            newSendDetail.setcSortSubType(createSiteDto.getSortSubType());
-            newSendDetail.setcSortThirdType(createSiteDto.getSortThirdType());
+            newSendDetail.setCreateSiteType(createSiteDto.getSiteType());
+            newSendDetail.setCreateSubType(createSiteDto.getSubType());
+            newSendDetail.setCreateThirdType(createSiteDto.getThirdType());
+            newSendDetail.setCreateSortType(createSiteDto.getSortType());
+            newSendDetail.setCreateSortSubType(createSiteDto.getSortSubType());
+            newSendDetail.setCreateSortThirdType(createSiteDto.getSortThirdType());
 
-            newSendDetail.setrSiteType(receiveSiteDto.getSiteType());
-            newSendDetail.setrSubType(receiveSiteDto.getSubType());
-            newSendDetail.setrThirdType(receiveSiteDto.getThirdType());
-            newSendDetail.setrSortType(receiveSiteDto.getSortType());
-            newSendDetail.setrSortSubType(receiveSiteDto.getSortSubType());
-            newSendDetail.setrSortThirdType(receiveSiteDto.getSortThirdType());
+            newSendDetail.setReceiveSiteType(receiveSiteDto.getSiteType());
+            newSendDetail.setReceiveSubType(receiveSiteDto.getSubType());
+            newSendDetail.setReceiveThirdType(receiveSiteDto.getThirdType());
+            newSendDetail.setReceiveSortType(receiveSiteDto.getSortType());
+            newSendDetail.setReceiveSortSubType(receiveSiteDto.getSortSubType());
+            newSendDetail.setReceiveSortThirdType(receiveSiteDto.getSortThirdType());
 
             message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
