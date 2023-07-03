@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
@@ -533,6 +534,13 @@ public class SortingServiceImpl implements SortingService {
 	public void addSortingAdditionalTask(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
+
+		// 如果业务来源是转运装车扫描，不再发送全程跟踪
+		if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+			if (SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(sorting.getBizSource())) {
+				return;
+			}
+		}
 
 		// prepare:
 		// 拆分分析字段

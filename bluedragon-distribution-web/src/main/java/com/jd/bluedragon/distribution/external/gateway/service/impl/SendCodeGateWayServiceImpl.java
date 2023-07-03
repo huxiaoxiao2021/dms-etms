@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.SendCodeStatusEnum;
+import com.jd.bluedragon.common.dto.sendcode.request.SendCodeGenRequest;
 import com.jd.bluedragon.common.dto.sendcode.request.SendCodeSealInfoQuery;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
@@ -21,6 +22,9 @@ import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -101,6 +105,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+
+    @Resource
+    private SendCodeService sendCodeService;
 
     private static final Integer PAGE_SIZE = 1000;
 
@@ -411,4 +418,58 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         //获取封车时间、封车操作人
 		return result;
 	}
+
+    /**
+     * 调用生成发货批次号
+     * @param query
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.genSendCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> genSendCode(SendCodeGenRequest query) {
+        log.info("SendCodeGateWayServiceImpl-> genSendCode request:{}", JsonHelper.toJson(query));
+        JdCResponse<String> result = new JdCResponse<String>();
+        result.toSucceed();
+        //校验入参
+        JdCResponse<String> checkParamResult = this.checkGenSendCodeParam(query);
+        if(!Objects.equals(checkParamResult.getCode(),JdCResponse.CODE_SUCCESS)){
+            result.toError(checkParamResult.getMessage());
+            return result;
+        }
+        //构建调用生成批次号的参数
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyMap = new HashMap<>(4);
+        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(query.getCreateSiteCode()));
+        attributeKeyMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(query.getReceiveSiteCode()));
+        String sendCode = sendCodeService.createSendCode(attributeKeyMap, BusinessCodeFromSourceEnum.DMS_APP, query.getCreateUserErp());
+        result.setData(sendCode);
+        log.info("SendCodeGateWayServiceImpl-> genSendCode result:{}", sendCode);
+        return result;
+    }
+
+    /**
+     *
+     * @param query
+     * @return
+     */
+    private JdCResponse<String> checkGenSendCodeParam(SendCodeGenRequest query) {
+        JdCResponse<String> result = new JdCResponse<String>();
+        result.toSucceed();
+        if(query == null){
+            result.toFail("传入参数不能为空！");
+            return result;
+        }
+        if(query.getCreateSiteCode() == null){
+            result.toFail("始发场地不能为空！");
+            return result;
+        }
+        if(query.getReceiveSiteCode() == null){
+            result.toFail("目的场地不能为空！");
+            return result;
+        }
+        if(StringUtils.isBlank(query.getCreateUserErp())){
+            result.toFail("操作人erp不能为空！");
+            return result;
+        }
+        return result;
+    }
 }

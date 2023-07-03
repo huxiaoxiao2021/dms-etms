@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -802,7 +803,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Double jyComboardSealQueryBoardListTime;
+    private String jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -1339,6 +1340,21 @@ public class UccPropertyConfiguration {
      * 上传超长超重开关
      */
     private boolean uploadOverWeightSwitch;
+
+    /**
+     * 忽略转运全程跟踪开关
+     */
+    private boolean ignoreTysTrackSwitch;
+
+
+    /**
+     * 异常处理检查场地名单
+     */
+    private String exceptionSubmitCheckSites;
+    /**
+     * 异常处理检查运单拦截类型
+     */
+    private String exceptionSubmitCheckWaybillInterceptTypes;
 
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
@@ -3134,11 +3150,11 @@ public class UccPropertyConfiguration {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 
-    public Double getJyComboardSealQueryBoardListTime() {
+    public String getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
@@ -3416,6 +3432,78 @@ public class UccPropertyConfiguration {
 	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
 		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
 	}
+
+    public boolean isIgnoreTysTrackSwitch() {
+        return ignoreTysTrackSwitch;
+    }
+
+    public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+        this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
+    }
+
+    public String getExceptionSubmitCheckSites() {
+        return exceptionSubmitCheckSites;
+    }
+
+    public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
+        this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
+        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
+    }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
+        if(exceptionSubmitCheckSites == null){
+            exceptionSubmitCheckSiteList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getExceptionSubmitCheckWaybillInterceptTypes() {
+        return exceptionSubmitCheckWaybillInterceptTypes;
+    }
+
+    public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
+        this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
+        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
+    }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
+        if(exceptionSubmitCheckWaybillInterceptTypes == null){
+            exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
+    }
 
     public String getExScrapApproveLevelCountLimit() {
         return exScrapApproveLevelCountLimit;

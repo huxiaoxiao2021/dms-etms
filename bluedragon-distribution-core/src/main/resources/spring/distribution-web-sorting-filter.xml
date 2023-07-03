@@ -197,6 +197,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZeroWeightVolumeFilter"/>
     </util:list>
 
     <!-- 虚拟组板扫描拦截链 -->
