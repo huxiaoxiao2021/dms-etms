@@ -172,6 +172,7 @@ public class WeighByWaybillController extends DmsBaseController {
         			checkData.setWeightVolumeCheckResult(weightVolumeCheckResult.getData());
         		}
         		if(!weightVolumeCheckResult.isSucceed()) {
+        			checkData.setIsExists(Boolean.FALSE);
             		checkData.setVerifyCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
             		checkData.setVerifyMessage(weightVolumeCheckResult.getMessage());
         		}
