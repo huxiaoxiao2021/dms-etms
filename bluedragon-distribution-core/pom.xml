@@ -585,7 +585,7 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.5.4-TEST-SNAPSHOT</version>
+			<version>5.5.75-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
