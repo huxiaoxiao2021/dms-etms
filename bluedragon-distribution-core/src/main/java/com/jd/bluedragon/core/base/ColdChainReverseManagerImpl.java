@@ -3,8 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -12,21 +10,17 @@ import com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseResult;
+import com.jd.coldchain.fulfillment.ot.api.dto.waybill.WaybillAddress;
 import com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.jd.coldchain.fulfillment.common.api.dto.ResponseDTO;
 import java.util.Arrays;
@@ -43,17 +37,19 @@ import java.util.List;
  */
 @Service("coldChainReverseManager")
 public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
-    private final static Logger logger = LoggerFactory.getLogger(ChuguanExportManagerImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(ColdChainReverseManagerImpl.class);
 
     @Autowired
     private ColdChainReverseService coldChainReverseService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
-    @Qualifier("obcsManager")
-    private OBCSManager obcsManager;
-    @Autowired
     private ColdDmsPackingConsumableApi coldDmsPackingConsumableApi;
+    /**
+     * 二次换单限制次数
+     */
+    @Value("${beans.WaybillReverseManagerImpl.twiceExchangeMaxTimes:3}")
+    private int twiceExchangeMaxTimes;
 
     /**
      * 检查是否是需要调eclp逆向换单的冷链产品
@@ -98,6 +94,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
 
         String waybillCode = exchangeWaybillDto.getWaybillCode();
         ColdChainReverseRequest requestDto = new ColdChainReverseRequest();
+        requestDto.setLimitReverseFlag(Boolean.FALSE);
         requestDto.setWaybillCode(waybillCode);
         requestDto.setOperateUserId(exchangeWaybillDto.getOperatorId());
         requestDto.setOperateUser(exchangeWaybillDto.getOperatorName());
@@ -107,6 +104,11 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         }else{
             requestDto.setReverseType(2);// 包裹拒收
         }
+        //二次换单时设置换单次数限制
+        if(Boolean.TRUE.equals(exchangeWaybillDto.getTwiceExchangeFlag())){
+            requestDto.setLimitReverseFlag(Boolean.TRUE);
+            requestDto.setAllowReverseCount(twiceExchangeMaxTimes);
+        }
         requestDto.setReverseSource(2);//分拣中心
         requestDto.setSortCenterId(exchangeWaybillDto.getCreateSiteCode());
         requestDto.setReturnType(LDOPManagerImpl.RETURN_TYPE_0);//默认
@@ -115,6 +117,14 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         }
         if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
+        }
+        //自定义地址
+        if(StringUtils.isNotBlank(exchangeWaybillDto.getAddress())){
+            WaybillAddress waybillAddress = new WaybillAddress();
+            waybillAddress.setAddress(exchangeWaybillDto.getAddress());
+            waybillAddress.setContact(exchangeWaybillDto.getContact());
+            waybillAddress.setPhone(exchangeWaybillDto.getPhone());
+            requestDto.setWaybillAddress(waybillAddress);
         }
         //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
         requestDto.setSystemSource(LDOPManagerImpl.SYSTEM_SOURCE_4);
@@ -130,9 +140,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
     @Override
     @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.createReverseWbOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DmsWaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage) {
-        CallerInfo info = null;
         try{
-            info = Profiler.registerInfo( "DMSWEB.ColdChainReverseManagerImpl.createReverseWbOrder",false, true);
 
             ResponseDTO<ColdChainReverseResult> responseDTO = coldChainReverseService.createReverseWbOrder(coldChainReverseRequest);
             if(!ResponseDTO.SUCCESS_CODE.equals(responseDTO.getStatusCode())){
@@ -153,7 +161,6 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             return result;
         }catch (Exception e){
             logger.error("触发eclp逆向换单发生异常,入参：" + JsonHelper.toJson(coldChainReverseRequest),e);
-            Profiler.functionError(info);
             return null;
         }
     }
@@ -169,10 +176,8 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         if(StringUtils.isBlank(waybillCode)){
             return false;
         }
-        CallerInfo info = null;
         boolean flag = false;
         try{
-            info = Profiler.registerInfo( "DMSWEB.ColdChainReverseManagerImpl.checkIsNeedConfirmed",false, true);
             BaseResponse<Boolean>  baseResponse = coldDmsPackingConsumableApi.checkIsNeedConfirmed(waybillCode);
             logger.warn("checkIsNeedConfirmed检查需不需要确认冷链包装耗材,入参：{}  结果：{}",waybillCode,JsonHelper.toJson(baseResponse));
             if(Objects.nonNull(baseResponse) && baseResponse.getCode() == BaseResponse.OK_CODE){
@@ -180,7 +185,6 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             }
         }catch (Exception e){
             logger.error("checkIsNeedConfirmed检查需不需要确认冷链包装耗材发生异常,入参：" + waybillCode,e);
-            Profiler.functionError(info);
         }
         return flag;
     }
