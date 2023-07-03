@@ -39,11 +39,18 @@ public interface ReversePrintService {
     InvokeResult<RepeatPrint> getNewWaybillCode1(String oldWaybillCode, boolean isPickUpFinished);
 
     /**
-     * 执行逆向换单
+     * 执行逆向换单(自营异步接口)
      * @param domain
      * @return
      */
     InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain);
+
+    /**
+     * 执行逆向换单(自营同步接口,直接返回新单)
+     * @param domain 换单请求参数
+     * @return 新单号
+     */
+    InvokeResult<String> exchangeOwnWaybillSync(OwnReverseTransferDomain domain);
 
     /**
      * 执行逆向换单前校验（拒收订单或异常订单才可以执行逆向换单）
@@ -52,6 +59,15 @@ public interface ReversePrintService {
      * @return
      */
     InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode);
+
+    /**
+     * 执行逆向换单前校验（专为德邦提供,不校验异常处理）
+     * @param wayBillCode
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<Boolean> checkWayBillForDpkExchange(String wayBillCode, Integer siteCode);
+
     /**
      * 获取二次换单信息
      * @param twiceExchangeRequest

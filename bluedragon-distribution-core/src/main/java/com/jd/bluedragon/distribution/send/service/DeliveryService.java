@@ -408,6 +408,8 @@ public interface DeliveryService {
      */
     List<SendDetail> getSendDetailsByBoxCode(String boxCode);
 
+    List<SendDetail> getSendDetailByBoxAndCreateAndReceiveSiteCode(String boxCode, Integer createSiteCode, Integer receiveSiteCode);
+
     /**
      * 包裹信息
      *
