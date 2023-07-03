@@ -1424,6 +1424,12 @@ public class UccPropertyConfiguration {
     private Integer JyBuQiWaybillCodeMaxSum;
 
 
+    /**
+     * 封车前装载率限制
+     */
+    private double beforeSealVehicleLoadRateLimit;
+
+    private boolean beforeSealVehicleLoadRateLimitCheckSwitch;
 
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
@@ -3666,5 +3672,21 @@ public class UccPropertyConfiguration {
 
     public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
         JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
+    }
+
+    public double getBeforeSealVehicleLoadRateLimit() {
+        return beforeSealVehicleLoadRateLimit;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+        this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+    }
+
+    public boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+        return beforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+        this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
     }
 }

@@ -21,11 +21,13 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="sealLowLoadImgUrl" column="seal_low_load_img_url" />
+        <result property="snedOverLoadImgUrl" column="send_over_load_img_url" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id
-        ,        send_vehicle_biz_id,        operate_site_id,        vehicle_arrived,        img_url,    seal_img_url,    remark,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+        ,        send_vehicle_biz_id,        operate_site_id,        vehicle_arrived,        img_url,    seal_img_url,    remark,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,seal_low_load_img_url, send_over_load_img_url   </sql>
 
     <insert id="insert" parameterType="JySendAttachmentEntity">
         INSERT INTO jy_send_attachment (
@@ -43,6 +45,12 @@
         </if>
         <if test="sealImgUrl != null">
             seal_img_url,
+        </if>
+        <if test="snedOverLoadImgUrl != null">
+            send_over_load_img_url,
+        </if>
+        <if test="sealLowLoadImgUrl != null">
+            seal_low_load_img_url
         </if>
         <if test="remark != null">
             remark,
@@ -83,6 +91,12 @@
         </if>
         <if test="sealImgUrl != null">
             #{sealImgUrl},
+        </if>
+        <if test="snedOverLoadImgUrl != null">
+            #{snedOverLoadImgUrl},
+        </if>
+        <if test="sealLowLoadImgUrl != null">
+            #{sealLowLoadImgUrl}
         </if>
         <if test="remark != null">
             #{remark},
@@ -125,6 +139,12 @@
             </if>
             <if test="sealImgUrl != null">
                 seal_img_url = #{sealImgUrl},
+            </if>
+            <if test="snedOverLoadImgUrl != null">
+                send_over_load_img_url = #{snedOverLoadImgUrl},
+            </if>
+            <if test="sealLowLoadImgUrl != null">
+                seal_low_load_img_url = #{sealLowLoadImgUrl},
             </if>
             <if test="remark != null">
                 remark = #{remark},

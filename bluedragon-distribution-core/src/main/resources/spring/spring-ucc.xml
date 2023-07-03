@@ -294,8 +294,8 @@
 		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
 		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
-
-
+		<property name="beforeSealVehicleLoadRateLimit" value="${beforeSealVehicleLoadRateLimit:10.00}"/>
+		<property name="beforeSealVehicleLoadRateLimitCheckSwitch" value="${beforeSealVehicleLoadRateLimitCheckSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -593,8 +593,8 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
-
-
+				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
+				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimitCheckSwitch</value>
 			</list>
 		</property>
 	</bean>

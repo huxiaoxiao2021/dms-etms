@@ -81,4 +81,11 @@ public interface JySealCarGatewayService {
      */
     JdCResponse<GetTaskSimpleCodeResp>   onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
 
+
+    /**
+     *
+     * 封车完成校验装载率
+     */
+    JdCResponse<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq);
+
 }

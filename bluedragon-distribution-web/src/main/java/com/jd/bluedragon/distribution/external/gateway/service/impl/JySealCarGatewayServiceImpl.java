@@ -150,6 +150,11 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
         return retJdCResponse(jySealVehicleService.onlineGetTaskSimpleCode(request));
     }
 
+    @Override
+    public JdCResponse<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq) {
+        return retJdCResponse(jySealVehicleService.checkLoadRateBeforeSealVehicle(sealVehicleReq));
+    }
+
     private boolean checkIfBelongOthers(ValidSendCodeReq validSendCodeReq) {
         if (ObjectHelper.isNotNull(validSendCodeReq.getSendVehicleDetailBizId())){
             List<String> sendCodes =new ArrayList<>();

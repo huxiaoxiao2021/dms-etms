@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskI
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendAttachmentService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendProductAggsService;
@@ -45,6 +47,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +64,7 @@ public class JySealVehicleServiceTest {
     @Autowired
     private IJyUnSealVehicleService jySealVehicleService;
 
+
     @Autowired
     private JySendProductAggsService jySendProductAggsService;
 
@@ -72,6 +76,9 @@ public class JySealVehicleServiceTest {
     private JyUnloadAggsService jyUnloadAggsService;
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JySealVehicleService jySealVehicleService2;
 
     static {
         user = new User();
@@ -301,12 +308,22 @@ public class JySealVehicleServiceTest {
     @Test
     public void getUnSealTaskInfoTest(){
         SealTaskInfoRequest request = new SealTaskInfoRequest();
-        request.setBizId("SC23022800028276");
+        request.setBizId("SST23062000000016");
         request.setQueryRankOrder(true);
         request.setSealCarCode("SC23022800028276");
         request.setUser(user);
         request.setCurrentOperate(currentOperate);
         final Result<SealTaskInfo> result = jySealVehicleService.getUnSealTaskInfo(request);
         System.out.println(result);
+    }
+
+    @Test
+    public  void  test(){
+
+        SealVehicleReq req = new SealVehicleReq();
+        req.setSendVehicleBizId("SST23062000000016");
+        req.setBatchCodes(Arrays.asList("910-39-20201022143418470"));
+        InvokeResult<Boolean> booleanInvokeResult = jySealVehicleService2.checkLoadRateBeforeSealVehicle(req);
+        System.out.println(JsonHelper.toJson(booleanInvokeResult));
     }
 }
