@@ -68,19 +68,19 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         UnloadVehicleMqDto mqDto = JsonHelper.fromJson(message.getText(), UnloadVehicleMqDto.class);
 
         // 过滤掉丢弃的数据
-//        if (filterDiscardData(mqDto)) {
-//            return;
-//        }
+        if (filterDiscardData(mqDto)) {
+            return;
+        }
 
         // 旧版本数据不再消费
         String versionMutex = String.format(CacheKeyConstants.JY_UNLOAD_SEAL_CAR_MONITOR_SEAL_CAR_CODE, mqDto.getSealCarCode());
-//        if (redisClientOfJy.exists(versionMutex)) {
-//            Integer version = Integer.valueOf(redisClientOfJy.get(versionMutex));
-//            if (!NumberHelper.gt(mqDto.getVersion(), version)) {
-//                logger.warn("InitUnloadVehicleConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
-//                return;
-//            }
-//        }
+        if (redisClientOfJy.exists(versionMutex)) {
+            Integer version = Integer.valueOf(redisClientOfJy.get(versionMutex));
+            if (!NumberHelper.gt(mqDto.getVersion(), version)) {
+                logger.warn("InitUnloadVehicleConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
+                return;
+            }
+        }
         //只做数据已经存在的更新操作
         if (saveUnloadTaskBusinessData(message, mqDto)) {
             // 消费成功，记录数据版本号
