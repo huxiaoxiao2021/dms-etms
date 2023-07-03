@@ -162,6 +162,68 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
      * 操作者id
      */
 	private String operatorId;
+
+    /**
+     * 操作场地-站点（分拣）类型
+     */
+    private Integer cSiteType;
+
+    /**
+     * 操作场地-站点（分拣）子站点类型
+     */
+    private Integer cSubType;
+
+    /**
+     * 操作场地-站点（分拣）三级类型
+     */
+    private Integer cThirdType;
+
+    /**
+     * 操作场地-分拣中心类型
+     */
+    private Integer cSortType;
+
+    /**
+     * 操作场地-分拣中心子类型
+     */
+    private Integer cSortSubType;
+
+    /**
+     * 操作场地-分拣中心三级类型
+     */
+    private Integer cSortThirdType;
+
+    /**
+     * 目的场地-站点（分拣）类型
+     */
+    private Integer rSiteType;
+
+    /**
+     * 目的场地-站点（分拣）子站点类型
+     */
+    private Integer rSubType;
+
+    /**
+     * 目的场地-站点（分拣）三级类型
+     */
+    private Integer rThirdType;
+
+    /**
+     * 目的场地-分拣中心类型
+     */
+    private Integer rSortType;
+
+    /**
+     * 目的场地-分拣中心子类型
+     */
+    private Integer rSortSubType;
+
+    /**
+     * 目的场地-分拣中心三级类型
+     */
+    private Integer rSortThirdType;
+
+
 	
     public String getSource() {
         return source;
@@ -652,4 +714,99 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 		this.operatorId = operatorId;
 	}
 
+    public Integer getcSiteType() {
+        return cSiteType;
+    }
+
+    public void setcSiteType(Integer cSiteType) {
+        this.cSiteType = cSiteType;
+    }
+
+    public Integer getcSubType() {
+        return cSubType;
+    }
+
+    public void setcSubType(Integer cSubType) {
+        this.cSubType = cSubType;
+    }
+
+    public Integer getcThirdType() {
+        return cThirdType;
+    }
+
+    public void setcThirdType(Integer cThirdType) {
+        this.cThirdType = cThirdType;
+    }
+
+    public Integer getcSortType() {
+        return cSortType;
+    }
+
+    public void setcSortType(Integer cSortType) {
+        this.cSortType = cSortType;
+    }
+
+    public Integer getcSortSubType() {
+        return cSortSubType;
+    }
+
+    public void setcSortSubType(Integer cSortSubType) {
+        this.cSortSubType = cSortSubType;
+    }
+
+    public Integer getcSortThirdType() {
+        return cSortThirdType;
+    }
+
+    public void setcSortThirdType(Integer cSortThirdType) {
+        this.cSortThirdType = cSortThirdType;
+    }
+
+    public Integer getrSiteType() {
+        return rSiteType;
+    }
+
+    public void setrSiteType(Integer rSiteType) {
+        this.rSiteType = rSiteType;
+    }
+
+    public Integer getrSubType() {
+        return rSubType;
+    }
+
+    public void setrSubType(Integer rSubType) {
+        this.rSubType = rSubType;
+    }
+
+    public Integer getrThirdType() {
+        return rThirdType;
+    }
+
+    public void setrThirdType(Integer rThirdType) {
+        this.rThirdType = rThirdType;
+    }
+
+    public Integer getrSortType() {
+        return rSortType;
+    }
+
+    public void setrSortType(Integer rSortType) {
+        this.rSortType = rSortType;
+    }
+
+    public Integer getrSortSubType() {
+        return rSortSubType;
+    }
+
+    public void setrSortSubType(Integer rSortSubType) {
+        this.rSortSubType = rSortSubType;
+    }
+
+    public Integer getrSortThirdType() {
+        return rSortThirdType;
+    }
+
+    public void setrSortThirdType(Integer rSortThirdType) {
+        this.rSortThirdType = rSortThirdType;
+    }
 }
