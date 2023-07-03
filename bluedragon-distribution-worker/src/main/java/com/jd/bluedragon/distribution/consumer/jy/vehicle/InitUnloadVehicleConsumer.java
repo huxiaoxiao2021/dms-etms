@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,8 +81,8 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 return;
             }
         }
-
-        if (saveUnloadTaskData(message, mqDto)) {
+        //只做数据已经存在的更新操作
+        if (saveUnloadTaskBusinessData(message, mqDto)) {
             // 消费成功，记录数据版本号
             if (NumberHelper.gt0(mqDto.getVersion())) {
                 logger.info("卸车任务消费的最新版本号. {}-{}", mqDto.getSealCarCode(), mqDto.getVersion());
@@ -121,19 +122,19 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 保存卸车任务数据
+     * 保存卸车任务数据非核心业务数据
      * @param message
      * @param mqDto
      * @return
      */
-    private boolean saveUnloadTaskData(Message message, UnloadVehicleMqDto mqDto) {
+    private boolean saveUnloadTaskBusinessData(Message message, UnloadVehicleMqDto mqDto) {
         boolean saveData;
         if(logger.isInfoEnabled()) {
-            logger.info("InitUnloadVehicleConsumer.saveUnloadTaskData-param={}", JsonUtils.toJSONString(mqDto));
+            logger.info("InitUnloadVehicleConsumer.saveUnloadTaskBusinessData-param={}", JsonUtils.toJSONString(mqDto));
         }
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = convertEntityFromDto(mqDto);
         try {
-            saveData = jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(unloadVehicleEntity);
+            saveData = jyBizTaskUnloadVehicleService.updateOfBusinessInfo(unloadVehicleEntity);
         }
         catch (JyBizException bizException) {
             logger.warn("初始化卸车任务发生业务异常，将重试! {}", message.getText(), bizException);
@@ -172,6 +173,10 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
         if (mqDto.getLineTypeName() != null) {
             unloadVehicleEntity.setLineTypeName(mqDto.getLineTypeName());
+        }
+        //加工特安标识
+        if(mqDto.getTeanFlag() != null){
+            unloadVehicleEntity.setTeanFlag(mqDto.getTeanFlag());
         }
 
         // 处理卸车任务标位

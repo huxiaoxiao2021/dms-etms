@@ -102,6 +102,9 @@ public class TmsVehicleDetailStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tmsVehicleDetailStatusConsumer 执行到达状态 存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
+            //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+            jyBizTaskUnloadVehicleService.initActualArriveTime(mqBody.getSealCarCode(),DateHelper.parseAllFormatDateTime(mqBody.getOperateTime()));
+
             if(!jyBizTaskUnloadVehicleService.changeStatus(convert(mqBody))){
                 //失败重试
                 throw new JyBizException("司机到车（自建任务/传摆任务）更新状态失败重试");

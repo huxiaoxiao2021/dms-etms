@@ -44,6 +44,7 @@ public class JySendProductAggsBakConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = ProfilerHelper.registerInfo("DMS.WORKER.JySendProductAggsBakConsumer.consume");
+        logger.info("JySendProductAggsBakConsumer consume -->{}",message.getText());
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JySendProductAggsBakConsumer consume --> 消息为空");
             return;
@@ -63,7 +64,7 @@ public class JySendProductAggsBakConsumer extends MessageBaseConsumer {
             Boolean lock = redisClientOfJy.set(lockKey, "1", 1, TimeUnit.MINUTES, false);
             if(lock){
                 //过滤旧版本数据
-                String versionMutex = String.format(CacheKeyConstants.JY_SEND_PRODUCT_AGG_BAK_KEY, entity.getBizId());
+                String versionMutex = String.format(CacheKeyConstants.JY_SEND_PRODUCT_AGG_BAK_KEY, entity.getBizId()+entity.getProductType());
                 if (redisClientOfJy.exists(versionMutex)) {
                     Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
                     if (!NumberHelper.gt(entity.getVersion(), version)) {

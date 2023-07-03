@@ -38,5 +38,9 @@ public class DockBaseInfoDao extends BaseDao<DockBaseInfoPo> {
         return sqlSession.selectList(this.nameSpace.concat(".listAllDockInfoBySiteCode"), siteCode);
     }
 
+    public List<String> findAllDockCodeBySiteCode(Integer siteCode) {
+        return sqlSession.selectList(this.nameSpace.concat(".findAllDockCodeBySiteCode"), siteCode);
+    }
+
 
 }

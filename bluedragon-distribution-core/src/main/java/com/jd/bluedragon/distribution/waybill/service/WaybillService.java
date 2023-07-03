@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
@@ -244,5 +246,36 @@ public interface WaybillService {
      * @return
      */
     boolean matchTerminalSiteReSortDewuCondition(String customerCode, Integer siteCode);
+
+    /**
+     * 是否是分批配送
+     * @param waybillCode 运单号
+     * @return true | false
+     * @author fanggang7
+     * @time 2023-03-25 11:21:32 周六
+     */
+    Result<Boolean> checkIsDeliveryManyBatch(String waybillCode);
+
+    /**
+     * 是否特安运单
+     * @param waybillCode
+     * @return
+     */
+    boolean isTeAnWaybill(String waybillCode);
+
+    /**
+     * 特安单检验
+     * @param response
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> checkTEANWaybillCondition(String waybillCode);
+
+    /**
+     * 现场预分拣拦截校验
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
 
 }

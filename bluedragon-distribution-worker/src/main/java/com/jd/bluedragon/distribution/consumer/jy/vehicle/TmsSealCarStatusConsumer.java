@@ -3,9 +3,17 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -20,16 +28,21 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,6 +89,17 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
+
+    @Autowired
+    private JyBizTaskComboardService jyBizTaskComboardService;
+
+    @Autowired
+    @Qualifier(value = "jyCollectDataInitSplitProducer")
+    private DefaultJMQProducer jyCollectDataInitSplitProducer;
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsSealCarStatusConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -126,6 +150,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return false;
         }
         Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
+
+        // 完结板操作
+        closeBoard(sealCarInfoBySealCarCodeOfTms);
+
         //检查目的地是否是拣运中心
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
@@ -139,15 +167,16 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
+            //发送集齐消息初始化MQ  todo  只做转运场地初始化
+            if (BusinessUtil.isTransferSite(siteInfo.getSubType())) {
+                sendInitCollectMq(tmsSealCarStatus);
+            }
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行解封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
-            //记录实际解封车顺序 不允许失败阻碍其他流程
-            jyUnSealVehicleService.saveRealUnSealRanking(tmsSealCarStatus.getSealCarCode()
-                    ,DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
 
             return jyUnloadVehicleService.createUnloadTask(convert4Load(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms)) != null;
         }else if(TMS_STATUS_IN_RAIL.equals(tmsSealCarStatus.getStatus())){
@@ -158,17 +187,79 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 if(logger.isInfoEnabled()) {
                     logger.info("消费处理tms_seal_car_status 执行进围栏状态 存在 逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
                 }
+                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
+
                 return jyBizTaskUnloadVehicleService.changeStatus(convert2Entity4InRail(tmsSealCarStatus));
             }else {
                 //不存在继续创建任务 状态为待解
                 if(logger.isInfoEnabled()) {
                     logger.info("消费处理tms_seal_car_status 执行进围栏状态 不存在 逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
                 }
-                return jyUnSealVehicleService.createUnSealTask(convert4InRail(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
+                boolean flag = jyUnSealVehicleService.createUnSealTask(convert4InRail(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
+
+                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
+
+                return flag;
             }
 
         }
         return false;
+    }
+
+    private void closeBoard(SealCarDto sealCarInfoBySealCarCodeOfTms) {
+        if (!CollectionUtils.isEmpty(sealCarInfoBySealCarCodeOfTms.getBatchCodes())) {
+            try {
+                JyBizTaskComboardEntity query = new JyBizTaskComboardEntity();
+                query.setSendCodeList(sealCarInfoBySealCarCodeOfTms.getBatchCodes());
+                List<JyBizTaskComboardEntity> boardEntityList = jyBizTaskComboardService.listBoardTaskBySendCode(query);
+                if (CollectionUtils.isEmpty(boardEntityList)) {
+                    return;
+                }
+                List<String> boardList = new ArrayList<>();
+                List<String> sealSendCodeList = new ArrayList<>();
+                for (JyBizTaskComboardEntity entity : boardEntityList) {
+                    if (!entity.getBoardStatus().equals(ComboardStatusEnum.SEALED.getCode())) {
+                        sealSendCodeList.add(entity.getSendCode());
+                    }
+                    boardList.add(entity.getBoardCode());
+                }
+
+                if (!CollectionUtils.isEmpty(sealSendCodeList)) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("开始更新板状态：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
+                    if (!jyBizTaskComboardService.updateBoardStatusBySendCodeList(sealSendCodeList, sealCarInfoBySealCarCodeOfTms.getSealUserCode(),
+                            sealCarInfoBySealCarCodeOfTms.getSealUserName(), ComboardStatusEnum.SEALED)) {
+                        logger.info("批量更新板状态失败：{}",JsonHelper.toJson(sealSendCodeList));
+                    }
+                }
+
+
+                if (!groupBoardManager.batchCloseBoard(boardList)) {
+                    logger.error("批量完结板失败：{}",JsonHelper.toJson(boardList));
+                }
+            }catch (Exception e) {
+                logger.error("完结板操作失败，批次信息为：{}",JsonHelper.toJson(sealCarInfoBySealCarCodeOfTms.getBatchCodes()),e);
+            }
+        }
+    }
+
+
+
+    private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
+        InitCollectDto initCollectDto = new InitCollectDto();
+        initCollectDto.setBizId(tmsSealCarStatus.getSealCarCode());
+        initCollectDto.setOperateTime(System.currentTimeMillis());
+        initCollectDto.setOperateNode(CollectInitNodeEnum.SEAL_INIT.getCode());
+        String msgText = JsonHelper.toJson(initCollectDto);
+        if(logger.isInfoEnabled()) {
+            logger.info("TmsSealCarStatusConsumer.sendInitCollectMq-封车节点触发集齐初始化，businessId={}， msg={}", tmsSealCarStatus.getSealCarCode(), msgText);
+        }
+        jyCollectDataInitSplitProducer.sendOnFailPersistent(tmsSealCarStatus.getSealCarCode(),msgText);
+
+
     }
 
     /**
@@ -262,7 +353,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         }
         CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
         if(logger.isInfoEnabled()){
-            logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
+            logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarDtoCommonDto));
         }
         if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
             return null;

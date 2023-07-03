@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -87,6 +89,11 @@ public class SendVehicleProgress implements Serializable {
      * 已扫运单数
      */
     private Long scannedWaybillCount = 0L;
+
+    /**
+     * 自动刷新配置
+     */
+    private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
     public BigDecimal getLoadRate() {
         return loadRate;
@@ -206,5 +213,13 @@ public class SendVehicleProgress implements Serializable {
 
     public void setScannedWaybillCount(Long scannedWaybillCount) {
         this.scannedWaybillCount = scannedWaybillCount;
+    }
+
+    public ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+        return clientAutoRefreshConfig;
+    }
+
+    public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
+        this.clientAutoRefreshConfig = clientAutoRefreshConfig;
     }
 }

@@ -386,6 +386,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			BaseDmsStore baseDmsStore, Integer targetSiteId,
 			Integer originalDmsId, Integer originalCrossType) {
 		//1、先获取正向
+		log.info("queryCrossPackageTagForPrint-targetSiteId {}-originalDmsId {}-originalCrossType {}",targetSiteId,originalDmsId,originalCrossType);
 		JdResult<CrossPackageTagNew> result = this.queryCrossPackageTag(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
 		log.info("queryCrossPackageTagForPrint-1-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
 				JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));

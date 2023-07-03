@@ -202,6 +202,7 @@ public interface WaybillSignConstants {
 	 * 正向
 	 */
 	char CHAR_15_0 = '0';
+	char CHAR_15_6 = '6';
 
 	/**
 	 * 毕业寄
@@ -429,6 +430,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_53 = 53;
 	char CHAR_53_1 = '1';
+	char CHAR_53_2 = '2';
 
 	/**
 	 * 99
@@ -443,4 +445,18 @@ public interface WaybillSignConstants {
 	int POSITION_140 = 140;
 	char CHAR_140_2 = '2';
 	char CHAR_140_1 = '1';
+
+	/**
+	 * 67
+	 */
+	int POSITION_67 = 67;
+	char CHAR_67_1 = '1';
+
+	/**
+	 * 135
+	 */
+	int POSITION_135 = 135;
+	char CHAR_135_2 = '2';
+
+
 }

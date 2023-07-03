@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.response;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class BoardDto implements Serializable {
@@ -9,6 +10,8 @@ public class BoardDto implements Serializable {
      * 板号
      */
     private String boardCode;
+
+    private Date boardCreateTime;
     /**
      * 进度
      */
@@ -58,7 +61,7 @@ public class BoardDto implements Serializable {
      * 组板入口类型
      */
     private String comboardSource;
-            
+
     List<GoodsCategoryDto> goodsCategoryDtos;
 
 
@@ -71,7 +74,28 @@ public class BoardDto implements Serializable {
      * 展开状态
      */
     private boolean extendFlag;
-    
+
+    /**
+     * 非本岗位标识   true 非本岗位  false 本岗位
+     */
+    private boolean notMyGroup;
+
+    public boolean getNotMyGroup() {
+        return notMyGroup;
+    }
+
+    public void setNotMyGroup(boolean notMyGroup) {
+        this.notMyGroup = notMyGroup;
+    }
+
+    public Date getBoardCreateTime() {
+        return boardCreateTime;
+    }
+
+    public void setBoardCreateTime(Date boardCreateTime) {
+        this.boardCreateTime = boardCreateTime;
+    }
+
     public List<GoodsCategoryDto> getGoodsCategoryDtos() {
         return goodsCategoryDtos;
     }

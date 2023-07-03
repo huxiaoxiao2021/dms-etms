@@ -205,4 +205,14 @@
         order by dock_code
     </select>
 
+    <select id="findAllDockCodeBySiteCode" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select
+         dock_code
+        from
+        dock_base_info
+        where
+        site_code = #{siteCode, jdbcType=INTEGER} and is_delete = 0
+        order by dock_code
+    </select>
+
 </mapper>

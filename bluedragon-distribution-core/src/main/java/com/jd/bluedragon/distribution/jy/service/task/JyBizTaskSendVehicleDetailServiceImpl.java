@@ -1,15 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.slf4j.Logger;
@@ -18,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.*;
 
 @Service("jyBizTaskSendVehicleDetailService")
 public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehicleDetailService{
@@ -59,6 +61,16 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetailByBatch(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBizByBatch(entity, null);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.findSendVehicleDetailByTransWorkCode(entity);
     }
 
     @Override
@@ -152,4 +164,33 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
 		return jyBizTaskSendVehicleDetailDao.findByTransWorkItemCode(query);
 	}
+
+    @Override
+    public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
+        return jyBizTaskSendVehicleDetailDao.findBySendVehicleBizId(sendVehicleBizId);
+    }
+
+    @Override
+    public List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity) {
+        return jyBizTaskSendVehicleDetailDao.findBizIdsBySiteFlows(queryEntity);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByBizIds(int siteCode, List<String> bizIds) {
+        return jyBizTaskSendVehicleDetailDao.findSendVehicleDetailByBizIds(siteCode, bizIds);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds) {
+        return jyBizTaskSendVehicleDetailDao.findDetailBySendVehicleBizIds(sendVehicleBizIds);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId) {
+        return jyBizTaskSendVehicleDetailDao.findSendVehicleDetailByBizIds(siteId, detailBizList);
+    }
+
+    @Override
+    public boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status) {
+        return jyBizTaskSendVehicleDetailDao.updateStatusByDetailVehicleBizIds(detailBizList, status);
+    }
 }

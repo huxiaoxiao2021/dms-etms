@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.jyexpection.response;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,6 +54,32 @@ public class ExpTaskDto implements Serializable {
      * 是否超时：1- 超时，0-未超时
      */
     private Integer timeOut;
+
+    /**
+     * 异常类型0：三无 1：报废 2：破损
+     */
+    private Integer type;
+
+    /**
+     * 审核人erp
+     */
+    private String checkerErp;
+
+    /**
+     * 审批时间
+     */
+    private Date checkTime;
+
+    /**
+     * 任务子状态 0:待录入 1：待匹配 2：暂存 3: 处理完成 4：待打印 、5：审批中、6：审批驳回、7：客服介入
+     */
+    private Integer processingStatus;
+
+
+    /**
+     * 特殊标识
+     */
+    private String specialFlag;
 
     public String getBizId() {
         return bizId;
@@ -176,5 +203,46 @@ public class ExpTaskDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getCheckerErp() {
+        return checkerErp;
+    }
+
+    public void setCheckerErp(String checkerErp) {
+        this.checkerErp = checkerErp;
+    }
+
+    public Date getCheckTime() {
+        return checkTime;
+    }
+
+    public void setCheckTime(Date checkTime) {
+        this.checkTime = checkTime;
+    }
+
+    public Integer getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(Integer processingStatus) {
+        this.processingStatus = processingStatus;
+    }
+
+
+    public String getSpecialFlag() {
+        return specialFlag;
+    }
+
+    public void setSpecialFlag(String specialFlag) {
+        this.specialFlag = specialFlag;
     }
 }

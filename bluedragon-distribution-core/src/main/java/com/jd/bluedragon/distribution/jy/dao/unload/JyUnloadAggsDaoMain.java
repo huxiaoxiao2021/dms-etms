@@ -17,7 +17,7 @@ import java.util.List;
  * @email liuduo3@jd.com
  * @date 2022-04-01 16:23:35
  */
-public class JyUnloadAggsDaoMain extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAggsDaoStrategy {
+class JyUnloadAggsDaoMain extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAggsDaoStrategy {
 
     private static final String DB_TABLE_NAME = "jy_unload_aggs";
 

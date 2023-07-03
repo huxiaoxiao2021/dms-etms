@@ -155,7 +155,11 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
      * 操作者id
      */
 	private String operatorId;
-	
+
+    private transient Integer offset;
+
+    private transient Integer limit;
+
     public Integer getCancelPackageCount() {
         return cancelPackageCount;
     }
@@ -450,4 +454,20 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
 	}
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
 }

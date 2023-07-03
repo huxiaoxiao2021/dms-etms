@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
@@ -223,6 +224,48 @@ public class DockInfoJsfServiceImpl implements DockService{
 
         DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(DockInfoConverter.convertToPo(dockInfoEntity));
         response.setData(DockInfoConverter.convertToEntity(dockBaseInfoPo));
+
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.DockInfoJsfServiceImpl.queryDockListBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<String>> queryDockListBySiteId(DockInfoEntity dockInfoEntity) {
+        Response<List<String>> response = new Response<>();
+        response.toSucceed();
+
+        if (Objects.isNull(dockInfoEntity) || Objects.isNull(dockInfoEntity.getSiteCode())) {
+            response.toError("缺少必要查询参数");
+            return response;
+        }
+
+        List<String> dockCodeList = dockBaseInfoDao.findAllDockCodeBySiteCode(dockInfoEntity.getSiteCode());
+        response.setData(dockCodeList);
+
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.DockInfoJsfServiceImpl.listAllDockInfoBySiteCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<DockInfoEntity>> listAllDockInfoBySiteCode(Integer siteCode) {
+        Response<List<DockInfoEntity>> response = new Response<>();
+        response.toSucceed();
+        response.setData(new ArrayList<DockInfoEntity>());
+        if (Objects.isNull(siteCode) || !NumberHelper.gt0(siteCode)) {
+            response.toError("站点无效，请检查");
+            return response;
+        }
+
+        List<DockBaseInfoPo> dockBaseInfoPos = dockBaseInfoDao.listAllDockInfoBySiteCode(siteCode);
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(dockBaseInfoPos)) {
+            if (log.isInfoEnabled()) {
+                log.info("根据站点【{}】未查询到有效的月台信息，返回为空", siteCode);
+            }
+            return response;
+        }
+        for (DockBaseInfoPo dockBaseInfoPo : dockBaseInfoPos) {
+            response.getData().add(DockInfoConverter.convertToEntity(dockBaseInfoPo));
+        }
 
         return response;
     }

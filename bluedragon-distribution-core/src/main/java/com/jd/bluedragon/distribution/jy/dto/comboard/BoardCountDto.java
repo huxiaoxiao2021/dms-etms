@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
+import java.io.Serializable;
+
 /**
  * @author liwenji
  * @date 2022-12-02 11:27
  */
 
-public class BoardCountDto {
+public class BoardCountDto implements Serializable {
     
     private Integer boardCount;
     

@@ -41,8 +41,8 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateCondition condition) {
-        return jyBizTaskMachineCalibrateDetailDao.selectLatelyOneByCondition(condition);
+    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByMachineCode(JyBizTaskMachineCalibrateCondition condition) {
+        return jyBizTaskMachineCalibrateDetailDao.selectLatelyOneByMachineCode(condition);
     }
 
     @Override

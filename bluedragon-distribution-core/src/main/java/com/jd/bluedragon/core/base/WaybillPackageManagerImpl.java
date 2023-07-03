@@ -13,9 +13,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.common.Page;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PackFlowDetail;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -449,5 +447,26 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             Profiler.registerInfoEnd(callerInfo);
         }
 
+    }
+
+    /**
+     * 根据运单号查询称重流水数据
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getWaybillWeightVolumeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public List<PackageOpeFlowDetail> getWaybillWeightVolumeDetail(String waybillCode) {
+        log.debug("查询运单称重流水数据接口,运单号:{}" , waybillCode);
+        try {
+            BaseEntity<WaybillOpeFlowDetail> baseEntity = waybillPackageApi.getWaybillWeightVolumeDetail(waybillCode);
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                return baseEntity.getData().getPackageOpeFlowList();
+            }
+        } catch (Exception ex) {
+            log.error("查询运单称重流水数据接口异常！运单号={}", waybillCode, ex);
+        }
+        return null;
     }
 }

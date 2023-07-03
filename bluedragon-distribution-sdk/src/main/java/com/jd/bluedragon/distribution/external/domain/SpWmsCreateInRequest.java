@@ -51,6 +51,8 @@ public class SpWmsCreateInRequest implements Serializable {
      */
     private Date opeTime;
 
+    private String sendCode;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -97,5 +99,13 @@ public class SpWmsCreateInRequest implements Serializable {
 
     public void setOpeTime(Date opeTime) {
         this.opeTime = opeTime;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 }

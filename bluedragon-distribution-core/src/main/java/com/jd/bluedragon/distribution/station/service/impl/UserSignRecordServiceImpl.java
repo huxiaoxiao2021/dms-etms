@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
@@ -9,19 +10,24 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
@@ -38,8 +44,12 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.*;
+
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -97,8 +107,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private JyGroupMemberService jyGroupMemberService;
 
 	@Autowired
-	private BaseMajorManager baseMajorManager;
+	@Qualifier("jyGroupService")
+	private JyGroupService jyGroupService;
 	
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -839,6 +855,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
 		workStationGridCheckQuery.setBusinessKey(gridKey);
 		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+		// todo 增加结果的调用是否成功判断
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
 			result.toFail("岗位码对应的网格信息不存在，请先维护场地网格信息！");
@@ -877,8 +894,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Integer jobCode = signInData.getJobCode();
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
+
+		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
+		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
+		if(StringUtils.isNotBlank(checkMsg)){
+			result.toFail(checkMsg);
+			return result;
+		}
+
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				||JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
 			boolean isEffectErp = false;
@@ -904,6 +930,45 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return result;
 	}
+
+	/**
+	 * 校验工种是否允许签到
+	 * @param workStationGrid
+	 * @param jobCode
+	 * @return
+	 */
+	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
+		//添加开关 以便于上线后没维护工种类型 都进行卡控
+		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+			log.warn("网格工种限制功能开关关闭!");
+			return "";
+		}
+
+		String ownerUserErp = workStationGrid.getOwnerUserErp();
+		String gridName=workStationGrid.getGridName();
+
+		//获取当前网格的工种信息
+		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
+		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
+		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
+		if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		boolean flag = false;
+		for (int i = 0; i < jobTypes.size(); i++) {
+			if(Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
+				flag =true;
+				break;
+			}
+		}
+		if(!flag){
+			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		}
+		return "";
+	}
+
+
 
 	private void setWarZoneInfo(UserSignRecord signInData) {
 		if(signInData.getSiteCode() == null){
@@ -1489,5 +1554,94 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		result.setData(PageDto);
 		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
+		lastSignRecordQuery.setUserCode(query.getUserCode());
+		UserSignRecord lastUnSignOutData = userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery);
+		//加载网格相关数据
+		loadGridData(lastUnSignOutData);
+		UserSignRecordData signData = this.toUserSignRecordData(lastUnSignOutData);
+		if(signData != null) {
+			//查询组员信息
+			JyGroupMemberEntity memberData = this.jyGroupMemberService.queryBySignRecordId(signData.getId());
+			if(memberData != null) {
+				GroupMemberData groupData = new GroupMemberData();
+				groupData.setGroupCode(memberData.getRefGroupCode());
+				signData.setGroupData(groupData);
+				//查询分组信息
+				JyGroupEntity group = this.jyGroupService.queryGroupByGroupCode(memberData.getRefGroupCode());
+				if(group != null) {
+					signData.setPositionCode(group.getPositionCode());
+				}
+			}
+		}
+		result.setData(signData);
+		return result;
+	}
+	/**
+	 * 签到记录-加载网格相关数据
+	 * @param signData
+	 */
+	private void loadGridData(UserSignRecord signData) {
+		if(signData != null) {
+			com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
+			workStationGridCheckQuery.setBusinessKey(signData.getRefGridKey());
+			com.jdl.basic.common.utils.Result<WorkStationGrid> gridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+			if(gridData != null && gridData.getData() != null) {
+				signData.setGridCode(gridData.getData().getGridCode());
+				signData.setGridName(gridData.getData().getGridName());
+				signData.setGridNo(gridData.getData().getGridNo());
+				signData.setAreaCode(gridData.getData().getAreaCode());
+				signData.setAreaName(gridData.getData().getAreaName());
+				signData.setWorkCode(gridData.getData().getWorkCode());
+				signData.setWorkName(gridData.getData().getWorkName());
+			}
+		}
+	}
+	@Override
+	public Result<UserSignRecord> checkAndCreateSignInDataForFlowAdd(UserSignRequest signInRequest) {
+		Result<UserSignRecord> result = new Result<UserSignRecord>();
+		result.toSuccess();
+		JdCResponse<UserSignRecordData> checkResult = checkAndFillUserInfo(signInRequest);
+		if(!checkResult.isSucceed()) {
+			result.toFail(checkResult.getMessage());
+			return result;
+		}
+		//校验岗位码,并获取网格信息
+		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
+		if(!gridResult.isSucceed()) {
+			result.toFail(gridResult.getMessage());
+			return result;
+		}
+		WorkStationGrid gridInfo = gridResult.getData();
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        JdCResponse<UserSignRecordData> fillResult = this.checkAndFillSignInInfo(signInRequest,signInData,gridInfo);
+        if(!fillResult.isSucceed()) {
+        	result.toFail(fillResult.getMessage());
+        	return result;
+        }
+        result.setData(signInData);
+		return result;
+	}	
+	@Override
+	public Integer queryCountForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryCountForFlow(historyQuery);
+	}
+	@Override
+	public List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery) {
+		return userSignRecordDao.queryDataListForFlow(historyQuery);
+	}
+	@Override
+	public Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery) {
+		return userSignRecordDao.queryCountForCheckSignTime(checkQuery);
+	}
+	@Override
+	public UserSignRecord queryByIdForFlow(Long recordId) {
+		return userSignRecordDao.queryByIdForFlow(recordId);
 	}
 }

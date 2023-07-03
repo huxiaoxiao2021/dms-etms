@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -114,6 +115,14 @@ public class WeightVolumeEntity {
      * 备注
      */
     private String remark;
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
 
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
@@ -374,4 +383,20 @@ public class WeightVolumeEntity {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
 }

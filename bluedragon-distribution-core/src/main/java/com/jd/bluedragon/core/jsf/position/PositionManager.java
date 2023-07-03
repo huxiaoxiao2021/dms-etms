@@ -35,4 +35,20 @@ public interface PositionManager {
      * @return
      */
     Result<PositionData> queryPositionInfo(String positionCode);
+    /**
+     * 根据gridKey查询岗位信息
+     *
+     * @param gridKey
+     * @return
+     */
+    Result<PositionData> queryPositionByGridKey(String gridKey);
+    
+
+    /**
+     * 根据业务主键查询岗位码
+     *
+     * @param refGridKey
+     * @return
+     */
+    String queryPositionCodeByRefGridKey(String refGridKey);
 }

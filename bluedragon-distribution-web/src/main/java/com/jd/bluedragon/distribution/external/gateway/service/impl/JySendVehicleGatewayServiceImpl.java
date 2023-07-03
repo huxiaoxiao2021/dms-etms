@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -215,7 +216,16 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleGatewayServiceImpl.getSendVehicleToScanPackageDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleToScanPackageDetail(request));
     }
+
+    @Override
+    public JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
+    }
+
+
+
 }

@@ -23,8 +23,8 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
     private SendOrUnloadDataReadDuccConfigJsfService jySendOrUnloadDataReadDuccConfigJsfService;
 
     @Override
-    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
-            redisEnable = true, redisExpiredTime = 30 * 1000)
+//    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+//            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggsDataReadSwitchInfo() {
         try{
             ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJySendAggsDataReadSwitchInfo();
@@ -39,8 +39,8 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
     }
 
     @Override
-    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
-            redisEnable = true, redisExpiredTime = 30 * 1000)
+//    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsDataReadSwitchInfo", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+//            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsDataReadSwitchInfo() {
         try{
             ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJyUnloadAggsDataReadSwitchInfo();
@@ -56,8 +56,8 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
 
 
     @Override
-    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
-            redisEnable = true, redisExpiredTime = 30 * 1000)
+//    @Cache(key = "JyDuccConfigManagerImpl.getJySendAggOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+//            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJySendAggOldOrNewDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJySendAggOldOrNewDataReadSwitch();
@@ -72,8 +72,8 @@ public class JyDuccConfigManagerImpl implements JySendOrUnloadDataReadDuccConfig
     }
 
     @Override
-    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
-            redisEnable = true, redisExpiredTime = 30 * 1000)
+//    @Cache(key = "JyDuccConfigManagerImpl.getJyUnloadAggsOldOrNewDataReadSwitch", memoryEnable = true, memoryExpiredTime = 30 * 1000,
+//            redisEnable = true, redisExpiredTime = 30 * 1000)
     public Boolean getJyUnloadAggsOldOrNewDataReadSwitch() {
         try{
             ServiceResult<Boolean> result = jySendOrUnloadDataReadDuccConfigJsfService.getJyUnloadAggsOldOrNewDataReadSwitch();

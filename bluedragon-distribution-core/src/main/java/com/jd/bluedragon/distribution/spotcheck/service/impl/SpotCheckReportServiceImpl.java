@@ -119,6 +119,8 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         spotCheckQueryCondition.setIsTrustMerchant(condition.getIsTrustMerchant() == null ? null : Integer.parseInt(String.valueOf(condition.getIsTrustMerchant())));
         spotCheckQueryCondition.setIsIssueDownstream(condition.getIsIssueDownstream() == null ? null : Integer.parseInt(String.valueOf(condition.getIsIssueDownstream())));
         spotCheckQueryCondition.setRecordType(recordType);
+        spotCheckQueryCondition.setExcessType(condition.getExcessType());
+        spotCheckQueryCondition.setPictureAIDistinguishReason(condition.getPictureAIDistinguishReason());
         return spotCheckQueryCondition;
     }
 

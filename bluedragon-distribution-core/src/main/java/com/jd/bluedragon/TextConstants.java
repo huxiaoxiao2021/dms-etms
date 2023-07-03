@@ -54,7 +54,7 @@ public class TextConstants {
      * 货款-代收货款
      */
     public static final String GOODS_PAYMENT_NEED_PAY = "代收货款";
-
+    
     /**
      * 备注-【合并送】
      */
@@ -174,7 +174,7 @@ public class TextConstants {
     /**
      * 纯配B2B运单、纯配C转B添加水印 B-【运单号】后4位
      */
-    public static final String	PECIAL_B_MARK1="B-";
+    public static final String	PECIAL_B_MARK1="B-";    
     /**
      * 无接触标识‘代’
      */
@@ -318,4 +318,43 @@ public class TextConstants {
 
     public static final String COMMON_TEXT_MEDICINE_COLD = "医冷零担";
 
+    /**
+     *
+     */
+    public static final String SPECIAL_MARK_NC_TEXT ="NC";
+
+    /**
+     * 药
+     */
+    public static final String COMMON_TEXT_MEDICINE = "药";
+    /**
+     * 企业名称
+     */
+    public static final String COMMON_TEXT_COMPANY = "企业名称：";
+    /**
+     * 联系电话
+     */
+    public static final String COMMON_TEXT_CONTACT = "联系电话：";
+    /**
+     * 存储条件
+     */
+    public static final String COMMON_TEXT_STORAGE_CONDITION  = "储存温度要求：详见产品说明书";
+    /**
+     * 优先配送
+     */
+    public static final String COMMON_TEXT_DELIVERY  = "【优先配送】";
+    /**
+     * 医药专送
+     */
+    public static final String COMMON_TEXT_MEDICINE_DELIVET = "医药专送";
+
+    /**
+     * NC
+     */
+    public static final String SPECIAL_MARK_NC ="NC";
+
+    /**
+     * 电商特惠
+     */
+    public static final String PRODUCT_NAME_DSTH = "电商特惠";
 }

@@ -29,6 +29,11 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
 
     private static final Logger logger = LoggerFactory.getLogger(JYBizUnloadTaskCleanServiceImpl.class);
 
+    /**
+     * 卸车岗任务类型： 1 分拣 2转运
+     */
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 1;
+
     @Autowired
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
@@ -59,7 +64,8 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
             }
             //根据每个站点分别按状态清理数据
             for(Integer siteCode : sites){
-
+                //每个站点清理间隔3秒
+                suspendThreeS();
                 if(!cleanData(cleanRule,siteCode)){
                     //部分失败跳过，最后返回失败
                     cleanSucFlag = Boolean.FALSE;
@@ -70,6 +76,13 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         return cleanSucFlag;
     }
 
+    private void suspendThreeS(){
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+
+        }
+    }
 
     /**
      * 获取需要清理的站点数据
@@ -115,6 +128,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
             JyBizTaskUnloadVehicleEntity param = new JyBizTaskUnloadVehicleEntity();
             BeanUtils.copyProperties(cleanRule,param);
             param.setEndSiteId(Long.valueOf(siteCode));
+            param.setTaskType(UNLOAD_TASK_CATEGORY_DMS);
             cleanDataSize = jyBizTaskUnloadVehicleDao.cleanByParam(param);
         }catch (Exception e){
             logger.error("清理作业APP卸车+到车任务,清理站点:{}规则:{}时异常！",

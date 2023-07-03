@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.dto.sendcode.request.SendCodeSealInfoQuery;
 import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,5 +22,12 @@ public class SendCodeGateWayServiceImplTest {
     @Test
     public void testcheckSendCodeAndAlliance(){
         sendCodeGateWayService.checkSendCodeAndAlliance("910-14762-20190729150527014");
+    }
+
+    @Test
+    public void testquerySendCodeSealInfo(){
+        SendCodeSealInfoQuery query = new SendCodeSealInfoQuery();
+        query.setScanCode("910-14762-20190729150527014");
+        sendCodeGateWayService.querySendCodeSealInfo(query);
     }
 }

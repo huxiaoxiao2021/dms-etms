@@ -163,7 +163,7 @@
 		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
-		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
@@ -177,6 +177,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
+		<property name="jyUnSealTaskLastHourTime" value="${jyUnSealTaskLastHourTime:6}"/>
         <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
@@ -220,13 +221,15 @@
 		<property name="tysUnloadTaskHandoverMaxSize" value="${tysUnloadTaskHandoverMaxSize:3}"/>
 		<property name="tysUnloadTaskSupplementScanLimitHours" value="${tysUnloadTaskSupplementScanLimitHours:72}"/>
 		<property name="waybillSysNonExistPackageInterceptSwitch" value="${waybillSysNonExistPackageInterceptSwitch:true}"/>
+		<property name="pdaLoginSkipSwitch" value="${pdaLoginSkipSwitch:false}"/>
 		<property name="syncScheduleTaskSwitch" value="${syncScheduleTaskSwitch:true}"/>
 		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
 		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
 		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:720000}"/>
-		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:10800000}"/>
+		<property name="machineCalibrateIntervalTimeOfSpotCheck" value="${machineCalibrateIntervalTimeOfSpotCheck:28800000}"/>
+		<property name="machineCalibrateSpotCheckSwitch" value="${machineCalibrateSpotCheckSwitch:true}"/>
 		<property name="spotCheckIssueRelyOMachineStatus" value="${spotCheckIssueRelyOMachineStatus:true}"/>
 		<property name="spotCheckIssueRelyOnMachineStatusSiteSwitch" value="${spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}"/>
 		<property name="dewuCustomerCodes" value="${dewuCustomerCodes:-1}"/>
@@ -234,18 +237,65 @@
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
 		<property name="printCompeteUpdateCancel" value="${printCompeteUpdateCancel:false}" />
 		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
-
-
-
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
-		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
+		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:'2'}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
-		<property name="autoPackageSendInspectionSwitch" value="${autoPackageSendInspectionSwitch:true}"/>
-		<property name="autoPackageSendInspectionDelSiteCodes" value="${autoPackageSendInspectionDelSiteCodes:3}"/>
+		<property name="autoPackageSendInspectionSiteCodes" value="${autoPackageSendInspectionSiteCodes:3}"/>
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
 		<property name="reComboardTimeLimit" value="${reComboardTimeLimit:3}"/>
 		<property name="boardListQuerySwitch" value="${boardListQuerySwitch: true}"/>
+		<property name="reComboardSwitch" value="${reComboardSwitch:true}"/>
+		<property name="cloudOssInsertSwitch" value="${cloudOssInsertSwitch:false}"/>
+		<property name="supportMutilScan" value="${supportMutilScan:false}"/>
+		<property name="cttGroupSendFLowLimit" value="${cttGroupSendFLowLimit:10}"/>
+		<property name="czSiteForbiddenList" value="${czSiteForbiddenList:''}"/>
+		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
+		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
+		<property name="batchSendForbiddenSwitch" value="${batchSendForbiddenSwitch:false}"/>
+		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
+		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
+		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
+		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
+		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
+		<property name="needIsolateBoardByGroupCodeSiteList" value="${needIsolateBoardByGroupCodeSiteList:''}"/>
+		<property name="autoCloseJyBizTaskConfig" value="${autoCloseJyBizTaskConfig:}"/>
+		<property name="loadCarEvaluateSwitch" value="${loadCarEvaluateSwitch:true}"/>
+		<property name="tysUnloadCarCollectDemoteSwitch" value="${tysUnloadCarCollectDemoteSwitch:false}"/>
+		<property name="jyCollectSiteWhitelist" value="${jyCollectSiteWhitelist:}"/>
+		<property name="loadProgressByVehicleVolume" value="${loadProgressByVehicleVolume:false}"/>
+		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
+		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
+		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
+		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
+		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
+		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+
+		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
+		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
+		<property name="pdaVersionSwitch" value="${pdaVersionSwitch:true}"/>
+		<property name="dpTransferSwitch" value="${dpTransferSwitch:true}"/>
+		<property name="easyFreezeSwitch" value="${easyFreezeSwitch:true}"/>
+		<property name="allianceBusinessSwitch" value="${allianceBusinessSwitch:true}"/>
+		<property name="aggsDataSource" value="${aggsDataSource:jyCore}"/>
+		<property name="jyTransportSendVehicleValidateDockRefreshTime" value="${jyTransportSendVehicleValidateDockRefreshTime:10}"/>
+		<property name="jyTransportSendVehicleValidateDockAllowRefreshTimes" value="${jyTransportSendVehicleValidateDockAllowRefreshTimes:2}"/>
+		<property name="jyWorkAppAutoRefreshConfig" value="${jyWorkAppAutoRefreshConfig:''}"/>
+		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
+		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
+		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
+		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
+		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
+		<property name="ignoreTysTrackSwitch" value="${ignoreTysTrackSwitch:false}"/>
+		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
+		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
+		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
+		<property name="beforeSealVehicleLoadRateLimit" value="${beforeSealVehicleLoadRateLimit:10.00}"/>
+		<property name="beforeSealVehicleLoadRateLimitCheckSwitch" value="${beforeSealVehicleLoadRateLimitCheckSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -405,6 +455,7 @@
 				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskOrderByIntegral</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskSwitchToEs</value>
+				<value>uccPropertyConfiguration.jyUnSealTaskLastHourTime</value>
 				<value>uccPropertyConfiguration.jySendTaskLoadRateLimit</value>
 				<value>uccPropertyConfiguration.createSendTaskExecuteCount</value>
 				<value>uccPropertyConfiguration.createSendTasktimeOut</value>
@@ -471,12 +522,13 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
 				<value>uccPropertyConfiguration.jyUnloadCarListDoneQueryDayFilter</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskHandoverMaxSize</value>
 				<value>uccPropertyConfiguration.tysUnloadTaskSupplementScanLimitHours</value>
 				<value>uccPropertyConfiguration.waybillSysNonExistPackageInterceptSwitch</value>
-
+				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
@@ -486,7 +538,63 @@
 
 				<value>uccPropertyConfiguration.reComboardTimeLimit</value>
 				<value>uccPropertyConfiguration.boardListQuerySwitch</value>
+				<value>uccPropertyConfiguration.reComboardSwitch</value>
+				<value>uccPropertyConfiguration.supportMutilScan</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSiteCodes</value>
+				<value>uccPropertyConfiguration.cloudOssInsertSwitch</value>
+				<value>uccPropertyConfiguration.dpSpringSiteCode</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionSwitch</value>
+				<value>uccPropertyConfiguration.autoPackageSendInspectionDelSiteCodes</value>
+				<value>uccPropertyConfiguration.tysUnloadCarCollectDemoteSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectSiteWhitelist</value>
 
+				<value>uccPropertyConfiguration.cttGroupSendFLowLimit</value>
+				<value>uccPropertyConfiguration.czSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.czOrgForbiddenList</value>
+				<value>uccPropertyConfiguration.czSiteTypeForbiddenList</value>
+				<value>uccPropertyConfiguration.batchSendForbiddenSwitch</value>
+				<value>uccPropertyConfiguration.needValidateBatchCodeHasSealed</value>
+				<value>uccPropertyConfiguration.forceSendSiteList</value>
+				<value>uccPropertyConfiguration.volumeExcessIssueSites</value>
+				<value>uccPropertyConfiguration.createBoardBySendFlowSwitch</value>
+				<value>uccPropertyConfiguration.needIsolateBoardByGroupCodeSiteList</value>
+				<value>uccPropertyConfiguration.autoCloseJyBizTaskConfig</value>
+				<value>uccPropertyConfiguration.loadCarEvaluateSwitch</value>
+				<value>uccPropertyConfiguration.loadProgressByVehicleVolume</value>
+				<value>uccPropertyConfiguration.operateProgressRegions</value>
+				<value>uccPropertyConfiguration.productOperateProgressSwitch</value>
+				<value>uccPropertyConfiguration.onlineGetTaskSimpleCodeThreshold</value>
+				<value>uccPropertyConfiguration.jobTypeLimitSwitch</value>
+				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.jyComboardRefreshTimerInterval</value>
+				<value>uccPropertyConfiguration.boardCombinationRouterSwitch</value>
+				<value>uccPropertyConfiguration.pdaVersionSwitch</value>
+				<value>uccPropertyConfiguration.dpTransferSwitch</value>
+				<value>uccPropertyConfiguration.easyFreezeSwitch</value>
+				<value>uccPropertyConfiguration.allianceBusinessSwitch</value>
+				<value>uccPropertyConfiguration.aggsDataSource</value>
+				<value>uccPropertyConfiguration.jySysStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyArtificialStrandTaskCloseTime</value>
+				<value>uccPropertyConfiguration.jyStrandScanNumLimit</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockRefreshTime</value>
+				<value>uccPropertyConfiguration.jyTransportSendVehicleValidateDockAllowRefreshTimes</value>
+				<value>uccPropertyConfiguration.jyWorkAppAutoRefreshConfig</value>
+				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
+				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
+				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
+				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
+				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
+				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
+				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
+				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
+				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
+				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
+				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
+				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimitCheckSwitch</value>
 			</list>
 		</property>
 	</bean>

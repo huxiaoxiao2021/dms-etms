@@ -5,8 +5,10 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.waybillVas.VasSourceEnum;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
@@ -1070,6 +1072,16 @@ public class BusinessHelper {
     public static boolean isSpecialOrder(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_596), SendPayConstants.STR_596_1);
     }
+
+    /**
+     * 是否 vmi订单
+     * @param sendPayMap  840位 == 1
+     * @return
+     */
+    public static boolean isVmi(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_840), SendPayConstants.STR_840_1);
+    }
+
     /**
      * 
      * @param extendMap
@@ -1093,5 +1105,63 @@ public class BusinessHelper {
         	}
         }
       return attachmentUrl;
+    }
+
+    /**
+     * 判断是否是易碎运单
+     * Sendpay 第746位等于1时，表示为易碎运单
+     * @param sendPayMap
+     */
+    public static boolean isFragile(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
+    }
+
+    /**
+     * 纯配、非拒收逆向单
+     * wbs53位=2 & wbs15位!=6
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureOrNotRejectOrder(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_2)
+                && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_15, WaybillSignConstants.CHAR_15_6);
+    }
+
+    /**
+     * 是否是分批配送
+     * @return true | false
+     */
+    public static boolean checkIsDeliveryManyBatch(WaybillVasDto waybillVasDto) {
+        if(Objects.equals(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH, waybillVasDto.getVasNo())){
+            Map<String, String> extendMap = waybillVasDto.getExtendMap();
+            if (extendMap == null) {
+                return false;
+            }
+            final String executeBatchDelivery = extendMap.get(DmsConstants.WAYBILL_VAS_DELIVERY_MANY_BATCH_EXECUTE_BATCH_DELIVERY);
+            if(executeBatchDelivery != null && Objects.equals(executeBatchDelivery, Constants.STRING_FLG_TRUE)){
+                return true;
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 根据增值服务编码是否匹配
+     * @param waybillVas
+     * @param waybillVasDtos
+     * @return
+     */
+    public static boolean matchWaybillVasDto(String waybillVas, List<WaybillVasDto> waybillVasDtos){
+        if(StringUtils.isBlank(waybillVas) || CollectionUtils.isEmpty(waybillVasDtos)){
+            return false;
+        }
+        for(WaybillVasDto dto : waybillVasDtos){
+            if(waybillVas.equals(dto.getVasNo())){
+                return true;
+            }
+        }
+        return false;
     }
 }

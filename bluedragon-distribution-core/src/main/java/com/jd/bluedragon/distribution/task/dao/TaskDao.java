@@ -214,6 +214,10 @@ public class TaskDao extends BaseDao<Task> {
 		return (Integer) super.getSqlSession().insert(TaskDao.namespace + ".addWithStatus", task);
 	}
 
+    public Integer addWithParam(Task task) {
+        return (Integer) super.getSqlSession().insert(TaskDao.namespace + ".addWithParam", task);
+    }
+
 	@SuppressWarnings("unchecked")
 	public List<Task> findPageTask(Map<String, Object> params) {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findPageTask", params);
@@ -282,6 +286,21 @@ public class TaskDao extends BaseDao<Task> {
 		request.put("queueIds", queueIds);
 		request.put("lazyExecuteDays", lazyExecuteDays);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findVirtualBoardTasks", request);
+	}
+
+	/**
+	 * 查找作业工作台自动关闭任务，一个封车编码只有一条
+	 * @author fanggang7
+	 * @time 2023-03-21 16:34:55 周二
+	 */
+	public List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findJyBizAutoCloseTasks", request);
 	}
 
 }

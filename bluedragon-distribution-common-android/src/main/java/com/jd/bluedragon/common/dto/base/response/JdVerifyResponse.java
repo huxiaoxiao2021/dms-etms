@@ -241,4 +241,12 @@ public class JdVerifyResponse<T> implements Serializable {
     public void setData(T data) {
         this.data = data;
     }
+
+    /**
+     * 成功
+     * @return
+     */
+    public boolean codeSuccess() {
+        return this.code == CODE_SUCCESS;
+    }
 }

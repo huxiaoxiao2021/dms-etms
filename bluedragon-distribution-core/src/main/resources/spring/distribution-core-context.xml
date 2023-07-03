@@ -16,6 +16,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-wb-core.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-aggs.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core-agg-bak.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-jy-core-agg-main.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
@@ -39,6 +40,8 @@
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
+	<import resource="classpath:spring/spring-oss.xml"/>
+
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />

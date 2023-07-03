@@ -34,6 +34,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -50,6 +51,7 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
@@ -77,19 +79,24 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
 import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
 import com.jd.eclp.bbp.notice.enums.ResolveTypeEnum;
+import com.jd.etms.waybill.api.WaybillAddApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.SwitchWaybillResultDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
+import com.jd.etms.waybill.dto.WaybillSwitchDto;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
@@ -242,6 +249,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
+    @Autowired
+    @Qualifier("changeWaybillPrintProducer")
+    private DefaultJMQProducer changeWaybillPrintProducer;
+
+    @Autowired
+    private WaybillAddApi waybillAddApi;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -343,7 +357,33 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         this.sendDisposeAfterInterceptMsg(domain);
         waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
 
+        //发送换单打印消息
+        ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
+        try {
+            log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
+            changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
+        } catch (JMQException e) {
+            log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
+        }
+
         return true;
+    }
+
+    /**
+     * 转换打印记录dto
+     * @param request
+     * @return
+     */
+    private ChangeOrderPrintMq convert2PushPrintRecordDto(ReversePrintRequest request){
+        ChangeOrderPrintMq dto = new ChangeOrderPrintMq();
+        dto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
+        dto.setWaybillCode(request.getOldCode());
+        dto.setSiteCode(request.getSiteCode());
+        dto.setUserErp(request.getStaffErpCode());
+        dto.setUserCode(request.getStaffId());
+        dto.setUserName(request.getStaffRealName());
+        dto.setOperateTime(new Date());
+        return dto;
     }
     /**
      * 发送换单打印mq
@@ -717,6 +757,76 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         return result;
     }
 
+    @Override
+    public InvokeResult<String> exchangeOwnWaybillSync(OwnReverseTransferDomain domain) {
+        if (log.isInfoEnabled()) {
+            log.info("执行自营换单同步接口waybillCode={},userId={},userRealName={},siteId={},siteName={}"
+                    , domain.getWaybillCode(), domain.getUserId(), domain.getUserRealName(), domain.getSiteId(), domain.getSiteName());
+        }
+        InvokeResult<String> result = new InvokeResult<>();
+        domain.setOperateTime(new Date());
+        try {
+            BaseStaffSiteOrgDto siteDomain = siteService.getSite(domain.getSiteId());
+            if (null != siteDomain) {
+                domain.setSiteType(siteDomain.getSiteType());
+                domain.setOrgName(siteDomain.getOrgName());
+                domain.setOrgId(siteDomain.getOrgId());
+            } else {
+                result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空", domain.getSiteId()));
+                log.warn("自营换单同步接口获取站点【ID={}】信息为空:waybillCode={}", domain.getSiteId(), domain.getWaybillCode());
+                return result;
+            }
+        } catch (Exception ex){
+            log.error("自营换单同步接口获取站点发生异常:waybillCode={}", domain.getWaybillCode(), ex);
+            result.error("获取站点异常" + ex.getMessage());
+            return result;
+        }
+        try {
+            Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
+            // 30-病单，31-取消病单，32- 非病单
+            domain.setSickWaybillFlag(featureType == null ? Constants.FEATURE_TYPCANCEE_UNSICKL : featureType);
+        } catch (Exception ex) {
+            log.error("自营换单同步接口获取订单拦截信息waybill_cancel的病单标识异常:waybillCode={}", domain.getWaybillCode(), ex);
+            result.error("获取订单拦截信息异常");
+            return result;
+        }
+        try {
+            WaybillSwitchDto waybillSwitchDto = new WaybillSwitchDto();
+            // 是否拦截订单
+            waybillSwitchDto.setInterceptWaybill(Boolean.TRUE);
+            // 单据类型，0：默认；30：仓病单拦截
+            waybillSwitchDto.setSickWaybillFlag(domain.getSickWaybillFlag());
+            waybillSwitchDto.setWaybillCode(domain.getWaybillCode());
+            waybillSwitchDto.setOperateTime(domain.getOperateTime());
+            waybillSwitchDto.setOrgName(domain.getOrgName());
+            waybillSwitchDto.setOrgId(domain.getOrgId());
+            waybillSwitchDto.setOperatorSiteId(domain.getSiteId());
+            waybillSwitchDto.setOperatorSiteName(domain.getSiteName());
+            waybillSwitchDto.setOperatorUserId(domain.getUserId());
+            waybillSwitchDto.setOperatorUserName(domain.getUserRealName());
+            waybillSwitchDto.setSiteType(domain.getSiteType());
+            waybillSwitchDto.setSysCode(Constants.SYS_CODE_DMS);
+
+            BaseEntity<SwitchWaybillResultDto> baseEntity = waybillAddApi.createSwitchWaybill(waybillSwitchDto);
+            if (!Constants.NUMBER_ONE.equals(baseEntity.getResultCode())) {
+                log.error("自营换单同步接口调用运单换单接口返回失败:waybillCode={},baseEntity={}", domain.getWaybillCode(), JsonHelper.toJson(baseEntity));
+                result.parameterError(baseEntity.getMessage());
+                return result;
+            }
+            if (baseEntity.getData() == null) {
+                log.error("自营换单同步接口调用运单换单接口返回空:waybillCode={},baseEntity={}", domain.getWaybillCode(), JsonHelper.toJson(baseEntity));
+                result.parameterError("调用运单换单接口返回空");
+                return result;
+            }
+            result.success();
+            result.setData(baseEntity.getData().getReturnWaybillCode());
+        } catch (Exception ex) {
+            log.error("自营换单同步接口调用运单换单接口发生异常:waybillCode={}", domain.getWaybillCode(), ex);
+            result.error("调用运单换单接口发生异常");
+        }
+        return result;
+    }
+
 
     /**
      * 逆向换单限制校验
@@ -819,8 +929,114 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         	}
 
         }
+        // 7. 分批配送运单，不允许在非快运场地操作换单
+        if (!BusinessUtil.isKySite(siteInfo.getSiteType(), siteInfo.getSubType())) {
+            final Result<Boolean> isDeliveryManyBatchResult = waybillService.checkIsDeliveryManyBatch(wayBillCode);
+            if(isDeliveryManyBatchResult.isFail()){
+                result.setData(false);
+                result.setMessage(isDeliveryManyBatchResult.getMessage());
+                return result;
+            }
+            if (isDeliveryManyBatchResult.getData()) {
+                result.setData(false);
+                result.setMessage("先到先送运单禁止在分拣换单/换单打印");
+            }
+        }
         return result;
     }
+
+    /**
+     * 逆向换单限制校验(专为德邦提供)
+     * 不校验异常处理
+     * （纯配外单 且 理赔完成 且 物权归京东的才可以执行逆向换单）
+     * @param wayBillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.ReversePrintServiceImpl.checkWayBillForDpkExchange", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkWayBillForDpkExchange(String wayBillCode, Integer siteCode){
+        if(WaybillUtil.isPackageCode(wayBillCode)){
+            wayBillCode = SerialRuleUtil.getWaybillCode(wayBillCode);
+        }
+        InvokeResult<Boolean> result = new InvokeResult();
+        result.setData(true);
+        //1.运单号为空
+        if(StringUtils.isBlank(wayBillCode) || siteCode == null){
+            result.setData(false);
+            result.setMessage("运单号或站点信息为空");
+            return result;
+        }
+
+        //2.判断运单是否为弃件，如果是弃件禁止换单
+        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+            result.setData(false);
+            result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+            return result;
+        }
+
+        boolean bool = waybillCancelService.checkWaybillCancelInterceptType99(wayBillCode);
+        if (bool) {
+            result.setData(false);
+            result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
+            return result;
+        }
+
+        //3.获取运单信息判断是否拒收或妥投
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillM(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
+        BigWaybillDto waybillDto = null;
+        if(baseEntity != null && baseEntity.getData() != null){
+            waybillDto = baseEntity.getData();
+        }
+        if(waybillDto == null || waybillDto.getWaybill() == null){
+            result.setData(false);
+            result.setMessage("运单接口调用返回结果为空");
+            return result;
+        }
+        WaybillManageDomain wdomain = waybillDto.getWaybillState();
+        //3.1妥投运单，不可以操作逆向换单
+        if(wdomain != null && Constants.WAYBILL_DELIVERED_CODE.equals(wdomain.getWaybillState())){
+            result.setData(false);
+            result.setMessage("该订单已经妥投，不能触发逆向新单");
+            return result;
+        }
+        //3.2拒收运单，可以操作逆向换单
+        if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
+            return result;
+        }
+        //4.查询运单是否操作异常处理
+        AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
+        if (abnormalWayBill != null && wayBillCode.equals(abnormalWayBill.getWaybillCode())) {
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(), waybillDto.getWaybill().getWaybillSign(), result);
+        }
+        // 5. 校验运单暂存拦截，如果存在则不允许逆向换单
+        InvokeResult<Boolean> checkClaimDamagedCancelResult = this.checkClaimDamagedCancel(wayBillCode, siteCode);
+        if(!checkClaimDamagedCancelResult.getData()){
+            result.setData(false);
+            result.setMessage(checkClaimDamagedCancelResult.getMessage());
+            return result;
+        }
+        //6.全量接单失败拦截消息14，且操作部门为64分拣中心，判断运单是否到达站点（全程跟踪节点：60,80,110,150）
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        boolean isSortingSite = BusinessUtil.isSortingSiteType(siteInfo.getSiteType());
+        if (isSortingSite){
+            boolean isFullOrderFail = waybillCancelService.isFullOrderFail(wayBillCode);
+            if(isFullOrderFail) {
+                List<PackageState> siteOperations= waybillTraceManager.getAllOperationsByOpeCodeAndState(wayBillCode, DmsConstants.SITE_OPERAT_STATES);
+                if(CollectionUtils.isNotEmpty(siteOperations)) {
+                    result.setData(false);
+                    result.setMessage("此运单已到站点，禁止分拣操作逆向换单");
+                    return result;
+                }
+            }
+
+        }
+        return result;
+    }
+
 
     /**
      * 检查理赔破损拦截

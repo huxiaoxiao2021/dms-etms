@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.ScheduleAfterTypeEnum;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 
@@ -12,11 +13,12 @@ import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -31,8 +33,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service("reassignWaybill")
 public class ReassignWaybillServiceImpl implements ReassignWaybillService {
@@ -51,6 +56,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Autowired
 	@Qualifier("waybillSiteChangeProducer")
 	private DefaultJMQProducer waybillSiteChangeProducer;
+
+	@Autowired
+	private TaskService taskService;
 
 
 	private Boolean add(ReassignWaybill packTagPrint) {
@@ -160,19 +168,73 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
     	JdResult<Boolean> jdResult = new JdResult<Boolean>();
 		jdResult.setData(Boolean.FALSE);
 		jdResult.toFail();
-		if (reassignWaybillRequest == null || StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())) {
+		if (reassignWaybillRequest == null 
+				|| (StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())
+						&& CollectionUtils.isEmpty(reassignWaybillRequest.getPackageCodeList()))) {
 			log.warn("backScheduleAfter --> 传入参数非法");
 			jdResult.toFail(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			return jdResult;
 		}
-		log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
-		ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
-		if (add(packTagPrint)) {
-			jdResult.toSuccess();
-			jdResult.setData(Boolean.TRUE);
-		} else {
-			jdResult.toFail(308, "处理失败");
+		if(ScheduleAfterTypeEnum.PACKAGE_CODE_LIST.getCode().equals(reassignWaybillRequest.getScheduleAfterType())) {
+			List<ReassignWaybill> packList = toReassignWaybillList(reassignWaybillRequest);
+			if(!CollectionUtils.isEmpty(packList)) {
+				for(ReassignWaybill item: packList) {
+					add(item);
+				}
+				jdResult.toSuccess();
+				jdResult.setData(Boolean.TRUE);
+			}
+		}else {
+			log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
+			ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
+			if (add(packTagPrint)) {
+				jdResult.toSuccess();
+				jdResult.setData(Boolean.TRUE);
+			} else {
+				jdResult.toFail(308, "处理失败");
+			}
 		}
 		return jdResult;
 	}
+
+	@Override
+	public Boolean addToDebon(ReassignWaybill packTagPrint) {
+		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
+			//每个运单只需要发一次就可以
+			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
+			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
+			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
+			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
+			siteChangeMqDto.setOperatorId(packTagPrint.getUserCode());
+			siteChangeMqDto.setOperatorName(packTagPrint.getUserName());
+			siteChangeMqDto.setOperatorSiteId(packTagPrint.getSiteCode());
+			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
+			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+			try {
+				log.info("addToDebon-siteChangeMqDto-信息-{}",JsonHelper.toJson(siteChangeMqDto));
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				if(log.isDebugEnabled()){
+					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
+				}
+			} catch (Exception e) {
+				log.error("发送预分拣站点变更mq消息失败(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+			}
+		}
+		return reassignWaybillDao.add(packTagPrint);
+	}
+
+	private List<ReassignWaybill> toReassignWaybillList(ReassignWaybillRequest reassignWaybillRequest) {
+		List<ReassignWaybill> packList = new ArrayList<>();
+		if(reassignWaybillRequest.getPackageCodeList() == null) {
+			return packList;
+		}
+		for(String packageCode:reassignWaybillRequest.getPackageCodeList()) {
+			reassignWaybillRequest.setPackageBarcode(packageCode);
+			packList.add(ReassignWaybill.toReassignWaybill(reassignWaybillRequest));
+		}
+		return packList;
+	}
+
 }

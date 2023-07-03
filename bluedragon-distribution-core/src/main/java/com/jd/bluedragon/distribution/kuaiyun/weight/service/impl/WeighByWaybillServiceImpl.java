@@ -2,14 +2,18 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
@@ -24,13 +28,16 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
+import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -43,11 +50,18 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
+import com.jd.merchant.sdk.order.dto.BaseInfo;
+import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
+import com.jd.merchant.sdk.product.dto.ChannelInfo;
+import com.jd.merchant.sdk.product.dto.OverLengthAndWeight;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,8 +147,13 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
-
-
+    
+    @Autowired
+    @Qualifier("expressOrderServiceWsManager")
+    private ExpressOrderServiceWsManager expressOrderServiceWsManager;
+    
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
      *
@@ -295,10 +314,57 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                 this.logToOperationlogCassandra(dto);
 
         this.sendMessageToMq(dto);
+        this.uploadOverWeightInfo(dto);
         //保存称重流水入库
         dmsWeightFlowService.saveOrUpdate(convertToDmsWeightFlow(dto));
     }
-
+    /**
+     * 上传超长超重服务信息
+     * @param entity
+     */
+    protected boolean uploadOverWeightInfo(WaybillWeightDTO entity) {
+    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()
+    			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
+    			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
+    		restLongPackage(entity);
+    		return false;
+    	}
+    	UpdateOrderRequest updateData = new UpdateOrderRequest();
+    	BaseInfo baseInfo = new BaseInfo();
+    	baseInfo.setWaybillCode(entity.getWaybillCode());
+    	baseInfo.setUpdateTime(new Date());
+    	baseInfo.setUpdateUser(entity.getOperatorName());
+    	updateData.setBaseInfo(baseInfo);
+    	ChannelInfo channelInfo = new ChannelInfo();
+    	channelInfo.setSystemCaller(SystemCallerEnum.DMS_ETMS.getSystemCaller());
+    	updateData.setChannelInfo(channelInfo);
+    	OverLengthAndWeight overLengthAndWeight = new OverLengthAndWeight();
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.ONE_SIDE.getCode())) {
+    		overLengthAndWeight.setSingleSideOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.THREED_SIDE.getCode())) {
+    		overLengthAndWeight.setThreeSidesOverLength(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	if(entity.getOverLengthAndWeightTypes().contains(OverLengthAndWeightTypeEnum.OVER_WEIGHT.getCode())) {
+    		overLengthAndWeight.setOverWeight(DmsConstants.OVER_LENGTHANDWEIGHT_FLAG);
+    	}
+    	updateData.setOverLengthAndWeight(overLengthAndWeight);
+    	JdResult<Boolean> result = expressOrderServiceWsManager.updateOrderSelective(updateData);
+    	if(result.isSucceed()) {
+    		log.warn("{}超长超重服务上传成功！",entity.getWaybillCode());
+    		return true;
+    	}else {
+    		log.warn("{}超长超重服务上传失败！",entity.getWaybillCode());
+    		restLongPackage(entity);
+    	}  
+    	return false;
+    }
+    private void restLongPackage(WaybillWeightDTO entity){
+        if(DmsConstants.WAYBILL_LONG_PACKAGE_OVER_WEIGHT.equals(entity.getLongPackage())) {
+        	entity.setLongPackage(DmsConstants.WAYBILL_LONG_PACKAGE_DEFAULT);
+        	log.warn("{}重置超长超重标longPackage识为0！",entity.getWaybillCode());
+        }
+    }
     /**
      * 对象转换为DmsWeightFlow
      *

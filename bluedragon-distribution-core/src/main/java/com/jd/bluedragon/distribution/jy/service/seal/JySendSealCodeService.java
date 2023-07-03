@@ -13,6 +13,8 @@ public interface JySendSealCodeService {
 
     int countByBiz(String sendVehicleBiz);
 
+    List<JySendSealCodeEntity> countByBizList(List<String> sendVehicleBizIdList);
+
     /**
      * 根据业务主键逻辑删除封签号
      */

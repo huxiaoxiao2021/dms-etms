@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.rest.weightVolume;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
@@ -45,7 +47,54 @@ public class WeightVolumeResource {
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
     }
-
+    /**
+     * 称重上传校验接口
+     * @param condition
+     * @return
+     */
+    @POST
+    @Path("/weightVolume/checkBeforeUpload")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101803)
+    public JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition) {
+    	return dmsWeightVolumeService.checkBeforeUpload(condition);
+    }    
+    /**
+     * 称重上传校验并上传接口
+     * @param condition
+     * @return
+     */
+    @POST
+    @Path("/weightVolume/checkAndUpload")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101804)
+    public JdResult<WeightVolumeUploadResult> checkAndUpload(WeightVolumeCondition condition) {
+    	JdResult<WeightVolumeUploadResult> result = dmsWeightVolumeService.checkBeforeUpload(condition);
+    	//校验成功，上传处理
+    	if(result != null 
+    			&& result.isSucceed()
+    			&& result.getData() != null
+    			&& Boolean.TRUE.equals(result.getData().getCheckResult())) {
+    		//已有-超重信息，本次不上传超重信息
+    		boolean showHasOverMsg = false;
+    		if(Boolean.TRUE.equals(result.getData().getHasOverLengthAndWeight())) {
+    			condition.setOverLengthAndWeightEnable(false);
+    			condition.setLongPackage(0);
+    			showHasOverMsg = true;
+    		}
+    		InvokeResult<Boolean> uploadResult = upload(condition);
+    		if(uploadResult != null 
+    				&& uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+    			result.toSuccess("上传成功！");
+    			if(showHasOverMsg) {
+    				result.toSuccess("上传成功，此单已有超长超重服务，只上传称重信息！");
+    			}
+    		}else if(uploadResult != null){
+    			result.toFail(uploadResult.getMessage());
+    		} else {
+    			result.toFail("上传失败！");
+    		}
+    	}
+    	return result;
+    }
     /**
      * 单条上传接口
      * @param condition
@@ -67,6 +116,8 @@ public class WeightVolumeResource {
                 .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                 .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
                 .machineCode(condition.getMachineCode()).remark(remark);
+        entity.setOverLengthAndWeightEnable(condition.getOverLengthAndWeightEnable());
+        entity.setOverLengthAndWeightTypes(condition.getOverLengthAndWeightTypes());
         InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
         result.setCode(invokeResult.getCode());
         result.setMessage(invokeResult.getMessage());

@@ -51,16 +51,6 @@ public class MiniStoreServiceImpl implements MiniStoreService {
                 throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_HASBEEN_BIND);
             }
         }
-        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode())) {
-            Integer availableStatus = miniStoreJsfManger.isDeviceUse(deviceDto.getIceBoardCode());
-            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
-                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
-            }
-            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode());
-            if (hasBeenBind != null) {
-                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
-            }
-        }
         if (ObjectHelper.isNotNull(deviceDto.getBoxCode())) {
             Integer hasBeenBind = miniStoreBindRelationDao.selectBoxBindStatus(deviceDto.getBoxCode());
             if (hasBeenBind != null) {
@@ -96,18 +86,6 @@ public class MiniStoreServiceImpl implements MiniStoreService {
             Integer hasBeenBind = miniStoreBindRelationDao.selectStoreBindStatus(deviceDto.getStoreCode());
             if (hasBeenBind != null) {
                 throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_HASBEEN_BIND);
-            }
-        }
-        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode1())) {
-            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode1());
-            if (hasBeenBind != null) {
-                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
-            }
-        }
-        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode2())) {
-            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode2());
-            if (hasBeenBind != null) {
-                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
             }
         }
         if (ObjectHelper.isNotNull(deviceDto.getBoxCode())) {

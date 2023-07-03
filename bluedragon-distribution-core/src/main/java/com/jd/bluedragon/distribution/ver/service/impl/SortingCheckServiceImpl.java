@@ -21,9 +21,7 @@ import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
-import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
-import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.domain.*;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
@@ -52,6 +50,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.etms.waybill.dto.WaybillProductDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
@@ -529,6 +528,13 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 filterContext.setWaybillProductDtos(productAbilities.getData());
             }
         }
+        //是箱号的时候初始化运单增值服务
+        if(BusinessUtil.isBoxcode(filterContext.getBoxCode())){
+            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCache.getWaybillCode());
+            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
+            }
+        }
 
         return filterContext;
     }
@@ -625,7 +631,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
         filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
-
         return filterContext;
     }
 
@@ -935,6 +940,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     // 发出拦截报表mq
                     this.sendInterceptMsg(filterContext, checkException);
                 }
+                logger.info("virtualBoardCombinationCheck SortingCheckException {} ", JsonHelper.toJson(pdaOperateRequest), ex);
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);

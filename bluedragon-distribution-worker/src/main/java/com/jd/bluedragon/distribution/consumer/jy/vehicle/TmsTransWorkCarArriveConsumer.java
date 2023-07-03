@@ -45,6 +45,11 @@ import java.util.List;
 @Service("tmsTransWorkCarArriveConsumer")
 public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
+    //AREA  围栏到达
+    public static final Integer  AREA = 1;
+    //APP  司机点击到达
+    public static final Integer  APP = 2;
+
     private Logger logger = LoggerFactory.getLogger(TmsTransWorkCarArriveConsumer.class);
 
     @Autowired
@@ -76,6 +81,10 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             logger.error("TmsTransWorkCarArriveConsumer consume -->关键数据为空，内容为【{}】", message.getText());
             return;
         }
+        if( !AREA.equals(mqBody.getOperateType()) && !APP.equals(mqBody.getOperateType()) ){
+            logger.warn("TmsTransWorkCarArriveConsumer consume -->非司机到达和围栏到达丢弃，内容为【{}】", message.getText());
+            return;
+        }
         //获取派车明细编码对应的封车任务 并 更新状态为待解
         JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.findByTransWorkItemCode(mqBody.getTransWorkItemCode());
         if(taskUnloadVehicleEntity != null && taskUnloadVehicleEntity.getId() > 0){
@@ -83,6 +92,9 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
+            //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+            jyBizTaskUnloadVehicleService.initActualArriveTime(taskUnloadVehicleEntity.getBizId(),DateHelper.parseAllFormatDateTime(mqBody.getArriveTime()));
+
             if(!jyBizTaskUnloadVehicleService.changeStatus(convert(taskUnloadVehicleEntity,mqBody))){
                 //失败重试
                 throw new JyBizException("司机到车（调度任务）更新状态失败重试");
@@ -110,8 +122,6 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("TmsTransWorkCarArriveConsumer 不需要关心的数据丢弃,消息:{}", JsonHelper.toJson(mqBody));
             }
-            return;
-
         }
     }
 
@@ -143,6 +153,11 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
          */
         private String arriveTime;
 
+        /**
+         * 操作类型
+         */
+        private Integer operateType;
+
         public String getTransWorkItemCode() {
             return transWorkItemCode;
         }
@@ -157,6 +172,14 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
         public void setArriveTime(String arriveTime) {
             this.arriveTime = arriveTime;
+        }
+
+        public Integer getOperateType() {
+            return operateType;
+        }
+
+        public void setOperateType(Integer operateType) {
+            this.operateType = operateType;
         }
     }
 }

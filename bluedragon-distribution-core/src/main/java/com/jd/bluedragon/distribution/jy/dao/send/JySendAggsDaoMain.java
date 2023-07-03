@@ -7,12 +7,12 @@ import java.util.List;
 
 /**
  * 发货数据统计表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
+class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySendAggsDaoStrategy {
 
     private final static String NAMESPACE = JySendAggsDaoMain.class.getName();
 
@@ -44,5 +44,19 @@ public class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySe
 
     public List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendAggMainData", query);
+    }
+
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
+    }
+
+    @Override
+    public List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendStatisticsByBizList", sendVehicleBizId);
+    }
+
+    @Override
+    public List<JySendAggsEntity> findBySendVehicleDetailBizs(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByBizIds", bizIds);
     }
 }

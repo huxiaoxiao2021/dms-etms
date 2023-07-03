@@ -38,6 +38,13 @@ public interface JyVehicleSendRelationService {
 
     int add(JySendCodeEntity jySendCodeEntity);
 
+    /**
+     * 保存封车批次号
+     * @param jySendCodeEntityList
+     * @return
+     */
+    int saveSealSendCode(List<JySendCodeEntity> jySendCodeEntityList);
+
     String findEarliestSendCode(String vehicleDetailBizId);
 
     String findEarliestNoSealCarSendCode(String detailBiz);

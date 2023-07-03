@@ -12,16 +12,21 @@ import java.util.List;
  * @email
  * @date 2022-11-02 15:26:08
  */
-public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
+class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements JySendProductAggsDaoStrategy{
 
     private final static String NAMESPACE = JySendProductAggsDao.class.getName();
 
-    public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
-        return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
+    public List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", query.getBizId());
     }
 
-    public Long getToScanCountSum(String sendVehicleBizId){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
+    public Long getToScanCountSum(JySendProductAggsEntityQuery query){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", query.getBizId());
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getToScanNumByEndSiteList", query);
     }
 
 

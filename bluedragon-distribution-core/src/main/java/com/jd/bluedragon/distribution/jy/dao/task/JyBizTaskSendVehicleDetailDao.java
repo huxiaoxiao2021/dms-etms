@@ -3,15 +3,18 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 发车任务明细表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -53,6 +56,15 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
             params.put("statuses", statuses);
         }
         return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBiz", params);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBizByBatch(JyBizTaskSendVehicleDetailEntity entity, List<Integer> statuses) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (CollectionUtils.isNotEmpty(statuses)) {
+            params.put("statuses", statuses);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBizByBatch", params);
     }
 
     public int updateByBiz(JyBizTaskSendVehicleDetailEntity entity) {
@@ -107,5 +119,45 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
 
     public JyBizTaskSendVehicleDetailEntity queryByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByTransWorkItemCode", query);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByTransWorkCode(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByTransWorkCode", entity);
+    }
+
+    public JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findBySendVehicleBizId", sendVehicleBizId);
+    }
+
+
+    public List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", queryEntity);
+
+        return this.getSqlSession().selectList(NAMESPACE + ".findBizIdsBySiteFlows", params);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByBizIds(int siteCode, List<String> bizIds) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startSiteId", siteCode);
+        params.put("bizIds", bizIds);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleDetailByBizIds", params);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("sendVehicleBizIds", sendVehicleBizIds);
+        return this.getSqlSession().selectList(NAMESPACE + ".findDetailBySendVehicleBizIds", params);
+    }
+
+
+    public boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status) {
+        if(CollectionUtils.isEmpty(detailBizList)) {
+            return false;
+        }
+        Map<String,Object> params = new HashMap<>();
+        params.put("detailBizList", detailBizList);
+        params.put("status", status);
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByDetailVehicleBizIds", params) > 0;
     }
 }

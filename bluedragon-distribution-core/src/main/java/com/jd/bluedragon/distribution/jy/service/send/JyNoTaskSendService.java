@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;

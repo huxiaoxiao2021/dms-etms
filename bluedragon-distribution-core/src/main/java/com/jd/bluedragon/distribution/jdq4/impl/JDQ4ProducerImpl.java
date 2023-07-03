@@ -73,8 +73,9 @@ public class JDQ4ProducerImpl implements JDQProducer, InitializingBean, Disposab
         logger.info("JDQ 4 Producer init,username:" + username + ",password:" + password + ",domain:" + domain + ",topic:" + topic);
 
         if (testEnv) {
-            JDQ_CLIENT_INFO_ENV.authClientInfoENV("t.bdp.jd.com",80);
-            JDQ_CLIENT_INFO_ENV.setClusterAddress("t.bdp.jd.com");
+            // 11.158.102.217 是负载均衡的ip
+            JDQ_CLIENT_INFO_ENV.authClientInfoENV("11.158.102.217",80);
+            JDQ_CLIENT_INFO_ENV.setClusterAddress("11.158.102.217");
         }
 
         Properties properties = new Properties();

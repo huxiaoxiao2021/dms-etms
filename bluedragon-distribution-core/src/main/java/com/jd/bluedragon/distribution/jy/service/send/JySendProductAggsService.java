@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,18 +17,19 @@ import java.util.List;
  */
 public interface JySendProductAggsService {
 
-    List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId);
+    List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query);
 
-    Long getToScanCountSum(String sendVehicleBizId);
+    Long getToScanCountSum(JySendProductAggsEntityQuery query);
 
     Boolean insertOrUpdateJySendProductAggsMain(JySendProductAggsEntity entity);
 
     Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity);
 
-    List<JySendProductAggsEntity> getSendProductAggMainData(JySendProductAggsEntity query);
-
-    List<JySendProductAggsEntity> getSendProductAggBakData(JySendProductAggsEntity query);
-
-    List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query);
+    /**
+     * 根据流向查询数量
+     * @param query
+     * @return
+     */
+    List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query);
 }
 

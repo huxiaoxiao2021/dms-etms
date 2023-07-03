@@ -47,6 +47,7 @@
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleMapper.xml" />
 		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionLogMapper.xml"/>
+		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionAssignMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleDetailMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />
@@ -56,11 +57,15 @@
 		<mapper resource="mappers/mysql/jy/send/JySendProductAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/goodsPhotoInfo/GoodsPhotoInfoMapper.xml" />
 		<mapper resource="mappers/mysql/jy/comboard/JyBizTaskComboardMapper.xml" />
-		<mapper resource="mappers/mysql/jy/comboard/JyComboardAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/comboard/JyGroupSortCrossDetailMapper.xml" />
 		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateMapper.xml" />
 		<mapper resource="mappers/mysql/jy/calibrate/JyBizTaskMachineCalibrateDetailMapper.xml" />
+		<mapper resource="mappers/mysql/jy/strand/JyBizTaskStrandReportMapper.xml" />
+		<mapper resource="mappers/mysql/jy/strand/JyBizStrandReportDetailMapper.xml" />
+		<mapper resource="mappers/mysql/jy/exception/JyExceptionScrappedMapper.xml"/>
 
 
+		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateDimensionMapper.xml" />
+		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateRecordMapper.xml" />
 	</mappers>
 </configuration>

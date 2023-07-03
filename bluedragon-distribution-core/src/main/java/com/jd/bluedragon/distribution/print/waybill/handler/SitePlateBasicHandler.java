@@ -68,7 +68,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
     @Qualifier("thirdOverRunInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
-    private C2cInterceptHandler c2cInterceptHandler;
+    private CommonOperateInterceptHandler commonOperateInterceptHandler;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SitePlateBasicHandler.handle",mState={JProEnum.TP, JProEnum.FunctionError})
@@ -103,7 +103,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
                 context.setWaybill(waybill);
                 result = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
                 // C2C运单打印面单校验揽收完成
-                InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
+                InterceptResult<String> c2cInterceptResult = commonOperateInterceptHandler.handle(context);
                 if(!c2cInterceptResult.isSucceed()){
                     return c2cInterceptResult;
                 }

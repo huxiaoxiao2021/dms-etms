@@ -1935,7 +1935,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
         sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
-        sortDomain.setOperatorId(domain.getOperatorId());        
+        sortDomain.setOperatorId(domain.getOperatorId());
+        sortDomain.setBizSource(domain.getBizSource());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -3144,8 +3145,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         sendMessage(tlist, tSendM, needSendMQ);
                         //同步取消半退明细
                         reversePartDetailService.cancelPartSend(tSendM);
-                        // 更新包裹装车记录表的扫描状态为取消扫描状态
-                        updateScanActionByPackageCodes(tlist, tSendM);
+                        // 更新包裹装车记录表的扫描状态为取消扫描状态 转运系统自行处理，2023年02月28日下线
+                        // updateScanActionByPackageCodes(tlist, tSendM);
                     }
                     Profiler.registerInfoEnd(callerInfo);
 					return responsePack;
@@ -3217,8 +3218,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 boardList.add(tSendM.getBoardCode());
                 changeBoardStatus(tSendM,boardList);
                 log.info("按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
-                // 更新包裹装车记录表的扫描状态为取消扫描状态
-                updateScanActionByBoardCode(tSendM);
+                // 更新包裹装车记录表的扫描状态为取消扫描状态        转运系统自行处理，2023年05月24日下线
+                // updateScanActionByBoardCode(tSendM);
                 log.info("按板取消发货==========更新包裹装车记录表的扫描状态为取消扫描状态");
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
@@ -3241,6 +3242,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMItem.setUpdateTime(tSendM.getUpdateTime());
                     sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
+                    sendMItem.setOperatorId(tSendM.getOperatorId());
+                    sendMItem.setOperatorTypeCode(tSendM.getOperatorTypeCode());
 
                     //将板号添加到板号集合中
                     if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
@@ -3293,8 +3296,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
-                // 更新包裹装车记录表的扫描状态为取消扫描状态
-                updateScanActionByBatchCode(tSendM);
+                // 更新包裹装车记录表的扫描状态为取消扫描状态    转运系统自行处理，2023年05月24日下线
+                // updateScanActionByBatchCode(tSendM);
                 //将板号的集合转换成String类型的列表
                 if(CollectionUtils.isNotEmpty(boardSet)){
                     List<String> boardList = new CollectionHelper<String>().toList(boardSet);
@@ -3735,12 +3738,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorId(tSendM.getOperatorId());
+        operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+        status.setOperatorData(operatorData);
 
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
         tTask.setBody(JsonHelper.toJson(status));
         log.info("取消发货 发全程跟踪work6666-3800：{} " ,sendDetail.getWaybillCode());
+
         taskService.add(tTask);
     }
 
@@ -3800,6 +3808,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 					.updateTime(new Date()).build();
 			//如果按包裹取消发货，需取消分拣，更新取消分拣的操作时间晚取消分拣一秒
             sorting.setOperateTime(new Date(tSendM.getUpdateTime().getTime() + 1000));
+            sorting.setOperatorTypeCode(tSendM.getOperatorTypeCode());
+            sorting.setOperatorId(tSendM.getOperatorId());
 			tSortingService.canCancel2(sorting);
 		}
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
@@ -3951,8 +3961,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是转运装车扫描，不再发送全程跟踪
+                                if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+                                    if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                        waybillStatusList.add(tWaybillStatus);
+                                        sendTypeList.add(tSendDetail.getSendType());
+                                    }
+                                } else {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
 
                                 //发送发货明细mq
                                 Message sendMessage = parseSendDetailToMessage(tSendDetail, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
@@ -3966,8 +3984,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
                                 }
-                                waybillStatusList.add(tWaybillStatus);
-                                sendTypeList.add(tSendDetail.getSendType());
+                                // 如果业务来源是是转运装车扫描，不再发送全程跟踪
+                                if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+                                    if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
+                                        waybillStatusList.add(tWaybillStatus);
+                                        sendTypeList.add(tSendDetail.getSendType());
+                                    }
+                                } else {
+                                    waybillStatusList.add(tWaybillStatus);
+                                    sendTypeList.add(tSendDetail.getSendType());
+                                }
                             }
                         }
                     }
@@ -5027,6 +5053,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
         log.debug("checkRouterForKY->根据包裹号或箱号获取目的分拣中心/站点：{}",destinationSiteCode);
         if(destinationSiteCode == null){
+            log.warn("checkRouterForKY,{}未查询到目的分拣中心/站点",sendM.getBoxCode());
             response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
             response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
             return response;
@@ -5058,9 +5085,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     log.debug("checkRouterForKY->路由下一节点查询结果：{}",JsonHelper.toJson(routeNextDto));
                 }
                 if(routeNextDto == null){
+                    log.warn("checkRouterForKY,{}未查询到下一路由",boxCode);
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
                 }else if(!Objects.equals(receiveSiteCode,routeNextDto.getFirstNextSiteId())){
+                    log.warn("checkRouterForKY,{},目的场地：{},下一路由：{}",boxCode,receiveSiteCode,routeNextDto.getFirstNextSiteId());
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                     response.setMessage(HintService.getHint(HintCodeConstants.NEXT_ROUTER_AND_DESTINATION_DIFFERENCE));
                 }
@@ -5944,7 +5973,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
         tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
-        tTask.setOperatorId(domain.getOperatorId());        
+        tTask.setOperatorId(domain.getOperatorId());
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -6061,6 +6090,87 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         box = this.boxService.findBoxByCode(boxCode);
         if (box == null) {
             return null;
+        }
+        Integer yCreateSiteCode = box.getCreateSiteCode();
+        Integer yReceiveSiteCode = box.getReceiveSiteCode();
+        SendDetail tsendDatail = new SendDetail();
+        tsendDatail.setBoxCode(boxCode);
+        tsendDatail.setCreateSiteCode(yCreateSiteCode);
+        tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
+        tsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_Y);
+        // 查询未操作取消的跨中转发货明细数据，用于补中转发货sendD数据
+        List<SendDetail> sendDetailList = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+        // 判断sendD数据是否存在，若不存在则视为站点发货至分拣，调用TMS获取箱子对应的装箱明细信息
+        if (sendDetailList == null || sendDetailList.isEmpty()) {
+            if(sendDetailList == null){
+                sendDetailList = new ArrayList<SendDetail>();
+            }
+            List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
+            if (CollectionUtils.isNotEmpty(sendDetailsFromZD)) {
+                //根据箱号判断终端箱子的正逆向
+                Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? Constants.BUSSINESS_TYPE_REVERSE : Constants.BUSSINESS_TYPE_POSITIVE;
+                for (SendInfoDto dto : sendDetailsFromZD) {
+                    SendDetail dsendDatail = new SendDetail();
+                    dsendDatail.setBoxCode(dto.getBoxCode());
+
+                    dsendDatail.setWaybillCode(dto.getWaybillCode());
+                    dsendDatail.setPackageBarcode(dto.getPackageBarcode());
+
+                    if (WaybillUtil.isSurfaceCode(dto.getPackageBarcode())) {
+                        BaseEntity<PickupTask> pickup = null;
+                        try {
+                            pickup = this.waybillPickupTaskApi.getDataBySfCode(WaybillUtil.getWaybillCode(dto.getPackageBarcode()));
+                        } catch (Exception e) {
+                            this.log.error("调用取件单号信息ws接口异常：{}",dto.getPackageBarcode(),e);
+                        }
+                        if (pickup != null && pickup.getData() != null) {
+                            dsendDatail.setPickupCode(pickup.getData().getPickupCode());
+                            dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
+                        }
+                        if(WaybillUtil.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                            dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
+                        }
+                    }
+                    dsendDatail.setCreateUser(dto.getOperatorName());
+                    dsendDatail.setCreateUserCode(dto.getOperatorId());
+                    dsendDatail.setOperateTime(dto.getHandoverDate());
+                    dsendDatail.setSendType(businessType);
+                    if (dsendDatail.getPackageBarcode() != null) {
+                        dsendDatail.setPackageNum(BusinessUtil.getPackNumByPackCode(dsendDatail.getPackageBarcode()));
+                    } else {
+                        dsendDatail.setPackageNum(1);
+                    }
+                    dsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
+                    sendDetailList.add(dsendDatail);
+                }
+            }else{
+                sendDetailList = getCancelSendByBoxFromThird(box);
+                if(!CollectionUtils.isEmpty(sendDetailList)){
+                    return sendDetailList;
+                }
+            }
+        }
+        return sendDetailList;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeliveryServiceImpl.getSendDetailByBoxAndCreateAndReceiveSiteCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<SendDetail> getSendDetailByBoxAndCreateAndReceiveSiteCode(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
+        Box box = null;
+        box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            if(createSiteCode == null || receiveSiteCode == null){
+                return null;
+            }
+            SendDetail tsendDatail = new SendDetail();
+            tsendDatail.setBoxCode(boxCode);
+            tsendDatail.setCreateSiteCode(createSiteCode);
+            tsendDatail.setReceiveSiteCode(receiveSiteCode);
+            tsendDatail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_Y);
+            // 查询未操作取消的跨中转发货明细数据，用于补中转发货sendD数据
+            List<SendDetail> sendDetailList = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+            return sendDetailList;
         }
         Integer yCreateSiteCode = box.getCreateSiteCode();
         Integer yReceiveSiteCode = box.getReceiveSiteCode();
@@ -6786,11 +6896,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         /* 如果是分拣机原包发货的话，需要补上验货任务 */
         if (uploadData.getSource() != null && uploadData.getSource() == 2) {
-            long count = Arrays.stream(uccPropertyConfiguration.getAutoPackageSendInspectionDelSiteCodes()
+            long count = Arrays.stream(uccPropertyConfiguration.getAutoPackageSendInspectionSiteCodes()
                             .split(";"))
                     .filter(siteCode -> Objects.equals(domain.getCreateSiteCode()+"", siteCode))
                     .count();
-            if(uccPropertyConfiguration.isAutoPackageSendInspectionSwitch()&&count==0L){
+            if(count>0L){
                 if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
                     pushInspection(domain,null);
                 }
@@ -6883,7 +6993,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
         inspection.setOperatorId(domain.getOperatorId());
-        
+
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));

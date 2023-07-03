@@ -417,8 +417,12 @@ public class BoxServiceImpl implements BoxService {
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
 		Box result = null;
-
-		String boxJson = jimdbCacheService.get(getCacheKey(code));
+		String boxJson = null;
+		try{
+			boxJson = jimdbCacheService.get(getCacheKey(code));
+		}catch (Exception e){
+			log.error("com.jd.bluedragon.distribution.box.service.BoxServiceImpl.findBoxByCode get error!,{}",code,e);
+		}
 		if (StringUtils.isNotEmpty(boxJson)){
 			result = JsonHelper.fromJson(boxJson,Box.class);
 			return result;
@@ -427,9 +431,13 @@ public class BoxServiceImpl implements BoxService {
 		if (null == result){
 			return result;
 		}
-		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(result.getCode()),JsonHelper.toJson(result), timeout);
-		if (!isCatched){
-			log.warn("box cache fail. the boxCode is " + result.getCode());
+		try{
+			Boolean isCatched = jimdbCacheService.setEx(getCacheKey(result.getCode()),JsonHelper.toJson(result), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + result.getCode());
+			}
+		}catch (Exception e){
+			log.error("com.jd.bluedragon.distribution.box.service.BoxServiceImpl.findBoxByCode setEx error!,{}",code,e);
 		}
 		return result;
 	}

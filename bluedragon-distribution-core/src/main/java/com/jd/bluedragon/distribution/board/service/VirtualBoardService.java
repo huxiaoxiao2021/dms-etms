@@ -56,9 +56,8 @@ public interface VirtualBoardService {
     JdCResponse<VirtualBoardResultDto> bindToBoard(BindToVirtualBoardPo bindToVirtualBoardPo);
 
     SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime);
+    
     void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
-            Integer operateType, Integer bizSource);
-    void sendWaybillTrace(OperatorData operatorData,String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
                           Integer operateType, Integer bizSource);
 
     /**

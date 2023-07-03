@@ -6,22 +6,13 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
-import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
-import com.jd.bluedragon.distribution.board.domain.Board;
-import com.jd.bluedragon.distribution.board.domain.BoardSendDto;
-import com.jd.bluedragon.distribution.board.domain.Response;
-import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
-import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
-import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import java.util.Date;
 
-import jd.oom.client.orderfile.Business;
 //import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +63,7 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(910);
         query.setCurrentOperate(currentOperate);
+        query.setNeedSendFlowStatistics(true);
         JdCResponse<TableTrolleyResp> re = jyComboardGatewayService.listTableTrolleyUnderCross(query);
         System.out.println("根据滑道获取结果：" + JsonHelper.toJson(re));
         TableTrolleyReq tableTrolleyReq = new TableTrolleyReq();
@@ -625,5 +617,20 @@ public class JyComboardGatewayServiceImplTest {
         deleteCTTGroupReq.setUser(user);
         JdCResponse<String> jdCResponse = jyComboardGatewayService.deleteCTTGroup(deleteCTTGroupReq);
         System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+    
+    @Test
+    public void  queryUserByStartSiteCodeTest() {
+        SendFlowQueryReq boardReq = new SendFlowQueryReq();
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        boardReq.setCurrentOperate(operate);
+        boardReq.setGroupCode("G00000059001");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        boardReq.setUser(user);
+        jyComboardGatewayService.queryScanUser(boardReq);
     }
 }

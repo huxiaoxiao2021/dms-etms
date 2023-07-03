@@ -15,6 +15,8 @@ public enum JyBizTaskExceptionTagEnum {
     SANWU("sanwu", "三无"),
     UNKNOW("unknow", "无法识别异常"),
     HEAVY("heavy", "重货"),
+    SCRAPPED("scrapped", "生鲜报废"),
+    ASSIGN("assign","组长指派"),
     ;
 
     private String code;

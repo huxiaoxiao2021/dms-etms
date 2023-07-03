@@ -115,7 +115,9 @@
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" serialization="hessian" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -265,6 +267,9 @@
     </jsf:consumer>
     <jsf:consumer id="jdiTransWorkWS" interface="com.jd.tms.jdi.ws.JdiTransWorkWS"
                   protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <jsf:consumer id="jdiTransWorkItemWS" interface="com.jd.tms.jdi.ws.JdiTransWorkItemWS"
+      protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
     <!--  (TFC)运输流程中心系统 jsf接口  王京-->
     <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
@@ -1084,13 +1089,6 @@
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
-
-    <jsf:consumer id="positionQueryBasicJsfService"
-                  interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
-                  alias="${jsf.alias.jy_basic}"
-                  protocol="jsf"  timeout="${jsf.jy_basic.timeout}">
-        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
-    </jsf:consumer>
     <!--  基础资料获取货区编码  -->
     <jsf:consumer id="basicGoodsAreaWS" interface="com.jd.ql.basic.ws.BasicGoodsAreaWS" alias="${basic.jsfGoodsArea.alias}" protocol="jsf"
                   timeout="10000">
@@ -1247,16 +1245,6 @@
     </jsf:consumer>
 
 
-    <!-- 积分 -->
-    <jsf:consumer id="iJyPersonalIntegralStatisticsJSFService"
-                  interface="com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService"
-                  protocol="jsf"
-                  alias="${jsf.jy.flat.service.alias}"
-                  timeout="${jsf.jy.flat.service.timeout}"
-                  retries="${jsf.retries}"
-                  lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>
-
     <!-- 京东短链 -->
     <jsf:consumer id="shortUrlService" interface="com.jd.shorturl.api.jsf.ShortUrlService"
                   protocol="jsf" alias="${jsf.shortUrl.alias}" timeout="${jsf.shortUrl.timeout}">
@@ -1290,12 +1278,98 @@
                   serialization="hessian"/>
 
 
-
     <!-- 异常提报查询 -->
     <jsf:consumer id="transAbnormalSelectApiJsf" interface="com.jd.tms.dtp.api.DtpTransAbnormalSelectApi"
                   protocol="jsf" alias="${jsf.transAbnormalSelectApi.alias}"
                   timeout="${jsf.transAbnormalSelectApi.timeout}"
                   serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  Gis服务-Aoi查询  -->
+    <jsf:consumer id="aoiBindSearchService"
+                  interface="com.jdl.lbs.presort.aoi.api.search.AoiBindSearchService"
+                  alias="${jsf.aoiBindSearchService.alias}"
+                  timeout="${jsf.aoiBindSearchService.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  四级地址解析服务  -->
+    <jsf:consumer id="externalAddressToJDAddressService"
+                  interface="com.jd.addresstranslation.api.address.ExternalAddressToJDAddressService"
+                  protocol="jsf"
+                  alias="${jsf.address.gbmap.alias}"
+                  timeout="${jsf.address.gbmap.timeout}"
+                  retries="${jsf.retries}"/>
+
+    <!-- 积分 -->
+    <jsf:consumer id="iJyPersonalIntegralStatisticsJSFService"
+                  interface="com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  积分排名服务  -->
+    <jsf:consumer id="jyFlatIntegralRankingJSFService"
+                  interface="com.jdl.jy.flat.api.integral.IJyFlatIntegralRankingJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+
+    <!-- 滑道笼车配置 -->
+    <jsf:consumer id="vehicleVolumeDicJsfService"
+      interface="com.jdl.basic.api.service.vehicle.VehicleVolumeDicJsfService"
+      alias="${jsf.alias.jy_basic}"
+      timeout="${jsf.jy_basic.timeout}"
+      retries="${jsf.retries}"
+      serialization="hessian"
+      lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--  质控-异常原因接口  -->
+    <jsf:consumer id="abnormalReasonApiofZK"
+                  interface="com.jd.wl.cs.abnormal.portal.api.service.reason.AbnormalReasonApi"
+                  alias="${jsf.abnormalReasonApi.alias}"
+                  timeout="${jsf.abnormalReasonApi.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.abnormalReasonApi.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- erp妥投任务处理接口 杨金宇 -->
+    <jsf:consumer id="deliveryWSService" interface="com.jd.ql.erp.jsf.DeliveryWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!-- erp 妥投校验接口 杨金宇 -->
+    <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  快运订单修改接口-jsf  -->
+    <jsf:consumer id="expressOrderServiceWs"
+                  interface="com.jd.merchant.sdk.order.ws.ExpressOrderServiceWs"
+                  alias="${jsf.expressOrderServiceWs.alias}"
+                  timeout="${jsf.expressOrderServiceWs.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 站点匹配服务接口(根据地址匹配) -->
+    <jsf:consumer id="expressDispatchServiceAPI" interface="com.jd.bluedragon.preseparate.jsf.ExpressDispatchServiceAPI"
+                  protocol="jsf"
+                  alias="${jsf.expressDispatch.alias}"
+                  timeout="${jsf.expressDispatch.timeout}"
+                  retries="${jsf.retries}"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

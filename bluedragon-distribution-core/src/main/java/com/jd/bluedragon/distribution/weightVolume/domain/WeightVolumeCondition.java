@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+import java.util.List;
+
 /**
  * <p>
  *
@@ -89,7 +91,23 @@ public class WeightVolumeCondition {
      * 设备编码
      */
     private String machineCode;
-
+    /**
+     * 按总体积量方
+     */
+    private Boolean totalVolumeFlag  = Boolean.FALSE;    
+    /**
+     * 超重服务-确认标识 
+     */
+    private Boolean overLengthAndWeightConfirmFlag  = Boolean.FALSE;
+    /**
+     * 超重服务标识
+     */
+    private Boolean overLengthAndWeightEnable;
+    /**
+     * 超重服务类型
+     */
+    private List<String> overLengthAndWeightTypes;
+    
     public Integer getLongPackage() {
         return longPackage;
     }
@@ -217,4 +235,37 @@ public class WeightVolumeCondition {
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
     }
+
+	public Boolean getOverLengthAndWeightEnable() {
+		return overLengthAndWeightEnable;
+	}
+
+	public void setOverLengthAndWeightEnable(Boolean overLengthAndWeightEnable) {
+		this.overLengthAndWeightEnable = overLengthAndWeightEnable;
+	}
+
+	public List<String> getOverLengthAndWeightTypes() {
+		return overLengthAndWeightTypes;
+	}
+
+	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
+		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
+	}
+
+	public Boolean getOverLengthAndWeightConfirmFlag() {
+		return overLengthAndWeightConfirmFlag;
+	}
+
+	public void setOverLengthAndWeightConfirmFlag(Boolean overLengthAndWeightConfirmFlag) {
+		this.overLengthAndWeightConfirmFlag = overLengthAndWeightConfirmFlag;
+	}
+
+	public Boolean getTotalVolumeFlag() {
+		return totalVolumeFlag;
+	}
+
+	public void setTotalVolumeFlag(Boolean totalVolumeFlag) {
+		this.totalVolumeFlag = totalVolumeFlag;
+	}
+    
 }

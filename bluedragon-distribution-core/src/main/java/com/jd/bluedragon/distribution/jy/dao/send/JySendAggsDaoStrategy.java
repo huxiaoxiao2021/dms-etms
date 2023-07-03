@@ -17,5 +17,9 @@ public interface JySendAggsDaoStrategy {
 
      List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 
+     JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
 
+     List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId);
+
+    List<JySendAggsEntity> findBySendVehicleDetailBizs(List<String> bizIds);
 }

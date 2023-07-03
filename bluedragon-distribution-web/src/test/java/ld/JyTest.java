@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.external.service.SpWmsToolService;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
-import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -61,6 +60,7 @@ public class JyTest {
         SpWmsCreateInProduct spWmsCreateInProduct2 = new SpWmsCreateInProduct();
         spWmsCreateInProduct2.setProductCode("11122");
         spWmsCreateInProduct2.setSpareCode("22233");
+
         list.add(spWmsCreateInProduct2);
         request.setSpareCodes(list);
         for (int i = 0; i < 10; i++) {

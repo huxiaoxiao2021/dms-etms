@@ -598,14 +598,6 @@
                   ref="jyWeightVolumeCalibrateGatewayService"
                   server="dmsjsf">
     </jsf:provider>
-    <!-- 拣运发货、卸车数据查询   -->
-    <bean id="jySendOrUnloadAggDataGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JySendOrUnloadAggDataGatewayServiceImpl" />
-    <jsf:provider id="jsfJySendOrUnloadAggDataGatewayService"
-                  interface="com.jd.bluedragon.external.gateway.service.JySendOrUnloadAggDataGatewayService"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="jySendOrUnloadAggDataGatewayServiceImpl"
-                  server="dmsjsf" />
-
 
     <!--  组板封车 -->
     <bean id="jyComboardSealGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyComboardSealGatewayServiceImpl" />
@@ -622,4 +614,49 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="revokeExceptionGatewayServiceImpl"
                   server="dmsjsf" />
+
+    <!-- 企配仓pda称重量方服务 -->
+    <bean id="jyWeightVolumeGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWeightVolumeGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWeightVolumeGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWeightVolumeGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWeightVolumeGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+    <!--  拣运评价服务  -->
+    <bean id="jyEvaluateGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyEvaluateGatewayServiceImpl" />
+    <jsf:provider id="jyEvaluateGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyEvaluateGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyEvaluateGatewayServiceImpl"
+                  server="dmsjsf" />
+
+    <!-- 拣运app-滞留上报网关服务   -->
+    <jsf:provider id="jsfJyStrandReportGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyStrandReportGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyStrandReportGatewayService"
+                  server="dmsjsf" />
+
+    <!-- 拣运运输车辆服务 -->
+    <bean id="jyTransportSendVehicleGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyTransportSendVehicleGatewayServiceImpl" />
+    <jsf:provider id="jsfJyTransportSendVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyTransportSendVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyTransportSendVehicleGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+
+    <bean id="jyWarehouseSendGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseSendGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWarehouseSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWarehouseSendGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

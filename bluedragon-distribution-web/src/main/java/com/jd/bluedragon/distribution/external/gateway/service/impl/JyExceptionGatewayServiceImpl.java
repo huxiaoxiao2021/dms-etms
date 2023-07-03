@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -25,6 +27,12 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Autowired
     private BarcodeService barcodeService;
+
+    @Autowired
+    private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
+
+    @Autowired
+    private JySanwuExceptionService jySanwuExceptionService;
 
     /**
      * 通用异常上报入口-扫描
@@ -116,7 +124,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.queryByBarcode", mState = {JProEnum.TP})
     public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
-        return jyExceptionService.queryByBarcode(req.getBarCode());
+        return jyExceptionService.queryByBarcode(req.getType(),req.getBarCode(), req.getUserErp());
     }
 
     /**
@@ -169,6 +177,54 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         JdCResponse<List<DmsBarCode>> result = JdCResponse.ok();
         result.setData(queryResult);
         return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionScrappedTypeList", mState = {JProEnum.TP})
+    public JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList() {
+        return jyScrappedExceptionService.getJyExceptionScrappedTypeList();
+    }
+
+    @Override
+    public JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req) {
+        return jyScrappedExceptionService.processTaskOfscrapped(req);
+    }
+
+    @Override
+    public JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req) {
+        return jyScrappedExceptionService.getTaskDetailOfscrapped(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req) {
+        return jyExceptionService.checkExceptionPrincipal(req);
+    }
+
+    @Override
+    public JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> getExpTaskStatisticsOfWaitReceiveByPage(ExpTaskStatisticsReq req) {
+        return jySanwuExceptionService.getExpTaskStatisticsOfWaitReceiveByPage(req);
+    }
+
+    @Override
+    public JdCResponse<List<ExpTaskDto>> getWaitReceiveSanwuExpTaskByPage(ExpTaskStatisticsDetailReq req) {
+        return jySanwuExceptionService.getWaitReceiveSanwuExpTaskByPage(req);
+    }
+
+
+
+    @Override
+    public JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req) {
+        return jySanwuExceptionService.getExpSignInUserByPage(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req) {
+        return jySanwuExceptionService.assignExpTask(req);
+    }
+
+    @Override
+    public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
+        return jySanwuExceptionService.getAssignExpTaskCount(req);
     }
 
 }

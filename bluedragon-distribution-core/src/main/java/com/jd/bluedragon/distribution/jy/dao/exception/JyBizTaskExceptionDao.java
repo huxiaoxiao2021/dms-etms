@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +47,13 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".getSpecialStatusStatistic", params);
     }
 
+    public List<StatisticsByStatusDto> getCompleteStatusStatistic(String gridRefId,int limitDay){
+        Map<String,Object> params = new HashMap<>();
+        params.put("gridRefId",gridRefId);
+        params.put("limitDay",limitDay);
+        return this.getSqlSession().selectList(NAMESPACE + ".getCompleteStatusStatistic", params);
+    }
+
     /**
      * 按网格统计带取件数量
      */
@@ -60,6 +71,51 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
 
     public List<JyBizTaskExceptionEntity> queryExceptionTaskList(ExpTaskPageReq entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryExceptionTaskList", entity);
+    }
+
+    public List<JyExceptionAgg> queryUnCollectAndOverTimeAgg(Map<String, Object> params) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryUnCollectAndOverTimeAgg", params);
+    }
+
+    /**
+     * 根据时间查询报废处理人erp
+     * 
+     * @param params
+     * @return
+     */
+    public List<String> queryScrapHandlerErp(Map<String, Date> params) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryScrapHandlerErp", params);
+    }
+
+    /**
+     * 根据条件查询报废详情
+     * 
+     * @param params
+     * @return
+     */
+    public List<JyBizTaskExceptionEntity> queryScrapDetailByCondition(Map<String, Object> params) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryScrapDetailByCondition", params);
+    }
+
+    /**
+     * 根据条件查询报废数量
+     * 
+     * @param entity
+     * @return
+     */
+    public Integer queryScrapCountByCondition(JyBizTaskExceptionEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryScrapCountByCondition", entity);
+    }
+
+    /**
+     * 按网格统计超时未领取统计数据
+     */
+    public List<StatisticsTimeOutExpTaskDto> getStatisticsExceptionTaskList(ExpTaskStatisticsReq req){
+        return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskList", req);
+    }
+
+    public List<JyBizTaskExceptionEntity> getStatisticsExceptionTaskDetailList(ExpTaskStatisticsDetailReq req){
+        return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskDetailList", req);
     }
 
 }

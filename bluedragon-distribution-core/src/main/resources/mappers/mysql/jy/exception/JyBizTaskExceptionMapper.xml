@@ -269,6 +269,14 @@
           AND handler_erp = #{handleErp}
           and distribution_target = #{gridRefId}
     </select>
+    <select id="getCompleteStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 AND STATUS = 3
+        and distribution_target = #{gridRefId}
+        and ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY)
+    </select>
     <update id="updateByBizId">
         UPDATE jy_biz_task_exception
         <set>
@@ -310,6 +318,9 @@
             </if>
             <if test="yn != null">
                 yn = #{yn},
+            </if>
+            <if test="tags != null">
+                tags = #{tags},
             </if>
         </set>
         <where>
@@ -377,14 +388,102 @@
         <if test="handlerErp !=null">
             AND handler_erp = #{handlerErp}
         </if>
-        <if test="status == 2">
-            order by process_end_time desc
+        <if test="limitDay !=null">
+            AND  <![CDATA[  ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY) ]]>
         </if>
-        <if test="status != 2">
-            order by id desc
-        </if>
+        order by id desc
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
     </select>
+
+    <select id="queryUnCollectAndOverTimeAgg" parameterType="java.util.Map" resultType="com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg">
+        select site_code as siteCode, grid_code as gridCode, count(*) as quantity, create_user_erp as createUserErp
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and status = 0
+          and  <![CDATA[   create_time >= #{queryStartTime}  ]]>
+          and  <![CDATA[   create_time <= #{queryEndTime}  ]]>
+        group by site_code, grid_code
+    </select>
+
+    <select id="queryScrapHandlerErp" parameterType="java.util.Map" resultType="String">
+        select handler_erp
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and type = 1
+        and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
+        and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
+        group by handler_erp
+    </select>
+
+    <select id="queryScrapDetailByCondition" parameterType="java.util.Map" resultMap="jyBizTaskExceptionMap">
+        select <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and type = 1
+        and handler_erp = #{handlerErp}
+        and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
+        and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
+    </select>
+    
+    <select id="queryScrapCountByCondition" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity" resultType="int">
+        select count(*)
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1 and type = 1
+        and site_code = #{siteCode}
+        and  <![CDATA[   process_begin_time >= #{processBeginTime}  ]]>
+    </select>
+
+
+    <select id="getStatisticsExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq"
+            resultType="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto">
+        SELECT
+        site_code AS siteCode,
+        site_name AS siteName,
+        floor AS floor,
+        grid_code AS gridCode,
+        grid_no AS gridNo,
+        area_code AS areaCode,
+        area_name AS areaName,
+        count(*) AS pendingNum,
+        SUM(time_out) AS timeoutNum
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND time_out = 1
+        AND type = #{type}
+        AND status = #{status}
+        AND distribution_target = #{gridRid}
+        GROUP BY grid_code
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
+    </select>
+
+
+    <select id="getStatisticsExceptionTaskDetailList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq"
+            resultMap="jyBizTaskExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND time_out = 1
+        AND type = #{type}
+        AND status = #{status}
+        AND floor = #{floor}
+        AND grid_code = #{gridCode}
+        AND grid_no = #{gridNo}
+        AND area_code = #{areaCode}
+        AND distribution_target = #{gridRid}
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
+    </select>
+
+
+
+
 </mapper>

@@ -3,14 +3,10 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
+import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
 /**
@@ -173,4 +169,23 @@ public interface UserSignRecordDao {
 	List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(UserSignQueryRequest query);
 
 	Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey);
+	
+	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
+	
+	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
+	
+	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
+	/**
+	 * 根据id查询，不过滤yn=1
+	 * @param recordId
+	 * @return
+	 */
+	UserSignRecord queryByIdForFlow(Long recordId);
+
+	/**
+	 * 按条件查询签到用户信息
+	 * @param query
+	 * @return
+	 */
+	List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query);
 }

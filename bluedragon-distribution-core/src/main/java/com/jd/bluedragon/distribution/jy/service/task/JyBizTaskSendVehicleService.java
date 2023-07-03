@@ -28,11 +28,18 @@ public interface JyBizTaskSendVehicleService {
     int updateComeTimeOrNearComeTime(JyBizTaskSendVehicleEntity entity);
 
     /**
-     * 根据派车单查发车任务
+     * 根据派车单查当前场地的发车任务
      * @param entity
      * @return
      */
     JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(JyBizTaskSendVehicleEntity entity);
+
+    /**
+     * 根据派车单查发车任务
+     * @param entity
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findByTransWork(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 初始化发车任务
@@ -145,4 +152,11 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
 	int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes);
+
+    /**
+     * 批量根据bizId查询
+     * @param bizIds
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds);
 }

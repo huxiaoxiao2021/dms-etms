@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
 import com.jd.etms.waybill.dto.WaybillAbilityDto;
 import com.jd.etms.waybill.dto.WaybillProductDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,11 @@ public class FilterContext {
      */
     private Board board;
 
+
+    /**
+     * 运单增值服务
+     */
+    private List<WaybillVasDto> waybillVasDtos;
 
 
     /**
@@ -363,5 +369,11 @@ public class FilterContext {
         this.board = board;
     }
 
+    public List<WaybillVasDto> getWaybillVasDtos() {
+        return waybillVasDtos;
+    }
 
+    public void setWaybillVasDtos(List<WaybillVasDto> waybillVasDtos) {
+        this.waybillVasDtos = waybillVasDtos;
+    }
 }

@@ -1,13 +1,15 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -434,6 +436,7 @@ public class UccPropertyConfiguration {
     /**
      * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
      * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     * @Deprecated(已废弃)
      */
     @Deprecated
     private String siteEnableSendCodeEffectiveValidation;
@@ -495,6 +498,11 @@ public class UccPropertyConfiguration {
      * 是否是所有包裹补打后再取消拦截
      */
     private boolean printCompeteAllPackageUpdateCancel;
+
+    /**
+     * 获取异常完结数据范围限制天数
+     */
+    private int completeExpDayNumLimit;
 
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
@@ -573,6 +581,11 @@ public class UccPropertyConfiguration {
      * 货物滞留时间
      */
     private int goodsResidenceTime;
+
+    /**
+     * 写云es开关
+     */
+    private boolean cloudOssInsertSwitch;
 
 
     public String getAddiOwnNumberConf() {
@@ -725,6 +738,11 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+
+    private String operateProgressRegions;
+
+    private List<Integer> operateProgressRegionList;
+
     /**
      * 作业工作台解封车任务降级配置
      */
@@ -814,36 +832,73 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Integer jyComboardSealQueryBoardListTime;
+    private String jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
      */
     private Integer jyComboardSealBoardListSelectLimit;
 
-    private boolean autoPackageSendInspectionSwitch;
 
-    private String autoPackageSendInspectionDelSiteCodes;
+    private String autoPackageSendInspectionSiteCodes;
 
-    public boolean isAutoPackageSendInspectionSwitch() {
-        return autoPackageSendInspectionSwitch;
+    /**
+     * 混扫任务流向限制
+     */
+    private Integer cttGroupSendFLowLimit;
+
+    /**
+     * 体积超标是否下发场地
+     *  以,隔开，ALL标识开通全国
+     */
+    private String volumeExcessIssueSites;
+    /**
+     * 拣运-系统自建滞留任务关闭时间
+     */
+    private Long jySysStrandTaskCloseTime;
+
+    /**
+     * 拣运-人工创建任务关闭时间
+     */
+    private Long jyArtificialStrandTaskCloseTime;
+
+    /**
+     * 拣运-滞留扫描数量上线
+     */
+    private Integer jyStrandScanNumLimit;
+
+
+    /**
+     * 分拣理货开关
+     */
+    private boolean checkTeAnSwitch;
+
+    /**
+     * 特安场地列表
+     */
+    private String teAnSiteWhitelist;
+
+    public String getAutoPackageSendInspectionSiteCodes() {
+        return autoPackageSendInspectionSiteCodes;
     }
 
-    public void setAutoPackageSendInspectionSwitch(boolean autoPackageSendInspectionSwitch) {
-        this.autoPackageSendInspectionSwitch = autoPackageSendInspectionSwitch;
-    }
-
-    public String getAutoPackageSendInspectionDelSiteCodes() {
-        return autoPackageSendInspectionDelSiteCodes;
-    }
-
-    public void setAutoPackageSendInspectionDelSiteCodes(String autoPackageSendInspectionDelSiteCodes) {
-        this.autoPackageSendInspectionDelSiteCodes = autoPackageSendInspectionDelSiteCodes;
+    public void setAutoPackageSendInspectionSiteCodes(String autoPackageSendInspectionSiteCodes) {
+        this.autoPackageSendInspectionSiteCodes = autoPackageSendInspectionSiteCodes;
     }
 
     private Integer jyComboardSealBoardListLimit;
 
     private Long reComboardTimeLimit;
+
+    private boolean reComboardSwitch;
+
+    public boolean getReComboardSwitch() {
+        return reComboardSwitch;
+    }
+
+    public void setReComboardSwitch(boolean reComboardSwitch) {
+        this.reComboardSwitch = reComboardSwitch;
+    }
 
     public Long getReComboardTimeLimit() {
         return reComboardTimeLimit;
@@ -972,6 +1027,38 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<Integer> getOperateProgressRegionList() {
+        return operateProgressRegionList;
+    }
+
+    public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+        this.operateProgressRegionList = operateProgressRegionList;
+    }
+
+    public String getOperateProgressRegions() {
+        return operateProgressRegions;
+    }
+
+    public void setOperateProgressRegions(String operateProgressRegions) {
+        this.operateProgressRegions = operateProgressRegions;
+        if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+            List<Integer> operateProgressRegionList = new ArrayList<>();
+            if (operateProgressRegions.contains(",")){
+                String[] regionArr =operateProgressRegions.split(",");
+                for (String region:regionArr){
+                    operateProgressRegionList.add(Integer.valueOf(region));
+                }
+            }
+            else {
+                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+            }
+            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+                this.operateProgressRegionList =operateProgressRegionList;
+                Collections.sort(this.operateProgressRegionList);
+            }
+        }
+    }
+
     public boolean getRestApiOuthSwitch() {
         return restApiOuthSwitch;
     }
@@ -1025,6 +1112,11 @@ public class UccPropertyConfiguration {
      * 到车任务切换ES逻辑开关 1：开启
      */
     private Integer jyUnSealTaskSwitchToEs;
+
+    /**
+     * 默认解封车任务时间查询，如果是6则在6小时内，如果是0则不限制到达时间
+     */
+    private Long jyUnSealTaskLastHourTime;
 
     /**
      * 面单举报异常配置
@@ -1161,6 +1253,11 @@ public class UccPropertyConfiguration {
     private Boolean waybillSysNonExistPackageInterceptSwitch;
 
     /**
+     * 安卓登录可跳过不处理的逻辑降级开关
+     */
+    private Boolean pdaLoginSkipSwitch;
+
+    /**
      * 设备校准任务时长
      *  单位：毫秒
      */
@@ -1185,6 +1282,12 @@ public class UccPropertyConfiguration {
     private Long machineCalibrateIntervalTimeOfSpotCheck;
 
     /**
+     * 设备校准后抽检记录设备状态的开关
+     * 用于更新非超标抽检记录的设备状态
+     */
+    private boolean machineCalibrateSpotCheckSwitch;
+
+    /**
      * 设备下发是否依据设备状态标识
      */
     private boolean spotCheckIssueRelyOMachineStatus;
@@ -1204,8 +1307,284 @@ public class UccPropertyConfiguration {
     private String dewuCustomerCodes;
 
     private boolean czQuerySwitch;
-    
+
     private Boolean boardListQuerySwitch;
+
+    private boolean  supportMutilScan;
+
+    private String dpSpringSiteCode;
+    private List<Integer> dpSpringSiteCodeList = new ArrayList<>();
+
+    /**
+     * 传站拦截-- 场地黑名单
+     */
+    private String czSiteForbiddenList;
+
+    /**
+     * 传站拦截-- 大区黑名单
+     */
+    private String czOrgForbiddenList;
+
+    /**
+     * 传站拦截-场地类型黑名单
+     */
+    private String czSiteTypeForbiddenList;
+
+    private boolean batchSendForbiddenSwitch;
+
+    //网格工种限制开关
+    private boolean jobTypeLimitSwitch;
+
+
+    private boolean createBoardBySendFlowSwitch;
+
+    /**
+     * 装车评价开关
+     */
+    private boolean loadCarEvaluateSwitch;
+
+    /**
+     * 需要按照岗位码隔离板列表的场地名单
+     */
+    private String needIsolateBoardByGroupCodeSiteList;
+
+    public String getNeedIsolateBoardByGroupCodeSiteList() {
+        return needIsolateBoardByGroupCodeSiteList;
+    }
+
+    public void setNeedIsolateBoardByGroupCodeSiteList(String needIsolateBoardByGroupCodeSiteList) {
+        this.needIsolateBoardByGroupCodeSiteList = needIsolateBoardByGroupCodeSiteList;
+    }
+
+    public boolean getCreateBoardBySendFlowSwitch() {
+        return createBoardBySendFlowSwitch;
+    }
+
+    public void setCreateBoardBySendFlowSwitch(boolean createBoardBySendFlowSwitch) {
+        this.createBoardBySendFlowSwitch = createBoardBySendFlowSwitch;
+    }
+
+    private boolean loadProgressByVehicleVolume;
+
+    private boolean productOperateProgressSwitch;
+
+    private int onlineGetTaskSimpleCodeThreshold;
+
+    /**
+     * PDA新老互斥开关
+     */
+    private boolean pdaVersionSwitch;
+
+    /**
+     * 交接至德邦校验开关
+     */
+    private boolean dpTransferSwitch;
+
+    /**
+     * 易冻品校验开关
+     */
+    private boolean easyFreezeSwitch;
+
+    /**
+     * 加盟商余额校验开关
+     */
+    private boolean allianceBusinessSwitch;
+
+    /**
+     * 上传超长超重开关
+     */
+    private boolean uploadOverWeightSwitch;
+
+    /**
+     * 异常处理检查场地名单
+     */
+    private String exceptionSubmitCheckSites;
+    /**
+     * 异常处理检查运单拦截类型
+     */
+    private String exceptionSubmitCheckWaybillInterceptTypes;
+
+    /**
+     * 忽略转运全程跟踪开关
+     */
+    private boolean ignoreTysTrackSwitch;
+
+    /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+    private Integer JyBuQiWaybillCodeMaxSum;
+
+
+    /**
+     * 封车前装载率限制
+     */
+    private double beforeSealVehicleLoadRateLimit;
+
+    private boolean beforeSealVehicleLoadRateLimitCheckSwitch;
+
+    public int getOnlineGetTaskSimpleCodeThreshold() {
+        return onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+        this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+    }
+
+    public boolean getProductOperateProgressSwitch() {
+        return productOperateProgressSwitch;
+    }
+
+    public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+        this.productOperateProgressSwitch = productOperateProgressSwitch;
+    }
+
+    public boolean getLoadProgressByVehicleVolume() {
+        return loadProgressByVehicleVolume;
+    }
+
+    public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+        this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+    }
+    /**
+     * 组板扫描页刷新定时间隔
+     */
+    private Integer jyComboardRefreshTimerInterval;
+
+    public Integer getJyComboardRefreshTimerInterval() {
+        return jyComboardRefreshTimerInterval;
+    }
+
+    public void setJyComboardRefreshTimerInterval(Integer jyComboardRefreshTimerInterval) {
+        this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
+    }
+
+    /**
+     * 组板路由校验开关
+     */
+    private boolean boardCombinationRouterSwitch;
+
+    public boolean getBatchSendForbiddenSwitch() {
+        return batchSendForbiddenSwitch;
+    }
+
+    public void setBatchSendForbiddenSwitch(boolean batchSendForbiddenSwitch) {
+        this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
+    }
+
+    private boolean needValidateBatchCodeHasSealed;
+
+    private String forceSendSiteList;
+
+    public String getForceSendSiteList() {
+        return forceSendSiteList;
+    }
+
+    public void setForceSendSiteList(String forceSendSiteList) {
+        this.forceSendSiteList = forceSendSiteList;
+    }
+
+    public boolean getNeedValidateBatchCodeHasSealed() {
+        return needValidateBatchCodeHasSealed;
+    }
+
+    public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+        this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+    }
+
+    /**
+     * 自动关闭任务配置，转换为对象
+     */
+    private String autoCloseJyBizTaskConfig;
+    private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
+
+    public String getCzSiteTypeForbiddenList() {
+        return czSiteTypeForbiddenList;
+    }
+
+    public void setCzSiteTypeForbiddenList(String czSiteTypeForbiddenList) {
+        this.czSiteTypeForbiddenList = czSiteTypeForbiddenList;
+    }
+
+    public String getCzSiteForbiddenList() {
+        return czSiteForbiddenList;
+    }
+
+    public void setCzSiteForbiddenList(String czSiteForbiddenList) {
+        this.czSiteForbiddenList = czSiteForbiddenList;
+    }
+
+    public String getCzOrgForbiddenList() {
+        return czOrgForbiddenList;
+    }
+
+    public void setCzOrgForbiddenList(String czOrgForbiddenList) {
+        this.czOrgForbiddenList = czOrgForbiddenList;
+    }
+
+    /**
+     * 异常报废审批级别限定数量
+     *  多个级别以,隔开
+     */
+    private String exScrapApproveLevelCountLimit;
+
+
+
+    /**
+     * 三无任务指派数量限制
+     */
+    private int assignExpTaskQuantityLimit;
+
+    public boolean getSupportMutilScan() {
+        return supportMutilScan;
+    }
+
+    public void setSupportMutilScan(boolean supportMutilScan) {
+        this.supportMutilScan = supportMutilScan;
+    }
+
+    /**
+     * 转运卸车岗集齐功能降级开关
+     */
+    private Boolean tysUnloadCarCollectDemoteSwitch;
+
+    /**
+     * 拣运集齐场地列表
+     */
+    private String jyCollectSiteWhitelist;
+
+    /**
+     * 发货运输车辆靠台验证刷新间隔
+     */
+    private Integer jyTransportSendVehicleValidateDockRefreshTime;
+
+    /**
+     * 发货运输车辆靠台验证码允许访问上几次验证码个数
+     */
+    private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
+
+    private String aggsDataSource;
+
+    public String getAggsDataSource() {
+        return aggsDataSource;
+    }
+
+    public void setAggsDataSource(String aggsDataSource) {
+        this.aggsDataSource = aggsDataSource;
+    }
+    /**
+     * 拣运APP自动刷新时间配置
+     */
+    private String jyWorkAppAutoRefreshConfig;
+    private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2404,6 +2783,14 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
+    public Long getJyUnSealTaskLastHourTime() {
+        return jyUnSealTaskLastHourTime;
+    }
+
+    public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+        this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+    }
+
     public Integer getJySendTaskLoadRateUpperLimit() {
         return jySendTaskLoadRateUpperLimit;
     }
@@ -2722,6 +3109,14 @@ public class UccPropertyConfiguration {
         this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
     }
 
+    public Boolean getPdaLoginSkipSwitch() {
+        return pdaLoginSkipSwitch;
+    }
+
+    public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+        this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
+    }
+
     public Long getMachineCalibrateTaskDuration() {
         return machineCalibrateTaskDuration;
     }
@@ -2779,6 +3174,14 @@ public class UccPropertyConfiguration {
     }
     public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
         this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public boolean getMachineCalibrateSpotCheckSwitch() {
+        return machineCalibrateSpotCheckSwitch;
+    }
+
+    public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+        this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
     }
 
     public boolean getSpotCheckIssueRelyOMachineStatus() {
@@ -2859,11 +3262,11 @@ public class UccPropertyConfiguration {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
-    public Integer getJyComboardSealQueryBoardListTime() {
+    public String getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Integer jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
@@ -2897,5 +3300,393 @@ public class UccPropertyConfiguration {
 
     public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
         this.boardListQuerySwitch = boardListQuerySwitch;
+    }
+
+    public boolean isCloudOssInsertSwitch() {
+        return cloudOssInsertSwitch;
+    }
+
+    public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
+        this.cloudOssInsertSwitch = cloudOssInsertSwitch;
+    }
+
+    public Integer getCttGroupSendFLowLimit() {
+        return cttGroupSendFLowLimit;
+    }
+
+    public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
+        this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+    }
+
+    public String getDpSpringSiteCode() {
+        return dpSpringSiteCode;
+    }
+
+    public void setDpSpringSiteCode(String dpSpringSiteCode) {
+        this.dpSpringSiteCode = dpSpringSiteCode;
+
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCode)){
+            final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }
+    }
+
+    public List<Integer> getDpSpringSiteCodeList() {
+        return this.dpSpringSiteCodeList;
+    }
+
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
+
+    public String getVolumeExcessIssueSites() {
+        return volumeExcessIssueSites;
+    }
+
+    public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+        this.volumeExcessIssueSites = volumeExcessIssueSites;
+    }
+
+    public Boolean getTysUnloadCarCollectDemoteSwitch() {
+        return tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+        this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+    }
+
+    public String getJyCollectSiteWhitelist() {
+        return jyCollectSiteWhitelist;
+    }
+
+    public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+        this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
+    }
+
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
+        return autoCloseJyBizTaskConfigObj;
+    }
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
+    public boolean isJobTypeLimitSwitch() {
+        return jobTypeLimitSwitch;
+    }
+
+    public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+        this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+    }
+
+    public Long getJySysStrandTaskCloseTime() {
+        return jySysStrandTaskCloseTime;
+    }
+
+    public void setJySysStrandTaskCloseTime(Long jySysStrandTaskCloseTime) {
+        this.jySysStrandTaskCloseTime = jySysStrandTaskCloseTime;
+    }
+
+    public Long getJyArtificialStrandTaskCloseTime() {
+        return jyArtificialStrandTaskCloseTime;
+    }
+
+    public void setJyArtificialStrandTaskCloseTime(Long jyArtificialStrandTaskCloseTime) {
+        this.jyArtificialStrandTaskCloseTime = jyArtificialStrandTaskCloseTime;
+    }
+
+    public Integer getJyStrandScanNumLimit() {
+        return jyStrandScanNumLimit;
+    }
+
+    public void setJyStrandScanNumLimit(Integer jyStrandScanNumLimit) {
+        this.jyStrandScanNumLimit = jyStrandScanNumLimit;
+    }
+
+    public String getExScrapApproveLevelCountLimit() {
+        return exScrapApproveLevelCountLimit;
+    }
+
+    public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
+        this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
+    }
+
+    public int getCompleteExpDayNumLimit() {
+        return completeExpDayNumLimit;
+    }
+
+    public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
+        this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public boolean isCheckTeAnSwitch() {
+        return checkTeAnSwitch;
+    }
+
+    public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+        this.checkTeAnSwitch = checkTeAnSwitch;
+    }
+
+    public boolean getBoardCombinationRouterSwitch() {
+        return boardCombinationRouterSwitch;
+    }
+
+    public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+        this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
+    }
+
+    public boolean isPdaVersionSwitch() {
+        return pdaVersionSwitch;
+    }
+
+    public void setPdaVersionSwitch(boolean pdaVersionSwitch) {
+        this.pdaVersionSwitch = pdaVersionSwitch;
+    }
+
+    public boolean isDpTransferSwitch() {
+        return dpTransferSwitch;
+    }
+
+    public void setDpTransferSwitch(boolean dpTransferSwitch) {
+        this.dpTransferSwitch = dpTransferSwitch;
+    }
+
+    public boolean isEasyFreezeSwitch() {
+        return easyFreezeSwitch;
+    }
+
+    public void setEasyFreezeSwitch(boolean easyFreezeSwitch) {
+        this.easyFreezeSwitch = easyFreezeSwitch;
+    }
+
+    public boolean isAllianceBusinessSwitch() {
+        return allianceBusinessSwitch;
+    }
+
+    public void setAllianceBusinessSwitch(boolean allianceBusinessSwitch) {
+        this.allianceBusinessSwitch = allianceBusinessSwitch;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockRefreshTime() {
+        return jyTransportSendVehicleValidateDockRefreshTime;
+    }
+
+    public void setJyTransportSendVehicleValidateDockRefreshTime(Integer jyTransportSendVehicleValidateDockRefreshTime) {
+        this.jyTransportSendVehicleValidateDockRefreshTime = jyTransportSendVehicleValidateDockRefreshTime;
+    }
+
+    public Integer getJyTransportSendVehicleValidateDockAllowRefreshTimes() {
+        return jyTransportSendVehicleValidateDockAllowRefreshTimes;
+    }
+
+    public void setJyTransportSendVehicleValidateDockAllowRefreshTimes(Integer jyTransportSendVehicleValidateDockAllowRefreshTimes) {
+        this.jyTransportSendVehicleValidateDockAllowRefreshTimes = jyTransportSendVehicleValidateDockAllowRefreshTimes;
+    }
+
+    public String getJyWorkAppAutoRefreshConfig() {
+        return jyWorkAppAutoRefreshConfig;
+    }
+
+    public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
+        this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
+        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
+    }
+
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return jyWorkAppAutoRefreshConfigList;
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }
+    }
+
+    public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
+        if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
+            final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
+            if(first.isPresent()){
+                return first.get();
+            }
+        }
+        return null;
+    }
+
+    public String getTeAnSiteWhitelist() {
+        return teAnSiteWhitelist;
+    }
+
+    public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
+        this.teAnSiteWhitelist = teAnSiteWhitelist;
+        this.teAnSiteWhitelistStrList = this.getTeAnSiteWhitelistStrList();
+    }
+
+    private List<String> teAnSiteWhitelistStrList = new ArrayList<>();
+
+    public List<String> getTeAnSiteWhitelistStrList() {
+        if(teAnSiteWhitelist == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchTeAnSiteWhitelist(int siteId) {
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, teAnSiteWhitelist)){
+            return true;
+        }
+        if(teAnSiteWhitelistStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+	public boolean isUploadOverWeightSwitch() {
+		return uploadOverWeightSwitch;
+	}
+
+	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+	}
+
+    public String getExceptionSubmitCheckSites() {
+        return exceptionSubmitCheckSites;
+    }
+
+    public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
+        this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
+        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
+    }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
+        if(exceptionSubmitCheckSites == null){
+            exceptionSubmitCheckSiteList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getExceptionSubmitCheckWaybillInterceptTypes() {
+        return exceptionSubmitCheckWaybillInterceptTypes;
+    }
+
+    public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
+        this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
+        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
+    }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
+        if(exceptionSubmitCheckWaybillInterceptTypes == null){
+            exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isIgnoreTysTrackSwitch() {
+        return ignoreTysTrackSwitch;
+    }
+
+    public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+        this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
+    }
+
+
+    public int getAssignExpTaskQuantityLimit() {
+        return assignExpTaskQuantityLimit;
+    }
+
+    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+        return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+        JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+        return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+        JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public Integer getJyBuQiWaybillCodeMaxSum() {
+        return JyBuQiWaybillCodeMaxSum;
+    }
+
+    public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+        JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
+    }
+
+    public double getBeforeSealVehicleLoadRateLimit() {
+        return beforeSealVehicleLoadRateLimit;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+        this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+    }
+
+    public boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+        return beforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+        this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
     }
 }

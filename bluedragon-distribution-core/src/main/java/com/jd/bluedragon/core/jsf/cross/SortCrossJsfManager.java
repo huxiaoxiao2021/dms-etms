@@ -1,10 +1,10 @@
 package com.jd.bluedragon.core.jsf.cross;
 
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jdl.basic.api.domain.cross.CrossDataJsfResp;
 import com.jdl.basic.api.domain.cross.CrossPageQuery;
 import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import com.jdl.basic.api.domain.cross.TableTrolleyQuery;
-import com.jdl.basic.common.utils.Result;
 
 /**
  * @author liwenji
@@ -46,4 +46,20 @@ public interface SortCrossJsfManager {
      * @return
      */
     TableTrolleyJsfResp queryCTTByCTTCode(TableTrolleyQuery query);
+
+    /**
+     * 根据场地流向查询滑道笼车信息
+     */
+    JdResult<TableTrolleyJsfResp> queryCrossCodeTableTrolleyBySiteFlow(TableTrolleyQuery query);
+
+    /**
+     * 根据滑道笼车号查询场地流向
+     */
+    JdResult<TableTrolleyJsfResp> querySiteFlowByCrossCodeTableTrolley(TableTrolleyQuery query);
+
+    /**
+     * 根据场地流向批量查询滑道笼车信息
+     */
+    JdResult<TableTrolleyJsfResp> queryCrossCodeTableTrolleyBySiteFlowList(TableTrolleyQuery query);
+
 }

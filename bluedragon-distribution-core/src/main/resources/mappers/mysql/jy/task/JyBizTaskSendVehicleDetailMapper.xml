@@ -28,6 +28,8 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="excepLabel" column="excep_label"/>
+        <result property="lineType" column="line_type"/>
+        <result property="taskSimpleCode" column="task_simple_code"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -38,7 +40,7 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,line_type,task_simple_code
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -359,7 +361,10 @@
             <if test="lineTypeName != null">
                 line_type_name,
             </if>
-            yn
+            <if test="taskSimpleCode != null">
+                task_simple_code,
+            </if>
+             yn
         )
         VALUES
        (
@@ -382,6 +387,9 @@
             </if>
             <if test="lineTypeName != null">
                 #{lineTypeName},
+            </if>
+            <if test="taskSimpleCode != null">
+                #{taskSimpleCode},
             </if>
             1
        )
@@ -415,6 +423,35 @@
 
     </select>
 
+    <select id="findByMainVehicleBizByBatch" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        AND send_vehicle_biz_id IN
+        <foreach collection="entity.sendVehicleBizIdList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        <if test="entity.vehicleStatus != null">
+            AND vehicle_status = #{entity.vehicleStatus}
+        </if>
+        <if test="entity.endSiteId != null">
+            AND end_site_id = #{entity.endSiteId}
+        </if>
+        <if test="statuses != null and statuses.size() > 0">
+            AND vehicle_status IN
+            <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.lineType!=null">
+            AND line_type =#{entity.lineType}
+        </if>
+
+    </select>
+
     <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
         UPDATE jy_biz_task_send_vehicle_detail
         <set>
@@ -441,6 +478,9 @@
             </if>
             <if test="excepLabel != null">
                 excep_label = #{excepLabel},
+            </if>
+            <if test="taskSimpleCode != null">
+                task_simple_code = #{taskSimpleCode},
             </if>
             <if test="yn != null">
                 yn = #{yn}
@@ -612,4 +652,65 @@
             and end_site_id = #{endSiteId}
             and create_time &gt;= #{createTimeBegin}
     </select>
+
+    <select id="findSendVehicleDetailByTransWorkCode" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            id,send_vehicle_biz_id,biz_id,trans_work_item_code,vehicle_status,start_site_id,end_site_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE send_vehicle_biz_id in
+              (SELECT biz_id
+        FROM jy_biz_task_send_vehicle
+        WHERE yn = 1
+          AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR})
+    </select>
+
+    <select id="findBySendVehicleBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle_detail
+        where yn = 1 AND send_vehicle_biz_id = #{sendVehicleBizId}
+        limit 1;
+    </select>
+
+    <select id="findBizIdsBySiteFlows" resultType="java.lang.String">
+        select send_vehicle_biz_id
+        from jy_biz_task_send_vehicle_detail
+        WHERE yn = 1
+            and start_site_id = #{entity.startSiteId}
+            and end_site_id in
+            <foreach collection="entity.endSiteIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        group by send_vehicle_biz_id
+        limit #{entity.pageSize}
+    </select>
+
+    <select id="findSendVehicleDetailByBizIds" resultMap="jyBizTaskSendVehicleDetailMap">
+        select <include refid="Base_Column_List"/> from jy_biz_task_send_vehicle_detail
+        where start_site_id = #{startSiteId}
+        and yn = 1
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDetailBySendVehicleBizIds" resultMap="jyBizTaskSendVehicleDetailMap">
+        select <include refid="Base_Column_List"/> from jy_biz_task_send_vehicle_detail
+        where  yn = 1
+        and send_vehicle_biz_id in
+        <foreach collection="sendVehicleBizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateStatusByDetailVehicleBizIds">
+        update jy_biz_task_send_vehicle_detail
+        set vehicle_status = #{status}
+        where yn = 1
+        and biz_id in
+        <foreach collection="detailBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </update>
 </mapper>

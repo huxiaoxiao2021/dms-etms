@@ -140,6 +140,8 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
      * @param vehicleType
      * @return
      */
+    @Cache(key = "BasicQueryWSManagerImpl.getVehicleTypeByVehicleType", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleTypeByVehicleType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public BasicVehicleTypeDto getVehicleTypeByVehicleType(Integer vehicleType) {

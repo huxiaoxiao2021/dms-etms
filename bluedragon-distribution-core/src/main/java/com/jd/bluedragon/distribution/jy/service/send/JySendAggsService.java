@@ -16,6 +16,8 @@ import java.util.List;
 public interface JySendAggsService {
     JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId);
 
+    List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId);
+
     /**
      * 按发车任务查发货流向进度
      * @param sendVehicleBizId
@@ -29,15 +31,16 @@ public interface JySendAggsService {
     //插入或修改备库
     Boolean insertOrUpdateJySendGoodsAggsBak(JySendAggsEntity entity);
 
-    List<JySendAggsEntity> getSendAggMainData(JySendAggsEntity query);
-
-    List<JySendAggsEntity> getSendAggBakData(JySendAggsEntity query);
-
-    List<JySendAggsEntity> getSendAggsListByCondition(JySendAggsEntityQuery query);
-
     /**
      * 查询一条发货任务的异常记录（不齐）
      */
     JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
+
+    /**
+     * 根据bizId(派车明细单号)批量获取统计数据
+     * @param bizIds
+     * @return
+     */
+    List<JySendAggsEntity> findBySendVehicleDetailBizs(List<String> bizIds);
 }
 

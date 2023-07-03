@@ -2,7 +2,6 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.print.utils.StringHelper;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class DateHelper {
     /**
      * 五分钟毫秒数
      */
-    public static final long FIVE_MINUTES_MILLI = 5 * ONE_MINUTES_MILLI;     
+    public static final long FIVE_MINUTES_MILLI = 5 * ONE_MINUTES_MILLI;
 
     /**
      * 十分钟的毫秒数
@@ -97,6 +96,9 @@ public class DateHelper {
 
     public static final String DATE_FORMATE_yyMMdd = "yyMMdd";
 
+    public static final String DATE_FORMAT_MONTH = "yyyy-MM";
+    public static final String DATE_FORMAT_YEAR = "yyyy";
+
     /**
      * 日期-格式yyyy-MM-dd HH:mm
      */
@@ -106,7 +108,7 @@ public class DateHelper {
 	/**
 	 * 时间格式
 	 */
-	private static final String SEND_CAR_TIME_FORMAT = "%s %s"; 
+	private static final String SEND_CAR_TIME_FORMAT = "%s %s";
 	/**
 	 * 运输时间截取长度
 	 */
@@ -130,6 +132,14 @@ public class DateHelper {
 
     public static Date addDate(final Date date, Integer days) {
         return DateHelper.add(date, Calendar.DATE, days);
+    }
+
+    public static Date addHours(final Date date, int hours) {
+        return DateHelper.add(date, Calendar.HOUR, hours);
+    }
+    public static Date addHoursByDay(final Date date, Double days) {
+        int hours =(int)(days * 24);
+        return DateHelper.add(date, Calendar.HOUR, hours);
     }
 
     public static String formatDate(Date date) {
@@ -214,8 +224,55 @@ public class DateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+    /**
+     * 获取上个计提日期
+     * @param accrualDay 计提日
+     * @return
+     */
+    public static Date getLastAccrualDate(int accrualDay,int accrualHour,int accrualMinute) {
+    	Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, accrualHour);
+        calendar.set(Calendar.MINUTE, accrualMinute);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
+
+        Date thisDate = calendar.getTime();
+        Date lastDate = thisDate;
+        Date currentDate = new Date();
+        if(currentDate.before(thisDate)) {
+        	calendar.setTime(DateHelper.addDate(thisDate, -accrualDay));
+        	calendar.set(Calendar.DAY_OF_MONTH, accrualDay);
+        	lastDate = calendar.getTime();
+        }
+        return lastDate;
+    }
+
+    /**
+     * 获取当月第一天0点0分0秒的时间
+     *
+     * @return
+     */
+    public static Date getFirstDateOfMonth() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.MONTH, 0);
+        c.set(Calendar.DAY_OF_MONTH, 1);//设置为1号,当前日期既为本月第一天
+        //将小时至0
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        //将分钟至0
+        c.set(Calendar.MINUTE, 0);
+        //将秒至0
+        c.set(Calendar.SECOND,0);
+        //将毫秒至0
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
 
     public static void main(String[] args) {
+
+        for(int i=1;i<=28;i++) {
+        	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
+        }
 
         Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
         System.out.println(date);
@@ -248,7 +305,6 @@ public class DateHelper {
         target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
         System.out.println(daysBetween(new Date(1570104779000L),new Date()));
-
     }
 
     /**
@@ -582,7 +638,7 @@ public class DateHelper {
         return format.format(new Date());
     }
     /**
-     * 
+     *
      * @param hours
      * @return
      */
@@ -673,4 +729,44 @@ public class DateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+
+    /**
+     * 获取当前月份第一天
+     */
+    public static Date getFirstMonthDay(){
+        Calendar cale = Calendar.getInstance();
+        cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH, 1);
+        cale.set(Calendar.HOUR_OF_DAY, 0);
+        cale.set(Calendar.MINUTE, 0);
+        cale.set(Calendar.SECOND, 0);
+        return cale.getTime();
+    }
+
+    /**
+     * 获取当前月份最后一天
+     */
+    public static Date getLastMonthDay(){
+        Calendar cale = Calendar.getInstance();
+        cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH, cale.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cale.set(Calendar.HOUR_OF_DAY, 23);
+        cale.set(Calendar.MINUTE, 59);
+        cale.set(Calendar.SECOND, 29);
+        return cale.getTime();
+    }
+
+    public static Date preMonthFirstDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int curMonth = calendar.get(Calendar.MONTH);
+        calendar.set(Calendar.MONTH, curMonth - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
+
 }

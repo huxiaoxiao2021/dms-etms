@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.bluedragon.distribution.jy.send.JySendVehicleProductType;
 
 import java.util.List;
@@ -14,8 +15,9 @@ import java.util.List;
 public interface JySendProductAggsDaoStrategy {
 
 
-    List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId);
+    List<JySendVehicleProductType> getSendVehicleProductTypeList(JySendProductAggsEntityQuery query);
 
-    Long getToScanCountSum(String sendVehicleBizId);
+    Long getToScanCountSum(JySendProductAggsEntityQuery query);
 
+    List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query);
 }

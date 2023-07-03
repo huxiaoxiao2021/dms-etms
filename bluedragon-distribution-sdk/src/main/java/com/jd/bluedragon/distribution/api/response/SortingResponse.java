@@ -413,6 +413,13 @@ public class SortingResponse extends JdResponse {
     //发货校验-德邦单子校验
     public static final Integer CODE_DP_SEND_ERROR =29463;
 
+
+    public static final Integer CODE_29464 = 29464;
+    public static final String  MESSAGE_29464 = "此单为普通包裹，请勿与特安件进行混包！";
+
+    public static final Integer CODE_29465 = 29465;
+    public static final String  MESSAGE_29465 = "此单为特安包裹，请勿与普通包裹进行混包！";
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
@@ -571,6 +578,10 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_BOARD_ROUTER_ERROR="组板目的地与运单路由不一致，是否继续？";
     public static final String MESSAGE_BOARD_ROUTER_EMPTY_ERROR="未查询到路由请核查是否错发，是否强制组板？";
     public static final String MESSAGE_BOARD_ERROR="组板目的地与此订单预分拣站点不一致，是否继续？";
+
+    public static final Integer CODE_40008 = 40008;
+    public static final String MESSAGE_40008_1 = "此单为特安包裹，请勿与普通件进行混包！";
+    public static final String MESSAGE_40008_2 = "此单为非特安包裹，请勿与特安件进行混包！";
 
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
