@@ -118,11 +118,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
                 log.warn("sendSendFinishMq4Urban taskScanBeginTime and taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
-            if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() < 0) {
+            if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
                 log.warn("sendTysSendMq4Urban taskScanBeginTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
-            if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() < 0) {
+            if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() <= 0) {
                 log.warn("sendTysSendMq4Urban taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
@@ -264,11 +264,10 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
         log.info("sendSendFinishMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
-        if(existSendCodeVal != null){
-            return;
+        if(existSendCodeVal == null){
+            // 发送完成消息
+            this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
         }
-        // 发送完成消息
-        this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
 
         // 查找发货明细，发送明细消息
         final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(jyCargoOperate.getSendCode());
@@ -278,7 +277,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         sendDetailDto.setCreateSiteCode(createSiteCode);
         final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
         if(log.isInfoEnabled()){
-            log.info("sendSendFinishMq4Urban packageCodeListSize {}", JsonHelper.toJson(packageCodeList));
+            log.info("sendSendFinishMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
         }
         // 进一步分批，批量发送mq
         int batchSize = 50;
