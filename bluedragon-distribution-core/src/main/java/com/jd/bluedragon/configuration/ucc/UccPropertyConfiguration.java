@@ -832,7 +832,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Double jyComboardSealQueryBoardListTime;
+    private String jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -3256,11 +3256,11 @@ public class UccPropertyConfiguration {
         return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
     }
 
-    public Double getJyComboardSealQueryBoardListTime() {
+    public String getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
