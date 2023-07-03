@@ -32,7 +32,8 @@ public enum ConsumableCodeEnums {
 
     MJ("09092048","木架"),
     MTP("09092049","木托盘"),
-    MX("09092050","木箱");
+    MX("09092050","木箱"),
+    TM("09092203","托膜");
 
 
     private final String code;
@@ -58,6 +59,6 @@ public enum ConsumableCodeEnums {
      * @return
      */
     public static boolean isWoodenConsumable(String code) {
-        return MJ.getCode().equals(code) || MTP.getCode().equals(code) || MX.getCode().equals(code);
+        return MJ.getCode().equals(code) || MTP.getCode().equals(code) || MX.getCode().equals(code) || TM.getCode().equals(code);
     }
 }

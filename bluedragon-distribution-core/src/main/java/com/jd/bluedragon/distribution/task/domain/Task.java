@@ -198,6 +198,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_JY_CARGO_OPERATE_INSPECTION = 1001;
     public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SORTING = 1002;
     public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SEND = 1003;
+    public static final Integer TASK_TYPE_JY_CARGO_OPERATE_SEND_FINISH = 1004;  // 发货完成动作
 
     // 拣运作业任务自动关闭
     public static final Integer TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE = 1326;
@@ -662,6 +663,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
             return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
+        } else if (Task.TASK_TYPE_JY_CARGO_OPERATE_SEND_FINISH.equals(type)) {
+            return Task.TABLE_NAME_JY_OPEN_CARGO_OPERATE;
         } else if (Task.TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)) {
             return Task.TABLE_NAME_TASK_JY_WORK_TASK_AUTO_CLOSE;
         }
@@ -1026,6 +1029,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "JYOpenSortingTask";
         }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND.equals(type)) {
             return "JYOpenSendTask";
+        }else if (TASK_TYPE_JY_CARGO_OPERATE_SEND_FINISH.equals(type)) {
+            return "JYOpenSendVehicleFinishTask";
         }else if(TASK_TYPE_JY_WORK_TASK_AUTO_CLOSE.equals(type)){
             return "JyBizTaskAutoCloseTask";
         }
