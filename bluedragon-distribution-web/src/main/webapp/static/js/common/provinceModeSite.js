@@ -45,6 +45,44 @@
         _optionsDetail : null,
         init : function(_options){
             new TypeSelectClass(_options,$(this));
+        },
+        getSelected : function (filedName){
+            //获取选中数据，存在入参时只返回此字段
+            try{
+                var provinceInitFlag =  !($(this).find('province .provinceSelect').data("select2") === undefined);
+                var areaHubInitFlag =  !($(this).find('province .areaSelect').data("select2") === undefined);
+                var siteInitFlag =  !($(this).find('province .siteSelect').data("select2") === undefined);
+
+                var province = provinceInitFlag?$(this).find('province .provinceSelect').select2("data"):[];
+                var areaHub = areaHubInitFlag?$(this).find('province .areaSelect').select2("data"):[];
+                var site = siteInitFlag?$(this).find('province .siteSelect').select2("data"):[];
+
+                var result = new Object();
+                if(province[0]) {
+                    result.provinceAgencyCode = province[0].id;
+                    result.provinceAgencyName =  province[0].text;
+                }
+                if(areaHub[0]) {
+                    result.areaHubCode = areaHub[0].id;
+                    result.areaHubName =  areaHub[0].text;
+                }
+                if(site[0]) {
+                    result.siteCode = site[0].id;
+                    result.siteName =  site[0].siteName;
+                    result.dmsSiteCode = site[0].dmsSiteCode;
+                }
+
+                if(filedName){
+                    if(result[filedName]){
+                        return result[filedName];
+                    }
+                }
+
+                return result;
+            }catch (e){
+                console.error(e);
+            }
+
         }
     };
     var TypeSelectClass = function(){
