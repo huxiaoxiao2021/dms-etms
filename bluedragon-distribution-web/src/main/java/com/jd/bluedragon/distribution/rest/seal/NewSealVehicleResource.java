@@ -1157,16 +1157,16 @@ public class NewSealVehicleResource {
         }
 
         try {
-            createTransAbnormalAndUnseal2jmq(request);
-        } catch (JMQException e) {
-            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
-        }
-
-
-        try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
+            if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
+                try {
+                    createTransAbnormalAndUnseal2jmq(request);
+                } catch (JMQException e) {
+                    this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+                }
+            }
             return unSealVehicleResponse;
 
         } catch (Exception e) {
@@ -1177,7 +1177,8 @@ public class NewSealVehicleResource {
         return unSealVehicleResponse;
     }
 
-    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP}) public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
+    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
         TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
         com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = request.getSealCarDto();
         CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
