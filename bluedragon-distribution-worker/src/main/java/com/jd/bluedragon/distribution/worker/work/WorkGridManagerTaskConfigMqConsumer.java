@@ -32,7 +32,7 @@ public class WorkGridManagerTaskConfigMqConsumer extends MessageBaseConsumer {
     
     @Override
     public void consume(Message message) throws Exception {
-        CallerInfo info = Profiler.registerInfo("TransportRejectAddCarApplyConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
+        CallerInfo info = Profiler.registerInfo("WorkGridManagerTaskConfigMqConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
                 logger.warn("线上化-任务配置变更，消息体非JSON格式，内容为【{}】", message.getText());
