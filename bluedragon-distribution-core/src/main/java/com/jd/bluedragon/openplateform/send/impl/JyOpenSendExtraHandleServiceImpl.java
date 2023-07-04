@@ -118,11 +118,11 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
                 log.warn("sendSendFinishMq4Urban taskScanBeginTime and taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
-            if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() < 0) {
+            if (jyCargoOperate.getTaskScanBeginTime() != null && jyCargoOperate.getTaskScanBeginTime() <= 0) {
                 log.warn("sendTysSendMq4Urban taskScanBeginTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
-            if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() < 0) {
+            if (jyCargoOperate.getTaskScanEndTime() != null && jyCargoOperate.getTaskScanEndTime() <= 0) {
                 log.warn("sendTysSendMq4Urban taskScanEndTime is illegal {}", JsonHelper.toJson(jyCargoOperate));
                 return;
             }
@@ -150,14 +150,14 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             if(CollectionUtils.isNotEmpty(boxDetailList)){
                 for (SendDetail sendDetail : boxDetailList) {
                     final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, sendDetail.getPackageBarcode(), currentOperate, user);
-                     log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                    log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
                     sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
                 }
             }
         } else {
             final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, jyCargoOperate.getBarcode(), currentOperate, user);
             sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
-             log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+            log.info("sendTysSendMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
         }
         transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
     }
@@ -264,11 +264,10 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         String jyOpenPlatformSendTaskCompleteLockKey = this.getJyOpenPlatformSendTaskCompleteCacheKey(jyCargoOperate.getSendCode());
         final String existSendCodeVal = redisClientOfJy.get(jyOpenPlatformSendTaskCompleteLockKey);
         log.info("sendSendFinishMq4Urban jyOpenPlatformSendTaskCompleteLockKey: {} existSendCodeVal {}", jyOpenPlatformSendTaskCompleteLockKey, existSendCodeVal);
-        if(existSendCodeVal != null){
-            return;
+        if(existSendCodeVal == null){
+            // 发送完成消息
+            this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
         }
-        // 发送完成消息
-        this.sendTaskCompleteMq(jyCargoOperate, currentOperate, user, jyOpenPlatformSendTaskCompleteLockKey);
 
         // 查找发货明细，发送明细消息
         final Integer createSiteCode = BusinessUtil.getCreateSiteCodeFromSendCode(jyCargoOperate.getSendCode());
@@ -277,11 +276,13 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
         sendDetailDto.setIsCancel(0);
         sendDetailDto.setCreateSiteCode(createSiteCode);
         final List<String> packageCodeList = sendDetailService.queryPackageCodeBySendCode(sendDetailDto);
-         log.info("sendSendFinishMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
+        if(log.isInfoEnabled()){
+            log.info("sendSendFinishMq4Urban packageCodeList {}", JsonHelper.toJson(packageCodeList));
+        }
         // 进一步分批，批量发送mq
         int batchSize = 50;
         int batchCount = Double.valueOf(Math.ceil(packageCodeList.size() / (double) batchSize)).intValue();
-         log.info("sendSendFinishMq4Urban batchCount {}", batchCount);
+        log.info("sendSendFinishMq4Urban batchCount {}", batchCount);
         for (int i = 0; i < batchCount; i++) {
             int start = i * batchSize;
             int end = start + batchSize;
@@ -292,7 +293,7 @@ public class JyOpenSendExtraHandleServiceImpl implements JyOpenSendExtraHandleSe
             List<Message> sendDetailMQList = new ArrayList<>();
             for (String packageCode : packageCodeSubList) {
                 final JyTysSendPackageDetailDto jyTysSendPackageDetailDto = this.genJyTysSendPackageDetailDto(jyCargoOperate, packageCode, currentOperate, user);
-                 log.info("sendSendFinishMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
+                log.info("sendSendFinishMq4Urban transportSendPackageProducer topic: {} send {}", transportSendPackageProducer.getTopic(), JSON.toJSONString(jyTysSendPackageDetailDto));
                 sendDetailMQList.add(this.genMessage4JyTysSendPackageDetailDto(jyTysSendPackageDetailDto));
             }
             transportSendPackageProducer.batchSendOnFailPersistent(sendDetailMQList);
