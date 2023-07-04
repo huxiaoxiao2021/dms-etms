@@ -266,6 +266,8 @@
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -559,6 +561,8 @@
 				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 			</list>
 		</property>
 	</bean>
