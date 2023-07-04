@@ -379,7 +379,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
         vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
-        vehicleBaseInfo.setTeanFlag(entity.getTeanFlag());
 
         return vehicleBaseInfo;
     }
@@ -407,6 +406,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         // 半车卸
         if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_3)) {
             UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.UNLOAD_HALF_CAR;
+            tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
+        }
+        // 特安服务
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_4)) {
+            UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.TE_AN_SERVICE;
             tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
         }
 
