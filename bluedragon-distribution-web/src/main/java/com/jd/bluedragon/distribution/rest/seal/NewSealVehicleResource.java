@@ -1178,29 +1178,28 @@ public class NewSealVehicleResource {
     public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnsealWithCheckUsage(TransAbnormalAndUnsealRequest request, boolean checkUsage){
         NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<>();
 
-        NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
-        if (response == null) {
-            unSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            unSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            return unSealVehicleResponse;
-        }
-        if (!JdResponse.CODE_OK.equals(response.getCode())) {
-            unSealVehicleResponse.setCode(response.getCode());
-            unSealVehicleResponse.setMessage(response.getMessage());
-            return unSealVehicleResponse;
-        }
-
-        try {
-            createTransAbnormalAndUnseal2jmq(request);
-        } catch (JMQException e) {
-            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
-        }
-
-
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
+            if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
+                NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
+                if (response == null) {
+                    unSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    unSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    return unSealVehicleResponse;
+                }
+                if (!JdResponse.CODE_OK.equals(response.getCode())) {
+                    unSealVehicleResponse.setCode(response.getCode());
+                    unSealVehicleResponse.setMessage(response.getMessage());
+                    return unSealVehicleResponse;
+                }
+                try {
+                    createTransAbnormalAndUnseal2jmq(request);
+                } catch (JMQException e) {
+                    this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+                }
+            }
             return unSealVehicleResponse;
 
         } catch (Exception e) {
@@ -1211,7 +1210,8 @@ public class NewSealVehicleResource {
         return unSealVehicleResponse;
     }
 
-    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP}) public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
+    @JProfiler(jKey = "NewSealVehicleResource.createTransAbnormalAndUnseal2jmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
         TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
         com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = request.getSealCarDto();
         CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
