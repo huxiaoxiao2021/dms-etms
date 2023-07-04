@@ -22,7 +22,7 @@ public class JyCacheKeyConstants {
 
     // 转运发货任务完成消息，按批次存储
     public static final String JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY = "jy:send:open_platform_send_task_complete:%s";
-    public static final Integer JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED = 30;
-    public static final TimeUnit JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT = TimeUnit.MINUTES;
+    public static final Integer JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED = 4;
+    public static final TimeUnit JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT = TimeUnit.HOURS;
 
 }
