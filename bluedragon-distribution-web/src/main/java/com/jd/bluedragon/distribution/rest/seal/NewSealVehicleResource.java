@@ -1144,23 +1144,22 @@ public class NewSealVehicleResource {
     public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnsealWithCheckUsage(TransAbnormalAndUnsealRequest request, boolean checkUsage){
         NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<>();
 
-        NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
-        if (response == null) {
-            unSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-            unSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            return unSealVehicleResponse;
-        }
-        if (!JdResponse.CODE_OK.equals(response.getCode())) {
-            unSealVehicleResponse.setCode(response.getCode());
-            unSealVehicleResponse.setMessage(response.getMessage());
-            return unSealVehicleResponse;
-        }
-
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
             if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
+                NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
+                if (response == null) {
+                    unSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    unSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                    return unSealVehicleResponse;
+                }
+                if (!JdResponse.CODE_OK.equals(response.getCode())) {
+                    unSealVehicleResponse.setCode(response.getCode());
+                    unSealVehicleResponse.setMessage(response.getMessage());
+                    return unSealVehicleResponse;
+                }
                 try {
                     createTransAbnormalAndUnseal2jmq(request);
                 } catch (JMQException e) {
