@@ -67,4 +67,24 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<List<DmsBarCode>> queryProductName(String barCode);
+
+    /**
+     * 获取报废类型集合
+     * @return
+     */
+    JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
+
+    /**
+     * 报废处理任务接口
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req);
+
+    /**
+     * 获取生鲜待处理任务详情
+     * @param req
+     * @return
+     */
+    JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req);
 }

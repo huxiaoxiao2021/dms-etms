@@ -3,10 +3,14 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 
+import java.util.Date;
 import java.util.List;
 
 public interface JyExceptionService {
@@ -48,7 +52,7 @@ public interface JyExceptionService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(String barcode, String erp);
+    JdCResponse<ExpTaskDto> queryByBarcode(Integer type,String barcode,String erp);
 
     /**
      * 任务明细
@@ -72,4 +76,49 @@ public interface JyExceptionService {
      */
     void printSuccess(JyExceptionPrintDto printDto);
 
+    /**
+     * 查询超时异常任务并通知场地负责人
+     */
+    void queryOverTimeExceptionAndNotice();
+
+    /**
+     * 查询已领取的生鲜报废任务明细并通知领取人
+     */
+    void queryFreshScrapDetailAndNotice();
+
+    /**
+     * 根据处理时间查询报废处理人ERP
+     *
+     * @param queryStartTime 查询开始时间
+     * @param queryEndTime 查询结束时间
+     * @return
+     */
+    List<String> queryScrapHandlerErp(Date queryStartTime, Date queryEndTime);
+
+    /**
+     * 根据处理时间查询报废人的报废任务详情
+     *
+     * @param handlerErp 报废人ERP
+     * @param queryStartTime 查询开始时间
+     * @param queryEndTime 查询结束时间
+     * @return
+     */
+    List<JyBizTaskExceptionEntity> queryScrapDetailByCondition(String handlerErp, Date queryStartTime, Date queryEndTime);
+
+    /**
+     * 处理客服回传消息
+     *
+     * @param jyExCustomerNotifyMQ
+     */
+    void dealCustomerNotifyResult(JyExCustomerNotifyMQ jyExCustomerNotifyMQ);
+
+    /**
+     * 更新异常任务结果
+     *
+     * @param barCode 单号
+     * @param operateErp 操作人
+     * @param dateTime 时间
+     * @param precessComplete 是否处理完成
+     */
+    void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete);
 }
