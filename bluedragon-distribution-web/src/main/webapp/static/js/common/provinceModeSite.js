@@ -295,7 +295,6 @@
 
         },
         _siteChange : function (){
-            debugger
             //站点变化事件
             var site = this._targetDom.find('province .siteSelect').select2("data");
             //var _s = this._targetDom.find('province .siteSelect').val();
@@ -473,7 +472,7 @@
         _initProvinceSelect : function (provinceAgencyCode) {
             //初始化省区
             var provinces = this._queryAllProvinceAgencyInfo();
-            provinces.unshift({id:'-1',text:'请选择省区'});
+            provinces.unshift({id:'',text:'请选择省区'});
             let selectedData = [] ;
             let that = this;
             this._targetDom.find('province .provinceSelect').select2({
@@ -493,7 +492,7 @@
         _initAreaSelect : function (provinceAgencyCode,areaHubCode) {
             //初始化枢纽
             var areaInfos = this._queryAllAreaInfo(provinceAgencyCode);
-            areaInfos.unshift({id:'-1',text:'请选择枢纽'});
+            areaInfos.unshift({id:'',text:'请选择枢纽'});
             let that = this;
             this._targetDom.find('province .areaSelect').select2({
                 width: that._options.areaHubCodeWidth,
@@ -577,7 +576,7 @@
             });
             //默认加载站点列表
             // var siteInfos = this._querySitePageByCondition(provinceAgencyCode,areaHubCode,null)
-            // siteInfos.unshift({id:'-1',text:'请选择场地'});
+            // siteInfos.unshift({id:'',text:'请选择场地'});
             // this._targetDom.find('province .siteSelect').select2({data:siteInfos});
             //触发站点选择事件
             //this._targetDom.find('province .siteSelect').val(this._targetDom.find('province .siteSelect').val()).trigger('change');

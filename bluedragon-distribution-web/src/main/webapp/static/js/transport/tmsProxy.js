@@ -2,9 +2,9 @@ $(function() {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
+        'createDmsSiteCodeName': 'endNodeCode',
         'onlySiteSelect': true,
         'provinceOrOrgMode': 'province',
-        'siteTypes' : [64],
         'changeBtnShow': false
     });
     
@@ -229,8 +229,8 @@ var loadSite = function (params) {
                     }
                 }
             }
-            $("#endNodeCode").empty();
-            $("#query-form #endNodeCode").select2({
+            $("#endNodeCodeSelect").empty();
+            $("#query-form #endNodeCodeSelect").select2({
                 placeholder: '请选择',
                 allowClear: true,
                 data: result

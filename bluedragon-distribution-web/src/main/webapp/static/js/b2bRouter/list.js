@@ -18,18 +18,8 @@ function main() {
 	});
 	// 初始化任务表下拉框
 	var originalSiteType = $("#originalSiteType").val();
-	var destinationSiteType = $("#destinationSiteType").val();
 
 	getSiteData(originalSiteType,$("#originalSiteName"),$("#originalSiteCode"));
-	getSiteData(destinationSiteType,$("#destinationSiteName"),$("#destinationSiteCode"));
-
-	$("#destinationSiteType").change(function() {
-		$("#destinationSiteName").val("");
-		$("#destinationSiteCode").val("");
-		$("#destinationSiteName").unautocomplete();
-		var siteType = $("#destinationSiteType").val();
-		getSiteData(siteType,$("#destinationSiteName"),$("#destinationSiteCode"));
-	});
 
 	$("#checkAll").click(function () {
 		var checked = $("#checkAll").prop("checked");
@@ -171,7 +161,7 @@ function updateBtn(){
 			var params = getParams();
 			var id = $(checkedKeys[0]).val();
 			var url ="/b2bRouter/toEdit?id="+id + "&originalSiteCode=" + params.originalSiteCode +
-				"&originalSiteName=" + params.originalSiteName + "&destinationSiteType=" + params.destinationSiteType +
+				"&originalSiteName=" + params.originalSiteName +
 				"&destinationSiteCode=" + params.destinationSiteCode + "&destinationSiteName=" + params.destinationSiteName;
 			window.location.href = url;
 
@@ -233,7 +223,6 @@ function getParams() {
 	params.originalSiteType = $.trim($("#originalSiteType").val());
 	params.originalSiteCode = $.trim($("#originalSiteCode").val());
 	params.originalSiteName = $.trim($("#originalSiteName").val());
-	params.destinationSiteType =$.trim($("#destinationSiteType").val());
 	params.destinationSiteCode = $.trim($("#destinationSiteCode").val());
 	params.destinationSiteName = $.trim($("#destinationSiteName").val());
 

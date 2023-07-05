@@ -180,10 +180,10 @@
 		<if test="orgCode != null">
 			and operate_org_code = #{orgCode,jdbcType=BIGINT}
 		</if>
-		<if test="provinceAgencyCode != null">
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''">
 			and operate_province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 		</if>
-		<if test="areaHubCode != null">
+		<if test="areaHubCode != null and areaHubCode != ''">
 			and operate_area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null">

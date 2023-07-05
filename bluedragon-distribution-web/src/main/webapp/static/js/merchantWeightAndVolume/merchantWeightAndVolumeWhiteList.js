@@ -11,6 +11,7 @@ $(function () {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'siteCode',
         bootstrapMode:true
     });
 

@@ -46,9 +46,6 @@
 								<switchSiteDom id = "switchSiteDom_start">
 								<select id="originateOrg" name="originateOrg" class="select20" style="width:130px" >
                                     <option value="-1">全部</option>
-                                    #if($queryInfo.originateOrg)
-                                        <option value="$!queryInfo.originateOrg" #if($!queryInfo.originateOrg !=-1) selected ="selected" #end>$!{queryInfo.originateOrgName}</option>
-                                    #end
                                 </select>
 								始发分拣：
 								<input type="text" id="originalDmsName" name="originalDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.originalDmsName}"/>
@@ -64,9 +61,6 @@
 								<switchSiteDom id = "switchSiteDom_dest">
 								<select id="destinationOrg" name="destinationOrg" class="select20" style="width:130px" value="$!{queryInfo.destinationOrg}">
                                     <option value="-1">全部</option>
-                                    #if($queryInfo.destinationOrg)
-                                        <option value="$!queryInfo.destinationOrg" #if($!queryInfo.destinationOrg !=-1) selected ="selected" #end>$!{queryInfo.destinationOrgName}</option>
-                                    #end
                                 </select>
 								目的分拣：
                                 <input type="text" id="destinationDmsName" name="destinationDmsName" maxlength="50" style="width:130px" value="$!{queryInfo.destinationDmsName}"/>
@@ -86,9 +80,6 @@
 								<switchSiteDom id = "switchSiteDom_transfer">
 								<select id="transferOrg" name="transferOrg" class="select20" style="width:130px" value="$!{queryInfo.transferOrg}">
                                     <option value="-1">全部</option>
-                                    #if($queryInfo.transferOrg)
-                                        <option value="$!queryInfo.transferOrg" #if($!queryInfo.transferOrg !=-1) selected ="selected" #end>$!{queryInfo.transferOrgName}</option>
-                                    #end
                                 </select>
 								中转分拣：
 								<input type="text" id="transferName" name="transferName" maxlength="50" style="width:130px" value="$!{queryInfo.transferName}"/>

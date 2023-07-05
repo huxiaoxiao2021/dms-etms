@@ -101,7 +101,7 @@
 				<if test="orgCode != null" >
 					org_code,
 				</if>
-				<if test="provinceAgencyCode != null" >
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 					province_agency_code,
 				</if>
 				<if test="warZoneCode != null" >
@@ -221,7 +221,7 @@
 				<if test="orgCode != null" >
 					#{orgCode,jdbcType=INTEGER},
 				</if>
-				<if test="provinceAgencyCode != null" >
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 					#{provinceAgencyCode,jdbcType=VARCHAR},
 				</if>
 				<if test="warZoneCode != null" >

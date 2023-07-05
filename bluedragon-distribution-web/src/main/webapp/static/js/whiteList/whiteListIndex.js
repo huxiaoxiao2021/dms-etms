@@ -4,6 +4,7 @@ var deleteUrl = '/whiteList/deleteByIds';
 $(function () {
 
     $('#switchSiteDom_add').sitePluginSelect({
+        'bootstrapMode': true,
         'changeBtnShow': false,
         'provinceOrOrgMode': 'province',
         'onlySiteSelect': true
@@ -170,6 +171,8 @@ $(function () {
                         }
                     }
                 });
+                params['siteCode'] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteCode
+                params['siteName'] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteName
                 var url = saveUrl;
                 $.ajaxHelper.doPostSync(url,JSON.stringify(params),function(res){
                     if(res&&res.succeed){
@@ -183,13 +186,14 @@ $(function () {
                     $('#btn_submit').attr("disabled",false);
                     $('#dataEditDiv').hide();
                     $('#dataTableDiv').show();
-
+                    $('#switchSiteDom_add').sitePluginSelect('cleanData');
                 });
             });
             //取消
             $('#btn_return').click(function() {
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
+                $('#switchSiteDom_add').sitePluginSelect('cleanData');
             });
         };
         return oInit;

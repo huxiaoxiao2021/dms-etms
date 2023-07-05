@@ -214,7 +214,7 @@ function getParams() {
 	params.sendTimeFrom = $.trim($("#sendTimeFrom").val());
 	params.sendTimeTo = $.trim($("#sendTimeTo").val());
 	params.sendCode = $.trim($("#sendCode").val());
-	params.dmsCode = $.trim($("#dmsList").val());
+	params.dmsCode = $('#switchSiteDom').sitePluginSelect('getSelected').siteCode;
 	params.approvalCode = $.trim($("#approvalCode").val());
 	params.pageSize = $.trim($("#pageSize").val());
 	params.waybillOrPackageCode = $.trim($("#waybillOrPackageCode").val());

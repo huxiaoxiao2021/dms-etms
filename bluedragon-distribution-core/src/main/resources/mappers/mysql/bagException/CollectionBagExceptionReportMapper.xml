@@ -58,16 +58,16 @@
             <if test="orgName != null and orgName != ''">
                 org_name,
             </if>
-            <if test="provinceAgencyCode != null" >
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
                 province_agency_code,
             </if>
-            <if test="provinceAgencyName != null" >
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
                 province_agency_name,
             </if>
-            <if test="areaHubCode != null" >
+            <if test="areaHubCode != null and areaHubCode != ''" >
                 area_hub_code,
             </if>
-            <if test="areaHubName != null" >
+            <if test="areaHubName != null and areaHubName != ''" >
                 area_hub_name,
             </if>
             <if test="siteCode != null">
@@ -150,16 +150,16 @@
             <if test="orgName != null and orgName != ''">
                 #{orgName},
             </if>
-            <if test="provinceAgencyCode != null" >
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
                 #{provinceAgencyCode,jdbcType=VARCHAR},
             </if>
-            <if test="provinceAgencyName != null" >
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
                 #{provinceAgencyName,jdbcType=VARCHAR},
             </if>
-            <if test="areaHubCode != null" >
+            <if test="areaHubCode != null and areaHubCode != ''" >
                 #{areaHubCode,jdbcType=VARCHAR},
             </if>
-            <if test="areaHubName != null" >
+            <if test="areaHubName != null and areaHubName != ''" >
                 #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="siteCode != null">

@@ -114,11 +114,6 @@
                         <tr>
                             <td align="right" class="c_f8f8f8">目的网点：</td>
                             <td>
-                                <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!destinationSiteType">
-                                    <option value= 1 >转运</option>
-                                    <option value= 2 >仓库</option>
-
-                                </select>
                                 <switchSiteDom id = "switchSiteDom_dest">
                                 <input type="text" name="destinationSiteName" id="destinationSiteName" value="$!destinationSiteName" v="require;length:30;" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>

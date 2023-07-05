@@ -1,150 +1,34 @@
 function main() {
 	//加载站点组件
 	$('#switchSiteDom_start').sitePluginSelect({
+		'createSiteCode': $("#originalDmsId").val() ? $("#originalDmsId").val() : null,
+		'provinceAgencyCodeName' : 'originalProvinceAgencyCode',
 		'createSiteCodeName' : 'originalDmsId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true
 	});
 	$('#switchSiteDom_dest').sitePluginSelect({
+		'createSiteCode': $("#destinationDmsId").val() ? $("#destinationDmsId").val() : null,
+		'provinceAgencyCodeName' : 'destinationProvinceAgencyCode',
 		'createSiteCodeName' : 'destinationDmsId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true
 	});
 	$('#switchSiteDom_transfer').sitePluginSelect({
+		'createSiteCode': $("#transferId").val() ? $("#transferId").val() : null,
+		'provinceAgencyCodeName' : 'transferProvinceAgencyCode',
 		'createSiteCodeName' : 'transferId',
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',
 		'onlySiteAndProvinceSelect' : true
 	});
 	
-	getSiteData(-1, -1);
-	$("#originateOrg").change(function() {
-		$("#originalDmsName").val("");
-		$("#originalDmsId").val("");
-		$("#originalDmsName").unautocomplete();
-		var orgId = $("#originateOrg").val();
-		getSiteData(1, orgId);
-	});
-	$("#destinationOrg").change(function() {
-		$("#destinationDmsName").val("");
-		$("#destinationDmsId").val("");
-		$("#destinationDmsName").unautocomplete();
-		var orgId = $("#destinationOrg").val();
-		getSiteData(2, orgId);
-	});
-	$("#transferOrg").change(function() {
-		$("#transferName").val("");
-		$("#transferId").val("");
-		$("#transferName").unautocomplete();
-		var orgId = $("#transferOrg").val();
-		getSiteData(3, orgId);
-	});
-
-	// 初始化任务表下拉框
-	initOrg();
-
 	// 初始化列表，加载所有信息
 	queryBtn(1);
 }
 
-
-// 初始化始发区域、目的区域、中转区域下拉框
-function initOrg() {
-	var url = $("#contextPath").val() + "/services/bases/allorgs";
-	var param = {};
-	$.getJSON(url, function(data) {
-		var orgList = data;
-		var tableObj_originateOrg = $('#originateOrg');
-		var tableObj_destinationOrg = $('#destinationOrg');
-		var tableObj_transferOrg = $('#transferOrg');
-		var optionList;
-		for (var i = 0; i < orgList.length; i++) {
-			if (orgList[i].orgId != -100) {
-				optionList += "<option value='" + orgList[i].orgId + "')>"
-						+ orgList[i].orgName + "</option>";
-			}
-		}
-		tableObj_originateOrg.append(optionList);
-		tableObj_destinationOrg.append(optionList);
-		tableObj_transferOrg.append(optionList);
-	});
-}
-
-function getSiteData(index, orgId) {
-	var contextPath = $("#contextPath").val();
-	var slefSites = "";
-	var selfSiteArray;
-	var url = contextPath + "/services/bases/dms/";
-	if (orgId == -1) {
-	} else {
-		url = url + orgId;
-	}
-	jQuery.ajax({
-		type : "GET",
-		url : url,
-		data : {
-			orgId : orgId
-		},
-		success : function(msg) {
-			jQuery.each(msg, function(infoIndex, info) {
-				if (info.code == 200) {
-					if (infoIndex == 0) {
-						slefSites = getSites(info);
-					} else {
-						slefSites = getSites(info) + " " + slefSites;
-					}
-				}
-			});
-			selfSiteArray = slefSites.split(" ");
-			if (index == 1) {
-				orginalDms(selfSiteArray);
-			} else if (index == 2) {
-				destinationDms(selfSiteArray);
-			} else if (index == 3) {
-				transferDms(selfSiteArray);
-			} else {
-				orginalDms(selfSiteArray);
-				destinationDms(selfSiteArray);
-				transferDms(selfSiteArray);
-			}
-		}
-	});
-}
-function orginalDms(selfSiteArray) {
-	$('#originalDmsName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#originalDmsName").val(result[0]);
-		$("#originalDmsId").val(result[1]);
-	});
-}
-function destinationDms(selfSiteArray) {
-	$('#destinationDmsName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#destinationDmsName").val(result[0]);
-		$("#destinationDmsId").val(result[1]);
-	});
-}
-function transferDms(selfSiteArray) {
-	$('#transferName').autocomplete(selfSiteArray, {
-		minChars : 0,
-		max : 20,
-		matchContains : true
-	}).result(function(event, data, formatted) {
-		var result = data[0].split("|");
-		$("#transferName").val(result[0]);
-		$("#transferId").val(result[1]);
-	});
-}
 function getSites(info) {
 	return info.siteName + "|" + info.siteCode + "|";
 }
@@ -179,21 +63,23 @@ function queryBtn(pageNo) {
 
 function getParams() {
 	var params = {};
-	params.originateOrg = $.trim($("#originateOrg").val());
-	params.originalDmsName = $.trim($("#originalDmsName").val());
-	params.originalDmsId = $.trim($("#originalDmsId").val());
-	params.updateOperatorName = $.trim($("#updateOperatorName").val());
+	params.originalProvinceAgencyCode = $('#switchSiteDom_start').sitePluginSelect('getSelected').provinceAgencyCode === undefined 
+		? '' : $('#switchSiteDom_start').sitePluginSelect('getSelected').provinceAgencyCode;
+	params.originalDmsId = $('#switchSiteDom_start').sitePluginSelect('getSelected').siteCode === undefined
+		? '' : $('#switchSiteDom_start').sitePluginSelect('getSelected').siteCode;
 
-	params.destinationOrg = $.trim($("#destinationOrg").val());
-	params.destinationDmsName = $.trim($("#destinationDmsName").val());
-	params.destinationDmsId = $.trim($("#destinationDmsId").val());
+	params.destinationProvinceAgencyCode = $('#switchSiteDom_dest').sitePluginSelect('getSelected').provinceAgencyCode === undefined 
+		? '' : $('#switchSiteDom_dest').sitePluginSelect('getSelected').provinceAgencyCode;
+	params.destinationDmsId = $('#switchSiteDom_dest').sitePluginSelect('getSelected').siteCode === undefined 
+		? '' : $('#switchSiteDom_dest').sitePluginSelect('getSelected').siteCode;
 
 	params.startDate = $.trim($("#startDate").val());
 	params.endDate = $.trim($("#endDate").val());
 
-	params.transferOrg = $.trim($("#transferOrg").val());
-	params.transferName = $.trim($("#transferName").val());
-	params.transferId = $.trim($("#transferId").val());
+	params.transferProvinceAgencyCode = $('#switchSiteDom_transfer').sitePluginSelect('getSelected').provinceAgencyCode === undefined 
+		? '' : $('#switchSiteDom_transfer').sitePluginSelect('getSelected').provinceAgencyCode;
+	params.transferId = $('#switchSiteDom_transfer').sitePluginSelect('getSelected').siteCode === undefined 
+		? '' : $('#switchSiteDom_transfer').sitePluginSelect('getSelected').siteCode;
 
 	params.yn = $.trim($("#yn").val());
 	return params;
@@ -337,15 +223,16 @@ function dateFormat(date) {
  */
 function do_modify(id){
 	var params = getParams();
-    var originateOrgName = $("#originateOrg").find("option:selected").text();
-    var destinationOrgName = $("#destinationOrg").find("option:selected").text();
-    var transferOrgName = $("#transferOrg").find("option:selected").text();
-	var url = $("#contextPath").val() + "/base/crossbox/toEdit?id=" + id + "&originateOrg="
-		+ params.originateOrg + "&originateOrgName=" + encodeURIComponent(encodeURIComponent(originateOrgName))+"&originalDmsName=" + encodeURIComponent(encodeURIComponent(params.originalDmsName)) + "&updateOperatorName="
-		+ encodeURIComponent(encodeURIComponent(params.updateOperatorName)) + "&destinationOrg=" + params.destinationOrg + "&destinationOrgName=" + encodeURIComponent(encodeURIComponent(destinationOrgName)) + "&destinationDmsName="
-		+ encodeURIComponent(encodeURIComponent(params.destinationDmsName)) +  "&startDate=" + params.startDate + "&endDate="
-		+ params.endDate + "&transferOrg=" + params.transferOrg + "&transferOrgName=" + encodeURIComponent(encodeURIComponent(transferOrgName)) +"&transferName="
-		+ encodeURIComponent(encodeURIComponent(params.transferName)) + "&yn=" + params.yn;
+	var url = $("#contextPath").val() + "/base/crossbox/toEdit?id=" + id 
+		+ "&originalProvinceAgencyCode=" + params.originalProvinceAgencyCode
+		+ "&originalDmsId=" + params.originalDmsId
+		+ "&destinationProvinceAgencyCode=" + params.destinationProvinceAgencyCode
+		+ "&destinationDmsId=" + params.destinationDmsId
+		+ "&transferProvinceAgencyCode=" + params.transferProvinceAgencyCode
+		+ "&transferId=" + params.transferId
+		+ "&startDate=" + params.startDate 
+		+ "&endDate=" + params.endDate 
+		+ "&yn=" + params.yn;
 
 	window.location.href = url;
 

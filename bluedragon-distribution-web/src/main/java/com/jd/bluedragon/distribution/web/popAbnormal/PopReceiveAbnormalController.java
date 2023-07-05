@@ -626,7 +626,6 @@ public class PopReceiveAbnormalController extends DmsBaseController {
 		// 验证登陆信息
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
-		List<ProvinceAgencyVO> provinceList = Lists.newArrayList();
 		
 		model.addAttribute("erpUser", erpUser);
 
@@ -663,7 +662,6 @@ public class PopReceiveAbnormalController extends DmsBaseController {
 			} else {
 				this.log.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
 				orgList = baseService.getAllOrg();
-				provinceList = super.selectAllProvince();
 			}
 
 			model.addAttribute("orgList", orgList);

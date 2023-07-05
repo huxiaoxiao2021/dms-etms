@@ -3,6 +3,8 @@ $(function () {
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
         'createSiteCodeName': 'reviewSiteCode',
+        'provinceAgencyCodeName': 'reviewProvinceAgencyCode',
+        'areaHubCodeName': 'reviewAreaHubCode',
         bootstrapMode: true
     });
     
@@ -460,6 +462,12 @@ $(function () {
                     var param = "";
                     if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
                         param = "&reviewOrgCode=" + params.reviewOrgCode;
+                    }
+                    if(params.reviewProvinceAgencyCode != undefined && params.reviewProvinceAgencyCode != "undefined"){
+                        param = "&reviewProvinceAgencyCode=" + params.reviewProvinceAgencyCode;
+                    }
+                    if(params.reviewAreaHubCode != undefined && params.reviewOrgCode != "reviewAreaHubCode"){
+                        param = "&reviewAreaHubCode=" + params.reviewAreaHubCode;
                     }
                     if(params.reviewSiteCode != undefined && params.reviewSiteCode != "undefined"){
                         param += "&reviewSiteCode=" +  params.reviewSiteCode;

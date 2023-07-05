@@ -170,16 +170,16 @@
 				<if test="orgCode != null" >
 					org_code,
 				</if>
-				<if test="provinceAgencyCode != null" >
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 					province_agency_code,
 				</if>
-				<if test="provinceAgencyName != null" >
+				<if test="provinceAgencyName != null and provinceAgencyName != ''" >
 					province_agency_name,
 				</if>
-				<if test="areaHubCode != null" >
+				<if test="areaHubCode != null and areaHubCode != ''" >
 					area_hub_code,
 				</if>
-				<if test="areaHubName != null" >
+				<if test="areaHubName != null and areaHubName != ''" >
 					area_hub_name,
 				</if>
 				<if test="warZoneCode != null" >
@@ -263,16 +263,16 @@
 				<if test="orgCode != null" >
 					#{orgCode,jdbcType=INTEGER},
 				</if>
-				<if test="provinceAgencyCode != null" >
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 					#{provinceAgencyCode,jdbcType=VARCHAR},
 				</if>
-				<if test="provinceAgencyName != null" >
+				<if test="provinceAgencyName != null and provinceAgencyName != ''" >
 					#{provinceAgencyName,jdbcType=VARCHAR},
 				</if>
-				<if test="areaHubCode != null" >
+				<if test="areaHubCode != null and areaHubCode != ''" >
 					#{areaHubCode,jdbcType=VARCHAR},
 				</if>
-				<if test="areaHubName != null" >
+				<if test="areaHubName != null and areaHubName != ''" >
 					#{areaHubName,jdbcType=VARCHAR},
 				</if>
 				<if test="warZoneCode != null" >
@@ -521,7 +521,7 @@
         <if test="orgCode != null" >
             and t.org_code = #{orgCode,jdbcType=INTEGER}
         </if>
-		<if test="provinceAgencyCode != null" >
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 		</if>
 		<if test="areaHubCode != null and areaHubCode != ''" >
@@ -688,7 +688,7 @@
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
-		<if test="provinceAgencyCode != null" >
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null" >
@@ -708,7 +708,7 @@
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
-		<if test="provinceAgencyCode != null" >
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 		</if>
 		<if test="areaHubCode != null and areaHubCode != ''" >
@@ -796,7 +796,7 @@
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
-		<if test="provinceAgencyCode != null" >
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
 			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 		</if>
 		<if test="areaHubCode != null and areaHubCode != ''" >

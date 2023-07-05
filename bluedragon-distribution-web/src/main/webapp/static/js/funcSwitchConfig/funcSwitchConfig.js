@@ -109,30 +109,6 @@ $(function () {
             title: '维度',
             align: 'center'
         }, {
-            field: 'orgId',
-            title: '区域ID',
-            align: 'center'
-        },{
-            field: 'orgName',
-            title: '区域名称',
-            align: 'center'
-        },{
-            field: 'provinceAgencyCode',
-            title: '省区编码',
-            align: 'center'
-        },{
-            field: 'provinceAgencyName',
-            title: '省区名称',
-            align: 'center'
-        },{
-            field: 'areaHubCode',
-            title: '枢纽编码',
-            align: 'center'
-        },{
-            field: 'areaHubName',
-            title: '枢纽名称',
-            align: 'center'
-        }, {
             field: 'siteCode',
             title: '站点ID',
             align: 'center'
@@ -374,8 +350,8 @@ function resetStatus(){
     $('#operateErp-EG').val(null);
     $('#menuCode-EG').attr("disabled",false);
     $('#dimensionCode-EG').attr("disabled",false);
-    $('#orgId-EG').attr("disabled",false);
     $('#siteCode-EG').attr("disabled",false);
+    $('#switchSiteDom_add').sitePluginSelect('cleanData');
 }
 
 function initSelect(){
@@ -533,10 +509,10 @@ function convert2param(){
     params["menuName"] = $('#menuCode-EG option:selected').text();
     params["dimensionCode"] = $('#dimensionCode-EG').val();
     params["dimensionName"] = $('#dimensionCode-EG option:selected').text();
-    params["orgId"] = $('#orgId-EG').val();
-    params["orgName"] = $('#orgId-EG option:selected').text();
-    params["siteCode"] = $('#siteCode-EG').val();
-    params["siteName"] = $('#siteCode-EG option:selected').text();
+    params["siteCode"] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteCode === undefined 
+        ? '' : $('#switchSiteDom_add').sitePluginSelect('getSelected').siteCode;
+    params["siteName"] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteName === undefined 
+        ? '' : $('#switchSiteDom_add').sitePluginSelect('getSelected').siteName;
     params["operateErp"] = $('#operateErp-EG').val();
     params["yn"] = $('#yn-EG option:selected').val();
     return params;

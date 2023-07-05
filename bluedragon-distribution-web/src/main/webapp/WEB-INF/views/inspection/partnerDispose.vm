@@ -16,7 +16,6 @@
             $('#switchSiteDom').sitePluginSelect({
                 'onlySiteSelect': true,
                 'provinceOrOrgMode': 'province',
-                'siteTypes' : [64],
                 'changeBtnShow': false
             });
         });

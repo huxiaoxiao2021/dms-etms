@@ -1,26 +1,17 @@
 package com.jd.bluedragon.distribution.base.controller;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jdl.basic.api.dto.site.AreaVO;
-import com.jdl.basic.api.dto.site.BasicSiteVO;
-import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
-import com.jdl.basic.api.dto.site.SiteQueryCondition;
-import com.jdl.basic.common.utils.Pager;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -37,10 +28,6 @@ public class DmsBaseController {
 	
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	private JyBasicSiteQueryManager jyBasicSiteQueryManager;
-	
     /**
      * 是否线上系统，没有配置则默认为true
      */
@@ -125,39 +112,5 @@ public class DmsBaseController {
 				.addAttribute("provinceAgencyName",provinceAgencyName)
 				.addAttribute("areaHubCode",areaHubCode)
 				.addAttribute("areaHubName",areaHubName);
-	}
-
-	/**
-	 * 获取所有省区
-	 * 
-	 * @return
-	 */
-	public List<ProvinceAgencyVO> selectAllProvince() {
-		return jyBasicSiteQueryManager.queryAllProvinceAgencyInfo();
-	}
-
-	/**
-	 * 获取省区下所有枢纽
-	 *
-	 * @param provinceAgencyCode
-	 * @return
-	 */
-	public List<AreaVO> selectAllArea(String provinceAgencyCode) {
-		return jyBasicSiteQueryManager.queryAllAreaInfo(provinceAgencyCode);
-	}
-
-	/**
-	 * 分页查询站点数据
-	 *
-	 * @param siteQueryPager
-	 * @return
-	 */
-	public List<BasicSiteVO> selectSiteList(Pager<SiteQueryCondition> siteQueryPager) {
-		List<BasicSiteVO> list = Lists.newArrayList();
-		Pager<BasicSiteVO> pagerResult = jyBasicSiteQueryManager.querySitePageByConditionFromBasicSite(siteQueryPager);
-		if(pagerResult != null && CollectionUtils.isNotEmpty(pagerResult.getData())){
-			list.addAll(pagerResult.getData());
-		}
-		return list;
 	}
 }
