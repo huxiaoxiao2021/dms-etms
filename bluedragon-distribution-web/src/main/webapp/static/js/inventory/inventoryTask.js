@@ -4,7 +4,13 @@ $(function () {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        //'createSiteCode': 65396
+        bootstrapMode:true,
+        siteChangeCallback : function (site){
+            if (site) {
+                var directionListUrl = '/services/inventory/getDirectionList/' + site.id;
+                findDirection("#direction-select", directionListUrl, "#query-form #directionCode");
+            }
+        }
     });
 
     var tableInit = function () {

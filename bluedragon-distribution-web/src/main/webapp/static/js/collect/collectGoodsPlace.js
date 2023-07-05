@@ -4,10 +4,8 @@ $(function() {
         'createSiteCode' : $("#loginUserCreateSiteCode").val(),
         'changeBtnShow': false,
         'provinceOrOrgMode' : 'province',
-        'provinceAgencyCodeReadOnly' : true, 
-        'areaHubCodeReadOnly' : true,  
-        'createSiteCodeReadOnly' : true,
-        'onlySiteAndProvinceSelect' : true
+        'onlySiteSelect' : true,
+        createSiteCodeReadOnly : true
     });
 	var saveUrl = '/collect/collectGoodsPlace/save';
     var updateUrl = '/collect/collectGoodsPlace/update';

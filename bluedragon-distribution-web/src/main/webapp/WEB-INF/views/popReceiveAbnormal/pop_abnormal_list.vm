@@ -21,7 +21,20 @@
 $(document).ready(function() {
 	//加载站点组件
 	$('#switchSiteDom').sitePluginSelect({
-		'text': '#2C9929'
+		#if($!{userInfo.siteCode})
+			'createSiteCode' : $!{userInfo.siteCode},
+			'provinceAgencyCodeReadOnly' : true,
+			'areaHubCodeReadOnly' : true,
+			'createSiteCodeReadOnly' : true,
+		#elseif( $!popAbnormalQuery.createSiteCode)
+			'createSiteCode' : $!popAbnormalQuery.createSiteCode,
+			'provinceAgencyCodeReadOnly' : true,
+			'areaHubCodeReadOnly' : true,
+			'createSiteCodeReadOnly' : true,
+		#end
+		'changeBtnShow': false,
+		'provinceOrOrgMode' : 'province',
+		'onlySiteAndProvinceSelect' : true
 	});
 
 	$("#mainType").change(function(){

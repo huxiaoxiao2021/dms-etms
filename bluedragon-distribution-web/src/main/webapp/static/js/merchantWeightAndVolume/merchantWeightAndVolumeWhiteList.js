@@ -11,7 +11,7 @@ $(function () {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        //'createSiteCode': 65396
+        bootstrapMode:true
     });
 
     var tableInit;

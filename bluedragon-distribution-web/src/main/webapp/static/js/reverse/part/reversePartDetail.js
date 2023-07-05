@@ -2,6 +2,7 @@ $(function() {
 
 	//加载站点组件
 	$('#switchSiteDom').sitePluginSelect({
+		bootstrapMode:true
 	});
 
 
@@ -74,6 +75,8 @@ $(function() {
 		        	params[_k] = _v;
 		        }
 		    });
+
+			console.log($('#switchSiteDom').sitePluginSelect('getSelected'));
 		    return params;
 		};
 		oTableInit.tableColums = [ /*{

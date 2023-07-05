@@ -25,28 +25,35 @@
 
                     <div class="row">
                         <div class="col-xs-12">
-                            <switchSiteDom id="switchSiteDom">
                             <div class="col-xs-4">
                                 <div class="form-group" >
-                                    <label class="control-label col-xs-4" for="site-select">区域 ：</label>
-                                    <div class=" col-xs-8">
-                                        <select id="site-group-select" class="form-control " name="site-group-select"
-                                                value=""></select>
-                                    </div>
-
+                                    <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
+                                    <switchSiteDom id="switchSiteDom">
+                                        <div class=" col-xs-4">
+                                            <select id="site-group-select" class="form-control " name="site-group-select"
+                                                    value=""></select>
+                                        </div>
+                                        <div class=" col-xs-4 ">
+                                            <select id="site-select" class="form-control" name="site-select" value=""></select>
+                                        </div>
+                                        <input type="hidden" id="createSiteCode" name="createSiteCode" class="form-control search-param " >
+                                    </switchSiteDom>
                                 </div>
                             </div>
                             <div class="col-xs-4">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
-                                    <div class=" col-xs-8 ">
-                                        <select id="site-select" class="form-control" name="site-select" value=""></select>
+                                    <label class="control-label col-xs-4">状态：</label>
+                                    <div class="col-xs-8">
+                                        <select type="text" class="form-control search-param  " id="status" name="status">
+                                            <option value="" selected="selected"></option>
+                                            <option value="1">已上架</option>
+                                            <option value="2">可发货</option>
+                                            #* <option value="3">强制可发货</option>*#
+                                            <option value="4">已发货</option>
+                                        </select>
                                     </div>
-                                    <input type="hidden" id="createSiteCode" name="createSiteCode"
-                                           class="form-control search-param " >
                                 </div>
                             </div>
-                            </switchSiteDom>
                         </div>
                     </div>
 
@@ -110,20 +117,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-4">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4">状态：</label>
-                                    <div class="col-xs-8">
-                                        <select type="text" class="form-control search-param  " id="status" name="status">
-                                            <option value="" selected="selected"></option>
-                                            <option value="1">已上架</option>
-                                            <option value="2">可发货</option>
-                                           #* <option value="3">强制可发货</option>*#
-                                            <option value="4">已发货</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+
                    		</div>
                		</div>
 

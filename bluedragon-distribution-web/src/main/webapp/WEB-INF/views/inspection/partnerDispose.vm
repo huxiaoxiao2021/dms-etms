@@ -82,8 +82,9 @@
                                 <th align="right">创建人ID：</th>
                                 <td><input id="createUserCode" name="createUserCode" type="text" class="textField28"/></td>
                                 <th align="right">分拣中心ID：</th>
-                                <switchSiteDom id = "switchSiteDom">
+
                                 <td>
+                                    <switchSiteDom id = "switchSiteDom">
 									<!--<input id="createSiteCode" name="createSiteCode" type="text" class="textField28"/>-->
 									<select id="createSiteCode" name="createSiteCode">
 										#if($null.isNull($!sortingCenters) || $!sortingCenters.size() != 1)
@@ -95,8 +96,9 @@
                         					#end
                     					#end
                                     </select>
+                                    </switchSiteDom>
 								</td>
-                                </switchSiteDom>
+
                                 <th align="right">三方ID：</th>
                                 <td><input id="receiveSiteCode" name="receiveSiteCode" type="text" class="textField28"/></td>
             					<th align="right">最后操作人ID：</th>

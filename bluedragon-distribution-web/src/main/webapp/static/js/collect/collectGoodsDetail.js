@@ -5,10 +5,8 @@ $(function() {
         'createSiteCode' : $("#loginUserCreateSiteCode").val(),
         'changeBtnShow': false,
         'provinceOrOrgMode' : 'province',
-        'provinceAgencyCodeReadOnly' : true,
-        'areaHubCodeReadOnly' : true,
         'createSiteCodeReadOnly' : true,
-        'onlySiteAndProvinceSelect' : true
+        'onlySiteSelect' : true
     });
 	var saveUrl = '/collect/collectGoodsDetail/save';
 	var deleteUrl = '/collect/collectGoodsDetail/deleteByIds';

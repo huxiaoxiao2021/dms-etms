@@ -1,7 +1,10 @@
 $(function() {
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        //'createSiteCode': 65396
+        'bootstrapMode': true,
+        'onlySiteSelect' : true,
+        'changeBtnShow' : false, //切换按钮是否显示
+        'provinceOrOrgMode' : 'province' // 默认显示org模式，province 时显示省区模式
     });
 	var saveUrl = '/storage/storagePackageM/save';
 	var deleteUrl = '/storage/storagePackageM/deleteByIds';

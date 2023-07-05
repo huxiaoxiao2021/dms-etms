@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.reverse.part.domain;
 
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
 /**
@@ -11,6 +13,7 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
  * @date 2019年02月12日 11:40:45
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ReversePartDetail extends DbEntity {
 
 	private static final long serialVersionUID = 1L;

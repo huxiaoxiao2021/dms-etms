@@ -39,6 +39,8 @@
         onlySiteAndProvinceSelect : false, //只显示站点和省区条件
         changeBtnShow : true, //切换按钮是否显示
         provinceOrOrgMode : 'org', // 默认显示org模式，province 时显示省区模式
+        bootstrapMode : false, // bootstrap模式
+        labelName : '分拣中心：', // 组件名字
         siteChangeCallback : function () {}
     };
     var methods = {
@@ -121,25 +123,50 @@
             //tmp.push('<table>');
             //tmp.push('<tr>')
             //tmp.push('<td>')
+            let bootstrapMode = this._options.bootstrapMode;
 
-            tmp.push('<switchMode>');
-            tmp.push('<a class="changeSiteSwitchModeBtn" nowSiteSwitchMode="org" style="cursor:pointer">切换省区</a>');
-            tmp.push('</switchMode>');
+            var btnHtml = '<switchMode><a class="changeSiteSwitchModeBtn"  nowSiteSwitchMode="org" style="cursor:pointer">切换省区</a></switchMode>';
 
+            if(bootstrapMode){
+                var labelHtml = this._targetDom.prev("label").html();
+                labelHtml = btnHtml + labelHtml;
+                this._targetDom.prev("label").html(labelHtml);
+            }else{
+                tmp.push(btnHtml);
+            }
+
+            if(bootstrapMode){
+
+            }
             //tmp.push('</td>')
 
             //省区模式
             //tmp.push('<td>')
-
             tmp.push('<province>');
+
+            if(bootstrapMode){
+
+            }
             tmp.push('<select class="provinceSelect '+this._options.provinceAgencyCodeClass+'"></select>');
+
+            if(bootstrapMode){
+
+            }
             tmp.push('<areaHub><select class="areaSelect '+this._options.areaHubCodeClass+'"></select></areaHub>');
+
+            if(bootstrapMode){
+            }
             tmp.push('<select  class="siteSelect '+this._options.createSiteCodeClass+'"></select>');
+
             tmp.push('<input type="hidden" id="'+this._options.provinceAgencyCodeName+'"  name="'+this._options.provinceAgencyCodeName+'" class="form-control search-param edit-param">');
             tmp.push('<input type="hidden" id="'+this._options.areaHubCodeName+'" name="'+this._options.areaHubCodeName+'" class="form-control search-param edit-param">');
             tmp.push('<input type="hidden" id="'+this._options.createSiteCodeName+'"  name="'+this._options.createSiteCodeName+'" class="form-control search-param edit-param">');
             tmp.push('<input type="hidden" id="'+this._options.createSiteNameName+'"  name="'+this._options.createSiteNameName+'" class="form-control search-param edit-param">');
             tmp.push('<input type="hidden" id="'+this._options.createDmsSiteCodeName+'"  name="'+this._options.createDmsSiteCodeName+'" class="form-control search-param edit-param">');
+
+            if(bootstrapMode){
+
+            }
             tmp.push('</province>');
             //tmp.push('</td>')
 
@@ -154,6 +181,10 @@
 
             //tmp.push('</table>');
 
+            if(bootstrapMode){
+
+            }
+
             this._targetDom.html(tmp.join(''));
 
         },
@@ -162,12 +193,16 @@
             if(this._options.provinceOrOrgMode == 'org'){
                 this._hideProvince();
             }else{
-                this._changeSiteSwitchModeClick();
+                this._changeSiteSwitchModeClick(this._options.bootstrapMode?this._targetDom.prev("label"):this._targetDom);
             }
             
             //按钮显示隐藏
             if(!this._options.changeBtnShow){
-                this._targetDom.find('switchMode').hide();
+                if(this._options.bootstrapMode){
+                    this._targetDom.prev('label').find('switchMode').hide();
+                }else{
+                    this._targetDom.find('switchMode').hide();
+                }
             }
         },
         _initParams : function () {
@@ -187,7 +222,10 @@
             //切换按钮
             let that = this;
             this._targetDom.find('.changeSiteSwitchModeBtn').on('click',function (e) {
-                that._changeSiteSwitchModeClick();
+                that._changeSiteSwitchModeClick(that._targetDom);
+            });
+            this._targetDom.prev('label').find('.changeSiteSwitchModeBtn').on('click',function (e) {
+                that._changeSiteSwitchModeClick(that._targetDom.prev('label'));
             });
 
             //省区变化
@@ -260,12 +298,13 @@
                 this._targetDom.find('province [name='+this._options.createDmsSiteCodeName+']').val(site[0].dmsSiteCode);
             }
             if(this._options.siteChangeCallback){
-                this._options.siteChangeCallback(this);
+                this._options.siteChangeCallback(site[0]);
             }
         },
-        _changeSiteSwitchModeClick : function (){
+        _changeSiteSwitchModeClick : function (_target){
+
             //切换模式绑定事件
-            var changeSiteSwitchModeBtn = this._targetDom.find('.changeSiteSwitchModeBtn');
+            var changeSiteSwitchModeBtn = _target.find('.changeSiteSwitchModeBtn');
             if(changeSiteSwitchModeBtn.attr('nowSiteSwitchMode') == 'org'){
                 //由机构切换到省区
                 //调整原查询条件属性值

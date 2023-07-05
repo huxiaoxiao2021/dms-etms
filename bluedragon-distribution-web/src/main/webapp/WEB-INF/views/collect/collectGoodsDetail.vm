@@ -24,28 +24,22 @@
                 <fieldset>
                     <div class="row">
                         <div class="col-xs-12">
-                            <switchSiteDom id="switchSiteDom">
-                            <div class="col-xs-4">
-                                <div class="form-group" >
-                                    <label class="control-label col-xs-4" for="site-select">区域 ：</label>
-                                    <div class=" col-xs-8">
-                                        <select id="site-group-select" class="form-control " name="site-group-select"
-                                                value=""></select>
-                                    </div>
 
-                                </div>
-                            </div>
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
-                                    <div class=" col-xs-8 ">
-                                        <select id="site-select" class="form-control" name="site-select" value=""></select>
-                                    </div>
-                                    <input type="hidden" id="createSiteCode" name="createSiteCode"
-                                           class="form-control search-param " >
+                                    <switchSiteDom id="switchSiteDom">
+                                        <div class=" col-xs-8 ">
+                                            <select id="site-group-select" class="form-control " name="site-group-select"
+                                                    value=""></select>
+                                            <select id="site-select" class="form-control" name="site-select" value=""></select>
+                                        </div>
+                                        <input type="hidden" id="createSiteCode" name="createSiteCode"
+                                               class="form-control search-param " >
+                                    </switchSiteDom>
                                 </div>
                             </div>
-                            </switchSiteDom>
+
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4">货位类型：</label>

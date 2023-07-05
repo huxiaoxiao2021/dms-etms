@@ -3,7 +3,8 @@ $(function() {
     $('#switchSiteDom').sitePluginSelect({
         'createSiteCodeName': 'dmsSiteCode',
         'changeBtnShow': false,
-        'provinceOrOrgMode': 'province'
+        'provinceOrOrgMode': 'province',
+        onlySiteSelect: true
     });
     var saveUrl = '/base/dmsStorageArea/save';
     var deleteUrl = '/base/dmsStorageArea/deleteByIds';
