@@ -48,6 +48,12 @@
         init : function(_options){
             new TypeSelectClass(_options,$(this));
         },
+        cleanData : function(){
+            $(this).find('province .siteSelect').val([]).trigger('change');
+            $(this).find('province .areaSelect').val([]).trigger('change');
+            $(this).find('province .provinceSelect').val([]).trigger('change');
+
+        },
         getSelected : function (filedName){
             //获取选中数据，存在入参时只返回此字段
             try{
@@ -231,13 +237,13 @@
             //省区变化
             this._targetDom.find('province .provinceSelect').on("change", function (e) {
                 that._provinceSelectChange();
-                that._targetDom.find('province .areaSelect').val(that._targetDom.find('province .areaSelect').val()).trigger('change');
-                that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
+                //that._targetDom.find('province .areaSelect').val(that._targetDom.find('province .areaSelect').val()).trigger('change');
+                //that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
             });
             //枢纽变化
             this._targetDom.find('province .areaSelect').on("change", function (e) {
                 that._areaHubChange();
-                that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
+                //that._targetDom.find('province .siteSelect').val(that._targetDom.find('province .siteSelect').val()).trigger('change');
             });
             //站点变化
             this._targetDom.find('province .siteSelect').on("change", function (e) {
@@ -289,6 +295,7 @@
 
         },
         _siteChange : function (){
+            debugger
             //站点变化事件
             var site = this._targetDom.find('province .siteSelect').select2("data");
             //var _s = this._targetDom.find('province .siteSelect').val();
@@ -296,6 +303,10 @@
                 this._targetDom.find('province [name='+this._options.createSiteCodeName+']').val(site[0].id);
                 this._targetDom.find('province [name='+this._options.createSiteNameName+']').val(site[0].siteName);
                 this._targetDom.find('province [name='+this._options.createDmsSiteCodeName+']').val(site[0].dmsSiteCode);
+            }else{
+                this._targetDom.find('province [name='+this._options.createSiteCodeName+']').val(null);
+                this._targetDom.find('province [name='+this._options.createSiteNameName+']').val(null);
+                this._targetDom.find('province [name='+this._options.createDmsSiteCodeName+']').val(null);
             }
             if(this._options.siteChangeCallback){
                 this._options.siteChangeCallback(site[0]);
