@@ -359,7 +359,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		//判断上次签退是否人脸识别自动签退
 		if(lastUnSignOutData == null) {
 			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
-			query.setUserCode(userCode);
+			lastSignQuery.setUserCode(userCode);
 			JdCResponse<UserSignRecordData> lastSignResult = this.userSignRecordService.queryLastUserSignRecordData(lastSignQuery);
 			UserSignRecordData lastSignData = null;
 			if(lastSignResult != null
