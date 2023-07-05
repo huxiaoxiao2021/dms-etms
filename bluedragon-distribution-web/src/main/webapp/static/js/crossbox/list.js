@@ -161,6 +161,10 @@ function funReset() {
 	$("#updateOperatorName").val("");
 	$("#yn").val(-1);
 	$("#queryYn").val(-1);
+
+	$('#switchSiteDom_start').sitePluginSelect('cleanData');
+	$('#switchSiteDom_dest').sitePluginSelect('cleanData');
+	$('#switchSiteDom_transfer').sitePluginSelect('cleanData');
 }
 function addBtn() {
 	var contextPath = $("#contextPath").val();
