@@ -285,6 +285,7 @@ public class SendCodeResource {
         BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
         /** 校验参数*/
         if (!batchGenerateCheckParam(request, response)) {
+            log.error("SendCodeResource.batchGenerate:校验参数失败，req{},res={}", JsonHelper.toJson(request), JsonHelper.toJson(response));
             return response;
         }
         try {
@@ -307,6 +308,7 @@ public class SendCodeResource {
             response.setCode(200);
             response.setSendCodes(sendCodes);
         } catch (Exception e) {
+            log.error("SendCodeResource.batchGenerate:服务异常，req{},errMsg={}", JsonHelper.toJson(request), e.getMessage(), e);
             response.setCode(CODE_CREATE_SEND_CODE_ERROR);
             response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
             log.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
