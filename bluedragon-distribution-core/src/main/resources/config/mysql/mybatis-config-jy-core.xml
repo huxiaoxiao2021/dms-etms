@@ -38,6 +38,7 @@
 		<mapper resource="mappers/mysql/jy/seal/JyAppDataSealCodeMapper.xml" />
 		<mapper resource="mappers/mysql/jy/seal/JyAppDataSealSendCodeMapper.xml" />
 		<mapper resource="mappers/mysql/jy/group/JyTaskGroupMemberMapper.xml" />
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskUnloadVehicleMapper.xml" />
 		<mapper resource="mappers/mysql/jy/work/JyBizTaskWorkGridManagerMapper.xml" />
         <mapper resource="mappers/mysql/jy/work/JyWorkGridManagerCaseMapper.xml" />
 		<mapper resource="mappers/mysql/jy/work/JyWorkGridManagerCaseItemMapper.xml" />
