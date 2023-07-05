@@ -1351,6 +1351,19 @@ public class UccPropertyConfiguration {
      */
     private String exceptionSubmitCheckWaybillInterceptTypes;
 
+    /**
+     * 批量生成批次号时：最大数量限制
+     */
+    private Integer batchGenerateSendCodeMaxNum;
+
+    public Integer getBatchGenerateSendCodeMaxNum() {
+        return batchGenerateSendCodeMaxNum;
+    }
+
+    public void setBatchGenerateSendCodeMaxNum(Integer batchGenerateSendCodeMaxNum) {
+        this.batchGenerateSendCodeMaxNum = batchGenerateSendCodeMaxNum;
+    }
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }

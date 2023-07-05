@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.request.sendcode.SendCodeRequest;
@@ -25,9 +26,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -91,7 +90,9 @@ public class SendCodeResource {
     
     @Autowired
     private SendCodeGateWayService sendCodeGateWayService;
-    
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @GET
     @Path("/trans/{waybillCode}")
@@ -278,6 +279,9 @@ public class SendCodeResource {
     @Path("/sendCode/batchGenerate")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.batchGenerate", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
+        if(log.isInfoEnabled()) {
+            log.info("SendCodeResource.batchGenerate，request={}", JsonHelper.toJson(request));
+        }
         BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
         /** 校验参数*/
         if (!batchGenerateCheckParam(request, response)) {
@@ -318,6 +322,17 @@ public class SendCodeResource {
             log.warn("生成数量Quantity:{}非法！", request.getQuantity());
             return false;
         }
+        int maxQuantity = uccPropertyConfiguration.getBatchGenerateSendCodeMaxNum();
+        if(maxQuantity <= 0 || maxQuantity > 500) {
+            maxQuantity = 100;
+        }
+        //目前打印客户端写死最大支持100   20230705
+        if(request.getQuantity() > maxQuantity) {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("生成数量最大支持" + maxQuantity);
+            return false;
+        }
+
         if (request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("分拣中心编号非法！");
