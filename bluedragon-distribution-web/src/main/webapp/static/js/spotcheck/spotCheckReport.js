@@ -2,7 +2,8 @@ $(function () {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
-        'createSiteCodeName': 'reviewSiteCode'
+        'createSiteCodeName': 'reviewSiteCode',
+        bootstrapMode: true
     });
     
     var queryUrl = '/spotCheckReport/listData';

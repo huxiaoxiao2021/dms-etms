@@ -23,26 +23,26 @@
 
                 <div class="row">
                     <div class="col-xs-12 ">
-                        <switchSiteDom id="switchSiteDom">
-                        <div class="col-xs-4">
+
+                        <div class="col-xs-8">
                             <div class="form-group">
-                                <label class="control-label col-xs-4" for="site-select">区域 ：</label>
-                                <div class=" col-xs-6">
-                                    <select id="dmsArea" class="form-control search-params " name="dmsArea"
-                                            value=""></select>
-                                </div>
+
+                                <label class="control-label col-xs-2" for="site-select">分拣中心 ：</label>
+                                <switchSiteDom id="switchSiteDom">
+                                    <div class=" col-xs-3">
+                                        <select id="dmsArea" class="form-control search-params " name="dmsArea"
+                                                value=""></select>
+                                    </div>
+                                    <div class=" col-xs-3">
+
+                                        <select id="dmsSiteCode" class="form-control search-param " name="dmsSiteCode"
+                                                value=""></select>
+                                    </div>
+                                </switchSiteDom>
                             </div>
                         </div>
-                        <div class="col-xs-4">
-                            <div class="form-group">
-                                <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
-                                <div class=" col-xs-6">
-                                    <select id="dmsSiteCode" class="form-control search-param " name="dmsSiteCode"
-                                            value=""></select>
-                                </div>
-                            </div>
-                        </div>
-                        </switchSiteDom>
+
+
                     </div>
                 </div>
 

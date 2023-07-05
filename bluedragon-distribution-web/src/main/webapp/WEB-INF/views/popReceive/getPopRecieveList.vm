@@ -21,12 +21,14 @@ return $(obj).html("<option value=''>请选择</option>");
 $(document).ready(function() {
 
     $('#switchSiteDom').sitePluginSelect({
-        'createSiteCode' : $!{defaultSiteCode},
+        #if($!{defaultSiteCode})
+            'createSiteCode' : $!{defaultSiteCode},
+            'provinceAgencyCodeReadOnly' : true,
+            'areaHubCodeReadOnly' : true,
+            'createSiteCodeReadOnly' : true,
+        #end
         'changeBtnShow': false,
         'provinceOrOrgMode' : 'province',
-        'provinceAgencyCodeReadOnly' : true,
-        'areaHubCodeReadOnly' : true,
-        'createSiteCodeReadOnly' : true,
         'onlySiteAndProvinceSelect' : true
     });
 

@@ -9,9 +9,11 @@ $(function () {
 
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
+        'bootstrapMode':true,
         'createSiteCodeName': 'siteCode',
         'changeBtnShow': false,
-        'provinceOrOrgMode' : 'province'
+        'provinceOrOrgMode' : 'province',
+        'onlySiteSelect':true
     });
 
     $('#switchSiteDom_add').sitePluginSelect({
