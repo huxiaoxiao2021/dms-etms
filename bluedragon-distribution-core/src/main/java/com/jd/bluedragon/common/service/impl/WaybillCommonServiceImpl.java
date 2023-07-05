@@ -2108,7 +2108,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //“碎” 在 “尊” 的标识位追加
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC_TEXT) );
         }
         //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){

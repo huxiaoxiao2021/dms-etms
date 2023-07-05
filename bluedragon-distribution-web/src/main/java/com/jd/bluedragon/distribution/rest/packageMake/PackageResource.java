@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,6 +265,9 @@ public class PackageResource {
         try {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
             saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getPackageCode());
+            if(StringUtils.isBlank(saveDisposeAfterInterceptMsgDto.getBarCode())){
+                saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getWaybillCode());
+            }
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.REPRINT));
             saveDisposeAfterInterceptMsgDto.setOperateTime(System.currentTimeMillis());
             saveDisposeAfterInterceptMsgDto.setOperateUserErp(rePrintCallBackRequest.getUserErp());

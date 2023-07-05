@@ -236,7 +236,7 @@
 		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
-		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
+		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:'2'}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
 		<property name="autoPackageSendInspectionSiteCodes" value="${autoPackageSendInspectionSiteCodes:3}"/>
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
@@ -266,6 +266,8 @@
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -564,6 +566,8 @@
 				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
