@@ -73,6 +73,10 @@ public class DockInfoConverter {
         po.setSiteName(dockInfoEntity.getSiteName());
         po.setOrgId(dockInfoEntity.getOrgId());
         po.setOrgName(dockInfoEntity.getOrgName());
+        po.setProvinceAgencyCode(dockInfoEntity.getProvinceAgencyCode());
+        po.setProvinceAgencyName(dockInfoEntity.getProvinceAgencyName());
+        po.setAreaHubCode(dockInfoEntity.getAreaHubCode());
+        po.setAreaHubName(dockInfoEntity.getAreaHubName());
         if (!Objects.equals(dockInfoEntity.getDockType(), null)) {
             po.setDockType(dockInfoEntity.getDockType().getType());
         }

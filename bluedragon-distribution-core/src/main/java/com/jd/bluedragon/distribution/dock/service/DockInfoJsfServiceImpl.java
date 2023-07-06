@@ -91,10 +91,6 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("未输入有效的站点ID");
             return response;
         }
-        if (Objects.isNull(dockInfoEntity.getOrgId())) {
-            response.toError("未输入有效的站点ID");
-            return response;
-        }
         if (Objects.isNull(dockInfoEntity.getDockCode()) || !checkDockCode(dockInfoEntity.getDockCode())) {
             response.toError("未输入有效的月台编号");
             return response;
@@ -137,7 +133,6 @@ public class DockInfoJsfServiceImpl implements DockService{
         DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(needDealItem);
         if (!Objects.isNull(dockBaseInfoPo)
                 && Objects.equals(dockBaseInfoPo.getSiteCode(), dockInfoEntity.getSiteCode())
-                && Objects.equals(dockBaseInfoPo.getOrgId(), dockInfoEntity.getOrgId())
                 && Objects.equals(dockBaseInfoPo.getDockCode(), dockInfoEntity.getDockCode())
         ) {
             response.toError("已经存在相同的月台编号，请重新维护");
