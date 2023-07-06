@@ -225,7 +225,18 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
-
+    /**
+     * 快运产品-特快零担（fr-m-0001)
+     */
+    public static final String PRODUCT_TYPE_KY_001 = "fr-m-0001";
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0002 = "fr-m-0002"; 
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
     /**
      * 工种类型
      */
@@ -428,6 +439,18 @@ public class DmsConstants {
      * 系统自动操作人
      */
     public static final String SYS_AUTO_USER_CODE = "system";    
+    /**
+     * 用户编码-超时自动签退
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_TIME_OUT = "sys.dms";
+    /**
+     * 用户编码-接收attend_detail_change_topic消息，自动签退标识
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_FORM_RZ = "sys_attend_topic";
+    /**
+     * 用户名称-人脸识别
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
     /**
      * 暂存类型枚举值
      */

@@ -33,6 +33,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.util.DateUtil;
@@ -504,6 +505,30 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		boolean hasOverLengthAndWeight = false;
 		boolean isPackageAndOverFlag = false;
 		List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
+		//判断是否快运产品
+		Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+		boolean isCPKYLD = false;
+		if(waybill != null ) {
+			String waybillSign =  waybill.getWaybillSign();
+			String productType = null;
+			if(waybill.getWaybillExt() != null) {
+				productType = waybill.getWaybillExt().getProductType();
+			}
+			isCPKYLD = BusinessUtil.isCPKYLD(waybillSign) && 
+					(DmsConstants.PRODUCT_TYPE_KY_001.equals(productType)
+							|| DmsConstants.PRODUCT_TYPE_KY_0002.equals(productType)
+							|| DmsConstants.PRODUCT_TYPE_KY_0004.equals(productType));
+		}
+		//非快运产品
+		if(!isCPKYLD) {
+			if(Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+				result.toFail("非快运单据，暂不支持增加超长超重服务!");
+			}else {
+				weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+				result.toSuccess("验证成功！");
+			}
+			return result;
+		}
 		//按包裹-判断是否需要自动选择超长超重
 		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
 				&& !Boolean.TRUE.equals(condition.getTotalVolumeFlag())) {
@@ -538,13 +563,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			result.toSuccess("验证成功！");
 			return result;
 		}
-		Map<String,String> overLengthAndWeightTypesMap = null;
 		//调用运单接口查询-增值服务信息
 		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
 		if(vasResult.getData() != null) {
 			WaybillVasDto vasData = vasResult.getData();
 			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
-				overLengthAndWeightTypesMap = vasData.getExtendMap();
 				hasOverLengthAndWeight = true;
 			}
 		}

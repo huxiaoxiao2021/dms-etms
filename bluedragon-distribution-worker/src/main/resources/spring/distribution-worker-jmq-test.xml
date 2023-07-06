@@ -647,6 +647,10 @@
         <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>
     </jmq:consumer>
 
+    <!--  人资考勤数据-topic自动签退  -->
+    <jmq:consumer id="jmq.attendDetailChangeFenjianTopicConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.attendDetailChangeFenjianTopic}" listener="attendDetailChangeTopicConsumer"/>
+    </jmq:consumer>
     <!--  异常-报废通知消费  -->
     <jmq:consumer id="jmq.dmsExScrapNoticeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.scrapNotice}" listener="dmsExScrapNoticeConsumer"/>

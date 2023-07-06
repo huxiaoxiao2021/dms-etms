@@ -9,12 +9,14 @@ import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -29,6 +31,8 @@ import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -56,6 +60,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
+	
+	@Value("${beans.userSignGatewayService.needCheckAutoSignOutHours:2}")
+	private int needCheckAutoSignOutHours;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -347,6 +354,25 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
             argsMap.put(HintArgsConstants.ARG_FIRST, workName);
             String defaultMsg = String.format(HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN_MSG, workName);
 			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
+			return result;
+		}
+		//判断上次签退是否人脸识别自动签退
+		if(lastUnSignOutData == null) {
+			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
+			lastSignQuery.setUserCode(userCode);
+			JdCResponse<UserSignRecordData> lastSignResult = this.userSignRecordService.queryLastUserSignRecordData(lastSignQuery);
+			UserSignRecordData lastSignData = null;
+			if(lastSignResult != null
+					&&lastSignResult.getData() != null) {
+				lastSignData = lastSignResult.getData();
+				//需要判断当前时间与系统自动签退时间是否小于2小时，若小于2小时,需要确认
+				Date checkTime = DateHelper.addHours(new Date(), -needCheckAutoSignOutHours);
+				if(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ.equals(lastSignData.getUpdateUser())
+						&& lastSignData.getSignOutTime() != null
+						&& lastSignData.getSignOutTime().after(checkTime)) {
+					result.toConfirm(HintCodeConstants.CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG);	
+				}
+			}
 		}
 		return result;
 	}
