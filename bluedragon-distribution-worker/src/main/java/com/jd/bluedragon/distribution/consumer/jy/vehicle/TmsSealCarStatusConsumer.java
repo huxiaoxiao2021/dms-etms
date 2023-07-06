@@ -145,12 +145,12 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return true;
         }
         SealCarDto sealCarInfoBySealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(tmsSealCarStatus.getSealCarCode());
-        if(sealCarInfoBySealCarCodeOfTms == null){
-            logger.error("从运输未获取到封车信息,{}",JsonHelper.toJson(tmsSealCarStatus));
+        Integer startSiteId = sealCarInfoBySealCarCodeOfTms.getStartSiteId();
+        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
+        if(sealCarInfoBySealCarCodeOfTms == null || startSiteId == null || endSiteId == null){
+            logger.error("从运输未获取到封车信息以及关键信息为空,{}",JsonHelper.toJson(tmsSealCarStatus));
             return false;
         }
-        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
-
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
 
