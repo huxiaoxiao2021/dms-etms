@@ -100,6 +100,7 @@ public class LabelPrintFileResourceTest extends TestCase {
         		"test",
         		"dmsClient40","dmsClient42","dmsClient43",
         		"dmsWeb",
+        		"automatic-sort-service","automatic-device",
         		"sms",
         		};
         for(String secretKey:secretKeys) {
