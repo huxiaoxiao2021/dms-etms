@@ -296,6 +296,8 @@
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
 		<property name="beforeSealVehicleLoadRateLimit" value="${beforeSealVehicleLoadRateLimit:10.00}"/>
 		<property name="beforeSealVehicleLoadRateLimitCheckSwitch" value="${beforeSealVehicleLoadRateLimitCheckSwitch:true}"/>
+		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -595,6 +597,8 @@
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimitCheckSwitch</value>
+				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
+
 			</list>
 		</property>
 	</bean>
