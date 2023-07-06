@@ -291,7 +291,15 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 		operatorData.setOperatorId(request.getOperatorId());
 		tWaybillStatus.setOperatorData(operatorData);
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
-            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
+            String boardReceiveSiteName = request.getReceiveSiteName();
+            if(StringUtils.isBlank(boardReceiveSiteName)) {
+                //兜底逻辑，上游没有传流向时，发送全流程跟踪查库获取板流向
+                Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
+                if (result != null && result.getCode() == ResponseEnum.SUCCESS.getIndex() && result.getData() != null) {
+                    boardReceiveSiteName = result.getData().getDestination();
+                }
+            }
+            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + boardReceiveSiteName);
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
             tWaybillStatus.setRemark("已取消组板，板号" + request.getBoardCode());
         }

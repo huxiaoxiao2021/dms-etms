@@ -1097,7 +1097,7 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
-    </jsf:consumer>     
+    </jsf:consumer>
     <!--  任务管理-线上化case-jsf服务  -->
     <jsf:consumer id="workGridManagerCaseJsfService"
                   interface="com.jdl.basic.api.service.work.WorkGridManagerCaseJsfService"
