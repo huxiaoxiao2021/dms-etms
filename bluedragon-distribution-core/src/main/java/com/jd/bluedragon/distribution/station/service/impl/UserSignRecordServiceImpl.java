@@ -1661,5 +1661,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (ObjectHelper.isEmpty(query.getUserCode())){
 			throw new JyBizException("参数错误：用户编码为空！");
 		}
+		if (ObjectHelper.isEmpty(query.getSiteCode())){
+			throw new JyBizException("参数错误：场地编码为空！");
+		}
 	}
 }

@@ -1048,6 +1048,7 @@
 			r.ref_station_key
 		FROM user_sign_record r
 		WHERE r.sign_date BETWEEN #{signDateStart} AND #{signDateEnd}
+		AND r.site_code = #{siteCode}
 		AND r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
 		AND TIMESTAMPDIFF(HOUR, r.sign_in_time, r.sign_out_time) >1
 		GROUP BY r.sign_date;
