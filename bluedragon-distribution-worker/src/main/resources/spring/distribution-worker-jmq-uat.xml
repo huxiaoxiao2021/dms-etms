@@ -601,6 +601,6 @@
     <!--  人资考勤数据-topic自动签退  -->
     <jmq:consumer id="jmq.attendDetailChangeFenjianTopicConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.attendDetailChangeFenjianTopic}" listener="attendDetailChangeTopicConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
 </beans>
 

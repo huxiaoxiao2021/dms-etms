@@ -338,7 +338,7 @@
                   alias="${dms.jsf.alias}"
                   ref="workGridManagerReportJsfService"
                   server="dmsjsf">
-    </jsf:provider>    
+    </jsf:provider>
     <!-- 上岗码查询JSF服务 -->
     <jsf:provider id="positionQueryJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
