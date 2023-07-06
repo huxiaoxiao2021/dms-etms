@@ -633,7 +633,7 @@
     <!--  人资考勤数据-topic自动签退  -->
     <jmq:consumer id="jmq.attendDetailChangeFenjianTopicConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.attendDetailChangeFenjianTopic}" listener="attendDetailChangeTopicConsumer"/>
-    </jmq:consumer> 
+    </jmq:consumer>
     <!--  异常-报废审批处理自消费  -->
     <jmq:consumer id="jmq.dmsExScrapApproveSelfConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.syncScrapApprove}" listener="dmsExScrapApproveSelfConsumer"/>
