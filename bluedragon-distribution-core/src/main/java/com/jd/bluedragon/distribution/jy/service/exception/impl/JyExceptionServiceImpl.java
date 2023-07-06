@@ -173,7 +173,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         //三无异常处理逻辑
-        if (!BusinessUtil.isSanWuCode(req.getBarCode()) || !WaybillUtil.isPackageCode(req.getBarCode()) || !WaybillUtil.isWaybillCode(req.getBarCode())) {
+        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
             return JdCResponse.fail("请扫描三无号或包裹号或运单号!");
         }
 
