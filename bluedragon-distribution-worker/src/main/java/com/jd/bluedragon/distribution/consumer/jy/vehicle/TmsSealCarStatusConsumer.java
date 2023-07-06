@@ -149,7 +149,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
         if(sealCarInfoBySealCarCodeOfTms == null || startSiteId == null || endSiteId == null){
             logger.error("从运输未获取到封车信息以及关键信息为空,{}",JsonHelper.toJson(tmsSealCarStatus));
-            return false;
+            return true;
         }
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
