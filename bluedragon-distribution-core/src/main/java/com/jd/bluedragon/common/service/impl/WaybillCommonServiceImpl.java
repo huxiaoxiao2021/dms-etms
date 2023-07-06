@@ -1031,6 +1031,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
         }
+        /*** 产品类型为ed-m-0059时:电商特惠 */
+        if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
+        }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
             if(StringHelper.isNotEmpty(transportMode)){
