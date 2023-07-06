@@ -12,4 +12,7 @@
     <bean id="jySendProductAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoBak">
         <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
     </bean>
+    <bean id="jySendPredictAggsDaoBak" class="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDaoBak">
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateBak"/>
+    </bean>
 </beans>

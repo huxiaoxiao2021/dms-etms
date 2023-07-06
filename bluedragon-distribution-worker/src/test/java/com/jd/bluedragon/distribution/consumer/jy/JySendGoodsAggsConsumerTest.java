@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.agg.JySendGoodsAggsMainConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsBakConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.agg.JySendProductAggsMainConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.agg.*;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
@@ -99,5 +96,32 @@ public class JySendGoodsAggsConsumerTest {
             logger.error("服务异常!", e);
             Assert.fail();
         }
+    }
+
+    @Autowired
+    private JySendPredictAggsMainConsumer jySendPredictAggsMainConsumer;
+
+    @Autowired
+    private  JySendPredictAggsBakConsumer jySendPredictAggsBakConsumer;
+
+    @Test
+    public void sendPredictAggsConsumerTest() throws Exception {
+
+        String body = "{\n" +
+                "  \"siteId\": \"111\",\n" +
+                "  \"planNextSiteId\": 111,\n" +
+                "  \"planWaveCode\": \"TEST002\",\n" +
+                "  \"planWaveWorkStartTime\": \"2022-01-01 00:10:10\",\n" +
+                "  \"planWaveWorkEndTime\": \"2022-01-01 21:00:00\",\n" +
+                "  \"productType\": \"NONE\",\n" +
+                "  \"unScanCount\": 1000,\n" +
+                "}\n";
+
+        Message message = new Message();
+        message.setText(body);
+
+        jySendPredictAggsMainConsumer.consume(message);
+        jySendPredictAggsBakConsumer.consume(message);
+
     }
 }

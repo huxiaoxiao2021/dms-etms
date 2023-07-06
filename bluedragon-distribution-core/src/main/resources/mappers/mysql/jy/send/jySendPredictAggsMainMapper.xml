@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDaoMain" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="site_id" property="siteId" jdbcType="BIGINT" />
+    <result column="plan_next_site_id" property="planNextSiteId" jdbcType="BIGINT" />
+    <result column="plan_wave_code" property="planWaveCode" jdbcType="VARCHAR" />
+    <result column="plan_wave_work_start_time" property="planWaveWorkStartTime" jdbcType="TIMESTAMP" />
+    <result column="plan_wave_work_end_time" property="planWaveWorkEndTime" jdbcType="TIMESTAMP" />
+    <result column="product_type" property="productType" jdbcType="VARCHAR" />
+    <result column="un_scan_count" property="unScanCount" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, site_id, plan_next_site_id, plan_wave_code, plan_wave_work_start_time, plan_wave_work_end_time, 
+    product_type, un_scan_count, create_time, update_time, yn, ts
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from jy_send_predict_aggs
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    insert into jy_send_predict_aggs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="planNextSiteId != null" >
+        plan_next_site_id,
+      </if>
+      <if test="planWaveCode != null" >
+        plan_wave_code,
+      </if>
+      <if test="planWaveWorkStartTime != null" >
+        plan_wave_work_start_time,
+      </if>
+      <if test="planWaveWorkEndTime != null" >
+        plan_wave_work_end_time,
+      </if>
+      <if test="productType != null" >
+        product_type,
+      </if>
+      <if test="unScanCount != null" >
+        un_scan_count,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="siteId != null" >
+        #{siteId,jdbcType=BIGINT},
+      </if>
+      <if test="planNextSiteId != null" >
+        #{planNextSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="planWaveCode != null" >
+        #{planWaveCode,jdbcType=VARCHAR},
+      </if>
+      <if test="planWaveWorkStartTime != null" >
+        #{planWaveWorkStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="planWaveWorkEndTime != null" >
+        #{planWaveWorkEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="productType != null" >
+        #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="unScanCount != null" >
+        #{unScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByBizProduct" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    UPDATE
+    jy_send_predict_aggs
+    <set>
+      <if test="unScanCount != null">
+        un_scan_count = #{unScanCount},
+      </if>
+    </set>
+    where biz_id = #{bizId} and product_type = #{productType}
+  </update>
+</mapper>

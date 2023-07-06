@@ -396,4 +396,25 @@ public class CacheKeyConstants {
      * 拣运-滞留扫描
      */
     public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";
+
+
+    /**
+     * 拣运波次发货统计锁key（主库）
+     */
+    public static final String JY_SEND_PREDICT_AGG_MAIN_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggMainLock:%s";
+
+    /**
+     * 拣运波次发货统计锁key（主库）
+     */
+    public static final String JY_SEND_PREDICT_AGG_MAIN_KEY = JY_CACHE_PREFIX + "jySendPredictAggMain:%s";
+
+    /**
+     * 拣运波次发货统计锁key（备库）
+     */
+    public static final String JY_SEND_PREDICT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggBakLock:%s";
+
+    /**
+     * 拣运波次发货统计锁key（备库）
+     */
+    public static final String JY_SEND_PREDICT_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendPredictAggBak:%s";
 }
