@@ -21,6 +21,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,9 @@ public class ReprintCompletePostHandler implements Handler<WaybillPrintCompleteC
         try {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
             saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getPackageBarcode());
+            if(StringUtils.isBlank(saveDisposeAfterInterceptMsgDto.getBarCode())){
+                saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getWaybillCode());
+            }
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.REPRINT));
             saveDisposeAfterInterceptMsgDto.setOperateTime(System.currentTimeMillis());
             saveDisposeAfterInterceptMsgDto.setOperateUserErp(rePrintCallBackRequest.getOperatorErp());

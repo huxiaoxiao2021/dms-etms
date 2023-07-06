@@ -4,6 +4,7 @@ import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackFlowDetail;
+import com.jd.etms.waybill.domain.PackageOpeFlowDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -81,4 +82,8 @@ public interface WaybillPackageManager {
      * @Param packageCode 包裹号
      */
     DeliveryPackageD getPackageInfoByPackageCode(String packageCode);
+    /**
+     * 根据运单号查询称重流水数据
+     */
+    List<PackageOpeFlowDetail> getWaybillWeightVolumeDetail(String waybillCode);
 }

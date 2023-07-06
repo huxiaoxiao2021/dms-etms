@@ -543,4 +543,36 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 对外提供给德邦的包装确认服务jsf -->
+    <jsf:provider id="jsfWaybillConsumableService"
+                  interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillConsumableService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 对外提供给德邦的拦截换单服务jsf -->
+    <jsf:provider id="jsfWaybillInterceptReverseService"
+                  interface="com.jd.bluedragon.distribution.print.service.WaybillInterceptReverseService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillInterceptReverseService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 德邦融合接口服务 -->
+    <jsf:provider id="jsfDebonReturnScheduleGateWayService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillReturnScheduleGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  定时调度对外jsf  -->
+    <jsf:provider id="jsfDmsTimingHandlerService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsTimingHandlerService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

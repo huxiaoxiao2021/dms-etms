@@ -269,6 +269,14 @@
           AND handler_erp = #{handleErp}
           and distribution_target = #{gridRefId}
     </select>
+    <select id="getCompleteStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 AND STATUS = 3
+        and distribution_target = #{gridRefId}
+        and ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY)
+    </select>
     <update id="updateByBizId">
         UPDATE jy_biz_task_exception
         <set>
@@ -377,14 +385,52 @@
         <if test="handlerErp !=null">
             AND handler_erp = #{handlerErp}
         </if>
-        <if test="status == 2">
-            order by process_end_time desc
+        <if test="limitDay !=null">
+            AND  <![CDATA[  ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY) ]]>
         </if>
-        <if test="status != 2">
-            order by id desc
-        </if>
+        order by id desc
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
     </select>
+
+    <select id="queryUnCollectAndOverTimeAgg" parameterType="java.util.Map" resultType="com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg">
+        select site_code as siteCode, grid_code as gridCode, count(*) as quantity, create_user_erp as createUserErp
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and status = 0
+          and  <![CDATA[   create_time >= #{queryStartTime}  ]]>
+          and  <![CDATA[   create_time <= #{queryEndTime}  ]]>
+        group by site_code, grid_code
+    </select>
+
+    <select id="queryScrapHandlerErp" parameterType="java.util.Map" resultType="String">
+        select handler_erp
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and type = 1
+        and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
+        and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
+        group by handler_erp
+    </select>
+
+    <select id="queryScrapDetailByCondition" parameterType="java.util.Map" resultMap="jyBizTaskExceptionMap">
+        select <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and type = 1
+        and handler_erp = #{handlerErp}
+        and  <![CDATA[   process_begin_time >= #{queryStartTime}  ]]>
+        and  <![CDATA[   process_begin_time <= #{queryEndTime}  ]]>
+    </select>
+    
+    <select id="queryScrapCountByCondition" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity" resultType="int">
+        select count(*)
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1 and type = 1
+        and site_code = #{siteCode}
+        and  <![CDATA[   process_begin_time >= #{processBeginTime}  ]]>
+    </select>
+    
 </mapper>

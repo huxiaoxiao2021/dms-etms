@@ -289,7 +289,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode,checkType)) {
                     logger.info("零称重量方 本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
                     if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
-                        logger.info("零称重量方 经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
+                        logger.info("零称重量方 校验分拣中心复重需要拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
                         return Boolean.TRUE;
                     }else{
                         logger.info("零称重量方 本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
@@ -422,6 +422,13 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
 
                 /*************纯配外单 非C网 统一拦截场景开始******************/
+
+                //纯配冷链生鲜单，校验分拣中心称重
+                if(BusinessUtil.isExternalPureDeliveryAndColdFresh(waybillSign)){
+                    logger.info("零称重量方 纯配外单 非C网 冷链生鲜单场景，需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
+                }
+
                 //快运零担
                 if(BusinessUtil.isSignChar(waybillSign, 40, '2')){
                     logger.info("零称重量方 纯配外单 非C网 快运零担场景，需要拦截，运单号{}",waybillCode);
