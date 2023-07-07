@@ -436,6 +436,28 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setLineType(request.getLineType());
         condition.setVehicleStatus(request.getVehicleStatus());
 
+        List<Long> idList = null;
+        // 如果是待解状态，先查询优先待解封任务列表
+        if (JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
+            List<VehicleBaseInfo> priorityVehicleList = Lists.newArrayList();
+            unSealCarData.setPriorityData(priorityVehicleList);
+            // 符合优先标识
+            condition.setPriorityFlag(Constants.NUMBER_ONE);
+            List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
+            if (CollectionUtils.isNotEmpty(priorityVehiclePageList)) {
+                idList = new ArrayList<>(priorityVehicleList.size());
+                for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
+                    idList.add(entity.getId());
+                    // 初始化基础字段
+                    VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
+                    ToSealCarInfo toSealCarInfo = (ToSealCarInfo) vehicleBaseInfo;
+                    toSealCarInfo.setActualArriveTime(entity.getActualArriveTime());
+                    // 设置各产品类型的应卸总数
+                    priorityVehicleList.add(toSealCarInfo);
+                }
+            }
+        }
+
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         List<JyBizTaskUnloadVehicleEntity> vehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), null);
