@@ -3973,7 +3973,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 }
 
                                 //发送发货明细mq
-                                Message sendMessage = parseSendDetailToMessage(tSendDetail, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
+                                Message sendMessage = parseSendDetailToMessage(tSendDetail, createSiteDto, receiveSiteDto, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                 sendDetailMQList.add(sendMessage);
                                 this.log.info("发送MQ[{}],业务ID[{}]",sendMessage.getTopic(),sendMessage.getBusinessId());
                             } else if (tSendDetail.getYn().equals(0) && tSendDetail.getIsCancel().equals(2)) {
@@ -4350,7 +4350,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     	}
     	return ProfilerHelper.registerInfo("dmsWorker.task.sendHandler."+SendTaskCategoryEnum.PACKAGE_SEND.getKey(), Constants.UMP_APP_NAME_DMSWORKER);
     }
-    private Message parseSendDetailToMessage(SendDetail sendDetail, String topic, String source) {
+    private Message parseSendDetailToMessage(SendDetail sendDetail, BaseStaffSiteOrgDto createSiteDto, BaseStaffSiteOrgDto receiveSiteDto, String topic, String source) {
         Message message = new Message();
         SendDetail newSendDetail = new SendDetail();
         if (sendDetail != null) {
@@ -4367,6 +4367,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             newSendDetail.setBoardCode(sendDetail.getBoardCode());
             newSendDetail.setBizSource(sendDetail.getBizSource());
             newSendDetail.setCreateTime(sendDetail.getCreateTime());
+
+            // 增加操作站点和目的站点的站点类型信息
+            newSendDetail.setCreateSiteType(createSiteDto.getSiteType());
+            newSendDetail.setCreateSubType(createSiteDto.getSubType());
+            newSendDetail.setCreateThirdType(createSiteDto.getThirdType());
+            newSendDetail.setCreateSortType(createSiteDto.getSortType());
+            newSendDetail.setCreateSortSubType(createSiteDto.getSortSubType());
+            newSendDetail.setCreateSortThirdType(createSiteDto.getSortThirdType());
+
+            newSendDetail.setReceiveSiteType(receiveSiteDto.getSiteType());
+            newSendDetail.setReceiveSubType(receiveSiteDto.getSubType());
+            newSendDetail.setReceiveThirdType(receiveSiteDto.getThirdType());
+            newSendDetail.setReceiveSortType(receiveSiteDto.getSortType());
+            newSendDetail.setReceiveSortSubType(receiveSiteDto.getSortSubType());
+            newSendDetail.setReceiveSortThirdType(receiveSiteDto.getSortThirdType());
+
             message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDetail.getPackageBarcode());
