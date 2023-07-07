@@ -20,6 +20,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -152,10 +153,15 @@ public class DockInfoJsfServiceImpl implements DockService{
     private void fillBasicSiteInfo(DockBaseInfoPo needDealItem) {
         if(needDealItem.getSiteCode() != null){
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(needDealItem.getSiteCode());
-            needDealItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
-            needDealItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
-            needDealItem.setAreaHubCode(baseSite.getAreaCode());
-            needDealItem.setAreaHubName(baseSite.getAreaName());
+            needDealItem.setOrgId((baseSite == null || baseSite.getOrgId() == null) ? -1 : baseSite.getOrgId());
+            needDealItem.setProvinceAgencyCode((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) 
+                    ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode()));
+            needDealItem.setProvinceAgencyName((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyName())
+                    ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName()));
+            needDealItem.setAreaHubCode((baseSite == null || StringUtils.isEmpty(baseSite.getAreaCode())
+                    ? Constants.EMPTY_FILL : baseSite.getAreaCode()));
+            needDealItem.setAreaHubName((baseSite == null || StringUtils.isEmpty(baseSite.getAreaName())
+                    ? Constants.EMPTY_FILL : baseSite.getAreaName()));
         }
     }
 

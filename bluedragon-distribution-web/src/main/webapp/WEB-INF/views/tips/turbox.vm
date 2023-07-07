@@ -37,13 +37,15 @@ var inteval=1000*60*60*24*30;
 $(document).ready(function() {
 
     $('#switchSiteDom').sitePluginSelect({
-        'createSiteCode' : $!{defaultSiteCode},
+        #if($!{defaultSiteCode})
+            'createSiteCode' : $!{defaultSiteCode},
+            'onlySiteAndProvinceSelect' : true,
+            'createSiteCodeReadOnly' : true,
+            'provinceAgencyCodeReadOnly' : true,
+            'areaHubCodeReadOnly' : true
+        #end
         'changeBtnShow': false,
-        'provinceOrOrgMode' : 'province',
-        'provinceAgencyCodeReadOnly' : true,
-        'areaHubCodeReadOnly' : true,
-        'createSiteCodeReadOnly' : true,
-        'onlySiteAndProvinceSelect' : true
+        'provinceOrOrgMode' : 'province'
     });
 
 

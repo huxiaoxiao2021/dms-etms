@@ -161,6 +161,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         funcSwitchConfigDto.setOrgName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getOrgName());
         funcSwitchConfigDto.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
         funcSwitchConfigDto.setProvinceAgencyName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
+        funcSwitchConfigDto.setAreaHubCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaCode());
+        funcSwitchConfigDto.setAreaHubName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaName());
     }
 
     /**

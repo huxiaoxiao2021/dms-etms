@@ -92,7 +92,7 @@ public class DmsBaseController {
 		if(erpUser!=null){
 			userCode = erpUser.getUserCode();
 			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-			if (bssod != null && Objects.equals(bssod.getSiteType(), Constants.DMS_SITE_TYPE)) {
+			if (bssod != null) {
 				createSiteCode = new Long(bssod.getSiteCode());
 				createSiteName = bssod.getSiteName();
 				orgId = bssod.getOrgId();

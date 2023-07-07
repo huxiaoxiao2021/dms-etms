@@ -3,6 +3,7 @@ $(function() {
     //加载站点组件
     $('#switchSiteDom').sitePluginSelect({
         'createSiteCode' : $("#loginUserCreateSiteCode").val(),
+        'siteTypes': null,
         'changeBtnShow': false,
         'provinceOrOrgMode' : 'province',
         'createSiteCodeReadOnly' : true,
