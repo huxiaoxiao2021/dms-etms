@@ -220,6 +220,7 @@
                     this._options.provinceAgencyCode = site.provinceAgencyCode;
                     this._options.areaHubCode = site.areaCode;
                     this._options.createSiteName = site.siteName;
+                    this._options.dmsSiteCode = site.dmsSiteCode;
                 }
             }
         },
@@ -516,7 +517,10 @@
                 //&& provinceAgencyCode && this._options.provinceAgencyCode == provinceAgencyCode
                 //&& areaHubCode && this._options.areaHubCode == areaHubCode){
                 //都匹配时在勾选
-                selectedData.push({id: siteCode, text: this._formatShowSiteName(this._options.createSiteCode ,this._options.createSiteName), selected: true})
+                selectedData.push({id: siteCode,
+                    text: this._formatShowSiteName(this._options.createSiteCode ,this._options.createSiteName),
+                    dmsSiteCode:this._options.dmsSiteCode,
+                    siteName:this._options.siteName, selected: true})
                 needChangeEvent = true;
             }
             this._targetDom.find('province .siteSelect').select2({
