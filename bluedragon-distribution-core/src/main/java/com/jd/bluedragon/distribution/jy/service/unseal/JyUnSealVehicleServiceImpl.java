@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.ProductTypeAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanAggByProductType;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
@@ -23,8 +25,10 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
@@ -100,6 +104,9 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
+
+    @Autowired
+    private JyUnloadAggsService jyUnloadAggsService;
 
     /**
      * Hystrix 配置参考
@@ -436,28 +443,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setLineType(request.getLineType());
         condition.setVehicleStatus(request.getVehicleStatus());
 
-        List<Long> idList = null;
+        // 优先待解ID列表
+        List<Long> idList = new ArrayList<>();
         // 如果是待解状态，先查询优先待解封任务列表
         if (JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
-            List<VehicleBaseInfo> priorityVehicleList = Lists.newArrayList();
-            unSealCarData.setPriorityData(priorityVehicleList);
-            // 符合优先标识
-            condition.setPriorityFlag(Constants.NUMBER_ONE);
-            List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
-            if (CollectionUtils.isNotEmpty(priorityVehiclePageList)) {
-                idList = new ArrayList<>(priorityVehicleList.size());
-                for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
-                    idList.add(entity.getId());
-                    // 初始化基础字段
-                    VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
-                    ToSealCarInfo toSealCarInfo = (ToSealCarInfo) vehicleBaseInfo;
-                    toSealCarInfo.setActualArriveTime(entity.getActualArriveTime());
-                    // 设置各产品类型的应卸总数
-                    priorityVehicleList.add(toSealCarInfo);
-                }
-            }
+            setPriorityVehicleList(condition, request, curQueryStatus, unSealCarData, idList);
         }
-
+        condition.setIdList(idList);
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         List<JyBizTaskUnloadVehicleEntity> vehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), null);
@@ -496,6 +488,43 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     vehicleList.add(drivingCarInfo);
                     break;
             }
+        }
+    }
+
+    private void setPriorityVehicleList(JyBizTaskUnloadVehicleEntity condition, SealVehicleTaskRequest request,
+                      JyBizTaskUnloadStatusEnum curQueryStatus, UnSealCarData unSealCarData, List<Long> idList) {
+        List<VehicleBaseInfo> priorityVehicleList = Lists.newArrayList();
+        unSealCarData.setPriorityData(priorityVehicleList);
+        // 符合优先标识
+        condition.setPriorityFlag(Constants.NUMBER_ONE);
+        List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
+        if (CollectionUtils.isNotEmpty(priorityVehiclePageList)) {
+            for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
+                idList.add(entity.getId());
+                // 初始化基础字段
+                VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
+                ToSealCarInfo toSealCarInfo = (ToSealCarInfo) vehicleBaseInfo;
+                // 实际到达时间
+                toSealCarInfo.setActualArriveTime(entity.getActualArriveTime());
+                // 各产品类型的应卸总数
+                toSealCarInfo.setProductTypeAggList(new ArrayList<>());
+                // 查询卸车聚合表
+                List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(entity.getBizId()));
+                if (CollectionUtils.isNotEmpty(unloadAggList)) {
+                    convertAggEntityToPage(toSealCarInfo.getProductTypeAggList(), unloadAggList);
+                }
+                priorityVehicleList.add(toSealCarInfo);
+            }
+        }
+    }
+
+    private void convertAggEntityToPage(List<ProductTypeAgg> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
+        for (JyUnloadAggsEntity aggEntity : unloadAggList) {
+            ProductTypeAgg item = new ProductTypeAgg();
+            item.setProductType(aggEntity.getProductType());
+            item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setCount(aggEntity.getShouldScanCount().longValue());
+            productTypeList.add(item);
         }
     }
 
