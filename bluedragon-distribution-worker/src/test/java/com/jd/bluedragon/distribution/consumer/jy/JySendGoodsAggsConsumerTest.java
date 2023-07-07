@@ -108,13 +108,16 @@ public class JySendGoodsAggsConsumerTest {
     public void sendPredictAggsConsumerTest() throws Exception {
 
         String body = "{\n" +
-                "  \"siteId\": \"111\",\n" +
+                "  \"siteId\": 111,\n" +
                 "  \"planNextSiteId\": 111,\n" +
+                "  \"flag\": 1,\n" +
+                "  \"uid\": \"TEST002\",\n" +
                 "  \"planWaveCode\": \"TEST002\",\n" +
+                "  \"version\": \"11111\",\n" +
                 "  \"planWaveWorkStartTime\": \"2022-01-01 00:10:10\",\n" +
                 "  \"planWaveWorkEndTime\": \"2022-01-01 21:00:00\",\n" +
-                "  \"productType\": \"NONE\",\n" +
-                "  \"unScanCount\": 1000,\n" +
+                "  \"productType\": \"FAST\",\n" +
+                "  \"unScanCount\": 1000 \n" +
                 "}\n";
 
         Message message = new Message();

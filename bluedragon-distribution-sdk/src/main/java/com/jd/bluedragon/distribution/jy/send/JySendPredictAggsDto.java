@@ -4,16 +4,18 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 拣运发货波次待扫数据PO
+ * @Author: chenyaguo@jd.com
+ * @Date: 2023/7/6 20:11
+ * @Description: 发货波次汇总数据Dto
  */
-public class JySendPredictAggsPO implements Serializable {
+public class JySendPredictAggsDto implements Serializable {
 
     private Long id;
 
     /**
      * 业务唯一id
      */
-    private String uId;
+    private String uid;
 
     /**
      *场地id
@@ -37,15 +39,16 @@ public class JySendPredictAggsPO implements Serializable {
      */
     private Integer unScanCount;
 
+    /**
+     * 用于区分当前波次和下一波次
+     */
     private Integer flag;
 
-    private Date createTime;
 
-    private Date updateTime;
-
-    private Integer yn;
-
-    private Date ts;
+    /**
+     * 版本号
+     */
+    private Long version;
 
 
     public Long getId() {
@@ -56,12 +59,12 @@ public class JySendPredictAggsPO implements Serializable {
         this.id = id;
     }
 
-    public String getuId() {
-        return uId;
+    public String getUid() {
+        return uid;
     }
 
-    public void setuId(String uId) {
-        this.uId = uId;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Long getSiteId() {
@@ -104,35 +107,12 @@ public class JySendPredictAggsPO implements Serializable {
         this.flag = flag;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Long getVersion() {
+        return version;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getYn() {
-        return yn;
-    }
-
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
-
-    public Date getTs() {
-        return ts;
-    }
-
-    public void setTs(Date ts) {
-        this.ts = ts;
-    }
 }
