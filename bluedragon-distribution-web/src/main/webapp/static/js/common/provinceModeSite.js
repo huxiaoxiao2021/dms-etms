@@ -296,6 +296,7 @@
 
         },
         _siteChange : function (){
+            
             //站点变化事件
             var site = this._targetDom.find('province .siteSelect').select2("data");
             //var _s = this._targetDom.find('province .siteSelect').val();
@@ -508,7 +509,6 @@
             }
         },
         _initSiteSelect : function (provinceAgencyCode,areaHubCode,siteCode) {
-
             //初始化站点选择组件
             let that = this;
             var selectedData = [];
@@ -520,7 +520,7 @@
                 selectedData.push({id: siteCode,
                     text: this._formatShowSiteName(this._options.createSiteCode ,this._options.createSiteName),
                     dmsSiteCode:this._options.dmsSiteCode,
-                    siteName:this._options.siteName, selected: true})
+                    siteName:this._options.createSiteName, selected: true})
                 needChangeEvent = true;
             }
             this._targetDom.find('province .siteSelect').select2({

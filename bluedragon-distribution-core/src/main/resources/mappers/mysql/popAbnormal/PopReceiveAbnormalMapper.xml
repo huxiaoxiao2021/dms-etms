@@ -77,10 +77,10 @@
 						and ORG_CODE = #{orgCode, jdbcType=INTEGER}
 					</if>
 					<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-						and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+						and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
 					</if>
 					<if test="areaHubCode != null and areaHubCode != ''" >
-						and area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+						and area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 					</if>
 		 			<if test="createSiteCode != null and createSiteCode != 0">
 						and CREATE_SITE_CODE = #{createSiteCode, jdbcType=INTEGER}

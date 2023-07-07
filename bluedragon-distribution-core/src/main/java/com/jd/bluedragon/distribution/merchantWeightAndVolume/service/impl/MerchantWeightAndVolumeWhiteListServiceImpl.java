@@ -150,10 +150,11 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                     }
                     detail.setOperateOrgCode(site.getOrgId());
                     detail.setOperateOrgName(site.getOrgName());
-                    detail.setOperateProvinceAgencyCode(site.getProvinceAgencyCode());
-                    detail.setOperateProvinceAgencyName(site.getProvinceAgencyName());
-                    detail.setOperateAreaHubCode(site.getAreaCode());
-                    detail.setOperateAreaHubName(site.getAreaName());
+                    detail.setOperateSiteName(StringUtils.isEmpty(site.getSiteName()) ? Constants.EMPTY_FILL : site.getSiteName());
+                    detail.setOperateProvinceAgencyCode(StringUtils.isEmpty(site.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : site.getProvinceAgencyCode());
+                    detail.setOperateProvinceAgencyName(StringUtils.isEmpty(site.getProvinceAgencyName()) ? Constants.EMPTY_FILL : site.getProvinceAgencyName());
+                    detail.setOperateAreaHubCode(StringUtils.isEmpty(site.getAreaCode()) ? Constants.EMPTY_FILL : site.getAreaCode());
+                    detail.setOperateAreaHubName(StringUtils.isEmpty(site.getAreaName()) ? Constants.EMPTY_FILL : site.getAreaName());
                     detail.setCreateErp(importErpCode);
                     detail.setCreateUserName(createUserName);
                     rowIndex ++;

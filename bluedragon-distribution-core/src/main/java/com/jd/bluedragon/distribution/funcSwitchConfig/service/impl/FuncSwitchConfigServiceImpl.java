@@ -157,6 +157,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     private void initOrgAndProvinceInfo(FuncSwitchConfigDto funcSwitchConfigDto) {
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(funcSwitchConfigDto.getSiteCode());
+        funcSwitchConfigDto.setSiteName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getSiteName());
         funcSwitchConfigDto.setOrgId(baseSite == null ? Constants.NUMBER_ZERO : baseSite.getOrgId());
         funcSwitchConfigDto.setOrgName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getOrgName());
         funcSwitchConfigDto.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
