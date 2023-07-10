@@ -58,6 +58,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -495,9 +496,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                       JyBizTaskUnloadStatusEnum curQueryStatus, UnSealCarData unSealCarData, List<Long> idList) {
         List<VehicleBaseInfo> priorityVehicleList = Lists.newArrayList();
         unSealCarData.setPriorityData(priorityVehicleList);
-        // 符合优先标识
-        condition.setPriorityFlag(Constants.NUMBER_ONE);
-        List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
+        // 组装优先列表查询参数
+        JyBizTaskUnloadVehicleEntity priorityCondition = new JyBizTaskUnloadVehicleEntity();
+        BeanUtils.copyProperties(condition, priorityCondition);
+        // 必须带有优先标识
+        priorityCondition.setPriorityFlag(Constants.NUMBER_ONE);
+        // 分页查询
+        List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(priorityCondition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
         if (CollectionUtils.isNotEmpty(priorityVehiclePageList)) {
             for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
                 idList.add(entity.getId());
