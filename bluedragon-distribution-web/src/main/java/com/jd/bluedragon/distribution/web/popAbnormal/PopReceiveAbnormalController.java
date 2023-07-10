@@ -632,7 +632,7 @@ public class PopReceiveAbnormalController extends DmsBaseController {
 		try {
 			this.log.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
 			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-					.getBaseStaffByStaffId(erpUser.getUserId());
+					.getBaseStaffByStaffId(erpUser.getStaffNo());
 
 			Integer defaultSiteCode = null;
 			Integer defaultOrgId = null;

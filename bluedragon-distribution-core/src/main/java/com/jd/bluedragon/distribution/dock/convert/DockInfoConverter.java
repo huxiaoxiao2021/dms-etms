@@ -43,6 +43,10 @@ public class DockInfoConverter {
         entity.setSiteName(dockBaseInfoPo.getSiteName());
         entity.setOrgId(dockBaseInfoPo.getOrgId());
         entity.setOrgName(dockBaseInfoPo.getOrgName());
+        entity.setProvinceAgencyCode(dockBaseInfoPo.getProvinceAgencyCode());
+        entity.setProvinceAgencyName(dockBaseInfoPo.getProvinceAgencyName());
+        entity.setAreaHubCode(dockBaseInfoPo.getAreaHubCode());
+        entity.setAreaHubName(dockBaseInfoPo.getAreaHubName());
         entity.setDockType(DockTypeEnums.getEnumsByType(dockBaseInfoPo.getDockType()));
         entity.setDockAttribute(DockAttributeEnums.getEnumsByType(dockBaseInfoPo.getDockAttribute()));
         entity.setAllowedVehicleTypes(getListEntity(dockBaseInfoPo.getAllowedVehicleType()));
