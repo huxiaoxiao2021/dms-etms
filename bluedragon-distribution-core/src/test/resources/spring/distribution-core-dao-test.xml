@@ -47,7 +47,6 @@
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-business.xml" />
 	<import resource="classpath:spring/distribution-core-log.xml" />
-	<import resource="classpath:spring/distribution-core-jss.xml"/>
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />
 	<import resource="classpath*:cdf/crossbow.comp" />

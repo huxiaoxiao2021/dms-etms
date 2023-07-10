@@ -97,7 +97,6 @@
     <import resource="classpath:spring/distribution-test-jmq.xml" />
     <import resource="classpath:spring/distribution-core-jmq.xml" />
     <import resource="distribution-core-crossbow-manager.xml"></import>
-    <import resource="distribution-core-jss.xml"></import>
     <import resource="distribution-core-special-jsf.xml"></import>
     <import resource="distribution-core-asynBuffer-producer.xml"></import>
 
