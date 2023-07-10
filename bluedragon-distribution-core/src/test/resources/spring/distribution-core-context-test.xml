@@ -64,7 +64,6 @@
 	<import resource="classpath:spring/distribution-core-special-jsf.xml"/>
 	<import resource="classpath:spring/distribution-core-jmq.xml"/>
 	<import resource="classpath:spring/distribution-test-core-jmq.xml"/>
-	<import resource="classpath:spring/distribution-core-jss.xml"/>
 	<import resource="classpath:spring/distribution-core-aces-test.xml" />
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
