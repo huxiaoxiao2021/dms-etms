@@ -353,6 +353,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private JySendPredictAggsService jySendPredictAggsService;
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -2967,20 +2970,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
             progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
         }
-        JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
+
         Long toScanCountSum =0L;
         if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
-            JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
-            query.setSendVehicleBizId(taskSend.getBizId());
-            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
-            aggsEntityQuery.setOperateSiteId(taskSend.getOperateSiteCode());
-            if(CollectionUtils.isNotEmpty(receiveIds)){
-                aggsEntityQuery.setEndSiteIds(receiveIds);
-                log.info("获取待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
-                toScanCountSum = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);
-                log.info("获取待扫数据--{}",toScanCountSum);
-            }
+            JySendPredictAggsRequest query = new JySendPredictAggsRequest();
+            query.setSiteId(taskSend.getStartSiteId());
+            log.info("获取待扫数据入参--{}",JSON.toJSONString(query));
+            toScanCountSum = jySendPredictAggsService.getToScanCountSum(query);
+            log.info("获取待扫数据--{}",toScanCountSum);
         }else {
+            JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             aggsEntityQuery.setBizId(taskSend.getBizId());
             log.info("获取待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
             toScanCountSum = jySendProductAggsService.getToScanCountSum(aggsEntityQuery);

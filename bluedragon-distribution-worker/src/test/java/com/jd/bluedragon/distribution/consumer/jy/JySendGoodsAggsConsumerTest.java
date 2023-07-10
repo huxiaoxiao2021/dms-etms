@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.distribution.consumer.jy.agg.*;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.service.send.JySendPredictAggsService;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
@@ -104,6 +106,9 @@ public class JySendGoodsAggsConsumerTest {
     @Autowired
     private  JySendPredictAggsBakConsumer jySendPredictAggsBakConsumer;
 
+    @Autowired
+    private JySendPredictAggsService jySendPredictAggsService;
+
     @Test
     public void sendPredictAggsConsumerTest() throws Exception {
 
@@ -111,13 +116,13 @@ public class JySendGoodsAggsConsumerTest {
                 "  \"siteId\": 111,\n" +
                 "  \"planNextSiteId\": 111,\n" +
                 "  \"flag\": 1,\n" +
-                "  \"uid\": \"TEST002\",\n" +
+                "  \"uid\": \"772778|799000|NONE|1\",\n" +
                 "  \"planWaveCode\": \"TEST002\",\n" +
-                "  \"version\": \"11111\",\n" +
+                "  \"version\": 11118,\n" +
                 "  \"planWaveWorkStartTime\": \"2022-01-01 00:10:10\",\n" +
                 "  \"planWaveWorkEndTime\": \"2022-01-01 21:00:00\",\n" +
                 "  \"productType\": \"FAST\",\n" +
-                "  \"unScanCount\": 1000 \n" +
+                "  \"unScanCount\": 1099 \n" +
                 "}\n";
 
         Message message = new Message();
@@ -126,5 +131,13 @@ public class JySendGoodsAggsConsumerTest {
         jySendPredictAggsMainConsumer.consume(message);
         jySendPredictAggsBakConsumer.consume(message);
 
+    }
+
+    @Test
+    public void getUnScandSum(){
+        JySendPredictAggsRequest request = new JySendPredictAggsRequest();
+        request.setSiteId(910L);
+        Long toScanCountSum = jySendPredictAggsService.getToScanCountSum(request);
+        System.out.println(toScanCountSum);
     }
 }

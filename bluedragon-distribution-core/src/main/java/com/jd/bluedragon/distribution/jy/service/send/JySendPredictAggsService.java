@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -8,6 +10,9 @@ import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
  * @Description: 波次待扫
  */
 public interface JySendPredictAggsService {
+
+
+    Long getToScanCountSum(JySendPredictAggsRequest query);
 
     /**
      * （主库）插入或者新增波次待扫数据

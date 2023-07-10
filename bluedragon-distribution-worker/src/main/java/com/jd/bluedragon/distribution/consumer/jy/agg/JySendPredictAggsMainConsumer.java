@@ -64,8 +64,7 @@ public class JySendPredictAggsMainConsumer  extends MessageBaseConsumer {
             Boolean lock = redisClientOfJy.set(lockKey, "1", 1, TimeUnit.MINUTES, false);
             if(lock){
                 //过滤旧版本数据
-                //String versionMutex = String.format(CacheKeyConstants.JY_SEND_PREDICT_AGG_MAIN_KEY, entity.getBizId()+entity.getProductType());
-                String versionMutex = String.format(CacheKeyConstants.JY_SEND_PREDICT_AGG_MAIN_KEY, dto.getProductType());
+                String versionMutex = String.format(CacheKeyConstants.JY_SEND_PREDICT_AGG_MAIN_KEY, dto.getUid());
                 if (redisClientOfJy.exists(versionMutex)) {
                     Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
                     if (!NumberHelper.gt(dto.getVersion(), version)) {
@@ -79,8 +78,7 @@ public class JySendPredictAggsMainConsumer  extends MessageBaseConsumer {
                 if(result){
                     // 消费成功，记录数据版本号
                     if (NumberHelper.gt0(dto.getVersion())) {
-                        //logger.info("JySendPredictAggsMainConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
-                        logger.info("JySendPredictAggsMainConsumer 卸车汇总消费的最新版本号. {}", dto.getVersion());
+                        logger.info("JySendPredictAggsMainConsumer 卸车汇总消费的最新版本号. {}-{}", dto.getUid(), dto.getVersion());
                         redisClientOfJy.set(versionMutex, dto.getVersion() + "");
                         redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
                     }

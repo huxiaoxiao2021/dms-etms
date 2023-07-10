@@ -33,16 +33,13 @@ public class JySendPredictAggsSpecialDao {
      * 获取具体的DAO
      * @return
      */
-    public  JySendPredictAggsDaoStrategy getJySendProductAggsDao(){
-
+    public  JySendPredictAggsDaoStrategy getJySendPredictAggsDao(){
         if (jyDuccConfigManager.getJySendAggsDataReadSwitchInfo()){
-            log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读备库开启");
+            log.info("getJySendPredictAggs-JySendAggsDataReadSwitch 读备库开启");
             return jySendPredictAggsDaoBak;
         }
-        log.info("getJySendProductAggs-JySendAggsDataReadSwitch 读主库开启");
+        log.info("getJySendPredictAggs-JySendAggsDataReadSwitch 读主库开启");
         return jySendPredictAggsDaoMain;
-
-
     }
 
     public Boolean insertOrUpdateJySendPredictAggsMain(JySendPredictAggsPO entity) {

@@ -78,8 +78,7 @@ public class JySendPredictAggsBakConsumer  extends MessageBaseConsumer {
                 if(result){
                     // 消费成功，记录数据版本号
                     if (NumberHelper.gt0(dto.getVersion())) {
-                        //logger.info("JySendPredictAggsBakConsumer 卸车汇总消费的最新版本号. {}-{}", entity.getBizId(), entity.getVersion());
-                        logger.info("JySendPredictAggsBakConsumer 卸车汇总消费的最新版本号. {}", dto.getVersion());
+                        logger.info("JySendPredictAggsBakConsumer 卸车汇总消费的最新版本号. {}-{}", dto.getUid(), dto.getVersion());
                         redisClientOfJy.set(versionMutex, dto.getVersion() + "");
                         redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
                     }

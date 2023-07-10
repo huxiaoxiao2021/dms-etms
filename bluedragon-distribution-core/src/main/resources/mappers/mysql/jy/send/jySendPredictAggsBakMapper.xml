@@ -96,12 +96,8 @@
   <update id="updateByBizProduct" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
     UPDATE
     jy_send_predict_aggs
-    <set>
-      <if test="unScanCount != null">
-        un_scan_count = #{unScanCount},
-      </if>
-    </set>
-    where  u_id = #{uId} and product_type = #{productType}
+    set un_scan_count = #{unScanCount}
+    where  yn=1  and  u_id = #{uId}
   </update>
 
   <select id="getunScanCountByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="long">
