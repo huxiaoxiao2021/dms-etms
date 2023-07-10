@@ -172,6 +172,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("扫描条码不能为空!");
         }
 
+        //三无异常处理逻辑
+        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
+            return JdCResponse.fail("请扫描三无号或包裹号或运单号!");
+        }
+
+
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
             return JdCResponse.fail("网格码有误!");

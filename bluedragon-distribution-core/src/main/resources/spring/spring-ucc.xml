@@ -287,6 +287,8 @@
 		<property name="ignoreTysTrackSwitch" value="${ignoreTysTrackSwitch:false}"/>
 		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
 		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
+		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -563,6 +565,7 @@
 				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
 			</list>
 		</property>
 	</bean>
