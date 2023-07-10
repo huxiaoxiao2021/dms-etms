@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.api;
 
+import com.jd.bluedragon.distribution.station.query.NoticeToTimelineDto;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
@@ -108,4 +109,6 @@ public interface UserSignRecordJsfService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> listSignRecordByTime(UserSignRecordQuery query);
+
+	Result noticeToTimeline(NoticeToTimelineDto dto);
 }
