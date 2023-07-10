@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -11,10 +12,8 @@ import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -46,6 +45,7 @@ import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
@@ -168,9 +168,15 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
 
         InvokeResult<SendVehicleTaskResponse> invokeResult = super.fetchSendVehicleTask(request);
-        this.setMixScanTaskSiteFlowMaxNum(request, invokeResult);
+        if(Objects.isNull(invokeResult.getData())) {
+            SendVehicleTaskResponse resData = new SendVehicleTaskResponse();
+            invokeResult.setData(resData);
+        }
         //车辆状态差异化查询
         if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
+
+            this.setMixScanTaskSiteFlowMaxNum(request, invokeResult);
+
             this.fillWareHouseFocusField(request, invokeResult);
         }
 
@@ -201,9 +207,12 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param invokeResult
      */
     private void setMixScanTaskSiteFlowMaxNum(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
-        if(!Objects.isNull(invokeResult) && !Objects.isNull(invokeResult.getData()) && !Objects.isNull(invokeResult.getData().getToSendVehicleData())) {
-            invokeResult.getData().getToSendVehicleData().setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
+
+        if(Objects.isNull(invokeResult.getData().getToSendVehicleData())) {
+            SendVehicleData<ToSendVehicle> toSendVehicleData  = new SendVehicleData<>();
+            invokeResult.getData().setToSendVehicleData(toSendVehicleData);
         }
+        invokeResult.getData().getToSendVehicleData().setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
     }
 
     @Override
