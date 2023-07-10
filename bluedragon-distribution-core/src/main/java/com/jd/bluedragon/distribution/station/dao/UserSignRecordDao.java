@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
 /**
  * 人员签到表--Dao接口
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -108,9 +108,9 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
-	
+
     List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit);
-    
+
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
      * 查询-数量
@@ -169,11 +169,11 @@ public interface UserSignRecordDao {
 	List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(UserSignQueryRequest query);
 
 	Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey);
-	
+
 	Integer queryCountForFlow(UserSignRecordQuery historyQuery);
-	
+
 	List<UserSignRecord> queryDataListForFlow(UserSignRecordQuery historyQuery);
-	
+
 	Integer queryCountForCheckSignTime(UserSignRecordFlowQuery checkQuery);
 	/**
 	 * 根据id查询，不过滤yn=1
@@ -188,4 +188,6 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query);
+
+  List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
 }

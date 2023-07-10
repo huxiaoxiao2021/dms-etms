@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 人员签到表--JsfService接口实现
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -93,7 +93,7 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	}
 	@Override
 	public Result<UserSignRecord> queryLastSignRecord(UserSignRecordQuery query) {
-		return userSignRecordService.queryLastSignRecord(query);		
+		return userSignRecordService.queryLastSignRecord(query);
 	}
 	@Override
 	public Result<UserSignRecordReportSumVo> queryReportSum(UserSignRecordQuery query) {
@@ -104,7 +104,7 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 		return userSignRecordService.queryCount(query);
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignRecordJsfService.queryListForExport",
-			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
 		return userSignRecordService.queryListForExport(query);
@@ -119,6 +119,13 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	@Override
 	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey) {
 		return userSignRecordService.queryUnsignedOutRecordByRefGridKey(refGridKey);
+	}
+
+	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignRecordJsfService.listSignRecordByTime",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public Result<List<UserSignRecord>> listSignRecordByTime(UserSignRecordQuery query) {
+		return Result.success(userSignRecordService.listSignRecordByTime(query));
 	}
 
 }
