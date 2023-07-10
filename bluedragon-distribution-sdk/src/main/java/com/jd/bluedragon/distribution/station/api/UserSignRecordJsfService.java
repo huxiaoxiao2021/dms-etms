@@ -12,7 +12,7 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
  * 人员签到表--JsfService接口
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -92,7 +92,7 @@ public interface UserSignRecordJsfService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
-	
+
 	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
 
 	/**
@@ -101,4 +101,11 @@ public interface UserSignRecordJsfService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey);
+
+	/**
+	 * 查询某个用户某段时间内的签约记录
+	 * @param query
+	 * @return
+	 */
+	Result<List<UserSignRecord>> listSignRecordByTime(UserSignRecordQuery query);
 }

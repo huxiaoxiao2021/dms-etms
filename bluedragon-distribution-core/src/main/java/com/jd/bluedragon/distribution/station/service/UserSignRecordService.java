@@ -222,4 +222,6 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	UserSignRecord queryByIdForFlow(Long recordId);
+
+  List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
 }
