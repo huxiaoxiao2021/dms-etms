@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
+import com.jd.bluedragon.distribution.station.query.NoticeToTimelineDto;
+import com.jd.bluedragon.utils.NoticeUtils;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +128,12 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Result<List<UserSignRecord>> listSignRecordByTime(UserSignRecordQuery query) {
 		return Result.success(userSignRecordService.listSignRecordByTime(query));
+	}
+
+	@Override
+	public Result noticeToTimeline(NoticeToTimelineDto dto) {
+		NoticeUtils.noticeToTimeline(dto.getTitile(), dto.getContent(), dto.getUrl(), dto.getErp());
+		return Result.success();
 	}
 
 }
