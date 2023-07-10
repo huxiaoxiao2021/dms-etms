@@ -23,14 +23,8 @@ $(document).ready(function() {
 	$('#switchSiteDom').sitePluginSelect({
 		#if($!{userInfo.siteCode})
 			'createSiteCode' : $!{userInfo.siteCode},
-			'provinceAgencyCodeReadOnly' : true,
-			'areaHubCodeReadOnly' : true,
-			'createSiteCodeReadOnly' : true,
 		#elseif( $!popAbnormalQuery.createSiteCode)
 			'createSiteCode' : $!popAbnormalQuery.createSiteCode,
-			'provinceAgencyCodeReadOnly' : true,
-			'areaHubCodeReadOnly' : true,
-			'createSiteCodeReadOnly' : true,
 		#end
 		'changeBtnShow': false,
 		'provinceOrOrgMode' : 'province',

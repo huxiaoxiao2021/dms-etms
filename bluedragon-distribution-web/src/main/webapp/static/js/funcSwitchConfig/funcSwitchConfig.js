@@ -168,7 +168,7 @@ $(function () {
             //新增
             $('#btn_add').click(function() {
                 $("#siteCode-EG").empty();
-                $('.edit-param').each(function () {
+                $('dataEditDiv .edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
                         $(this).val('');

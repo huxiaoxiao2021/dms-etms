@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.web.popAbnormal;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
@@ -30,7 +29,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,11 +365,12 @@ public class PopReceiveAbnormalController extends DmsBaseController {
 		this.log.info("savePopReceiveAbnormal --> 保存差异订单保存差异订单 开始");
 		// 验证传入参数
 		if (popReceiveAbnormal == null
-				|| popReceiveAbnormal.getOrgCode() == null
 				|| popReceiveAbnormal.getCreateSiteCode() == null) {
 			this.log.info("savePopReceiveAbnormal --> 传入参数有误！");
 			return new JsonResult(false, "传入参数有误！");
 		}
+		// 设置机构、省区数据
+		fillBaseInfo(popReceiveAbnormal);
 		if (popAbnormalDetail != null
 				&& StringUtils.isNotBlank(popAbnormalDetail.getRemark())
 				&& popAbnormalDetail.getRemark().length() > 256) {
@@ -479,6 +478,23 @@ public class PopReceiveAbnormalController extends DmsBaseController {
 		} catch (Exception e) {
 			this.log.error("savePopReceiveAbnormal --> 运单号[{}] 异常：",popReceiveAbnormal.getWaybillCode(), e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
+		}
+	}
+
+	private void fillBaseInfo(PopReceiveAbnormal popReceiveAbnormal) {
+		if(popReceiveAbnormal.getCreateSiteCode() != null){
+			BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(popReceiveAbnormal.getCreateSiteCode());
+			popReceiveAbnormal.setOrgCode((baseSite == null || baseSite.getOrgId() == null) ? -1 : baseSite.getOrgId());
+			popReceiveAbnormal.setOrgName((baseSite == null || StringUtils.isEmpty(baseSite.getOrgName())) 
+					? Constants.EMPTY_FILL : baseSite.getOrgName());
+			popReceiveAbnormal.setProvinceAgencyCode((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyCode()))
+					? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+			popReceiveAbnormal.setProvinceAgencyName((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyName()))
+					? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
+			popReceiveAbnormal.setAreaHubCode((baseSite == null || StringUtils.isEmpty(baseSite.getAreaCode()))
+					? Constants.EMPTY_FILL : baseSite.getAreaCode());
+			popReceiveAbnormal.setAreaHubName((baseSite == null || StringUtils.isEmpty(baseSite.getAreaName()))
+					? Constants.EMPTY_FILL : baseSite.getAreaName());
 		}
 	}
 

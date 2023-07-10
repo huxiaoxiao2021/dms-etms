@@ -210,7 +210,7 @@ $(function() {
                     }
                 });
 
-			    $('.edit-param').each(function () {
+			    $('#dataEditDiv .edit-param').each(function () {
 			    	var _k = this.id;
 			        if(_k){
 			        	$(this).val('');

@@ -126,7 +126,7 @@ $(function() {
             $('#btn_add').click(function() {
                 $("#cityEG").empty();
                 initProAndCity("#provinceEG","#cityEG");
-                $('.eidt-param,.edit-param').each(function () {
+                $('.eidt-param,dataEditDiv .edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
                         $(this).val('');

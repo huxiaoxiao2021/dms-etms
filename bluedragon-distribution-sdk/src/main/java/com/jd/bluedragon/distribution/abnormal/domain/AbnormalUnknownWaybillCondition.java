@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.List;
  * @Description: 三无订单申请-查询条件
  * @date 2018年05月08日 15:16:15
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
