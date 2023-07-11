@@ -27,6 +27,7 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
 import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskConfigJsfManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
@@ -60,6 +61,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
@@ -122,6 +124,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	
     @Autowired
     SysConfigService sysConfigService;	
+    @Autowired
+    private BaseMajorManager baseMajorManager;    
 	
     private Random random = new Random();
 
@@ -401,6 +405,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			logger.warn("场地【{}】未开启推送任务！",siteCode);
 			return true;
 		}
+		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+		if(siteInfo == null) {
+			logger.warn("场地【{}】在青龙基础资料不存在！",siteCode);
+			return true;
+		}
 		Result<WorkGridManagerTask> taskInfoResult = workGridManagerTaskJsfManager.queryByTaskCode(configData.getTaskCode());
 		if(taskInfoResult == null
 				|| taskInfoResult.getData() == null) {
@@ -474,7 +483,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				jyBizTaskWorkGridManagerService.batchAddTask(jyTaskInitList);
 			}
 		}
-		List<String> userList = getUserList(siteCode,configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
+		List<String> userList = getUserList(siteCode,siteInfo.getOrganizationCode(),configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
 		int needGridNum = userList.size() * configData.getPerGridNum();
 		if(needGridNum == 0) {
 			needDistribution = false;
@@ -658,8 +667,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setOrderNum(random.nextInt(1000));
 		return jyTask;
 	}
-	private List<String> getUserList(Integer siteCode,String userPositionCode,String userPositionName){
-		Result<List<String>> userResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, userPositionCode, userPositionName);
+	private List<String> getUserList(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName){
+		Result<List<String>> userResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, organizationCode, userPositionCode, userPositionName);
 		if(userResult != null && userResult.getData() != null) {
 			return userResult.getData();
 		}
