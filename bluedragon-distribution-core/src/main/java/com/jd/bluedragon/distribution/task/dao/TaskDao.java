@@ -293,12 +293,12 @@ public class TaskDao extends BaseDao<Task> {
 	 * @author fanggang7
 	 * @time 2023-03-21 16:34:55 周二
 	 */
-	public List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds){
+	public List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, List<String> ownSigns, List<String> queueIds){
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
-		request.put("ownSign", ownSign);
+		request.put("ownSigns", ownSigns);
 		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findJyBizAutoCloseTasks", request);
 	}

@@ -138,5 +138,5 @@ public interface TaskService {
      * @author fanggang7
      * @time 2023-03-21 16:34:55 周二
      */
-    List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
+    List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, List<String> ownSigns, List<String> queueIds);
 }
