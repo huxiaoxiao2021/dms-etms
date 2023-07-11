@@ -17,6 +17,8 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
@@ -138,6 +140,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
+    @Autowired
+    private SysConfigService sysConfigService;	
 
 	/**
 	 * 插入一条数据
@@ -546,6 +550,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间小于签到时间，无需处理！",mqData.getUserErp());
 			return result;
 		}
+        if (lastUnSignOutRecord.getSiteCode() == null) {
+        	log.info("autoHandleSignOutByAttendJmq：站点为空，无需处理！");
+        	return result;
+        }		
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
+        if (content == null 
+        		|| !Boolean.TRUE.equals(content.getMasterSwitch()) 
+        		|| !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
+        	log.info("autoHandleSignOutByAttendJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
+        	return result;
+        }		
 		//执行-签退逻辑
 		List<Long> toSignOutPks = new ArrayList<>();
         UserSignRecord updateData = new UserSignRecord();
