@@ -20,4 +20,9 @@ public class JyCacheKeyConstants {
     public static final String JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR = "jy:send:vehicle:dockValidate:%s";
     public static final TimeUnit JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT = TimeUnit.SECONDS;
 
+    // 转运发货任务完成消息，按批次存储
+    public static final String JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY = "jy:send:open_platform_send_task_complete:%s";
+    public static final Integer JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED = 4;
+    public static final TimeUnit JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT = TimeUnit.HOURS;
+
 }

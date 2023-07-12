@@ -47,7 +47,10 @@ public enum BusinessCodeFromSourceEnum {
      * 德邦融合项目-外部门创建
      */
     DBRH,
-
+    /**
+     * 分拣app
+     */
+    DMS_APP,
     /**
      * 未知来源
      */

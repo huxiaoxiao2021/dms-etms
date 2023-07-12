@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.consumable.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @Author zhengchengfa
@@ -25,6 +26,11 @@ public class WaybillConsumablePackConfirmRes implements Serializable {
     private String consumableCode;
     /** 耗材类型编码 **/
     private String consumableTypeCode;
+
+    /**
+     * 上游下发的体积
+     */
+    private BigDecimal volume;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -80,5 +86,13 @@ public class WaybillConsumablePackConfirmRes implements Serializable {
 
     public void setConsumableTypeCode(String consumableTypeCode) {
         this.consumableTypeCode = consumableTypeCode;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
     }
 }

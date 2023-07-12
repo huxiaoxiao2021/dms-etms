@@ -113,7 +113,9 @@
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" serialization="hessian" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -1298,7 +1300,6 @@
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-
     <!-- 滑道笼车配置 -->
     <jsf:consumer id="vehicleVolumeDicJsfService"
       interface="com.jdl.basic.api.service.vehicle.VehicleVolumeDicJsfService"
@@ -1309,6 +1310,7 @@
       lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
+
     <!--  快运订单修改接口-jsf  -->
     <jsf:consumer id="expressOrderServiceWs"
                   interface="com.jd.merchant.sdk.order.ws.ExpressOrderServiceWs"
@@ -1317,5 +1319,34 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>    
+    </jsf:consumer>
+
+    <!-- 站点匹配服务接口(根据地址匹配) -->
+    <jsf:consumer id="expressDispatchServiceAPI" interface="com.jd.bluedragon.preseparate.jsf.ExpressDispatchServiceAPI"
+                  protocol="jsf"
+                  alias="${jsf.expressDispatch.alias}"
+                  timeout="${jsf.expressDispatch.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  质控-异常原因接口  -->
+    <jsf:consumer id="abnormalReasonApiofZK"
+                  interface="com.jd.wl.cs.abnormal.portal.api.service.reason.AbnormalReasonApi"
+                  alias="${jsf.abnormalReasonApi.alias}"
+                  timeout="${jsf.abnormalReasonApi.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.abnormalReasonApi.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- erp妥投任务处理接口 杨金宇 -->
+    <jsf:consumer id="deliveryWSService" interface="com.jd.ql.erp.jsf.DeliveryWS"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!-- erp 妥投校验接口 杨金宇 -->
+    <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
+import com.jd.bluedragon.common.dto.sendcode.request.SendCodeGenRequest;
 import com.jd.bluedragon.common.dto.sendcode.request.SendCodeSealInfoQuery;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
@@ -69,5 +70,12 @@ public interface SendCodeGateWayService {
      * @param sendCode
      * @return
      */
-    JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query);    
+    JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query);
+
+    /**
+     * 生成批次号
+     * @param query
+     * @return
+     */
+    JdCResponse<String> genSendCode(SendCodeGenRequest query);
 }
