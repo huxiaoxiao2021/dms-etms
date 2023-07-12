@@ -330,6 +330,7 @@ public class DmsConstants {
     public static final String WJ_BOX_PREFIX = "WJ";
 
     public static final int PAGE_SIZE_DEFAULT = 10;
+    public static final int PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY = 100;
 
     public static final String KEYS_SPLIT = ":";
 
@@ -417,7 +418,10 @@ public class DmsConstants {
      * 运单-称重-longPackage:2-超长超重服务
      */
     public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
-    
+    /**
+     * 系统自动操作人
+     */
+    public static final String SYS_AUTO_USER_CODE = "system";    
     /**
      * 暂存类型枚举值
      */

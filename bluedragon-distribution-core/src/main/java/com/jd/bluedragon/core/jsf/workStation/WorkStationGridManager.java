@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.jsf.workStation;
 
+import java.util.List;
+
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridCountVo;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
@@ -40,4 +42,17 @@ public interface WorkStationGridManager {
      * @return 查询结果
      */
     Result<Long> queryCount(WorkStationGridQuery workStationGridQuery);
+    
+    /**
+     * 线上化任务扫描-查询站点列表
+     * @param workStationGridQuery
+     * @return
+     */
+	List<Integer> querySiteListForManagerScan(WorkStationGridQuery workStationGridQuery);
+    /**
+     * 线上化站点任务扫描-查询站点下网格列表
+     * @param workStationGridQuery
+     * @return
+     */
+	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
 }

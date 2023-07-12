@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.task.service;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScanData;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 import java.util.List;
@@ -51,6 +53,8 @@ public interface TaskService {
     List<Task> findTasksByFingerprint(Task task);
 
     Boolean updateBySelective(Task task);
+    
+    Boolean updateBySelectiveWithBody(Task task);    
 
     List<Task> findTasks(Task task);
 	
@@ -139,4 +143,23 @@ public interface TaskService {
      * @time 2023-03-21 16:34:55 周二
      */
     List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
+    /**
+     * 查询最近一次待执行的任务
+     * @param taskData
+     * @return
+     */
+	Task findLastWorkGridManagerScanTask(TaskWorkGridManagerScanData taskData);
+    /**
+     * 查询最近一次待执行的站点任务
+     * @param taskData
+     * @return
+     */
+	Task findLastWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData);
+	
+    /**
+     * 查找延迟调度任务
+     * @author wuyoude
+     * @time 2023-06-20 16:34:55 周二
+     */
+    List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);	
 }
