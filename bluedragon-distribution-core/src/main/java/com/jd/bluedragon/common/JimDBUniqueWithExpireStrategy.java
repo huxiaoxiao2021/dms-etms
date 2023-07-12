@@ -13,18 +13,20 @@ import java.util.concurrent.TimeUnit;
  * @Date 2023/7/11 17:24
  * @Description
  */
-public class JimDBUniqueStrategyNew implements UniqueStrategy {
+public class JimDBUniqueWithExpireStrategy implements UniqueStrategy {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     private final Cluster jimClient;
     private final String prefix;
+    private final Integer timeoutHours;
 
 
-    public JimDBUniqueStrategyNew(Cluster jimClient, String prefix) {
+    public JimDBUniqueWithExpireStrategy(Cluster jimClient, String prefix, Integer timeoutHours) {
         this.jimClient = jimClient;
         this.prefix = prefix;
+        this.timeoutHours = timeoutHours;
     }
 
 
@@ -33,12 +35,6 @@ public class JimDBUniqueStrategyNew implements UniqueStrategy {
         System.out.println(sn);
         byte[] keyBytes = ByteUtils.toByteArray(this.prefix, sn);
         byte[] timeBytes = ByteUtils.toByteArray(System.currentTimeMillis());
-        boolean res = this.jimClient.setNX(keyBytes, timeBytes);
-        if(res) {
-            this.jimClient.expire(keyBytes, 24, TimeUnit.HOURS);
-        }
-
-        return res;
-
+        return this.jimClient.set(keyBytes, timeBytes, timeoutHours, TimeUnit.HOURS, false);
     }
 }
