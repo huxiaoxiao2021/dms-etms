@@ -93,6 +93,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.LONG_ZERO;
+
 @Service("jyWarehouseSendVehicleServiceImpl")
 public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl implements JyWarehouseSendVehicleService{
 
@@ -172,6 +174,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             SendVehicleTaskResponse resData = new SendVehicleTaskResponse();
             invokeResult.setData(resData);
         }
+
+        fillMustField(invokeResult.getData());
         //车辆状态差异化查询
         if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
 
@@ -181,6 +185,49 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         return invokeResult;
+    }
+
+    private void fillMustField(SendVehicleTaskResponse response) {
+
+        List<VehicleStatusStatis> statusAggList = new ArrayList<>();
+        VehicleStatusStatis toSend = new VehicleStatusStatis();
+        toSend.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+        toSend.setVehicleStatusName(JyBizTaskSendStatusEnum.TO_SEND.getName());
+        toSend.setTotal(LONG_ZERO);
+        statusAggList.add(toSend);
+
+        VehicleStatusStatis sending = new VehicleStatusStatis();
+        sending.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+        sending.setVehicleStatusName(JyBizTaskSendStatusEnum.SENDING.getName());
+        sending.setTotal(LONG_ZERO);
+        statusAggList.add(sending);
+
+        VehicleStatusStatis toSeal = new VehicleStatusStatis();
+        toSeal.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+        toSeal.setVehicleStatusName(JyBizTaskSendStatusEnum.TO_SEAL.getName());
+        toSeal.setTotal(LONG_ZERO);
+        statusAggList.add(toSeal);
+
+        VehicleStatusStatis sealed = new VehicleStatusStatis();
+        sealed.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
+        sealed.setVehicleStatusName(JyBizTaskSendStatusEnum.SEALED.getName());
+        sealed.setTotal(LONG_ZERO);
+        statusAggList.add(sealed);
+
+        if(CollectionUtils.isEmpty(response.getStatusAgg())) {
+            response.setStatusAgg(statusAggList);
+        }else {
+            //返回状态list补全，否则状态更新为0时PDA数据不会更新
+            Map<Integer, VehicleStatusStatis> map = new HashMap<>();
+            for (VehicleStatusStatis statusAgg : response.getStatusAgg()) {
+                map.put(statusAgg.getVehicleStatus(), statusAgg);
+            }
+            for (VehicleStatusStatis statistics : statusAggList) {
+               if(Objects.isNull(map.get(statistics.getVehicleStatus()))) {
+                   response.getStatusAgg().add(statistics);
+               }
+            }
+        }
     }
 
 
