@@ -108,7 +108,7 @@ public class JySendPredictAggsBakConsumer  extends MessageBaseConsumer {
             logger.warn("业务主键不能为空");
             return false;
         }
-        if(entity.getSiteId() == null){
+        if(entity.getSiteCode() == null){
             logger.warn("站定id 为空!");
             return false;
         }
@@ -124,8 +124,8 @@ public class JySendPredictAggsBakConsumer  extends MessageBaseConsumer {
 
         JySendPredictAggsPO po = new JySendPredictAggsPO();
         po.setuId(dto.getUid());
-        po.setSiteId(dto.getSiteId());
-        po.setPlanNextSiteId(dto.getPlanNextSiteId());
+        po.setSiteId(dto.getSiteCode());
+        po.setPlanNextSiteId(dto.getPlanNextSiteCode());
         po.setProductType(dto.getProductType());
         po.setUnScanCount(dto.getUnScanCount());
         po.setFlag(dto.getFlag());

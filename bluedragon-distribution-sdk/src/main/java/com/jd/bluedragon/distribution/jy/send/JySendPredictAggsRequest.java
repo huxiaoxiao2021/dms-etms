@@ -24,6 +24,11 @@ public class JySendPredictAggsRequest implements Serializable {
      */
     private String productType;
 
+    /**
+     * 波次标识 1 当前波次 2 上波次
+     */
+    private Integer flag;
+
     public String getBizId() {
         return bizId;
     }
@@ -46,5 +51,13 @@ public class JySendPredictAggsRequest implements Serializable {
 
     public void setProductType(String productType) {
         this.productType = productType;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 }

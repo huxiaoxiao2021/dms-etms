@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictProductType;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
+
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -12,7 +15,19 @@ import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 public interface JySendPredictAggsService {
 
 
+    /**
+     * 获取待扫总数
+     * @param query
+     * @return
+     */
     Long getToScanCountSum(JySendPredictAggsRequest query);
+
+    /**
+     * 获取产品类型列表及每个产品类型待扫数
+     * @param query
+     * @return
+     */
+    List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 
     /**
      * （主库）插入或者新增波次待扫数据

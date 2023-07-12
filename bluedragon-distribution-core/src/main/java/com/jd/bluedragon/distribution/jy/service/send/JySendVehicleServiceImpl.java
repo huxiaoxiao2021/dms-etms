@@ -3705,15 +3705,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             List<JySendVehicleProductType> sendVehicleProductTypeList = new ArrayList<>();
             if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
-                JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
-                query.setSendVehicleBizId(request.getSendVehicleBizId());
-                List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
-                aggsEntityQuery.setOperateSiteId(new Long(request.getCurrentOperate().getSiteCode()));
-                if(CollectionUtils.isNotEmpty(receiveIds)){
-                    aggsEntityQuery.setEndSiteIds(receiveIds);
-                    log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(aggsEntityQuery));
-                    sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
-                    log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(sendVehicleProductTypeList));
+                JySendPredictAggsRequest aggsRequest = new JySendPredictAggsRequest();
+                aggsRequest.setSiteId(new Long(request.getCurrentOperate().getSiteCode()));
+                aggsRequest.setFlag(request.getFlag());
+                log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(aggsEntityQuery));
+                List<JySendPredictProductType> sendPredictProductTypeList = jySendPredictAggsService.getSendPredictProductTypeList(aggsRequest);
+                log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(sendVehicleProductTypeList));
+                if(CollectionUtils.isNotEmpty(sendPredictProductTypeList)){
+                    for (JySendPredictProductType item:sendPredictProductTypeList) {
+                        JySendVehicleProductType productType = new JySendVehicleProductType();
+                        productType.setProductType(item.getProductType());
+                        productType.setProductTypeName(item.getProductTypeName());
+                        productType.setProductwaitScanCount(item.getProductwaitScanCount());
+                        sendVehicleProductTypeList.add(productType);
+                    }
                 }
             }else {
                 aggsEntityQuery.setBizId(request.getSendVehicleBizId());

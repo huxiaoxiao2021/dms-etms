@@ -20,12 +20,12 @@ public class JySendPredictAggsDto implements Serializable {
     /**
      *场地id
      */
-    private Long siteId;
+    private Long siteCode;
 
     /**
      *计划下个场地id
      */
-    private Long planNextSiteId;
+    private Long planNextSiteCode;
 
 
 
@@ -67,20 +67,20 @@ public class JySendPredictAggsDto implements Serializable {
         this.uid = uid;
     }
 
-    public Long getSiteId() {
-        return siteId;
+    public Long getSiteCode() {
+        return siteCode;
     }
 
-    public void setSiteId(Long siteId) {
-        this.siteId = siteId;
+    public void setSiteCode(Long siteCode) {
+        this.siteCode = siteCode;
     }
 
-    public Long getPlanNextSiteId() {
-        return planNextSiteId;
+    public Long getPlanNextSiteCode() {
+        return planNextSiteCode;
     }
 
-    public void setPlanNextSiteId(Long planNextSiteId) {
-        this.planNextSiteId = planNextSiteId;
+    public void setPlanNextSiteCode(Long planNextSiteCode) {
+        this.planNextSiteCode = planNextSiteCode;
     }
 
     public String getProductType() {

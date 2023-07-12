@@ -6,11 +6,14 @@ import com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsSpecialDao;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoStrategy;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictProductType;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -29,9 +32,20 @@ public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
         JySendPredictAggsDaoStrategy jySendPredictAggsDao = jySendPredictAggsSpecialDao.getJySendPredictAggsDao();
         String keyword = jySendPredictAggsDao.getClass().getSimpleName();
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendPredictAggsServiceImpl"+keyword+".getToScanCountSum");
-        Long toScanCountSum = jySendPredictAggsDao.getunScanCountByCondition(query);
+        Long toScanCountSum = jySendPredictAggsDao.getunScanSumByCondition(query);
         Profiler.registerInfoEnd(info);
         return toScanCountSum;
+    }
+
+    @Override
+    public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query) {
+
+        JySendPredictAggsDaoStrategy jySendPredictAggsDao = jySendPredictAggsSpecialDao.getJySendPredictAggsDao();
+        String keyword = jySendPredictAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendPredictAggsServiceImpl"+keyword+".getSendPredictProductTypeList");
+        List<JySendPredictProductType> sendPredictProductTypeList = jySendPredictAggsDao.getSendPredictProductTypeList(query);
+        Profiler.registerInfoEnd(info);
+        return sendPredictProductTypeList;
     }
 
     @Override

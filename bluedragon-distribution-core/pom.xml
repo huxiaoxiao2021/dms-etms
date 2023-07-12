@@ -2174,7 +2174,7 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.8-SNAPSHOT</version>
+			<version>1.0.10-dev-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>

@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
-import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
-import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.send.*;
 
 import java.util.List;
 
@@ -12,7 +11,9 @@ import java.util.List;
  */
 public interface JySendPredictAggsDaoStrategy {
 
-    Long getunScanCountByCondition(JySendPredictAggsRequest request);
+    Long getunScanSumByCondition(JySendPredictAggsRequest request);
 
     List<JySendPredictAggsPO> getListByCondition(JySendPredictAggsRequest request);
+
+    List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 }

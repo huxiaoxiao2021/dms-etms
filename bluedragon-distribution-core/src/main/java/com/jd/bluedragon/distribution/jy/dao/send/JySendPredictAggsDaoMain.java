@@ -17,8 +17,8 @@ class JySendPredictAggsDaoMain extends BaseDao<JySendPredictAggsPO>  implements 
     private final static String NAMESPACE = JySendPredictAggsDaoMain.class.getName();
 
     @Override
-    public Long getunScanCountByCondition(JySendPredictAggsRequest request) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".getunScanCountByCondition", request);
+    public Long getunScanSumByCondition(JySendPredictAggsRequest request) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".getunScanSumByCondition", request);
     }
 
     @Override
@@ -26,7 +26,9 @@ class JySendPredictAggsDaoMain extends BaseDao<JySendPredictAggsPO>  implements 
         return this.getSqlSession().selectList(NAMESPACE + ".getListByCondition", request);
     }
 
-
+    public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query){
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendPredictProductTypeList", query);
+    }
 
     public int updateByBizProduct(JySendPredictAggsPO entity){
         return this.getSqlSession().update(NAMESPACE + ".updateByBizProduct", entity);
