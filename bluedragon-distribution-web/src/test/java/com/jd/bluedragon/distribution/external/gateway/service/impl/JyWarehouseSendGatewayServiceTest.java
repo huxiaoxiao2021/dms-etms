@@ -341,28 +341,26 @@ public class JyWarehouseSendGatewayServiceTest {
         paramDto.setMixScanTaskCode("CTT23060600000010");
         paramDto.setGroupCode(GROUP_CODE);
 
-        String testPdaJson = "       {\n" +
+        String testPdaJson = "    {\n" +
                 "        \"currentOperate\": {\n" +
-                "            \"dmsCode\": \"010K001\",\n" +
-                "            \"operateTime\": 1686922789366,\n" +
-                "            \"operatorId\": \"51428\",\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1689144773539,\n" +
+                "            \"operatorId\": \"53316\",\n" +
                 "            \"operatorTypeCode\": 1,\n" +
                 "            \"orgId\": 6,\n" +
                 "            \"orgName\": \"华北\",\n" +
                 "            \"siteCode\": 223094,\n" +
                 "            \"siteName\": \"北京马驹桥接货仓\"\n" +
                 "        },\n" +
-                "        \"groupCode\": \"G00000099001\",\n" +
                 "        \"keyword\": \"\",\n" +
-                "        \"mixScanTaskCode\": \"CTT23061600000002\",\n" +
-                "        \"pageNo\": 1,\n" +
-                "        \"pageSize\": 30,\n" +
-                "        \"requestId\": \"5551423fb70a416faf56967344d67ca6\",\n" +
+                "        \"pageNumber\": 1,\n" +
+                "        \"pageSize\": 15,\n" +
                 "        \"user\": {\n" +
-                "            \"userCode\": 18225,\n" +
-                "            \"userErp\": \"xumigen\",\n" +
-                "            \"userName\": \"徐迷根\"\n" +
-                "        }\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
+                "        },\n" +
+                "        \"vehicleStatus\": 1\n" +
                 "    }";
 
         AppendSendVehicleTaskQueryReq testPdaReq = JsonHelper.fromJson(testPdaJson, AppendSendVehicleTaskQueryReq.class);
