@@ -557,9 +557,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	return result;
         }		
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
-        if (content == null 
-        		|| !Boolean.TRUE.equals(content.getMasterSwitch()) 
-        		|| !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
+        if (content != null 
+        		&& !Boolean.TRUE.equals(content.getMasterSwitch()) 
+        		&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
         	log.info("autoHandleSignOutByAttendJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
         	return result;
         }		
