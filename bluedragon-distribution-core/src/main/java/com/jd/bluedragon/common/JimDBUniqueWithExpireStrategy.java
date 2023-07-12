@@ -20,13 +20,13 @@ public class JimDBUniqueWithExpireStrategy implements UniqueStrategy {
 
     private final Cluster jimClient;
     private final String prefix;
-    private final Integer timeoutHours;
+    private final Integer timeoutDays;
 
 
-    public JimDBUniqueWithExpireStrategy(Cluster jimClient, String prefix, Integer timeoutHours) {
+    public JimDBUniqueWithExpireStrategy(Cluster jimClient, String prefix, Integer timeoutDays) {
         this.jimClient = jimClient;
         this.prefix = prefix;
-        this.timeoutHours = timeoutHours;
+        this.timeoutDays = timeoutDays;
     }
 
 
@@ -35,6 +35,6 @@ public class JimDBUniqueWithExpireStrategy implements UniqueStrategy {
         System.out.println(sn);
         byte[] keyBytes = ByteUtils.toByteArray(this.prefix, sn);
         byte[] timeBytes = ByteUtils.toByteArray(System.currentTimeMillis());
-        return this.jimClient.set(keyBytes, timeBytes, timeoutHours, TimeUnit.HOURS, false);
+        return this.jimClient.set(keyBytes, timeBytes, timeoutDays, TimeUnit.DAYS, false);
     }
 }

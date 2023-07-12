@@ -54,7 +54,7 @@
     <bean id="jimDBUniqueStrategy" class="com.jd.bluedragon.common.JimDBUniqueWithExpireStrategy">
         <constructor-arg index="0" name="jimClient" ref="redisClient"/>
         <constructor-arg index="1" name="prefix" value="sequence-unique-"/>
-        <constructor-arg index="2" name="timeoutHours" value="24"/>
+        <constructor-arg index="2" name="timeoutDays" value="30"/>
     </bean>
 
     <bean id="JimdbSequenceGen1" class="com.jd.coo.sa.sequence.JimdbSequenceGen">
