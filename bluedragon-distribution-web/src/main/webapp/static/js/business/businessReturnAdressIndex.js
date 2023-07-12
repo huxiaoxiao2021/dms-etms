@@ -99,7 +99,8 @@ $(function() {
         },{
             field : 'deptNo',
             title : '签约区域',
-            align: 'center'
+            align: 'center',
+			visible: false
         },{
             field : 'returnAdressStatusDesc',
             title : '此时是否已维护退货信息',
