@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.vehicle.VehicleIntegralConfig;
@@ -23,6 +24,8 @@ public class VehicleIntegralConfigJsfManagerImpl implements VehicleIntegralConfi
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.VehicleIntegralConfigJsfManagerImpl.findConfigByVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "VehicleIntegralConfigJsfManagerImpl.findConfigByVehicleType", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
     public VehicleIntegralConfig findConfigByVehicleType(Integer vehicleType) {
         try {
             Result<VehicleIntegralConfig> result = vehicleIntegralConfigJsfService.findConfigByVehicleType(vehicleType);

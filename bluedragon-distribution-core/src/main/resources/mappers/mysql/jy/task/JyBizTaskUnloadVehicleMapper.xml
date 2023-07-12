@@ -595,12 +595,6 @@
             <if test="entity.priorityFlag != null ">
                 and priority_flag = #{entity.priorityFlag}
             </if>
-            <if test="entity.idList != null and entity.idList.size() > 0">
-                AND id not IN
-                <foreach collection="entity.idList" item="item" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
 
         </where>
 

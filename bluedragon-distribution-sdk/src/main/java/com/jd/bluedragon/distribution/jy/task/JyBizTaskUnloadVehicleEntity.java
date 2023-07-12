@@ -215,11 +215,6 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer priorityFlag;
 
-    /**
-     * id列表
-     */
-    private List<Long> idList;
-
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -606,11 +601,4 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         this.priorityFlag = priorityFlag;
     }
 
-    public List<Long> getIdList() {
-        return idList;
-    }
-
-    public void setIdList(List<Long> idList) {
-        this.idList = idList;
-    }
 }
