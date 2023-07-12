@@ -122,7 +122,7 @@
     select product_type as productType,
            sum(un_scan_count) as productwaitScanCount
     from jy_send_predict_aggs
-    WHERE site_id = #{operateSiteId}
+    WHERE site_id = #{siteId}
     AND flag =#{flag}
     GROUP BY product_type
   </select>

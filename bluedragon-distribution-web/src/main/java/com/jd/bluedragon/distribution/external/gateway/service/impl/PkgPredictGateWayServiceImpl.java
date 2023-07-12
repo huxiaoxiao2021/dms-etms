@@ -1,23 +1,31 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackage;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackageDetailResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanWaybill;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.predict.enums.OperationProductType;
+import com.jd.bluedragon.common.dto.predict.request.SendPredictAggsQuery;
 import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendDetailsReq;
 import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendPackageCountReq;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendDetailsResponse;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendPackageCountResponse;
+import com.jd.bluedragon.core.base.SendPredictAggsPackageManager;
+import com.jd.bluedragon.distribution.jy.enums.JySendVehicleProductTypeEnum;
 import com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService;
+import com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictToScanPackage;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.api.predict.IPackagePredictAggsJsfService;
 import com.jdl.jy.realtime.base.ServiceResult;
 import com.jdl.jy.realtime.model.vo.predict.InspectedNotSendBarCode;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +45,9 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
 
     @Autowired
     IPackagePredictAggsJsfService iPackagePredictAggsService;
+
+    @Autowired
+    private SendPredictAggsPackageManager sendPredictAggsPackageManager;
 
 
     @Override
@@ -140,5 +151,58 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
             log.error("queryCurrentWorkWaveInspectedNotSendWaybillsByPage error" + JSONObject.toJSONString(req), e);
             return new JdCResponse<>(500, "服务器异常");
         }
+    }
+
+    @Override
+    public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendPredictToScanPackageList(SendPredictAggsQuery query) {
+
+        if(log.isInfoEnabled()){
+            log.info("发货波次待扫包裹列表入参-{}", JSON.toJSONString(query));
+        }
+        JdCResponse<SendVehicleToScanPackageDetailResponse> response = new JdCResponse<>();
+        response.toSucceed("请求成功!");
+        try{
+            boolean checkResult = checkParam(query, response);
+            if(!checkResult){
+                return response;
+            }
+            com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictAggsQuery predictAggsQuery = new com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictAggsQuery();
+            BeanUtils.copyProperties(query,predictAggsQuery);
+            List<SendPredictToScanPackage> sendPredictToScanPackageList = sendPredictAggsPackageManager.getSendPredictToScanPackageList(predictAggsQuery);
+            if(CollectionUtils.isNotEmpty(sendPredictToScanPackageList)){
+                SendVehicleToScanPackageDetailResponse packageDetailResponse =new SendVehicleToScanPackageDetailResponse();
+                packageDetailResponse.setProductType(query.getProductType());
+                packageDetailResponse.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(query.getProductType()));
+                List<SendVehicleToScanPackage> packages = new ArrayList<>();
+                for (SendPredictToScanPackage pg:sendPredictToScanPackageList) {
+                    SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
+                    toScanPackage.setPackageCode(pg.getPackageCode());
+                    toScanPackage.setProductType(pg.getProductType());
+                    packages.add(toScanPackage);
+                }
+                packageDetailResponse.setPackageCodeList(packages);
+                response.setData(packageDetailResponse);
+            }
+        }catch (Exception e){
+            log.error("获取发货波次待扫包裹列表异常-param{}",JSON.toJSONString(query),e);
+            response.toError("获取发货波次待扫包裹列表异常!");
+        }
+        return response;
+    }
+
+    private boolean checkParam(SendPredictAggsQuery query,JdCResponse<SendVehicleToScanPackageDetailResponse> response){
+        if(query == null
+                || query.getFlag() == null
+                || query.getSiteCode() == null
+                || StringUtils.isBlank(query.getProductType())){
+            response.toFail("入参不能为空!");
+            return false;
+        }
+
+        if (query.getPageSize() < 0 || query.getPageNumber() < 1) {
+            response.toFail("分页参数错误");
+            return false;
+        }
+        return true;
     }
 }
