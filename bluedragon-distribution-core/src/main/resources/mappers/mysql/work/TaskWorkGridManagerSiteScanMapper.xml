@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.work.TaskWorkGridManagerSiteScanDao" >
+
+	<resultMap id="TaskWorkGridManagerSiteScan" type="com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScan" >
+		<id column="TASK_ID" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="CREATE_TIME" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="KEYWORD1" property="keyword1" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="KEYWORD2" property="keyword2" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="CREATE_SITE_CODE" property="createSiteCode" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="RECEIVE_SITE_CODE" property="receiveSiteCode" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="task_config_code" property="taskConfigCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="task_batch_code" property="taskBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="BODY" property="body" javaType="null" jdbcType="VARCHAR" />
+		<result column="EXECUTE_COUNT" property="executeCount" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="TASK_TYPE" property="taskType" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="TASK_STATUS" property="taskStatus" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="YN" property="yn" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="OWN_SIGN" property="ownSign" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="FINGERPRINT" property="fingerprint" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="EXECUTE_TIME" property="executeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="QUEUE_ID" property="queueId" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		TASK_ID,CREATE_TIME,UPDATE_TIME,KEYWORD1,KEYWORD2,CREATE_SITE_CODE,
+		RECEIVE_SITE_CODE,task_config_code,task_batch_code,site_code,BODY,
+		EXECUTE_COUNT,TASK_TYPE,TASK_STATUS,YN,OWN_SIGN,
+		FINGERPRINT,EXECUTE_TIME,QUEUE_ID
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScan" useGeneratedKeys="true" keyProperty="taskId">
+		insert into task_work_grid_manager_site_scan
+			(
+			<trim suffixOverrides=",">
+				<if test="taskId != null" >
+					TASK_ID,
+				</if>
+				<if test="createTime != null" >
+					CREATE_TIME,
+				</if>
+				<if test="updateTime != null" >
+					UPDATE_TIME,
+				</if>
+				<if test="keyword1 != null" >
+					KEYWORD1,
+				</if>
+				<if test="keyword2 != null" >
+					KEYWORD2,
+				</if>
+				<if test="createSiteCode != null" >
+					CREATE_SITE_CODE,
+				</if>
+				<if test="receiveSiteCode != null" >
+					RECEIVE_SITE_CODE,
+				</if>
+				<if test="taskConfigCode != null" >
+					task_config_code,
+				</if>
+				<if test="taskBatchCode != null" >
+					task_batch_code,
+				</if>
+				<if test="siteCode != null" >
+					site_code,
+				</if>
+				<if test="body != null" >
+					BODY,
+				</if>
+				<if test="executeCount != null" >
+					EXECUTE_COUNT,
+				</if>
+				<if test="taskType != null" >
+					TASK_TYPE,
+				</if>
+				<if test="taskStatus != null" >
+					TASK_STATUS,
+				</if>
+				<if test="yn != null" >
+					YN,
+				</if>
+				<if test="ownSign != null" >
+					OWN_SIGN,
+				</if>
+				<if test="fingerprint != null" >
+					FINGERPRINT,
+				</if>
+				<if test="executeTime != null" >
+					EXECUTE_TIME,
+				</if>
+				<if test="queueId != null" >
+					QUEUE_ID,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="taskId != null" >
+					#{taskId,jdbcType=BIGINT},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="keyword1 != null" >
+					#{keyword1,jdbcType=VARCHAR},
+				</if>
+				<if test="keyword2 != null" >
+					#{keyword2,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null" >
+					#{createSiteCode,jdbcType=DOUBLE},
+				</if>
+				<if test="receiveSiteCode != null" >
+					#{receiveSiteCode,jdbcType=DOUBLE},
+				</if>
+				<if test="taskConfigCode != null" >
+					#{taskConfigCode,jdbcType=VARCHAR},
+				</if>
+				<if test="taskBatchCode != null" >
+					#{taskBatchCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteCode != null" >
+					#{siteCode,jdbcType=BIGINT},
+				</if>
+				<if test="body != null" >
+					#{body,jdbcType=VARCHAR},
+				</if>
+				<if test="executeCount != null" >
+					#{executeCount,jdbcType=DOUBLE},
+				</if>
+				<if test="taskType != null" >
+					#{taskType,jdbcType=DOUBLE},
+				</if>
+				<if test="taskStatus != null" >
+					#{taskStatus,jdbcType=DOUBLE},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=DOUBLE},
+				</if>
+				<if test="ownSign != null" >
+					#{ownSign,jdbcType=VARCHAR},
+				</if>
+				<if test="fingerprint != null" >
+					#{fingerprint,jdbcType=VARCHAR},
+				</if>
+				<if test="executeTime != null" >
+					#{executeTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="queueId != null" >
+					#{queueId,jdbcType=TINYINT},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScan">
+		update task_work_grid_manager_site_scan
+			<set>
+				<if test="taskId != null" >
+					TASK_ID = #{taskId,jdbcType=BIGINT},
+				</if>
+				<if test="createTime != null" >
+					CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="keyword1 != null" >
+					KEYWORD1 = #{keyword1,jdbcType=VARCHAR},
+				</if>
+				<if test="keyword2 != null" >
+					KEYWORD2 = #{keyword2,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null" >
+					CREATE_SITE_CODE = #{createSiteCode,jdbcType=DOUBLE},
+				</if>
+				<if test="receiveSiteCode != null" >
+					RECEIVE_SITE_CODE = #{receiveSiteCode,jdbcType=DOUBLE},
+				</if>
+				<if test="taskConfigCode != null" >
+					task_config_code = #{taskConfigCode,jdbcType=VARCHAR},
+				</if>
+				<if test="taskBatchCode != null" >
+					task_batch_code = #{taskBatchCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=BIGINT},
+				</if>
+				<if test="body != null" >
+					BODY = #{body,jdbcType=VARCHAR},
+				</if>
+				<if test="executeCount != null" >
+					EXECUTE_COUNT = #{executeCount,jdbcType=DOUBLE},
+				</if>
+				<if test="taskType != null" >
+					TASK_TYPE = #{taskType,jdbcType=DOUBLE},
+				</if>
+				<if test="taskStatus != null" >
+					TASK_STATUS = #{taskStatus,jdbcType=DOUBLE},
+				</if>
+				<if test="yn != null" >
+					YN = #{yn,jdbcType=DOUBLE},
+				</if>
+				<if test="ownSign != null" >
+					OWN_SIGN = #{ownSign,jdbcType=VARCHAR},
+				</if>
+				<if test="fingerprint != null" >
+					FINGERPRINT = #{fingerprint,jdbcType=VARCHAR},
+				</if>
+				<if test="executeTime != null" >
+					EXECUTE_TIME = #{executeTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="queueId != null" >
+					QUEUE_ID = #{queueId,jdbcType=TINYINT},
+				</if>
+			</set>
+		where TASK_ID = #{taskId,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="java.lang.Long">
+		update task_work_grid_manager_site_scan
+			set yn = 0
+		where TASK_ID = #{taskId,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="TaskWorkGridManagerSiteScan">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			task_work_grid_manager_site_scan t
+		where yn = 1 and TASK_ID = #{taskId,jdbcType=BIGINT}
+	</select>
+
+	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="TaskWorkGridManagerSiteScan">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			task_work_grid_manager_site_scan t
+		where yn = 1 
+	</select>
+
+</mapper>
