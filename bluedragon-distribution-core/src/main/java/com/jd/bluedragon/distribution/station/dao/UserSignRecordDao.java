@@ -90,6 +90,13 @@ public interface UserSignRecordDao {
 	 */
 	UserSignRecord queryLastUnSignOutRecord(UserSignRecordQuery query);
 	/**
+	 * 查询用户最近一次未签退的签到信息-自动打卡签退
+	 * @param query
+	 * @return
+	 */
+	UserSignRecord queryLastUnSignOutRecordForAutoSignOut(UserSignRecordQuery query);	
+		
+	/**
 	 * 按条件查询统计
 	 * @param query
 	 * @return

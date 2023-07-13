@@ -796,20 +796,40 @@
             #{item, jdbcType=BIGINT}
         </foreach>
     </update>
-	<select id="queryLastUnSignOutRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+    <select id="queryLastUnSignOutRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            (select t.* from user_sign_record t
+            where t.yn = 1
+            <choose>
+                <when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+                    and t.user_code = #{userCode,jdbcType=VARCHAR}
+                </when>
+                <otherwise>
+                    and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+                </otherwise>
+            </choose>
+                and t.sign_out_time is null
+            <if test="siteCode != null" >
+                and t.site_code = #{siteCode,jdbcType=INTEGER}  
+            </if>           
+            <if test="signDate != null" >
+                and t.sign_date = #{signDate,jdbcType=DATE}
+            </if>
+            order by t.sign_in_time desc
+            limit 1
+            ) r         
+        <include refid="joinSql"/>          
+        limit 1
+    </select>    
+	<select id="queryLastUnSignOutRecordForAutoSignOut" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
 		from
 			(select t.* from user_sign_record t
 			where t.yn = 1
-			<choose>
-				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
-					and t.user_code = #{userCode,jdbcType=VARCHAR}
-				</when>
-				<otherwise>
-					and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
-				</otherwise>
-			</choose>
+				and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
 				and t.sign_out_time is null
 			<if test="siteCode != null" >
 				and	t.site_code = #{siteCode,jdbcType=INTEGER}	

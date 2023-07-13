@@ -545,7 +545,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//根据erp+场地查询，已签未退的数据
 		UserSignRecordQuery query = new UserSignRecordQuery();
 		query.setUserCode(mqData.getUserErp());
-		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
+		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecordForAutoSignOut(query);
 		if(lastUnSignOutRecord == null) {
 			log.info("autoHandleSignOutByAttendJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
 			return result;
