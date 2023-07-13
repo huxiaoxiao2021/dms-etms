@@ -112,17 +112,29 @@ public class JySendGoodsAggsConsumerTest {
     @Test
     public void sendPredictAggsConsumerTest() throws Exception {
 
+//        String body = "{\n" +
+//                "  \"siteId\": 111,\n" +
+//                "  \"planNextSiteId\": 111,\n" +
+//                "  \"flag\": 1,\n" +
+//                "  \"uid\": \"772778|799000|NONE|1\",\n" +
+//                "  \"planWaveCode\": \"TEST002\",\n" +
+//                "  \"version\": 11118,\n" +
+//                "  \"planWaveWorkStartTime\": \"2022-01-01 00:10:10\",\n" +
+//                "  \"planWaveWorkEndTime\": \"2022-01-01 21:00:00\",\n" +
+//                "  \"productType\": \"FAST\",\n" +
+//                "  \"unScanCount\": 1099 \n" +
+//                "}\n";
+
+
         String body = "{\n" +
-                "  \"siteId\": 111,\n" +
-                "  \"planNextSiteId\": 111,\n" +
-                "  \"flag\": 1,\n" +
-                "  \"uid\": \"772778|799000|NONE|1\",\n" +
-                "  \"planWaveCode\": \"TEST002\",\n" +
-                "  \"version\": 11118,\n" +
-                "  \"planWaveWorkStartTime\": \"2022-01-01 00:10:10\",\n" +
-                "  \"planWaveWorkEndTime\": \"2022-01-01 21:00:00\",\n" +
-                "  \"productType\": \"FAST\",\n" +
-                "  \"unScanCount\": 1099 \n" +
+                "  \"siteCode\": 691538,\n" +
+                "  \"planNextSiteCode\": 1345120,\n" +
+                "  \"flag\": 2,\n" +
+                "  \"uid\": \"691538|1345120|TIKTOK|2\",\n" +
+                "  \"version\": 1689060882999,\n" +
+                "  \"aggTime\": \"2023-07-11 15:34:42\",\n" +
+                "  \"productType\": \"TIKTOK\",\n" +
+                "  \"unScanCount\": 100 \n" +
                 "}\n";
 
         Message message = new Message();
