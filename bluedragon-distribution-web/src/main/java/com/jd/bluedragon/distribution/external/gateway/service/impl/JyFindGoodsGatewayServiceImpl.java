@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.FindGoodsReq;
 import com.jd.bluedragon.common.dto.comboard.request.FindGoodsResp;
+import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyFindGoodsService;
@@ -20,6 +21,41 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   @Override
   public JdCResponse<FindGoodsResp> findGoodsScan(FindGoodsReq request) {
     return retJdCResponse(jyFindGoodsService.findGoodsScan(request));
+  }
+
+  @Override
+  public JdCResponse<String> findWorkGridKeyByPositionCode(String positionCode) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<InventoryTaskDto> findCurrentInventoryTask(InventoryTaskQueryReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<InventoryTaskListQueryRes> findInventoryTaskListPage(InventoryTaskListQueryReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<InventoryTaskStatisticsRes> inventoryTaskStatistics(InventoryTaskStatisticsReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<Void> inventoryTaskPhotograph(InventoryTaskPhotographReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse<InventoryDetailQueryRes> findInventoryDetailPage(InventoryDetailQueryReq request) {
+    return null;
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
