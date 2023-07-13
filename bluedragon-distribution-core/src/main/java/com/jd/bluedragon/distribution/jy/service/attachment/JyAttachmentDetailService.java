@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.attachment;
 
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,9 @@ public interface JyAttachmentDetailService {
     Integer batchInsert(List<JyAttachmentDetailEntity> annexList);
 
     /**
-     * 根据查询条件分页查询数据
-     * 
-     * @param paramsMap
+     * 查询附件列表
+     * @param query
      * @return
      */
-    List<JyAttachmentDetailEntity> queryPageListByCondition(Map<String, Object> paramsMap);
+    List<JyAttachmentDetailEntity> queryDataListByCondition(JyAttachmentDetailQuery query);
 }

@@ -225,7 +225,18 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
-
+    /**
+     * 快运产品-特快零担（fr-m-0001)
+     */
+    public static final String PRODUCT_TYPE_KY_001 = "fr-m-0001";
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0002 = "fr-m-0002"; 
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
     /**
      * 工种类型
      */
@@ -330,6 +341,7 @@ public class DmsConstants {
     public static final String WJ_BOX_PREFIX = "WJ";
 
     public static final int PAGE_SIZE_DEFAULT = 10;
+    public static final int PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY = 100;
 
     public static final String KEYS_SPLIT = ":";
 
@@ -417,7 +429,10 @@ public class DmsConstants {
      * 运单-称重-longPackage:2-超长超重服务
      */
     public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
-    
+    /**
+     * 系统自动操作人
+     */
+    public static final String SYS_AUTO_USER_CODE = "system";    
     /**
      * 暂存类型枚举值
      */
