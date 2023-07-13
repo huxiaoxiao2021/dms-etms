@@ -914,7 +914,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			if(!isEffectErp) {
 				if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-							||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+							||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+							||JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
 					result.toFail("签到失败，ERP在中台基础资料中不存在！");
 					return result;
 				}
