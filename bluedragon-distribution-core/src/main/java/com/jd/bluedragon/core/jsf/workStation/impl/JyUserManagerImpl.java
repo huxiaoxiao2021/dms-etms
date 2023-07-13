@@ -27,13 +27,14 @@ public class JyUserManagerImpl implements JyUserManager {
     private UserJsfService userJsfService;
 
 	@Override
-	public Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String userPositionCode,String userPositionName) {
+	public Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName) {
 		Result<List<String>> result = Result.success();
 		List<String> userList = new ArrayList<>();
 		JyUserQueryDto condition = new JyUserQueryDto();
 		condition.setSiteCode(siteCode);
 		condition.setPositionCode(userPositionCode);
 		condition.setPositionName(userPositionName);
+		condition.setOrganizationCode(organizationCode);
         try {
             log.info("获取岗位人员列表列表数据 queryUserListBySiteAndPosition： siteCode={},userPositionCode={},userPositionName={}",siteCode,userPositionCode,userPositionName);
     		com.jd.dms.java.utils.sdk.base.Result<List<JyUserDto>> apiResult = userJsfService.queryUserListBySiteAndPosition(condition);
