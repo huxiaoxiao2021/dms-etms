@@ -19,4 +19,5 @@ public interface IJYOpenCargoOperate {
     InvokeResult<Boolean> inspection(JYCargoOperateEntity entity);
     InvokeResult<Boolean> sorting(JYCargoOperateEntity entity);
     InvokeResult<Boolean> send(JYCargoOperateEntity entity);
+    InvokeResult<Boolean> sendVehicleFinish(JYCargoOperateEntity entity);
 }

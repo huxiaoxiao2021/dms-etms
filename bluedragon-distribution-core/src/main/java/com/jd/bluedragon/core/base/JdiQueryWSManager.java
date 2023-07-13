@@ -56,4 +56,14 @@ public interface JdiQueryWSManager {
      * @return
      */
     List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam  param);
+
+
+    /**
+     * 查询派车任务的任务简码
+     * @param dto
+     * @return
+     */
+    CommonDto<JdiSealCarResponseDto>  querySealCarSimpleCode(JdiSealCarQueryDto dto);
+
+
 }

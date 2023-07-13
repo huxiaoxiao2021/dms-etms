@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -17,6 +18,8 @@ import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationServi
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.enums.JyAutoCloseTaskBusinessTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -115,6 +118,11 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     @Qualifier(value = "sendVehicleDetailTaskProducer")
     private DefaultJMQProducer sendVehicleDetailTaskProducer;
 
+    @Autowired
+    @Qualifier("jyBizTaskAutoCloseProducer")
+    private DefaultJMQProducer jyBizTaskAutoCloseProducer;
+
+
     @Override
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
@@ -192,9 +200,14 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                     JyLineTypeEnum detailLineType = TmsLineTypeEnum.getLineType(workItemDto.getTransType());
                     taskSendVehicleDetailEntity.setLineType(detailLineType.getCode());
                     taskSendVehicleDetailEntity.setLineTypeName(detailLineType.getName());
+                    checkIfNeedSaveTaskSimpleCode(taskSendVehicleDetailEntity);
                     transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
                     // 发送任务明细mq
                     sendVehicleDetailTaskMQ(taskSendVehicleDetailEntity, workItemDto.getOperateType());
+
+                    //发送车辆任务到自动执行任务 根据计划发货时间执行特安相关逻辑（复用自动关闭任务逻辑）
+                    sendVehicleTaskMQToAutoCloseTask(taskSendVehicleDetailEntity,JyAutoCloseTaskBusinessTypeEnum.CREATE_SEND_VEHICLE_TASK.getCode());
+
                 }
             }
             // 取消发货任务流向
@@ -231,6 +244,39 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         finally {
             redisClientOfJy.del(mutexKey);
         }
+    }
+
+    private void checkIfNeedSaveTaskSimpleCode(JyBizTaskSendVehicleDetailEntity detailEntity) {
+        try {
+            if (ObjectHelper.isNotNull(detailEntity)){
+                String key = String.format(Constants.JY_TMS_SIMPLE_TASK_CODE_PREFIX, detailEntity.getTransWorkItemCode());
+                String taskSimpleCode =redisClientOfJy.get(key);
+                if (ObjectHelper.isNotNull(taskSimpleCode)){
+                    detailEntity.setTaskSimpleCode(taskSimpleCode);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("获取任务简码缓存信息异常",e);
+        }
+    }
+
+    /**
+     *
+     * @param vehicleDetail
+     * @param businessType
+     */
+    private void sendVehicleTaskMQToAutoCloseTask(JyBizTaskSendVehicleDetailEntity vehicleDetail,Integer businessType){
+        try{
+            final AutoCloseTaskMq autoCloseTaskMq = new AutoCloseTaskMq();
+            autoCloseTaskMq.setBizId(vehicleDetail.getSendVehicleBizId());
+            autoCloseTaskMq.setTaskBusinessType(businessType);
+            autoCloseTaskMq.setOperateTime(vehicleDetail.getPlanDepartTime().getTime());
+            logger.info("sendVehicleTaskMQToAutoCloseTask-{}", JSON.toJSONString(autoCloseTaskMq));
+            jyBizTaskAutoCloseProducer.send(vehicleDetail.getBizId(),JsonHelper.toJson(autoCloseTaskMq));
+        }catch (Exception e){
+            logger.error("发送发车任务消息异常-{}",e.getMessage(),e);
+        }
+
     }
 
     private void sendVehicleDetailTaskMQ(JyBizTaskSendVehicleDetailEntity entity, Integer operateType) {

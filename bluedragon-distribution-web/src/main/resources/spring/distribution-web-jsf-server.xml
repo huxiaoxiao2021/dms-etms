@@ -326,7 +326,12 @@
                   ref="userSignRecordJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <jsf:provider id="userSignRecordFlowJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.UserSignRecordFlowJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="userSignRecordFlowJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!-- 上岗码查询JSF服务 -->
     <jsf:provider id="positionQueryJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
@@ -455,6 +460,7 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
     <!--  biz任务服务  -->
     <jsf:provider id="jsfJyBizTaskConstraintJsfService"
                   interface="com.jd.bluedragon.distribution.jy.api.JyBizTaskConstraintJsfService"
@@ -510,6 +516,63 @@
       alias="${dms.jsf.alias}"
       ref="dmsComboardService"
       server="dmsjsf">
+    </jsf:provider>
+    
+    <!--  抽检服务   -->
+    <jsf:provider id="jsfSpotCheckDealService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckDealService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 运输发货车辆相关服务 -->
+    <jsf:provider id="jsfJyTransportSendVehicleService"
+                  interface="com.jd.bluedragon.distribution.jy.transport.api.JyTransportSendVehicleService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTransportSendVehicleService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
+
+    <!--  提供给逆向集约接口   -->
+    <jsf:provider id="reverseIntensiveServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService"
+                  alias="${dms.jsf.alias}"
+                  ref="reverseIntensiveService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 对外提供给德邦的包装确认服务jsf -->
+    <jsf:provider id="jsfWaybillConsumableService"
+                  interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillConsumableService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 对外提供给德邦的拦截换单服务jsf -->
+    <jsf:provider id="jsfWaybillInterceptReverseService"
+                  interface="com.jd.bluedragon.distribution.print.service.WaybillInterceptReverseService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillInterceptReverseService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 德邦融合接口服务 -->
+    <jsf:provider id="jsfDebonReturnScheduleGateWayService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillReturnScheduleGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  定时调度对外jsf  -->
+    <jsf:provider id="jsfDmsTimingHandlerService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsTimingHandlerService"
+                  server="dmsjsf">
     </jsf:provider>
 
 </beans>

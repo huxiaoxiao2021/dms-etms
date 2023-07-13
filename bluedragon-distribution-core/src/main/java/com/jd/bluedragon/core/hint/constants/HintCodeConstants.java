@@ -559,6 +559,20 @@ public class HintCodeConstants {
      */
     public static String WAYBILL_EXCEPTION_REVERSE_INTERCEPT = "20090";
 
+    // 验货成功。未找到包裹下游流向场地，无法进行建板，可以手动选择包裹目的地，是否确认?
+    public static String JY_UNLOAD_VEHICLE_PACK_NO_ROUTER = "20091";
+
+
+    /**
+     * 此运单为特安单，需单独建箱，禁止与其他类型运单混装
+     */
+    public static String TEAN_WAYBILL_INTERCEPT = "20092";
+
+    /**
+     * 此箱号内为特安单，需单独建箱，其他类型运单禁止混装
+     */
+    public static String TEAN_BOX_INTERCEPT = "20094";
+
     /*##############################################拦截相关END#########################################################*/
 
 
@@ -1015,4 +1029,15 @@ public class HintCodeConstants {
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
     public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
+
+    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
+
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40024";
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
+
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED = "40025";
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED_MSG = "校验失败，场地不一致！";
+
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
 }

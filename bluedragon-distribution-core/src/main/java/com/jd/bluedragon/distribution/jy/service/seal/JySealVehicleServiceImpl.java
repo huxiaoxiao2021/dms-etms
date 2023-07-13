@@ -13,6 +13,8 @@ import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
+import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -38,6 +40,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
@@ -67,15 +70,19 @@ import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
+import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
+import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,6 +153,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     SendMService sendMService;
     @Autowired
     private SiteService siteService;
+    @Autowired
+    private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+    @Autowired
+    private JySendAggsService sendAggService;
+    @Autowired
+    @Qualifier("jySendVehicleService")
+    private IJySendVehicleService jySendVehicleService;
+
+    @Autowired
+    @Qualifier("jySendVehicleServiceTys")
+    private IJySendVehicleService jySendVehicleServiceTys;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -195,6 +213,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
             }
             sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
+        }
+        if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+            sealVehicleInfoResp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+            if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                sealVehicleInfoResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                sealVehicleInfoResp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            }
         }
         sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
@@ -460,11 +487,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         invokeResult.setCode(JdResponse.CODE_OK);
                         invokeResult.setMessage(JdResponse.MESSAGE_OK);
                     } else {
-                        //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
+                        //不分传摆和运力都去校验目的地类型是中转场的时候
                         BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
                         if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
-                            invokeResult.setCode(RESULT_SUCCESS_CODE);
-                            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                            //中转场地流向不一致时，弹窗确认是否继续封车
+                            invokeResult.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
+                            invokeResult.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,endNodeSite.getSiteName()));
+                            return invokeResult;
                         } else {
                             invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                             invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
@@ -625,6 +654,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.queryBelongBoardByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
         if (StringUtils.isEmpty(request.getBarCode()) || request.getEndSiteId() == null) {
             return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -826,6 +856,97 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+    }
+
+    @Override
+    public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
+        checkGetTaskSimpleCodeParams(request);
+        JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
+        if (ObjectHelper.isEmpty(detailEntity)){
+            return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE,TASK_NO_FOUND_BY_STATUS_MESSAGE);
+        }
+        if (ObjectHelper.isNotNull(detailEntity.getTaskSimpleCode())){
+            GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
+            resp.setTaskSimpleCode(detailEntity.getTaskSimpleCode());
+            com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detailEntity.getTaskSimpleCode());
+            if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            }
+            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+        }
+        else {
+            checkOperateProgress(detailEntity.getSendVehicleBizId(),request.getSpotBizType());
+            //调用运输接口获取，并持久化，返回给客户端
+            JdiSealCarQueryDto dto =assembleJdiSealCarQueryDto(detailEntity,request);
+            com.jd.tms.jdi.dto.CommonDto<JdiSealCarResponseDto> commonDto =jdiQueryWSManager.querySealCarSimpleCode(dto);
+            if (ObjectHelper.isEmpty(commonDto)){
+                return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE);
+            }
+            if (Constants.RESULT_SUCCESS == commonDto.getCode()){
+                JyBizTaskSendVehicleDetailEntity detail =new JyBizTaskSendVehicleDetailEntity();
+                detail.setBizId(detailEntity.getBizId());
+                detail.setUpdateTime(new Date());
+                detail.setUpdateUserErp(request.getUser().getUserErp());
+                detail.setUpdateUserName(request.getUser().getUserName());
+                detail.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                taskSendVehicleDetailService.updateByBiz(detail);
+
+                GetTaskSimpleCodeResp resp = new GetTaskSimpleCodeResp();
+                resp.setTaskSimpleCode(commonDto.getData().getSimpleCode());
+                com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(detail.getTaskSimpleCode());
+                if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                    TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                    resp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+                    resp.setRouteLineName(transWorkItemDto.getRouteLineName());
+                }
+                return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+            }
+            return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,commonDto.getMessage());
+        }
+    }
+
+    private void checkGetTaskSimpleCodeParams(GetTaskSimpleCodeReq request) {
+        if (ObjectHelper.isEmpty(request.getSpotBizType())){
+            throw new JyBizException("参数错误：spotBizType为空！");
+        }
+        if (ObjectHelper.isEmpty(request.getSendVehicleDetailBizId())){
+            throw new JyBizException("参数错误：任务明细bizId为空！");
+        }
+        if (CollectionUtils.isEmpty(request.getImgUrlList())){
+            throw new JyBizException("参数错误：imgUrlList为空！");
+        }
+    }
+
+    private void checkOperateProgress(String sendVehicleBizId,Integer spotBizType) {
+        //加个降级开关的逻辑
+        JySendAggsEntity sendAgg = sendAggService.getVehicleSendStatistics(sendVehicleBizId);
+        BigDecimal operateProgress =
+            SpotBizTypeEnum.SPOT_CHECK_TYPE_C.getCode().equals(spotBizType) ?
+            jySendVehicleService.calculateOperateProgress(sendAgg,false)
+            :jySendVehicleServiceTys.calculateOperateProgress(sendAgg,false);
+        if (ObjectHelper.isNotNull(operateProgress)){
+            log.info("拍照上传获取任务简码-计算装车进度：{}",operateProgress.doubleValue());
+            if (operateProgress.compareTo(new BigDecimal(ucc.getOnlineGetTaskSimpleCodeThreshold()))<0){
+                throw new JyBizException("装载率不足50%，无法拍照获取任务简码!");
+            }
+        }
+    }
+
+    private JdiSealCarQueryDto assembleJdiSealCarQueryDto(JyBizTaskSendVehicleDetailEntity detailEntity,GetTaskSimpleCodeReq req) {
+        BaseStaffSiteOrgDto startSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getStartSiteId().intValue());
+        BaseStaffSiteOrgDto endSite =baseMajorManager.getBaseSiteBySiteId(detailEntity.getEndSiteId().intValue());
+
+        JdiSealCarQueryDto dto =new JdiSealCarQueryDto();
+        dto.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
+        dto.setOperateSiteCode(startSite.getDmsSiteCode());
+        dto.setBeginNodeCode(startSite.getDmsSiteCode());
+        dto.setEndNodeCode(endSite.getDmsSiteCode());
+        dto.setOperatorCode(req.getUser().getUserErp());
+        dto.setLoadCarUrl(req.getImgUrlList());
+        dto.setTransType(detailEntity.getLineType());
+        return dto;
     }
 
     public Map<String,String> getDictMap(String parentCode, int dictLevel, String dictGroup) {

@@ -27,4 +27,7 @@ public class JyConstants implements Serializable {
      */
     public static final int WAREHOUSE_INSPECTION_INTERCEPT_CODE = 5001;
 
+    public static final int JY_DEPPON_OPERATOR_ID = -1;
+    public static final String JY_DEPPON_OPERATOR_ERP = "-1";
+
 }

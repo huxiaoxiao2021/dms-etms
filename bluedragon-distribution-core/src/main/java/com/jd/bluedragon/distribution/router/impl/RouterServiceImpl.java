@@ -132,8 +132,8 @@ public class RouterServiceImpl implements RouterService {
             return RouteNextDto.NONE;
         }
         if(log.isInfoEnabled()) {
-            log.info("RouterServiceImpl.matchNextNodeByRouter--routerStr={}，firstNextSiteId={}，firstLastSiteId={}，nextSiteIdList={}",
-                    routerStr,firstNextSiteId, firstLastSiteId, JsonHelper.toJson(nextSiteIdList));
+            log.info("RouterServiceImpl.matchNextNodeByRouter--waybillCod{}，routerStr={}，firstNextSiteId={}，firstLastSiteId={}，nextSiteIdList={}",
+                    waybillCode, routerStr,firstNextSiteId, firstLastSiteId, JsonHelper.toJson(nextSiteIdList));
         }
 
         return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, firstLastSiteId);

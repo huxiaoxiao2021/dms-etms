@@ -118,4 +118,11 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("waybillCode", waybillCode);
         return super.getSqlSession().update(NAMESPACE + ".updateByWaybillCodeInterceptType99", paramMap);
     }
+
+    public long countByWaybillAndBusinessType(String waybillCode, String businessType) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCode", waybillCode);
+        paramMap.put("businessType",businessType);
+        return super.getSqlSession().selectOne(NAMESPACE + ".countByWaybillAndBusinessType", paramMap);
+    }
 }

@@ -21,6 +21,8 @@ public class CancelWaybill {
 
     public static final String BUSINESS_TYPE_LOCK = "1"; //业务类型 1 锁定
     public static final String BUSINESS_TYPE_UNLOCK = "2";//业务类型 2 解锁
+    public static final String BUSINESS_TYPE_REVOKE = "3";//业务类型 2 撤销
+
 
     public static final String FEATURE_MSG_UNNORMAL = "LOCKED_OR_CANCELED";
     public static final String FEATURE_MSG_CANCELED = "CANCELED";

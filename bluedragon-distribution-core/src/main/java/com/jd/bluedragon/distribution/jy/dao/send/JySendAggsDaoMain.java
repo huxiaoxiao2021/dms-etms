@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 发货数据统计表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
@@ -48,5 +48,10 @@ class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySendAggsD
 
     public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
         return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
+    }
+
+    @Override
+    public List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getSendStatisticsByBizList", sendVehicleBizId);
     }
 }

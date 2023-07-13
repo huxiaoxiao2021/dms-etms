@@ -108,7 +108,7 @@ public interface UserSignGatewayService {
 	 * @param query
 	 * @return
 	 */
-	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);	
+	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
 	/**
 	 * 签到前校验
 	 * @param userSignRequest
@@ -126,5 +126,5 @@ public interface UserSignGatewayService {
 	 * @param scanRequest
 	 * @return
 	 */
-	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);	
+	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);
 }

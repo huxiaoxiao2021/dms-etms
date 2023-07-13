@@ -7,6 +7,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jsf.address.DmsExternalJDAddressResponse;
@@ -38,6 +39,8 @@ import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.cache.util.WaybillConstants;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -66,6 +69,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
@@ -1025,6 +1030,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /*** 产品类型为md-m-0005时:医药专送 */
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
+        }
+        /*** 产品类型为ed-m-0059时:电商特惠 */
+        if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
         }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
@@ -2104,7 +2113,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //“碎” 在 “尊” 的标识位追加
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC_TEXT) );
+        }
+        //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
         }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);

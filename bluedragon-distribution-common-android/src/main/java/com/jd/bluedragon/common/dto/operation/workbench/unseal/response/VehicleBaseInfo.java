@@ -1,6 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unseal.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @ClassName VehicleBaseInfo
@@ -63,9 +66,19 @@ public class VehicleBaseInfo implements Serializable {
     private Integer spotCheckType;
 
     /**
+     * 单号标签集合
+     */
+    private List<LabelOption> tags;
+
+    /**
      * 排序
      */
     private Integer orderIndex;
+
+    /**
+     * 0-非特安；1-特安
+     */
+    private Integer teanFlag;
 
     public String getSealCarCode() {
         return sealCarCode;
@@ -147,11 +160,27 @@ public class VehicleBaseInfo implements Serializable {
 		this.spotCheckType = spotCheckType;
 	}
 
+    public List<LabelOption> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<LabelOption> tags) {
+        this.tags = tags;
+    }
+
     public Integer getOrderIndex() {
         return orderIndex;
     }
 
     public void setOrderIndex(Integer orderIndex) {
         this.orderIndex = orderIndex;
+    }
+
+    public Integer getTeanFlag() {
+        return teanFlag;
+    }
+
+    public void setTeanFlag(Integer teanFlag) {
+        this.teanFlag = teanFlag;
     }
 }

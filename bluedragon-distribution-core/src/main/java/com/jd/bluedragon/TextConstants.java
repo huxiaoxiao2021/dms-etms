@@ -309,9 +309,9 @@ public class TextConstants {
     public static final String COMMON_TEXT_MEDICINE_COLD = "医冷零担";
 
     /**
-     * 碎
+     *
      */
-    public static final String SPECIAL_MARK_FRAGILE ="碎";
+    public static final String SPECIAL_MARK_NC_TEXT ="NC";
 
     /**
      * 药
@@ -337,4 +337,14 @@ public class TextConstants {
      * 医药专送
      */
     public static final String COMMON_TEXT_MEDICINE_DELIVET = "医药专送";
+
+    /**
+     * NC
+     */
+    public static final String SPECIAL_MARK_NC ="NC";
+
+    /**
+     * 电商特惠
+     */
+    public static final String PRODUCT_NAME_DSTH = "电商特惠";
 }
