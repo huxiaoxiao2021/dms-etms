@@ -454,6 +454,7 @@
     </bean>
     <bean id="preSealBatchDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealBatchDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>              
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
