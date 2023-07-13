@@ -15,9 +15,11 @@ public interface JyUserManager {
     /**
      * 根据场地和岗位查询用户列表
      * @param siteCode
-     * @param userPosition
+     * @param organizationCode
+     * @param userPositionCode
+     * @param userPositionName
      * @return
      */
-    Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String userPositionCode,String userPositionName);
+    Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName);
 
 }
