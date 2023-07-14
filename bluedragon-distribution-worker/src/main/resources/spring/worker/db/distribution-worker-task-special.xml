@@ -48,34 +48,5 @@
         <property name="type" value="1326"/>
         <property name="desc" value="作业工作台自动关闭任务"/>
     </bean>
-    <!-- 任务管理-配置扫描任务 -->
-    <bean id="workGridManagerScanTask" class="com.jd.bluedragon.distribution.worker.work.WorkGridManagerScanTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="WorkGridManagerScanTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1327"/>
-        <property name="desc" value="任务管理-配置扫描任务"/>
-    </bean>
-    <!-- 任务管理-站点任务扫描任务 -->
-    <bean id="workGridManagerSiteScanTask" class="com.jd.bluedragon.distribution.worker.work.WorkGridManagerSiteScanTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="WorkGridManagerSiteScanTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1328"/>
-        <property name="desc" value="任务管理-站点任务扫描任务"/>
-    </bean>        
-    <!-- 任务管理-线上化定时关闭任务 -->
-    <bean id="workGridManagerAutoCloseTask" class="com.jd.bluedragon.distribution.worker.work.WorkGridManagerAutoCloseTask"
-          init-method="init" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="WorkGridManagerAutoCloseTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1329"/>
-        <property name="desc" value="任务管理-线上化定时关闭任务"/>
-    </bean>
+
 </beans>
