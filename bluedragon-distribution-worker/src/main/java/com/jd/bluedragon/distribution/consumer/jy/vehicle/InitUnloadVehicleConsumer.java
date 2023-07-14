@@ -209,16 +209,21 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     private void dealPriorityFlag(UnloadVehicleMqDto mqDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         // 车型
         Integer vehicleType = mqDto.getVehicleType();
+        // 配置的积分
+        Double configFraction;
         // 查询车型积分配置
         VehicleIntegralConfig vehicleIntegralConfig = vehicleIntegralConfigJsfManager.findConfigByVehicleType(vehicleType);
         if (vehicleIntegralConfig != null) {
             // 配置的积分
-            Double configFraction = vehicleIntegralConfig.getPriorityFraction();
-            // 实际的积分
-            Double realFraction = mqDto.getPriorityFraction();
-            if (configFraction != null && realFraction != null && realFraction >= configFraction) {
-                unloadVehicleEntity.setPriorityFlag(Constants.NUMBER_ONE);
-            }
+            configFraction = vehicleIntegralConfig.getPriorityFraction();
+        } else {
+            // ucc默认分数
+            configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+        }
+        // 实际的积分
+        Double realFraction = mqDto.getPriorityFraction();
+        if (configFraction != null && realFraction != null && realFraction >= configFraction) {
+            unloadVehicleEntity.setPriorityFlag(Constants.NUMBER_ONE);
         }
     }
 
