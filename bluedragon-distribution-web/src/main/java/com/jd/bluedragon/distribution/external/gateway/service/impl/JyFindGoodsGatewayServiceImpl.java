@@ -2,23 +2,56 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.send.JyFindGoodsService;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 @Slf4j
 @UnifiedExceptionProcess
 public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService {
+
   @Autowired
   JyFindGoodsService jyFindGoodsService;
+
+  private void checkUser(User user) {
+    if(Objects.isNull(user) || StringUtils.isBlank(user.getUserErp())) {
+      throw new JyBizException("操作人erp为空");
+    }
+
+  }
+  private void checkCurrentOperate(CurrentOperate currentOperate) {
+    if(Objects.isNull(currentOperate) || Objects.isNull(currentOperate.getSiteCode())) {
+      throw new JyBizException("操作场地编码为空");
+    }
+    if(Objects.isNull(currentOperate.getOperateTime())) {
+      throw new JyBizException("操作时间为空");
+    }
+  }
+
+  private void checkPage(Integer pageNo, Integer pageSize) {
+    if(Objects.isNull(pageNo) || Objects.isNull(pageSize) || pageNo < 1 || pageSize < 1) {
+      throw new JyBizException("页码参数错误");
+    }
+    if(pageSize > Constants.PDA_DEFAULT_PAGE_MAXSIZE) {
+      throw new JyBizException("每页查询数量超过最大值" + Constants.PDA_DEFAULT_PAGE_MAXSIZE);
+    }
+  }
+
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findGoodsScan", mState = {JProEnum.TP})
@@ -29,37 +62,181 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findCurrentInventoryTask", mState = {JProEnum.TP})
   public JdCResponse<InventoryTaskDto> findCurrentInventoryTask(InventoryTaskQueryReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.findCurrentInventoryTask:获取当前时刻找货任务服务:";
+    JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.findCurrentInventoryTask(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("获取当前时刻找货任务服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("获取当前时刻找货任务服务异常");
+      return res;
+    }
   }
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId", mState = {JProEnum.TP})
   public JdCResponse<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId:查询找货任务服务：";
+    JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.findInventoryTaskByBizId(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("查询找货任务服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("查询找货任务服务异常");
+      return res;
+    }
   }
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findInventoryTaskListPage", mState = {JProEnum.TP})
   public JdCResponse<InventoryTaskListQueryRes> findInventoryTaskListPage(InventoryTaskListQueryReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.findInventoryTaskListPage：查询找货任务列表服务：";
+    JdCResponse<InventoryTaskListQueryRes> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.findInventoryTaskListPage(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("查询找货任务列表服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("查询找货任务列表服务异常");
+      return res;
+    }
   }
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.inventoryTaskStatistics", mState = {JProEnum.TP})
   public JdCResponse<InventoryTaskStatisticsRes> inventoryTaskStatistics(InventoryTaskStatisticsReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.inventoryTaskStatistics：找货任务统计服务：";
+    JdCResponse<InventoryTaskStatisticsRes> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.inventoryTaskStatistics(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("找货任务统计服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("找货任务统计服务异常");
+      return res;
+    }
   }
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.inventoryTaskPhotograph", mState = {JProEnum.TP})
   public JdCResponse<Void> inventoryTaskPhotograph(InventoryTaskPhotographReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.inventoryTaskPhotograph：找货任务上传照片服务：";
+    JdCResponse<Void> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.inventoryTaskPhotograph(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("找货任务上传照片服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("找货任务上传照片服务异常");
+      return res;
+    }
   }
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findInventoryDetailPage", mState = {JProEnum.TP})
   public JdCResponse<InventoryDetailQueryRes> findInventoryDetailPage(InventoryDetailQueryReq request) {
-    return null;
+    String methodDesc = "JyFindGoodsGatewayServiceImpl.findInventoryDetailPage：查询找货任务清单服务：";
+    JdCResponse<InventoryDetailQueryRes> res = new JdCResponse<>();
+    res.toSucceed();
+    try{
+      if(Objects.isNull(request)) {
+        res.toFail("请求为空");
+        return res;
+      }
+      if(log.isInfoEnabled()) {
+        log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
+      }
+      checkUser(request.getUser());
+      checkCurrentOperate(request.getCurrentOperate());
+
+      return retJdCResponse(jyFindGoodsService.findInventoryDetailPage(request));
+
+    }catch (JyBizException ex) {
+      log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+      res.toError("查询找货任务清单服务失败");
+      return res;
+    }catch (Exception ex) {
+      log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+      res.toError("查询找货任务清单服务异常");
+      return res;
+    }
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
