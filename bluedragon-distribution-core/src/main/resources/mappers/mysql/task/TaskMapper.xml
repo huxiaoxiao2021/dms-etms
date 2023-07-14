@@ -521,7 +521,7 @@
         <if test="type != null">
             AND task_type = #{type}
         </if>
-        <if test="ownSigns != null AND ownSigns.size > 0">
+        <if test="ownSigns != null and ownSigns.size > 0">
             AND own_sign in
             <foreach collection="ownSigns" item="ownSign" open="(" close=")" separator=",">
                 #{ownSign}
