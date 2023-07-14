@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.jy.dao.findgoods;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods;
+import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsQueryDto;
+import com.jd.bluedragon.utils.DateHelper;
+
+import java.util.Date;
 
 public class JyBizTaskFindGoodsDao extends BaseDao<JyBizTaskFindGoods> {
 
@@ -29,5 +33,17 @@ public class JyBizTaskFindGoodsDao extends BaseDao<JyBizTaskFindGoods> {
 
     int updateByPrimaryKey(JyBizTaskFindGoods record) {
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
+    }
+
+    public JyBizTaskFindGoods findOngoingTaskByWorkGrid(String workGridKey) {
+        JyBizTaskFindGoodsQueryDto param = new JyBizTaskFindGoodsQueryDto();
+        param.setCreateTimeBegin(DateHelper.addDate(new Date(), -3));
+        param.setWorkGridKey(workGridKey);
+        //岗位+createTime 索引
+        return this.getSqlSession().selectOne(NAMESPACE + ".findOngoingTaskByWorkGrid", param);
+    }
+
+    public JyBizTaskFindGoods findByBizId(String bizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
     }
 }

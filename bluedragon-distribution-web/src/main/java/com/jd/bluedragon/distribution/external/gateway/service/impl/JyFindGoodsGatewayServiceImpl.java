@@ -28,18 +28,22 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   @Autowired
   JyFindGoodsService jyFindGoodsService;
 
-  private void checkUser(User user) {
+
+  private void checkBaseParam(User user, CurrentOperate currentOperate, String groupCode, String positionCode) {
     if(Objects.isNull(user) || StringUtils.isBlank(user.getUserErp())) {
       throw new JyBizException("操作人erp为空");
     }
-
-  }
-  private void checkCurrentOperate(CurrentOperate currentOperate) {
     if(Objects.isNull(currentOperate) || Objects.isNull(currentOperate.getSiteCode())) {
       throw new JyBizException("操作场地编码为空");
     }
     if(Objects.isNull(currentOperate.getOperateTime())) {
       throw new JyBizException("操作时间为空");
+    }
+    if(StringUtils.isBlank(groupCode)) {
+      throw new JyBizException("岗位组为空");
+    }
+    if(StringUtils.isBlank(positionCode)) {
+      throw new JyBizException("岗位码为空");
     }
   }
 
@@ -73,11 +77,9 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
 
       return retJdCResponse(jyFindGoodsService.findCurrentInventoryTask(request));
-
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
       res.toError("获取当前时刻找货任务服务失败");
@@ -103,8 +105,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+
 
       return retJdCResponse(jyFindGoodsService.findInventoryTaskByBizId(request));
 
@@ -133,8 +135,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+
 
       return retJdCResponse(jyFindGoodsService.findInventoryTaskListPage(request));
 
@@ -163,8 +165,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+
 
       return retJdCResponse(jyFindGoodsService.inventoryTaskStatistics(request));
 
@@ -193,8 +195,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+
 
       return retJdCResponse(jyFindGoodsService.inventoryTaskPhotograph(request));
 
@@ -223,8 +225,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       if(log.isInfoEnabled()) {
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
-      checkUser(request.getUser());
-      checkCurrentOperate(request.getCurrentOperate());
+      checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
 
       return retJdCResponse(jyFindGoodsService.findInventoryDetailPage(request));
 

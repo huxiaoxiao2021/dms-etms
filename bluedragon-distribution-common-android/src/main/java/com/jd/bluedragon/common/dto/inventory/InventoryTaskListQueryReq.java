@@ -13,10 +13,6 @@ public class InventoryTaskListQueryReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -6051001368608203945L;
 
     /**
-     * 网格key
-     */
-    private String positionCode;
-    /**
      * 1: 查当日
      * 2: 查15天
      */
@@ -27,13 +23,6 @@ public class InventoryTaskListQueryReq extends BaseReq implements Serializable {
     private Integer pageNo;
     private Integer pageSize;
 
-    public String getPositionCode() {
-        return positionCode;
-    }
-
-    public void setPositionCode(String positionCode) {
-        this.positionCode = positionCode;
-    }
 
     public Integer getOperateType() {
         return operateType;

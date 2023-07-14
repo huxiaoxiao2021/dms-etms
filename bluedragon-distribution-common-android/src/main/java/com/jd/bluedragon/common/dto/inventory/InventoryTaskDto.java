@@ -16,8 +16,8 @@ public class InventoryTaskDto implements Serializable {
     /**
      * 波次起止时间
      */
-    private Long waveStartTime;
-    private Long waveEndTime;
+    private String waveStartTime;
+    private String waveEndTime;
     /**
      * 倒计时秒：
      * 计划完成时间-当前时间的秒数
@@ -62,19 +62,19 @@ public class InventoryTaskDto implements Serializable {
         this.bizId = bizId;
     }
 
-    public Long getWaveStartTime() {
+    public String getWaveStartTime() {
         return waveStartTime;
     }
 
-    public void setWaveStartTime(Long waveStartTime) {
+    public void setWaveStartTime(String waveStartTime) {
         this.waveStartTime = waveStartTime;
     }
 
-    public Long getWaveEndTime() {
+    public String getWaveEndTime() {
         return waveEndTime;
     }
 
-    public void setWaveEndTime(Long waveEndTime) {
+    public void setWaveEndTime(String waveEndTime) {
         this.waveEndTime = waveEndTime;
     }
 

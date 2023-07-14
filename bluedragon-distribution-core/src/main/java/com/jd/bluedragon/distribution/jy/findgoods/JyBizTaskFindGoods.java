@@ -15,7 +15,7 @@ public class JyBizTaskFindGoods {
 
     private String waveEndTime;
 
-    private Byte taskStatus;
+    private Integer taskStatus;
 
     private Integer waitFindCount;
 
@@ -35,7 +35,7 @@ public class JyBizTaskFindGoods {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
 
@@ -87,11 +87,11 @@ public class JyBizTaskFindGoods {
         this.waveEndTime = waveEndTime;
     }
 
-    public Byte getTaskStatus() {
+    public Integer getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(Byte taskStatus) {
+    public void setTaskStatus(Integer taskStatus) {
         this.taskStatus = taskStatus;
     }
 
@@ -167,11 +167,11 @@ public class JyBizTaskFindGoods {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 
