@@ -50,7 +50,7 @@
 
     <!-- 通过jimDB控制生成器生成的ID唯一性的策略:此处的redisClient采用的是1091名为ql.dms.worker的集群，该集群目前占用内存少。 -->
     <!-- 细心的同学会发现，这个工程中有两个jimDB集群，咱也不敢说，咱也不敢问。就期待某位好心人，将dms.etms工程的redis整理一下 -->
-    <bean id="jimDBUniqueStrategy" class="com.jd.coo.sa.sn.unique.JimDBUniqueStrategy">
+    <!--<bean id="jimDBUniqueStrategy" class="com.jd.coo.sa.sn.unique.JimDBUniqueStrategy">-->
     <bean id="jimDBUniqueStrategy" class="com.jd.bluedragon.common.JimDBUniqueWithExpireStrategy">
         <constructor-arg index="0" name="jimClient" ref="redisClient"/>
         <constructor-arg index="1" name="prefix" value="sequence-unique-"/>
