@@ -849,6 +849,16 @@ public class UccPropertyConfiguration {
      */
     private String teAnSiteWhitelist;
 
+    private int batchQueryEndSiteLimit;
+
+    public int getBatchQueryEndSiteLimit() {
+        return batchQueryEndSiteLimit;
+    }
+
+    public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
+        this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
+    }
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
