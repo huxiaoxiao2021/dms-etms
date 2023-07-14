@@ -15,12 +15,6 @@ public interface JyFindGoodsGatewayService {
    */
   JdCResponse<FindGoodsResp> findGoodsScan(FindGoodsReq request);
 
-  /**
-   * 根据岗位码查找网格key
-   * @param positionCode
-   * @return
-   */
-  JdCResponse<String> findWorkGridKeyByPositionCode(String positionCode);
 
   /**
    * 查询当前时刻开始中的盘点任务

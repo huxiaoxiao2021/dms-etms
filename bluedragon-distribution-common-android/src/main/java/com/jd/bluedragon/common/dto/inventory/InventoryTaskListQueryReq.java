@@ -15,32 +15,31 @@ public class InventoryTaskListQueryReq extends BaseReq implements Serializable {
     /**
      * 网格key
      */
-    private String workGridKey;
+    private String positionCode;
     /**
      * 1: 查当日
      * 2: 查15天
      */
-    private String operateType;
+    private Integer operateType;
     /**
      * 页码
      */
     private Integer pageNo;
     private Integer pageSize;
 
-
-    public String getWorkGridKey() {
-        return workGridKey;
+    public String getPositionCode() {
+        return positionCode;
     }
 
-    public void setWorkGridKey(String workGridKey) {
-        this.workGridKey = workGridKey;
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
     }
 
-    public String getOperateType() {
+    public Integer getOperateType() {
         return operateType;
     }
 
-    public void setOperateType(String operateType) {
+    public void setOperateType(Integer operateType) {
         this.operateType = operateType;
     }
 
