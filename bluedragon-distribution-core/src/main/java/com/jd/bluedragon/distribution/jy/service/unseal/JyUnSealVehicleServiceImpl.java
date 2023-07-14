@@ -447,9 +447,9 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         // 如果是待解状态，先查询优先待解封任务列表
         if (JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
             setPriorityVehicleList(condition, request, curQueryStatus, unSealCarData);
+            // 查询普通列表时，不能带优先标识
+            condition.setPriorityFlag(Constants.NUMBER_ZERO);
         }
-        // 查询普通列表时，不能带优先标识
-        condition.setPriorityFlag(Constants.NUMBER_ZERO);
 
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
