@@ -19,6 +19,12 @@ public class InventoryTaskDto implements Serializable {
     private Long waveStartTime;
     private Long waveEndTime;
     /**
+     * 倒计时秒：
+     * 计划完成时间-当前时间的秒数
+     * 计划完成时间=（波次结束时间+30min(配置延迟时间)）
+     */
+    private Long countdownSeconds;
+    /**
      * 任务状态
      */
     private Integer taskStatus;
@@ -31,13 +37,21 @@ public class InventoryTaskDto implements Serializable {
      */
     private Integer haveFindCount;
     /**
-     * 拍照方位
+     * 拍照方位:如123
      */
     private String photoStatus;
     /**
      * 拍照数量
      */
-    private String photoCount;
+    private Integer photoCount;
+    /**
+     * 应拍照总数
+     */
+    private Integer photoTotalCount;
+    /**
+     * 关闭时间(波次结束时间+30min(配置延迟时间))
+     */
+    private Long completeTime;
 
 
     public String getBizId() {
@@ -96,11 +110,35 @@ public class InventoryTaskDto implements Serializable {
         this.photoStatus = photoStatus;
     }
 
-    public String getPhotoCount() {
+    public Long getCountdownSeconds() {
+        return countdownSeconds;
+    }
+
+    public void setCountdownSeconds(Long countdownSeconds) {
+        this.countdownSeconds = countdownSeconds;
+    }
+
+    public Integer getPhotoCount() {
         return photoCount;
     }
 
-    public void setPhotoCount(String photoCount) {
+    public void setPhotoCount(Integer photoCount) {
         this.photoCount = photoCount;
+    }
+
+    public Integer getPhotoTotalCount() {
+        return photoTotalCount;
+    }
+
+    public void setPhotoTotalCount(Integer photoTotalCount) {
+        this.photoTotalCount = photoTotalCount;
+    }
+
+    public Long getCompleteTime() {
+        return completeTime;
+    }
+
+    public void setCompleteTime(Long completeTime) {
+        this.completeTime = completeTime;
     }
 }

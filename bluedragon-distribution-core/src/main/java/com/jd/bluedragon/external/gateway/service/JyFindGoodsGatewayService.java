@@ -1,8 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsReq;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsResp;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
 
 /**
@@ -15,12 +15,6 @@ public interface JyFindGoodsGatewayService {
    */
   JdCResponse<FindGoodsResp> findGoodsScan(FindGoodsReq request);
 
-  /**
-   * 根据岗位码查找网格key
-   * @param positionCode
-   * @return
-   */
-  JdCResponse<String> findWorkGridKeyByPositionCode(String positionCode);
 
   /**
    * 查询当前时刻开始中的盘点任务
