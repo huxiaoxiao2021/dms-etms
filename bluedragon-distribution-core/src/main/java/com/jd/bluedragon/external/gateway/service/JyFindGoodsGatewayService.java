@@ -1,8 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsReq;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsResp;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
 
 /**

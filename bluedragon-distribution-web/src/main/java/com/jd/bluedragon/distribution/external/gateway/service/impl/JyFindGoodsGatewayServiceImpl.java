@@ -2,11 +2,10 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsReq;
-import com.jd.bluedragon.common.dto.comboard.request.FindGoodsResp;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
+import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyFindGoodsService;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import lombok.extern.slf4j.Slf4j;

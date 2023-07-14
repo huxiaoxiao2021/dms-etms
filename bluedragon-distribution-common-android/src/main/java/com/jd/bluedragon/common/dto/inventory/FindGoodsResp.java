@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.dto.comboard.request;
+package com.jd.bluedragon.common.dto.inventory;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import java.io.Serializable;
