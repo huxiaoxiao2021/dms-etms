@@ -53,8 +53,8 @@ public interface TaskService {
     List<Task> findTasksByFingerprint(Task task);
 
     Boolean updateBySelective(Task task);
-    
-    Boolean updateBySelectiveWithBody(Task task);    
+
+    Boolean updateBySelectiveWithBody(Task task);
 
     List<Task> findTasks(Task task);
 	
@@ -142,7 +142,7 @@ public interface TaskService {
      * @author fanggang7
      * @time 2023-03-21 16:34:55 周二
      */
-    List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
+    List<Task> findJyBizAutoCloseTasks(Integer type, Integer fetchNum, List<String> ownSigns, List<String> queueIds);
     /**
      * 查询最近一次待执行的任务
      * @param taskData
@@ -155,11 +155,11 @@ public interface TaskService {
      * @return
      */
 	Task findLastWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData);
-	
+
     /**
      * 查找延迟调度任务
      * @author wuyoude
      * @time 2023-06-20 16:34:55 周二
      */
-    List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);	
+    List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
 }
