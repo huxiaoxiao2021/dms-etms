@@ -259,7 +259,7 @@
   </update>
 
 
-  <select id="countInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultMap="java.lang.Integer">
+  <select id="countInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultType="java.lang.Integer">
     select count(*)
     from jy_biz_task_send_vehicle_detail
     where yn = 1
