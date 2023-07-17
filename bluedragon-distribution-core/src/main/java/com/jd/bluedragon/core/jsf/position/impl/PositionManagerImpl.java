@@ -102,5 +102,11 @@ public class PositionManagerImpl implements PositionManager {
         }
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "PositionManagerImpl.basicPositionQueryJsfService",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Result<String> queryWorkGridKeyByPositionCode(String positionCode){
+        return basicPositionQueryJsfService.queryWorkGridKeyByPositionCode(positionCode);
+    }
+
 
 }

@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +44,8 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private JyAttachmentDetailDao jyAttachmentDetailDao;
   @Autowired
   private JyFindGoodsCacheService jyFindGoodsCacheService;
-
+  @Autowired
+  private PositionManager positionManager;
 
   @Override
   public InvokeResult findGoodsScan(FindGoodsReq request) {
@@ -86,8 +89,15 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
    * @return
    */
   private String getWorkGridKeyByPositionCode(String positionCode) {
-    //    todo zcf
-    return "";
+    Result<String> res = positionManager.queryWorkGridKeyByPositionCode(positionCode);
+    if(!res.isSuccess()) {
+      log.error("根据岗位码查询网格key异常,网格码={}，response={}", positionCode, JsonHelper.toJson(res));
+      throw new JyBizException("根据岗位码查询网格key异常");
+    }
+    if(StringUtils.isBlank(res.getData())) {
+      throw new JyBizException("根据岗位码" + positionCode +"查询网格码为空");
+    }
+    return res.getData();
   }
 
   @Override
