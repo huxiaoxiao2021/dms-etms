@@ -5,7 +5,7 @@ import java.util.Date;
 public class JyBizTaskFindGoodsQueryDto extends JyBizTaskFindGoods {
 
     private Integer pageNo;
-
+    private Integer offset;
     private Integer pageSize;
     /**
      * 按时间查询时
@@ -35,5 +35,13 @@ public class JyBizTaskFindGoodsQueryDto extends JyBizTaskFindGoods {
 
     public void setCreateTimeBegin(Date createTimeBegin) {
         this.createTimeBegin = createTimeBegin;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
     }
 }

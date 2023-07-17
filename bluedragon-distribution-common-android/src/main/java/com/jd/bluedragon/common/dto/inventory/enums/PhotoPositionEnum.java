@@ -7,13 +7,9 @@ package com.jd.bluedragon.common.dto.inventory.enums;
 public enum PhotoPositionEnum {
 
     NORTH(1, "北"),
-    NORTHEAST(2, "东北"),
-    EAST(3, "东"),
-    SOUTHEAST(4, "东南"),
-    SOUTH(5, "南"),
-    SOUTHWEST(6, "西南"),
-    WEST(7, "西"),
-    NORTHWEST(8, "西北"),
+    EAST(2, "东"),
+    SOUTH(3, "南"),
+    WEST(4, "西"),
     ;
 
     private int code;
@@ -40,4 +36,17 @@ public enum PhotoPositionEnum {
         this.code = code;
         this.name = name;
     }
+
+    public static final boolean isLegal(Integer code) {
+        if(code == null) {
+            return false;
+        }
+        for (PhotoPositionEnum en : PhotoPositionEnum.values()) {
+            if(en.getCode() == code) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

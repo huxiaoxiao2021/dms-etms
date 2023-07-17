@@ -18,7 +18,7 @@ public class InventoryTaskPhotographReq extends BaseReq implements Serializable 
     /**
      * 照片url
      */
-    private List<String> photoUrl;
+    private List<String> photoUrls;
     /**
      * 照片方位
      * com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum
@@ -33,12 +33,12 @@ public class InventoryTaskPhotographReq extends BaseReq implements Serializable 
         this.bizId = bizId;
     }
 
-    public List<String> getPhotoUrl() {
-        return photoUrl;
+    public List<String> getPhotoUrls() {
+        return photoUrls;
     }
 
-    public void setPhotoUrl(List<String> photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setPhotoUrls(List<String> photoUrls) {
+        this.photoUrls = photoUrls;
     }
 
     public Integer getPhotoPosition() {

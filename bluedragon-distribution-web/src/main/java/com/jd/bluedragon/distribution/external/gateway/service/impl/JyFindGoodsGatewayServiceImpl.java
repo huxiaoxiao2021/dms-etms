@@ -8,14 +8,17 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
+import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.findgoods.FindGoodsConstants;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -136,7 +139,16 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+      checkPage(request.getPageNo(), request.getPageSize());
 
+      //默认查当天列表
+      if(Objects.isNull(request.getQueryDays()) || request.getQueryDays() < 0) {
+        request.setQueryDays(0);
+      }
+      if(request.getQueryDays() > 180) {
+        res.toFail("暂不支持查询180天之前数据");
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.findInventoryTaskListPage(request));
 
@@ -166,7 +178,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
-
+      //默认查最近15天统计数据
+      if(Objects.isNull(request.getStatisticsDays()) || request.getStatisticsDays() < 0) {
+        request.setStatisticsDays(FindGoodsConstants.STATISTICS_DAYS);
+      }
 
       return retJdCResponse(jyFindGoodsService.inventoryTaskStatistics(request));
 
@@ -197,6 +212,22 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
 
+      if(StringUtils.isBlank(request.getBizId())) {
+        res.toFail("请求参数bizId为空");
+        return res;
+      }
+      if(Objects.isNull(request.getPhotoPosition())) {
+        res.toFail("拍照方位为空");
+        return res;
+      }
+      if(!PhotoPositionEnum.isLegal(request.getPhotoPosition())) {
+        res.toFail("拍照方位不支持");
+        return res;
+      }
+      if(CollectionUtils.isEmpty(request.getPhotoUrls())) {
+        res.toFail("图片url为空");
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.inventoryTaskPhotograph(request));
 

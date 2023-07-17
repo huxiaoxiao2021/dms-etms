@@ -16,20 +16,24 @@ public class InventoryTaskListQueryReq extends BaseReq implements Serializable {
      * 1: 查当日
      * 2: 查15天
      */
-    private Integer operateType;
+    private Integer queryDays;
     /**
      * 页码
      */
     private Integer pageNo;
     private Integer pageSize;
+    /**
+     * 仅查历史完成状态 true
+     */
+    private Boolean onlyHistoryComplete;
 
 
-    public Integer getOperateType() {
-        return operateType;
+    public Integer getQueryDays() {
+        return queryDays;
     }
 
-    public void setOperateType(Integer operateType) {
-        this.operateType = operateType;
+    public void setQueryDays(Integer queryDays) {
+        this.queryDays = queryDays;
     }
 
     public Integer getPageNo() {
@@ -46,5 +50,13 @@ public class InventoryTaskListQueryReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Boolean getOnlyHistoryComplete() {
+        return onlyHistoryComplete;
+    }
+
+    public void setOnlyHistoryComplete(Boolean onlyHistoryComplete) {
+        this.onlyHistoryComplete = onlyHistoryComplete;
     }
 }

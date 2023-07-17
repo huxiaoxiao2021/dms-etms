@@ -6,6 +6,7 @@ package com.jd.bluedragon.common.dto.inventory.enums;
  */
 public enum InventoryTaskStatusEnum {
 
+    NO_START(0, "未开始"),
     ONGOING(1, "进行中"),
     COMPLETE(2, "已完成"),
     ;

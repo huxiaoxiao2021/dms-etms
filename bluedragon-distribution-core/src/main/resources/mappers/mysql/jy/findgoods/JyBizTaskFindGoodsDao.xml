@@ -21,6 +21,14 @@
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
+
+
+  <resultMap id="statisticsMap" type="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsStatisticsDto">
+    <result column="total_task_num" jdbcType="VARCHAR" property="totalTaskNum" />
+    <result column="total_package_num" jdbcType="VARCHAR" property="totalPackageNum" />
+  </resultMap>
+
+
   <sql id="Base_Column_List">
     id, biz_id, work_grid_key, site_code, wave_start_time, wave_end_time, task_status, 
     wait_find_count, have_find_count, photo_status, create_user_erp, create_user_name, 
@@ -267,8 +275,33 @@
       jy_biz_task_send_vehicle_detail
     where yn = 1
       and work_grid_key = #{workGridKey}
-      and create_time &gt; #{createTimeBegin},
+      and create_time &gt; #{createTimeBegin}
+      and task_status = 1
     limit 1;
+  </select>
+
+
+  <select id="pageFindTaskListByCreateTime" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsQueryDto" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List"/>
+    from
+      jy_biz_task_send_vehicle_detail
+    where yn = 1
+      and work_grid_key = #{workGridKey}
+      and create_time &gt; #{createTimeBegin}
+    order by task_status asc, update_time desc
+    limit #{offset},#{pageSize}
+  </select>
+
+
+  <select id="pageFindTaskListByCreateTime" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsQueryDto" resultMap="statisticsMap">
+    select
+      count(*) total_task_num, sum(have_find_count) total_package_num
+    from
+      jy_biz_task_send_vehicle_detail
+    where yn = 1
+      and work_grid_key = #{workGridKey}
+      and create_time &gt; #{createTimeBegin}
   </select>
 
 </mapper>
