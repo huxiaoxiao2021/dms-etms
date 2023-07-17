@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.findgoods;
 
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
@@ -10,6 +11,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2023/7/17 15:44
  * @Description
  */
+@Service
 public class JyFindGoodsCacheService {
 
 
