@@ -4,10 +4,11 @@ package com.jd.bluedragon.common.dto.inventory.enums;
  * 处理（责任）部门类型
  *
  */
-public enum InventoryListTypeEnum {
+public enum InventoryDetailStatusEnum {
 
-    NEED_FIND(1, "需找"),
-    FOUND(2, "已找"),
+    EXCEPTION(1, "异常待找"),
+    FIND_GOOD(2, "找货找到"),
+    PDA_REAL_OPERATE(3,"PDA实操找到"),
     ;
 
     private int code;
@@ -30,20 +31,9 @@ public enum InventoryListTypeEnum {
         this.name = name;
     }
 
-    InventoryListTypeEnum(int code, String name) {
+    InventoryDetailStatusEnum(int code, String name) {
         this.code = code;
         this.name = name;
     }
 
-    public static final boolean isLegal(Integer code) {
-        if(code == null) {
-            return false;
-        }
-        for (InventoryListTypeEnum en : InventoryListTypeEnum.values()) {
-            if(en.getCode() == code) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

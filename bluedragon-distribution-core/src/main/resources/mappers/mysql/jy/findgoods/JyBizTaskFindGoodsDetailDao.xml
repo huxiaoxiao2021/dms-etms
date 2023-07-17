@@ -257,4 +257,37 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+  <select id="countInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultMap="java.lang.Integer">
+    select count(*)
+    from jy_biz_task_send_vehicle_detail
+    where yn = 1
+      and find_goods_task_biz_id = #{findGoodsTaskBizId}
+      and find_type = #{findType}
+      <if test="statusList != null">
+        and find_status in
+          <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+      </if>
+  </select>
+
+
+  <select id="findInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    from
+      jy_biz_task_send_vehicle_detail
+    where yn = 1
+      and find_goods_task_biz_id = #{findGoodsTaskBizId}
+      and find_type = #{findType}
+      <if test="statusList != null">
+        and find_status in
+        <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    limit #{offset},#{pageSize}
+  </select>
 </mapper>

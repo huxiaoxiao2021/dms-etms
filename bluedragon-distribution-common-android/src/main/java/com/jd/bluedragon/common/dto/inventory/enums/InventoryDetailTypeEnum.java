@@ -34,4 +34,16 @@ public enum InventoryDetailTypeEnum {
         this.code = code;
         this.name = name;
     }
+
+    public static final boolean isLegal(Integer code) {
+        if(code == null) {
+            return false;
+        }
+        for (InventoryDetailTypeEnum en : InventoryDetailTypeEnum.values()) {
+            if(en.getCode() == code) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

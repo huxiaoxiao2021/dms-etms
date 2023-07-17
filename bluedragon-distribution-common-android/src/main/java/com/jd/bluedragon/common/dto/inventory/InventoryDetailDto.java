@@ -13,8 +13,9 @@ public class InventoryDetailDto implements Serializable {
     private String packageCode;
     /**
      * 找货方式
+     * com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum
      */
-    private String findStatus;
+    private Integer findStatus;
 
     public String getPackageCode() {
         return packageCode;
@@ -25,11 +26,11 @@ public class InventoryDetailDto implements Serializable {
     }
 
 
-    public String getFindStatus() {
+    public Integer getFindStatus() {
         return findStatus;
     }
 
-    public void setFindStatus(String findStatus) {
+    public void setFindStatus(Integer findStatus) {
         this.findStatus = findStatus;
     }
 }

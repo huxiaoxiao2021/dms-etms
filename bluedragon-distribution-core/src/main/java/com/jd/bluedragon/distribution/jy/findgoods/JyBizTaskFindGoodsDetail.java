@@ -15,9 +15,9 @@ public class JyBizTaskFindGoodsDetail {
 
     private String waveEndTime;
 
-    private Byte findStatus;
+    private Integer findStatus;
 
-    private Byte findType;
+    private Integer findType;
 
     private String findUserErp;
 
@@ -89,19 +89,19 @@ public class JyBizTaskFindGoodsDetail {
         this.waveEndTime = waveEndTime;
     }
 
-    public Byte getFindStatus() {
+    public Integer getFindStatus() {
         return findStatus;
     }
 
-    public void setFindStatus(Byte findStatus) {
+    public void setFindStatus(Integer findStatus) {
         this.findStatus = findStatus;
     }
 
-    public Byte getFindType() {
+    public Integer getFindType() {
         return findType;
     }
 
-    public void setFindType(Byte findType) {
+    public void setFindType(Integer findType) {
         this.findType = findType;
     }
 

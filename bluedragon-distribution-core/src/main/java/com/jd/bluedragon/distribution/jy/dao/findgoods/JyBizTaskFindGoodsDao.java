@@ -56,4 +56,8 @@ public class JyBizTaskFindGoodsDao extends BaseDao<JyBizTaskFindGoods> {
     public JyBizTaskFindGoodsStatisticsDto taskStatistics(JyBizTaskFindGoodsQueryDto param) {
         return this.getSqlSession().selectOne(NAMESPACE + ".taskStatistics", param);
     }
+
+    public int updatePhotoStatus(JyBizTaskFindGoods dbUpdate) {
+        return this.getSqlSession().update(NAMESPACE + ".updatePhotoStatus", dbUpdate);
+    }
 }

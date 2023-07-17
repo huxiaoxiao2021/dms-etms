@@ -8,10 +8,12 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsReq;
 import com.jd.bluedragon.common.dto.inventory.FindGoodsResp;
 import com.jd.bluedragon.common.dto.inventory.*;
+import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailTypeEnum;
+import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.findgoods.FindGoodsConstants;
+import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -29,7 +31,7 @@ import java.util.Objects;
 public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService {
 
   @Autowired
-  JyFindGoodsService jyFindGoodsService;
+  private JyFindGoodsService jyFindGoodsService;
 
 
   private void checkBaseParam(User user, CurrentOperate currentOperate, String groupCode, String positionCode) {
@@ -228,6 +230,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         res.toFail("图片url为空");
         return res;
       }
+      if(request.getPhotoUrls().size() > FindGoodsConstants.PHOTOGRAPH_MAX_NUM) {
+        res.toFail("一次最多上传图片数量为" + FindGoodsConstants.PHOTOGRAPH_MAX_NUM);
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.inventoryTaskPhotograph(request));
 
@@ -257,6 +263,20 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
+      checkPage(request.getPageNo(), request.getPageSize());
+
+      if(StringUtils.isBlank(request.getBizId())) {
+        res.toFail("bizId为空");
+        return res;
+      }
+      if(!InventoryListTypeEnum.isLegal(request.getInventoryListType())) {
+        res.toFail("任务类型参数传值错误");
+        return res;
+      }
+      if(!InventoryDetailTypeEnum.isLegal(request.getInventoryDetailType())) {
+        res.toFail("任务明细类型参数传值错误");
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.findInventoryDetailPage(request));
 
