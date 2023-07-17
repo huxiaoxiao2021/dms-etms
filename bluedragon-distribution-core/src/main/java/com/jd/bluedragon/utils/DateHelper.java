@@ -767,6 +767,19 @@ public class DateHelper {
         calendar.set(Calendar.SECOND, 0);
         return calendar.getTime();
     }
+    /**
+     * 判断是否同一天
+     * @param time
+     * @param time1
+     * @return
+     */
+	public static boolean isSameDay(Date time, Date time1) {
+		if(time == null
+				|| time1 == null) {
+			return false;
+		}
+		return DateHelper.formatDate(time).equals(DateHelper.formatDate(time1));
+	}
 
 
 }
