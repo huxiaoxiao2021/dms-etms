@@ -24,7 +24,7 @@ public class VehicleIntegralConfigJsfManagerImpl implements VehicleIntegralConfi
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.VehicleIntegralConfigJsfManagerImpl.findConfigByVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Cache(key = "VehicleIntegralConfigJsfManagerImpl.findConfigByVehicleType", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+    @Cache(key = "VehicleIntegralConfigJsfManagerImpl.findConfigByVehicleType@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
     public VehicleIntegralConfig findConfigByVehicleType(Integer vehicleType) {
         try {
