@@ -109,14 +109,6 @@
 
   </select>
 
-  <select id="getListByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultMap="BaseResultMap">
-
-    select <include refid="Base_Column_List"/>
-    from jy_send_predict_aggs
-    where yn =1
-    and site_id =  #{siteId,jdbcType=BIGINT}
-  </select>
-
 
   <select id="getSendPredictProductTypeList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="com.jd.bluedragon.distribution.jy.send.JySendPredictProductType">
     select product_type as productType,

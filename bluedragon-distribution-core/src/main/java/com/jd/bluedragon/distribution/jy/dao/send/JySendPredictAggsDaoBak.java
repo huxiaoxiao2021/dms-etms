@@ -21,10 +21,6 @@ class JySendPredictAggsDaoBak extends BaseDao<JySendPredictAggsPO>  implements J
         return this.getSqlSession().selectOne(NAMESPACE + ".getunScanSumByCondition", request);
     }
 
-    @Override
-    public List<JySendPredictAggsPO> getListByCondition(JySendPredictAggsRequest request) {
-        return this.getSqlSession().selectList(NAMESPACE + ".getListByCondition", request);
-    }
 
     public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendPredictProductTypeList", query);

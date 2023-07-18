@@ -13,7 +13,6 @@ public interface JySendPredictAggsDaoStrategy {
 
     Long getunScanSumByCondition(JySendPredictAggsRequest request);
 
-    List<JySendPredictAggsPO> getListByCondition(JySendPredictAggsRequest request);
 
     List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 }
