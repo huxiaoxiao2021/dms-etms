@@ -1405,6 +1405,11 @@ public class UccPropertyConfiguration {
     private String exceptionSubmitCheckWaybillInterceptTypes;
 
     /**
+     * 车型优先分数默认值
+     */
+    private double vehicleIntegralPriorityFraction;
+
+    /**
      * 忽略转运全程跟踪开关
      */
     private boolean ignoreTysTrackSwitch;
@@ -3701,5 +3706,13 @@ public class UccPropertyConfiguration {
 
     public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
         this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    public double getVehicleIntegralPriorityFraction() {
+        return vehicleIntegralPriorityFraction;
+    }
+
+    public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
+        this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
     }
 }
