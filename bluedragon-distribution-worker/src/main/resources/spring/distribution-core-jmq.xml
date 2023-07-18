@@ -899,4 +899,10 @@
         <property name="timeout" value="1000" />
     </bean>
 
+
+    <!--逆向vmi推送消息 仅在worker中使用配置即可 -->
+    <bean id="outStoreVmiProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.out.big.store.down.stream.vmi.dtc}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
