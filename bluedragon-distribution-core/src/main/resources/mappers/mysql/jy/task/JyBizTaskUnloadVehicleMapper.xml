@@ -49,6 +49,8 @@
         <result property="taskType" column="task_type"/>
         <result property="railwayPfNo" column="railway_pf_no"/>
         <result property="teanFlag" column="te_an_flag"/>
+        <result property="priorityFraction" column="priority_fraction"/>
+        <result property="priorityFlag" column="priority_flag"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -100,7 +102,9 @@
         unload_start_time,
         comboard_count,
         intercept_count,
-        te_an_flag
+        te_an_flag,
+        priority_fraction,
+        priority_flag
     </sql>
 
 
@@ -588,6 +592,9 @@
             <if test="entity.teanFlag != null ">
                 and te_an_flag = #{entity.teanFlag}
             </if>
+            <if test="entity.priorityFlag != null ">
+                and priority_flag = #{entity.priorityFlag}
+            </if>
 
         </where>
 
@@ -608,6 +615,9 @@
                 </when>
                 <when test="orderType == 5">
                     unload_progress desc
+                </when>
+                <when test="orderType == 6">
+                    priority_fraction desc
                 </when>
                 <otherwise>
                     id
@@ -765,6 +775,12 @@
             </if>
             <if test="teanFlag != null">
                 te_an_flag =#{teanFlag},
+            </if>
+            <if test="priorityFraction != null">
+                priority_fraction =#{priorityFraction},
+            </if>
+            <if test="priorityFlag != null">
+                priority_flag =#{priorityFlag},
             </if>
         </set>
         <where>

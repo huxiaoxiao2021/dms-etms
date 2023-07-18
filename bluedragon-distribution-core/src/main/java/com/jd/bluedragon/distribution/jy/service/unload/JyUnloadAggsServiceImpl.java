@@ -59,6 +59,15 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     }
 
     @Override
+    public List<JyUnloadAggsEntity> queryShouldScanByBizIds(List<String> bizIds) {
+        JyUnloadAggsDaoStrategy jyUnloadAggsDao = jyUnloadAggsSpecialDao.getJyUnloadAggsDao();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JyUnloadAggsServiceImpl.queryShouldScanByBizIds");
+        List<JyUnloadAggsEntity> list = jyUnloadAggsDao.queryShouldScanByBizIds(bizIds);
+        Profiler.registerInfoEnd(info);
+        return list;
+    }
+
+    @Override
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
         JyUnloadAggsDaoStrategy jyUnloadAggsDao = jyUnloadAggsSpecialDao.getJyUnloadAggsDao();
         String keyword = jyUnloadAggsDao.getClass().getSimpleName();

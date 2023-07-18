@@ -297,7 +297,7 @@
 		<property name="beforeSealVehicleLoadRateLimit" value="${beforeSealVehicleLoadRateLimit:10.00}"/>
 		<property name="beforeSealVehicleLoadRateLimitCheckSwitch" value="${beforeSealVehicleLoadRateLimitCheckSwitch:true}"/>
 		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
-
+		<property name="vehicleIntegralPriorityFraction" value="${vehicleIntegralPriorityFraction:200}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -598,7 +598,9 @@
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimitCheckSwitch</value>
 				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
-
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.vehicleIntegralPriorityFraction</value>
 			</list>
 		</property>
 	</bean>
