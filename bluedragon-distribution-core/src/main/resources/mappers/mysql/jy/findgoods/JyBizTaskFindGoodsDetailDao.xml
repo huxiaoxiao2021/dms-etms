@@ -8,8 +8,8 @@
     <result column="site_code" jdbcType="BIGINT" property="siteCode" />
     <result column="wave_start_time" jdbcType="VARCHAR" property="waveStartTime" />
     <result column="wave_end_time" jdbcType="VARCHAR" property="waveEndTime" />
-    <result column="find_status" jdbcType="TINYINT" property="findStatus" />
-    <result column="find_type" jdbcType="TINYINT" property="findType" />
+    <result column="find_status" jdbcType="INTEGER" property="findStatus" />
+    <result column="find_type" jdbcType="INTEGER" property="findType" />
     <result column="find_user_erp" jdbcType="VARCHAR" property="findUserErp" />
     <result column="find_user_name" jdbcType="VARCHAR" property="findUserName" />
     <result column="last_find_grid_key" jdbcType="VARCHAR" property="lastFindGridKey" />
@@ -19,7 +19,7 @@
     <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="yn" jdbcType="INTEGER" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -261,7 +261,7 @@
 
   <select id="countInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultType="java.lang.Integer">
     select count(*)
-    from jy_biz_task_send_vehicle_detail
+    from jy_biz_task_find_goods_detail
     where yn = 1
       and find_goods_task_biz_id = #{findGoodsTaskBizId}
       and find_type = #{findType}
@@ -278,7 +278,7 @@
     select
       <include refid="Base_Column_List" />
     from
-      jy_biz_task_send_vehicle_detail
+      jy_biz_task_find_goods_detail
     where yn = 1
       and find_goods_task_biz_id = #{findGoodsTaskBizId}
       and find_type = #{findType}

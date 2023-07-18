@@ -262,7 +262,7 @@
     select
       <include refid="Base_Column_List"/>
     from
-      jy_biz_task_send_vehicle_detail
+      jy_biz_task_find_goods
     where
       yn = 1 AND biz_id = #{bizId}
     limit 1;
@@ -272,12 +272,12 @@
     select
       <include refid="Base_Column_List"/>
     from
-      jy_biz_task_send_vehicle_detail
+      jy_biz_task_find_goods
     where yn = 1
       and work_grid_key = #{workGridKey}
       and create_time &gt; #{createTimeBegin}
       and task_status = 1
-    limit 1;
+    limit 1
   </select>
 
 
@@ -285,10 +285,13 @@
     select
       <include refid="Base_Column_List"/>
     from
-      jy_biz_task_send_vehicle_detail
+      jy_biz_task_find_goods
     where yn = 1
       and work_grid_key = #{workGridKey}
       and create_time &gt; #{createTimeBegin}
+      <if test="taskStatus != null">
+        and task_status = #{taskStatus}
+      </if>
     order by task_status asc, update_time desc
     limit #{offset},#{pageSize}
   </select>
@@ -297,7 +300,7 @@
     select
       count(*) total_task_num, sum(have_find_count) total_package_num
     from
-      jy_biz_task_send_vehicle_detail
+      jy_biz_task_find_goods
     where yn = 1
       and work_grid_key = #{workGridKey}
       and create_time &gt; #{createTimeBegin}
@@ -306,7 +309,7 @@
   <update id="updatePhotoStatus" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods">
     update jy_biz_task_find_goods
     set
-      task_status = #{taskStatus},
+      photo_status = #{photoStatus},
       update_time = #{updateTime}
     where yn = 1 and biz_id = #{bizId}
   </update>

@@ -66,11 +66,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private InventoryTaskDto convertInventoryTaskDto(JyBizTaskFindGoods jyBizTaskFindGoods) {
     InventoryTaskDto dto = new InventoryTaskDto();
     dto.setBizId(jyBizTaskFindGoods.getBizId());
-    //todo zcf 确认起止时间返回格式
     dto.setWaveStartTime(jyBizTaskFindGoods.getWaveStartTime());
     dto.setWaveEndTime(jyBizTaskFindGoods.getWaveEndTime());
-    //todo zcf 考虑这个秒数怎么计算
-//    dto.setCountdownSeconds();
+    dto.setCountdownSeconds(this.getCountdownSeconds(jyBizTaskFindGoods.getBizId(), jyBizTaskFindGoods.getWaveEndTime()));
     dto.setTaskStatus(jyBizTaskFindGoods.getTaskStatus());
     dto.setWaitFindCount(jyBizTaskFindGoods.getWaitFindCount());
     dto.setHaveFindCount(jyBizTaskFindGoods.getHaveFindCount());
@@ -81,6 +79,48 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       dto.setCompleteTime(jyBizTaskFindGoods.getUpdateTime().getTime());
     }
     return dto;
+  }
+
+  /**
+   * 获取进行中任务倒计时
+   * @param bizId
+   * @param waveEndTime
+   * @return
+   */
+  private Long getCountdownSeconds(String bizId, String waveEndTime) {
+    if(StringUtils.isBlank(waveEndTime)) {
+      return 0l;
+    }
+    String[] str = waveEndTime.split(":");
+    Integer hour = Integer.valueOf(str[0]);
+    Integer minute = Integer.valueOf(str[1]);
+    Integer second = Integer.valueOf(str[2]);
+
+    Calendar c = Calendar.getInstance();
+    c.setTime(new Date());
+    c.set(Calendar.HOUR_OF_DAY, hour);
+    c.set(Calendar.MINUTE, minute);
+    c.set(Calendar.SECOND, second);
+    c.set(Calendar.MILLISECOND, 0);
+    //计划班次结束后30分钟找货任务开始，持续60分钟关闭
+    Long taskPlanEndTime = c.getTime().getTime()
+            + FindGoodsConstants.PLAN_INVENTORY_TASK_START_INTERVAL_MINUTES * 60 * 1000l
+            + FindGoodsConstants.PLAN_INVENTORY_TASK_DURATION_MINUTES * 60l * 1000l;
+    Long currentTime = System.currentTimeMillis();
+    Long countdown = taskPlanEndTime - currentTime;
+    Long oneDayStamps = 24l * 3600l * 1000l;
+    Long res = 0l;
+
+    if(countdown > 0) {
+      if(countdown > oneDayStamps) {
+        res = (countdown - oneDayStamps) / 1000;
+      }
+      res = countdown / 1000;
+    }
+    if (log.isInfoEnabled()) {
+      log.info("找货任务倒计时，bizId={},批次结束时间为{}，当前时间={}。倒计时秒={}", bizId, waveEndTime, currentTime, res);
+    }
+   return res;
   }
 
   /**
@@ -127,6 +167,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     dbQuery.setPageSize(request.getPageSize());
     Integer offset = (request.getPageNo() - 1) * request.getPageSize();
     dbQuery.setOffset(offset);
+    if(Boolean.TRUE.equals(request.getOnlyHistoryComplete())) {
+      dbQuery.setTaskStatus(InventoryTaskStatusEnum.COMPLETE.getCode());
+    }
 
     List<JyBizTaskFindGoods> jyBizTaskFindGoodsList = jyBizTaskFindGoodsDao.pageFindTaskListByCreateTime(dbQuery);
     if(CollectionUtils.isEmpty(jyBizTaskFindGoodsList)) {
@@ -140,6 +183,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     });
     InventoryTaskListQueryRes resData = new InventoryTaskListQueryRes();
     resData.setInventoryTaskDtoList(inventoryTaskDtoList);
+    res.setData(resData);
     return res;
   }
 
