@@ -22,7 +22,10 @@ public class ScanTaskPositionRequest extends BaseReq implements Serializable {
 	 * 任务-网格key
 	 */
 	private String taskRefGridKey;
-	
+	/**
+	 * 网格名称
+	 */
+	private String gridName;
 	
 
 	public String getScanPositionCode() {
@@ -39,6 +42,14 @@ public class ScanTaskPositionRequest extends BaseReq implements Serializable {
 
 	public void setTaskRefGridKey(String taskRefGridKey) {
 		this.taskRefGridKey = taskRefGridKey;
+	}
+
+	public String getGridName() {
+		return gridName;
+	}
+
+	public void setGridName(String gridName) {
+		this.gridName = gridName;
 	}
 	
 }
