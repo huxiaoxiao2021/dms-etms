@@ -821,17 +821,17 @@
             </choose>
                 and t.sign_out_time is null
             <if test="siteCode != null" >
-                and t.site_code = #{siteCode,jdbcType=INTEGER}  
-            </if>           
+                and t.site_code = #{siteCode,jdbcType=INTEGER}
+            </if>
             <if test="signDate != null" >
                 and t.sign_date = #{signDate,jdbcType=DATE}
             </if>
             order by t.sign_in_time desc
             limit 1
-            ) r         
-        <include refid="joinSql"/>          
+            ) r
+        <include refid="joinSql"/>
         limit 1
-    </select>    
+    </select>
 	<select id="queryLastUnSignOutRecordForAutoSignOut" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>

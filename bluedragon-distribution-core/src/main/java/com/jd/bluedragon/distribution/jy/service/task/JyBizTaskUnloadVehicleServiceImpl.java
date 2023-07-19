@@ -334,13 +334,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public boolean initActualArriveTime(String bizId, Date actualArriveTime) {
         JyBizTaskUnloadVehicleEntity updateParam = new JyBizTaskUnloadVehicleEntity();
         updateParam.setActualArriveTime(actualArriveTime);
-        //切记后续需要调整sortTime时间 需要比较数据库中的时间 本次临时解决flink任务问题暂不考虑
+        //切记后续需要调整sortTime时间 需要比较数据库中的时间
         updateParam.setSortTime(actualArriveTime);
         updateParam.setBizId(bizId);
-        //需要和产品沟通一下具体逻辑整体切换
-        /*if(!updateOfBusinessInfo(updateParam)){
+        if(!updateOfBusinessInfo(updateParam)){
             logger.error("initActualArriveTime fail!,{},{}",bizId,JsonHelper.toJson(updateParam));
-        }*/
+        }
         if(logger.isInfoEnabled()){
             logger.info("initActualArriveTime end ,bizId:{} ,actualArriveTime:{}",bizId,actualArriveTime.toString());
         }
