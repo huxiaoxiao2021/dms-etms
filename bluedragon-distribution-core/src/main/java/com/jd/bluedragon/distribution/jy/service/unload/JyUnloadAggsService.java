@@ -19,6 +19,8 @@ public interface JyUnloadAggsService {
 
     List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
 
+    List<JyUnloadAggsEntity> queryShouldScanByBizIds(List<String> bizIds);
+
     /**
      * aggs查询货物分类
      * @param entity

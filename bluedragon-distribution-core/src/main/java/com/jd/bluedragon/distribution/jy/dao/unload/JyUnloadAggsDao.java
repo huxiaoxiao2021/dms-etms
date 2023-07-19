@@ -39,6 +39,10 @@ class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> implements JyUnloadAgg
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }
 
+    public List<JyUnloadAggsEntity> queryShouldScanByBizIds(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryShouldScanByBizIds", bizIds);
+    }
+
     //查包裹维度任务统计信息
     public JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryPackageStatistics", dto);

@@ -1361,6 +1361,11 @@ public class UccPropertyConfiguration {
      */
     private Integer batchGenerateSendCodeMaxNum;
 
+    /**
+     * 车型优先分数默认值
+     */
+    private double vehicleIntegralPriorityFraction;
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
@@ -3532,5 +3537,13 @@ public class UccPropertyConfiguration {
 
     public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
         this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public double getVehicleIntegralPriorityFraction() {
+        return vehicleIntegralPriorityFraction;
+    }
+
+    public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
+        this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
     }
 }

@@ -186,6 +186,21 @@ public class UnloadVehicleMqDto implements Serializable {
      */
     private Integer teanFlag;
 
+    /**
+     * 优先积分/新积分
+     */
+    private Double priorityFraction;
+
+    /**
+     * 车型
+     */
+    private Integer vehicleType;
+
+    /**
+     * 车型名称
+     */
+    private String vehicleTypeName;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -512,5 +527,29 @@ public class UnloadVehicleMqDto implements Serializable {
 
     public void setTeanFlag(Integer teanFlag) {
         this.teanFlag = teanFlag;
+    }
+
+    public Double getPriorityFraction() {
+        return priorityFraction;
+    }
+
+    public void setPriorityFraction(Double priorityFraction) {
+        this.priorityFraction = priorityFraction;
+    }
+
+    public Integer getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(Integer vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public String getVehicleTypeName() {
+        return vehicleTypeName;
+    }
+
+    public void setVehicleTypeName(String vehicleTypeName) {
+        this.vehicleTypeName = vehicleTypeName;
     }
 }
