@@ -29,17 +29,6 @@ public interface JySendPredictAggsService {
      */
     List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 
-    /**
-     * （主库）插入或者新增波次待扫数据
-     * @param entity
-     * @return
-     */
-    Boolean insertOrUpdateJySendPredictAggsMain(JySendPredictAggsPO entity);
 
-    /**
-     * （备库）插入或者新增波次待扫数据
-     * @param entity
-     * @return
-     */
-    Boolean insertOrUpdateJySendPredictAggsBak(JySendPredictAggsPO entity);
+    Boolean insertOrUpdateJySendPredictAggs(JySendPredictAggsPO entity);
 }

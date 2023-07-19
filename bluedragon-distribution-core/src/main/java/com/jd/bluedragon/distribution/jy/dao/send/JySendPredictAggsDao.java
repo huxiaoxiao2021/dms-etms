@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.send.*;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
+import com.jd.bluedragon.distribution.jy.send.JySendPredictProductType;
 
 import java.util.List;
 
@@ -12,11 +14,11 @@ import java.util.List;
  * @email
  * @date 2022-11-02 15:26:08
  */
-class JySendPredictAggsDaoMain extends BaseDao<JySendPredictAggsPO>  implements JySendPredictAggsDaoStrategy{
+public class JySendPredictAggsDao extends BaseDao<JySendPredictAggsPO>  {
 
-    private final static String NAMESPACE = JySendPredictAggsDaoMain.class.getName();
+    private final static String NAMESPACE = JySendPredictAggsDao.class.getName();
 
-    @Override
+
     public Long getunScanSumByCondition(JySendPredictAggsRequest request) {
         return this.getSqlSession().selectOne(NAMESPACE + ".getunScanSumByCondition", request);
     }

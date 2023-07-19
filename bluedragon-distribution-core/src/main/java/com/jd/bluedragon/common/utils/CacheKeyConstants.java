@@ -399,22 +399,14 @@ public class CacheKeyConstants {
 
 
     /**
-     * 拣运波次发货统计锁key（主库）
+     * 拣运波次发货统计锁key
      */
-    public static final String JY_SEND_PREDICT_AGG_MAIN_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggMainLock:%s";
+    public static final String JY_SEND_PREDICT_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggLock:%s";
 
     /**
-     * 拣运波次发货统计锁key（主库）
+     * 拣运波次发货统计锁key
      */
-    public static final String JY_SEND_PREDICT_AGG_MAIN_KEY = JY_CACHE_PREFIX + "jySendPredictAggMain:%s";
+    public static final String JY_SEND_PREDICT_AGG_KEY = JY_CACHE_PREFIX + "jySendPredictAgg:%s";
 
-    /**
-     * 拣运波次发货统计锁key（备库）
-     */
-    public static final String JY_SEND_PREDICT_AGG_BAK_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggBakLock:%s";
 
-    /**
-     * 拣运波次发货统计锁key（备库）
-     */
-    public static final String JY_SEND_PREDICT_AGG_BAK_KEY = JY_CACHE_PREFIX + "jySendPredictAggBak:%s";
 }

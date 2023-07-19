@@ -1964,4 +1964,11 @@ public class Constants {
 
     //德邦默认操作站点名称
     public static final String OPERATE_SITE_NAME_DEBON = "system";
+
+
+    public static Map<String, String> sendPredictaggstopic2DataSource =new HashMap<>();
+    static {
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
+    }
 }

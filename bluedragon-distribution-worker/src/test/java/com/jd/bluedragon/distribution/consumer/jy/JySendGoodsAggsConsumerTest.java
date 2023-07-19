@@ -100,11 +100,10 @@ public class JySendGoodsAggsConsumerTest {
         }
     }
 
-    @Autowired
-    private JySendPredictAggsMainConsumer jySendPredictAggsMainConsumer;
+
 
     @Autowired
-    private  JySendPredictAggsBakConsumer jySendPredictAggsBakConsumer;
+    private JySendPredictAggsConsumer jySendPredictAggsConsumer;
 
     @Autowired
     private JySendPredictAggsService jySendPredictAggsService;
@@ -131,17 +130,17 @@ public class JySendGoodsAggsConsumerTest {
                 "  \"planNextSiteCode\": 1345120,\n" +
                 "  \"flag\": 2,\n" +
                 "  \"uid\": \"691538|1345120|TIKTOK|2\",\n" +
-                "  \"version\": 1689060882999,\n" +
+                "  \"version\": 1689060884993,\n" +
                 "  \"aggTime\": \"2023-07-11 15:34:42\",\n" +
                 "  \"productType\": \"TIKTOK\",\n" +
-                "  \"unScanCount\": 100 \n" +
+                "  \"unScanCount\": 1002 \n" +
                 "}\n";
 
         Message message = new Message();
         message.setText(body);
-
-        jySendPredictAggsMainConsumer.consume(message);
-        jySendPredictAggsBakConsumer.consume(message);
+        message.setTopic("jy_send_predict_aggs_slave");
+        //message.setTopic("jy_send_predict_aggs");
+        jySendPredictAggsConsumer.consume(message);
 
     }
 

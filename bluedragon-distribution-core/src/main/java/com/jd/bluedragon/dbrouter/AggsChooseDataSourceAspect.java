@@ -54,7 +54,26 @@ public class AggsChooseDataSourceAspect {
           }
         }
       }
-      /*else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
+      /*
+
+
+
+
+       else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
+        Object[] args =point.getArgs();
+        if (ObjectHelper.isNotNull(args) && args.length>0){
+          Message message =(Message)args[0];
+          if (ObjectHelper.isNotNull(message.getTopic())){
+            String dateSourceKey = message.getTopic();
+            DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceKey);
+                DynamicDataSourceHolders.putDataSource(dataSourceType);
+          }
+        }
+      }
+
+
+
+      else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)){
         Object target = point.getTarget();
         if (ObjectHelper.isNotNull(target)){
           if (!BeanUtils.hasField(target,"dataSourceType")){

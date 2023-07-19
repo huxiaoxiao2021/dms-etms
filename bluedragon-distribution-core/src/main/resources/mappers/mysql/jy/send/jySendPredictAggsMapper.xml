@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDaoBak" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDao" >
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="u_id" property="uId" jdbcType="VARCHAR" />
@@ -20,7 +20,7 @@
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select
+    select 
     <include refid="Base_Column_List" />
     from jy_send_predict_aggs
     where id = #{id,jdbcType=BIGINT}
@@ -96,27 +96,26 @@
   <update id="updateByBizProduct" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
     UPDATE
     jy_send_predict_aggs
-    set un_scan_count = #{unScanCount}
-    where  yn=1  and  u_id = #{uId}
+    set  un_scan_count = #{unScanCount}
+    where yn= 1 and u_id = #{uId}
   </update>
 
   <select id="getunScanSumByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="long">
 
-    select sum(un_scan_count)
-    from jy_send_predict_aggs
-    where yn =1
-      and site_id =  #{siteId,jdbcType=BIGINT}
+        select sum(un_scan_count)
+        from jy_send_predict_aggs
+        where yn =1
+        and site_id =  #{siteId,jdbcType=BIGINT}
 
   </select>
 
 
   <select id="getSendPredictProductTypeList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="com.jd.bluedragon.distribution.jy.send.JySendPredictProductType">
     select product_type as productType,
-    sum(un_scan_count) as productwaitScanCount
+           sum(un_scan_count) as productwaitScanCount
     from jy_send_predict_aggs
     WHERE site_id = #{siteId}
     AND flag =#{flag}
     GROUP BY product_type
   </select>
-
 </mapper>
