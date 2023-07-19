@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -514,6 +515,18 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				endBatchCode(oldBatchCode);
 			}
 		}
+		if(StringUtil.isBlank(siteInfo.getOrganizationCode())) {
+			needDistribution = false;
+			logger.warn("任务分配失败，场地【{}】未绑定人资组织机构！",siteCode);
+			return true;
+		}
+		List<JyUserDto> userList = getUserList(siteCode,siteInfo.getOrganizationCode(),configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
+		int needGridNum = userList.size() * configData.getPerGridNum();
+		if(needGridNum == 0) {
+			needDistribution = false;
+			logger.warn("任务分配失败，场地【{}】岗位【{}】人员为空！",siteCode,configData.getHandlerUserPositionName());
+			return true;
+		}		
 		//初始化网格数据
 		if(needInitTaskData) {
 			logger.info("初始化任务数据：batchCode={},executeTime={}",taskWorkGridManagerScan.getTaskBatchCode(),DateHelper.formatDateTime(taskWorkGridManagerScan.getExecuteTime()));
@@ -528,12 +541,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				gridList = workGridManager.queryListForManagerSiteScan(workGridQuery);
 				jyBizTaskWorkGridManagerService.batchAddTask(jyTaskInitList);
 			}
-		}
-		List<JyUserDto> userList = getUserList(siteCode,siteInfo.getOrganizationCode(),configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
-		int needGridNum = userList.size() * configData.getPerGridNum();
-		if(needGridNum == 0) {
-			needDistribution = false;
-			logger.warn("任务分配失败，场地【{}】岗位【{}】人员为空！",siteCode,configData.getHandlerUserPositionName());
 		}
 		//判断上次执行时间和这次是否同一天,改成下个执行周期时间
 		if(DateHelper.isSameDay(taskWorkGridManagerScan.getExecuteTime(),taskWorkGridManagerScan.getLastExecuteTime())) {
@@ -652,7 +659,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 			jyBizTaskWorkGridManagerService.distributionTask(distributionData);
 			//发送咚咚通知
-			sendTimeLineNotice(user);
+			if(bizIdUserList.size() > 0) {
+				sendTimeLineNotice(user);
+			}
 		}
 		//已分配的任务，新增一个自动关闭任务
 		if(bizIdListAutoClose.size() > 0) {
