@@ -288,6 +288,7 @@
 		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
 		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
 		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
+		<property name="batchQueryEndSiteLimit" value="${batchQueryEndSiteLimit:30}"/>
 		<property name="vehicleIntegralPriorityFraction" value="${vehicleIntegralPriorityFraction:200}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -566,6 +567,7 @@
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
+				<value>uccPropertyConfiguration.batchQueryEndSiteLimit</value>
 				<value>uccPropertyConfiguration.vehicleIntegralPriorityFraction</value>
 			</list>
 		</property>
