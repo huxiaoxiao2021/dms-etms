@@ -10,10 +10,14 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum JyBizTaskExceptionProcessStatusEnum {
 
     PENDING_ENTRY(0, "待录入"),
-    WAITING_MATCH(1, "待匹配"),
+    WAITING_MATCH(1, "匹配中"),
     ON_SHELF(2, "上架"),
     DONE(3, "处理完成"),
-    OFF_SHELF(4, "下架"),
+    WAITING_PRINT(4, "待打印"),
+    APPROVING(5, "审批中"),
+    APPROVE_PASS(6, "审批通过"),
+    APPROVE_REJECT(7, "审批驳回"),
+    WAITER_INTERVENTION(8, "客服介入中")
     ;
 
     private Integer code;
@@ -43,7 +47,7 @@ public enum JyBizTaskExceptionProcessStatusEnum {
 
     public static JyBizTaskExceptionProcessStatusEnum valueOf(int code){
         for (JyBizTaskExceptionProcessStatusEnum e:JyBizTaskExceptionProcessStatusEnum.values()){
-            if (e.getCode().intValue() == code){
+            if (e.getCode() == code){
                 return e;
             }
         }

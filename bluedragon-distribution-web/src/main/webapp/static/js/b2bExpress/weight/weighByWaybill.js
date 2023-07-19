@@ -22,6 +22,7 @@
     var ERROR_HALF_RESULT_CODE = 600; //部分成功
     var SERVER_SUCCESS_CODE = 200;
     var INTERCEPT_CODE = 300;
+    var RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI = 402
     var INTERCEPT_MESSAGE = "根据重量体积信息已经转至C网进行后续操作，请操作【包裹补打】更换面单，否则无法操作建箱及发货";
 
     var VALID_EXISTS_STATUS_CODE = 10;
@@ -299,9 +300,12 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
             }else
             {
                 /*******************************************************************************/
-                /*运单不存在 或校验不通过*/
+                /*校验不通过*/
                 /*******************************************************************************/
-
+                if(verifyCode == RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI){
+                    $.messager.alert('提示',verifyMessage,'warning');
+                    return ;
+                }
                 /*单号不合法*/
                 if(verifyCode == ERROR_PARAM_RESULT_CODE)
                 {

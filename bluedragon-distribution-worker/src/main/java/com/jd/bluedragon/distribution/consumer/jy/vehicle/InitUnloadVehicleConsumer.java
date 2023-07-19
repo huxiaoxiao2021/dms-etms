@@ -240,6 +240,11 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             }
         }
 
+        // 特安服务标识
+        if(mqDto.getTeanFlag() != null){
+            unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_4, JyUnloadTaskSignConstants.CHAR_4_1));
+        }
+
         Map<String, Object> extendInfo = mqDto.getExtendInfo();
         if (MapUtils.isEmpty(extendInfo)) {
             return;

@@ -1031,6 +1031,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
         }
+        /*** 产品类型为ed-m-0059时:电商特惠 */
+        if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
+        }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
             if(StringHelper.isNotEmpty(transportMode)){
@@ -2109,7 +2113,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //“碎” 在 “尊” 的标识位追加
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC_TEXT) );
         }
         //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){

@@ -236,7 +236,7 @@
 		<property name="printCompeteAllPackageUpdateCancel" value="${printCompeteAllPackageUpdateCancel:true}" />
 		<property name="offLineAllowedSites" value="${offLineAllowedSites:''}"/>
 		<property name="czQuerySwitch" value="${czQuerySwitch:true}" />
-		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:2}"/>
+		<property name="jyComboardSealQueryBoardListTime" value="${jyComboardSealQueryBoardListTime:'2'}"/>
 		<property name="jyComboardSealBoardListSelectLimit" value="${jyComboardSealBoardListSelectLimit:3}"/>
 		<property name="autoPackageSendInspectionSiteCodes" value="${autoPackageSendInspectionSiteCodes:3}"/>
 		<property name="jyComboardSealBoardListLimit" value="${jyComboardSealBoardListLimit:3}"/>
@@ -266,6 +266,8 @@
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
+		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
+		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -282,6 +284,13 @@
 		<property name="checkTeAnSwitch" value="${checkTeAnSwitch:true}"/>
 		<property name="teAnSiteWhitelist" value="${teAnSiteWhitelist:}"/>
 		<property name="uploadOverWeightSwitch" value="${uploadOverWeightSwitch:true}"/>
+		<property name="ignoreTysTrackSwitch" value="${ignoreTysTrackSwitch:false}"/>
+		<property name="exceptionSubmitCheckSites" value="${exceptionSubmitCheckSites:}"/>
+		<property name="exceptionSubmitCheckWaybillInterceptTypes" value="${exceptionSubmitCheckWaybillInterceptTypes:}"/>
+		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
+		<property name="batchQueryEndSiteLimit" value="${batchQueryEndSiteLimit:30}"/>
+
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -553,6 +562,13 @@
 				<value>uccPropertyConfiguration.checkTeAnSwitch</value>
 				<value>uccPropertyConfiguration.teAnSiteWhitelist</value>
 				<value>uccPropertyConfiguration.uploadOverWeightSwitch</value>
+				<value>uccPropertyConfiguration.ignoreTysTrackSwitch</value>
+				<value>uccPropertyConfiguration.exceptionSubmitCheckSites</value>
+				<value>uccPropertyConfiguration.exceptionSubmitCheckWaybillInterceptTypes</value>
+				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
+				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
+				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
+				<value>uccPropertyConfiguration.batchQueryEndSiteLimit</value>
 			</list>
 		</property>
 	</bean>

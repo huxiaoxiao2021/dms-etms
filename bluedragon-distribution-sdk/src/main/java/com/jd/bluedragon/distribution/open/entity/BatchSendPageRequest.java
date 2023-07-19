@@ -40,6 +40,16 @@ public class BatchSendPageRequest extends BatchPageRequest{
      */
     private String operateSiteName;
 
+    /**
+     * 扫描开始时间
+     */
+    private Long scanBeginTime;
+
+    /**
+     * 扫描结束时间
+     */
+    private Long scanEndTime;
+
     public List<CargoOperateInfo> getCargoNoList() {
         return cargoNoList;
     }
@@ -78,5 +88,21 @@ public class BatchSendPageRequest extends BatchPageRequest{
 
     public void setOperateSiteName(String operateSiteName) {
         this.operateSiteName = operateSiteName;
+    }
+
+    public Long getScanBeginTime() {
+        return scanBeginTime;
+    }
+
+    public void setScanBeginTime(Long scanBeginTime) {
+        this.scanBeginTime = scanBeginTime;
+    }
+
+    public Long getScanEndTime() {
+        return scanEndTime;
+    }
+
+    public void setScanEndTime(Long scanEndTime) {
+        this.scanEndTime = scanEndTime;
     }
 }

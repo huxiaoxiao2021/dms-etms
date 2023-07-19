@@ -1,5 +1,6 @@
 package com.jd.bluedragon;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -898,7 +899,10 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
-
+    /**
+     * 配置信息-任务线上化任务-推送-功能开启的分拣中心
+     */
+    public static final String SYS_CONFIG_WORK_GRID_MANAGER_SITES="sys.config.task.workGridManager.sites";
     /**
      * 配置信息-新分拣开启的分拣中心
      */
@@ -1936,4 +1940,36 @@ public class Constants {
      * 特安 增值服务编码
      * */
     public static final String TE_AN_SERVICE = "ed-a-0047";
+
+
+    /**
+     * 标准B网车队配置匹配接口常量
+     */
+    //订单类别 1:自营 2:外单
+    public static final Integer B2BSUPPORT_ORDER_TYPE_1 = 1;
+    public static final Integer B2BSUPPORT_ORDER_TYPE_2 = 2;
+    //订单业务类型
+    public static final Integer B2BSUPPORT_ORDER_BUSINESS_TYPE = 2;
+    //行业类型
+    public static final Integer B2BSUPPORT_INDUSTRY_TYPE = 0;
+    //商家id(青龙业主号对应id)
+    public static final Long B2BSUPPORT_VENDOR_ID = 0L;
+    //期望配送方式
+    public static final Integer B2BSUPPORT_REQUIRE_TRANS_MODE = 1;
+    //是否冷链
+    public static final Integer B2BSUPPORT_COLD_CHAIN = 0;
+
+    //德邦默认用户id
+    public static final Integer USER_CODE_DEBON = 0;
+
+    //德邦默认操作站点id
+    public static final Integer OPERATE_SITE_CODE_DEBON = -1;
+
+    //德邦默认操作站点名称
+    public static final String OPERATE_SITE_NAME_DEBON = "system";
+
+    /**
+     * 电商特惠产品编码
+     */
+    public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 }
