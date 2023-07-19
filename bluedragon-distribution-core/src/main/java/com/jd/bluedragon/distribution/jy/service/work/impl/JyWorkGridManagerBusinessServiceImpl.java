@@ -63,8 +63,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.NoticeUtils;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUserDto;
@@ -163,7 +166,10 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
     @Value("${beans.jyWorkGridManagerBusinessService.closeTaskRangeMaxSeconds:30}")
 	private int closeTaskRangeMaxSeconds;
     
+    private static final String UMP_KEY_PREFIX = "dmsWeb.beans.jyWorkGridManagerBusinessService.";
+    
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "submitData",mState={JProEnum.TP,JProEnum.FunctionError})	
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
 		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
 		result.toSucceed("保存成功！");
@@ -224,6 +230,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 			if(!CollectionUtils.isEmpty(caseData.getAttachmentList())) {
 				for(AttachmentDetailData attachmentData : caseData.getAttachmentList()) {
+					if(attachmentData == null) {
+						continue;
+					}
 					addAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData));
 				}
 			}
@@ -306,6 +315,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	}
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "startWorkGridManagerScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public void startWorkGridManagerScanTask(WorkGridManagerTaskConfig workGridManagerTaskConfig) {
 		//初始化-workGridManagerScanTask任务数据
 		Result<WorkGridManagerTaskConfigVo> configResult = workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(workGridManagerTaskConfig.getTaskConfigCode());
@@ -359,6 +369,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         return executeTime;
 	}	
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "executeWorkGridManagerScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public boolean executeWorkGridManagerScanTask(Task task) {
 		Log.info("executeWorkGridManagerScanTask-start! task={}",JsonHelper.toJson(task));
 		TaskWorkGridManagerScanData taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerScanData.class);
@@ -423,6 +434,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	}
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "executeWorkGridManagerSiteScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public boolean executeWorkGridManagerSiteScanTask(Task task) {
 		Log.info("executeWorkGridManagerSiteScanTask-start! task={}",JsonHelper.toJson(task));
 		TaskWorkGridManagerSiteScanData taskWorkGridManagerScan = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerSiteScanData.class);
@@ -687,12 +699,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setAreaName(grid.getAreaName());
 		jyTask.setGridName(grid.getGridName());			
 		jyTask.setSiteCode(grid.getSiteCode());
-		jyTask.setSiteName(grid.getSiteName());
 		//设置省区相关字段
-		jyTask.setAreaHubCode(siteInfo.getAreaCode());
-		jyTask.setAreaHubName(siteInfo.getAreaName());
-		jyTask.setProvinceAgencyCode(siteInfo.getProvinceAgencyCode());
-		jyTask.setProvinceAgencyName(siteInfo.getProvinceAgencyName());
+		jyTask.setSiteName(siteInfo.getSiteName());
+		jyTask.setAreaHubCode(StringHelper.getStringValue(siteInfo.getAreaCode()));
+		jyTask.setAreaHubName(StringHelper.getStringValue(siteInfo.getAreaName()));
+		jyTask.setProvinceAgencyCode(StringHelper.getStringValue(siteInfo.getProvinceAgencyCode()));
+		jyTask.setProvinceAgencyName(StringHelper.getStringValue(siteInfo.getProvinceAgencyName()));
 		//设置任务信息
 		jyTask.setTaskType(taskInfo.getTaskType());
 		jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
