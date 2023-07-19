@@ -211,11 +211,16 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         Integer vehicleType = mqDto.getVehicleType();
         // 配置的积分
         Double configFraction;
-        // 查询车型积分配置
-        VehicleIntegralConfig vehicleIntegralConfig = vehicleIntegralConfigJsfManager.findConfigByVehicleType(vehicleType);
-        if (vehicleIntegralConfig != null) {
-            // 配置的积分
-            configFraction = vehicleIntegralConfig.getPriorityFraction();
+        if (vehicleType != null) {
+            // 查询车型积分配置
+            VehicleIntegralConfig vehicleIntegralConfig = vehicleIntegralConfigJsfManager.findConfigByVehicleType(vehicleType);
+            if (vehicleIntegralConfig != null) {
+                // 配置的积分
+                configFraction = vehicleIntegralConfig.getPriorityFraction();
+            } else {
+                // ucc默认分数
+                configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+            }
         } else {
             // ucc默认分数
             configFraction = uccConfig.getVehicleIntegralPriorityFraction();
