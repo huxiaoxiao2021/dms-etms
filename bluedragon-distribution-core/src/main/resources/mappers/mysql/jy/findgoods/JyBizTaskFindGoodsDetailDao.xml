@@ -23,13 +23,13 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, find_goods_task_biz_id, package_code, site_code, wave_start_time, wave_end_time, 
-    find_status, find_type, find_user_erp, find_user_name, last_find_grid_key, create_user_erp, 
-    create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, 
+    id, find_goods_task_biz_id, package_code, site_code, wave_start_time, wave_end_time,
+    find_status, find_type, find_user_erp, find_user_name, last_find_grid_key, create_user_erp,
+    create_user_name, update_user_erp, update_user_name, create_time, update_time, yn,
     ts
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_biz_task_find_goods_detail
     where id = #{id,jdbcType=BIGINT}
@@ -39,19 +39,19 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
-    insert into jy_biz_task_find_goods_detail (id, find_goods_task_biz_id, package_code, 
-      site_code, wave_start_time, wave_end_time, 
-      find_status, find_type, find_user_erp, 
-      find_user_name, last_find_grid_key, create_user_erp, 
-      create_user_name, update_user_erp, update_user_name, 
-      create_time, update_time, yn, 
+    insert into jy_biz_task_find_goods_detail (id, find_goods_task_biz_id, package_code,
+      site_code, wave_start_time, wave_end_time,
+      find_status, find_type, find_user_erp,
+      find_user_name, last_find_grid_key, create_user_erp,
+      create_user_name, update_user_erp, update_user_name,
+      create_time, update_time, yn,
       ts)
-    values (#{id,jdbcType=BIGINT}, #{findGoodsTaskBizId,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR}, 
-      #{siteCode,jdbcType=BIGINT}, #{waveStartTime,jdbcType=VARCHAR}, #{waveEndTime,jdbcType=VARCHAR}, 
-      #{findStatus,jdbcType=TINYINT}, #{findType,jdbcType=TINYINT}, #{findUserErp,jdbcType=VARCHAR}, 
-      #{findUserName,jdbcType=VARCHAR}, #{lastFindGridKey,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, 
-      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, 
+    values (#{id,jdbcType=BIGINT}, #{findGoodsTaskBizId,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=BIGINT}, #{waveStartTime,jdbcType=VARCHAR}, #{waveEndTime,jdbcType=VARCHAR},
+      #{findStatus,jdbcType=TINYINT}, #{findType,jdbcType=TINYINT}, #{findUserErp,jdbcType=VARCHAR},
+      #{findUserName,jdbcType=VARCHAR}, #{lastFindGridKey,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR},
+      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT},
       #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
@@ -289,5 +289,17 @@
         </foreach>
       </if>
     limit #{offset},#{pageSize}
+  </select>
+
+  <select id="findPackage">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_biz_task_find_goods_detail
+    WHERE
+      find_goods_task_biz_id = #{findGoodsTaskBizId}
+      AND package_code = #{packageCode}
+      AND yn = 1
+    limit 1
   </select>
 </mapper>

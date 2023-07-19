@@ -15,10 +15,13 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.common.utils.ObjectHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +70,20 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findGoodsScan", mState = {JProEnum.TP})
   public JdCResponse<FindGoodsResp> findGoodsScan(FindGoodsReq request) {
+    checkFindGoodsReq(request);
     return retJdCResponse(jyFindGoodsService.findGoodsScan(request));
+  }
+
+  private void checkFindGoodsReq(FindGoodsReq request) {
+    if (ObjectHelper.isEmpty(request.getBizId())){
+      throw new JyBizException("参数错误：缺失任务bizId！");
+    }
+    if (ObjectHelper.isEmpty(request.getBarCode())){
+      throw new JyBizException("参数错误：缺失单号！");
+    }
+    if (!WaybillUtil.isPackageCode(request.getBarCode())){
+      throw new JyBizException("暂不支持该类型单号：只支持扫描包裹号！");
+    }
   }
 
   @Override

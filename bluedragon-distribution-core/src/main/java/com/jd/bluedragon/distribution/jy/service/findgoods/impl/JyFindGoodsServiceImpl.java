@@ -1,5 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods.impl;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN_MESSAGE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
@@ -22,6 +27,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.common.utils.ObjectHelper;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +55,37 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   @Override
   public InvokeResult findGoodsScan(FindGoodsReq request) {
-    return null;
+    JyBizTaskFindGoods jyBizTaskFindGoods =jyBizTaskFindGoodsDao.findByBizId(request.getBizId());
+    if (ObjectHelper.isEmpty(jyBizTaskFindGoods)){
+      throw new JyBizException("未找到对应的找货任务！");
+    }
+    JyBizTaskFindGoodsDetail query = assembleFindGoodsDetailQuery(request);
+    JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =jyBizTaskFindGoodsDetailDao.findPackage(query);
+    if (ObjectHelper.isEmpty(jyBizTaskFindGoodsDetail)){
+      throw new JyBizException("未找到对应的找货任务的待找包裹数据！");
+    }
+
+    if (ObjectHelper.isNotNull(jyBizTaskFindGoodsDetail.getFindStatus()) &&
+        InventoryDetailStatusEnum.EXCEPTION.getCode() == jyBizTaskFindGoodsDetail.getFindStatus()){
+      JyBizTaskFindGoodsDetail detail =new JyBizTaskFindGoodsDetail();
+      detail.setId(jyBizTaskFindGoodsDetail.getId());
+      detail.setFindStatus(InventoryDetailStatusEnum.FIND_GOOD.getCode());
+      detail.setFindUserErp(request.getUser().getUserErp());
+      detail.setFindUserName(request.getUser().getUserName());
+      detail.setUpdateUserErp(request.getUser().getUserErp());
+      detail.setUpdateUserName(request.getUser().getUserName());
+      detail.setUpdateTime(new Date());
+      jyBizTaskFindGoodsDetailDao.updateByPrimaryKeySelective(detail);
+      return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+    return new InvokeResult(PACKAGE_HASBEEN_SCAN,PACKAGE_HASBEEN_SCAN_MESSAGE);
+  }
+
+  private JyBizTaskFindGoodsDetail assembleFindGoodsDetailQuery(FindGoodsReq request) {
+    JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =new JyBizTaskFindGoodsDetailQueryDto();
+    jyBizTaskFindGoodsDetail.setFindGoodsTaskBizId(request.getBizId());
+    jyBizTaskFindGoodsDetail.setPackageCode(request.getBarCode());
+    return jyBizTaskFindGoodsDetail;
   }
 
   @Override
