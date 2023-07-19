@@ -205,6 +205,16 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer teanFlag;
 
+    /**
+     * 优先积分
+     */
+    private Double priorityFraction;
+
+    /**
+     * 优先标识：0-不符合；1-符合
+     */
+    private Integer priorityFlag;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -574,4 +584,21 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
     public void setTeanFlag(Integer teanFlag) {
         this.teanFlag = teanFlag;
     }
+
+    public Double getPriorityFraction() {
+        return priorityFraction;
+    }
+
+    public void setPriorityFraction(Double priorityFraction) {
+        this.priorityFraction = priorityFraction;
+    }
+
+    public Integer getPriorityFlag() {
+        return priorityFlag;
+    }
+
+    public void setPriorityFlag(Integer priorityFlag) {
+        this.priorityFlag = priorityFlag;
+    }
+
 }
