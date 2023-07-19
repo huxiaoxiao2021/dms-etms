@@ -190,6 +190,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 			if(!CollectionUtils.isEmpty(caseData.getAttachmentList())) {
 				for(AttachmentDetailData attachmentData : caseData.getAttachmentList()) {
+					if(attachmentData == null) {
+						continue;
+					}
 					addAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData));
 				}
 			}
