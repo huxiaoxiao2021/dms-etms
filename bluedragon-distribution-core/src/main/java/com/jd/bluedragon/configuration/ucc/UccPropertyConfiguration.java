@@ -878,6 +878,16 @@ public class UccPropertyConfiguration {
      */
     private String teAnSiteWhitelist;
 
+    private int batchQueryEndSiteLimit;
+
+    public int getBatchQueryEndSiteLimit() {
+        return batchQueryEndSiteLimit;
+    }
+
+    public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
+        this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
+    }
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -1440,6 +1450,11 @@ public class UccPropertyConfiguration {
      * 批量生成批次号时：最大数量限制
      */
     private Integer batchGenerateSendCodeMaxNum;
+
+    /**
+     * 车型优先分数默认值
+     */
+    private double vehicleIntegralPriorityFraction;
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;

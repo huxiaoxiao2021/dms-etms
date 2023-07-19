@@ -27,11 +27,6 @@ public class UnSealCarData<T> implements Serializable {
      */
     private List<LineTypeStatis> lineStatistics;
 
-    /**
-     * 优先待解车辆数据
-     */
-    private List<T> priorityData;
-
     public Integer getVehicleStatus() {
         return vehicleStatus;
     }
@@ -54,13 +49,5 @@ public class UnSealCarData<T> implements Serializable {
 
     public void setLineStatistics(List<LineTypeStatis> lineStatistics) {
         this.lineStatistics = lineStatistics;
-    }
-
-    public List<T> getPriorityData() {
-        return priorityData;
-    }
-
-    public void setPriorityData(List<T> priorityData) {
-        this.priorityData = priorityData;
     }
 }
