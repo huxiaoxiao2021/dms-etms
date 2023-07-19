@@ -3,9 +3,9 @@ package com.jd.bluedragon.distribution.jy;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
-import com.jd.bluedragon.common.dto.inventory.InventoryTaskListQueryReq;
-import com.jd.bluedragon.common.dto.inventory.InventoryTaskQueryReq;
+import com.jd.bluedragon.common.dto.inventory.*;
+import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailTypeEnum;
+import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 解封车单测
@@ -89,6 +92,88 @@ public class JyFindGoodsGatewayServiceTest {
     }
 
 
+
+    @Test
+    public void inventoryTaskStatisticsTest() {
+        InventoryTaskStatisticsReq req = new InventoryTaskStatisticsReq();
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setUser(USER_wuyoude);
+        req.setGroupCode(GROUP_CODE);
+        req.setPositionCode(POST);
+        while (true) {
+            try {
+                JdCResponse<InventoryTaskStatisticsRes> obj1 = jyFindGoodsGatewayService.inventoryTaskStatistics(req);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Test
+    public void inventoryTaskPhotographTest() {
+        InventoryTaskPhotographReq req = new InventoryTaskPhotographReq();
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setUser(USER_wuyoude);
+        req.setGroupCode(GROUP_CODE);
+        req.setPositionCode(POST);
+
+        req.setBizId("test009");
+        req.setPhotoPosition(0);
+        List<String> url = Arrays.asList("url1","url2","url3","url4","url5");
+        req.setPhotoUrls(url);
+        JdCResponse obj1 = jyFindGoodsGatewayService.inventoryTaskPhotograph(req);
+        for(int i = 0; i<10000; i++) {
+            try {
+
+                req.setPhotoPosition(i % 4 + 1);
+                List<String> urls = Arrays.asList("url1","url2","url3","url4","url5");
+                req.setPhotoUrls(urls);
+                JdCResponse obj2 = jyFindGoodsGatewayService.inventoryTaskPhotograph(req);
+                if(!obj2.isSucceed()) {
+                    System.out.println("fail");
+                }
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Test
+    public void findInventoryDetailPageTest() {
+        InventoryDetailQueryReq req = new InventoryDetailQueryReq();
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setUser(USER_wuyoude);
+        req.setGroupCode(GROUP_CODE);
+        req.setPositionCode(POST);
+        req.setBizId("test009");
+        req.setPageNo(1);
+        req.setPageSize(20);
+        for(int i = 0; i<10000; i++) {
+            try {
+                req.setInventoryListType(InventoryListTypeEnum.NEED_FIND.getCode());
+                req.setInventoryDetailType(InventoryDetailTypeEnum.WAIT_SEND.getCode());
+                JdCResponse obj1 = jyFindGoodsGatewayService.findInventoryDetailPage(req);
+                System.out.println("end");
+                req.setInventoryDetailType(InventoryDetailTypeEnum.NULL_NEXT.getCode());
+                JdCResponse obj2 = jyFindGoodsGatewayService.findInventoryDetailPage(req);
+                System.out.println("end");
+
+                req.setInventoryListType(InventoryListTypeEnum.FOUND.getCode());
+                req.setInventoryDetailType(InventoryDetailTypeEnum.WAIT_SEND.getCode());
+                JdCResponse obj3 = jyFindGoodsGatewayService.findInventoryDetailPage(req);
+                System.out.println("end");
+                req.setInventoryDetailType(InventoryDetailTypeEnum.NULL_NEXT.getCode());
+                JdCResponse obj4 = jyFindGoodsGatewayService.findInventoryDetailPage(req);
+                System.out.println("end");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
 

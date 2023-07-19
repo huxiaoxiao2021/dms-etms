@@ -282,8 +282,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       }
     }catch (Exception ex) {
       log.error("{}服务异常；req={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
-      jyFindGoodsCacheService.unlockTaskByBizId(request.getBizId());
       throw new JyBizException("找货上传照片服务异常");
+    }finally {
+      jyFindGoodsCacheService.unlockTaskByBizId(request.getBizId());
     }
     return res;
   }
@@ -377,6 +378,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       if(InventoryListTypeEnum.FOUND.getCode() == request.getInventoryListType()) {
         detailDto.setFindStatus(detail.getFindStatus());
       }
+      inventoryDetailDtoList.add(detailDto);
     });
     resData.setInventoryDetailDtoList(inventoryDetailDtoList);
 
