@@ -19,7 +19,14 @@ public class FindGoodsConstants {
      */
     public static final Integer PHOTOGRAPH_MAX_NUM = 100;
 
-
+    /**
+     * 计划发货任务和找货任务的间隔时长 30min
+     */
+    public static final Integer PLAN_INVENTORY_TASK_START_INTERVAL_MINUTES = 30;
+    /**
+     * 计划找货任务持续时长 60min
+     */
+    public static final Integer PLAN_INVENTORY_TASK_DURATION_MINUTES = 60;
 
 
 

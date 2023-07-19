@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.jy;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
+import com.jd.bluedragon.common.dto.inventory.InventoryTaskListQueryReq;
 import com.jd.bluedragon.common.dto.inventory.InventoryTaskQueryReq;
 import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import org.junit.Test;
@@ -48,11 +51,40 @@ public class JyFindGoodsGatewayServiceTest {
         req.setPositionCode(POST);
         while (true) {
             try {
-                Object obj = jyFindGoodsGatewayService.findCurrentInventoryTask(req);
+                JdCResponse<InventoryTaskDto> obj1 = jyFindGoodsGatewayService.findCurrentInventoryTask(req);
+                System.out.println("end");
+                req.setBizId(obj1.getData().getBizId());
+                JdCResponse<InventoryTaskDto> obj2 = jyFindGoodsGatewayService.findInventoryTaskByBizId(req);
                 System.out.println("end");
             }catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+
+
+    @Test
+    public void findInventoryTaskListPageTest() {
+        InventoryTaskListQueryReq req = new InventoryTaskListQueryReq();
+        req.setCurrentOperate(CURRENT_OPERATE);
+        req.setUser(USER_wuyoude);
+        req.setGroupCode(GROUP_CODE);
+        req.setPositionCode(POST);
+
+        req.setPageNo(1);
+        req.setPageSize(20);
+
+        for(int i = 0; i<10; i++) {
+            if(i % 2 ==0) {
+                req.setOnlyHistoryComplete(true);
+                req.setQueryDays(15);
+            }else {
+                req.setQueryDays(0);
+                req.setOnlyHistoryComplete(false);
+            }
+            Object obj = jyFindGoodsGatewayService.findInventoryTaskListPage(req);
+            System.out.println("end");
         }
     }
 
