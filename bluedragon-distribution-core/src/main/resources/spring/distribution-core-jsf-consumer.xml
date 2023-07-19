@@ -1349,9 +1349,4 @@
     <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
-    <!--  发货波次待扫数据接口  -->
-    <jsf:consumer id="sendPredictAggsJsfService" interface="com.jd.dms.wb.report.api.jysendpredict.jsf.ISendPredictAggsJsfService"
-                  protocol="jsf" alias="${jsf.dmsWbReport.alias}" timeout="${jsf.dmsWbReport.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>
 </beans>

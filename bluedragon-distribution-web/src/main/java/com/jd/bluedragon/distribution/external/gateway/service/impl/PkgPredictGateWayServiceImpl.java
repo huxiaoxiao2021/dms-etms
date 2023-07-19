@@ -15,14 +15,13 @@ import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendDeta
 import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendPackageCountReq;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendDetailsResponse;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendPackageCountResponse;
-import com.jd.bluedragon.core.base.SendPredictAggsPackageManager;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleProductTypeEnum;
 import com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService;
-import com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictToScanPackage;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.api.predict.IPackagePredictAggsJsfService;
 import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.query.predict.SendPredictToScanPackage;
 import com.jdl.jy.realtime.model.vo.predict.InspectedNotSendBarCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,10 +44,7 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
 
     @Autowired
     IPackagePredictAggsJsfService iPackagePredictAggsService;
-
-    @Autowired
-    private SendPredictAggsPackageManager sendPredictAggsPackageManager;
-
+    
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.PkgPredictGateWayServiceImpl.queryCurrentWorkWaveInspectedNotSendPackageCount", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -154,8 +150,8 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.PkgPredictGateWayServiceImpl.getSendPredictToScanPackageList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<SendVehicleToScanPackageDetailResponse> getSendPredictToScanPackageList(SendPredictAggsQuery query) {
-
         if(log.isInfoEnabled()){
             log.info("发货波次待扫包裹列表入参-{}", JSON.toJSONString(query));
         }
@@ -166,23 +162,26 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
             if(!checkResult){
                 return response;
             }
-            com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictAggsQuery predictAggsQuery = new com.jd.dms.wb.report.api.jysendpredict.dto.SendPredictAggsQuery();
+            com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery  predictAggsQuery = new com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery ();
             BeanUtils.copyProperties(query,predictAggsQuery);
-            List<SendPredictToScanPackage> sendPredictToScanPackageList = sendPredictAggsPackageManager.getSendPredictToScanPackageList(predictAggsQuery);
-            if(CollectionUtils.isNotEmpty(sendPredictToScanPackageList)){
-                SendVehicleToScanPackageDetailResponse packageDetailResponse =new SendVehicleToScanPackageDetailResponse();
-                packageDetailResponse.setProductType(query.getProductType());
-                packageDetailResponse.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(query.getProductType()));
-                List<SendVehicleToScanPackage> packages = new ArrayList<>();
-                for (SendPredictToScanPackage pg:sendPredictToScanPackageList) {
-                    SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
-                    toScanPackage.setPackageCode(pg.getPackageCode());
-                    toScanPackage.setProductType(pg.getProductType());
-                    packages.add(toScanPackage);
-                }
-                packageDetailResponse.setPackageCodeList(packages);
-                response.setData(packageDetailResponse);
+            ServiceResult<List<SendPredictToScanPackage>> result = iPackagePredictAggsService.getSendPredictToScanPackageList(predictAggsQuery);
+            if(result == null || CollectionUtils.isEmpty(result.getData())){
+                response.toFail("获取发货波次待扫包裹列表失败!");
+                return response;
             }
+            SendVehicleToScanPackageDetailResponse packageDetailResponse =new SendVehicleToScanPackageDetailResponse();
+            packageDetailResponse.setProductType(query.getProductType());
+            packageDetailResponse.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(query.getProductType()));
+            List<SendVehicleToScanPackage> packages = new ArrayList<>();
+            for (SendPredictToScanPackage pg : result.getData()) {
+                SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
+                toScanPackage.setPackageCode(pg.getPackageCode());
+                toScanPackage.setProductType(pg.getProductType());
+                packages.add(toScanPackage);
+            }
+            packageDetailResponse.setPackageCodeList(packages);
+            response.setData(packageDetailResponse);
+
         }catch (Exception e){
             log.error("获取发货波次待扫包裹列表异常-param{}",JSON.toJSONString(query),e);
             response.toError("获取发货波次待扫包裹列表异常!");
