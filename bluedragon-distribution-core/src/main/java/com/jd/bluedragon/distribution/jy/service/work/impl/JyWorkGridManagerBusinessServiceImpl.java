@@ -681,7 +681,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		closeData.setBizIdList(taskData.getBizIdList());
 		
 		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
-		data.setStatus(WorkTaskStatusEnum.TODO.getCode());
+		data.setStatus(WorkTaskStatusEnum.OVER_TIME.getCode());
 		data.setUpdateTime(new Date());
 		data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
 		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);

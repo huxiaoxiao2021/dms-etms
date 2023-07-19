@@ -24,7 +24,7 @@ import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
 /**
  * 人员签到表--Dao接口实现
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -33,7 +33,7 @@ import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements UserSignRecordDao {
 
     private final static String NAMESPACE = UserSignRecordDao.class.getName();
-    
+
 	/**
 	 * 插入一条数据
 	 * @param insertData
@@ -198,5 +198,10 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@Override
 	public UserSignRecord queryByIdForFlow(Long recordId) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryByIdForFlow",recordId);
+	}
+
+	@Override
+	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".listSignRecordByTime",query);
 	}
 }

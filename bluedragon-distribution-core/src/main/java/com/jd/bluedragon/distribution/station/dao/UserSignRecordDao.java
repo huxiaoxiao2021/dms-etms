@@ -186,4 +186,6 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	UserSignRecord queryByIdForFlow(Long recordId);
+
+  List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
 }
