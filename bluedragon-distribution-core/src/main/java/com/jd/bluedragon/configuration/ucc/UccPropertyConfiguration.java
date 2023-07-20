@@ -1415,11 +1415,6 @@ public class UccPropertyConfiguration {
     private String exceptionSubmitCheckWaybillInterceptTypes;
 
     /**
-     * 车型优先分数默认值
-     */
-    private double vehicleIntegralPriorityFraction;
-
-    /**
      * 忽略转运全程跟踪开关
      */
     private boolean ignoreTysTrackSwitch;
