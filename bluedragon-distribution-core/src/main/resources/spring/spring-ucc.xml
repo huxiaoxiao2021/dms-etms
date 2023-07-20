@@ -268,6 +268,7 @@
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
+		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -569,6 +570,7 @@
 				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
 				<value>uccPropertyConfiguration.batchQueryEndSiteLimit</value>
 				<value>uccPropertyConfiguration.vehicleIntegralPriorityFraction</value>
+				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
 			</list>
 		</property>
 	</bean>

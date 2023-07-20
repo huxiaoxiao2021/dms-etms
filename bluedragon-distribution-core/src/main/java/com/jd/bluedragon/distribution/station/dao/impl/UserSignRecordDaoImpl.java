@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.station.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -13,12 +14,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 
@@ -204,4 +199,10 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".listSignRecordByTime",query);
 	}
+
+	public List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query){
+		return this.getSqlSession().selectList(NAMESPACE + ".querySignInUserByCondition", query);
+
+	}
+
 }

@@ -1351,6 +1351,7 @@ public class UccPropertyConfiguration {
      */
     private boolean uploadOverWeightSwitch;
 
+
     /**
      * 忽略转运全程跟踪开关
      */
@@ -1516,6 +1517,13 @@ public class UccPropertyConfiguration {
      *  多个级别以,隔开
      */
     private String exScrapApproveLevelCountLimit;
+
+
+
+    /**
+     * 三无任务指派数量限制
+     */
+    private int assignExpTaskQuantityLimit;
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
@@ -3555,5 +3563,14 @@ public class UccPropertyConfiguration {
 
     public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
         this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
+    }
+
+
+    public int getAssignExpTaskQuantityLimit() {
+        return assignExpTaskQuantityLimit;
+    }
+
+    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
 }
