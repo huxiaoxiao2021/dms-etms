@@ -18,6 +18,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int RESULT_PARAMETER_ERROR_CODE=400;
     /**
+     * 称重校验失败
+     */
+    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;    
+    /**
      * 第三方接口异常
      */
     public static final int RESULT_THIRD_ERROR_CODE=401;

@@ -606,6 +606,12 @@ public class JyUnloadVehicleCheckTysService {
         }
         request.setBoardDestinationId(destinationId);
         if (!request.getNextSiteCode().equals(destinationId)) {
+            if(log.isInfoEnabled()) {
+                log.info("转运卸车人工组板校验流向不一致拦截，板{}流向{}；运单{}流向{}", request.getBoardCode(), destinationId, request.getScanCode(), request.getNextSiteCode());
+            }
+            //提示：该包裹流向与当前板号流向不一致，  返回的流向是板的流向，非运单流向
+            response.setEndSiteId(Long.valueOf(destinationId));
+            response.setEndSiteName(result.getData().getDestination());
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.FLOW_DISACCORD.getLevel(), UnloadCarWarnEnum.FLOW_DISACCORD.getDesc());
             return false;

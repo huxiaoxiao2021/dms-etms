@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
@@ -240,6 +241,9 @@ public class SortingServiceImpl implements SortingService {
 		//fixme sorting send_d 分布式事务问题
 		boolean result = this.sortingDao.canCancel2(sorting)
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
+		if(log.isInfoEnabled()) {
+			log.info("SortingServiceImpl.canCancelSorting2取消发货处理取消建箱逻辑，sorting={},result={}", JsonHelper.toJson(sorting), result);
+		}
 		if (result) {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
@@ -530,6 +534,13 @@ public class SortingServiceImpl implements SortingService {
 	public void addSortingAdditionalTask(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
+
+		// 如果业务来源是转运装车扫描，不再发送全程跟踪
+		if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+			if (SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(sorting.getBizSource())) {
+				return;
+			}
+		}
 
 		// prepare:
 		// 拆分分析字段

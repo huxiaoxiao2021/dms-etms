@@ -112,7 +112,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
                                           JyExpSourceEnum source,  String bizId) {
         logger.info("三无上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
         if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
-            return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
+            return JdCResponse.fail("请扫描异常包裹的三无码!");
         }
         //三无系统只处理大写字母
         req.setBarCode(req.getBarCode().toUpperCase());

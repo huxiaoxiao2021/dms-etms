@@ -77,6 +77,7 @@ import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -486,11 +487,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         invokeResult.setCode(JdResponse.CODE_OK);
                         invokeResult.setMessage(JdResponse.MESSAGE_OK);
                     } else {
-                        //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
+                        //不分传摆和运力都去校验目的地类型是中转场的时候
                         BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
                         if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
-                            invokeResult.setCode(RESULT_SUCCESS_CODE);
-                            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                            //中转场地流向不一致时，弹窗确认是否继续封车
+                            invokeResult.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
+                            invokeResult.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,endNodeSite.getSiteName()));
+                            return invokeResult;
                         } else {
                             invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                             invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);

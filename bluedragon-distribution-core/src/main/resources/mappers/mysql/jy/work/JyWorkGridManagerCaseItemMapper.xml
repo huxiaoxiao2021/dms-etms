@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseItemDao" >
+
+	<resultMap id="JyWorkGridManagerCaseItem" type="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="biz_id" property="bizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="case_code" property="caseCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="case_item_code" property="caseItemCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="select_flag" property="selectFlag" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,biz_id,case_code,case_item_code,select_flag,create_user,
+		create_user_name,update_user,update_user_name,create_time,update_time,
+		yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem" useGeneratedKeys="true" keyProperty="id">
+		insert into jy_work_grid_manager_case_item
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="bizId != null" >
+					biz_id,
+				</if>
+				<if test="caseCode != null" >
+					case_code,
+				</if>
+				<if test="caseItemCode != null" >
+					case_item_code,
+				</if>
+				<if test="selectFlag != null" >
+					select_flag,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="bizId != null" >
+					#{bizId,jdbcType=VARCHAR},
+				</if>
+				<if test="caseCode != null" >
+					#{caseCode,jdbcType=VARCHAR},
+				</if>
+				<if test="caseItemCode != null" >
+					#{caseItemCode,jdbcType=VARCHAR},
+				</if>
+				<if test="selectFlag != null" >
+					#{selectFlag,jdbcType=TINYINT},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into jy_work_grid_manager_case_item (
+             biz_id,
+             case_code,
+             case_item_code, 
+             select_flag, 
+             create_user, 
+             create_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.bizId},
+            #{item.caseCode},
+            #{item.caseItemCode},
+            #{item.selectFlag},
+            #{item.createUser},
+            #{item.createTime}
+            )
+        </foreach>
+    </insert>
+	<update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem">
+		update jy_work_grid_manager_case_item
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="bizId != null" >
+					biz_id = #{bizId,jdbcType=VARCHAR},
+				</if>
+				<if test="caseCode != null" >
+					case_code = #{caseCode,jdbcType=VARCHAR},
+				</if>
+				<if test="caseItemCode != null" >
+					case_item_code = #{caseItemCode,jdbcType=VARCHAR},
+				</if>
+				<if test="selectFlag != null" >
+					select_flag = #{selectFlag,jdbcType=TINYINT},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="java.lang.Long">
+		update jy_work_grid_manager_case_item
+			set yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="JyWorkGridManagerCaseItem">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			jy_work_grid_manager_case_item t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+    <select id="queryItemListByBizId" parameterType="java.lang.String" resultMap="JyWorkGridManagerCaseItem">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_work_grid_manager_case_item t
+        where yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+    </select>
+	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyWorkGridManagerCaseItem">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			jy_work_grid_manager_case_item t
+		where yn = 1 
+	</select>
+
+</mapper>

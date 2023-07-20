@@ -182,6 +182,8 @@ public interface UserSignRecordDao {
 	 */
 	UserSignRecord queryByIdForFlow(Long recordId);
 
+    List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
+
 	/**
 	 * 按条件查询签到用户信息
 	 * @param query

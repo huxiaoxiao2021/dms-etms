@@ -11,6 +11,7 @@ public enum UnloadTaskLabelEnum {
     SPOT_CHECK(1, "抽检", 1),
     UNLOAD_SINGLE_BILL(2, "逐单卸", 2),
     UNLOAD_HALF_CAR(3, "半车卸", 3),
+    TE_AN_SERVICE(4, "特安服务", 4)
     ;
 
     private Integer code;

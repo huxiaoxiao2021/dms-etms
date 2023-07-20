@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
@@ -37,6 +38,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
@@ -65,7 +67,7 @@ import java.util.*;
 
 /**
  * 人员签到表--Service接口实现
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -77,39 +79,39 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Autowired
 	@Qualifier("userSignRecordDao")
 	private UserSignRecordDao userSignRecordDao;
-	
+
 	@Value("${beans.userSignRecordService.signDateRangeMaxDays:2}")
 	private int signDateRangeMaxDays;
-	
+
 	@Value("${beans.userSignRecordService.queryByPositionRangeDays:2}")
 	private int queryByPositionRangeDays;
 
 	@Autowired
 	@Qualifier("workStationService")
 	WorkStationService workStationService;
-	
+
 	@Autowired
 	@Qualifier("workStationGridService")
 	WorkStationGridService workStationGridService;
-	
+
 	@Autowired
 	private WorkStationAttendPlanManager workStationAttendPlanManager;
 
 	@Autowired
 	@Qualifier("workStationAttendPlanService")
 	WorkStationAttendPlanService workStationAttendPlanService;
-	
+
 	@Autowired
 	private PositionManager positionManager;
 
 	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
-	
+
 	@Autowired
 	@Qualifier("jyGroupService")
 	private JyGroupService jyGroupService;
-	
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
@@ -129,7 +131,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
-	
+
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -251,7 +253,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		query.setNowDateEnd(DateHelper.add(nowDate, Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
 		return result;
 	 }
-	
+
 	/**
 	 * 对象转换成vo
 	 * @param data
@@ -350,7 +352,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			signInRequest.setRefPlanKey(planData.getData().getBusinessKey());
 		}
         Date now = new Date();
-        
+
         // 自动将上次未签退数据签退。
         boolean autoSignOutSuccess = autoSignOutLastSignInRecord(signInRequest, now);
 
@@ -508,7 +510,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
-     
+
     /**
      * 根据条件查询-转成通知对象
      * @param query
@@ -523,7 +525,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     		result.toFail("咚咚通知：数据异常，不存在签到数据！");
     		return result;
     	}
-    	
+
     	List<UserSignNoticeWaveItemVo> waveItems = userSignRecordDao.queryUserSignNoticeWaveItems(query);
     	if(CollectionUtils.isEmpty(waveItems)) {
     		log.warn("咚咚通知：数据异常，不存在签到班次汇总数据！请求参数：{}",JsonHelper.toJson(query));
@@ -534,10 +536,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     	if(CollectionUtils.isEmpty(jobItems)) {
     		log.warn("咚咚通知：数据异常，不存在签到班次、工种汇总数据！请求参数：{}",JsonHelper.toJson(query));
     		result.toFail("咚咚通知：数据异常，不存在签到班次、工种汇总数据");
-    		return result;    		
+    		return result;
     	}
     	notice.setWaveItems(waveItems);
-    	
+
     	Map<Integer,UserSignNoticeWaveItemVo> waveMap = new HashMap<Integer,UserSignNoticeWaveItemVo>();
     	for(UserSignNoticeWaveItemVo waveData: waveItems) {
     		waveMap.put(waveData.getWaveCode(), waveData);
@@ -547,7 +549,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     		if(waveData == null) {
     			log.warn("咚咚通知：数据异常，waveItems不存在{}班次数据！",jobData.getWaveCode());
         		result.toFail("咚咚通知：数据异常，不存在签到班次、工种汇总数据");
-        		return result; 
+        		return result;
     		}
     		if(waveData.getJobItems() == null) {
     			waveData.setJobItems(new ArrayList<UserSignNoticeJobItemVo>());
@@ -596,7 +598,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return this.doSignIn(context);
 	}
 	public JdCResponse<UserSignRecordData> doSignIn(UserSignContext context) {
-		UserSignRequest signInRequest = context.userSignRequest;		
+		UserSignRequest signInRequest = context.userSignRequest;
 		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(signInRequest);
 		if(!result.isSucceed()) {
 			return result;
@@ -645,7 +647,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
-    		
+
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
     		context.signOutData.setSignOutTime(signOutRequest.getSignOutTime());
         }
@@ -709,7 +711,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         signOutData.setUpdateUserName(signOutRequest.getOperateUserName());
         if(this.doSignOut(signOutData)) {
         	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
-        	result.toSucceed("签退成功！"); 
+        	result.toSucceed("签退成功！");
         	context.signOutData = result.getData();
     		context.signOutData.setSignOutTime(signOutData.getSignOutTime());
         }else {
@@ -740,11 +742,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
 		//查询签到记录，自动签退
         UserSignRecordData lastSignRecord = this.toUserSignRecordData(this.queryLastUnSignOutRecord(lastSignRecordQuery));
-        
+
         boolean needSignIn = true;
         boolean needSignOut = false;
         boolean changeGrid = false;
-        
+
         if(lastSignRecord != null) {
         	needSignOut = true;
         	//上次签到岗位和本次相同，不需要签到
@@ -829,7 +831,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能包含特殊字符");
 			return result;
 		}
-		if(StringUtils.isBlank(signRequest.getOperateUserCode()) 
+		if(StringUtils.isBlank(signRequest.getOperateUserCode())
 				|| StringUtils.isBlank(signRequest.getOperateUserName())) {
 			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
@@ -890,7 +892,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
 		signInData.setRefPlanKey(queryPlanKey(signInData));
 		setWarZoneInfo(signInData);
-		
+
 		Integer jobCode = signInData.getJobCode();
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
@@ -903,7 +905,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				||JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
 			boolean isEffectErp = false;
@@ -913,7 +916,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			if(!isEffectErp) {
 				if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-							||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+							||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+							||JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
 					result.toFail("签到失败，ERP在中台基础资料中不存在！");
 					return result;
 				}
@@ -1071,7 +1075,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setYn(Constants.YN_YES);
 		userSignRecord.setTs(date);
 		return true;
-	}	
+	}
 	private boolean doSignOut(UserSignRecord userSignRecord) {
 		userSignRecord.setUpdateTime(new Date());
 		userSignRecord.setSignOutTime(new Date());
@@ -1210,7 +1214,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(context.groupData == null) {
         	//没有做签到，查询group信息
         	JdCResponse<GroupMemberData> groupResult = this.jyGroupMemberService.queryGroupMemberDataByPositionCode(signInRequest.getPositionCode());
-        	if(groupResult!= null 
+        	if(groupResult!= null
         			&& groupResult.isSucceed()
         			&& groupResult.getData()!= null) {
         		result.getData().setGroupData(groupResult.getData());
@@ -1295,7 +1299,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			addMemberRequest.setSiteCode(context.signInData.getSiteCode());
 			addMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
 			addMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
-			JdCResponse<GroupMemberData> addMemberResult = jyGroupMemberService.addMember(addMemberRequest);	
+			JdCResponse<GroupMemberData> addMemberResult = jyGroupMemberService.addMember(addMemberRequest);
 			//签到设置-组
 			if(addMemberResult.isSucceed() && context.signInFlag) {
 				context.groupData = addMemberResult.getData();
@@ -1344,7 +1348,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("签到记录Id不能为空！");
 			return result;
 		}
-		if(StringUtils.isBlank(userSignRequest.getOperateUserCode()) 
+		if(StringUtils.isBlank(userSignRequest.getOperateUserCode())
 				|| StringUtils.isBlank(userSignRequest.getOperateUserName())) {
 			result.toFail(MSG_EMPTY_OPERATE);
 			return result;
@@ -1625,7 +1629,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         }
         result.setData(signInData);
 		return result;
-	}	
+	}
 	@Override
 	public Integer queryCountForFlow(UserSignRecordQuery historyQuery) {
 		return userSignRecordDao.queryCountForFlow(historyQuery);
@@ -1641,5 +1645,26 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public UserSignRecord queryByIdForFlow(Long recordId) {
 		return userSignRecordDao.queryByIdForFlow(recordId);
+	}
+
+	@Override
+	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
+		checkUserSignRecordQuery(query);
+		return userSignRecordDao.listSignRecordByTime(query);
+	}
+
+	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
+		if (ObjectHelper.isEmpty(query.getSignDateStart())){
+			throw new JyBizException("参数错误：签到开始时间为空！");
+		}
+		if (ObjectHelper.isEmpty(query.getSignDateEnd())){
+			throw new JyBizException("参数错误：签到结束时间为空！");
+		}
+		if (ObjectHelper.isEmpty(query.getUserCode())){
+			throw new JyBizException("参数错误：用户编码为空！");
+		}
+		if (ObjectHelper.isEmpty(query.getSiteCode())){
+			throw new JyBizException("参数错误：场地编码为空！");
+		}
 	}
 }

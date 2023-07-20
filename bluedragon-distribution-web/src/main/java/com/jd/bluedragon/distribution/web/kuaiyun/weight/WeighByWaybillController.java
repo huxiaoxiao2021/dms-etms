@@ -168,7 +168,14 @@ public class WeighByWaybillController extends DmsBaseController {
         	}
         	JdResult<WeightVolumeUploadResult> weightVolumeCheckResult = dmsWeightVolumeService.checkBeforeUpload(condition);
         	if(weightVolumeCheckResult != null) {
-        		checkData.setWeightVolumeCheckResult(weightVolumeCheckResult.getData());
+        		if(weightVolumeCheckResult.getData() != null) {
+        			checkData.setWeightVolumeCheckResult(weightVolumeCheckResult.getData());
+        		}
+        		if(!weightVolumeCheckResult.isSucceed()) {
+        			checkData.setIsExists(Boolean.FALSE);
+            		checkData.setVerifyCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
+            		checkData.setVerifyMessage(weightVolumeCheckResult.getMessage());
+        		}
         	}
     	}
     	return result;

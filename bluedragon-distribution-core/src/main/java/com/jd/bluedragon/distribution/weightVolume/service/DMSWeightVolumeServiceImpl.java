@@ -33,6 +33,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.util.DateUtil;
@@ -289,7 +290,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode,checkType)) {
                     logger.info("零称重量方 本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
                     if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
-                        logger.info("零称重量方 经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
+                        logger.info("零称重量方 校验分拣中心复重需要拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
                         return Boolean.TRUE;
                     }else{
                         logger.info("零称重量方 本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
@@ -422,6 +423,13 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
 
                 /*************纯配外单 非C网 统一拦截场景开始******************/
+
+                //纯配冷链生鲜单，校验分拣中心称重
+                if(BusinessUtil.isExternalPureDeliveryAndColdFresh(waybillSign)){
+                    logger.info("零称重量方 纯配外单 非C网 冷链生鲜单场景，需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
+                }
+
                 //快运零担
                 if(BusinessUtil.isSignChar(waybillSign, 40, '2')){
                     logger.info("零称重量方 纯配外单 非C网 快运零担场景，需要拦截，运单号{}",waybillCode);
@@ -497,6 +505,30 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		boolean hasOverLengthAndWeight = false;
 		boolean isPackageAndOverFlag = false;
 		List<OverLengthAndWeightTypeEnum> matchedTypes = new ArrayList<OverLengthAndWeightTypeEnum>();
+		//判断是否快运产品
+		Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+		boolean isCPKYLD = false;
+		if(waybill != null ) {
+			String waybillSign =  waybill.getWaybillSign();
+			String productType = null;
+			if(waybill.getWaybillExt() != null) {
+				productType = waybill.getWaybillExt().getProductType();
+			}
+			isCPKYLD = BusinessUtil.isCPKYLD(waybillSign) && 
+					(DmsConstants.PRODUCT_TYPE_KY_001.equals(productType)
+							|| DmsConstants.PRODUCT_TYPE_KY_0002.equals(productType)
+							|| DmsConstants.PRODUCT_TYPE_KY_0004.equals(productType));
+		}
+		//非快运产品
+		if(!isCPKYLD) {
+			if(Boolean.TRUE.equals(condition.getOverLengthAndWeightEnable())) {
+				result.toFail("非快运单据，暂不支持增加超长超重服务!");
+			}else {
+				weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
+				result.toSuccess("验证成功！");
+			}
+			return result;
+		}
 		//按包裹-判断是否需要自动选择超长超重
 		if(WeightVolumeBusinessTypeEnum.BY_PACKAGE.equals(businessTypeEnum)
 				&& !Boolean.TRUE.equals(condition.getTotalVolumeFlag())) {
@@ -531,13 +563,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			result.toSuccess("验证成功！");
 			return result;
 		}
-		Map<String,String> overLengthAndWeightTypesMap = null;
 		//调用运单接口查询-增值服务信息
 		BaseEntity<WaybillVasDto> vasResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, DmsConstants.WAYBILL_VAS_OVER_LENGTHANDWEIGHT);
 		if(vasResult.getData() != null) {
 			WaybillVasDto vasData = vasResult.getData();
 			if(vasData.getExtendMap() != null && !vasData.getExtendMap().isEmpty()) {
-				overLengthAndWeightTypesMap = vasData.getExtendMap();
 				hasOverLengthAndWeight = true;
 			}
 		}

@@ -3,12 +3,15 @@ package com.jd.bluedragon.distribution.packageWeighting.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.router.CacheTablePartition;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
 import com.jd.bluedragon.distribution.packageWeighting.domain.BusinessTypeEnum;
 import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
 import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckType;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.domain.PackageOpeFlowDetail;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -16,11 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * Created by jinjingcheng on 2018/4/22.
@@ -30,6 +31,10 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     PackageWeightingDao packageWeightingDao;
+    @Resource(name="waybillPackageManager")
+    private WaybillPackageManager waybillPackageManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     public List<PackageWeighting> findWeightVolume(String waybillCode, String packageCode, List<Integer> businessTypes) {
@@ -136,8 +141,13 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
         List<PackageWeighting> packageWeightings;
         try {
             if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
-                packageWeightings = findWeightVolume(waybillCode, packageCode,
-                        Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.TOTAL.getCode()));
+                //查询分拣称重 包裹维度
+                List<PackageWeighting> tempPackageWeightings = findWeightVolume(waybillCode, packageCode,
+                        Arrays.asList(BusinessTypeEnum.DMS.getCode()));
+                //查询运单称重流水表，过滤出拣运称重 运单维度
+                List<PackageWeighting> tempWaybillWeightings = createWaybillWeightings(waybillCode,waybillPackageManager.getWaybillWeightVolumeDetail(waybillCode));
+                //合并
+                packageWeightings = createPackageWeightings(tempPackageWeightings,tempWaybillWeightings);
             } else {
                 packageWeightings = findWeightVolume(waybillCode, packageCode,
                         Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.PICKER.getCode(),BusinessTypeEnum.PICK_RESIDENT.getCode(),BusinessTypeEnum.PICK.getCode(),
@@ -186,14 +196,20 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                             logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             return false;
                         }
-                    } if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
+                        return true;
+                    }
+
+                    if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
                         // 重量和体积同时为空
                         if ((packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0)
                                 && (packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0)) {
                             logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积都没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             return false;
                         }
-                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
+                        return true;
+                    }
+
+                    if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
                         logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积有一个没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         return false;
                     } else {
@@ -211,6 +227,78 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
             return hasWVflag;//有称重量方
         }
     }
+
+    /**
+     * 称重流水表过滤拣运称重
+     * @param waybillWeightVolumeDetail
+     * @return
+     */
+    private List<PackageWeighting> createWaybillWeightings(String waybillCode,List<PackageOpeFlowDetail> waybillWeightVolumeDetail) {
+        if(CollectionUtils.isEmpty(waybillWeightVolumeDetail)){
+            return null;
+        }
+        List<PackageWeighting> resultList = new ArrayList<>(1);
+        for(PackageOpeFlowDetail tempPackageOpeFlowDetail : waybillWeightVolumeDetail){
+            Integer opeSiteId = tempPackageOpeFlowDetail.getOpeSiteId();
+            //只看了复重
+            Double againWeight = tempPackageOpeFlowDetail.getAgainWeight();
+            if(opeSiteId != null && againWeight != null && againWeight > 0) {
+                //todo getBaseSiteInfoBySiteId  getBaseSiteBySiteId
+                BaseSiteInfoDto siteOrgDto = baseMajorManager.getBaseSiteInfoBySiteId(opeSiteId);
+                if (siteOrgDto != null && Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(siteOrgDto.getSiteType())) {
+                    //至少有1个场地操作了称重就可以
+                    resultList.add(genWaybillWeighting(waybillCode,tempPackageOpeFlowDetail));
+                    break;
+                }
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 构建参数
+     * @param waybillCode
+     * @param tempPackageOpeFlowDetail
+     * @return
+     */
+    private PackageWeighting genWaybillWeighting(String waybillCode,PackageOpeFlowDetail tempPackageOpeFlowDetail) {
+        PackageWeighting packageWeighting = new PackageWeighting();
+        packageWeighting.setBusinessType(BusinessTypeEnum.TOTAL.getCode());
+        packageWeighting.setWaybillCode(waybillCode);
+        packageWeighting.setPackageCode(waybillCode);
+        packageWeighting.setWeight(tempPackageOpeFlowDetail.getAgainWeight());
+        packageWeighting.setVolume(tempPackageOpeFlowDetail.getAgainVolume());
+        packageWeighting.setCreateSiteCode(tempPackageOpeFlowDetail.getOpeSiteId());
+        packageWeighting.setCreateSiteName(tempPackageOpeFlowDetail.getOpeSiteName());
+        return packageWeighting;
+    }
+
+    /**
+     * 合并
+     * @param tempPackageWeightings
+     * @param tempWaybillWeightings
+     * @return
+     */
+    private List<PackageWeighting> createPackageWeightings(List<PackageWeighting> tempPackageWeightings, List<PackageWeighting> tempWaybillWeightings) {
+        if(CollectionUtils.isNotEmpty(tempPackageWeightings) && CollectionUtils.isNotEmpty(tempWaybillWeightings)){
+            List<PackageWeighting> result = new ArrayList<>(tempPackageWeightings.size() + tempWaybillWeightings.size());
+            result.addAll(tempPackageWeightings);
+            result.addAll(tempWaybillWeightings);
+            return result;
+        }else if(CollectionUtils.isNotEmpty(tempPackageWeightings)){
+            List<PackageWeighting> result = new ArrayList<>(tempPackageWeightings.size() );
+            result.addAll(tempPackageWeightings);
+            return result;
+        }else if(CollectionUtils.isNotEmpty(tempWaybillWeightings)){
+            List<PackageWeighting> result = new ArrayList<>( tempWaybillWeightings.size());
+            result.addAll(tempWaybillWeightings);
+            return result;
+        }else{
+            return new ArrayList<>(0);
+        }
+    }
+
+
 
     /**
      * 纯配外单重量判断逻辑
