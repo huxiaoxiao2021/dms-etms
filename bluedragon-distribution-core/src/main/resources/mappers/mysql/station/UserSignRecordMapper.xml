@@ -1086,6 +1086,7 @@
 			limit #{offset}, #{limit}
 		</if>
 
+
 	</select>
 
 	<select id="listSignRecordByTime" resultMap="UserSignRecord">
