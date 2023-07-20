@@ -505,7 +505,7 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * 标签文件url（下载地址）
 	 */
-	private String labelFileDownLoadUrl;	
+	private String labelFileDownloadUrl;	
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1778,10 +1778,10 @@ public class BasePrintWaybill implements Serializable {
 	public void setTempOriginalCrossType(Integer tempOriginalCrossType) {
 		this.tempOriginalCrossType = tempOriginalCrossType;
 	}
-	public String getLabelFileDownLoadUrl() {
-		return labelFileDownLoadUrl;
+	public String getLabelFileDownloadUrl() {
+		return labelFileDownloadUrl;
 	}
-	public void setLabelFileDownLoadUrl(String labelFileDownLoadUrl) {
-		this.labelFileDownLoadUrl = labelFileDownLoadUrl;
+	public void setLabelFileDownloadUrl(String labelFileDownloadUrl) {
+		this.labelFileDownloadUrl = labelFileDownloadUrl;
 	}
 }
