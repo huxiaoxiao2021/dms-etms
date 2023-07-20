@@ -129,7 +129,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
-
+      if(StringUtils.isBlank(request.getBizId())) {
+        res.toFail("bizId为空");
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.findInventoryTaskByBizId(request));
 

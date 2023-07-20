@@ -65,6 +65,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       throw new JyBizException("未找到对应的找货任务的待找包裹数据！");
     }
 
+    if(InventoryTaskStatusEnum.COMPLETE.getCode().equals(jyBizTaskFindGoods.getTaskStatus())) {
+      throw new JyBizException("任务已完成！");
+    }
     if (ObjectHelper.isNotNull(jyBizTaskFindGoodsDetail.getFindStatus()) &&
         InventoryDetailStatusEnum.EXCEPTION.getCode() == jyBizTaskFindGoodsDetail.getFindStatus()){
       JyBizTaskFindGoodsDetail detail =new JyBizTaskFindGoodsDetail();
