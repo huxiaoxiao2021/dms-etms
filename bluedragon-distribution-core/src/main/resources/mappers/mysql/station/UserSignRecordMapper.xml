@@ -1062,7 +1062,7 @@
 		AND TIMESTAMPDIFF(HOUR, r.sign_in_time, r.sign_out_time) >1
 		GROUP BY r.sign_date;
 	</select>
-    </select>
+
 
 	<select id="querySignInUserByCondition" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
 		select site_code,user_code,user_code_encrypt,user_name,user_name_encrypt
