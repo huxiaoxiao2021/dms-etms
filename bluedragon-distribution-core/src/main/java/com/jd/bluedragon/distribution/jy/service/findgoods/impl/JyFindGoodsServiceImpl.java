@@ -105,8 +105,8 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private InventoryTaskDto convertInventoryTaskDto(JyBizTaskFindGoods jyBizTaskFindGoods) {
     InventoryTaskDto dto = new InventoryTaskDto();
     dto.setBizId(jyBizTaskFindGoods.getBizId());
-    dto.setWaveStartTime(jyBizTaskFindGoods.getWaveStartTime());
-    dto.setWaveEndTime(jyBizTaskFindGoods.getWaveEndTime());
+    dto.setWaveStartTime(getPdaShowTime(jyBizTaskFindGoods.getWaveStartTime()));
+    dto.setWaveEndTime(getPdaShowTime(jyBizTaskFindGoods.getWaveEndTime()));
     dto.setCountdownSeconds(this.getCountdownSeconds(jyBizTaskFindGoods.getBizId(), jyBizTaskFindGoods.getWaveEndTime()));
     dto.setTaskStatus(jyBizTaskFindGoods.getTaskStatus());
     dto.setWaitFindCount(jyBizTaskFindGoods.getWaitFindCount());
@@ -118,6 +118,25 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       dto.setCompleteTime(jyBizTaskFindGoods.getUpdateTime().getTime());
     }
     return dto;
+  }
+
+  /**
+   * 入参： 12:13:14  出参：12:13
+   * @param hourMinuteSecondStr
+   * @return
+   */
+  private String getPdaShowTime(String hourMinuteSecondStr) {
+    if(StringUtils.isBlank(hourMinuteSecondStr)) {
+      return null;
+    }
+    String[] timeArr = hourMinuteSecondStr.split(Constants.SEPARATOR_COLON);
+    if(timeArr.length != 3) {
+      return null;
+    }
+    StringBuffer sb = new StringBuffer();
+    sb.append(timeArr[0]).append(Constants.SEPARATOR_COLON).append(timeArr[1]);
+    return sb.toString();
+
   }
 
   /**
