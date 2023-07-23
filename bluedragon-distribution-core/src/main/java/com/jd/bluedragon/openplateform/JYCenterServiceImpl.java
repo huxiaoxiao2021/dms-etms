@@ -220,29 +220,33 @@ public class JYCenterServiceImpl implements JYCenterService {
         }
 
 
-        BaseStaffSiteOrgDto siteOrgDto = baseService.queryDmsBaseSiteByCode(batchSortingPageRequest.getOperateSiteCode());
-        if (siteOrgDto == null) {
+        BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(batchSortingPageRequest.getOperateSiteCode());
+        if (createSiteDto == null) {
             result.confirmMessage("操作站点未在京东维护");
             return result;
         }
 
-        String[] boxRoutes = batchSortingPageRequest.getBoxRouteCode().split(Constants.SEPARATOR_HYPHEN);
-        if (boxRoutes.length != 2) {
-            result.parameterError("货物流向信息解析失败");
-            return result;
+        BaseStaffSiteOrgDto receiveSiteDto = null;
+        if(batchSortingPageRequest.getArriveSiteCode() != null){
+            receiveSiteDto = baseService.queryDmsBaseSiteByCode(batchSortingPageRequest.getArriveSiteCode());
+            if (receiveSiteDto == null) {
+                result.confirmMessage("货物目的站点未在京东维护");
+                return result;
+            }
+        } else {
+            String[] boxRoutes = batchSortingPageRequest.getBoxRouteCode().split(Constants.SEPARATOR_HYPHEN);
+            if (boxRoutes.length != 2) {
+                result.parameterError("货物流向信息解析失败");
+                return result;
+            }
+
+            receiveSiteDto = baseService.queryDmsBaseSiteByCode(boxRoutes[1]);
+            if (receiveSiteDto == null) {
+                result.confirmMessage("货物目的站点未在京东维护");
+                return result;
+            }
         }
 
-        BaseStaffSiteOrgDto siteOrgDto1 = baseService.queryDmsBaseSiteByCode(boxRoutes[0]);
-        if (siteOrgDto1 == null) {
-            result.confirmMessage("货物始发站点未在京东维护");
-            return result;
-        }
-
-        BaseStaffSiteOrgDto siteOrgDto2 = baseService.queryDmsBaseSiteByCode(boxRoutes[1]);
-        if (siteOrgDto2 == null) {
-            result.confirmMessage("货物目的站点未在京东维护");
-            return result;
-        }
 
         List<List<CargoOperateInfo>> lists = Lists.partition(batchSortingPageRequest.getCargoNoList(), 10);
 
@@ -251,9 +255,9 @@ public class JYCenterServiceImpl implements JYCenterService {
             for (CargoOperateInfo cargoOperateInfo : list) {
                 OperatorInfo operatorInfo = new OperatorInfo();
                 operatorInfo.setOperateTime(cargoOperateInfo.getOperateTime());
-                operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
-                operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
-                operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
+                operatorInfo.setOperateSiteId(createSiteDto.getSiteCode());
+                operatorInfo.setOperateSiteCode(createSiteDto.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(createSiteDto.getSiteName());
                 operatorInfo.setOperateUserId(-1);
                 operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
@@ -265,12 +269,12 @@ public class JYCenterServiceImpl implements JYCenterService {
                 }
                 entity.setBoxCode(batchSortingPageRequest.getBoxCode());
                 entity.setDataOperateType(batchSortingPageRequest.getOperateType());
-                entity.setCreateSiteId(siteOrgDto1.getSiteCode());
-                entity.setCreateSiteCode(siteOrgDto1.getDmsSiteCode());
-                entity.setCreateSiteName(siteOrgDto1.getSiteName());
-                entity.setReceiveSiteId(siteOrgDto2.getSiteCode());
-                entity.setReceiveSiteCode(siteOrgDto2.getDmsSiteCode());
-                entity.setReceiveSiteName(siteOrgDto2.getSiteName());
+                entity.setCreateSiteId(createSiteDto.getSiteCode());
+                entity.setCreateSiteCode(createSiteDto.getDmsSiteCode());
+                entity.setCreateSiteName(createSiteDto.getSiteName());
+                entity.setReceiveSiteId(receiveSiteDto.getSiteCode());
+                entity.setReceiveSiteCode(receiveSiteDto.getDmsSiteCode());
+                entity.setReceiveSiteName(receiveSiteDto.getSiteName());
                 entity.setOperatorInfo(operatorInfo);
                 entity.setRequestProfile(batchSortingPageRequest.getRequestProfile());
 
