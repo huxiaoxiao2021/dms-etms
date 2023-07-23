@@ -454,7 +454,7 @@
     </bean>
     <bean id="preSealBatchDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealBatchDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>              
+    </bean>
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -823,6 +823,9 @@
     <bean id="jyBizTaskExceptionLogDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyBizTaskExceptionAssignDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
@@ -924,7 +927,7 @@
     </bean>
     <bean id="jyWorkGridManagerCaseItemDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseItemDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>    
+    </bean>
     <bean id="jyExceptionScrappedDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>

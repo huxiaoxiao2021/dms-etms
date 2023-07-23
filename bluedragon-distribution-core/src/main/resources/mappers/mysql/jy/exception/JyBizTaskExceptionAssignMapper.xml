@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionAssignEntity" id="jyBizTaskExceptionAssignMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="handlerErp" column="handler_erp"/>
+        <result property="distributionTarget" column="distribution_target"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        site_code,
+        site_name,
+        distribution_target,
+        handler_erp,
+        create_user_erp,
+        update_user_erp,
+        create_time,
+        update_time,
+        ts,
+        yn
+    </sql>
+
+
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionAssignEntity">
+        INSERT INTO jy_biz_task_exception_assign (
+        <if test="bizId != null">
+            biz_id,
+        </if>
+
+        <if test="siteCode != null">
+            site_code,
+        </if>
+        <if test="siteName != null">
+            site_name,
+        </if>
+        <if test="handlerErp != null">
+            handler_erp,
+        </if>
+        <if test="distributionTarget != null">
+            distribution_target,
+        </if>
+        <if test="createUserErp != null">
+            create_user_erp,
+        </if>
+        <if test="updateUserErp != null">
+            update_user_erp,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        <if test="updateTime != null">
+            update_time,
+        </if>
+        yn
+        )
+        VALUES (
+        <if test="bizId != null">
+            #{bizId},
+        </if>
+
+        <if test="siteCode != null">
+            #{siteCode},
+        </if>
+        <if test="siteName != null">
+            #{siteName},
+        </if>
+
+        <if test="handlerErp != null">
+            #{handlerErp},
+        </if>
+        <if test="distributionTarget != null">
+            #{distributionTarget},
+        </if>
+
+        <if test="createUserErp != null">
+            #{createUserErp},
+        </if>
+        <if test="updateUserErp != null">
+            #{updateUserErp},
+        </if>
+
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+        <if test="updateTime != null">
+            #{updateTime},
+        </if>
+        1)
+    </insert>
+
+    <select id="getAssignExpTask" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq"
+            resultMap="jyBizTaskExceptionAssignMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception_assign
+        WHERE yn = 1
+        AND distribution_target =#{gridRid}
+        AND handler_erp = #{userErp}
+
+    </select>
+
+    <update id="updateByIds" parameterType="java.util.List">
+
+        update jy_biz_task_exception_assign
+        set yn =0
+        where id in
+        <foreach item="id" index="index" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

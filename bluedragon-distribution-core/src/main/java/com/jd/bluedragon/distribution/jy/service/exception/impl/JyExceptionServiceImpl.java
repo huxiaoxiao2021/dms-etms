@@ -13,6 +13,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
@@ -51,6 +52,8 @@ import com.jd.ql.erp.dto.delivery.DeliveredReqDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
@@ -156,6 +159,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private DeliveryWSManager deliveryWSManager;
+
+    @Autowired
+    private WorkStationGridManager workStationGridManager;
 
     /**
      * 通用异常上报入口-扫描
@@ -1237,6 +1243,48 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         sendScheduleTaskStatusMsg(bizTaskException.getBizId(), operateErp, JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
     }
 
+    @Override
+    public JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("checkExceptionPrincipal-入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.setCode(JdCResponse.CODE_FAIL);
+        response.setData(Boolean.FALSE);
+        if(req == null || StringUtils.isBlank(req.getPositionCode()) || StringUtils.isBlank(req.getUserErp())){
+            return response.fail("入参不能为空!");
+        }
+
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return response.fail("网格码有误!");
+        }
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
+        if (baseStaffByErp == null) {
+            return response.fail("登录人ERP有误!" + req.getUserErp());
+        }
+
+        String refGridKey = position.getRefGridKey();
+        if(StringUtils.isBlank(refGridKey)){
+            return response.fail("网格关联业务主键为空!");
+        }
+        WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+        workStationGridQuery.setBusinessKey(refGridKey);
+        Result<WorkStationGrid> result = workStationGridManager.queryByGridKey(workStationGridQuery);
+        if(result == null || result.getData() == null || StringUtils.isBlank(result.getData().getOwnerUserErp())){
+            return response.fail("获取网格场地信息失败!");
+        }
+        String ownerUserErp = result.getData().getOwnerUserErp();
+        //校验场地网格负责人
+        if(Objects.equals(req.getUserErp(),ownerUserErp)){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setData(Boolean.TRUE);
+        }
+        return response;
+    }
+
+
+
     private void sendScheduleTaskStatusMsg(String bizId, String userErp,
                                            JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
         //通知任务调度系统状态修改
@@ -1423,6 +1471,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         for (String s : split) {
             JyBizTaskExceptionTagEnum tagEnum = JyBizTaskExceptionTagEnum.getByCode(s);
             if (tagEnum == null) {
+                continue;
+            }
+            //组长指派的三无任务标签特殊处理
+            if(Objects.equals(JyBizTaskExceptionTagEnum.ASSIGN.getCode(),tagEnum.getCode())){
+                TagDto dto = new TagDto();
+                dto.setName(tagEnum.getName());
+                dto.setCode(tagEnum.ordinal());
+                dto.setStyle("error");
+                list.add(dto);
                 continue;
             }
             TagDto dto = new TagDto();

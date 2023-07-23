@@ -849,6 +849,16 @@ public class UccPropertyConfiguration {
      */
     private String teAnSiteWhitelist;
 
+    private int batchQueryEndSiteLimit;
+
+    public int getBatchQueryEndSiteLimit() {
+        return batchQueryEndSiteLimit;
+    }
+
+    public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
+        this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
+    }
+
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
     }
@@ -1341,6 +1351,7 @@ public class UccPropertyConfiguration {
      */
     private boolean uploadOverWeightSwitch;
 
+
     /**
      * 忽略转运全程跟踪开关
      */
@@ -1360,6 +1371,11 @@ public class UccPropertyConfiguration {
      * 批量生成批次号时：最大数量限制
      */
     private Integer batchGenerateSendCodeMaxNum;
+
+    /**
+     * 车型优先分数默认值
+     */
+    private double vehicleIntegralPriorityFraction;
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -1501,6 +1517,13 @@ public class UccPropertyConfiguration {
      *  多个级别以,隔开
      */
     private String exScrapApproveLevelCountLimit;
+
+
+
+    /**
+     * 三无任务指派数量限制
+     */
+    private int assignExpTaskQuantityLimit;
 
     public boolean getSupportMutilScan() {
         return supportMutilScan;
@@ -3532,5 +3555,22 @@ public class UccPropertyConfiguration {
 
     public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
         this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public double getVehicleIntegralPriorityFraction() {
+        return vehicleIntegralPriorityFraction;
+    }
+
+    public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
+        this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
+    }
+
+
+    public int getAssignExpTaskQuantityLimit() {
+        return assignExpTaskQuantityLimit;
+    }
+
+    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
 }

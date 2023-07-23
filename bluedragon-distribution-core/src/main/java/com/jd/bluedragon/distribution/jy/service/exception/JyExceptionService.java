@@ -121,4 +121,12 @@ public interface JyExceptionService {
      * @param precessComplete 是否处理完成
      */
     void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete);
+
+    /**
+     *校验当前登录erp是否是负责人
+     * @return
+     */
+    JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+
 }
