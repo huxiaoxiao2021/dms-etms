@@ -10,6 +10,10 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -29,9 +33,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.jmq.common.exception.JMQException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -78,6 +79,9 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BoxService boxService;
 
     @Override
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
@@ -195,6 +199,8 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             }
         }
 
+        this.handleDpBox(entity);
+
         if (Objects.equals(entity.getDataOperateType(),"ADD")) {
             Task task=new Task();
             task.setKeyword1(entity.getBoxCode());
@@ -260,6 +266,37 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         }
 
         return new InvokeResult<>();
+    }
+
+    private void handleDpBox(JYCargoOperateEntity entity) {
+        try {
+            if(BusinessHelper.isDPBoxCode(entity.getBoxCode())){
+                // 德邦箱号兼容处理
+                final Box box = boxService.findBoxByCode(entity.getBoxCode());
+                if(box == null){
+                    Box boxAdd = new Box();
+                    boxAdd.setCode(entity.getBoxCode());
+                    boxAdd.setType(Box.TYPE_DP);
+                    boxAdd.setCreateSiteCode(entity.getCreateSiteId());
+                    boxAdd.setCreateSiteName(entity.getCreateSiteName());
+                    boxAdd.setReceiveSiteCode(entity.getReceiveSiteId());
+                    boxAdd.setReceiveSiteName(entity.getReceiveSiteName());
+                    boxAdd.setCreateTime(new Date(entity.getOperatorInfo().getOperateTime()));
+                    boxAdd.setUpdateTime(boxAdd.getCreateTime());
+                    boxAdd.setCreateUserCode(entity.getOperatorInfo().getOperateUserId());
+                    boxAdd.setCreateUser(entity.getOperatorInfo().getOperateUserName());
+                    boxAdd.setTimes(1);
+                    boxAdd.setStatus(Box.BOX_STATUS_SEND);
+                    boxAdd.setTransportType(Box.BOX_TRANSPORT_TYPE_HIGHWAY);
+                    boxAdd.setMixBoxType(0);
+                    boxAdd.setLastNodeType(OpBoxNodeEnum.SEND.getNodeCode());
+                    boxAdd.setBoxSource(BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+                    boxService.add(boxAdd);
+                }
+            }
+        } catch (Exception e) {
+            log.error("JYOpenCargoOperateServiceImpl.handleBox {}", JsonHelper.toJson(entity), e);
+        }
     }
 
     @Override

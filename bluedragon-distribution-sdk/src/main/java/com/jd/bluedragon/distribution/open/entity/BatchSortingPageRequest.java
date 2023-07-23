@@ -50,6 +50,16 @@ public class BatchSortingPageRequest extends BatchPageRequest{
      */
     private String operateSiteName;
 
+    /**
+     * 到达站点编码
+     */
+    private String arriveSiteCode;
+
+    /**
+     * 到达站点名称
+     */
+    private String arriveSiteName;
+
     public List<CargoOperateInfo> getCargoNoList() {
         return cargoNoList;
     }
@@ -104,5 +114,21 @@ public class BatchSortingPageRequest extends BatchPageRequest{
 
     public void setOperateSiteName(String operateSiteName) {
         this.operateSiteName = operateSiteName;
+    }
+
+    public String getArriveSiteCode() {
+        return arriveSiteCode;
+    }
+
+    public void setArriveSiteCode(String arriveSiteCode) {
+        this.arriveSiteCode = arriveSiteCode;
+    }
+
+    public String getArriveSiteName() {
+        return arriveSiteName;
+    }
+
+    public void setArriveSiteName(String arriveSiteName) {
+        this.arriveSiteName = arriveSiteName;
     }
 }
