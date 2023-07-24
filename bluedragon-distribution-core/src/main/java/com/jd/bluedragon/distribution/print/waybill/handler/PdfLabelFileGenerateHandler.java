@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputMsgItem;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintRequest;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
@@ -79,14 +80,13 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	if(pdfList.size()>0){
         		JdCloudPrintResponse jdCloudPrintResponse = pdfList.get(0);
         		if(JdCloudPrintResponse.STATUS_SUC.equals(jdCloudPrintResponse.getStatus())
-        				&& jdCloudPrintResponse.getOutputMsg() != null
-        				&& jdCloudPrintResponse.getOutputMsg().size()>0){
+        				&& !CollectionUtils.isEmpty(jdCloudPrintResponse.getOutputMsgItems())
+        				&& jdCloudPrintResponse.getOutputMsgItems().get(0) != null){
         			basePrintWaybill.setLabelFileType(jdCloudPrintResponse.getOutputType());
-        			basePrintWaybill.setLabelFileUrl(jdCloudPrintResponse.getOutputMsg().get(0));
+        			JdCloudPrintOutputMsgItem msgItem = jdCloudPrintResponse.getOutputMsgItems().get(0);
+        			basePrintWaybill.setLabelFileUrl(msgItem.getPath());
         			//设置下载地址
-        			if(!CollectionUtils.isEmpty(jdCloudPrintResponse.getOutputDownloadUrls())) {
-        				basePrintWaybill.setLabelFileDownloadUrl(jdCloudPrintResponse.getOutputDownloadUrls().get(0));
-        			}
+        			basePrintWaybill.setLabelFileDownloadUrl(msgItem.getUrl());
         		}else{
         			interceptResult.toFail("生成pdf文件失败！");
         		}

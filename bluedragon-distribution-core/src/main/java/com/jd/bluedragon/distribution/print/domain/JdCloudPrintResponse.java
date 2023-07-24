@@ -32,7 +32,7 @@ public class JdCloudPrintResponse implements Serializable {
 	/**
 	 *  下载地址
 	 */
-	private List<String> outputDownloadUrls;	
+	private List<JdCloudPrintOutputMsgItem> outputMsgItems;
 	/**
 	 * 状态 0-成功 | 1-失败
 	 */
@@ -105,10 +105,11 @@ public class JdCloudPrintResponse implements Serializable {
 	public void setErrMsg(Integer errMsg) {
 		this.errMsg = errMsg;
 	}
-	public List<String> getOutputDownloadUrls() {
-		return outputDownloadUrls;
+	public List<JdCloudPrintOutputMsgItem> getOutputMsgItems() {
+		return outputMsgItems;
 	}
-	public void setOutputDownloadUrls(List<String> outputDownloadUrls) {
-		this.outputDownloadUrls = outputDownloadUrls;
+	public void setOutputMsgItems(List<JdCloudPrintOutputMsgItem> outputMsgItems) {
+		this.outputMsgItems = outputMsgItems;
 	}
+
 }
