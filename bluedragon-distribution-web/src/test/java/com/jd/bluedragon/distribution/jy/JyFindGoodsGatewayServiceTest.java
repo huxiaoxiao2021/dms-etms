@@ -58,7 +58,7 @@ public class JyFindGoodsGatewayServiceTest {
                 JdCResponse<InventoryTaskDto> obj1 = jyFindGoodsGatewayService.findCurrentInventoryTask(req);
                 System.out.println("end");
                 req.setBizId(obj1.getData().getBizId());
-                JdCResponse<InventoryTaskDto> obj2 = jyFindGoodsGatewayService.findInventoryTaskByBizId(req);
+//                JdCResponse<InventoryTaskDto> obj2 = jyFindGoodsGatewayService.findInventoryTaskByBizId(req);
                 System.out.println("end");
             }catch (Exception e) {
                 e.printStackTrace();
