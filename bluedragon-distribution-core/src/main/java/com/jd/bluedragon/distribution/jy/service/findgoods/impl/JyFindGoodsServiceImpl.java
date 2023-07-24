@@ -307,7 +307,11 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
         JyBizTaskFindGoods dbUpdate = new JyBizTaskFindGoods();
         dbUpdate.setUpdateTime(new Date());
         dbUpdate.setBizId(request.getBizId());
-        dbUpdate.setPhotoStatus(findGoods.getPhotoStatus().concat(request.getPhotoPosition().toString()));
+        if(StringUtils.isBlank(findGoods.getPhotoStatus())) {
+          dbUpdate.setPhotoStatus(request.getPhotoPosition().toString());
+        }else {
+          dbUpdate.setPhotoStatus(findGoods.getPhotoStatus().concat(request.getPhotoPosition().toString()));
+        }
         jyBizTaskFindGoodsDao.updatePhotoStatus(dbUpdate);
       }
     }catch (Exception ex) {

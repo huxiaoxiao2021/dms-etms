@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -113,6 +114,38 @@ public class JyFindGoodsGatewayServiceTest {
 
     @Test
     public void inventoryTaskPhotographTest() {
+        String str=
+                "    {\n" +
+                "        \"bizId\": \"test009\",\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010F002\",\n" +
+                "            \"operateTime\": 1690168647531,\n" +
+                "            \"operatorId\": \"54091\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 40240,\n" +
+                "            \"siteName\": \"北京通州分拣中心\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00000047003\",\n" +
+                "        \"photoPosition\": 1,\n" +
+                "        \"photoUrls\": [\n" +
+                "            \"http://s3.cn-north-1.jdcloud-oss.com/dmsweb/dms-feedback/3597077a-f2e4-473f-9739-7efd406f11fa.jpg?AWSAccessKeyId=JDC_D7F39DBD95C716540108BD9333F4&Expires=1721704647&Signature=5sW%2BQ5Tibj%2BQtaDDhFiPb1gMnv8%3D\"\n" +
+                "        ],\n" +
+                "        \"positionCode\": \"GW00019001\",\n" +
+                "        \"requestId\": \"02bfa0d925974744a920ce74ed029dc8\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 17331,\n" +
+                "            \"userErp\": \"wuyoude\",\n" +
+                "            \"userName\": \"吴有德\"\n" +
+                "        }\n" +
+                "    }" ;
+
+
+        InventoryTaskPhotographReq param = JSONObject.parseObject(str, InventoryTaskPhotographReq.class);
+        JdCResponse obj0 = jyFindGoodsGatewayService.inventoryTaskPhotograph(param);
+        System.out.println(obj0.getCode());
+
         InventoryTaskPhotographReq req = new InventoryTaskPhotographReq();
         req.setCurrentOperate(CURRENT_OPERATE);
         req.setUser(USER_wuyoude);
