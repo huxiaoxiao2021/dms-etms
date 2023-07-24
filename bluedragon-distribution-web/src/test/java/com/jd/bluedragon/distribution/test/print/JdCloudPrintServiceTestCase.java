@@ -29,12 +29,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintRequest;
+import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.utils.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
-@ContextConfiguration(locations = {"classpath:/distribution-web-print-test.xml"})
+@ContextConfiguration(locations = {"classpath:bak/distribution-web-print-test.xml"})
 public class JdCloudPrintServiceTestCase {
 	private static final Logger log = LoggerFactory.getLogger(JdCloudPrintServiceTestCase.class);
 	public static void main(String[] args) throws Exception{
@@ -104,12 +106,12 @@ public class JdCloudPrintServiceTestCase {
     @Autowired
     @Qualifier("localPrintService")
     private JdCloudPrintService localPrintService;
-    
+    private Boolean useAmazon;
     @Test
     public void testUseNewTemplate() throws Exception{
     	//http://dmswebtest.360buy.com/sysconfig/list?pageNo=1&pageSize=10&configName=print.dmsSiteCodes.useNewTemplate
     	//测试启用新模板配置功能
-    	JdCloudPrintRequest<Map<String,String>> req = jdCloudPrintService.getDefaultPdfRequest();
+    	JdCloudPrintRequest<Map<String,String>> req = jdCloudPrintService.getDefaultPdfRequest(useAmazon);
     	List<Map<String,String>> list = new ArrayList<>();
     	req.setModel(list);
     	Map<String,String> data = new HashMap<>();
@@ -119,11 +121,18 @@ public class JdCloudPrintServiceTestCase {
     		list.add(data);
     	}
     	req.setLocation("910");
-    	req.setTemplate("wms_mjn_pickingnote1");
+    	req.setTemplate("dms-b2b-m");
     	req.setTemplateVer("1");
     	req.setOrderNum("56289554274");
-    	jdCloudPrintService.jdCloudPrint(req);
+    	JdResult<List<JdCloudPrintResponse>> result = jdCloudPrintService.jdCloudPrint(req);
+    	log.warn("wms_mjn_pickingnote1:"+JsonHelper.toJson(result));
     	req.setTemplate("dms-b2b-m");
-    	localPrintService.jdCloudPrint(req);
+    	result = localPrintService.jdCloudPrint(req);
+    	log.warn("dms-b2b-m:"+JsonHelper.toJson(result));
     }
+    @Test
+    public void testUseNewTemplateNew() throws Exception{
+    	useAmazon = true;
+    	testUseNewTemplate();
+    }    
 }

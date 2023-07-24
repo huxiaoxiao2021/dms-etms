@@ -30,6 +30,10 @@ public class JdCloudPrintResponse implements Serializable {
 	 */
 	private List<String> outputMsg;
 	/**
+	 *  下载地址
+	 */
+	private List<String> outputDownloadUrls;	
+	/**
 	 * 状态 0-成功 | 1-失败
 	 */
 	private Integer status = STATUS_SUC;
@@ -100,5 +104,11 @@ public class JdCloudPrintResponse implements Serializable {
 	 */
 	public void setErrMsg(Integer errMsg) {
 		this.errMsg = errMsg;
+	}
+	public List<String> getOutputDownloadUrls() {
+		return outputDownloadUrls;
+	}
+	public void setOutputDownloadUrls(List<String> outputDownloadUrls) {
+		this.outputDownloadUrls = outputDownloadUrls;
 	}
 }
