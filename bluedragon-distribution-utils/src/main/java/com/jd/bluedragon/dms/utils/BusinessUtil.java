@@ -2778,5 +2778,26 @@ public class BusinessUtil {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_9)
                 || isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_A);
     }
-
+    /**
+     * 判断是否-场地网格key
+     * @param businessKey
+     * @return
+     */
+    public static boolean isWorkGridKey(String businessKey){
+        if(StringUtils.isBlank(businessKey)){
+            return false;
+        }
+        return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_GRID);
+    }
+    /**
+     * 判断是否-场地网格工序key
+     * @param businessKey
+     * @return
+     */
+    public static boolean isWorkStationGridKey(String businessKey){
+        if(StringUtils.isBlank(businessKey)){
+            return false;
+        }
+        return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
+    }    
 }
