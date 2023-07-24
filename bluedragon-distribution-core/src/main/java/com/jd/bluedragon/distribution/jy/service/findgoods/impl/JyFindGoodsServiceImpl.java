@@ -97,6 +97,10 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     InvokeResult<InventoryTaskDto> res = new InvokeResult<>();
     String workGridKey = this.getWorkGridKeyByPositionCode(request.getPositionCode());
     JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findOngoingTaskByWorkGrid(workGridKey);
+    if(Objects.isNull(jyBizTaskFindGoods)) {
+      res.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
+      return res;
+    }
     InventoryTaskDto resData = this.convertInventoryTaskDto(jyBizTaskFindGoods);
     res.setData(resData);
     return res;
@@ -205,6 +209,10 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     res.success();
 
     JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findByBizId(request.getBizId());
+    if(Objects.isNull(jyBizTaskFindGoods)) {
+      res.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
+      return res;
+    }
     InventoryTaskDto resData = this.convertInventoryTaskDto(jyBizTaskFindGoods);
     res.setData(resData);
     return res;
