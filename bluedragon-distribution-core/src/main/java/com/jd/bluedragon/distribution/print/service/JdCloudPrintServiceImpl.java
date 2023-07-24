@@ -236,24 +236,45 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			outputStream = new FileOutputStream(pdfFile);
 			inputStream = new FileInputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
+			List<JdCloudPrintOutputMsgItem> outputMsgItems = new ArrayList<JdCloudPrintOutputMsgItem>();
+			JdCloudPrintOutputMsgItem outputMsgItem = new JdCloudPrintOutputMsgItem();
+			
 			if(Boolean.TRUE.equals(jdCloudPrintRequest.getUseAmazon())) {
-				dmswebAmazonS3ClientWrapper.putObject(inputStream, PDF_FOLDER, jssPdfPath, pdfFile.length());
+				String url = dmswebAmazonS3ClientWrapper.putObjectThenGetOutNetUrl(inputStream, PDF_FOLDER, jssPdfPath, pdfFile.length(),DateHelper.THREE_MONTH_DAYS);
+				outputMsgItem.setPath(jssPdfPath);
+				outputMsgItem.setUrl(url);
 			}else {
 				pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
+				outputMsgItem.setPath(jssPdfPath);
+				URI uri;
+				String url = null;
+				if (httpsSet.contains(printOutJssEndpoint)){
+					uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath)
+							.presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl();
+				}
+				else{
+					uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath)
+							.generatePresignedUrl();
+				}
+				if(uri != null){
+					url = uri.toString();
+				}
+				outputMsgItem.setUrl(url);
 			}
-			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
-			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
-			List<String> outputMsg = new ArrayList<String>();
-			
-			outputMsg.add(jssPdfPath);
-			printResponse.setStatus(JdCloudPrintResponse.STATUS_SUC);
-			printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());
-			printResponse.setOutputMsg(outputMsg);
-			printResponses.add(printResponse);
-			printResult.setData(printResponses);
-			printResult.toSuccess();
-			//生成下载外链
-			this.generateDownloadUrl(jdCloudPrintRequest, printResult);
+			if(outputMsgItem.getUrl() != null){
+				List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
+				JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
+				
+				printResponse.setStatus(JdCloudPrintResponse.STATUS_SUC);
+				printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());				
+				printResponses.add(printResponse);
+				printResult.setData(printResponses);
+				printResult.toSuccess();
+				outputMsgItems.add(outputMsgItem);
+				printResponse.setOutputMsgItems(outputMsgItems);
+			}else{
+				printResult.toFail("jss生成外链失败！");
+			}
 		} catch (Throwable e) {
 			Profiler.functionError(callerInfo);
 			log.error("本地生成pdf失败！", e);
@@ -327,7 +348,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		//生成外链接
 		if(Boolean.TRUE.equals(jdCloudPrintRequest.getUseAmazon())) {
 			outputMsgItem = JsonHelper.fromJson(outputMsg, JdCloudPrintOutputMsgItem.class);
-			url = this.dmswebAmazonS3ClientWrapper.generatePresignedOuterNetUrl(DateHelper.THREE_MONTH_DAYS, PDF_FOLDER, outputMsgItem.getPath());
+			url = this.dmswebAmazonS3ClientWrapper.generatePresignedOuterNetUrl(DateHelper.THREE_MONTH_DAYS, "", outputMsgItem.getPath());
 			outputMsgItem.setUrl(url);
 		}else {
 			URI uri;
@@ -342,8 +363,10 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			if(uri != null){
 				url = uri.toString();
 			}
+			outputMsgItem.setPath(outputMsg);
+			outputMsgItem.setUrl(url);
 		}
-		if(url != null){
+		if(outputMsgItem.getUrl() != null){
 			outputMsgItems.add(outputMsgItem);
 			printData.setOutputMsgItems(outputMsgItems);
 		}else{
