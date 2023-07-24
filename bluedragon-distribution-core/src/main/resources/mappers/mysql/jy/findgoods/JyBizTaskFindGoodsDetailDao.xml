@@ -291,7 +291,7 @@
     limit #{offset},#{pageSize}
   </select>
 
-  <select id="findPackage">
+  <select id="findPackage" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
     FROM
@@ -301,5 +301,17 @@
       AND package_code = #{packageCode}
       AND yn = 1
     limit 1
+  </select>
+  <select id="listFindGoodsDetail" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_biz_task_find_goods_detail
+    WHERE find_goods_task_biz_id = #{findGoodsDetailList[0].findGoodsTaskBizId}
+    AND package_code in
+    <foreach collection="findGoodsDetailList" item="item" index="index" open="(" separator="," close=")">
+      #{item.packageCode}
+    </foreach>
+    AND yn =1
   </select>
 </mapper>

@@ -286,6 +286,12 @@ public class InvokeResult<T> implements Serializable {
     public static final int PACKAGE_HASBEEN_SCAN = 3067;
     public static final String PACKAGE_HASBEEN_SCAN_MESSAGE = "该包裹已集被扫描过，请勿重复扫描!";
 
+    public static final int NO_WAITFIND_DATA_CODE = 3068;
+    public static final String NO_WAITFIND_DATA_MESSAGE = "未查询到对应的波次找货数据!";
+
+
+    public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
+    public static final String NO_FINDGOODS_TASK_DATA_MESSAGE = "未查询到对应的找货任务数据!";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

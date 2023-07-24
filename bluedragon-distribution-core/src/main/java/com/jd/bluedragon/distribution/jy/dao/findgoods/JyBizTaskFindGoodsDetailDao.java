@@ -45,4 +45,12 @@ public class JyBizTaskFindGoodsDetailDao extends BaseDao<JyBizTaskFindGoodsDetai
     public Integer countInventoryDetail(JyBizTaskFindGoodsDetailQueryDto param) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countInventoryDetail", param);
     }
+
+  public List<JyBizTaskFindGoodsDetail> listFindGoodsDetail(List<JyBizTaskFindGoodsDetail> findGoodsDetailList) {
+      return this.getSqlSession().selectList(NAMESPACE + ".listFindGoodsDetail", findGoodsDetailList);
+  }
+
+    public int batchInsert(List<JyBizTaskFindGoodsDetail> findGoodsDetailList) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", findGoodsDetailList);
+    }
 }

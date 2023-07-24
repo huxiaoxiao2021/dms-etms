@@ -20,6 +20,7 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="task_date" jdbcType="VARCHAR" property="taskDate" />
   </resultMap>
 
 
@@ -30,12 +31,12 @@
 
 
   <sql id="Base_Column_List">
-    id, biz_id, work_grid_key, site_code, wave_start_time, wave_end_time, task_status, 
-    wait_find_count, have_find_count, photo_status, create_user_erp, create_user_name, 
-    update_user_erp, update_user_name, create_time, update_time, yn, ts
+    id, biz_id, work_grid_key, site_code, wave_start_time, wave_end_time, task_status,
+    wait_find_count, have_find_count, photo_status, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, create_time, update_time, yn, ts ,task_date
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_biz_task_find_goods
     where id = #{id,jdbcType=BIGINT}
@@ -45,17 +46,17 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods">
-    insert into jy_biz_task_find_goods (id, biz_id, work_grid_key, 
-      site_code, wave_start_time, wave_end_time, 
-      task_status, wait_find_count, have_find_count, 
-      photo_status, create_user_erp, create_user_name, 
-      update_user_erp, update_user_name, create_time, 
+    insert into jy_biz_task_find_goods (id, biz_id, work_grid_key,
+      site_code, wave_start_time, wave_end_time,
+      task_status, wait_find_count, have_find_count,
+      photo_status, create_user_erp, create_user_name,
+      update_user_erp, update_user_name, create_time,
       update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{workGridKey,jdbcType=VARCHAR}, 
-      #{siteCode,jdbcType=BIGINT}, #{waveStartTime,jdbcType=VARCHAR}, #{waveEndTime,jdbcType=VARCHAR}, 
-      #{taskStatus,jdbcType=TINYINT}, #{waitFindCount,jdbcType=INTEGER}, #{haveFindCount,jdbcType=INTEGER}, 
-      #{photoStatus,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
-      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{workGridKey,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=BIGINT}, #{waveStartTime,jdbcType=VARCHAR}, #{waveEndTime,jdbcType=VARCHAR},
+      #{taskStatus,jdbcType=TINYINT}, #{waitFindCount,jdbcType=INTEGER}, #{haveFindCount,jdbcType=INTEGER},
+      #{photoStatus,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods">
@@ -115,6 +116,9 @@
       <if test="ts != null">
         ts,
       </if>
+      <if test="taskDate != null">
+        task_date,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -170,6 +174,9 @@
       </if>
       <if test="ts != null">
         #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskDate != null">
+        #{taskDate,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -313,4 +320,18 @@
       update_time = #{updateTime}
     where yn = 1 and biz_id = #{bizId}
   </update>
+
+  <select id="findWaveTask" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+      jy_biz_task_find_goods
+    WHERE
+      site_code = #{siteCode}
+      AND work_grid_key = #{workGridKey}
+      AND task_date = #{date}
+      AND wave_start_time = #{waveStartTime}
+      AND wave_end_time = #{waveEndTime}
+    limit 1
+  </select>
 </mapper>

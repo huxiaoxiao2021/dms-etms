@@ -1977,4 +1977,15 @@ public class Constants {
      */
     public static final Integer PDA_DEFAULT_PAGE_MAXSIZE = 100;
 
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_CREATE_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s_%s_%s_%s";
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
+
 }

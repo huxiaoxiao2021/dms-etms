@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.findgoods;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskQueryDto;
 import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods;
+import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail;
 import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsQueryDto;
 import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsStatisticsDto;
 import com.jd.bluedragon.utils.DateHelper;
@@ -21,19 +25,19 @@ public class JyBizTaskFindGoodsDao extends BaseDao<JyBizTaskFindGoods> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", record);
     }
 
-    int insertSelective(JyBizTaskFindGoods record){
+    public int insertSelective(JyBizTaskFindGoods record){
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", record);
     }
 
-    JyBizTaskFindGoods selectByPrimaryKey(Long id){
+    public JyBizTaskFindGoods selectByPrimaryKey(Long id){
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
 
-    int updateByPrimaryKeySelective(JyBizTaskFindGoods record){
+    public int updateByPrimaryKeySelective(JyBizTaskFindGoods record){
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", record);
     }
 
-    int updateByPrimaryKey(JyBizTaskFindGoods record) {
+    public int updateByPrimaryKey(JyBizTaskFindGoods record) {
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
 
@@ -59,5 +63,14 @@ public class JyBizTaskFindGoodsDao extends BaseDao<JyBizTaskFindGoods> {
 
     public int updatePhotoStatus(JyBizTaskFindGoods dbUpdate) {
         return this.getSqlSession().update(NAMESPACE + ".updatePhotoStatus", dbUpdate);
+    }
+
+  public JyBizTaskFindGoods findWaveTask(FindGoodsTaskQueryDto dto) {
+      return this.getSqlSession().selectOne(NAMESPACE + ".findWaveTask", dto);
+
+  }
+
+    public int batchInsert(List<JyBizTaskFindGoodsDetail> findGoodsDetailList) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", findGoodsDetailList);
     }
 }

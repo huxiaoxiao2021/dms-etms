@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods.impl;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FINDGOODS_TASK_DATA_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FINDGOODS_TASK_DATA_MESSAGE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN_MESSAGE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
@@ -18,17 +20,23 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao;
 import com.jd.bluedragon.distribution.jy.dao.findgoods.JyBizTaskFindGoodsDao;
 import com.jd.bluedragon.distribution.jy.dao.findgoods.JyBizTaskFindGoodsDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.DistributPackageDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.UpdateWaitFindPackageStatusDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.findgoods.*;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsCacheService;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.common.utils.ObjectHelper;
 import com.jdl.basic.common.utils.Result;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -381,5 +389,83 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     resData.setInventoryDetailDtoList(inventoryDetailDtoList);
 
     return res;
+  }
+
+  @Override
+  public InvokeResult<FindGoodsTaskDto> findWaveTask(FindGoodsTaskQueryDto dto) {
+    JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findWaveTask(dto);
+    if (ObjectHelper.isNotNull(jyBizTaskFindGoods)){
+      FindGoodsTaskDto findGoodsTaskDto = BeanUtils.copy(jyBizTaskFindGoods,FindGoodsTaskDto.class);
+      return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,findGoodsTaskDto);
+    }
+    return new InvokeResult(NO_FINDGOODS_TASK_DATA_CODE,NO_FINDGOODS_TASK_DATA_MESSAGE);
+  }
+
+  @Override
+  public int saveFindGoodsTask(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoods jyBizTaskFindGoods =BeanUtils.copy(findGoodsTaskDto,JyBizTaskFindGoods.class);
+    return jyBizTaskFindGoodsDao.insertSelective(jyBizTaskFindGoods);
+  }
+
+  @Override
+  public FindGoodsTaskDto findTaskByBizId(String findGoodsTaskBizId) {
+    JyBizTaskFindGoods jyBizTaskFindGoods= jyBizTaskFindGoodsDao.findByBizId(findGoodsTaskBizId);
+    if (ObjectHelper.isNotNull(jyBizTaskFindGoods)){
+      return BeanUtils.copy(findGoodsTaskBizId,FindGoodsTaskDto.class);
+    }
+    return null;
+  }
+
+
+  @Override
+  public boolean distributWaitFindPackage(DistributPackageDto dto,FindGoodsTaskDto findGoodsTaskDto) {
+    List<JyBizTaskFindGoodsDetail> findGoodsDetailList =assembleFindGoodsDetailList(dto,findGoodsTaskDto);
+    List<JyBizTaskFindGoodsDetail> hasBeenDistributed =jyBizTaskFindGoodsDetailDao.listFindGoodsDetail(findGoodsDetailList);
+    if (CollectionUtils.isNotEmpty(hasBeenDistributed)){
+      findGoodsDetailList =findGoodsDetailList.stream().filter(jyBizTaskFindGoodsDetail ->  !checkHasBeenDistributed(jyBizTaskFindGoodsDetail,hasBeenDistributed)).collect(Collectors.toList());
+    }
+    return jyBizTaskFindGoodsDetailDao.batchInsert(findGoodsDetailList) >0 ;
+  }
+
+  private List<JyBizTaskFindGoodsDetail> assembleFindGoodsDetailList(DistributPackageDto dto,FindGoodsTaskDto findGoodsTaskDto) {
+    Date now =new Date();
+    return dto.getWaitFindPackageDtoList().stream().map(waitFindPackageDto -> {
+      JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =new JyBizTaskFindGoodsDetail();
+      jyBizTaskFindGoodsDetail.setFindGoodsTaskBizId(dto.getFindGoodsTaskBizId());
+      jyBizTaskFindGoodsDetail.setPackageCode(waitFindPackageDto.getPackageCode());
+      jyBizTaskFindGoodsDetail.setFindStatus(InventoryDetailStatusEnum.EXCEPTION.getCode());
+      jyBizTaskFindGoodsDetail.setFindType(waitFindPackageDto.getFindType());
+      jyBizTaskFindGoodsDetail.setSiteCode(Long.valueOf(dto.getCurrentOperate().getSiteCode()));
+      jyBizTaskFindGoodsDetail.setWaveStartTime(findGoodsTaskDto.getWaveStartTime());
+      jyBizTaskFindGoodsDetail.setWaveEndTime(findGoodsTaskDto.getWaveEndTime());
+      jyBizTaskFindGoodsDetail.setCreateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setCreateUserName("系统分配");
+      jyBizTaskFindGoodsDetail.setUpdateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setUpdateUserName("系统分配");
+      jyBizTaskFindGoodsDetail.setCreateTime(now);
+      jyBizTaskFindGoodsDetail.setUpdateTime(now);
+      return jyBizTaskFindGoodsDetail;
+    }).collect(Collectors.toList());
+  }
+
+  private boolean checkHasBeenDistributed(JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail, List<JyBizTaskFindGoodsDetail> hasBeenDistributed) {
+    for (JyBizTaskFindGoodsDetail distributedGoodsDetail :hasBeenDistributed){
+      if (jyBizTaskFindGoodsDetail.getFindGoodsTaskBizId().equals(distributedGoodsDetail.getFindGoodsTaskBizId())
+          && jyBizTaskFindGoodsDetail.getPackageCode().equals(distributedGoodsDetail.getPackageCode())) {
+      return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean updateTaskStatistics(FindGoodsTaskDto findGoodsTaskDto) {
+    return false;
+  }
+
+  @Override
+  public boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto,
+      FindGoodsTaskDto findGoodsTaskDto) {
+    return false;
   }
 }

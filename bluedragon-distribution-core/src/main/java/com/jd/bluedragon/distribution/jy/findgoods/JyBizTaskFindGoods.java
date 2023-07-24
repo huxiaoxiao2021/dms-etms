@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.jy.findgoods;
 import java.util.Date;
 
 public class JyBizTaskFindGoods {
-    private Long id;
+
+  public static final String BIZ_PREFIX = "FG%s";;
+  private Long id;
 
     private String bizId;
 
@@ -38,6 +40,16 @@ public class JyBizTaskFindGoods {
     private Integer yn;
 
     private Date ts;
+
+    private String taskDate;
+
+    public String getTaskDate() {
+        return taskDate;
+    }
+
+    public void setTaskDate(String taskDate) {
+        this.taskDate = taskDate;
+    }
 
     public Long getId() {
         return id;
