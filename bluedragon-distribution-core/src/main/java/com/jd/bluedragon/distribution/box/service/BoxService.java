@@ -12,6 +12,8 @@ public interface BoxService {
 
     Integer add(Box box);
 
+    long newBoxId();
+
     /** 批量生成箱子信息 */
     List<Box> batchAdd(Box box);
 

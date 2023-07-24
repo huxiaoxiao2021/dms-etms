@@ -275,6 +275,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 final Box box = boxService.findBoxByCode(entity.getBoxCode());
                 if(box == null){
                     Box boxAdd = new Box();
+                    boxAdd.setId(boxService.newBoxId());
                     boxAdd.setCode(entity.getBoxCode());
                     boxAdd.setType(Box.TYPE_DP);
                     boxAdd.setCreateSiteCode(entity.getCreateSiteId());
