@@ -149,6 +149,14 @@ public class BoxServiceImpl implements BoxService {
         return result;
     }
 
+    /**
+     * @return 箱号ID
+     */
+    @Override
+    public long newBoxId() {
+        return sequenceGenAdaptor.newId(DB_TABLE_NAME);
+    }
+
 	private Integer add(List<Box> boxes) {
 		if (CollectionUtils.isEmpty(boxes)) {
 			return 0;
