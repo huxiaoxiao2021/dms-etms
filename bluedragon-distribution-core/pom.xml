@@ -2466,7 +2466,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-facade</artifactId>
-			<version>2.0.15-online-SNAPSHOT</version>
+			<version>2.0.15-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.validation</groupId>

@@ -141,7 +141,7 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
             // 始发省区
             if (StringUtils.isNotEmpty(request.getStartProvinceAgencyCode()))
                 // todo org_switch_province 运输需增加字段
-                transportResourceDto.setStartOrgCode(request.getStartProvinceAgencyCode());
+                
             // 始发站
             if (request.getScode() != null)
                 transportResourceDto.setStartNodeId(request.getScode());
@@ -151,7 +151,7 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
             // 目的省区
             if (StringUtils.isNotEmpty(request.getDestProvinceAgencyCode()))
                 // todo org_switch_province 运输需增加字段
-                transportResourceDto.setEndOrgCode(request.getDestProvinceAgencyCode());
+                
             // 目的站
             if (request.getRcode() != null)
                 transportResourceDto.setEndNodeId(request.getRcode());
@@ -200,8 +200,8 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 domain.setRorgName(dto.getEndOrgName());
                 // todo org_switch_province 运输需增加字段
                 // 目的省区
-                domain.setDestProvinceAgencyCode(String.valueOf(dto.getEndOrgCode()));
-                domain.setDestProvinceAgencyName(dto.getEndOrgName());
+                domain.setDestProvinceAgencyCode(null);
+                domain.setDestProvinceAgencyName(null);
                 
                 // 线路类型
                 domain.setRouteType(String.valueOf(dto.getTransType()));
@@ -216,8 +216,8 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 domain.setSorgName(dto.getStartOrgName());
                 // todo org_switch_province 运输需增加字段
                 // 始发省区
-                domain.setStartProvinceAgencyCode(String.valueOf(dto.getEndOrgCode()));
-                domain.setStartProvinceAgencyName(dto.getEndOrgName());
+                domain.setStartProvinceAgencyCode(null);
+                domain.setStartProvinceAgencyName(null);
                 // 运力编码
                 domain.setTranCode(String.valueOf(dto.getTransCode()));
                 // 运输方式

@@ -42,6 +42,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
@@ -405,7 +406,17 @@ public class BaseResource {
 	public List<BaseResponse> getDriversOfProvince(@PathParam("provinceAgencyCode") String provinceAgencyCode) {
 		// 获取省区下的司机信息列表
 		List<BaseResponse> driverList = new ArrayList<BaseResponse>();
-		// todo 根据省区编码获取省下所有司机的接口
+		List<BaseStaffSiteDTO> list = baseMajorManager.queryBaseStaffByRole(provinceAgencyCode, 2);
+		if(CollectionUtils.isNotEmpty(list)){
+			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			for (BaseStaffSiteDTO baseStaffSiteDTO : list) {
+				// 司机姓名
+				response.setDriver(baseStaffSiteDTO.getStaffName());
+				// 司机ID
+				response.setDriverId(baseStaffSiteDTO.getStaffNo());
+			}
+			driverList.add(response);
+		}
 
 		return driverList;
 	}

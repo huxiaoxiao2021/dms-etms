@@ -241,4 +241,13 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	InvokeResult<Boolean> securityCheck(WaybillPrintRequest request);
+
+	/**
+	 * 查询省区下某角色员工信息
+	 * 
+	 * @param provinceAgencyCode 省区编码
+	 * @param role 角色：1-配送员、2-司机、3-站长、4-站长助理、5-分拣员。。。
+	 * @return
+	 */
+	List<BaseStaffSiteDTO> queryBaseStaffByRole(String provinceAgencyCode, Integer role);
 }
