@@ -1094,21 +1094,44 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.error("JyComBoardSendServiceImpl comboardScan NullPointerException", e);
       return new InvokeResult<>(CODE_ERROR,"服务器开小差，请联系分拣小秘！");
     } catch(JyBizException e) {
-      log.info("传站组板即发货扫描异常",e);
+      ComboardScanResp resp = assembleComboardResp(request);
+      resp.setWeakInterceptFlag(checkWeakIntercept(request));
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
-          ComboardScanResp resp = assembleComboardResp(request);
           return new InvokeResult(e.getCode(), e.getMessage(),resp);
         }
-        return new InvokeResult(e.getCode(), e.getMessage());
+        return new InvokeResult(e.getCode(), e.getMessage(),resp);
       }
-      return new InvokeResult(CODE_ERROR, e.getMessage());
+      return new InvokeResult(CODE_ERROR, e.getMessage(),resp);
     }
     ComboardScanResp resp = assembleComboardResp(request);
     if (ucc.getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){
       return new InvokeResult(NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE, NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE, resp);
     }
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  private boolean checkWeakIntercept(ComboardScanReq request) {
+    if (ucc.getWeakInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)){
+      return true;
+    }
+    return false;
+  }
+
+  private boolean checkContainsCurrentSite(ComboardScanReq request) {
+    if (ObjectHelper.isNotNull(request.getCurrentOperate().getSiteCode())){
+      List<String> siteList =new ArrayList<>();
+      if (ucc.getWeakInterceptBlackList().contains(Constants.SEPARATOR_COMMA)){
+        siteList =Arrays.asList(ucc.getWeakInterceptBlackList().split(Constants.SEPARATOR_COMMA));
+      }
+      else {
+        siteList.add(ucc.getWeakInterceptBlackList());
+      }
+      if (!CollectionUtils.isEmpty(siteList) && siteList.contains(String.valueOf(request.getCurrentOperate().getSiteCode()))){
+        return true;
+      }
+    }
+    return false;
   }
 
   private ComboardScanResp assembleComboardResp(ComboardScanReq request) {

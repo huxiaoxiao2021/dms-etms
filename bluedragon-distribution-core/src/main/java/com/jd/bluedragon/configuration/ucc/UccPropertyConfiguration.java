@@ -1433,6 +1433,16 @@ public class UccPropertyConfiguration {
      */
     private String needIsolateBoardByGroupCodeSiteList;
 
+    private String weakInterceptBlackList;
+
+    public String getWeakInterceptBlackList() {
+        return weakInterceptBlackList;
+    }
+
+    public void setWeakInterceptBlackList(String weakInterceptBlackList) {
+        this.weakInterceptBlackList = weakInterceptBlackList;
+    }
+
     public String getNeedIsolateBoardByGroupCodeSiteList() {
         return needIsolateBoardByGroupCodeSiteList;
     }
