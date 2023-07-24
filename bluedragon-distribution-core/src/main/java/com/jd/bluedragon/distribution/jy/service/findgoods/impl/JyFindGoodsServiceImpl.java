@@ -1,16 +1,13 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods.impl;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN_MESSAGE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -23,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.findgoods.*;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsCacheService;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -36,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 @Slf4j
 @Service
@@ -52,6 +52,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private JyFindGoodsCacheService jyFindGoodsCacheService;
   @Autowired
   private PositionManager positionManager;
+  @Autowired
+  private UccPropertyConfiguration uccConfig;
+
 
   @Override
   public InvokeResult findGoodsScan(FindGoodsReq request) {
@@ -204,18 +207,30 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsServiceImpl.findInventoryTaskByBizId", mState = {JProEnum.TP})
-  public InvokeResult<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
-    InvokeResult<InventoryTaskDto> res = new InvokeResult<>();
+  public InvokeResult<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
+    InvokeResult<InventoryTaskRes> res = new InvokeResult<>();
     res.success();
+    InventoryTaskRes resData = new InventoryTaskRes();
+    resData.setClientAutoRefreshConfig(this.getClientAutoRefreshConfig());
 
     JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findByBizId(request.getBizId());
     if(Objects.isNull(jyBizTaskFindGoods)) {
       res.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
       return res;
     }
-    InventoryTaskDto resData = this.convertInventoryTaskDto(jyBizTaskFindGoods);
+    InventoryTaskDto inventoryTaskDto = this.convertInventoryTaskDto(jyBizTaskFindGoods);
+    resData.setInventoryTaskDto(inventoryTaskDto);
     res.setData(resData);
     return res;
+  }
+
+  private ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+    try {
+      return uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
+    }catch (Exception ex) {
+      log.error("找货刷新间隔获取错误，errMsg={}", ex.getMessage(), ex);
+    }
+    return null;
   }
 
   @Override
