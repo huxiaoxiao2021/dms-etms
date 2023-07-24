@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import java.util.List;
 
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.common.utils.Result;
 
 /**
@@ -20,6 +21,6 @@ public interface JyUserManager {
      * @param userPositionName
      * @return
      */
-    Result<List<String>> queryUserListBySiteAndPosition(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName);
+    Result<List<JyUserDto>> queryUserListBySiteAndPosition(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName);
 
 }

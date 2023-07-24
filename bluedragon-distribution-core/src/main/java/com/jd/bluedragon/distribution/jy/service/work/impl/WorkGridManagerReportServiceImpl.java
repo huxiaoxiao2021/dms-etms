@@ -120,12 +120,6 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		WorkGridManagerReportVo taskData  = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(jyTaskData, taskData);
 		taskData.setStatusName(WorkTaskStatusEnum.getNameByCode(taskData.getStatus()));
-		if(!WorkTaskStatusEnum.COMPLETE.getCode().equals(taskData.getStatus())) {
-			taskData.setHandlerErp("");
-			taskData.setHandlerUserName("");
-			taskData.setHandlerUserPositionName("");
-			taskData.setHandlerUserPositionCode("");
-		}
 		return taskData;
 	}	
 	@Override
