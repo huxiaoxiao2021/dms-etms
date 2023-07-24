@@ -42,6 +42,19 @@ public class ComboardScanResp implements Serializable {
      */
     private String boardCode;
 
+    /**
+     * 弱拦截提示
+     */
+    private boolean weakInterceptFlag;
+
+
+    public boolean getWeakInterceptFlag() {
+        return weakInterceptFlag;
+    }
+
+    public void setWeakInterceptFlag(boolean weakInterceptFlag) {
+        this.weakInterceptFlag = weakInterceptFlag;
+    }
 
     public Integer getEndSiteId() {
         return endSiteId;

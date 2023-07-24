@@ -20,7 +20,7 @@ public class InvokeResult<T> implements Serializable {
     /**
      * 称重校验失败
      */
-    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;    
+    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;
     /**
      * 第三方接口异常
      */
@@ -270,6 +270,8 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int ONLINE_GET_TASK_SIMPLE_FAIL_CODE= 3066;
     public static final String ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE ="获取任务简码失败！";
+
+    public static final int COMBOARD_SCAN_WEAK_INTECEPTER_CODE= 3067;
 
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
