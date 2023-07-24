@@ -116,9 +116,9 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId", mState = {JProEnum.TP})
-  public JdCResponse<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
+  public JdCResponse<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
     String methodDesc = "JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId:查询找货任务服务：";
-    JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
+    JdCResponse<InventoryTaskRes> res = new JdCResponse<>();
     res.toSucceed();
     try{
       if(Objects.isNull(request)) {
