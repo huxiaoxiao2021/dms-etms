@@ -2672,6 +2672,11 @@
 			<version>${abnormal-portal-api.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.github.houbb</groupId>
+			<artifactId>opencc4j</artifactId>
+		</dependency>
+
     </dependencies>
 
 	<profiles>
