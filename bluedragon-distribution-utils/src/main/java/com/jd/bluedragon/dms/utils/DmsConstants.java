@@ -1,9 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -466,4 +463,11 @@ public class DmsConstants {
         }
     }
 
+    /**
+     * 香港澳门区域国标
+     */
+    public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
+        add("HK");
+        add("MO");
+    }};
 }

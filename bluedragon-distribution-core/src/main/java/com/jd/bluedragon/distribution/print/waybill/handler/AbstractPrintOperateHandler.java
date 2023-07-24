@@ -43,6 +43,9 @@ public abstract class AbstractPrintOperateHandler implements InterceptHandler<Wa
                             if (InterceptResult.isWeakPassed()) {
                                 context.appendMessage(InterceptResult.getMessage());
                                 context.setStatus(InterceptResult.getStatus());
+                            } else if (InterceptResult.isBreak()){
+                                interceptResult.toBreak(InterceptResult.getMessageCode(), InterceptResult.getMessage());
+                                break;
                             }
                         } else {
                             return InterceptResult;

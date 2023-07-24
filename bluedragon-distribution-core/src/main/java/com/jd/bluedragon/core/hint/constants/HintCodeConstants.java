@@ -573,6 +573,14 @@ public class HintCodeConstants {
      */
     public static String TEAN_BOX_INTERCEPT = "20094";
 
+    // 港澳单-审核中拦截提示语：此单报关审核中，请稍后尝试，通过后可正常操作!
+    public static String EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE = "20101";
+    // 港澳单-审核失败拦截提示语：此单报关审单失败，请操作逆向换单后退回!
+    public static String EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE = "20102";
+    //  港澳单-D类运单拦截提示语：此单为D类报关运单，禁止集包，请操作原包发货
+    public static String EXCEPTION_GA_D_SORT_INTERCEPT_TYPE = "20103";
+    
+
     /*##############################################拦截相关END#########################################################*/
 
 

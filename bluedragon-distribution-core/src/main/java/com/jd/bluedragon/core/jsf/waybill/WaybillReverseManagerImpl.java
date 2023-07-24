@@ -1,19 +1,5 @@
 package com.jd.bluedragon.core.jsf.waybill;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -26,13 +12,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -41,14 +21,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.cp.wbms.client.api.ReverseWaybillApi;
-import com.jd.cp.wbms.client.dto.ConsigneeDto;
-import com.jd.cp.wbms.client.dto.ReverseWaybillRequest;
-import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
-import com.jd.cp.wbms.client.dto.WaybillConsigneeDto;
-import com.jd.cp.wbms.client.dto.WaybillConsignorDto;
-import com.jd.cp.wbms.client.dto.WaybillPackageDto;
-import com.jd.cp.wbms.client.dto.WbmsApiResult;
-import com.jd.cp.wbms.client.dto.WbmsRequestProfile;
+import com.jd.cp.wbms.client.dto.*;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
@@ -62,6 +35,19 @@ import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
 import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * 外单 jsf接口 包装类
@@ -476,7 +462,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         boolean isFullOrderFail = waybillCancelService.isFullOrderFail(exchangeWaybillDto.getWaybillCode());
         if(isFullOrderFail) {
             waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
-        }        
+        }
+        // 逆向原因编码
+        waybillReverseDTO.setReverseReasonCode(exchangeWaybillDto.getReverseReasonCode());
         return waybillReverseDTO;
     }
 
@@ -704,6 +692,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 				consigneeDto.setConsigneeAddress(waybillAddress.getAddress ());
 				reverseWaybillRequest.setConsigneeDto(consigneeDto);
 			}
+            reverseWaybillRequest.setReverseReasonCode(dmsWaybillReverseDTO.getReverseReasonCode());
 			return reverseWaybillRequest;
 		}
 		return null;
