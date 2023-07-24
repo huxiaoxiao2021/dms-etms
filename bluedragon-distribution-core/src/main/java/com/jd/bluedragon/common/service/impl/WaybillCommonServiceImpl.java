@@ -7,7 +7,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.domain.WaybillExtVO;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jsf.address.DmsExternalJDAddressResponse;
@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -32,29 +34,21 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.cache.util.WaybillConstants;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
-import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.command.JdResult;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -535,6 +529,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setBusiOrderCode(waybillWS.getBusiOrderCode());
         waybill.setCodMoney(NumberHelper.getDoubleValue(waybillWS.getCodMoney()));
         waybill.setSendPayMap(JsonHelper.json2MapByJSON(waybillWS.getWaybillExt() == null ? null : waybillWS.getWaybillExt().getSendPayMap()));
+        waybill.setWaybillExtVO(convertToOwnWaybillExtVO(waybillWS.getWaybillExt()));
         if (isSetPack) {
         	//存放包裹的复重及打印信息
         	Map<String,PackOpeFlowDto> packOpeFlows = null;
@@ -615,6 +610,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         return waybill;
+    }
+
+    private WaybillExtVO convertToOwnWaybillExtVO(WaybillExt waybillExt) {
+        return waybillExt == null
+                ? null : new WaybillExtVO()
+                .clearanceType(waybillExt.getClearanceType())
+                .startFlowDirection(waybillExt.getStartFlowDirection())
+                .endFlowDirection(waybillExt.getEndFlowDirection());
     }
 
     private void dealWaybillSiteName(Waybill waybill) {

@@ -17,6 +17,8 @@
     </bean>
 
     <util:list id="forwardFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalSortFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdChainAroundPlateBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
@@ -83,6 +85,7 @@
     </bean>
 
     <util:list id="deliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
@@ -119,6 +122,7 @@
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
@@ -170,6 +174,7 @@
 
     <util:list id="boardCombinationFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillParamFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
@@ -206,6 +211,7 @@
         </property>
     </bean>
     <util:list id="virtualBoardCombinationFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
@@ -251,6 +257,7 @@
     </bean>
 
     <util:list id="jyDeliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>

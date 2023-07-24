@@ -329,6 +329,11 @@ public class WaybillCache implements Serializable {
      */
     private Integer endDmsId;
 
+	/**
+	 * 运单额外属性
+	 */
+	private WaybillExtVO waybillExtVO;
+
 	public WaybillCache() {
 
 	}
@@ -852,5 +857,13 @@ public class WaybillCache implements Serializable {
 
 	public void setEndDmsId(Integer endDmsId) {
 		this.endDmsId = endDmsId;
+	}
+
+	public WaybillExtVO getWaybillExtVO() {
+		return waybillExtVO;
+	}
+
+	public void setWaybillExtVO(WaybillExtVO waybillExtVO) {
+		this.waybillExtVO = waybillExtVO;
 	}
 }

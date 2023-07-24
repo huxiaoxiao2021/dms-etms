@@ -1972,4 +1972,11 @@ public class Constants {
      * 电商特惠产品编码
      */
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
+    
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
 }

@@ -47,6 +47,7 @@
         <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
         <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
         <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
+        <cloud.print.version>1.0.10-SNAPSHOT</cloud.print.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -437,6 +438,12 @@
 				<groupId>com.github.houbb</groupId>
 				<artifactId>opencc4j</artifactId>
 				<version>1.1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jd.cloud.print</groupId>
+				<artifactId>print-api</artifactId>
+				<version>${cloud.print.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

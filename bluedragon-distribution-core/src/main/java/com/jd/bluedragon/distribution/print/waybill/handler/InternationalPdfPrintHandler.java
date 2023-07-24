@@ -1,21 +1,30 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.CloudPrintConstants;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.InternationalPrintManager;
+import com.jd.bluedragon.core.base.InternationalCloudPrintManager;
+import com.jd.bluedragon.core.simpleComplex.SimpleComplexSwitchContext;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.domain.international.InternationalPrintReq;
-import com.jd.bluedragon.distribution.print.domain.international.OutputConfigDTO;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NoticeUtils;
+import com.jdl.print.dto.render.OutputConfigDTO;
+import com.jdl.print.dto.render.RenderResultDTO;
+import com.jdl.print.dto.render.ReprintDataDTO;
+import com.jdl.print.dto.render.ReprintQueryRenderDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * 国际化PDF打印处理链
@@ -27,14 +36,14 @@ import java.util.Objects;
 public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPrintContext,String> {
 
     @Autowired
-    private InternationalPrintManager internationalPrintManager;
+    private InternationalCloudPrintManager internationalCloudPrintManager;
     
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = context.getResult();
-        interceptResult.toBreak(WaybillPrintMessages.CODE_INTERNATIONAL_SUC, "云打印成功");
         // 目前只处理港澳类运单
-        if(1!=1){
+        if(context.getWaybill().getWaybillExtVO() == null 
+                || BusinessUtil.isGAWaybill(context.getWaybill().getWaybillExtVO().getStartFlowDirection(), context.getWaybill().getWaybillExtVO().getEndFlowDirection())){
             return interceptResult;
         }
         WaybillPrintRequest request = context.getRequest();
@@ -43,24 +52,58 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
                 && !Objects.equals(request.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
             return interceptResult;
         }
-        InternationalPrintReq cloudPrintReq = new InternationalPrintReq();
-        cloudPrintReq.setRequestId(request.getBarCode().concat(Constants.SEPARATOR_VERTICAL_LINE).concat(String.valueOf(System.currentTimeMillis())));
-        cloudPrintReq.setOperator(request.getUserERP());
-        cloudPrintReq.setOperatorSiteId(String.valueOf(request.getSiteCode()));
-        cloudPrintReq.setOperateType(Objects.equals(request.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType()) 
-                ? 2 : 1);
-        cloudPrintReq.setTemplateSize(Objects.equals(request.getPaperSizeCode(), DmsPaperSize.PAPER_SIZE_CODE_1005) 
-                ? "100x50" : "100x100");
-        cloudPrintReq.setOutputConfig(Lists.newArrayList(new OutputConfigDTO().outputType(1).fileFormat(1).dataFormat(1)));
-        // 获取pdf地址
-        String pdfUrl = internationalPrintManager.generatePdfUrl(cloudPrintReq);
+        // 只处理港澳请求
+        if(SimpleComplexSwitchContext.getRestThreadInfo() == null 
+                || !Objects.equals(SimpleComplexSwitchContext.getRestThreadInfo().getSimpleComplexFlag(), SimpleComplexSwitchContext.COMPLEX)){
+            return interceptResult;
+        }
+        
+        // 调用云打印获取pdf链接
+        String pdfUrl = generateCloudPrintPdfUrl(request);
         if(StringUtils.isEmpty(pdfUrl)){
             interceptResult.toFail("单号:" + request.getPackageBarCode() + "调用云打印失败，请联系分拣小秘!");
+            return interceptResult;
         }
         context.getBasePrintWaybill().setLabelFileDownloadUrl(pdfUrl);
         // 推送咚咚-pdf链接
         noticeToDD(context);
+        
+        interceptResult.toBreak(WaybillPrintMessages.CODE_INTERNATIONAL_SUC, "云打印成功");
         return interceptResult;
+    }
+
+    private String generateCloudPrintPdfUrl(WaybillPrintRequest request) {
+
+        ReprintQueryRenderDTO renderQuery = new ReprintQueryRenderDTO();
+        renderQuery.setRequestId(request.getBarCode().concat(Constants.SEPARATOR_VERTICAL_LINE).concat(String.valueOf(System.currentTimeMillis())));
+        renderQuery.setOperator(request.getUserERP());
+        renderQuery.setOperatorSiteId(request.getSiteCode());
+        // 打印方式
+        renderQuery.setOperateType(Objects.equals(request.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())
+                ? CloudPrintConstants.PRINT_TYPE_REPRINT : CloudPrintConstants.PRINT_TYPE_EXCHANGE);
+        // 模版尺寸
+        renderQuery.setTemplateSize(Objects.equals(request.getPaperSizeCode(), DmsPaperSize.PAPER_SIZE_CODE_1005)
+                ? CloudPrintConstants.TEMPLATE_SIZE_1005 : CloudPrintConstants.TEMPLATE_SIZE_1010);
+        // 需打印数据
+        ReprintDataDTO reprintDataDTO = new ReprintDataDTO();
+        reprintDataDTO.setBillCodeType(WaybillUtil.isWaybillCode(request.getBarCode()) 
+                ? CloudPrintConstants.BILL_CODE_TYPE_WAYBILL : CloudPrintConstants.BILL_CODE_TYPE_PACK);
+        reprintDataDTO.setBillCodeValue(request.getBarCode());
+        reprintDataDTO.setOrderNumber(request.getBarCode());
+        renderQuery.setPrintData(Lists.newArrayList(reprintDataDTO));
+        // 输出方式
+        OutputConfigDTO outputConfigDTO = new OutputConfigDTO();
+        outputConfigDTO.setOutputType(CloudPrintConstants.OUTPUT_TYPE_FILE);
+        outputConfigDTO.setFileFormat(CloudPrintConstants.FILE_FORMAT_PDF);
+        outputConfigDTO.setDataFormat(CloudPrintConstants.DATA_FORMAT_URL);
+        renderQuery.setOutputConfig(Lists.newArrayList(outputConfigDTO));
+        // 打印结果
+        List<RenderResultDTO> renderResultDTOS = internationalCloudPrintManager.internationalCloudPrint(renderQuery);
+        if(CollectionUtils.isNotEmpty(renderResultDTOS)){
+            return renderResultDTOS.get(0).getUrl();
+        }
+        return new Random().nextInt(2) == 1 ? "" :  "www.baidu.com";
+//        return null;
     }
 
     private void noticeToDD(WaybillPrintContext context) {

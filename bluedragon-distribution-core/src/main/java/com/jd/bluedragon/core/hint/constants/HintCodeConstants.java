@@ -1040,4 +1040,11 @@ public class HintCodeConstants {
 
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+    
+    // 港澳单-审核中拦截提示语：此单报关审核中，请稍后尝试，通过后可正常操作!
+    public static String EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE = "40027";
+    // 港澳单-审核失败拦截提示语：此单报关审单失败，请操作逆向换单后退回!
+    public static String EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE = "40028";
+    //  港澳单-D类运单拦截提示语：此单为D类报关运单，禁止集包，请操作原包发货
+    public static String EXCEPTION_GA_D_SORT_INTERCEPT_TYPE = "40029";
 }
