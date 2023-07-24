@@ -105,7 +105,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       return retJdCResponse(jyFindGoodsService.findCurrentInventoryTask(request));
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("获取当前时刻找货任务服务失败");
+      res.toError("获取当前时刻找货任务服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
@@ -116,9 +116,9 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId", mState = {JProEnum.TP})
-  public JdCResponse<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
+  public JdCResponse<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
     String methodDesc = "JyFindGoodsGatewayServiceImpl.findInventoryTaskByBizId:查询找货任务服务：";
-    JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
+    JdCResponse<InventoryTaskRes> res = new JdCResponse<>();
     res.toSucceed();
     try{
       if(Objects.isNull(request)) {
@@ -129,13 +129,16 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
         log.info("{}start-request={}", methodDesc, JsonHelper.toJson(request));
       }
       checkBaseParam(request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPositionCode());
-
+      if(StringUtils.isBlank(request.getBizId())) {
+        res.toFail("bizId为空");
+        return res;
+      }
 
       return retJdCResponse(jyFindGoodsService.findInventoryTaskByBizId(request));
 
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("查询找货任务服务失败");
+      res.toError("查询找货任务服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
@@ -174,7 +177,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("查询找货任务列表服务失败");
+      res.toError("查询找货任务列表服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
@@ -207,7 +210,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("找货任务统计服务失败");
+      res.toError("找货任务统计服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
@@ -257,7 +260,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("找货任务上传照片服务失败");
+      res.toError("找货任务上传照片服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
@@ -300,7 +303,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
     }catch (JyBizException ex) {
       log.error("{}服务失败-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
-      res.toError("查询找货任务清单服务失败");
+      res.toError("查询找货任务清单服务失败：" + ex.getMessage());
       return res;
     }catch (Exception ex) {
       log.error("{}服务异常-request={}，errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);

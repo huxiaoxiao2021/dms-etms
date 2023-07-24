@@ -36,7 +36,8 @@ public class JyFindGoodsCacheService {
         return jimDbLock.lock(lockKey, JyFindGoodsCacheService.DEFAULT_VALUE, PHOTOGRAPH_LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
     public void unlockTaskByBizId(String bizId) {
-        jimDbLock.releaseLock(bizId, JyFindGoodsCacheService.DEFAULT_VALUE);
+        String lockKey = this.getLockKeyTaskByBizId(bizId);
+        jimDbLock.releaseLock(lockKey, JyFindGoodsCacheService.DEFAULT_VALUE);
     }
     public String getLockKeyTaskByBizId(String bizId) {
         return String.format(JyFindGoodsCacheService.PHOTOGRAPH_LOCK_PRE, bizId);

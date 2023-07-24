@@ -13,7 +13,7 @@ public interface JyFindGoodsService {
 
   InvokeResult<InventoryTaskDto> findCurrentInventoryTask(InventoryTaskQueryReq request);
 
-  InvokeResult<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request);
+  InvokeResult<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request);
 
   InvokeResult<InventoryTaskListQueryRes> findInventoryTaskListPage(InventoryTaskListQueryReq request);
 

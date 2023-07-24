@@ -12,7 +12,9 @@ import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -30,6 +32,7 @@ import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsCacheServi
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -44,6 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 @Slf4j
 @Service
@@ -60,6 +65,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private JyFindGoodsCacheService jyFindGoodsCacheService;
   @Autowired
   private PositionManager positionManager;
+  @Autowired
+  private UccPropertyConfiguration uccConfig;
+
 
   @Override
   public InvokeResult findGoodsScan(FindGoodsReq request) {
@@ -73,6 +81,9 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       throw new JyBizException("未找到对应的找货任务的待找包裹数据！");
     }
 
+    if(InventoryTaskStatusEnum.COMPLETE.getCode().equals(jyBizTaskFindGoods.getTaskStatus())) {
+      throw new JyBizException("任务已完成！");
+    }
     if (ObjectHelper.isNotNull(jyBizTaskFindGoodsDetail.getFindStatus()) &&
         InventoryDetailStatusEnum.EXCEPTION.getCode() == jyBizTaskFindGoodsDetail.getFindStatus()){
       JyBizTaskFindGoodsDetail detail =new JyBizTaskFindGoodsDetail();
@@ -102,6 +113,10 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     InvokeResult<InventoryTaskDto> res = new InvokeResult<>();
     String workGridKey = this.getWorkGridKeyByPositionCode(request.getPositionCode());
     JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findOngoingTaskByWorkGrid(workGridKey);
+    if(Objects.isNull(jyBizTaskFindGoods)) {
+      res.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
+      return res;
+    }
     InventoryTaskDto resData = this.convertInventoryTaskDto(jyBizTaskFindGoods);
     res.setData(resData);
     return res;
@@ -110,8 +125,8 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private InventoryTaskDto convertInventoryTaskDto(JyBizTaskFindGoods jyBizTaskFindGoods) {
     InventoryTaskDto dto = new InventoryTaskDto();
     dto.setBizId(jyBizTaskFindGoods.getBizId());
-    dto.setWaveStartTime(jyBizTaskFindGoods.getWaveStartTime());
-    dto.setWaveEndTime(jyBizTaskFindGoods.getWaveEndTime());
+    dto.setWaveStartTime(getPdaShowTime(jyBizTaskFindGoods.getWaveStartTime()));
+    dto.setWaveEndTime(getPdaShowTime(jyBizTaskFindGoods.getWaveEndTime()));
     dto.setCountdownSeconds(this.getCountdownSeconds(jyBizTaskFindGoods.getBizId(), jyBizTaskFindGoods.getWaveEndTime()));
     dto.setTaskStatus(jyBizTaskFindGoods.getTaskStatus());
     dto.setWaitFindCount(jyBizTaskFindGoods.getWaitFindCount());
@@ -123,6 +138,25 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       dto.setCompleteTime(jyBizTaskFindGoods.getUpdateTime().getTime());
     }
     return dto;
+  }
+
+  /**
+   * 入参： 12:13:14  出参：12:13
+   * @param hourMinuteSecondStr
+   * @return
+   */
+  private String getPdaShowTime(String hourMinuteSecondStr) {
+    if(StringUtils.isBlank(hourMinuteSecondStr)) {
+      return null;
+    }
+    String[] timeArr = hourMinuteSecondStr.split(Constants.SEPARATOR_COLON);
+    if(timeArr.length != 3) {
+      return null;
+    }
+    StringBuffer sb = new StringBuffer();
+    sb.append(timeArr[0]).append(Constants.SEPARATOR_COLON).append(timeArr[1]);
+    return sb.toString();
+
   }
 
   /**
@@ -186,14 +220,30 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyFindGoodsServiceImpl.findInventoryTaskByBizId", mState = {JProEnum.TP})
-  public InvokeResult<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
-    InvokeResult<InventoryTaskDto> res = new InvokeResult<>();
+  public InvokeResult<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request) {
+    InvokeResult<InventoryTaskRes> res = new InvokeResult<>();
     res.success();
+    InventoryTaskRes resData = new InventoryTaskRes();
+    resData.setClientAutoRefreshConfig(this.getClientAutoRefreshConfig());
 
     JyBizTaskFindGoods jyBizTaskFindGoods = jyBizTaskFindGoodsDao.findByBizId(request.getBizId());
-    InventoryTaskDto resData = this.convertInventoryTaskDto(jyBizTaskFindGoods);
+    if(Objects.isNull(jyBizTaskFindGoods)) {
+      res.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
+      return res;
+    }
+    InventoryTaskDto inventoryTaskDto = this.convertInventoryTaskDto(jyBizTaskFindGoods);
+    resData.setInventoryTaskDto(inventoryTaskDto);
     res.setData(resData);
     return res;
+  }
+
+  private ClientAutoRefreshConfig getClientAutoRefreshConfig() {
+    try {
+      return uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
+    }catch (Exception ex) {
+      log.error("找货刷新间隔获取错误，errMsg={}", ex.getMessage(), ex);
+    }
+    return null;
   }
 
   @Override
@@ -285,13 +335,18 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
         JyBizTaskFindGoods dbUpdate = new JyBizTaskFindGoods();
         dbUpdate.setUpdateTime(new Date());
         dbUpdate.setBizId(request.getBizId());
-        dbUpdate.setPhotoStatus(findGoods.getPhotoStatus().concat(request.getPhotoPosition().toString()));
+        if(StringUtils.isBlank(findGoods.getPhotoStatus())) {
+          dbUpdate.setPhotoStatus(request.getPhotoPosition().toString());
+        }else {
+          dbUpdate.setPhotoStatus(findGoods.getPhotoStatus().concat(request.getPhotoPosition().toString()));
+        }
         jyBizTaskFindGoodsDao.updatePhotoStatus(dbUpdate);
       }
     }catch (Exception ex) {
       log.error("{}服务异常；req={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
-      jyFindGoodsCacheService.unlockTaskByBizId(request.getBizId());
       throw new JyBizException("找货上传照片服务异常");
+    }finally {
+      jyFindGoodsCacheService.unlockTaskByBizId(request.getBizId());
     }
     return res;
   }
@@ -385,6 +440,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       if(InventoryListTypeEnum.FOUND.getCode() == request.getInventoryListType()) {
         detailDto.setFindStatus(detail.getFindStatus());
       }
+      inventoryDetailDtoList.add(detailDto);
     });
     resData.setInventoryDetailDtoList(inventoryDetailDtoList);
 

@@ -28,7 +28,7 @@ public interface JyFindGoodsGatewayService {
    * @param request
    * @return
    */
-  JdCResponse<InventoryTaskDto> findInventoryTaskByBizId(InventoryTaskQueryReq request);
+  JdCResponse<InventoryTaskRes> findInventoryTaskByBizId(InventoryTaskQueryReq request);
   /**
    * 查询任务列表（分页）
    * @return
