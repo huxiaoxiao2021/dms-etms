@@ -8,10 +8,13 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.RouterValidateData;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -28,6 +31,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
@@ -1746,6 +1750,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           comboardEntity.setInterceptFlag(true);
           comboardEntity.setInterceptTime(new Date());
           jyComboardService.save(comboardEntity);
+          //弱拦截提示
+          if (chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
+            throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,chainResp.getMessage());
+          }
         }
         throw new JyBizException(chainResp.getMessage());
       }
@@ -1900,6 +1908,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         comboardEntity.setInterceptFlag(true);
         comboardEntity.setInterceptTime(new Date());
         jyComboardService.save(comboardEntity);
+        //弱拦截提示
+        if (interceptResult.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
+          throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,interceptResult.getMessage());
+        }
         throw new JyBizException(interceptResult.getMessage());
       }
     }
