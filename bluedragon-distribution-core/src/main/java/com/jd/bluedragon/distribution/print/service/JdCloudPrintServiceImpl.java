@@ -60,6 +60,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	 * 设置默认字符集
 	 */
 	private static final String DEFAULT_CHARSET_STR = "UTF-8";
+	
+	private static final String PDF_CONTENT_TYPE = "application/pdf";
 	/**
 	 * 设置默认字符集
 	 */
@@ -240,7 +242,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			JdCloudPrintOutputMsgItem outputMsgItem = new JdCloudPrintOutputMsgItem();
 			
 			if(Boolean.TRUE.equals(jdCloudPrintRequest.getUseAmazon())) {
-				String url = dmswebAmazonS3ClientWrapper.putObjectThenGetOutNetUrl(inputStream, PDF_FOLDER, jssPdfPath, pdfFile.length(),DateHelper.THREE_MONTH_DAYS);
+				String url = dmswebAmazonS3ClientWrapper.putObjectThenGetOutNetUrl(inputStream, "", jssPdfPath,PDF_CONTENT_TYPE, pdfFile.length(),DateHelper.THREE_MONTH_DAYS);
 				outputMsgItem.setPath(jssPdfPath);
 				outputMsgItem.setUrl(url);
 			}else {

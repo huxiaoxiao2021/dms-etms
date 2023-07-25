@@ -568,10 +568,10 @@
     <bean id="pdfPrintAmazonConfig" class="com.jd.bluedragon.distribution.print.domain.JdCloudPrintOssConfig">
         <property name="accessKey" value = "${oss.dmsweb.accessKey}"/>
         <property name="secretKey" value = "${oss.dmsweb.secretKey}"/>
-        <property name="endpoint" value = "${oss.dmsweb.endpoint}"/>
+        <property name="endpoint" value = "${oss.dmsweb.endpointHttps}"/>
         <property name="bucket" value = "${oss.dmsweb.bucketName}"/>
         <property name="socketTimeout" value = "${oss.dmsweb.socketTimeout}"/>
-    </bean>	
+    </bean> 
 	<bean id="pdfOutJssClientConfig" class="com.jd.jss.client.ClientConfig">
         <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
         <property name="socketTimeout" value="${print.out.config.jss.socketTimeout}"/>

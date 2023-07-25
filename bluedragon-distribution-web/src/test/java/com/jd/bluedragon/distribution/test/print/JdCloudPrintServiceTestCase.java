@@ -106,7 +106,7 @@ public class JdCloudPrintServiceTestCase {
     @Autowired
     @Qualifier("localPrintService")
     private JdCloudPrintService localPrintService;
-    private Boolean useAmazon;
+    private Boolean useAmazon = true;
     @Test
     public void testUseNewTemplate() throws Exception{
     	//http://dmswebtest.360buy.com/sysconfig/list?pageNo=1&pageSize=10&configName=print.dmsSiteCodes.useNewTemplate
@@ -125,12 +125,12 @@ public class JdCloudPrintServiceTestCase {
     	req.setTemplateVer("1");
     	req.setOrderNum("56289554274");
     	JdResult<List<JdCloudPrintResponse>> result = jdCloudPrintService.jdCloudPrint(req);
-    	log.warn("wms_mjn_pickingnote1:"+JsonHelper.toJson(result));
     	req.setTemplate("dms-b2b-m");
-    	result = localPrintService.jdCloudPrint(req);
-    	log.warn("dms-b2b-m:"+JsonHelper.toJson(result));
+    	JdResult<List<JdCloudPrintResponse>> result1 = localPrintService.jdCloudPrint(req);
+    	log.warn("jdCloudPrintService:dms-b2b-m:"+JsonHelper.toJson(result));
+    	log.warn("localPrintService:dms-b2b-m:"+JsonHelper.toJson(result1));
     }
-    @Test
+//    @Test
     public void testUseNewTemplateNew() throws Exception{
     	useAmazon = true;
     	testUseNewTemplate();
