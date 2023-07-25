@@ -535,7 +535,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     jyBizTaskFindGoods.setUpdateUserErp(findGoodsTaskDto.getUpdateUserErp());
     jyBizTaskFindGoods.setUpdateUserName(findGoodsTaskDto.getUpdateUserName());
     jyBizTaskFindGoods.setUpdateTime(new Date());
-    int rs =jyBizTaskFindGoodsDao.updateByPrimaryKey(jyBizTaskFindGoods);
+    int rs =jyBizTaskFindGoodsDao.updateByPrimaryKeySelective(jyBizTaskFindGoods);
     if (rs > 0){
       return true;
     }
