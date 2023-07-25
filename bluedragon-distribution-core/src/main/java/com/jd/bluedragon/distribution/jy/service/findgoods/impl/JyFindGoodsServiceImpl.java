@@ -474,7 +474,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   public FindGoodsTaskDto findTaskByBizId(String findGoodsTaskBizId) {
     JyBizTaskFindGoods jyBizTaskFindGoods= jyBizTaskFindGoodsDao.findByBizId(findGoodsTaskBizId);
     if (ObjectHelper.isNotNull(jyBizTaskFindGoods)){
-      return BeanUtils.copy(findGoodsTaskBizId,FindGoodsTaskDto.class);
+      return BeanUtils.copy(jyBizTaskFindGoods,FindGoodsTaskDto.class);
     }
     return null;
   }
