@@ -75,7 +75,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 				result.toFail("扫描的网格码无效！");
 				return result;
 			}
-			query.setTaskRefGridKey(positionRecord.getData().getRefGridKey());
+			query.setTaskRefGridKey(positionRecord.getData().getRefWorkGridKey());
 		}
 		Map<Integer,JyWorkGridManagerCountData> statusCount = new HashMap<>();
 		List<JyWorkGridManagerData> dataList = new ArrayList<>();
