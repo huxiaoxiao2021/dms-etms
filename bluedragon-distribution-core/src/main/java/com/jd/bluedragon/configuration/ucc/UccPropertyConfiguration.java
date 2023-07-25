@@ -3726,12 +3726,4 @@ public class UccPropertyConfiguration {
         this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
     }
 
-
-    public int getAssignExpTaskQuantityLimit() {
-        return assignExpTaskQuantityLimit;
-    }
-
-    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
-        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
-    }
 }
