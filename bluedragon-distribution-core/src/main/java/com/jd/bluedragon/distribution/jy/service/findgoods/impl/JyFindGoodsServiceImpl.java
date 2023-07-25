@@ -308,7 +308,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     JyBizTaskFindGoodsQueryDto dbQuery = new JyBizTaskFindGoodsQueryDto();
     dbQuery.setWorkGridKey(workGridKey);
     dbQuery.setCreateTimeBegin(DateHelper.getZeroFromDay(new Date(), request.getStatisticsDays()));
-
+    dbQuery.setTaskStatus(InventoryTaskStatusEnum.COMPLETE.getCode());
     JyBizTaskFindGoodsStatisticsDto statisticsDto = jyBizTaskFindGoodsDao.taskStatistics(dbQuery);
 
     InventoryTaskStatisticsRes resData = new InventoryTaskStatisticsRes();
