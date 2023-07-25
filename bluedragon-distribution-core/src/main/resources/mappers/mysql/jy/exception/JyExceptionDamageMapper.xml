@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
+    <result column="save_type" property="saveType" jdbcType="BIT" />
+    <result column="weight_repair_before" property="weightRepairBefore" jdbcType="DECIMAL" />
+    <result column="weight_repair_after" property="weightRepairAfter" jdbcType="DECIMAL" />
+    <result column="damage_type" property="damageType" jdbcType="BIT" />
+    <result column="repair_type" property="repairType" jdbcType="BIT" />
+    <result column="feed_back_type" property="feedBackType" jdbcType="BIT" />
+    <result column="create_erp" property="createErp" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_erp" property="updateErp" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, site_code, site_name, biz_id, package_code, save_type, weight_repair_before, 
+    weight_repair_after, damage_type, repair_type,
+    feed_back_type, create_erp, create_time, update_erp, update_time, ts, yn
+  </sql>
+  <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from jy_exception_damage
+    where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1
+  </select>
+
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity" >
+    insert into jy_exception_damage
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="bizId != null" >
+        biz_id,
+      </if>
+      <if test="packageCode != null" >
+        package_code,
+      </if>
+      <if test="saveType != null" >
+        save_type,
+      </if>
+      <if test="weightRepairBefore != null" >
+        weight_repair_before,
+      </if>
+      <if test="weightRepairAfter != null" >
+        weight_repair_after,
+      </if>
+      <if test="damageType != null" >
+        damage_type,
+      </if>
+      <if test="repairType != null" >
+        repair_type,
+      </if>
+      <if test="feedBackType != null" >
+        feed_back_type,
+      </if>
+      <if test="createErp != null" >
+        create_erp,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateErp != null" >
+        update_erp,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null" >
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null" >
+        #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="saveType != null" >
+        #{saveType,jdbcType=BIT},
+      </if>
+      <if test="weightRepairBefore != null" >
+        #{weightRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="weightRepairAfter != null" >
+        #{weightRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="damageType != null" >
+        #{damageType,jdbcType=BIT},
+      </if>
+      <if test="repairType != null" >
+        #{repairType,jdbcType=BIT},
+      </if>
+      <if test="feedBackType != null" >
+        #{feedBackType,jdbcType=BIT},
+      </if>
+      <if test="createErp != null" >
+        #{createErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateErp != null" >
+        #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity" >
+    update jy_exception_damage
+    <set >
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null" >
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null" >
+        package_code = #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="saveType != null" >
+        save_type = #{saveType,jdbcType=BIT},
+      </if>
+      <if test="weightRepairBefore != null" >
+        weight_repair_before = #{weightRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="weightRepairAfter != null" >
+        weight_repair_after = #{weightRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="damageType != null" >
+        damage_type = #{damageType,jdbcType=BIT},
+      </if>
+      <if test="repairType != null" >
+        repair_type = #{repairType,jdbcType=BIT},
+      </if>
+      <if test="feedBackType != null" >
+        feed_back_type = #{feedBackType,jdbcType=BIT},
+      </if>
+      <if test="createErp != null" >
+        create_erp = #{createErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateErp != null" >
+        update_erp = #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+    </set>
+    where biz_id = #{bizId,jdbcType=VARCHAR}
+  </update>
+
+
+  <select id="getTaskListOfDamage" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_exception_damage
+    where biz_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+</mapper>
