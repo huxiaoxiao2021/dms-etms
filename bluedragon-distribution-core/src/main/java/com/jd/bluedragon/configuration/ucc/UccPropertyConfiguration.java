@@ -3725,5 +3725,4 @@ public class UccPropertyConfiguration {
     public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
         this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
     }
-
 }

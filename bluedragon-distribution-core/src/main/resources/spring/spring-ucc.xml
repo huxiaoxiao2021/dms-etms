@@ -299,11 +299,6 @@
 		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
 		<property name="batchQueryEndSiteLimit" value="${batchQueryEndSiteLimit:30}"/>
 		<property name="vehicleIntegralPriorityFraction" value="${vehicleIntegralPriorityFraction:200}"/>
-		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
-		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
-		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
-
-
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -603,19 +598,11 @@
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimit</value>
 				<value>uccPropertyConfiguration.beforeSealVehicleLoadRateLimitCheckSwitch</value>
-				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
-				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.batchGenerateSendCodeMaxNum</value>
 				<value>uccPropertyConfiguration.exScrapApproveLevelCountLimit</value>
 				<value>uccPropertyConfiguration.completeExpDayNumLimit</value>
 				<value>uccPropertyConfiguration.batchQueryEndSiteLimit</value>
 				<value>uccPropertyConfiguration.vehicleIntegralPriorityFraction</value>
-				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
-				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
-				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
-				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
-
-
 			</list>
 		</property>
 	</bean>
