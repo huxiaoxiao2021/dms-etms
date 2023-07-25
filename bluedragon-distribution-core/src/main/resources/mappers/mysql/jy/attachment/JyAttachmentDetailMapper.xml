@@ -141,6 +141,12 @@
             yn = 1
             and biz_id = #{bizId}
             and site_code = #{siteCode}
+            <if test="bizType != null">
+                and biz_type = #{bizType}
+            </if>
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
         </where>
     </update>
 
