@@ -340,11 +340,8 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
         res.error("该任务已结束");
         return res;
       }
-      //图片数量校验
-      res = this.checkPhotoNum(request);
-      if (!res.codeSuccess()) {
-        return res;
-      }
+      //图片删除
+      this.deleteByBizIdAndSiteCode(request);
       //照片存储逻辑
       this.savePhoto(request);
 
@@ -394,21 +391,14 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
    * @param request
    * @return
    */
-  private InvokeResult<Void> checkPhotoNum(InventoryTaskPhotographReq request) {
-    InvokeResult<Void> res = new InvokeResult<>();
-    res.success();
-
-    JyAttachmentDetailQuery condition = new JyAttachmentDetailQuery();
+  private void deleteByBizIdAndSiteCode(InventoryTaskPhotographReq request) {
+    JyAttachmentDetailEntity condition = new JyAttachmentDetailEntity();
     condition.setBizId(request.getBizId());
     condition.setSiteCode(request.getCurrentOperate().getSiteCode());
     condition.setBizType(FindGoodsConstants.PHOTOGRAPH_TYPE);
     condition.setBizSubType(request.getPhotoPosition().toString());
-    Integer count = jyAttachmentDetailDao.countByCondition(condition);
-    if(count + request.getPhotoUrls().size() > FindGoodsConstants.PHOTOGRAPH_MAX_NUM) {
-      res.error(String.format("该位置上传图片最大支持%s个，已上传%s个，请确认当前上传数量", FindGoodsConstants.PHOTOGRAPH_MAX_NUM, count));
-      return res;
-    }
-    return res;
+    condition.setUpdateUserErp(request.getUser().getUserErp());
+    jyAttachmentDetailDao.delete(condition);
   }
 
 
