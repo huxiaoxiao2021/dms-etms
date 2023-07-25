@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods.impl;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FINDGOODS_TASK_DATA_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_FINDGOODS_TASK_DATA_MESSAGE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HASBEEN_SCAN;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -39,6 +41,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.common.utils.ObjectHelper;
 import com.jdl.basic.common.utils.Result;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,6 +50,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
@@ -67,34 +72,46 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   private PositionManager positionManager;
   @Autowired
   private UccPropertyConfiguration uccConfig;
+  @Autowired
+  JimDbLock jimDbLock;
 
 
   @Override
+  @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
   public InvokeResult findGoodsScan(FindGoodsReq request) {
-    JyBizTaskFindGoods jyBizTaskFindGoods =jyBizTaskFindGoodsDao.findByBizId(request.getBizId());
-    if (ObjectHelper.isEmpty(jyBizTaskFindGoods)){
+    FindGoodsTaskDto findGoodsTaskDto =findTaskByBizId(request.getBizId());
+    if (ObjectHelper.isEmpty(findGoodsTaskDto)){
       throw new JyBizException("未找到对应的找货任务！");
+    }
+    if(InventoryTaskStatusEnum.COMPLETE.getCode().equals(findGoodsTaskDto.getTaskStatus())) {
+      throw new JyBizException("任务已完成！");
     }
     JyBizTaskFindGoodsDetail query = assembleFindGoodsDetailQuery(request);
     JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =jyBizTaskFindGoodsDetailDao.findPackage(query);
     if (ObjectHelper.isEmpty(jyBizTaskFindGoodsDetail)){
       throw new JyBizException("未找到对应的找货任务的待找包裹数据！");
     }
-
-    if(InventoryTaskStatusEnum.COMPLETE.getCode().equals(jyBizTaskFindGoods.getTaskStatus())) {
-      throw new JyBizException("任务已完成！");
-    }
-    if (ObjectHelper.isNotNull(jyBizTaskFindGoodsDetail.getFindStatus()) &&
-        InventoryDetailStatusEnum.EXCEPTION.getCode() == jyBizTaskFindGoodsDetail.getFindStatus()){
-      JyBizTaskFindGoodsDetail detail =new JyBizTaskFindGoodsDetail();
-      detail.setId(jyBizTaskFindGoodsDetail.getId());
-      detail.setFindStatus(InventoryDetailStatusEnum.FIND_GOOD.getCode());
-      detail.setFindUserErp(request.getUser().getUserErp());
-      detail.setFindUserName(request.getUser().getUserName());
-      detail.setUpdateUserErp(request.getUser().getUserErp());
-      detail.setUpdateUserName(request.getUser().getUserName());
-      detail.setUpdateTime(new Date());
-      jyBizTaskFindGoodsDetailDao.updateByPrimaryKeySelective(detail);
+    if (ObjectHelper.isNotNull(jyBizTaskFindGoodsDetail.getFindStatus()) && InventoryDetailStatusEnum.EXCEPTION.getCode() == jyBizTaskFindGoodsDetail.getFindStatus()){
+      String findGoodsTaskLock = String.format(Constants.JY_FINDGOODS_TASK_LOCK_PREFIX, request.getBizId());
+      if (!jimDbLock.lock(findGoodsTaskLock, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+        throw new JyBizException("请求繁忙,请稍后再试！");
+      }
+      try {
+        JyBizTaskFindGoodsDetail detail =new JyBizTaskFindGoodsDetail();
+        detail.setId(jyBizTaskFindGoodsDetail.getId());
+        detail.setFindStatus(InventoryDetailStatusEnum.FIND_GOOD.getCode());
+        detail.setFindUserErp(request.getUser().getUserErp());
+        detail.setFindUserName(request.getUser().getUserName());
+        detail.setUpdateUserErp(request.getUser().getUserErp());
+        detail.setUpdateUserName(request.getUser().getUserName());
+        detail.setUpdateTime(new Date());
+        jyBizTaskFindGoodsDetailDao.updateByPrimaryKeySelective(detail);
+        findGoodsTaskDto.setUpdateUserErp(request.getUser().getUserErp());
+        findGoodsTaskDto.setUpdateUserName(request.getUser().getUserName());
+        updateTaskStatistics(findGoodsTaskDto);
+      } finally {
+        jimDbLock.releaseLock(findGoodsTaskLock,request.getRequestId());
+      }
       return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
     return new InvokeResult(PACKAGE_HASBEEN_SCAN,PACKAGE_HASBEEN_SCAN_MESSAGE);
@@ -516,8 +533,41 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   @Override
   public boolean updateTaskStatistics(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoodsDetailQueryDto shouldFindParams =assembleShouldFindParams(findGoodsTaskDto);
+    Integer shouldFindCount =jyBizTaskFindGoodsDetailDao.countInventoryDetail(shouldFindParams);
+    JyBizTaskFindGoodsDetailQueryDto haveFindParams =assembleHaveFindParams(findGoodsTaskDto);
+    Integer haveFindCount =jyBizTaskFindGoodsDetailDao.countInventoryDetail(haveFindParams);
+
+    JyBizTaskFindGoods jyBizTaskFindGoods =new JyBizTaskFindGoods();
+    jyBizTaskFindGoods.setId(findGoodsTaskDto.getId());
+    jyBizTaskFindGoods.setWaitFindCount(null == shouldFindCount?Constants.NUMBER_ZERO:shouldFindCount);
+    jyBizTaskFindGoods.setHaveFindCount(null == haveFindCount?Constants.NUMBER_ZERO:haveFindCount);
+    jyBizTaskFindGoods.setUpdateUserErp(findGoodsTaskDto.getUpdateUserErp());
+    jyBizTaskFindGoods.setUpdateUserName(findGoodsTaskDto.getUpdateUserName());
+    jyBizTaskFindGoods.setUpdateTime(new Date());
+    int rs =jyBizTaskFindGoodsDao.updateByPrimaryKey(jyBizTaskFindGoods);
+    if (rs > 0){
+      return true;
+    }
     return false;
   }
+
+  private JyBizTaskFindGoodsDetailQueryDto assembleHaveFindParams(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoodsDetailQueryDto dto =new JyBizTaskFindGoodsDetailQueryDto();
+    dto.setFindGoodsTaskBizId(findGoodsTaskDto.getBizId());
+    List<Integer> statusList =new ArrayList<>();
+    statusList.add(InventoryDetailStatusEnum.FIND_GOOD.getCode());
+    statusList.add(InventoryDetailStatusEnum.PDA_REAL_OPERATE.getCode());
+    dto.setStatusList(statusList);
+    return dto;
+  }
+
+  private JyBizTaskFindGoodsDetailQueryDto assembleShouldFindParams(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoodsDetailQueryDto dto =new JyBizTaskFindGoodsDetailQueryDto();
+    dto.setFindGoodsTaskBizId(findGoodsTaskDto.getBizId());
+    return dto;
+  }
+
 
   @Override
   public boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto,
