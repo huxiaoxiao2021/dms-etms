@@ -2,7 +2,7 @@ package com.jd.bluedragon.core.jsf.degrade.route;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.HystrixConstants;
-import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ducc.HystrixRouteDuccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManagerImpl;
@@ -34,7 +34,7 @@ public class CommandQueryRecommendRoute extends HystrixCommand<CommonDto<Recomme
     private Date operateTime;
     private RouteProductEnum routeProduct;
 
-    public CommandQueryRecommendRoute(String startNode, String endNodeCode, Date operateTime, RouteProductEnum routeProduct,RouteComputeUtil routeComputeUtil,HystrixRouteUccPropertyConfiguration configuration) {
+    public CommandQueryRecommendRoute(String startNode, String endNodeCode, Date operateTime, RouteProductEnum routeProduct,RouteComputeUtil routeComputeUtil,HystrixRouteDuccPropertyConfiguration configuration) {
         super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(HystrixConstants.PRINT_HYSTRIX_COMMAND_GROUPKEY))//如账户服务定义一个group key，订单服务定义另一个group key。
                 .andCommandKey(HystrixCommandKey.Factory.asKey("commandQueryRecommendRoute"))//具体命令方法的标识名称，常用于对该命令进行动态参数设置。
                 .andCommandPropertiesDefaults(getHystrixCommandProperties(configuration))
@@ -72,7 +72,7 @@ public class CommandQueryRecommendRoute extends HystrixCommand<CommonDto<Recomme
         return null;
     }
 
-    private static HystrixCommandProperties.Setter getHystrixCommandProperties(HystrixRouteUccPropertyConfiguration configuration){
+    private static HystrixCommandProperties.Setter getHystrixCommandProperties(HystrixRouteDuccPropertyConfiguration configuration){
        return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
                 .withExecutionIsolationThreadInterruptOnTimeout(true)
                 .withExecutionTimeoutEnabled(true)
@@ -87,7 +87,7 @@ public class CommandQueryRecommendRoute extends HystrixCommand<CommonDto<Recomme
                .withRequestLogEnabled(true);//此属性指示是否应将HystrixCommand执行和事件记录到HystrixRequestLog。
     }
 
-    private static HystrixThreadPoolProperties.Setter getHystrixThreadPoolProperties(HystrixRouteUccPropertyConfiguration configuration){
+    private static HystrixThreadPoolProperties.Setter getHystrixThreadPoolProperties(HystrixRouteDuccPropertyConfiguration configuration){
         return HystrixThreadPoolProperties.Setter().withCoreSize(4).withMaximumSize(configuration.getMaximumSize())
                 .withMaxQueueSize(10)//-1时队列使用SynchronousQueue，不支持动态设置
                 .withQueueSizeRejectionThreshold(10)// 队列大小拒绝阈值 支持动态设置
